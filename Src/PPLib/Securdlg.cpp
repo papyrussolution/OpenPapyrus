@@ -19,13 +19,18 @@ int UpdatePassword()
 		ObjRts.GetAccessRestriction(accsr);
 	else
 		spack.Rights.GetAccessRestriction(accsr);
-	if(PasswordDialog(0, password, sizeof(password), accsr.PwMinLen) > 0) {
-		memcpy(spack.Secur.Password, password, sizeof(spack.Secur.Password));
-		THROW(p_ref->EditSecur(PPOBJ_USR, user_id, &spack, 0, 1));
-		PPMessage(mfInfo|mfOK, PPINF_PASSWORDUPDATED, 0);
+	{
+		PasswordDialogParam param;
+		param.MinLen = accsr.PwMinLen;
+		param.Flags = 0;
+		if(PasswordDialog2(0, password, sizeof(password), param) > 0) {
+			memcpy(spack.Secur.Password, password, sizeof(spack.Secur.Password));
+			THROW(p_ref->EditSecur(PPOBJ_USR, user_id, &spack, 0, 1));
+			PPMessage(mfInfo|mfOK, PPINF_PASSWORDUPDATED, 0);
+		}
+		else
+			ok = -1;
 	}
-	else
-		ok = -1;
 	CATCHZOKPPERR
 	return ok;
 }
@@ -37,6 +42,10 @@ public:
 	{
 		Password[0] = 0;
 	}
+	~SecurDialog()
+	{
+		SObfuscateBuffer(Password, sizeof(Password));
+	}
 	DECL_DIALOG_SETDTS()
 	{
 		RVALUEPTR(Data, pData);
@@ -46,46 +55,48 @@ public:
 		setCtrlData(CTL_USRGRP_NAME, p_secur->Name);
 		setCtrlData(CTL_USRGRP_ID, &ObjID);
 		disableCtrl(CTL_USRGRP_ID, (!PPMaster || ObjID));
-		if(ObjType == PPOBJ_USR) {
-			disableCtrl(CTL_USRGRP_NAME, p_secur->ID == PPUSR_MASTER);
-			setCtrlData(CTL_USR_SYMB, p_secur->Symb);
-			memzero(Password, sizeof(Password));
-			memcpy(Password, p_secur->Password, sizeof(p_secur->Password));
-			SetupPPObjCombo(this, CTLSEL_USR_GRP,    PPOBJ_USRGRP, p_secur->ParentID, OLW_CANINSERT);
-			SetupPPObjCombo(this, CTLSEL_USR_PERSON, PPOBJ_PERSON, p_secur->PersonID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPL));
-			SetupPPObjCombo(this, CTLSEL_USR_UER,    PPOBJ_USREXCLRIGHTS, p_secur->UerID, 0, 0);
-			enableCommand(cmCfgConfig, (p_secur->Flags & USRF_INHCFG) ? ((v |= 1), 0) : 1);
-			enableCommand(cmCfgRights, (p_secur->Flags & USRF_INHRIGHTS) ? ((v |= 2), 0) : 1);
-			setCtrlData(CTL_USR_FLAGS, &v);
-			setCtrlData(CTL_USR_EXPIRY, &p_secur->ExpiryDate);
-			{
-				StrAssocArray list;
-				long   desktop_surr_id = 0;
-				PPCommandFolder::CommandGroupList::Entry entry;
-				PPCommandFolder::GetCommandGroupList(0, cmdgrpcDesktop, DesktopList);
-				if(!!Data.PrivateDesktopUUID) {
-					uint idx = 0;
-					if(DesktopList.SearchByUuid(Data.PrivateDesktopUUID, &idx)) {
-						if(DesktopList.Get(idx, entry))
-							desktop_surr_id = entry.SurrID;
+		switch(ObjType) {
+			case PPOBJ_USR:
+				disableCtrl(CTL_USRGRP_NAME, p_secur->ID == PPUSR_MASTER);
+				setCtrlData(CTL_USR_SYMB, p_secur->Symb);
+				memzero(Password, sizeof(Password));
+				memcpy(Password, p_secur->Password, sizeof(p_secur->Password));
+				SetupPPObjCombo(this, CTLSEL_USR_GRP,    PPOBJ_USRGRP, p_secur->ParentID, OLW_CANINSERT);
+				SetupPPObjCombo(this, CTLSEL_USR_PERSON, PPOBJ_PERSON, p_secur->PersonID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPL));
+				SetupPPObjCombo(this, CTLSEL_USR_UER,    PPOBJ_USREXCLRIGHTS, p_secur->UerID, 0, 0);
+				enableCommand(cmCfgConfig, (p_secur->Flags & USRF_INHCFG) ? ((v |= 1), 0) : 1);
+				enableCommand(cmCfgRights, (p_secur->Flags & USRF_INHRIGHTS) ? ((v |= 2), 0) : 1);
+				setCtrlData(CTL_USR_FLAGS, &v);
+				setCtrlData(CTL_USR_EXPIRY, &p_secur->ExpiryDate);
+				{
+					StrAssocArray list;
+					long   desktop_surr_id = 0;
+					PPCommandFolder::CommandGroupList::Entry entry;
+					PPCommandFolder::GetCommandGroupList(0, cmdgrpcDesktop, DesktopList);
+					if(!!Data.PrivateDesktopUUID) {
+						uint idx = 0;
+						if(DesktopList.SearchByUuid(Data.PrivateDesktopUUID, &idx)) {
+							if(DesktopList.Get(idx, entry))
+								desktop_surr_id = entry.SurrID;
+						}
 					}
+					DesktopList.GetStrAssocList(list);
+					SetupStrAssocCombo(this, CTLSEL_USR_PDESKTOP, list, desktop_surr_id, 0);
 				}
-				DesktopList.GetStrAssocList(list);
-				SetupStrAssocCombo(this, CTLSEL_USR_PDESKTOP, list, desktop_surr_id, 0);
-			}
-		}
-		else if(ObjType == PPOBJ_USRGRP) {
-			setCtrlData(CTL_USRGRP_SYMB, p_secur->Symb); 
-		}
-		else if(ObjType == PPOBJ_USREXCLRIGHTS) {
-			AddClusterAssoc(CTL_USR_UERFLAGS, 0, PPEXCLRT_OBJDBDIVACCEPT);
-			AddClusterAssoc(CTL_USR_UERFLAGS, 1, PPEXCLRT_CSESSWROFF);
-			AddClusterAssoc(CTL_USR_UERFLAGS, 2, PPEXCLRT_CSESSWROFFROLLBACK);
-			AddClusterAssoc(CTL_USR_UERFLAGS, 3, PPEXCLRT_INVWROFF);
-			AddClusterAssoc(CTL_USR_UERFLAGS, 4, PPEXCLRT_INVWROFFROLLBACK);
-			AddClusterAssoc(CTL_USR_UERFLAGS, 5, PPEXCLRT_DRAFTWROFF);
-			AddClusterAssoc(CTL_USR_UERFLAGS, 6, PPEXCLRT_DRAFTWROFFROLLBACK);
-			SetClusterData(CTL_USR_UERFLAGS, p_secur->UerFlags);
+				break;
+			case PPOBJ_USRGRP:
+				setCtrlData(CTL_USRGRP_SYMB, p_secur->Symb); 
+				break;
+			case PPOBJ_USREXCLRIGHTS:
+				AddClusterAssoc(CTL_USR_UERFLAGS, 0, PPEXCLRT_OBJDBDIVACCEPT);
+				AddClusterAssoc(CTL_USR_UERFLAGS, 1, PPEXCLRT_CSESSWROFF);
+				AddClusterAssoc(CTL_USR_UERFLAGS, 2, PPEXCLRT_CSESSWROFFROLLBACK);
+				AddClusterAssoc(CTL_USR_UERFLAGS, 3, PPEXCLRT_INVWROFF);
+				AddClusterAssoc(CTL_USR_UERFLAGS, 4, PPEXCLRT_INVWROFFROLLBACK);
+				AddClusterAssoc(CTL_USR_UERFLAGS, 5, PPEXCLRT_DRAFTWROFF);
+				AddClusterAssoc(CTL_USR_UERFLAGS, 6, PPEXCLRT_DRAFTWROFFROLLBACK);
+				SetClusterData(CTL_USR_UERFLAGS, p_secur->UerFlags);
+				break;
 		}
 		return ok;
 	}
@@ -97,27 +108,29 @@ public:
 		getCtrlData(CTL_USRGRP_NAME, p_secur->Name);
 		getCtrlData(CTL_USRGRP_ID,   &p_secur->ID);
 		ObjID = p_secur->ID;
-		if(ObjType == PPOBJ_USR) {
-			getCtrlData(CTL_USR_SYMB, p_secur->Symb);
-			memcpy(p_secur->Password, Password, sizeof(p_secur->Password));
-			getCtrlData(CTLSEL_USR_GRP, &p_secur->ParentID);
-			getCtrlData(CTLSEL_USR_PERSON, &p_secur->PersonID);
-			getCtrlData(CTLSEL_USR_UER, &p_secur->UerID);
-			getCtrlData(CTL_USR_FLAGS, &v);
-			SETFLAG(p_secur->Flags, USRF_INHCFG,    v & 1);
-			SETFLAG(p_secur->Flags, USRF_INHRIGHTS, v & 2);
-			getCtrlData(CTL_USR_EXPIRY, &p_secur->ExpiryDate);
-			{
-				long   desktop_surr_id = 0;
-				getCtrlData(CTLSEL_USR_PDESKTOP, &desktop_surr_id);
-				Data.PrivateDesktopUUID = DesktopList.GetUuidBySurrId(desktop_surr_id);
-			}
-		}
-		else if(ObjType == PPOBJ_USRGRP) {
-			getCtrlData(CTL_USRGRP_SYMB, p_secur->Symb); 
-		}
-		else if(ObjType == PPOBJ_USREXCLRIGHTS) {
-			GetClusterData(CTL_USR_UERFLAGS, &p_secur->UerFlags);
+		switch(ObjType) {
+			case PPOBJ_USR:
+				getCtrlData(CTL_USR_SYMB, p_secur->Symb);
+				memcpy(p_secur->Password, Password, sizeof(p_secur->Password));
+				getCtrlData(CTLSEL_USR_GRP, &p_secur->ParentID);
+				getCtrlData(CTLSEL_USR_PERSON, &p_secur->PersonID);
+				getCtrlData(CTLSEL_USR_UER, &p_secur->UerID);
+				getCtrlData(CTL_USR_FLAGS, &v);
+				SETFLAG(p_secur->Flags, USRF_INHCFG,    v & 1);
+				SETFLAG(p_secur->Flags, USRF_INHRIGHTS, v & 2);
+				getCtrlData(CTL_USR_EXPIRY, &p_secur->ExpiryDate);
+				{
+					long   desktop_surr_id = 0;
+					getCtrlData(CTLSEL_USR_PDESKTOP, &desktop_surr_id);
+					Data.PrivateDesktopUUID = DesktopList.GetUuidBySurrId(desktop_surr_id);
+				}
+				break;
+			case PPOBJ_USRGRP:
+				getCtrlData(CTL_USRGRP_SYMB, p_secur->Symb); 
+				break;
+			case PPOBJ_USREXCLRIGHTS:
+				GetClusterData(CTL_USR_UERFLAGS, &p_secur->UerFlags);
+				break;
 		}
 		ASSIGN_PTR(pData, Data);
 		return ok;
@@ -135,8 +148,10 @@ private:
 void SecurDialog::getPassword()
 {
 	PPAccessRestriction accsr;
-	const size_t minlen = Data.Rights.IsEmpty() ? ObjRts.GetAccessRestriction(accsr).PwMinLen : Data.Rights.GetAccessRestriction(accsr).PwMinLen;
-	PasswordDialog(0, Password, sizeof(Password), minlen);
+	PasswordDialogParam param;
+	param.MinLen = Data.Rights.IsEmpty() ? ObjRts.GetAccessRestriction(accsr).PwMinLen : Data.Rights.GetAccessRestriction(accsr).PwMinLen;
+	param.Flags = 0;
+	PasswordDialog2(0, Password, sizeof(Password), param);
 }
 
 void SecurDialog::getPaths()

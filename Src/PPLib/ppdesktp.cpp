@@ -4392,6 +4392,11 @@ bool FASTCALL PPSecretSegmentPool::IsEq(const PPSecretSegmentPool & rS) const
 	return TSCollection_IsEq(this, &rS);
 }
 
+bool PPSecretSegmentPool::GetText(uint textP, SString & rBuf) const
+{
+	return Sg.GetS(textP, rBuf);
+}
+
 static const uint64 SecretSegmentPool_Signature = 0xA0C7E0A913D9C152ULL;
 
 int PPSecretSegmentPool::DescryptSegments(const char * pMasterPassword, size_t masterPasswordLen)
@@ -4401,7 +4406,7 @@ int PPSecretSegmentPool::DescryptSegments(const char * pMasterPassword, size_t m
 	SString temp_buf;
 	SJson * p_js = 0;
 	THROW(P_Vault); // @todo @err
-	THROW(P_Vault->CheckInPrimaryPassword(pMasterPassword, masterPasswordLen));
+	THROW_SL(P_Vault->CheckInPrimaryPassword(pMasterPassword, masterPasswordLen));
 	THROW(P_Vault->GetKeyRef()); // @todo @err
 	{
 		const  uint64 key_ref = P_Vault->GetKeyRef();
@@ -4696,12 +4701,38 @@ int TFacadeWindow::LoadSecrets(bool interactive)
 	int    ok = -1;
 	SString file_path;
 	if(GetSecretsFilePath(file_path) > 0) {
+		char    _password[128];
+		_password[0] = 0;
 		if(fileExists(file_path)) {
-			;
+			PasswordDialogParam param;
+			param.MinLen = 0;
+			param.Flags |= (PasswordDialogParam::fWithoutEncrypt|PasswordDialogParam::fNoConfirmation);
+			if(PasswordDialog2(DLG_SECRETPOOLPASSWORD, _password, sizeof(_password), param) > 0) {
+				if(!isempty(_password)) {
+					if(SecPool.LoadStorage(file_path, _password, sstrlen(_password))) {
+						ok = 1;
+					}
+					else {
+						ok = PPError();
+					}
+				}
+			}
 		}
 		else if(interactive) {
 			// Создание нового хранилища
-			;
+			PasswordDialogParam param;
+			param.MinLen = 0;
+			param.Flags |= PasswordDialogParam::fWithoutEncrypt;
+			if(PasswordDialog2(DLG_SECRETPOOLPASSWORD, _password, sizeof(_password), param) > 0) {
+				if(!isempty(_password)) {
+					if(SecPool.CreateStorage(file_path, _password, sstrlen(_password))) {
+						ok = 2;
+					}
+					else {
+						ok = PPError();
+					}
+				}
+			}
 		}
 	}
 	return ok;
@@ -4713,12 +4744,117 @@ int TFacadeWindow::CloseSecrets()
 
 	return ok;
 }
+//
+// Descr: [Важно: это - модель. Продуктивный вариант предполагает вставку окна в общую панель centrigo].
+//   Диалог просмотра и редактирования секретов.
+//
+class CentrigoSecretsDialog : public TDialog, public PPListDialogBaseInterface {
+public:
+	CentrigoSecretsDialog(PPSecretSegmentPool & rSecPool) : TDialog(DLG_SECRETPOOL), R_SecPool(rSecPool)
+	{
+		P_Box = static_cast<SmartListBox *>(getCtrlView(CTL_SECRETPOOL_LIST));
+		if(!SetupStrListBox(P_Box))
+			PPError();
+		updateList(-1);
+	}
+private:
+	DECL_HANDLE_EVENT
+	{
+		SmartListBox * p_box = P_Box;
+		long   p;
+		long   i;
+		TDialog::handleEvent(event);
+		if(TVCOMMAND) {
+			switch(TVCMD) {
+				case cmaInsert:
+					if(p_box) {
+						p = i = 0;
+						int    r = addItem(&p, &i);
+						if(r == 2)
+							updateListById(i);
+						else if(r > 0)
+							updateList(p);
+					}
+					break;
+				case cmaDelete:
+					if(getCurItem(&p, &i) && delItem(p, i) > 0) {
+						updateList(-1);
+					}
+					break;
+				case cmaEdit:
+					if(getCurItem(&p, &i) && editItem(p, i) > 0) {
+						const bool is_tree_list = (p_box && p_box->IsTreeList());
+						const long id = is_tree_list ? i : p;
+						if(is_tree_list)
+							updateListById(id);
+						else
+							updateList(id);
+					}
+					break;
+				default:
+					return;
+			}
+		}
+		clearEvent(event);
+	}
+	virtual SmartListBox * GetListBoxCtl() const { return P_Box; }
+	virtual int  setupList()
+	{
+		int    ok = 1;
+		if(P_Box) {
+			StrAssocArray * p_list = MakeStrAssocList();
+			if(p_list) {
+				ListBoxDef * p_def = new StdTreeListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData, MKSTYPE(S_ZSTRING, 128));
+				P_Box->setDef(p_def);
+			}
+		}
+		return ok;
+	}
+	int    Helper_MakeStrAssocList(uint32 parentId, StrAssocArray * pList)
+	{
+		int    ok = -1;
+		if(pList) {
+			SString temp_buf;
+			for(uint i = 0; i < R_SecPool.getCount(); i++) {
+				const  PPSecretSegment * p_item = R_SecPool.at(i);
+				if(p_item && p_item->ParentID == parentId) {
+					if(R_SecPool.GetText(p_item->NameP, temp_buf)) {
+						;
+					}
+					else {
+						temp_buf.Z().CatChar('#').CatLongZ(p_item->InternalID, 6);
+					}
+					pList->Add(p_item->InternalID, p_item->ParentID, temp_buf);
+					ok = 1;
+					if(p_item->InternalID) {
+						Helper_MakeStrAssocList(p_item->InternalID, pList); // @recursion
+					}
+				}
+			}
+		}
+		return ok;
+	}
+	StrAssocArray * MakeStrAssocList()
+	{
+		StrAssocArray * p_result = new StrAssocArray;
+		Helper_MakeStrAssocList(0, p_result);
+		return p_result;
+	}
+
+	PPSecretSegmentPool & R_SecPool;
+	uint   CtlList;
+	SmartListBox * P_Box;
+};
 
 int TFacadeWindow::DoSecrets()
 {
+	//PPListDialog aaa;
 	int    ok = -1;
+	CentrigoSecretsDialog * dlg = 0;
 	if(LoadSecrets(true/*interactive*/)) {
-		;
+		dlg = new CentrigoSecretsDialog(SecPool);
+		ExecView(dlg);
 	}
+	delete dlg;
 	return ok;
 }

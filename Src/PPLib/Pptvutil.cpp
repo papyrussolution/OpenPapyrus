@@ -887,12 +887,70 @@ int STDCALL PPErrorByDialog(TDialog * dlg, uint ctlID)
 	return 0;
 }
 
-int PasswordDialog(uint dlgID, char * pBuf, size_t pwSize, size_t minLen, int withoutEncrypt)
+int PasswordDialog2(uint dlgID, char * pBuf, size_t pwSize, PasswordDialogParam & rParam)
 {
 	int    ok = -1;
 	int    valid_data = 0;
-	char   b1[32];
-	char   b2[32];
+	char   b1[256];
+	char   b2[256];
+	TDialog * dlg = new TDialog(NZOR(dlgID, DLG_PASSWORD));
+	if(CheckDialogPtrErr(&dlg)) {
+		dlg->SetupKeyboardStateControls();
+		dlg->setCtrlString(CTL_PASSWORD_INFO, rParam.Hint);
+		b1[0] = 0;
+		dlg->setCtrlData(CTL_PASSWORD_FIRST,  b1);
+		if(rParam.Flags & PasswordDialogParam::fNoConfirmation) {
+			dlg->showCtrl(CTL_PASSWORD_SECOND, false);
+		}
+		else {
+			dlg->setCtrlData(CTL_PASSWORD_SECOND, b1);
+		}
+		while(!valid_data && ExecView(dlg) == cmOK) {
+			bool   is_local_error = false;
+			dlg->getCtrlData(CTL_PASSWORD_FIRST,  b1);
+			if(rParam.Flags & PasswordDialogParam::fNoConfirmation) {
+				;
+			}
+			else {
+				dlg->getCtrlData(CTL_PASSWORD_SECOND, b2);
+				if(stricmp866(b1, b2) != 0) {
+					PPError(PPERR_PASSNOTIDENT, 0);
+					is_local_error = true;
+				}
+			}
+			if(!is_local_error) {
+				if(rParam.MinLen && sstrlen(b1) < rParam.MinLen) {
+					PPError(PPERR_PASSMINLEN, itoa(static_cast<int>(rParam.MinLen), b2, 10));
+					is_local_error = true;
+				}
+				else {
+					valid_data = 1;
+					if(rParam.Flags & PasswordDialogParam::fWithoutEncrypt) {
+						strnzcpy(pBuf, b1, pwSize);
+					}
+					else {
+						Reference::Encrypt(Reference::crymRef2, b1, pBuf, pwSize);
+					}
+					ok = 1;
+				}
+			}
+		}
+		delete dlg;
+		memzero(b1, sizeof(b1));
+		memzero(b2, sizeof(b2));
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
+#if 0 // @v12.6.9 replaced with PasswordDialog2 {
+int PasswordDialog(uint dlgID, char * pBuf, size_t pwSize, size_t minLen, bool withoutEncrypt)
+{
+	int    ok = -1;
+	int    valid_data = 0;
+	char   b1[256];
+	char   b2[256];
 	TDialog * dlg = new TDialog(NZOR(dlgID, DLG_PASSWORD));
 	if(CheckDialogPtrErr(&dlg)) {
 		dlg->SetupKeyboardStateControls();
@@ -924,6 +982,7 @@ int PasswordDialog(uint dlgID, char * pBuf, size_t pwSize, size_t minLen, int wi
 		ok = 0;
 	return ok;
 }
+#endif // } 0 @v12.6.9 replaced with PasswordDialog2
 
 int FASTCALL SetupStrListBox(TView * pList)
 {
@@ -2804,70 +2863,7 @@ void ImageBrowseCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 //
 //
 //
-int STDCALL BarcodeInputDialog(int initChar, SString & rBuf)
-{
-	class BarcodeSrchDialog : public TDialog {
-	public:
-		BarcodeSrchDialog() : TDialog(DLG_SRCHBCODE)
-		{
-			disableCtrl(CTL_SRCHBCODE_CHKDIG, true);
-			SetCtrlBitmap(CTL_SRCHBCODE_IMG, BM_BARCODE);
-		}
-	private:
-		DECL_HANDLE_EVENT
-		{
-			if(event.isCmd(cmOK)) {
-				SString code;
-				BarcodeTbl::Rec  bc_rec;
-				getCtrlString(CTL_SRCHBCODE_CODE, code);
-				if(GObj.SearchBy2dBarcode(code, &bc_rec, 0) > 0)
-					setCtrlData(CTL_SRCHBCODE_CODE, bc_rec.Code);
-			}
-			TDialog::handleEvent(event);
-			if(event.isKeyDown(kbF2))
-				setChkDig();
-			else if(TVBROADCAST && TVCMD == cmChangedFocus && event.isCtlEvent(CTL_SRCHBCODE_CODE))
-				setChkDig();
-			else
-				return;
-			clearEvent(event);
-		}
-		void   setChkDig()
-		{
-			SString buf;
-			getCtrlString(CTL_SRCHBCODE_CODE, buf);
-			const int cd = CalcBarcodeCheckDigit(buf);
-			setCtrlString(CTL_SRCHBCODE_CHKDIG, buf.Z().Cat(cd));
-		}
-		PPObjGoods GObj;
-	};
-	int    ok = -1;
-	SString code;
-	BarcodeSrchDialog * dlg = new BarcodeSrchDialog;
-	if(CheckDialogPtrErr(&dlg)) {
-		if(isasciialnum(initChar))
-			code.CatChar(initChar);
-		else
-			code = rBuf;
-		dlg->setCtrlString(CTL_SRCHBCODE_CODE, code);
-		if(code.NotEmpty() && isasciialnum(initChar)) {
-			TInputLine * il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_SRCHBCODE_CODE));
-			CALLPTRMEMB(il, disableDeleteSelection(1));
-		}
-		if(ExecView(dlg) == cmOK) {
-			dlg->getCtrlString(CTL_SRCHBCODE_CODE, code);
-			if(code.NotEmptyS())
-				ok = 1;
-		}
-	}
-	else
-		ok = 0;
-	delete dlg;
-	rBuf = code;
-	return ok;
-}
-
-int STDCALL SelectorDialog(uint dlgID, uint ctlID, uint * pVal /* IN,OUT */, const char * pTitle /*=0*/)
+int STDCALL SelectorDialog(uint dlgID, uint ctlID, uint * pVal/*IN,OUT*/, const char * pTitle/*=0*/)
 {
 	int    ok = -1;
 	TDialog * dlg = new TDialog(dlgID);

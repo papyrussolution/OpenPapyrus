@@ -4616,8 +4616,8 @@ int PPViewBill::InsertIntoPool(PPID billID, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(P_BObj->Search(billID, &br) > 0);
-		if(IsMemberOfPool(billID) <= 0) {
-			PPID   assc_id = (Filt.Flags & BillFilt::fEditPoolByType) ? Filt.AssocID : PPASS_OPBILLPOOL;
+		if(!IsMemberOfPool(billID)) {
+			const  PPID assc_id = (Filt.Flags & BillFilt::fEditPoolByType) ? Filt.AssocID : PPASS_OPBILLPOOL;
 			THROW(P_BObj->P_Tbl->UpdatePool(billID, assc_id, Filt.PoolBillID, 0));
 			if(Filt.AssocID == PPASS_OPBILLPOOL)
 				THROW(P_BObj->UpdatePool(Filt.PoolBillID, 0));
@@ -4635,14 +4635,16 @@ int PPViewBill::InsertIntoPool(PPID billID, int use_ta)
 int PPViewBill::RemoveFromPool(PPID billID, int use_ta)
 {
 	int    ok = 1;
-	if(IsMemberOfPool(billID) > 0) {
+	if(IsMemberOfPool(billID)) {
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		THROW(P_BObj->P_Tbl->RemoveFromPool(billID, Filt.AssocID, Filt.PoolBillID, 0));
-		if(Filt.AssocID == PPASS_OPBILLPOOL)
+		if(Filt.AssocID == PPASS_OPBILLPOOL) {
 			THROW(P_BObj->UpdatePool(Filt.PoolBillID, 0));
-		if(P_TempTbl)
+		}
+		if(P_TempTbl) {
 			THROW_DB(deleteFrom(P_TempTbl, 0, P_TempTbl->BillID == billID));
+		}
 		THROW(tra.Commit());
 	}
 	else
@@ -4656,10 +4658,10 @@ int PPViewBill::UpdateInPool(PPID /*billID*/)
 	return 1;
 }
 
-int PPViewBill::IsMemberOfPool(PPID billID)
+bool PPViewBill::IsMemberOfPool(PPID billID)
 {
 	PPID   pool_id = Filt.PoolBillID;
-	return BIN(P_BObj->IsMemberOfPool(billID, Filt.AssocID, &pool_id) > 0);
+	return P_BObj->IsMemberOfPool(billID, Filt.AssocID, &pool_id);
 }
 
 int PPViewBill::EnumMembersOfPool(PPID * pBillID)
@@ -8381,7 +8383,7 @@ int PPALDD_Bill::InitData(PPFilt & rFilt, long rsrv)
 			}
 			if(rec.Flags & BILLF_FREIGHT)
 				freight_bill_id = rec.ID;
-			else if(p_billcore->IsMemberOfPool(rec.ID, PPASS_OPBILLPOOL, &freight_bill_id) <= 0)
+			else if(!p_billcore->IsMemberOfPool(rec.ID, PPASS_OPBILLPOOL, &freight_bill_id))
 				freight_bill_id = 0;
 			if(freight_bill_id && PPRef->GetProperty(PPOBJ_BILL, freight_bill_id, BILLPRP_FREIGHT, &freight, sizeof(freight)) > 0) {
 				STRNSCPY(H.FreightCode, freight.Name);

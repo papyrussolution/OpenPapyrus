@@ -430,9 +430,7 @@ private:
 			int   b = 0;
 			size_t actual_size = 0;
 			ok = So.Recv(&b, 1, &actual_size);
-			if(ok && actual_size == 1) {
-				*pByte = b;
-			}
+			*pByte = (ok && actual_size == 1) ? b : 0;
 		}
 		else {
 			ok = CommPort.GetChr(pByte);
@@ -1958,7 +1956,9 @@ int PiritEquip::SetConnection()
 		if(addr.GetPort() <= 0) {
 			addr.SetPort_(50003);
 		}
-		So.SetTimeout(500);
+		//So.SetTimeout(500);
+		So.SetSendTimeout(30000);
+		So.SetRcvTimeout(10000);
 		{
 			const  uint prev_sockopt = So.GetSockOptions();
 			So.SetSockOptions(prev_sockopt|TcpSocket::sockoptNoDelay);
@@ -2995,7 +2995,7 @@ int PiritEquip::RunCheck(int opertype)
 				}
 				else if(oneof2(hb1, 2, 3) || (gcf_result < 3)) { // Текстовая строка для чека
 					in_data.Z();
-					text_attr = 0x01; // @v11.3.6 0-->0x01
+					text_attr = 0x01;
 					CreateStr(0, in_data);
 					if(oneof2(Check.FontSize, 1, 2))
 						text_attr = 0x01;
@@ -3346,28 +3346,9 @@ int PiritEquip::PutData(const char * pCommand, const char * pData)
 	//
 	// Отправляем пакет на ККМ
 	//
-	{
-		SendBuf.Z();
-		SendBuf.Cat(CHR_STX);
-		SendBuf.Cat(r_pack.ucptr(), r_pack.Len());
-		SendBuf.Cat(CHR_ETX);
-		SendBuf.Cat(buf[0]);
-		SendBuf.Cat(buf[1]);
-		if(So.IsValid()) {
-			size_t actual_size = 0;
-			THROW(So.Send(SendBuf.PtrC(), SendBuf.Len(), &actual_size));
-		}
-		else {
-			for(uint i = 0; i < SendBuf.Len(); i++) {
-				const  int byte = PTR8C(SendBuf.PtrC(i))[0];
-				THROW(CommPort.PutChr(byte));
-			}
-		}
-	}
-	/*
 	char   debug_packet[1024];
 	size_t debug_packet_pos = 0;
-	const  int fill_debug_buffer = 0;
+	const  int fill_debug_buffer = 1;
 	if(fill_debug_buffer) {
 		// блок для отладки
 		memzero(debug_packet, sizeof(debug_packet));
@@ -3393,7 +3374,7 @@ int PiritEquip::PutData(const char * pCommand, const char * pData)
 		THROW(PutByteToPort(CHR_ETX));
 		THROW(PutByteToPort(buf[0]));
 		THROW(PutByteToPort(buf[1]));
-	}*/
+	}
 	CATCHZOK
 	return ok;
 }

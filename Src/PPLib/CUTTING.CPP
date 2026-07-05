@@ -191,8 +191,9 @@ int PPObjBill::Cutting(LDATE endDate, int use_ta)
 			double lpaym = BR2(link_bill_rec.Amount);
 			if(checkdrange(link_bill_rec.Dt, ZERODATE, endDate)) {
 				reckon_id = 0;
-				if(IsMemberOfPool(link_bill_rec.ID, PPASS_PAYMBILLPOOL, &reckon_id) <= 0)
+				if(!IsMemberOfPool(link_bill_rec.ID, PPASS_PAYMBILLPOOL, &reckon_id)) {
 					reckon_id = 0;
+				}
 				if(RemovePacket(link_bill_rec.ID, 0)) {
 					if(link_bill_rec.CurID == bill_rec.CurID)
 						fix_paym += lpaym;

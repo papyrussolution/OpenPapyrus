@@ -657,13 +657,14 @@ TempOrderTbl * CreateTempOrderFile()
 DBQ & FASTCALL ppidlist(DBItem & dbi, const PPIDArray * pList)
 {
 	DBQ * p_dbq = 0;
-	if(pList)
+	if(pList) {
 		for(uint i = 0; i < pList->getCount(); i++) {
 			if(i == 0)
 				p_dbq = & (dbi == pList->get(i));
 			else
 				p_dbq = & (*p_dbq || dbi == pList->get(i));
 		}
+	}
 	return *p_dbq;
 }
 
@@ -676,11 +677,12 @@ DBQ * STDCALL ppcheckfiltid(DBQ * pDbq, DBItem & rDbi, PPID fltID)
 
 DBQ * STDCALL ppcheckfiltidlist(DBQ * pDbq, DBItem & rDbi, const PPIDArray * pList)
 {
-	if(pList)
+	if(pList) {
 		if(pList->isList())
 			return &(*pDbq && ppidlist(rDbi, pList));
 		else
 			return ppcheckfiltid(pDbq, rDbi, pList->getSingle());
+	}
 	else
 		return pDbq;
 }

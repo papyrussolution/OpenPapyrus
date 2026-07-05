@@ -240,6 +240,10 @@ public:
 	int    CheckErrorStatus(); // @>>::getsockopt(S, SOL_SOCKET, SO_ERROR,...)
 	int    GetTimeout() const;
 	int    FASTCALL SetTimeout(int timeout);
+	int    GetSendTimeout() const; // @v12.6.9
+	int    FASTCALL SetSendTimeout(int timeout); // @v12.6.9
+	int    GetRcvTimeout() const; // @v12.6.9
+	int    FASTCALL SetRcvTimeout(int timeout); // @v12.6.9
 	uint   GetSockOptions() const; // @v12.6.9
 	int    FASTCALL SetSockOptions(uint sockoptFlags); // @v12.6.9
 	//
@@ -360,6 +364,8 @@ private:
 	SOCKET S;
 	SslBlock * P_Ssl;
 	int    Timeout;
+	int    SndTimeout; // @v12.6.9
+	int    RcvTimeout; // @v12.6.9
 	int    MaxConn;
 	int    LastSockErr; // Последний код ошибки, полученный вызовом TcpSocket::CheckErrorStatus()
 	uint   SockOptions; // @v12.6.9

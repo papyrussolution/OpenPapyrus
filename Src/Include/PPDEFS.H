@@ -2281,6 +2281,7 @@
 	#define CTL_PASSWORD_SECOND          (2 + WINDOWS_ID_BIAS)
 	#define CTL_PASSWORD_IMG             (3 + WINDOWS_ID_BIAS)
 	#define CTLRIG_PASSWORD_FIRST        (4 + WINDOWS_ID_BIAS) // @v12.6.9 оснастка поля пароля (show password)
+	#define CTL_PASSWORD_INFO            (5 + WINDOWS_ID_BIAS) // @v12.6.9 Поле с текстом для информации пользователю 
 #define DLG_USRGRP                 40 // Группа пользователей
 	#define cmCfgPath                 101
 	#define cmCfgConfig               102
@@ -5743,6 +5744,8 @@
 	#define CTL_TRANSPORT_VANTYP         (13 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TRANSPORT_VANTYP      (14 + WINDOWS_ID_BIAS)
 	#define CTL_TRANSPORT_FLAGS          (15 + WINDOWS_ID_BIAS)
+	#define CTL_TRANSPORT_DESCR          (16 + WINDOWS_ID_BIAS)
+	#define CTL_TRANSPORT_VOLCAPACITY    (17 + WINDOWS_ID_BIAS)
 #define DLG_FREIGHT               491 // Фрахт
 	#define cmFreightEditDlvrLocList     101
 	#define CTL_FREIGHT_TRTYP            (1 + WINDOWS_ID_BIAS)
@@ -9165,6 +9168,8 @@
 	#define CTL_C_LINKBILL_LOG           (1 + WINDOWS_ID_BIAS)
 	#define CTL_C_LINKBILL_FLAGS         (2 + WINDOWS_ID_BIAS)
 	#define CTLBRW_C_LINKBILL_LOG        (3 + WINDOWS_ID_BIAS)
+	#define CTL_C_LINKBILL_PERIOD        (4 + WINDOWS_ID_BIAS)
+	#define CTLCAL_C_LINKBILL_PERIOD     (5 + WINDOWS_ID_BIAS)
 #define DLG_AMTTVIEW             1005 // AMTTVIEW Список типов сумм
 	#define CTL_AMTTVIEW_LIST            (1 + WINDOWS_ID_BIAS)
 #define DLG_LIKEOBJFLT           1006
@@ -12157,6 +12162,7 @@
 	#define CTL_SECRETPOOL_TEXT1                (21 + WINDOWS_ID_BIAS)
 	#define CTL_SECRETPOOL_TEXT2                (22 + WINDOWS_ID_BIAS)
 	#define CTL_SECRETPOOL_TEXT3                (23 + WINDOWS_ID_BIAS)
+#define DLG_SECRETPOOLPASSWORD   1599 // @v12.6.9 @centrigo Диалог ввода пароля для создания хранилища или входа в него
 //
 // Win32 Dialog Identifiers
 //

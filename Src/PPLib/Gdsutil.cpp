@@ -351,7 +351,7 @@ static int BarcodeList(BarcodeArray * pCodes, int * pSelection)
 
 GoodsCodeSrchBlock::GoodsCodeSrchBlock() : ArID(0), Flags(0), GoodsID(0), ScaleID(0), Qtty(0.0), P_List(0), ChZnSNTokID(0), ChZnPrice(0.0)
 {
-	Code[0] = 0;
+	//Code[0] = 0;
 	RetCode[0] = 0;
 	ChZnCode[0] = 0;
 	ChZnGtin[0] = 0;
@@ -473,27 +473,22 @@ int PPObjGoods::IsScaleBarcode(const char * pCode, PPID * pScaleID, PPID * pGood
 int PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 {
 	int    ok = -1;
-	if(pBlk && !isempty(pBlk->Code)) {
+	if(pBlk && pBlk->Code_.NotEmpty()) {
 		SString temp_buf;
 		pBlk->RetCode[0] = 0;
 		pBlk->GoodsID = 0;
 		pBlk->ScaleID = 0;
 		pBlk->Qtty = 0.0;
-		pBlk->Flags &= ~(GoodsCodeSrchBlock::fWeightCode | GoodsCodeSrchBlock::fArCode |
-			GoodsCodeSrchBlock::fOwnArCode | GoodsCodeSrchBlock::fGoodsId | GoodsCodeSrchBlock::fList);
+		pBlk->Flags &= ~(GoodsCodeSrchBlock::fWeightCode|GoodsCodeSrchBlock::fArCode|GoodsCodeSrchBlock::fOwnArCode|GoodsCodeSrchBlock::fGoodsId|GoodsCodeSrchBlock::fList);
 		pBlk->ChZnPrice = 0.0;
 		pBlk->Rec.Clear();
-		//char   code[128];
 		BarcodeTbl::Rec bcr;
 		Goods2Tbl::Rec goods_rec;
-		SString code_buf(pBlk->Code);
-		//STRNSCPY(code, pBlk->Code);
-		//SOemToChar(code);
+		SString code_buf(pBlk->Code_);
 		code_buf.Transf(CTRANSF_INNER_TO_OUTER);
 		SString & r_num_symb = SLS.AcquireRvlStr();
 		(r_num_symb = "№").Transf(CTRANSF_UTF8_TO_OUTER);
 		if(code_buf.Len() > 1 && oneof2(code_buf.C(0), '#', r_num_symb.C(0))) {
-			//const  PPID goods_id = atol(code+1);
 			const  PPID goods_id = code_buf.ShiftLeft().ToLong();
 			if(Fetch(goods_id, &goods_rec) > 0) {
 				pBlk->GoodsID = goods_rec.ID;
@@ -504,16 +499,14 @@ int PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 				ok = 1;
 			}
 		}
-		//else if(code[0] == '*' && code[1]) {
 		else if(code_buf.Len() > 1 && code_buf.C(0) == '*') {
-			//STRNSCPY(code, code+1);
 			code_buf.ShiftLeft();
 			int    sel = -1;
 			BarcodeArray bcary;
 			ok = P_Tbl->SearchBarcodeSubstr(code_buf, &bcary);
 			if(ok) {
-				PPID srch_ar_id = NZOR(pBlk->ArID, -1);
-				int r = P_Tbl->SearchArCodeSubstr(srch_ar_id, code_buf, &bcary);
+				PPID   srch_ar_id = NZOR(pBlk->ArID, -1);
+				int    r = P_Tbl->SearchArCodeSubstr(srch_ar_id, code_buf, &bcary);
 				if(r > 0)
 					ok = 1;
 				if(srch_ar_id > 0) {
@@ -535,7 +528,7 @@ int PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 		}
 		else {
 			GtinStruc gts;
-			const int pczcr = PPChZnPrcssr::ParseChZnCode(pBlk->Code, gts, 0);
+			const  int pczcr = PPChZnPrcssr::ParseChZnCode(pBlk->Code_, gts, 0);
 			if(PPChZnPrcssr::InterpretChZnCodeResult(pczcr) != PPChZnPrcssr::chznciNone) {
 				if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 					assert(temp_buf.Len() == 14);
@@ -561,7 +554,7 @@ int PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 						STRNSCPY(pBlk->ChZnSerial, temp_buf);
 						gts.GetToken(GtinStruc::fldOriginalText, &temp_buf);
 						STRNSCPY(pBlk->ChZnCode, temp_buf);
-						STRNSCPY(pBlk->Code, temp_buf); // @v11.4.12
+						pBlk->Code_ = temp_buf;
 						pBlk->ChZnSNTokID = gts.GetSpecialNaturalToken(); // @v12.6.5
 						if(gts.GetToken(GtinStruc::fldPrice, &temp_buf)) { // @v12.5.9
 							double chzn_price = temp_buf.ToReal_Plain();
@@ -573,7 +566,7 @@ int PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 					}
 				}
 			}
-			else if(pBlk->Flags & GoodsCodeSrchBlock::fUse2dTempl && SearchBy2dBarcode(pBlk->Code, &bcr, &goods_rec) > 0) {
+			else if(pBlk->Flags & GoodsCodeSrchBlock::fUse2dTempl && SearchBy2dBarcode(pBlk->Code_, &bcr, &goods_rec) > 0) {
 				pBlk->GoodsID = goods_rec.ID;
 				pBlk->Qtty    = bcr.Qtty;
 				pBlk->Rec     = goods_rec;
@@ -586,7 +579,6 @@ int PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 				PPID   goods_id = 0;
 				PPID   scale_id = 0;
 				double qtty   = 0.0;
-				//size_t code_len = sstrlen(code);
 				strnzcpy(pBlk->RetCode, code_buf, 16);
 				int    r = IsScaleBarcode(code_buf, &scale_id, &goods_id, &qtty);
 				if(r > 0 && Fetch(goods_id, &goods_rec) > 0) {
@@ -638,20 +630,21 @@ int PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 
 int PPObjGoods::GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode)
 {
-	int    ok = -1, r;
+	int    ok = -1;
 	GoodsCodeSrchBlock blk;
-	STRNSCPY(blk.Code, pBarcode);
+	blk.Code_ = pBarcode;
 	blk.ArID = arID;
 	blk.Flags |= GoodsCodeSrchBlock::fAdoptSearch;
 	//
 	// Сохранение последнего введенного штрихкода в глобальном буфере
 	//
-	STRNSCPY(DS.GetTLA().Lid.Barcode, blk.Code);
-	if((r = SearchByCodeExt(&blk)) > 0) {
+	STRNSCPY(DS.GetTLA().Lid.Barcode, blk.Code_);
+	const  int r = SearchByCodeExt(&blk);
+	if(r > 0) {
 		if(blk.Flags & GoodsCodeSrchBlock::fList && blk.P_List) {
 			int    sel = -1;
 			if(BarcodeList(blk.P_List, &sel) > 0) {
-				BarcodeTbl::Rec bcr = blk.P_List->at(sel);
+				const  BarcodeTbl::Rec bcr(blk.P_List->at(sel));
 				ASSIGN_PTR(pRetCode, bcr.Code);
 				if(Fetch(bcr.GoodsID, pRec) > 0) {
 					ASSIGN_PTR(pQtty, bcr.Qtty);
@@ -673,14 +666,112 @@ int PPObjGoods::GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2Tbl::R
 	return ok;
 }
 
+/*static*/int PPObjGoods::CodeInputDialog(CodeInputBlock & rBlk)
+{
+	class BarcodeSrchDialog : public TDialog {
+	public:
+		BarcodeSrchDialog() : TDialog(DLG_SRCHBCODE)
+		{
+			//disableCtrl(CTL_SRCHBCODE_CHKDIG, true);
+			//SetCtrlBitmap(CTL_SRCHBCODE_IMG, BM_BARCODE);
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			if(event.isCmd(cmOK)) {
+				SString code;
+				BarcodeTbl::Rec bc_rec;
+				getCtrlString(CTL_SRCHBCODE_CODE, code);
+				if(GObj.SearchBy2dBarcode(code, &bc_rec, 0) > 0) {
+					code = bc_rec.Code;
+					setCtrlString(CTL_SRCHBCODE_CODE, code);
+				}
+			}
+			TDialog::handleEvent(event);
+			if(event.isKeyDown(kbF2)) {
+				setChkDig();
+			}
+			/* @v12.6.9 else if(TVBROADCAST && TVCMD == cmChangedFocus && event.isCtlEvent(CTL_SRCHBCODE_CODE)) {
+				setChkDig();
+			}*/
+			else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_SRCHBCODE_CODE)) { // @v12.6.9
+				setChkDig();
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		void   setChkDig()
+		{
+			SString buf;
+			getCtrlString(CTL_SRCHBCODE_CODE, buf);
+			if(buf.IsDec()) {
+				const int cd = CalcBarcodeCheckDigit(buf);
+				setCtrlString(CTL_SRCHBCODE_CHKDIG, buf.Z().Cat(cd));
+			}
+			else {
+				setCtrlString(CTL_SRCHBCODE_CHKDIG, buf.Z());
+			}
+		}
+		PPObjGoods GObj;
+	};
+	int    ok = -1;
+	SString code;
+	BarcodeSrchDialog * dlg = new BarcodeSrchDialog;
+	if(CheckDialogPtrErr(&dlg)) {
+		if(isasciialnum(rBlk.InitChar))
+			code.CatChar(rBlk.InitChar);
+		else
+			code = rBlk.Code;
+		dlg->setCtrlString(CTL_SRCHBCODE_CODE, code);
+		if(code.NotEmpty() && isasciialnum(rBlk.InitChar)) {
+			TInputLine * il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_SRCHBCODE_CODE));
+			CALLPTRMEMB(il, disableDeleteSelection(1));
+		}
+		if(ExecView(dlg) == cmOK) {
+			dlg->getCtrlString(CTL_SRCHBCODE_CODE, code);
+			if(code.NotEmptyS()) {
+				ok = 1;
+			}
+		}
+	}
+	else
+		ok = 0;
+	delete dlg;
+	rBlk.Code = code;
+	return ok;
+}
+
+int PPObjGoods::SelectGoodsByBarcode2(GoodsByCodeSelectionBlock & rBlk)
+{
+	if(rBlk.Code.IsEmpty())
+		rBlk.Code = DS.GetTLA().Lid.Barcode;
+	int    r = PPObjGoods::CodeInputDialog(rBlk);
+	if(r > 0) {
+		SString ret_code;
+		r = GetGoodsByBarcode(rBlk.Code, rBlk.ArID, &rBlk.GoodsRec, &rBlk.Qtty, &ret_code);
+		if(r > 0) {
+			rBlk.Code = ret_code;
+		}
+		else {
+			
+		}
+	}
+	if(!r)
+		PPError();
+	return r;
+}
+
 int PPObjGoods::SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode)
 {
-	int    r = -1;
-	SString code(DS.GetTLA().Lid.Barcode);
-	if((r = BarcodeInputDialog(initChar, code)) > 0) {
-		r = GetGoodsByBarcode(code, arID, pRec, pQtty, pRetCode);
-		if(r <= 0)
-			ASSIGN_PTR(pRetCode, code);
+	CodeInputBlock blk(initChar);
+	blk.Code = DS.GetTLA().Lid.Barcode;
+	int    r = PPObjGoods::CodeInputDialog(blk);
+	if(r > 0) {
+		r = GetGoodsByBarcode(blk.Code, arID, pRec, pQtty, pRetCode);
+		if(r <= 0) {
+			ASSIGN_PTR(pRetCode, blk.Code);
+		}
 	}
 	if(!r)
 		PPError();
@@ -999,7 +1090,7 @@ int PPObjGoods::Helper_WriteConfig(const PPGoodsConfig * pCfg, const SString * p
 			if(gs_obj.Get(struc_id, &gs) > 0) {
 				PPGoodsStruc::Ident gsi(goods_id, GSF_COMPL, GSF_PARTITIAL|GSF_PRESENT|GSF_SUBST, now_date);
 				PPGoodsStruc gs_selected;
-				if(gs.Select(gsi, &gs_selected) > 0) {
+				if(gs.Select(gsi, &gs_selected)) {
 					double bom_value = 0.0;
 					int    uncert = 0;
 					gs_selected.CalcEstimationPrice(loc_id, &bom_value, &uncert, 1);

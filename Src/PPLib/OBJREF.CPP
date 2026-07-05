@@ -2562,7 +2562,10 @@ private:
 				//SString pwd;
 				//Reference::Decrypt(Reference::crymRef2, Data.Rec.Password, sstrlen(Data.Rec.Password), pwd);
 			//
-			PasswordDialog(0, Data.Rec.Password, sizeof(Data.Rec.Password), 3, 0);
+			PasswordDialogParam param;
+			param.MinLen = 3;
+			param.Flags = 0;
+			PasswordDialog2(0, Data.Rec.Password, sizeof(Data.Rec.Password), param);
 		}
 		else if(event.isCmd(cmTags)) {
 			Data.TagL.Oid.Obj = PPOBJ_GLOBALUSERACC;

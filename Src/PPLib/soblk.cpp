@@ -1810,7 +1810,7 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 			if(temp_buf.Divide(',', o_buf, txt_buf) > 0) {
 				if(o_buf.ToLong() == 2) {
 					GoodsCodeSrchBlock blk;
-					txt_buf.CopyTo(blk.Code, sizeof(blk.Code));
+					blk.Code_ = txt_buf;
 					blk.ArID = 0;
 					if(GObj.SearchByCodeExt(&blk) > 0) {
 						if(blk.Flags & GoodsCodeSrchBlock::fList) {

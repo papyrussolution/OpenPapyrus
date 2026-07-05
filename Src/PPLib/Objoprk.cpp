@@ -664,7 +664,7 @@ int PPObjOprKind::GetPacket(PPID id, PPOprKindPacket * pack)
 		}
 		if(pack->Rec.SubType == OPSUBT_DEBTINVENT) {
 			PPDebtInventOpEx dioe;
-			MEMSZERO(dioe);
+			// @v12.6.9 @ctr MEMSZERO(dioe);
 			ZDELETE(pack->P_DIOE);
 			if(P_Ref->GetProperty(PPOBJ_OPRKIND, id, OPKPRP_DEBTINVENT, &dioe, sizeof(dioe)) > 0) {
 				THROW_MEM(pack->P_DIOE = new PPDebtInventOpEx);
@@ -1023,24 +1023,23 @@ int PPObjOprKind::SetReckonExData(PPID id, const PPReckonOpEx * pData, int use_t
 
 int PPObjOprKind::GetReckonExData(PPID id, PPReckonOpEx * pData)
 {
+	CALLPTRMEMB(pData, Z());
 	int    ok = -1;
 	PPIDArray temp;
 	if(P_Ref->GetPropArray(Obj, id, OPKPRP_PAYMOPLIST, &temp) > 0) {
-		if(temp.getCount() < ROX_HDR_DW_COUNT) {
-			CALLPTRMEMB(pData, Z());
-		}
-		else {
+		if(temp.getCount() >= ROX_HDR_DW_COUNT) {
 			if(pData) {
 				pData->Beg.v = temp.at(0);
 				pData->End.v = temp.at(1);
 				pData->Flags = temp.at(2);
 				pData->PersonRelTypeID = temp.at(3);
 				memzero(pData->Reserve, sizeof(pData->Reserve));
-				for(uint i = ROX_HDR_DW_COUNT; i < temp.getCount(); i++)
+				for(uint i = ROX_HDR_DW_COUNT; i < temp.getCount(); i++) {
 					if(!pData->OpList.add(temp.at(i))) {
 						pData->Z();
 						return PPSetErrorSLib();
 					}
+				}
 			}
 			ok = 1;
 		}

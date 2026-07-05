@@ -113,7 +113,7 @@ static IMPL_DBE_PROC(dbqf_tsessbilllinkto_i) // @v11.6.12
 	const  PPID bill_id  = params[0].lval;
 	if(bill_id) {
 		PPID   pool_owner_id = 0;
-		if(BillObj->P_Tbl->IsMemberOfPool(bill_id, PPASS_TSESSBILLPOOL, &pool_owner_id) > 0) {
+		if(BillObj->P_Tbl->IsMemberOfPool(bill_id, PPASS_TSESSBILLPOOL, &pool_owner_id)) {
 			result_id = pool_owner_id;
 		}
 	}
@@ -129,7 +129,7 @@ static IMPL_DBE_PROC(dbqf_tsessbilllinkto_text_i) // @v11.6.12
 		SString & r_temp_buf = SLS.AcquireRvlStr();
 		if(bill_id) {
 			PPID   pool_owner_id = 0;
-			if(BillObj->P_Tbl->IsMemberOfPool(bill_id, PPASS_TSESSBILLPOOL, &pool_owner_id) > 0) {
+			if(BillObj->P_Tbl->IsMemberOfPool(bill_id, PPASS_TSESSBILLPOOL, &pool_owner_id)) {
 				if(pool_owner_id > 0) {
 					PPObjTSession tses_obj;
 					TSessionTbl::Rec tses_rec;

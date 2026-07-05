@@ -4187,6 +4187,8 @@ PPTXT_LOG_CMDGRPREFCVG_MENUSETTLED        "Для объекта {%s} устан
 PPTXT_LOG_CMDGRPREFCVG_DTNOSUBSTFOUND     "Для объекта {%s} не удалось найти подстановку для старого идентификатора рабочего стола (%s)"
 PPTXT_LOG_CMDGRPREFCVG_MENUNOSUBSTFOUND   "Для объекта {%s} не удалось найти подстановку для старого идентификатора меню (%s)"
 PPTXT_LOG_CCTAXSYSTEMSET                  "Для кассового чека установлена система налогообложения %s"
+PPTXT_LOG_RECKONISNTATPAYMPOOL            "Документ оплаты (%s), будучи зачитывающим, не привязан ни к одному зачетному документу"
+PPTXT_LOG_RECKONISNTATPAYMPOOL_REMOVED    "Удален документ оплаты (%s) который, будучи зачитывающим, не привязан ни к одному зачетному документу"
 
 PPTXT_IMPKLADR_KLADR                      "Импорт справочника КЛАДР (регионы и города)"
 PPTXT_IMPKLADR_STREET                     "Импорт справочника КЛАДР (улицы)"
@@ -5646,6 +5648,7 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 655  "Ошибка OpenSSL"
 656  "Ошибка SLCRYPTO: неподдерживаемая KDF (%s)" // @v12.6.6
 657  "Ошибка SLCRYPTO: сбой генерации порожденного ключа" // @v12.6.6
+658  "Ошибка SLCRYPTO: неверный ключ шифрования" // @v12.6.6
 700  /!/ "AMQP error: Unknown AMQP error (%s)"
 701  /!/ "AMQP error: Incorrect or corrupt data was received from the broker. This is a protocol error (%s)"
 702  /!/ "AMQP error: An unknown AMQP class was received. This is a protocol error (%s)"
@@ -13854,11 +13857,13 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @transpmodel_name                         "@{appellation}"
 @transpmodel_symb                         "@{symbol}"
 @transport_capacity                       "Грузоподъемность, тонн"
+@transport_volcapacity                    "Полезный объем, куб.м"
 @transport_captain                        "Командир транспорта"
 @transport_code                           "@{code}"
 @transport_country                        "@{country}"
 @transport_id                             "@{id}"
 @transport_name                           "@{appellation}"
+@transport_descr                          "@{description}"
 @transport_owner                          "@{owner}"
 @transport_trailercode                    "Номер прицепа"
 @transport_trmodel                        "Модель"
@@ -17362,6 +17367,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 
 @linkbillrecover                          "Проверка связанных документов"
 @linkbillrecover_zerohangedlinks          "Обнулять висячие ссылки"
+@linkbillrecover_dorecover                "Исправлять проблемы"
+@linkbillrecover_verifyreckons            "Проверять зачитывающие оплаты на разрыв связи с зачетом"
 
 @goodsstrucrecover                        "Корректировка товарных структур"
 @goodsstrucrecover_spcdetaching           "Специальная отвязка товаров от структур"
@@ -19026,6 +19033,21 @@ PPHSC_RU_DRVLIC_NUM            "НомВУ"      // @v12.6.9
 PPHSC_RU_DRVLIC_SERIAL         "СерВУ"      // @v12.6.9  
 PPHSC_RU_DRVLIC_DATE           "ДатаВыдВУ"  // @v12.6.9
 PPHSC_RU_TRANSPORTINFO         "СвТС"       // @v12.6.9
+PPHSC_RU_TRANSPORTINFO_TRANSP  "ТС"         // @v12.6.9
+PPHSC_RU_TRANSPORTINFO_TRAILER "Прицеп"     // @v12.6.9
+PPHSC_RU_TRANSPORTINFO_SPCCOND "СпецУслДвиж" // @v12.6.9
+PPHSC_RU_TRANSPORTINFO_ADDNDM  "ИнфПол"     // @v12.6.9
+PPHSC_RU_TRANSPORTINFO_VRCN    "НомСТС"     // Vehicle Registration Certificate Number
+PPHSC_RU_TRANSPORTINFO_VIN     "НомерВИН"
+PPHSC_RU_TRANSPORTINFO_REGN    "РегНомер"
+PPHSC_RU_TRANSPORTINFO_OWNST   "ТипВлад"
+PPHSC_RU_TRANSPORTINFO_VPARAMS "ПарТС"
+PPHSC_RU_TRANSPORTINFO_OWNSR   "ОснАрЛиз"   // Реквизиты документа (документов), подтверждающего основание владения грузовым автомобилем (тягачом), а также прицепом (полуприцепом)
+PPHSC_RU_TRANSPORTINFO_TYPE    "Тип"
+PPHSC_RU_TRANSPORTINFO_MODEL   "Марка"
+PPHSC_RU_TRANSPORTINFO_LCAPAS  "Грузопод"
+PPHSC_RU_TRANSPORTINFO_VCAPAS  "Вместим"
+
 PPHSC_RU_LOADINGINFO           "СвПогруз"   // @v12.6.9
 PPHSC_RU_PAYLOADINFO           "СвГруз"     // @v12.6.9 
 PPHSC_RU_PAYLOAD_DESCR         "ОпГруз"     // @v12.6.9 

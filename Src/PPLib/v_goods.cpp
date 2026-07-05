@@ -1075,11 +1075,12 @@ void GoodsListDialog::selectGoods(PPID grp, PPID goodsID)
 
 void GoodsListDialog::searchBarcode()
 {
-	int    r;
 	Goods2Tbl::Rec rec;
 	SString bcode;
-	if((r = GObj.SelectGoodsByBarcode(0, 0, &rec, 0, &bcode)) > 0)
+	int    r = GObj.SelectGoodsByBarcode(0, 0, &rec, 0, &bcode);
+	if(r > 0) {
 		selectGoods(rec.ParentID, rec.ID);
+	}
 	else if(r == -2 && PPMessage(mfConf|mfYesNo, PPCFM_ADDNEWGOODS) == cmYes) {
 		PPID   id = 0;
 		Goods2Tbl::Rec goods_rec;
@@ -4033,11 +4034,16 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				{
 					char c = *static_cast<const char *>(pHdr);
 					if(isdec(c)) {
-						Goods2Tbl::Rec goods_rec;
-						double qtty = 0.0;
-						const  int r = GObj.SelectGoodsByBarcode(c, NZOR(Filt.CodeArID, Filt.SupplID), &goods_rec, &qtty, 0);
+						// @v12.6.9 Goods2Tbl::Rec goods_rec;
+						// @v12.6.9 double qtty = 0.0;
+						// @v12.6.9 const  int r = GObj.SelectGoodsByBarcode(c, NZOR(Filt.CodeArID, Filt.SupplID), &goods_rec, &qtty, 0);
+						// @v12.6.9 {
+						PPObjGoods::GoodsByCodeSelectionBlock blk(c);
+						blk.ArID = NZOR(Filt.CodeArID, Filt.SupplID);
+						const  int r = GObj.SelectGoodsByBarcode2(blk);
+						// } @v12.6.9 
 						if(r > 0) {
-							CALLPTRMEMB(pBrw, search2(&goods_rec.ID, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/));
+							CALLPTRMEMB(pBrw, search2(&blk.GoodsRec.ID, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/));
 						}
 						else if(r != -1 && pBrw)
 							pBrw->bottom();

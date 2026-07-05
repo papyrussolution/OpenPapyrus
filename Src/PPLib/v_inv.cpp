@@ -1331,7 +1331,7 @@ int PPViewInventory::SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Re
 		DECL_HANDLE_EVENT
 		{
 			if(event.isCmd(cmOK) && isCurrCtlID(CTL_INVITEM_CODE)) {
-				BarcodeTbl::Rec  bc_rec;
+				BarcodeTbl::Rec bc_rec;
 				SString code;
 				getCtrlString(CTL_INVITEM_CODE, code);
 				if(GObj.SearchBy2dBarcode(code, &bc_rec, 0) > 0)
@@ -1383,11 +1383,9 @@ int PPViewInventory::SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Re
 
 int PPViewInventory::SelectByBarcode(int initChar, PPViewBrowser * pBrw)
 {
-	const int  skip_dlg = BIN(P_BObj->GetConfig().Flags & BCF_ADDAUTOQTTYBYBRCODE);
-	//const int  is_accel = BIN(CommonIoeFlags & INVOPF_ACCELADDITEMS);
+	const  int  skip_dlg = BIN(P_BObj->GetConfig().Flags & BCF_ADDAUTOQTTYBYBRCODE);
 	const  PPID loc_id = NZOR(CommonLocID, LConfig.Location);
-	const int  accel_mode = PPInventoryOpEx::Helper_GetAccelInputMode(CommonIoeFlags);
-
+	const  int  accel_mode = PPInventoryOpEx::Helper_GetAccelInputMode(CommonIoeFlags);
 	int    ok = -1;
 	int    r = 0;
 	SString code;

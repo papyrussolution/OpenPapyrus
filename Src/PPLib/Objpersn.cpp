@@ -5553,8 +5553,12 @@ IMPL_HANDLE_EVENT(PersonDialog)
 						DECL_HANDLE_EVENT
 						{
 							TDialog::handleEvent(event);
-							if(event.isCmd(cmCashierPassword))
-								PasswordDialog(0, Data.Password, sizeof(Data.Password), 0, 1);
+							if(event.isCmd(cmCashierPassword)) {
+								PasswordDialogParam param;
+								param.MinLen = 0;
+								param.Flags = PasswordDialogParam::fWithoutEncrypt;
+								PasswordDialog2(0, Data.Password, sizeof(Data.Password), param);
+							}
 							else if(event.isClusterClk(CTL_CSHRRTS_RIGHTS))
 								SetPrnRights();
 							else

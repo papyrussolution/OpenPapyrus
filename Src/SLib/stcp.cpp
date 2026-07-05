@@ -64,8 +64,8 @@ int TcpSocket::SslBlock::Select(int mode /* TcpSocket::mXXX */, int timeout, siz
 int TcpSocket::SslBlock::Read(void * pBuf, int bufLen) { return P_S ? SSL_read(static_cast<SSL *>(P_S), pBuf, bufLen) : -1; }
 int TcpSocket::SslBlock::Write(const void * pBuf, int bufLen) { return P_S ? SSL_write(static_cast<SSL *>(P_S), pBuf, bufLen) : -1; }
 
-TcpSocket::TcpSocket(int timeout, int maxConn) : InBuf(DefaultReadFrame), OutBuf(DefaultWriteFrame), Timeout(timeout), MaxConn(maxConn), LastSockErr(0), 
-	P_Ssl(0), SockOptions(0)
+TcpSocket::TcpSocket(int timeout, int maxConn) : InBuf(DefaultReadFrame), OutBuf(DefaultWriteFrame), Timeout(timeout), SndTimeout(0), RcvTimeout(0), 
+	MaxConn(maxConn), LastSockErr(0), P_Ssl(0), SockOptions(0)
 {
 	Reset();
 }
@@ -165,6 +165,30 @@ int TcpSocket::CheckErrorStatus()
 	return ok;
 }
 
+int TcpSocket::GetSendTimeout() const { return SndTimeout; } // @v12.6.9
+
+int FASTCALL TcpSocket::SetSendTimeout(int timeout) // @v12.6.9
+{
+	int    ok = 1;
+	if(timeout >= 0)
+		SndTimeout = timeout;
+	else
+		ok = 0;
+	return ok;
+}
+
+int TcpSocket::GetRcvTimeout() const { return RcvTimeout; } // @v12.6.9
+
+int FASTCALL TcpSocket::SetRcvTimeout(int timeout) // @v12.6.9
+{
+	int    ok = 1;
+	if(timeout >= 0)
+		RcvTimeout = timeout;
+	else
+		ok = 0;
+	return ok;
+}
+
 int FASTCALL TcpSocket::SetTimeout(int timeout)
 {
 	int    ok = 1;
@@ -197,11 +221,20 @@ int TcpSocket::Helper_Connect(SslMode sslm, const InetAddr & rAddr)
 		int    no_delay_flag = 1;
 		setsockopt(S, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<const char *>(&no_delay_flag), sizeof(no_delay_flag));
 	}
+	if(SndTimeout > 0) {
+		int    local_timeout = SndTimeout;
+		setsockopt(S, SOL_SOCKET, SO_SNDTIMEO, reinterpret_cast<const char *>(&local_timeout), sizeof(local_timeout));
+	}
+	if(RcvTimeout > 0) {
+		int    local_timeout = RcvTimeout;
+		setsockopt(S, SOL_SOCKET, SO_RCVTIMEO, reinterpret_cast<const char *>(&local_timeout), sizeof(local_timeout));
+	}
 	// } @v12.6.9 
 	if(::connect(S, rAddr.Get(&addr), sizeof(addr)) == SOCKET_ERROR) {
 		int    len;
 		int    bufsize;
-		fd_set rset, wset;
+		fd_set rset;
+		fd_set wset;
 		SString addr_buf;
 		err = WSAGetLastError();
 		rAddr.ToStr(InetAddr::fmtHost|InetAddr::fmtPort, addr_buf);
@@ -249,7 +282,7 @@ int TcpSocket::Bind(const InetAddr & rAddr)
 {
 	int    ok = 1;
 	sockaddr_in addr;
-	S = socket(AF_INET, SOCK_STREAM, 0);
+	S = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); // @v12.6.9 arg protocol 0-->IPPROTO_TCP
 	if(!IsValid() || bind(S, rAddr.Get(&addr), sizeof(addr)) != 0) {
 		closesocket(S);
 		Reset();

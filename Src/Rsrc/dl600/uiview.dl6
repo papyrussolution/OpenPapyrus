@@ -42,14 +42,14 @@ cinclude "../../include/ppdefs.h"
 		passwordrig
 */
 
-dialog DLG_GSTRUCTREE [vertical title: "@ttl_goodsstructree" size: (540, 540) minsize: (300, 300) font: "MS Shell Dlg,8"] {
+dialog DLG_GSTRUCTREE [vertical title: "@ttl_goodsstructree" size: (540, 540) minsize: (300, 300)] {
 	treelistbox CTL_GSTRUCTREE_LIST [tabstop width: bycontainer growfactor: 1];
 	view [horizontal width: bycontainer height: 30 justifycontent: end alignitems: end margin_right: 12] {
 		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop size: (75, 21) margin: 4 command: cmClose];
 	}
 }
 
-dialog DLG_LBXSEL [vertical title: "@{selection} %s" size: (530, 400) minsize: (530, 200) font: "MS Shell Dlg,8"] {
+dialog DLG_LBXSEL [vertical title: "@{selection} %s" size: (530, 400) minsize: (530, 200)] {
 	listbox CTL_LBXSEL_LIST [tabstop width: bycontainer growfactor: 1];
 	view [horizontal width: bycontainer height: 28] {
 		view [horizontal growfactor: 4 height: bycontainer(100) gravity: left justifycontent: start] {
@@ -66,7 +66,7 @@ dialog DLG_LBXSEL [vertical title: "@{selection} %s" size: (530, 400) minsize: (
 	}
 }
 
-dialog DLG_LBXSELT [vertical title: "@{selection} %s" size: (530, 400) minsize: (530, 200) font: "MS Shell Dlg,8"] {
+dialog DLG_LBXSELT [vertical title: "@{selection} %s" size: (530, 400) minsize: (530, 200)] {
 	treelistbox CTL_LBXSEL_LIST [tabstop width: bycontainer growfactor: 1];
 	//button CTL_LBXSEL_UPBTN [title: "@but_up" tabstop size: (23, 21)  command: cmUp];
 	//button CTL_LBXSEL_DOWNBTN [title: "@but_down" tabstop size: (23, 21)  command: cmDown];
@@ -85,7 +85,7 @@ dialog DLG_LBXSELT [vertical title: "@{selection} %s" size: (530, 400) minsize: 
 	}
 }
 
-dialog DLG_SUBSTGL [vertical title: "@{selection} %s" size: (1000, 475) minsize: (800, 200)  font: "MS Shell Dlg,8"] {
+dialog DLG_SUBSTGL [vertical title: "@{selection} %s" size: (1000, 475) minsize: (800, 200) ] {
 	listbox CTL_LBXSEL_LIST [tabstop width: bycontainer growfactor: 1 columns: "@lbt_substgoods"];
 	view [horizontal width: bycontainer height: 28] {
 		view [horizontal growfactor: 6 height: bycontainer(100) gravity: left justifycontent: start] {
@@ -104,7 +104,7 @@ dialog DLG_SUBSTGL [vertical title: "@{selection} %s" size: (1000, 475) minsize:
 	}
 }
 
-dialog DLG_FLDCORRLIST [vertical title: "@sdbfieldiematchlist" size: (560, 430) minsize: (560, 430) font: "MS Shell Dlg,8"] {
+dialog DLG_FLDCORRLIST [vertical title: "@sdbfieldiematchlist" size: (560, 430) minsize: (560, 430)] {
 	listbox CTL_FLDCORRLIST_LIST [tabstop width: bycontainer(100) growfactor: 5 margin: 4 columns: "@lbt_fldcorrlist"];
 	view [horizontal width: bycontainer(100) height: 28] {
 		view [horizontal growfactor: 5 height: bycontainer(100) gravity: left justifycontent: start] {
@@ -121,7 +121,7 @@ dialog DLG_FLDCORRLIST [vertical title: "@sdbfieldiematchlist" size: (560, 430) 
 	}
 }
 
-dialog DLG_DEBTLIMLIST [vertical title: "@cfgclientdealdebtlimit" size: (500, 300) minsize: (500, 300) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.10
+dialog DLG_DEBTLIMLIST [vertical title: "@cfgclientdealdebtlimit" size: (500, 300) minsize: (500, 300) padding: 4] { // @v12.5.10
 	listbox CTL_DEBTLIMLIST_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "40,L,@appellation;20,R,@limit;10,L,@stop"];
 	view [horizontal width: bycontainer(100) height: 28] {
 		view [horizontal growfactor: 3 height: bycontainer(100) gravity: left justifycontent: start] {
@@ -136,7 +136,7 @@ dialog DLG_DEBTLIMLIST [vertical title: "@cfgclientdealdebtlimit" size: (500, 30
 	}
 }
 
-dialog DLG_TAGVALVIEW [vertical title: "@tagvalue_pl" size: (510, 415) minsize: (500, 300) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_TAGVALVIEW [vertical title: "@tagvalue_pl" size: (510, 415) minsize: (500, 300) padding: 4] {
 	statictext CTL_TAGVALVIEW_OBJ [width: bycontainer(100) growfactor: 1 staticedge margin: 4];
 	listbox CTL_TAGVALVIEW_LIST [tabstop width: bycontainer(100) growfactor: 5 margin: 4 columns: "@lbt_tagvallist"];
 	view [horizontal width: bycontainer(100) height: 28] {
@@ -152,7 +152,7 @@ dialog DLG_TAGVALVIEW [vertical title: "@tagvalue_pl" size: (510, 415) minsize: 
 	}
 }
 
-dialog DLG_REGLST [vertical title: "@registerdocument_pl" size: (649, 268) minsize: (500, 200) font: "MS Shell Dlg,8"] {
+dialog DLG_REGLST [vertical title: "@registerdocument_pl" size: (649, 268) minsize: (500, 200)] {
 	input CTL_REGLST_LINKOBJTEXT [width: bycontainer(100) height: 21 margin: 4 tabstop readonly] string[128];
 	listbox CTL_REGLST_LIST [tabstop width: bycontainer(100) growfactor: 1 margin: 4 columns: "@lbt_reglist"];
 	view [horizontal width: bycontainer(100) height: 28] {
@@ -168,7 +168,7 @@ dialog DLG_REGLST [vertical title: "@registerdocument_pl" size: (649, 268) minsi
 	}
 }
 
-dialog DLG_ADDRLIST [vertical title: "@daddress_pl" size: (687, 309) font: "MS Shell Dlg,8"] {
+dialog DLG_ADDRLIST [vertical title: "@daddress_pl" size: (687, 309)] {
 	input CTL_ADDRLIST_NAME [width: bycontainer(100) height: 21 margin: 4 readonly] string[128];
 	listbox CTL_ADDRLIST_LIST [tabstop width: bycontainer(100) growfactor: 1 margin: 4 columns: "@lbt_addrlist"];
 	view [horizontal width: bycontainer(100) height: 28] {
@@ -184,7 +184,7 @@ dialog DLG_ADDRLIST [vertical title: "@daddress_pl" size: (687, 309) font: "MS S
 	}
 }
 
-dialog DLG_BACCLST [vertical title: "@bankaccount_pl" size: (528, 257) minsize: (500, 200) font: "MS Shell Dlg,8"] {
+dialog DLG_BACCLST [vertical title: "@bankaccount_pl" size: (528, 257) minsize: (500, 200)] {
 	input CTL_BACCLST_NAME [width: bycontainer(100) height: 21 margin: 4 tabstop readonly] string[128];
 	view [horizontal width: bycontainer(100) growfactor: 1] {
 		listbox CTL_BACCLST_LIST [tabstop growfactor: 1 height: bycontainer(100) margin: 4 columns: "@lbt_bankacclist"];
@@ -206,7 +206,7 @@ dialog DLG_BACCLST [vertical title: "@bankaccount_pl" size: (528, 257) minsize: 
 	}
 }
 
-dialog DLG_CCEXTLIST [vertical title: "@ccextlist" size: (663, 294) font: "MS Shell Dlg 2,8"] {
+dialog DLG_CCEXTLIST [vertical title: "@ccextlist" size: (663, 294) ] {
 	listbox CTL_CCEXTLIST_LIST [tabstop width: bycontainer(100) growfactor: 1 margin: 4 columns: "@lbt_ccextlist"];
 	view [horizontal width: bycontainer(100) height: 28] {
 		view [horizontal growfactor: 3 height: bycontainer(100) gravity: left justifycontent: start] {
@@ -224,7 +224,7 @@ dialog DLG_CCEXTLIST [vertical title: "@ccextlist" size: (663, 294) font: "MS Sh
 // @todo Диалоги DLG_CFM_RECKONING и DLG_CFM_RECKONDEBT не отличаются друг от друга. Я не помню почему их дифференцировал изначално,
 // но, видимо, их надо объединять в один.
 //
-dialog DLG_CFM_RECKONING [vertical title: "@confirm" size: (519, 465)  font: "MS Shell Dlg,8"] {
+dialog DLG_CFM_RECKONING [vertical title: "@confirm" size: (519, 465) ] {
 	statictext CTL_CFM_RECKONING_INFO [width: bycontainer(100) growfactor: 1 margin: 4 staticedge];
 	view [horizontal width: bycontainer(100) height: 104] {
 		radiocluster CTL_CFM_RECKONING_DTSEL [title: "@cfmrcknparam_dateoption" vertical height: bycontainer(100) growfactor: 1 margin: 4] {
@@ -246,7 +246,7 @@ dialog DLG_CFM_RECKONING [vertical title: "@confirm" size: (519, 465)  font: "MS
 	}
 }
 
-dialog DLG_CFM_RECKONDEBT [title: "@confirm" vertical size: (519, 465)  font: "MS Shell Dlg,8"] {
+dialog DLG_CFM_RECKONDEBT [title: "@confirm" vertical size: (519, 465) ] {
 	statictext CTL_CFM_RECKONING_INFO [width: bycontainer(100) growfactor: 1 margin: 4 staticedge];
 	view [horizontal width: bycontainer(100) height: 104] {
 		radiocluster CTL_CFM_RECKONING_DTSEL [title: "@cfmrcknparam_dateoption" vertical height: bycontainer(100) growfactor: 1 margin: 4] {
@@ -268,7 +268,7 @@ dialog DLG_CFM_RECKONDEBT [title: "@confirm" vertical size: (519, 465)  font: "M
 	}
 }
 
-dialog DLG_TLST2TLST [title: "" vertical size: (724, 431)  font: "MS Shell Dlg,8"] {
+dialog DLG_TLST2TLST [title: "" vertical size: (724, 431) ] {
 	view [horizontal width: bycontainer(100) growfactor: 1] {
 		treelistbox CTL_LST2LST_LST1 [growfactor: 1 height: bycontainer(100)];
 		view [vertical width: 42 height: bycontainer(100) justifycontent: spaceevenly alignitems: center] {
@@ -294,7 +294,7 @@ dialog DLG_TLST2TLST [title: "" vertical size: (724, 431)  font: "MS Shell Dlg,8
 	}
 }
 
-dialog DLG_LST2LST [title: "" vertical size: (724, 431)  font: "MS Shell Dlg,8"] {
+dialog DLG_LST2LST [title: "" vertical size: (724, 431) ] {
 	view [horizontal width: bycontainer(100) growfactor: 1] {
 		listbox CTL_LST2LST_LST1 [growfactor: 1 height: bycontainer(100)];
 		view [vertical width: 42 height: bycontainer(100) justifycontent: spaceevenly alignitems: center] {
@@ -320,7 +320,7 @@ dialog DLG_LST2LST [title: "" vertical size: (724, 431)  font: "MS Shell Dlg,8"]
 	}
 }
 
-dialog DLG_EXTGSEL [title: "@ttl_selectionofgoods" vertical size: (543, 528) minsize: (500, 300) font: "MS Shell Dlg,9"] {
+dialog DLG_EXTGSEL [title: "@ttl_selectionofgoods" vertical size: (543, 528) minsize: (500, 300)] {
 	view [horizontal nowrap width: bycontainer(100) height: 50 justifycontent: spaceevenly] {
 		combobox CTLSEL_EXTGSEL_MODIFMODE [tabstop size: (135, 21) margin: 4 cblinesymb: CTL_EXTGSEL_MODIFMODE];
 		view [horizontal width: 180 height: 40 margin: 4 alignitems: end] {
@@ -341,7 +341,7 @@ dialog DLG_EXTGSEL [title: "@ttl_selectionofgoods" vertical size: (543, 528) min
 	}
 }
 
-dialog DLG_GDSLST [vertical title: "@listofgoods" size: (500, 530) minsize: (400, 400) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.9
+dialog DLG_GDSLST [vertical title: "@listofgoods" size: (500, 530) minsize: (400, 400) padding: 4] { // @v12.5.9
 	combobox CTLSEL_GDSLST_GGRP [tabstop width: bycontainer height: 21 margin: 4 label: "@group" cblinesymb: CTL_GDSLST_GGRP];
 	listbox CTL_GDSLST_LIST [tabstop width: bycontainer growfactor: 1 margin: 4];
 	view [horizontal width: bycontainer(100) height: 30 justifycontent: spacebetween] {
@@ -351,7 +351,7 @@ dialog DLG_GDSLST [vertical title: "@listofgoods" size: (500, 530) minsize: (400
 	}
 }
 
-dialog DLG_AUSERSLST [title: "@activeuserlist" vertical size: (837, 440) minsize: (772, 200) font: "MS Shell Dlg,8"] {
+dialog DLG_AUSERSLST [title: "@activeuserlist" vertical size: (837, 440) minsize: (772, 200)] {
 	listbox CTL_AUSERSLST_LIST [width: bycontainer(100) growfactor: 1 columns: "@{lbt_auserlist}"];
 	view [horizontal width: bycontainer(100) height: 40] {
 		checkbox CTL_AUSERSLST_FLAGS [title: "@activeuserlist_fshowcompnames" tabstop height: 21 width: 240 margin: 4];
@@ -365,7 +365,7 @@ dialog DLG_AUSERSLST [title: "@activeuserlist" vertical size: (837, 440) minsize
 	}
 }
 
-dialog DLG_GGVIEW [horizontal title: "@cmd_goodsgroup" size: (700, 580) minsize: (520, 540) font: "MS Shell Dlg,8"] {
+dialog DLG_GGVIEW [horizontal title: "@cmd_goodsgroup" size: (700, 580) minsize: (520, 540)] {
 	treelistbox CTL_GGVIEW_LIST [height: bycontainer(100) growfactor: 1];
 	view [vertical height: bycontainer(100) width: 190 alignitems: center] {
 		radiocluster CTL_GGVIEW_GGRPTYPE [vertical tabstop width: bycontainer(100) height: 70 margin: 4 padding: 8] {
@@ -390,7 +390,7 @@ dialog DLG_GGVIEW [horizontal title: "@cmd_goodsgroup" size: (700, 580) minsize:
 	}
 }
 
-dialog DLG_REFOBJVIEW [horizontal title: "" size: (489, 424) minsize: (380, 310) font: "MS Shell Dlg 2,8"] {
+dialog DLG_REFOBJVIEW [horizontal title: "" size: (489, 424) minsize: (380, 310) ] {
 	listbox CTL_REFOBJVIEW_LIST [height: bycontainer(100) growfactor: 1];
 	view [vertical height: bycontainer(100) width: 110] {
 		view [vertical growfactor: 3 width: bycontainer(100) justifycontent: start] {
@@ -409,7 +409,7 @@ dialog DLG_REFOBJVIEW [horizontal title: "" size: (489, 424) minsize: (380, 310)
 	}
 }
 
-dialog DLG_OBJVIEW [horizontal title: "@objects" size: (490, 490) minsize: (490, 490) font: "MS Shell Dlg,8"] {
+dialog DLG_OBJVIEW [horizontal title: "@objects" size: (490, 490) minsize: (490, 490)] {
 	listbox CTL_OBJVIEW_LIST [tabstop height: bycontainer(100) growfactor: 1];
 	view [vertical height: bycontainer(100) width: 110] {
 		view [vertical growfactor: 3 width: bycontainer(100) justifycontent: start] {
@@ -427,7 +427,7 @@ dialog DLG_OBJVIEW [horizontal title: "@objects" size: (490, 490) minsize: (490,
 	}
 }
 
-dialog DLG_OBJVIEWT [horizontal title: "@objects" size: (490, 490) minsize: (490, 490) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_OBJVIEWT [horizontal title: "@objects" size: (490, 490) minsize: (490, 490) padding: 4] {
 	treelistbox CTL_OBJVIEW_LIST [height: bycontainer growfactor: 1];
 	view [vertical height: bycontainer width: 110] {
 		view [vertical growfactor: 3 width: bycontainer(100) justifycontent: start] {
@@ -445,7 +445,7 @@ dialog DLG_OBJVIEWT [horizontal title: "@objects" size: (490, 490) minsize: (490
 	}
 }
 
-dialog DLG_LOCPRNVIEW [horizontal title: "@objects" size: (394, 380) minsize: (394, 320) font: "MS Shell Dlg,8"] {
+dialog DLG_LOCPRNVIEW [horizontal title: "@objects" size: (394, 380) minsize: (394, 320)] {
 	listbox CTL_OBJVIEW_LIST [height: bycontainer(100) growfactor: 1];
 	view [vertical height: bycontainer(100) width: 110] {
 		view [vertical growfactor: 3 width: bycontainer(100) justifycontent: start] {
@@ -463,7 +463,7 @@ dialog DLG_LOCPRNVIEW [horizontal title: "@objects" size: (394, 380) minsize: (3
 	}
 }
 
-dialog DLG_GSGIFT [title: "@goodsstruc_giftparam" vertical size: (700, 500) minsize: (370, 280) justifycontent: spaceevenly alignitems: start font: "MS Shell Dlg 2,8"] {
+dialog DLG_GSGIFT [title: "@goodsstruc_giftparam" vertical size: (700, 500) minsize: (370, 280) justifycontent: spaceevenly alignitems: start ] {
 	view [vertical width: bycontainer(100) height: 140] {
 		input CTL_GSTRUC_GIFTAMTRESTR [width: bycontainer(100) height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 2 label: "@goodsstruc_giftamtrestrict" labelsize: (210, 16)] double;
 		input CTL_GSTRUC_GIFTLIMIT [width: bycontainer(100) height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 2 label: "@goodsstruc_giftlimit" labelsize: (135, 13)] float;
@@ -479,7 +479,7 @@ dialog DLG_GSGIFT [title: "@goodsstruc_giftparam" vertical size: (700, 500) mins
 	}
 }
 
-dialog DLG_LOTEXTCODE [vertical title: "" size: (477, 211) minsize: (370, 180) font: "MS Shell Dlg,8"] {
+dialog DLG_LOTEXTCODE [vertical title: "" size: (477, 211) minsize: (370, 180)] {
 	statictext CTL_LOTEXTCODE_INFO [width: bycontainer(100) growfactor: 1 margin: 4 staticedge];
 	input CTL_LOTEXTCODE_CODE [width: bycontainer(100) height: 21 margin: 4 tabstop label: "@code" labelsize: (100, 13)] string[160];
 	view [horizontal width: bycontainer(100) height: 30 justifycontent: end] {
@@ -488,7 +488,7 @@ dialog DLG_LOTEXTCODE [vertical title: "" size: (477, 211) minsize: (370, 180) f
 	}
 }
 
-dialog DLG_GSPPITEM [title: "@gsitempp" vertical size: (489, 310) minsize: (439, 266) font: "MS Shell Dlg 2,8"] {
+dialog DLG_GSPPITEM [title: "@gsitempp" vertical size: (489, 310) minsize: (439, 266) ] {
 	statictext CTL_GSITEM_HEADER [width: bycontainer(100) height: 24 staticedge];
 	combobox CTLSEL_GSITEM_BIZSCORE [width: bycontainer(100) margin: 4 tabstop label: "@indicator" labelsize: (218, 13) cblinesymb: CTL_GSITEM_BIZSCORE];
 	input CTL_GSITEM_SYMB [width: bycontainer(40) height: 21 margin: 4 tabstop label: "@symbol"] string[20];
@@ -505,7 +505,7 @@ dialog DLG_GSPPITEM [title: "@gsitempp" vertical size: (489, 310) minsize: (439,
 	}
 }
 
-dialog DLG_BIZSC2 [vertical title: "@{bizscore}" size: (774, 492) minsize: (723, 492) font: "MS Shell Dlg 2,8"] {
+dialog DLG_BIZSC2 [vertical title: "@{bizscore}" size: (774, 492) minsize: (723, 492) ] {
 	view [horizontal width: bycontainer height: 140] {
 		view [vertical growfactor: 2 height: bycontainer justifycontent: start] {
 			input CTL_BIZSC2_NAME [tabstop width: bycontainer height: 21 margin: 4 label: "@appellation"] string[48];
@@ -562,7 +562,7 @@ dialog DLG_UNITECFILT [vertical size: (300, 140) minsize: (300, 140) title: "@vi
 	}
 }
 
-dialog DLG_SALESRESTR [vertical title: "@obj_salesrestriction" size: (432, 276)  font: "MS Shell Dlg,8"] {
+dialog DLG_SALESRESTR [vertical title: "@obj_salesrestriction" size: (432, 276) ] {
 	view [vertical width: bycontainer height: 80 justifycontent: spaceevenly alignitems: start] {
 		view [horizontal width: bycontainer height: 30 justifycontent: start] {
 			input CTL_SALESRESTR_NAME [growfactor: 4 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
@@ -581,7 +581,7 @@ dialog DLG_SALESRESTR [vertical title: "@obj_salesrestriction" size: (432, 276) 
 	}
 }
 
-dialog DLG_UNITECIGP [vertical title: "@unitec_igp" size: (400, 276) minsize: (300, 200) font: "MS Shell Dlg,8"] {
+dialog DLG_UNITECIGP [vertical title: "@unitec_igp" size: (400, 276) minsize: (300, 200)] {
 	view [vertical width: bycontainer(100) height: 70 justifycontent: start alignitems: center] {
 		input CTL_UNITECIGP_RCPTQTY [width: 270 height: 21 margin: 4 tabstop label: "@unitec_igp_rcptqtty" fmtf: (nozero notraiz) fmtprec: 3] double;
 		input CTL_UNITECIGP_EWDEMAND [width: 270 height: 21 margin: 4 tabstop label: "@unitec_igp_expecteddemandperweek" fmtf: (nozero notraiz) fmtprec: 3] double;
@@ -592,7 +592,7 @@ dialog DLG_UNITECIGP [vertical title: "@unitec_igp" size: (400, 276) minsize: (3
 	}
 }
 
-dialog DLG_CR2SRGWPARAM [vertical title: "@cristal2setretailgateway_runparam" size: (400, 276) minsize: (300, 200) font: "MS Shell Dlg,8" alignitems: center] {
+dialog DLG_CR2SRGWPARAM [vertical title: "@cristal2setretailgateway_runparam" size: (400, 276) minsize: (300, 200) alignitems: center] {
 	input CTL_CR2SRGWPARAM_INFO [readonly width: bycontainer height: 21 margin: 4] string[128];
 	checkcluster CTL_CR2SRGWPARAM_ACTIONS [vertical width: bycontainer(80) margin: 4] {
 		checkbox [title: "@cristal2setretailgateway_runparam_actreadcristalsrcdata" height: 16 margin: 4];
@@ -606,7 +606,7 @@ dialog DLG_CR2SRGWPARAM [vertical title: "@cristal2setretailgateway_runparam" si
 //
 // Запрос сессий для кассового модуля Papyrus
 //
-dialog DLG_POSNQUERY [vertical title: "@posnquery" size: (363, 416)  minsize: (363, 416) font: "MS Shell Dlg,8"] {
+dialog DLG_POSNQUERY [vertical title: "@posnquery" size: (363, 416)  minsize: (363, 416)] {
 	input CTL_POSNQUERY_N [width: bycontainer height: 21 margin: 4 tabstop label: "@posnquery_dvcnumlist"] string[128];
 	radiocluster CTL_POSNQUERY_Q [vertical width: 315 margin: 4] {
 		radiobutton [title: "@posnquery_qvlastsession"];
@@ -629,7 +629,7 @@ dialog DLG_POSNQUERY [vertical title: "@posnquery" size: (363, 416)  minsize: (3
 //
 // Запрос сессий для кассового модуля Set-Retail
 //
-dialog DLG_POSNQUERYSETR [vertical title: "@posnquery" size: (360, 235)  minsize: (360, 235) font: "MS Shell Dlg,8"] {
+dialog DLG_POSNQUERYSETR [vertical title: "@posnquery" size: (360, 235)  minsize: (360, 235)] {
 	input CTL_POSNQUERY_PERIOD [size: (180, 21) margin: 4 tabstop label: "@posnquery_sessperiod"] string[32]
 		supplement daterangecalbutton(CTLCAL_POSNQUERY_PERIOD);
 	input CTL_POSNQUERY_N [width: bycontainer height: 21 margin: 4 tabstop label: "@posnquery_dvcnumlist"] string[128];
@@ -643,7 +643,7 @@ dialog DLG_POSNQUERYSETR [vertical title: "@posnquery" size: (360, 235)  minsize
 //
 // Фильтр выборки товаров Wildberries
 //
-dialog DLG_WBGOODSLISTFILT [vertical title: "@wildberries_publicgoodsselectionfilt" size: (400, 360) minsize: (380, 360) font: "MS Shell Dlg,8" alignitems: center] {
+dialog DLG_WBGOODSLISTFILT [vertical title: "@wildberries_publicgoodsselectionfilt" size: (400, 360) minsize: (380, 360) alignitems: center] {
 	radiocluster CTL_WBGOODSLISTFILT_VK [vertical tabstop width: bycontainer(100) margin: 4] {
 		radiobutton [title: "@mpviewkind_goods"];
 		radiobutton [title: "@mpviewkind_pickuppoints"];
@@ -666,7 +666,7 @@ dialog DLG_WBGOODSLISTFILT [vertical title: "@wildberries_publicgoodsselectionfi
 //
 // Итоги выборки товаров Wildberries
 //
-dialog DLG_WBGOODSLISTTOTAL [vertical title: "@wildberries_publicgoodsselectiontotal" size: (600, 400) font: "MS Shell Dlg,8"] {
+dialog DLG_WBGOODSLISTTOTAL [vertical title: "@wildberries_publicgoodsselectiontotal" size: (600, 400)] {
 	input CTL_WBGOODSLISTTOTAL_SCOUNT [design: B width: 80 height: 21 margin: 8 readonly tabstop label: "@wildberries_publicgoodsselectiontotal_scount" fmtf: (align_right nozero)] uint;
 	input CTL_WBGOODSLISTTOTAL_COUNT  [design: B width: 80 height: 21 margin: 8 readonly tabstop label: "@wildberries_publicgoodsselectiontotal_count" fmtf: (align_right nozero)] uint;
 	input CTL_WBGOODSLISTTOTAL_BCOUNT [design: B width: 80 height: 21 margin: 8 readonly tabstop label: "@wildberries_publicgoodsselectiontotal_bcount" fmtf: (align_right nozero)] uint;
@@ -678,7 +678,7 @@ dialog DLG_WBGOODSLISTTOTAL [vertical title: "@wildberries_publicgoodsselectiont
 //
 // Детализация товара Wildberries
 //
-dialog DLG_WBGOODSLISTDETAIL [vertical title: "" size: (600, 600) font: "MS Shell Dlg,8"] {
+dialog DLG_WBGOODSLISTDETAIL [vertical title: "" size: (600, 600)] {
 	framebox [title: "@ware" horizontal width: bycontainer(100) height: 58 margin: 4 padding: 4 justifycontent: spaceevenly alignitems: center] {	
 		input CTL_WBGOODSLISTDETAIL_ID      [width: 80 height: 21 margin: 8 readonly tabstop label: "@id" fmtf: (align_right nozero)] int64;
 		input CTL_WBGOODSLISTDETAIL_NAME    [growfactor: 1 height: 21 margin: 8 readonly tabstop label: "@appellation"] string[200];
@@ -697,7 +697,7 @@ dialog DLG_WBGOODSLISTDETAIL [vertical title: "" size: (600, 600) font: "MS Shel
 	}
 }
 
-dialog DLG_CRREXPPARAM_PDF [vertical size: (400, 300) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+dialog DLG_CRREXPPARAM_PDF [vertical size: (400, 300) title: "@printrpt_exportparams" ] { // @construction
 	radiocluster CTL_CRREXPPARAM_DEST [vertical tabstop width: bycontainer(100) margin: 4] {
 		radiobutton [title: "@file"];
 		radiobutton [title: "@application"];
@@ -710,7 +710,7 @@ dialog DLG_CRREXPPARAM_PDF [vertical size: (400, 300) title: "@printrpt_exportpa
 	}	
 }
 
-dialog DLG_CRREXPPARAM_RTF [vertical size: (400, 300) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+dialog DLG_CRREXPPARAM_RTF [vertical size: (400, 300) title: "@printrpt_exportparams" ] { // @construction
 	radiocluster CTL_CRREXPPARAM_DEST [vertical tabstop width: bycontainer(100) margin: 4] {
 		radiobutton [title: "@file"];
 		radiobutton [title: "@application"];
@@ -723,7 +723,7 @@ dialog DLG_CRREXPPARAM_RTF [vertical size: (400, 300) title: "@printrpt_exportpa
 	}	
 }
 
-dialog DLG_CRREXPPARAM_HTML [vertical size: (400, 300) minsize: (400, 300) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] {
+dialog DLG_CRREXPPARAM_HTML [vertical size: (400, 300) minsize: (400, 300) title: "@printrpt_exportparams" ] {
 	radiocluster CTL_CRREXPPARAM_DEST [vertical tabstop width: bycontainer(100) margin: 4] {
 		radiobutton [title: "@file"];
 		radiobutton [title: "@application"];
@@ -736,7 +736,7 @@ dialog DLG_CRREXPPARAM_HTML [vertical size: (400, 300) minsize: (400, 300) title
 	}	
 }
 
-dialog DLG_CRREXPPARAM_EXCEL [vertical size: (400, 400) minsize: (400, 400) padding: 4 title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] {
+dialog DLG_CRREXPPARAM_EXCEL [vertical size: (400, 400) minsize: (400, 400) padding: 4 title: "@printrpt_exportparams" ] {
 	radiocluster CTL_CRREXPPARAM_DEST [vertical tabstop width: bycontainer margin: 4] {
 		radiobutton [title: "@file"];
 		radiobutton [title: "@application"];
@@ -758,7 +758,7 @@ dialog DLG_CRREXPPARAM_EXCEL [vertical size: (400, 400) minsize: (400, 400) padd
 	}	
 }
 
-dialog DLG_CRREXPPARAM_WINWORD [vertical size: (400, 300) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+dialog DLG_CRREXPPARAM_WINWORD [vertical size: (400, 300) title: "@printrpt_exportparams" ] { // @construction
 	radiocluster CTL_CRREXPPARAM_DEST [vertical tabstop width: bycontainer(100) margin: 4] {
 		radiobutton [title: "@file"];
 		radiobutton [title: "@application"];
@@ -771,7 +771,7 @@ dialog DLG_CRREXPPARAM_WINWORD [vertical size: (400, 300) title: "@printrpt_expo
 	}	
 }
 
-dialog DLG_CRREXPPARAM_CSV [vertical size: (400, 400) title: "@printrpt_exportparams" font: "MS Shell Dlg 2,8"] { // @construction
+dialog DLG_CRREXPPARAM_CSV [vertical size: (400, 400) title: "@printrpt_exportparams" ] { // @construction
 	radiocluster CTL_CRREXPPARAM_DEST [vertical tabstop width: bycontainer(100) margin: 4] {
 		radiobutton [title: "@file"];
 		radiobutton [title: "@application"];
@@ -789,7 +789,7 @@ dialog DLG_CRREXPPARAM_CSV [vertical size: (400, 400) title: "@printrpt_exportpa
 	}	
 }
 
-dialog DLG_PRINT2 [vertical title: "@printrpt" size: (615, 470) minsize: (615, 470) padding: 4 font: "MS Shell Dlg 2,8"] {
+dialog DLG_PRINT2 [vertical title: "@printrpt" size: (615, 470) minsize: (615, 470) padding: 4 ] {
 	framebox [vertical width: bycontainer height: 180 margin: 4 padding: 4 justifycontent: spaceevenly alignitems: center] {	
 		view [horizontal width: bycontainer growfactor: 1] {
 			radiocluster CTL_PRINT2_ACTION [vertical growfactor: 3 tabstop] {
@@ -830,7 +830,7 @@ dialog DLG_PRINT2 [vertical title: "@printrpt" size: (615, 470) minsize: (615, 4
 	}
 }
 
-dialog DLG_BILLPRELUDE [vertical title: "@billprelude" size: (384, 463) minsize: (240, 270) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_BILLPRELUDE [vertical title: "@billprelude" size: (384, 463) minsize: (240, 270) padding: 4] {
 	listbox CTL_BILLPRELUDE_OPLIST [tabstop width: bycontainer growfactor: 1 margin: 4];
 	combobox CTLSEL_BILLPRELUDE_LOC [tabstop width: bycontainer height: 21 margin: 4 label: "@warehouse" cblinesymb: CTL_BILLPRELUDE_LOC];
 	view [horizontal width: bycontainer height: 28 margin_right: 12 gravity: right justifycontent: end alignitems: end] {
@@ -839,7 +839,7 @@ dialog DLG_BILLPRELUDE [vertical title: "@billprelude" size: (384, 463) minsize:
 	}
 }
 
-dialog DLG_CHZNLOCPMURL [vertical title: "" size: (385, 240) minsize: (385, 240) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_CHZNLOCPMURL [vertical title: "" size: (385, 240) minsize: (385, 240) padding: 4] {
 	input CTL_CHZNLOCPMURL_ADDR [width: bycontainer height: 21 margin: 4 tabstop label: "@serveraddr"] string[64];
 	input CTL_CHZNLOCPMURL_USER [width: bycontainer height: 21 margin: 4 tabstop label: "@username"] string[64];
 	input CTL_CHZNLOCPMURL_PW   [width: bycontainer height: 21 margin: 4 tabstop password label: "@password"] string[64];
@@ -850,7 +850,7 @@ dialog DLG_CHZNLOCPMURL [vertical title: "" size: (385, 240) minsize: (385, 240)
 	}
 }
 
-dialog DLG_CHKCHZNMARK [vertical title: "@ttl_checkchzmark" size: (909, 530) minsize: (430, 430) font: "MS Shell Dlg 2,8"] { // @v12.3.11 @construction
+dialog DLG_CHKCHZNMARK [vertical title: "@ttl_checkchzmark" size: (909, 530) minsize: (430, 430) ] { // @v12.3.11 @construction
 	input CTL_CHKCHZNMARK_INPUT [width: bycontainer height: 21 margin: 4 tabstop] string[252];
 	view [horizontal width: bycontainer height: 84] {
 		view [vertical growfactor: 4 height: bycontainer] {
@@ -885,7 +885,7 @@ dialog DLG_CHKCHZNMARK [vertical title: "@ttl_checkchzmark" size: (909, 530) min
 //
 // Диалог ввода марки честный знак
 //
-dialog DLG_CHZNMARK [vertical title: "@chznmark" size: (540, 220) minsize: (540, 220) font: "MS Shell Dlg,8"] {
+dialog DLG_CHZNMARK [vertical title: "@chznmark" size: (540, 220) minsize: (540, 220)] {
 	input CTL_CHZNMARK_INPUT [width: bycontainer height: 21 margin: 4 tabstop label: "@doscanmark"] string[160];
 	statictext CTL_CHZNMARK_INFO [width: bycontainer growfactor: 1 margin: 4 staticedge];
 	view [horizontal width: bycontainer(100) height: 28 margin_right: 12 justifycontent: end] {
@@ -894,7 +894,7 @@ dialog DLG_CHZNMARK [vertical title: "@chznmark" size: (540, 220) minsize: (540,
 	}
 }
 
-dialog DLG_TESTGLBSVCACSY [title: "@testglobalserviceaccessibility" vertical size: (507, 414) minsize: (500, 300) font: "MS Shell Dlg,8"] {
+dialog DLG_TESTGLBSVCACSY [title: "@testglobalserviceaccessibility" vertical size: (507, 414) minsize: (500, 300)] {
 	statictext CTL_TESTGLBSVCACSY_INFO [width: bycontainer(100) height: 32 staticedge margin: 4];
 	listbox CTL_TESTGLBSVCACSY_LIST [width: bycontainer(100) growfactor: 1 margin: 4 columns: "@lbt_testglbsvcacsylist"];
 	view [horizontal width: bycontainer(100) height: 28] {
@@ -909,7 +909,7 @@ dialog DLG_TESTGLBSVCACSY [title: "@testglobalserviceaccessibility" vertical siz
 //
 // @v12.3.12 Диалог диагностики локального сервера проверки марок чзн
 //
-dialog DLG_CHZNLOCPMPANE [vertical title: "" size: (507, 414) minsize: (500, 300) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_CHZNLOCPMPANE [vertical title: "" size: (507, 414) minsize: (500, 300) padding: 4] {
 	input CTL_CHZNLOCPMPANE_URL [width: bycontainer height: 21 margin: 4 tabstop readonly] string[252];
 	view [horizontal width: bycontainer height: 28 gravity: right justifycontent: end] {
 		button [title: "@launch" tabstop size: (150, 21) margin: 4 command: cmRun];
@@ -921,7 +921,7 @@ dialog DLG_CHZNLOCPMPANE [vertical title: "" size: (507, 414) minsize: (500, 300
 	}
 }
 
-dialog DLG_CHKPANV [vertical title: "@poscheck" size: (888, 489) font: "MS Shell Dlg 2,8"] {
+dialog DLG_CHKPANV [vertical title: "@poscheck" size: (888, 489) ] {
 	listbox CTL_CHKPAN_LIST [width: bycontainer growfactor: 1 columns: "3,R,#;3,C,;44,L,@ware;16,L,@barcode;9,R,@price;8,R,@discount;8,R,@qtty;9,R,@amount;6,R,@vatrate;15,L,@series"];
 	view [horizontal width: bycontainer height: 40] {
 		//statictext [title: "@id" size: (68, 13)];
@@ -982,7 +982,7 @@ dialog DLG_CHKPANV [vertical title: "@poscheck" size: (888, 489) font: "MS Shell
 	}
 }
 
-dialog DLG_LOCTRFILT [vertical title: "@loctransffilt" size: (530, 350) minsize: (530, 350) font: "MS Shell Dlg,8"] {
+dialog DLG_LOCTRFILT [vertical title: "@loctransffilt" size: (530, 350) minsize: (530, 350)] {
 	radiocluster CTL_LOCTRFILT_DOMAIN [width: bycontainer(60) margin: 4] {
 		radiobutton [title: "@loctransffilt_domain_wms"];
 		radiobutton [title: "@loctransffilt_domain_bailment"];
@@ -1005,7 +1005,7 @@ dialog DLG_LOCTRFILT [vertical title: "@loctransffilt" size: (530, 350) minsize:
 	}
 }
 
-dialog DLG_LOCTRANSF [vertical title: "@roptype_warehouse" size: (800, 400) minsize: (600, 380)  font: "MS Shell Dlg,8"] {
+dialog DLG_LOCTRANSF [vertical title: "@roptype_warehouse" size: (800, 400) minsize: (600, 380) ] {
 	statictext CTL_LOCTRANSF_BILLTITLE [width: bycontainer height: 16 margin: 4 staticedge];
 	view [horizontal width: bycontainer height: 80] {
 		view [horizontal growfactor: 3 height: bycontainer] {
@@ -1054,7 +1054,7 @@ dialog DLG_LOCTRANSF [vertical title: "@roptype_warehouse" size: (800, 400) mins
 	}
 }
 
-dialog DLG_LOCTRANSF_BAILMENT [vertical title: "@roptype_warehouse" size: (720, 450) minsize: (600, 450)  font: "MS Shell Dlg,8"] {
+dialog DLG_LOCTRANSF_BAILMENT [vertical title: "@roptype_warehouse" size: (720, 450) minsize: (600, 450) ] {
 	statictext CTL_LOCTRANSF_BILLTITLE [width: bycontainer height: 16 margin: 4 staticedge];
 	view [horizontal width: bycontainer height: 140] {
 		view [horizontal growfactor: 3 height: bycontainer] {
@@ -1108,7 +1108,7 @@ dialog DLG_LOCTRANSF_BAILMENT [vertical title: "@roptype_warehouse" size: (720, 
 	}
 }
 
-dialog DLG_BIGTXTEDIT [vertical size: (800, 600) minsize: (400, 300) font: "MS Shell Dlg 2,8"] {
+dialog DLG_BIGTXTEDIT [vertical size: (800, 600) minsize: (400, 300) ] {
 	input CTL_BIGTXTEDIT_TITLE [width: bycontainer(100) height: 21 margin: 4 readonly] string[128];
 	input CTL_BIGTXTEDIT_TEXT [width: bycontainer(100) growfactor: 1 tabstop multiline wantreturn] string[64];
 	view [horizontal width: bycontainer(100) height: 28 margin_right: 12 justifycontent: end] {
@@ -1117,7 +1117,7 @@ dialog DLG_BIGTXTEDIT [vertical size: (800, 600) minsize: (400, 300) font: "MS S
 	}
 }
 
-dialog DLG_MEMO [vertical title: "@memo" size: (600, 300)  font: "MS Shell Dlg,8"] {
+dialog DLG_MEMO [vertical title: "@memo" size: (600, 300) ] {
 	input CTL_INPUT_STR [width: bycontainer(100) growfactor: 1 tabstop multiline wantreturn] string[255];
 	view [horizontal width: bycontainer(100) height: 28 margin_right: 12 justifycontent: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
@@ -1125,7 +1125,7 @@ dialog DLG_MEMO [vertical title: "@memo" size: (600, 300)  font: "MS Shell Dlg,8
 	}
 }
 
-dialog DLG_INPUT [vertical title: "" size: (500, 125) minsize: (500, 125) font: "MS Shell Dlg,8"] {
+dialog DLG_INPUT [vertical title: "" size: (500, 125) minsize: (500, 125)] {
 	input CTL_INPUT_STR [width: bycontainer height: 21 margin: 4 tabstop label: "@input_string"] string[128];
 	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
@@ -1133,7 +1133,7 @@ dialog DLG_INPUT [vertical title: "" size: (500, 125) minsize: (500, 125) font: 
 	}
 }
 
-dialog DLG_OPKMORE [vertical title: "@{oprkind_options}" size: (470, 440) minsize: (470, 440)  font: "MS Shell Dlg,8"] {
+dialog DLG_OPKMORE [vertical title: "@{oprkind_options}" size: (470, 440) minsize: (470, 440) ] {
 	view [horizontal width: bycontainer height: 220] {
 		radiocluster CTL_OPKMORE_AMOUNT [title: "@nominalamount" growfactor: 2 margin: 4] {
 			radiobutton [title: "@oprkind_implicitnominal"];
@@ -1163,7 +1163,7 @@ dialog DLG_OPKMORE [vertical title: "@{oprkind_options}" size: (470, 440) minsiz
 	}
 }
 
-dialog DLG_CASHREPORTS [vertical title: "@posnodecmd" size: (300, 395) minsize: (250, 395) font: "MS Shell Dlg 2,8"] {
+dialog DLG_CASHREPORTS [vertical title: "@posnodecmd" size: (300, 395) minsize: (250, 395) ] {
 	// (все равно он в программе делается невидимым) input CTL_CSPANEL_INPUT [width: bycontainer height: 21 margin: (4, 4, 4, 8) tabstop] string[64];
 	view [vertical width: bycontainer growfactor: 10 alignitems: center justifycontent: spaceevenly] {
 		button CTL_CSPANEL_XREP [title: "@posnodecmd_sync_xreport" tabstop width: bycontainer(80) height: 21 margin: 4 command: cmSCSXReport];
@@ -1182,7 +1182,7 @@ dialog DLG_CASHREPORTS [vertical title: "@posnodecmd" size: (300, 395) minsize: 
 	}
 }
 
-dialog DLG_SELWHOBSMPL [vertical title: "@billbysampleparam" size: (400, 200) minsize: (400, 200) font: "MS Shell Dlg,8"] {
+dialog DLG_SELWHOBSMPL [vertical title: "@billbysampleparam" size: (400, 200) minsize: (400, 200)] {
 	radiocluster CTL_SELBBSMPL_WHAT [tabstop vertical width: bycontainer margin: 4] {
 		radiobutton [title: "@billbysampleparam_acnstd"];
 		radiobutton [title: "@billbysampleparam_acnbybailmentorder"];
@@ -1194,7 +1194,7 @@ dialog DLG_SELWHOBSMPL [vertical title: "@billbysampleparam" size: (400, 200) mi
 	}
 }
 
-dialog DLG_SUPPLIX [vertical title: "@supplixfilt" size: (740, 440) minsize: (740, 440) font: "MS Shell Dlg 2,8"] {
+dialog DLG_SUPPLIX [vertical title: "@supplixfilt" size: (740, 440) minsize: (740, 440) ] {
 	view [horizontal width: bycontainer height: 40] {
 		combobox CTLSEL_SUPPLIX_SUPPL [width: bycontainer(60) height: 21 margin: 4 label: "@supplixfilt_suppl" cblinesymb: CTL_SUPPLIX_SUPPL];
 		input CTL_SUPPLIX_EXPPRD [growfactor: 1 height: 21 margin: 4 tabstop label: "@supplixfilt_expperiod"] string[24] supplement daterangecalbutton(CTLCAL_SUPPLIX_EXPPRD);
@@ -1237,7 +1237,7 @@ dialog DLG_SUPPLIX [vertical title: "@supplixfilt" size: (740, 440) minsize: (74
 	}
 }
 
-dialog DLG_BILLTOTAL2 [vertical title: "@total_bill" size: (455, 425) minsize: (455, 425)  font: "MS Shell Dlg,8"] {
+dialog DLG_BILLTOTAL2 [vertical title: "@total_bill" size: (455, 425) minsize: (455, 425) ] {
 	view [horizontal width: bycontainer margin: 4 height: 100] {
 		framebox [vertical width: bycontainer(100) growfactor: 1 padding: 4] {
 			input CTL_BILLTOTAL2_COUNT [width: bycontainer height: 21 margin: 4 tabstop readonly label: "@total_bill_count" fmtf: (align_right)] int32;
@@ -1255,7 +1255,7 @@ dialog DLG_BILLTOTAL2 [vertical title: "@total_bill" size: (455, 425) minsize: (
 	}
 }
 
-dialog DLG_EXAMTLIST [vertical title: "@billamount_pl" size: (425, 300) minsize: (425, 300) font: "MS Shell Dlg,8"] {
+dialog DLG_EXAMTLIST [vertical title: "@billamount_pl" size: (425, 300) minsize: (425, 300)] {
 	framebox [vertical width: bycontainer(100) growfactor: 1 margin: 2 padding: 4] {
 		listbox CTL_EXAMTLIST_LIST [width: bycontainer(100) growfactor: 1 margin: (2, 4, 2, 2) columns: "@lbt_examtlist"];
 		view [horizontal width: bycontainer(100) height: 30 margin_right: 12 justifycontent: start alignitems: start] {
@@ -1270,7 +1270,7 @@ dialog DLG_EXAMTLIST [vertical title: "@billamount_pl" size: (425, 300) minsize:
 	}
 }
 
-dialog DLG_IMPEXPCFGS [vertical title: "@impexpparam_pl" size: (948, 351) minsize: (940, 350) font: "MS Shell Dlg,8"] {
+dialog DLG_IMPEXPCFGS [vertical title: "@impexpparam_pl" size: (948, 351) minsize: (940, 350)] {
 	view [horizontal width: bycontainer growfactor: 1] {
 		listbox CTL_IMPEXPCFGS_CFGS [growfactor: 1 height: bycontainer];
 		view [vertical growfactor: 4 height: bycontainer] {
@@ -1293,7 +1293,7 @@ dialog DLG_IMPEXPCFGS [vertical title: "@impexpparam_pl" size: (948, 351) minsiz
 	}
 }
 
-dialog DLG_OPKMORE_WH [vertical title: "@{oprkind_options}" size: (650, 540) minsize: (650, 540)  font: "MS Shell Dlg,8"] {
+dialog DLG_OPKMORE_WH [vertical title: "@{oprkind_options}" size: (650, 540) minsize: (650, 540) ] {
 	view [horizontal width: bycontainer height: 100] {
 		radiocluster CTL_OPKMORE_AMOUNT [title: "@nominalamount" height: bycontainer growfactor: 1 margin: 4] {
 			radiobutton [title: "@oprkind_implicitnominal"];
@@ -1335,7 +1335,7 @@ dialog DLG_OPKMORE_WH [vertical title: "@{oprkind_options}" size: (650, 540) min
 	}
 }
 
-dialog DLG_OPKMORE_DEX [vertical title: "@{oprkind_options} (@{roptype_draftexpend})" size: (552, 473) minsize: (552, 473) font: "MS Shell Dlg 2,8"] {
+dialog DLG_OPKMORE_DEX [vertical title: "@{oprkind_options} (@{roptype_draftexpend})" size: (552, 473) minsize: (552, 473) ] {
 	view [horizontal width: bycontainer height: 80] {
 		radiocluster CTL_OPKMORE_AMOUNT [title: "@nominalamount" vertical growfactor: 1 height: bycontainer margin: 4] {
 			radiobutton [title: "@oprkind_implicitnominal"];
@@ -1376,7 +1376,7 @@ dialog DLG_OPKMORE_DEX [vertical title: "@{oprkind_options} (@{roptype_draftexpe
 	}
 }
 
-dialog DLG_SELACTYP [vertical title: "@selectacctype" size: (360, 180) minsize: (360, 180) font: "MS Shell Dlg,8"] {
+dialog DLG_SELACTYP [vertical title: "@selectacctype" size: (360, 180) minsize: (360, 180)] {
 	radiocluster CTL_SELACTYP_TYP [vertical tabstop width: bycontainer margin: 4] {
 		radiobutton [title: "@account_balance"];
 		radiobutton [title: "@balancelessaccount"];
@@ -1389,7 +1389,7 @@ dialog DLG_SELACTYP [vertical title: "@selectacctype" size: (360, 180) minsize: 
 	}
 }
 
-dialog DLG_SELEGAISCHRGON [vertical title: "@egaislotchargeon" size: (500, 180) minsize: (500, 180) font: "MS Shell Dlg,8"] {
+dialog DLG_SELEGAISCHRGON [vertical title: "@egaislotchargeon" size: (500, 180) minsize: (500, 180)] {
 	radiocluster CTL_SELEGAISCHRGON_WHAT [vertical tabstop width: bycontainer margin: 4] {
 		radiobutton [title: "@egaislotchargeon_actchargeon"];
 		radiobutton [title: "@egaislotchargeon_actchargeonshop"];
@@ -1401,7 +1401,7 @@ dialog DLG_SELEGAISCHRGON [vertical title: "@egaislotchargeon" size: (500, 180) 
 	}
 }
 
-dialog DLG_SELIACC [vertical title: "@selectinetacctype" size: (375, 165) minsize: (375, 165) font: "MS Shell Dlg,8"] {
+dialog DLG_SELIACC [vertical title: "@selectinetacctype" size: (375, 165) minsize: (375, 165)] {
 	radiocluster CTL_SELIACC_WHAT [vertical tabstop width: bycontainer margin: 4] {
 		radiobutton [title: "@emailaccount"];
 		radiobutton [title: "@ftpaccount"];
@@ -1412,7 +1412,7 @@ dialog DLG_SELIACC [vertical title: "@selectinetacctype" size: (375, 165) minsiz
 	}
 }
 
-dialog DLG_SELNEWPALM [vertical title: "@selectnewrectype" size: (340, 180) minsize: (340, 180) font: "MS Shell Dlg,8"] {
+dialog DLG_SELNEWPALM [vertical title: "@selectnewrectype" size: (340, 180) minsize: (340, 180)] {
 	radiocluster CTL_SELNEWPALM_WHAT [vertical tabstop width: bycontainer margin: 4] {
 		radiobutton [title: "@device"];
 		radiobutton [title: "@brand_styloagent"];
@@ -1424,7 +1424,7 @@ dialog DLG_SELNEWPALM [vertical title: "@selectnewrectype" size: (340, 180) mins
 	}
 }
 
-dialog DLG_SELNEWSTAFFAMT [vertical title: "@selectnewrectype" size: (280, 165) minsize: (280, 165) font: "MS Shell Dlg,8"] {
+dialog DLG_SELNEWSTAFFAMT [vertical title: "@selectnewrectype" size: (280, 165) minsize: (280, 165)] {
 	radiocluster CTL_SELNEWSTAFFAMT_WHAT [vertical tabstop width: bycontainer margin: 4] {
 		radiobutton [title: "@staffcalendar"];
 		radiobutton [title: "@staffamount_s"];
@@ -1435,7 +1435,7 @@ dialog DLG_SELNEWSTAFFAMT [vertical title: "@selectnewrectype" size: (280, 165) 
 	}
 }
 
-dialog DLG_SELNEWPSNOPK [vertical title: "@selectnewrectype" size: (340, 165) minsize: (340, 165) font: "MS Shell Dlg,8"] {
+dialog DLG_SELNEWPSNOPK [vertical title: "@selectnewrectype" size: (340, 165) minsize: (340, 165)] {
 	radiocluster CTL_SELNEWPSNOPK_WHAT [vertical tabstop width: bycontainer margin: 4] {
 		radiobutton [title: "@personopkind"];
 		radiobutton [title: "@personopkindgroup"];
@@ -1446,7 +1446,7 @@ dialog DLG_SELNEWPSNOPK [vertical title: "@selectnewrectype" size: (340, 165) mi
 	}
 }
 
-dialog DLG_SELPRNCHK [vertical title: "@{whatprint} ?" size: (240, 165) minsize: (240, 165)  font: "MS Shell Dlg,8"] {
+dialog DLG_SELPRNCHK [vertical title: "@{whatprint} ?" size: (240, 165) minsize: (240, 165) ] {
 	radiocluster CTL_SELPRNCHK_WHAT [vertical tabstop width: bycontainer margin: 4] {
 		radiobutton [title: "@poscheck"];
 		radiobutton [title: "@pb_bill"];
@@ -1457,7 +1457,7 @@ dialog DLG_SELPRNCHK [vertical title: "@{whatprint} ?" size: (240, 165) minsize:
 	}
 }
 
-dialog DLG_SELPRNTSES [vertical title: "@printtsesslist" size: (335, 180) minsize: (335, 180)  font: "MS Shell Dlg,8"] {
+dialog DLG_SELPRNTSES [vertical title: "@printtsesslist" size: (335, 180) minsize: (335, 180) ] {
 	radiocluster CTL_SELPRNTSES_WHAT [vertical tabstop width: bycontainer margin: 4] {
 		radiobutton [title: "@printtsesslist_simple"];
 		radiobutton [title: "@printtsesslist_withpsnreg"];
@@ -1469,7 +1469,7 @@ dialog DLG_SELPRNTSES [vertical title: "@printtsesslist" size: (335, 180) minsiz
 	}
 }
 
-dialog DLG_GSTRUCPRN [vertical title: "@printgoodsstruc" size: (340, 165) minsize: (340, 165) font: "MS Shell Dlg,8"] {
+dialog DLG_GSTRUCPRN [vertical title: "@printgoodsstruc" size: (340, 165) minsize: (340, 165)] {
 	radiocluster CTL_GSTRUCPRN_WHAT [title: "@printgoodsstruc_what" vertical tabstop width: bycontainer margin: 4] {
 		radiobutton [title: "@printgoodsstruc_onlystruc"];
 		radiobutton [title: "@printgoodsstruc_hierarchy"];
@@ -1480,7 +1480,7 @@ dialog DLG_GSTRUCPRN [vertical title: "@printgoodsstruc" size: (340, 165) minsiz
 	}
 }
 
-dialog DLG_GGRPKIND [vertical title: "@ttl_selnewgoodsgroup" size: (335, 180) minsize: (335, 180) font: "MS Shell Dlg,8"] {
+dialog DLG_GGRPKIND [vertical title: "@ttl_selnewgoodsgroup" size: (335, 180) minsize: (335, 180)] {
 	radiocluster CTL_GGRPKIND_KIND [vertical tabstop width: bycontainer margin: 4] {
 		radiobutton [title: "@gpkind_ordinarygroup"];
 		radiobutton [title: "@gpkind_foldergroup"];
@@ -1492,7 +1492,7 @@ dialog DLG_GGRPKIND [vertical title: "@ttl_selnewgoodsgroup" size: (335, 180) mi
 	}
 }
 
-dialog DLG_SELWROFF [vertical title: "@{writeoffdrafts}" size: (485, 180) minsize: (485, 180) font: "MS Shell Dlg,8"] { // @v12.4.10
+dialog DLG_SELWROFF [vertical title: "@{writeoffdrafts}" size: (485, 180) minsize: (485, 180)] { // @v12.4.10
 	radiocluster CTL_SELWROFF_SEL [vertical tabstop width: bycontainer margin: 4] {
 		radiobutton [title: "@dowriteoffsgldoc"];
 		radiobutton [title: "@dowriteoffall"];
@@ -1505,7 +1505,7 @@ dialog DLG_SELWROFF [vertical title: "@{writeoffdrafts}" size: (485, 180) minsiz
 	}
 }
 
-dialog DLG_MRKTPLCIX [vertical title: "@filter_marketplaceinterchange" size: (400, 140) minsize: (400, 140) font: "MS Shell Dlg 2,8" aligncontent: center] {
+dialog DLG_MRKTPLCIX [vertical title: "@filter_marketplaceinterchange" size: (400, 140) minsize: (400, 140) aligncontent: center] {
 	combobox CTLSEL_MRKTPLCIX_GUA [tabstop width: bycontainer height: 21 margin: 4 label: "@globaluseracc" cblinesymb: CTL_MRKTPLCIX_GUA];
 	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
@@ -1513,7 +1513,7 @@ dialog DLG_MRKTPLCIX [vertical title: "@filter_marketplaceinterchange" size: (40
 	}
 }
 
-dialog DLG_TESTSVRPRINT [vertical title: "@testserverprint" size: (400, 140) minsize: (400, 140) font: "MS Shell Dlg 2,8" aligncontent: center] {
+dialog DLG_TESTSVRPRINT [vertical title: "@testserverprint" size: (400, 140) minsize: (400, 140) aligncontent: center] {
 	combobox CTLSEL_TESTSVRPRINT_PRINTER [tabstop width: bycontainer height: 21 margin: 4 label: "@printer" cblinesymb: CTL_TESTSVRPRINT_PRINTER];
 	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
@@ -1521,7 +1521,7 @@ dialog DLG_TESTSVRPRINT [vertical title: "@testserverprint" size: (400, 140) min
 	}
 }
 
-dialog DLG_TODOFILT [vertical title: "@prjtaskfilt" size: (740, 580) minsize: (740, 580) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_TODOFILT [vertical title: "@prjtaskfilt" size: (740, 580) minsize: (740, 580) padding: 4] {
 	view [horizontal width: bycontainer height: 40] {
 		view [horizontal growfactor: 1] {
 		}
@@ -1610,7 +1610,7 @@ dialog DLG_TODOFILT [vertical title: "@prjtaskfilt" size: (740, 580) minsize: (7
 	}
 }
 
-dialog DLG_INVFLT [vertical title: "@billfiltinventory" size: (380, 230) minsize: (380, 230) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_INVFLT [vertical title: "@billfiltinventory" size: (380, 230) minsize: (380, 230) padding: 4] {
 	view [horizontal width: bycontainer height: 40] {
 		input CTL_BILLFLT_PERIOD [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@daterange"] string[30]
 			supplement daterangecalbutton(CTLCAL_BILLFLT_PERIOD);
@@ -1629,7 +1629,7 @@ dialog DLG_INVFLT [vertical title: "@billfiltinventory" size: (380, 230) minsize
 	}
 }
 
-dialog DLG_UNIFINDOBJ [vertical title: "@unifindobjparam" size: (625, 350) minsize: (400, 350) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_UNIFINDOBJ [vertical title: "@unifindobjparam" size: (625, 350) minsize: (400, 350) padding: 4] {
 	input CTL_UNIFINDOBJ_MPATTERN [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@unifindobjparam_mainpattern"] string[252];
 	input CTL_UNIFINDOBJ_INFO [width: bycontainer height: 21 margin: (4, 1, 4, 4) tabstop readonly] string[252];
 	view [horizontal width: bycontainer growfactor: 1] {
@@ -1658,7 +1658,7 @@ dialog DLG_UNIFINDOBJ [vertical title: "@unifindobjparam" size: (625, 350) minsi
 	}
 }
 
-dialog DLG_UICFG [vertical title: "@uicfg" size: (600, 650) minsize: (600, 650)  font: "MS Shell Dlg 2,8"] {
+dialog DLG_UICFG [vertical title: "@uicfg" size: (600, 650) minsize: (600, 650)  ] {
 	view [horizontal width: bycontainer height: 40] {
 		combobox CTLSEL_UICFG_SELBCLRSHM [tabstop growfactor: 1 height: 21 margin: 4 label: "@uicfg_tableviewstyle" cblinesymb: CTL_UICFG_SELBCLRSHM];
 		combobox CTLSEL_UICFG_WNDVIEWKIND [tabstop growfactor: 1 height: 21 margin: 4 label: "@uicfg_windowviewstyle" cblinesymb: CTL_UICFG_WNDVIEWKIND];
@@ -1715,7 +1715,7 @@ dialog DLG_UICFG [vertical title: "@uicfg" size: (600, 650) minsize: (600, 650) 
 	}
 }
 
-dialog DLG_QUOTFLT [vertical title: "@quotfilt" size: (800, 560) minsize: (800, 560) font: "MS Shell Dlg,8"] {
+dialog DLG_QUOTFLT [vertical title: "@quotfilt" size: (800, 560) minsize: (800, 560)] {
 	view [horizontal width: bycontainer growfactor: 1] {
 		view [vertical growfactor: 3 height: bycontainer margin: 4] {
 			view [horizontal width: bycontainer height: 40 margin: 4] {
@@ -1775,7 +1775,7 @@ dialog DLG_QUOTFLT [vertical title: "@quotfilt" size: (800, 560) minsize: (800, 
 	}
 }
 
-dialog DLG_CORRECT12304 [vertical title: "@cmd_recover_v12304" size: (380, 160) minsize: (380, 160) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_CORRECT12304 [vertical title: "@cmd_recover_v12304" size: (380, 160) minsize: (380, 160) padding: 4] {
 	combobox CTLSEL_CORRECT12304_POSNODE [tabstop width: bycontainer height: 21 margin: 4 label: "@posnode" cblinesymb: CTL_CORRECT12304_POSNODE];
 	input CTL_CORRECT12304_PERIOD [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@daterange"] string[48] supplement daterangecalbutton(CTLCAL_CORRECT12304_PERIOD);
 	checkbox CTL_CORRECT12304_FLAGS [title: "@testmode" tabstop width: bycontainer height: 21 margin_left: 4];
@@ -1785,7 +1785,7 @@ dialog DLG_CORRECT12304 [vertical title: "@cmd_recover_v12304" size: (380, 160) 
 	}
 }
 
-dialog DLG_IMPEXPQUOT [vertical title: "@impexpparamquot" size: (490, 600) minsize: (490, 600) font: "MS Shell Dlg 2,8"] {
+dialog DLG_IMPEXPQUOT [vertical title: "@impexpparamquot" size: (490, 600) minsize: (490, 600) ] {
 	input CTL_IMPEXP_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@appellation"] string[128];
 	view [vertical width: bycontainer growfactor: 1] {
 		view [horizontal width: bycontainer growfactor: 1] {
@@ -1832,7 +1832,7 @@ dialog DLG_IMPEXPQUOT [vertical title: "@impexpparamquot" size: (490, 600) minsi
 	}
 }
 
-dialog DLG_IMPEXPBILH [vertical title: "@impexpparambillh" size: (700, 680) minsize: (700, 680)  font: "MS Shell Dlg 2,8"] {
+dialog DLG_IMPEXPBILH [vertical title: "@impexpparambillh" size: (700, 680) minsize: (700, 680)  ] {
 	input CTL_IMPEXP_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@appellation"] string[128];
 	view [vertical width: bycontainer growfactor: 1] {
 		view [horizontal width: bycontainer growfactor: 1] {
@@ -1900,7 +1900,7 @@ dialog DLG_IMPEXPBILH [vertical title: "@impexpparambillh" size: (700, 680) mins
 	}
 }
 
-dialog DLG_ARTICLEFLT [vertical title: "@articlefilt" size: (350, 385) minsize: (350, 385) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_ARTICLEFLT [vertical title: "@articlefilt" size: (350, 385) minsize: (350, 385) padding: 4] {
 	combobox CTLSEL_ARTICLEFLT_ACCSID [tabstop width: bycontainer height: 21 margin: 4 label: "@accsheet" cblinesymb: CTL_ARTICLEFLT_ACCSID];
 	view [horizontal width: bycontainer height: 80] {
 		radiocluster CTL_ARTICLEFLT_FTCLOSED [tabstop growfactor: 1 margin: 4 title: "@articlefilt_ft_closed"] {
@@ -1931,7 +1931,7 @@ dialog DLG_ARTICLEFLT [vertical title: "@articlefilt" size: (350, 385) minsize: 
 	}
 }
 
-dialog DLG_BIZSC2V [vertical title: "BizScore2 value" size: (390, 390) minsize: (390, 390) font: "MS Shell Dlg 2,8"] {
+dialog DLG_BIZSC2V [vertical title: "BizScore2 value" size: (390, 390) minsize: (390, 390) ] {
 	combobox CTLSEL_BIZSC2V_BSC [tabstop width: bycontainer height: 21 margin: 4 label: "Indicator" labelsize: (203, 13) cblinesymb: CTL_BIZSC2V_BSC];
 	view [horizontal width: bycontainer height: 40] {
 		input CTL_BIZSC2V_DT [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy) label: "@date"] date supplement datecalbutton(CTLCAL_BIZSC2V_DT);
@@ -1950,7 +1950,7 @@ dialog DLG_BIZSC2V [vertical title: "BizScore2 value" size: (390, 390) minsize: 
 	}
 }
 
-dialog DLG_CMDGROUP [vertical title: "Command Group" size: (830, 490) minsize: (830, 490) font: "MS Shell Dlg,8"] {
+dialog DLG_CMDGROUP [vertical title: "Command Group" size: (830, 490) minsize: (830, 490)] {
 	statictext CTL_CMDGROUP_ST_INFO [width: bycontainer height: 24 margin: 4 staticedge];
 	view [horizontal width: bycontainer growfactor: 1] {
 		view [vertical growfactor: 3 height: bycontainer] {
@@ -1990,7 +1990,7 @@ dialog DLG_CMDGROUP [vertical title: "Command Group" size: (830, 490) minsize: (
 	}
 }
 
-dialog DLG_QUOTKINDRESTR [vertical title: "@quotkind_restrictions" size: (360, 245) minsize: (360, 245) font: "MS Shell Dlg,8"] { // @construction
+dialog DLG_QUOTKINDRESTR [vertical title: "@quotkind_restrictions" size: (360, 245) minsize: (360, 245)] { // @construction
 	view [horizontal width: bycontainer growfactor: 1] {
 		view [vertical growfactor: 3 height: bycontainer] {
 			input CTL_QKRESTR_PERIOD [width: bycontainer height: 21 margin: 4 tabstop label: "@validity"] string[30] supplement daterangecalbutton(CTLCAL_QKRESTR_PERIOD);
@@ -2013,7 +2013,7 @@ dialog DLG_QUOTKINDRESTR [vertical title: "@quotkind_restrictions" size: (360, 2
 	}
 }
 
-dialog DLG_SCNTFOPT [vertical title: "@scard_notify_options" size: (385, 180) minsize: (385, 180) font: "MS Shell Dlg,8"] {
+dialog DLG_SCNTFOPT [vertical title: "@scard_notify_options" size: (385, 180) minsize: (385, 180)] {
 	checkcluster CTL_SCNTFOPT_FLAGS [vertical tabstop width: bycontainer margin: 4] {
 		checkbox [title: "@scard_scrdf_notifydiscount"];
 		checkbox [title: "@scard_scrdf_notifywithdraw"];
@@ -2025,7 +2025,7 @@ dialog DLG_SCNTFOPT [vertical title: "@scard_notify_options" size: (385, 180) mi
 	}
 }
 
-dialog DLG_SCARD [vertical title: "@scard" size: (710, 570) minsize: (690, 570) font: "MS Shell Dlg 2,8"] { // @construction
+dialog DLG_SCARD [vertical title: "@scard" size: (710, 570) minsize: (690, 570) ] { // @construction
 	view [horizontal width: bycontainer height: 40] {
 		combobox CTLSEL_SCARD_SERIES [growfactor: 3 height: 21 margin: 4 tabstop label: "@scard_series" cblinesymb: CTL_SCARD_SERIES];
 		input CTL_SCARD_CODE [growfactor: 2 height: 21 margin: 4 tabstop label: "@number"] string[24];
@@ -2109,7 +2109,7 @@ dialog DLG_SCARD [vertical title: "@scard" size: (710, 570) minsize: (690, 570) 
 	}
 }
 
-dialog DLG_SCARDRULE [vertical title: "@scardserrule" size: (550, 400) minsize: (550, 400) font: "MS Shell Dlg 2,8"] { // @construction
+dialog DLG_SCARDRULE [vertical title: "@scardserrule" size: (550, 400) minsize: (550, 400) ] { // @construction
 	view [horizontal width: bycontainer height: 100] {
 		combobox CTLSEL_SCARDRULE_PRD [growfactor: 3 height: 21 margin: 4 tabstop label: "@scardserrule_trnovrperiod" cblinesymb: CTL_SCARDRULE_PRD];
 		framebox [vertical growfactor: 3 height: bycontainer padding: 4] {
@@ -2131,7 +2131,7 @@ dialog DLG_SCARDRULE [vertical title: "@scardserrule" size: (550, 400) minsize: 
 	}
 }
 
-dialog DLG_ELINK [vertical title: "@elink" size: (400, 205) minsize: (400, 205) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_ELINK [vertical title: "@elink" size: (400, 205) minsize: (400, 205) padding: 4] {
 	combobox CTLSEL_ELINK_KIND [tabstop width: bycontainer height: 21 margin: 4 label: "@elink_kind" cblinesymb: CTL_ELINK_KIND];
 	input CTL_ELINK_ADDR [width: bycontainer height: 21 margin: 4 tabstop label: "@elink_addr"] string[64];
 	input CTL_ELINK_INFO [width: bycontainer height: 21 margin: 4 tabstop readonly] string[128];
@@ -2141,7 +2141,7 @@ dialog DLG_ELINK [vertical title: "@elink" size: (400, 205) minsize: (400, 205) 
 	}
 }
 
-dialog DLG_ELNKLST [vertical title: "@elinkkind_pl" size: (500, 310) minsize: (500, 310) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_ELNKLST [vertical title: "@elinkkind_pl" size: (500, 310) minsize: (500, 310) padding: 4] {
 	listbox CTL_ELNKLST_LIST [tabstop width: bycontainer growfactor: 1 columns: "@lbt_elinklist"];
 	view [horizontal width: bycontainer height: 28] {
 		view [horizontal growfactor: 4 height: bycontainer(100) gravity: left justifycontent: start] {
@@ -2156,7 +2156,7 @@ dialog DLG_ELNKLST [vertical title: "@elinkkind_pl" size: (500, 310) minsize: (5
 	}
 }
 
-dialog DLG_ELNKSET [vertical title: "@elinkarray" size: (655, 235) minsize: (655, 235) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_ELNKSET [vertical title: "@elinkarray" size: (655, 235) minsize: (655, 235) padding: 4] {
 	input CTL_ELNKSET_INFO [width: bycontainer height: 21 margin: 4 tabstop readonly] string[252];
 	view [vertical width: bycontainer growfactor: 1] {
 		view [horizontal width: bycontainer height: 30] {
@@ -2196,7 +2196,7 @@ dialog DLG_ELNKSET [vertical title: "@elinkarray" size: (655, 235) minsize: (655
 	}
 }
 
-dialog DLG_ADVCBXSEL [vertical title: "%s" size: (440, 170) minsize: (440, 170) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_ADVCBXSEL [vertical title: "%s" size: (440, 170) minsize: (440, 170) padding: 4] {
 	input CTL_CBXSEL_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@appellation"] string[48];
 	combobox CTLSEL_CBXSEL_COMBO [tabstop width: bycontainer height: 21 margin: 4 label: "@ware" cblinesymb: CTL_CBXSEL_COMBO];
 	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
@@ -2205,7 +2205,7 @@ dialog DLG_ADVCBXSEL [vertical title: "%s" size: (440, 170) minsize: (440, 170) 
 	}
 }
 
-dialog DLG_ALCREPCFG [vertical title: "@cfg_alcreport" size: (990, 525) minsize: (970, 515) padding: 4 font: "MS Shell Dlg 2,8"] {
+dialog DLG_ALCREPCFG [vertical title: "@cfg_alcreport" size: (990, 525) minsize: (970, 515) padding: 4 ] {
 	view [horizontal width: bycontainer growfactor: 1] {
 		view [vertical growfactor: 1 height: bycontainer] {
 			combobox CTLSEL_ALCREPCFG_OP_RCP [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgalcreport_rcptop" cblinesymb: CTL_ALCREPCFG_OP_RCP];
@@ -2275,7 +2275,7 @@ dialog DLG_ALCREPCFG [vertical title: "@cfg_alcreport" size: (990, 525) minsize:
 	}
 }
 
-dialog DLG_TODO [vertical title: "@prjtask" size: (680, 595) minsize: (680, 595) padding: 4 font: "MS Shell Dlg,8"] { 
+dialog DLG_TODO [vertical title: "@prjtask" size: (680, 595) minsize: (680, 595) padding: 4] { 
 	view [horizontal width: bycontainer height: 43] {
 		combobox CTLSEL_TODO_PRJ [tabstop growfactor: 3 height: 21 margin: 4 label: "@project" cblinesymb: CTL_TODO_PRJ];
 		combobox CTLSEL_TODO_PHASE [tabstop growfactor: 2 height: 21 margin: 4 label: "@prjphase" cblinesymb: CTL_TODO_PHASE];
@@ -2341,7 +2341,7 @@ dialog DLG_TODO [vertical title: "@prjtask" size: (680, 595) minsize: (680, 595)
 	}
 }
 
-dialog DLG_SCARDSERRESTR [vertical title: "@scard_series" size: (300, 300) minsize: (300, 300) padding: 4 font: "MS Shell Dlg 2,8"] {
+dialog DLG_SCARDSERRESTR [vertical title: "@scard_series" size: (300, 300) minsize: (300, 300) padding: 4 ] {
 	input CTL_SCARDSERRESTR_USAGETM [width: bycontainer height: 21 margin: 4 tabstop label: "@scardseries_usagetime"] string[20];
 	checkcluster CTL_SCARDSERRESTR_DOW [vertical width: bycontainer margin: 4 title: "@weekday_pl"] {
 		checkbox [title: "@monday"];
@@ -2358,7 +2358,7 @@ dialog DLG_SCARDSERRESTR [vertical title: "@scard_series" size: (300, 300) minsi
 	}
 }
 
-dialog DLG_SCARDSER [vertical title: "@scard_series" size: (695, 635) minsize: (695, 635) padding: 4 font: "MS Shell Dlg 2,8"] {
+dialog DLG_SCARDSER [vertical title: "@scard_series" size: (695, 635) minsize: (695, 635) padding: 4 ] {
 	view [horizontal width: bycontainer height: 135] {
 		view [vertical growfactor: 3 height: bycontainer] {
 			input CTL_SCARDSER_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@appellation"] string[48];
@@ -2437,7 +2437,7 @@ dialog DLG_SCARDSER [vertical title: "@scard_series" size: (695, 635) minsize: (
 	}
 }
 
-dialog DLG_OBJTAGTYP [vertical title: "@tagtypeselection" size: (590, 295) minsize: (590, 295) font: "MS Shell Dlg,8" padding: 4] {
+dialog DLG_OBJTAGTYP [vertical title: "@tagtypeselection" size: (590, 295) minsize: (590, 295) padding: 4] {
 	combobox CTLSEL_OBJTAG_TAGOBJTYP [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@tagtypeselection_object" cblinesymb: CTL_OBJTAG_TAGOBJTYP];
 	view [horizontal width: bycontainer growfactor: 1] {
 		radiocluster CTL_OBJTAG_TYPE [growfactor: 2 margin: 4 title: "@tagtypeselection_tagtype"] {
@@ -2465,7 +2465,7 @@ dialog DLG_OBJTAGTYP [vertical title: "@tagtypeselection" size: (590, 295) minsi
 	}
 }
 
-dialog DLG_UICFG_BITF [vertical title: "@uicfg_billitemtableflags" size: (455, 180) minsize: (455, 180) font: "MS Shell Dlg 2,8"] { // @v12.5.3
+dialog DLG_UICFG_BITF [vertical title: "@uicfg_billitemtableflags" size: (455, 180) minsize: (455, 180) ] { // @v12.5.3
 	checkcluster CTL_UICFG_BITF_FLAGS [vertical tabstop width: bycontainer margin: 4] {
 		checkbox [title: "@uicfg_bitfusecommcfgforbarcodeserialoptions"];
 		checkbox [title: "@uicfg_bitfshowbarcode"];
@@ -2478,7 +2478,7 @@ dialog DLG_UICFG_BITF [vertical title: "@uicfg_billitemtableflags" size: (455, 1
 	}
 }
 
-dialog DLG_PRCBUSYFLT [vertical title: "@view_prcbusy" size: (370, 370) minsize: (370, 370) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.3
+dialog DLG_PRCBUSYFLT [vertical title: "@view_prcbusy" size: (370, 370) minsize: (370, 370) padding: 4] { // @v12.5.3
 	combobox CTLSEL_PRCBUSYFLT_PRC [tabstop width: bycontainer height: 21 margin: 4 label: "@processor" cblinesymb: CTL_PRCBUSYFLT_PRC];
 	framebox [horizontal width: bycontainer height: 55 margin: 4 padding: (4, 12, 4, 4) label: "@timestart"] {
 		input CTL_PRCBUSYFLT_STDT [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy)] date supplement datecalbutton(CTLCAL_PRCBUSYFLT_STDT);
@@ -2499,7 +2499,7 @@ dialog DLG_PRCBUSYFLT [vertical title: "@view_prcbusy" size: (370, 370) minsize:
 	}
 }
 
-dialog DLG_CHKINPLIST [vertical title: "@checkinpersonlist" size: (630, 300) minsize: (630, 300) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.3 @construction
+dialog DLG_CHKINPLIST [vertical title: "@checkinpersonlist" size: (630, 300) minsize: (630, 300) padding: 4] { // @v12.5.3 @construction
 	statictext CTL_CHKINPLIST_ST_HEADER [width: bycontainer height: 21 margin: 4 staticedge];
 	listbox CTL_CHKINPLIST_LIST [width: bycontainer growfactor: 1 margin: 4 columns: "40,L,@person;14,L,@status;6,R,@qtty;12,R,@amount;15,L,@time"];
 	view [vertical width: bycontainer height: 80] {
@@ -2523,7 +2523,7 @@ dialog DLG_CHKINPLIST [vertical title: "@checkinpersonlist" size: (630, 300) min
 	}
 }
 
-dialog DLG_CHKINPSTFORALL [vertical title: "@checkinperson_changestatusforall" size: (460, 180) minsize: (460, 180) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.3
+dialog DLG_CHKINPSTFORALL [vertical title: "@checkinperson_changestatusforall" size: (460, 180) minsize: (460, 180) padding: 4] { // @v12.5.3
 	radiocluster CTL_CHKINPSTFORALL_ST [vertical tabstop width: bycontainer margin: 4] {
 		radiobutton [title: "@checkinperson_statusregistered"];
 		radiobutton [title: "@checkinperson_statuscheckedin"];
@@ -2535,7 +2535,7 @@ dialog DLG_CHKINPSTFORALL [vertical title: "@checkinperson_changestatusforall" s
 	}
 }
 
-dialog DLG_LAYOENTRY [vertical title: "Layout Entry" size: (520, 290) minsize: (520, 290) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_LAYOENTRY [vertical title: "Layout Entry" size: (520, 290) minsize: (520, 290) padding: 4] {
 	combobox CTLSEL_LAYOENTRY_PARENT [tabstop width: bycontainer(60) height: 21 margin: 4 label: "@tlayout_parentsymb" cblinesymb: CTL_LAYOENTRY_PARENT];
 	view [horizontal width: bycontainer growfactor: 1] {
 		view [vertical growfactor: 6] {
@@ -2558,7 +2558,7 @@ dialog DLG_LAYOENTRY [vertical title: "Layout Entry" size: (520, 290) minsize: (
 	}
 }
 
-dialog DLG_WOLAYOUT [vertical title: "@tlayout" size: (395, 150) minsize: (395, 150) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_WOLAYOUT [vertical title: "@tlayout" size: (395, 150) minsize: (395, 150) padding: 4] {
 	input CTL_WOLAYOUT_SYMB [width: bycontainer height: 21 margin: 4 tabstop label: "@symbol"] string[64];
 	checkbox CTL_WOLAYOUT_FLAGS [title: "@tlayout_flags_hidden" tabstop width: bycontainer height: 21 margin_left: 4];
 	view [horizontal width: bycontainer(100) height: 28 margin_right: 12 justifycontent: start] {
@@ -2571,7 +2571,7 @@ dialog DLG_WOLAYOUT [vertical title: "@tlayout" size: (395, 150) minsize: (395, 
 	}
 }
 
-dialog DLG_FLEXLAYOUTLIST [vertical title: "@layoutlist" size: (300, 300) minsize: (300, 300) font: "MS Shell Dlg,8"] {
+dialog DLG_FLEXLAYOUTLIST [vertical title: "@layoutlist" size: (300, 300) minsize: (300, 300)] {
 	treelistbox CTL_FLEXLAYOUTLIST_LIST [tabstop width: bycontainer growfactor: 1];
 	view [horizontal width: bycontainer(100) height: 28 margin_right: 12 justifycontent: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 defaultitem command: cmOK];
@@ -2579,7 +2579,7 @@ dialog DLG_FLEXLAYOUTLIST [vertical title: "@layoutlist" size: (300, 300) minsiz
 	}
 }
 
-dialog DLG_TSESSCLRS [vertical title: "@cfgtechsess_statuscolors" size: (400, 310) minsize: (400, 310) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_TSESSCLRS [vertical title: "@cfgtechsess_statuscolors" size: (400, 310) minsize: (400, 310) padding: 4] {
 	combobox CTLSEL_TSESSCLRS_PLANNED [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgtechsess_colorplannedstatus" cblinesymb: CTL_TSESSCLRS_PLANNED]
 		supplement ellipsisbutton(CTL_TSESSCLRS_PLANNEDNEW cmChooseColor);
 	combobox CTLSEL_TSESSCLRS_PENDING [tabstop width: bycontainer height: 21 margin: 4 label: "@cfgtechsess_colorpendingstatus" cblinesymb: CTL_TSESSCLRS_PENDING]
@@ -2596,7 +2596,7 @@ dialog DLG_TSESSCLRS [vertical title: "@cfgtechsess_statuscolors" size: (400, 31
 	}
 }
 
-dialog DLG_CALC [vertical title: "@calculator" size: (500, 130) minsize: (500, 130) padding: 4 font: "MS Shell Dlg,8" justifycontent: SpaceBetween] {
+dialog DLG_CALC [vertical title: "@calculator" size: (500, 130) minsize: (500, 130) padding: 4 justifycontent: SpaceBetween] {
 	input CTL_CALC_INPUT [width: bycontainer height: 21 margin: 4 tabstop] string[255];
 	view [horizontal width: bycontainer growfactor: 1] {
 		view [vertical growfactor: 2 height: bycontainer] {
@@ -2617,7 +2617,7 @@ dialog DLG_CALC [vertical title: "@calculator" size: (500, 130) minsize: (500, 1
 	}
 }
 
-dialog DLG_OPENEDFILE [vertical title: "@openfileforedit" size: (670, 500) minsize: (670, 500) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.3
+dialog DLG_OPENEDFILE [vertical title: "@openfileforedit" size: (670, 500) minsize: (670, 500) padding: 4] { // @v12.5.3
 	listbox CTL_OPENEDFILE_RESERV [tabstop title: "@openfileforedit_reservelist" width: bycontainer growfactor: 1 margin: (4, 4, 4, 4) columns: "@lbt_rfiles"];
 	view [horizontal width: bycontainer growfactor: 1] {
 		listbox CTL_OPENEDFILE_RECENT [tabstop title: "@openfileforedit_recentlist" growfactor: 3 height: bycontainer margin: 4 columns: "@lbt_recentfiles"];
@@ -2631,7 +2631,7 @@ dialog DLG_OPENEDFILE [vertical title: "@openfileforedit" size: (670, 500) minsi
 	}
 }
 
-dialog DLG_VATBOOKTOTAL [vertical title: "@vatledgertotal_title_salbuy" size: (445, 445) minsize: (445, 445) padding: 4 font: "MS Shell Dlg 2,8"] {
+dialog DLG_VATBOOKTOTAL [vertical title: "@vatledgertotal_title_salbuy" size: (445, 445) minsize: (445, 445) padding: 4 ] {
 	// right
 	view [horizontal width: bycontainer height: 45 margin: 4] {
 		view [horizontal growfactor: 1] {} // @stub
@@ -2695,7 +2695,7 @@ dialog DLG_VATBOOKTOTAL [vertical title: "@vatledgertotal_title_salbuy" size: (4
 	}
 }
 
-dialog DLG_VATSELL [vertical title: "@vatbook_rec_sale" size: (700, 415) minsize: (700, 415) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.3 
+dialog DLG_VATSELL [vertical title: "@vatbook_rec_sale" size: (700, 415) minsize: (700, 415) padding: 4 ] { // @v12.5.3 
 	view [horizontal width: bycontainer growfactor: 1] {
 		view [vertical growfactor: 5 height: bycontainer] {
 			view [horizontal width: bycontainer growfactor: 1] {
@@ -2790,7 +2790,7 @@ dialog DLG_VATSELL [vertical title: "@vatbook_rec_sale" size: (700, 415) minsize
 	}
 }
 
-dialog DLG_VATBUY [vertical title: "@{vatbook_rec_buy}" size: (700, 505) minsize: (700, 505) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.3
+dialog DLG_VATBUY [vertical title: "@{vatbook_rec_buy}" size: (700, 505) minsize: (700, 505) padding: 4 ] { // @v12.5.3
 	view [horizontal width: bycontainer growfactor: 1] {
 		view [vertical growfactor: 5 height: bycontainer] {
 			view [horizontal width: bycontainer growfactor: 5] {
@@ -2885,7 +2885,7 @@ dialog DLG_VATBUY [vertical title: "@{vatbook_rec_buy}" size: (700, 505) minsize
 	}
 }
 
-dialog DLG_DYNOBJSVIEW [horizontal title: "@dynobject_pl" size: (440, 470) minsize: (400, 300) font: "MS Shell Dlg,8"] {
+dialog DLG_DYNOBJSVIEW [horizontal title: "@dynobject_pl" size: (440, 470) minsize: (400, 300)] {
 	listbox CTL_OBJVIEW_LIST [tabstop height: bycontainer(100) growfactor: 1];
 	view [vertical height: bycontainer(100) width: 110] {
 		view [vertical growfactor: 3 width: bycontainer(100) justifycontent: start] {
@@ -2904,7 +2904,7 @@ dialog DLG_DYNOBJSVIEW [horizontal title: "@dynobject_pl" size: (440, 470) minsi
 	}
 }
 
-dialog DLG_GOODSTAXVIEW [horizontal title: "@obj_goodstax" size: (440, 400) minsize: (440, 400) font: "MS Shell Dlg,8"] { // @v12.5.4
+dialog DLG_GOODSTAXVIEW [horizontal title: "@obj_goodstax" size: (440, 400) minsize: (440, 400)] { // @v12.5.4
 	listbox CTL_OBJVIEW_LIST [tabstop height: bycontainer growfactor: 1];
 	view [vertical height: bycontainer width: 130] {
 		view [vertical growfactor: 4 width: bycontainer(100) justifycontent: start] {
@@ -2924,7 +2924,7 @@ dialog DLG_GOODSTAXVIEW [horizontal title: "@obj_goodstax" size: (440, 400) mins
 	}
 }
 
-dialog DLG_UNITVIEW [horizontal title: "@objects" size: (440, 400) minsize: (440, 400) padding: 4 font: "MS Shell Dlg,8"] { // @v12.6.1
+dialog DLG_UNITVIEW [horizontal title: "@objects" size: (440, 400) minsize: (440, 400) padding: 4] { // @v12.6.1
 	listbox CTL_OBJVIEW_LIST [tabstop height: bycontainer growfactor: 1];
 	view [vertical height: bycontainer width: 130] {
 		view [vertical growfactor: 4 width: bycontainer(100) justifycontent: start] {
@@ -2943,7 +2943,7 @@ dialog DLG_UNITVIEW [horizontal title: "@objects" size: (440, 400) minsize: (440
 	}
 }
 
-dialog DLG_COMMOBJ [vertical title: "@object" size: (500, 165) minsize: (500, 165) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_COMMOBJ [vertical title: "@object" size: (500, 165) minsize: (500, 165) padding: 4] {
 	view [horizontal width: bycontainer height: 45] {
 		input CTL_COMMOBJ_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
 		input CTL_COMMOBJ_ID [width: 75 height: 21 margin: 4 readonly text_align_right label: "@id"] int32;
@@ -2958,7 +2958,7 @@ dialog DLG_COMMOBJ [vertical title: "@object" size: (500, 165) minsize: (500, 16
 	}
 }
 
-dialog DLG_DYNOBJHDR [vertical title: "@dynobjecttype" size: (500, 195) minsize: (500, 195) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_DYNOBJHDR [vertical title: "@dynobjecttype" size: (500, 195) minsize: (500, 195) padding: 4] {
 	view [horizontal width: bycontainer height: 45] {
 		input CTL_COMMOBJ_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
 		input CTL_COMMOBJ_ID [width: 75 height: 21 margin: 4 readonly text_align_right label: "@id"] int32;
@@ -2976,7 +2976,7 @@ dialog DLG_DYNOBJHDR [vertical title: "@dynobjecttype" size: (500, 195) minsize:
 	}
 }
 
-dialog DLG_DYNOBJ [vertical title: "@dynobject" size: (500, 220) minsize: (500, 220) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.4
+dialog DLG_DYNOBJ [vertical title: "@dynobject" size: (500, 220) minsize: (500, 220) padding: 4] { // @v12.5.4
 	view [horizontal width: bycontainer height: 45] {
 		input CTL_COMMOBJ_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
 		input CTL_COMMOBJ_ID [width: 75 height: 21 margin: 4 readonly text_align_right label: "@id"] int32;
@@ -2992,7 +2992,7 @@ dialog DLG_DYNOBJ [vertical title: "@dynobject" size: (500, 220) minsize: (500, 
 	}
 }
 
-dialog DLG_PSNSELANALOG [vertical title: "@personselectanalog" size: (590, 425) minsize: (400, 250) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.4
+dialog DLG_PSNSELANALOG [vertical title: "@personselectanalog" size: (590, 425) minsize: (400, 250) padding: 4 ] { // @v12.5.4
 	view [horizontal width: bycontainer height: 40] {
 		input CTL_PSNSELANALOG_SRCH [growfactor: 1 height: 21 margin: 4 tabstop label: "@personselectanalog_input"] string[64];
 		button STDCTL_MORE [title: "@dosearch" tabstop defaultitem size: (83, 21) margin: (4, 17, 4, 4) command: cmSearch];
@@ -3008,7 +3008,7 @@ dialog DLG_PSNSELANALOG [vertical title: "@personselectanalog" size: (590, 425) 
 	}
 }
 
-dialog DLG_PERSON [vertical title: "@person" size: (790, 540) minsize: (790, 540) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.4
+dialog DLG_PERSON [vertical title: "@person" size: (790, 540) minsize: (790, 540) padding: 4 ] { // @v12.5.4
 	view [vertical width: bycontainer height: 130] {
 		view [horizontal width: bycontainer(70) height: 40] {
 			combobox CTLSEL_PERSON_STATUS [tabstop growfactor: 1 height: 21 margin: 4 label: "@person_status" cblinesymb: CTL_PERSON_STATUS];
@@ -3077,7 +3077,7 @@ dialog DLG_PERSON [vertical title: "@person" size: (790, 540) minsize: (790, 540
 	}
 }
 
-dialog DLG_PAYPLAN [horizontal title: "@paymplan" size: (425, 325) minsize: (425, 250) font: "MS Shell Dlg,8"] { // @v12.5.5
+dialog DLG_PAYPLAN [horizontal title: "@paymplan" size: (425, 325) minsize: (425, 250)] { // @v12.5.5
 	listbox CTL_PAYPLAN_LIST [height: bycontainer(100) growfactor: 1 columns: "@lbt_payplan"];
 	view [vertical height: bycontainer(100) width: 110 margin_left: 4] {
 		view [vertical growfactor: 3 width: bycontainer justifycontent: start] {
@@ -3095,7 +3095,7 @@ dialog DLG_PAYPLAN [horizontal title: "@paymplan" size: (425, 325) minsize: (425
 	}
 }
 
-dialog DLG_DBLIST [vertical title: "@databaselist" size: (895, 315) minsize: (895, 315) font: "MS Shell Dlg,8"] {
+dialog DLG_DBLIST [vertical title: "@databaselist" size: (895, 315) minsize: (895, 315)] {
 	listbox CTL_DBLIST_DB [tabstop width: bycontainer growfactor: 5 margin: 4 columns: "@lbt_dblist"];
 	view [horizontal width: bycontainer height: 28] {
 		view [horizontal growfactor: 3 height: bycontainer gravity: left justifycontent: start] {
@@ -3110,7 +3110,7 @@ dialog DLG_DBLIST [vertical title: "@databaselist" size: (895, 315) minsize: (89
 	}
 }
 
-dialog DLG_TRANSPCFG [vertical title: "@cfg_transp" size: (580, 250) minsize: (580, 250) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.5
+dialog DLG_TRANSPCFG [vertical title: "@cfg_transp" size: (580, 250) minsize: (580, 250) padding: 4] { // @v12.5.5
 	combobox CTLSEL_TRANSPCFG_OWNERK [tabstop width: bycontainer(80) height: 21 margin: 4 label: "@cfgtransp_ownerkind" cblinesymb: CTL_TRANSPCFG_OWNERK];
 	combobox CTLSEL_TRANSPCFG_CAPTK [tabstop width: bycontainer(80) height: 21 margin: 4 label: "@cfgtransp_captainkind" cblinesymb: CTL_TRANSPCFG_CAPTK];
 	input CTL_TRANSPCFG_NAMETEMPL [width: bycontainer height: 21 margin: 4 tabstop label: "@cfgtransp_nametemplate" ] string[128];
@@ -3123,7 +3123,7 @@ dialog DLG_TRANSPCFG [vertical title: "@cfg_transp" size: (580, 250) minsize: (5
 	}
 }
 
-dialog DLG_GDSTYP [vertical title: "@goods_type" size: (640, 550) minsize: (640, 550) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.5
+dialog DLG_GDSTYP [vertical title: "@goods_type" size: (640, 550) minsize: (640, 550) padding: 4 ] { // @v12.5.5
 	view [horizontal width: bycontainer height: 40] {
 		view [horizontal growfactor: 1 height: bycontainer] {
 			input CTL_GDSTYP_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@appellation" ] string[48];
@@ -3180,7 +3180,7 @@ dialog DLG_GDSTYP [vertical title: "@goods_type" size: (640, 550) minsize: (640,
 	}
 }
 
-dialog DLG_SETQUOT [vertical title: "@quot_valuegeneric" size: (500, 350) minsize: (500, 350) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.5
+dialog DLG_SETQUOT [vertical title: "@quot_valuegeneric" size: (500, 350) minsize: (500, 350) padding: 4] { // @v12.5.5
 	statictext CTL_SETQUOT_ST_INFO [width: bycontainer height: 16 margin: 4 staticedge];
 	radiocluster CTL_SETQUOT_HOW [width: bycontainer margin: 4] {
 		radiobutton [title: "@quot_absolute"];
@@ -3209,7 +3209,7 @@ dialog DLG_SETQUOT [vertical title: "@quot_valuegeneric" size: (500, 350) minsiz
 	}	
 }
 
-dialog DLG_NOTES [vertical title: "" size: (400, 300) minsize: (400, 300) padding: 4 font: "MS Shell Dlg,8"] { 
+dialog DLG_NOTES [vertical title: "" size: (400, 300) minsize: (400, 300) padding: 4] { 
 	view [horizontal width: bycontainer height: 45] {
 		input CTL_NOTES_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@title"] string[252];
 		input CTL_NOTES_ID [width: 70 height: 21 margin: 4 tabstop readonly label: "@id"] int32;
@@ -3227,7 +3227,7 @@ dialog DLG_NOTES [vertical title: "" size: (400, 300) minsize: (400, 300) paddin
 	}
 }
 
-dialog DLG_GDSASSCINFO [vertical title: "@goodsaggregation_pl" size: (510, 315) minsize: (510, 315) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.6
+dialog DLG_GDSASSCINFO [vertical title: "@goodsaggregation_pl" size: (510, 315) minsize: (510, 315) padding: 4] { // @v12.5.6
 	view [horizontal width: bycontainer height: 40] {
 		input CTL_GDSASSCINFO_ID [size: (70, 21) margin: 4 tabstop readonly label: "@id"] int32;
 		input CTL_GDSASSCINFO_GOODS [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@ware"] string[64];
@@ -3245,7 +3245,7 @@ dialog DLG_GDSASSCINFO [vertical title: "@goodsaggregation_pl" size: (510, 315) 
 	}
 }
 
-dialog DLG_ARGCODELIST [vertical title: "@goods_arcodelist" size: (550, 300) minsize: (550, 300) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.6
+dialog DLG_ARGCODELIST [vertical title: "@goods_arcodelist" size: (550, 300) minsize: (550, 300) padding: 4] { // @v12.5.6
 	statictext CTL_ARGCODELIST_GOODS [width: bycontainer height: 16 margin: 4 staticedge];
 	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
 		listbox CTL_ARGCODELIST_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_arcodelist"];
@@ -3267,7 +3267,7 @@ dialog DLG_ARGCODELIST [vertical title: "@goods_arcodelist" size: (550, 300) min
 	}
 }
 
-dialog DLG_WORKBOOK [vertical title: "@content" size: (665, 570) minsize: (665, 570) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.6
+dialog DLG_WORKBOOK [vertical title: "@content" size: (665, 570) minsize: (665, 570) padding: 4] { // @v12.5.6
 	view [horizontal width: bycontainer growfactor: 2.5] {
 		view [vertical growfactor: 2 height: bycontainer] {
 			input CTL_WORKBOOK_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@workbook_name"] string[128];
@@ -3328,7 +3328,7 @@ dialog DLG_WORKBOOK [vertical title: "@content" size: (665, 570) minsize: (665, 
 	}
 }
 
-dialog DLG_WBPRELUDE [vertical title: "Create workbook item" size: (520, 260) minsize: (520, 260) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_WBPRELUDE [vertical title: "Create workbook item" size: (520, 260) minsize: (520, 260) padding: 4] {
 	radiocluster CTL_WBPRELUDE_TYPE [vertical tabstop width: bycontainer(50) margin: 4] {
 		radiobutton [title: "@workbook_type_site"];
 		radiobutton [title: "@workbook_type_page"];
@@ -3345,7 +3345,7 @@ dialog DLG_WBPRELUDE [vertical title: "Create workbook item" size: (520, 260) mi
 	}
 }
 
-dialog DLG_GDSTAXLST [vertical title: "@goodstaxlist" size: (600, 300) minsize: (600, 300) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.6
+dialog DLG_GDSTAXLST [vertical title: "@goodstaxlist" size: (600, 300) minsize: (600, 300) padding: 4 ] { // @v12.5.6
 	view [horizontal width: bycontainer height: 40] {
 		input CTL_GDSTAXLST_NAME [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@appellation"] string[48];
 		input CTL_GDSTAXLST_ID [size: (60, 21) margin: 4 tabstop readonly label: "@id"] int32;
@@ -3364,7 +3364,7 @@ dialog DLG_GDSTAXLST [vertical title: "@goodstaxlist" size: (600, 300) minsize: 
 	}
 }
 
-dialog DLG_GDSTAX [vertical title: "@taxgroup" size: (535, 420) minsize: (535, 420) padding: 4 font: "MS Shell Dlg 2,8"] {
+dialog DLG_GDSTAX [vertical title: "@taxgroup" size: (535, 420) minsize: (535, 420) padding: 4 ] {
 	view [horizontal width: bycontainer height: 40] {
 		input CTL_GDSTAX_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation" ] string[48];
 		input CTL_GDSTAX_ID [size: (60, 21) margin: 4 tabstop label: "@id" ] int32;
@@ -3398,7 +3398,7 @@ dialog DLG_GDSTAX [vertical title: "@taxgroup" size: (535, 420) minsize: (535, 4
 	}
 }
 
-dialog DLG_GDSTAXENTRY [vertical title: "@taxgroupitem" size: (400, 370) minsize: (400, 370) padding: 4 font: "MS Shell Dlg 2,8"] {
+dialog DLG_GDSTAXENTRY [vertical title: "@taxgroupitem" size: (400, 370) minsize: (400, 370) padding: 4 ] {
 	input CTL_GDSTAX_PERIOD [width: bycontainer(50) height: 21 margin: 4 tabstop label: "@daterange"] string[30] supplement daterangecalbutton(CTLCAL_GDSTAX_PERIOD);
 	combobox CTLSEL_GDSTAX_OP [tabstop width: bycontainer height: 21 margin: 4 label: "@oprkind" cblinesymb: CTL_GDSTAX_OP ];
 	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
@@ -3425,7 +3425,7 @@ dialog DLG_GDSTAXENTRY [vertical title: "@taxgroupitem" size: (400, 370) minsize
 	}
 }
 
-dialog DLG_BARCODELIST [vertical title: "@goodsbarcodelist" size: (560, 310) minsize: (500, 250) padding: 4 font: "MS Shell Dlg 2,8"] {
+dialog DLG_BARCODELIST [vertical title: "@goodsbarcodelist" size: (560, 310) minsize: (500, 250) padding: 4 ] {
 	statictext CTL_BARCODELIST_GOODS [width: bycontainer height: 16 margin: 4 staticedge];
 	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
 		listbox CTL_BARCODELIST_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_barcodelist"];
@@ -3453,7 +3453,7 @@ dialog DLG_BARCODELIST [vertical title: "@goodsbarcodelist" size: (560, 310) min
 	}
 }
 
-dialog DLG_DIVGRPASSC [vertical title: "@divgroupassoc" size: (400, 300) minsize: (400, 300) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.6
+dialog DLG_DIVGRPASSC [vertical title: "@divgroupassoc" size: (400, 300) minsize: (400, 300) padding: 4] { // @v12.5.6
 	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
 		listbox CTL_DIVGRPASSC_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_divggrpassoclist"];
 		view [horizontal width: bycontainer height: 28 justifycontent: start] {
@@ -3468,7 +3468,7 @@ dialog DLG_DIVGRPASSC [vertical title: "@divgroupassoc" size: (400, 300) minsize
 	}
 }
 
-dialog DLG_DIVGRPASSCITM [vertical title: "@divgroupassocentry" size: (455, 140) minsize: (455, 140) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_DIVGRPASSCITM [vertical title: "@divgroupassocentry" size: (455, 140) minsize: (455, 140) padding: 4] {
 	view [horizontal width: bycontainer height: 45] {
 		combobox CTLSEL_DIVGRPASSCITM_GRP [tabstop growfactor: 1 height: 21 margin: 4 label: "@goodsgroup" cblinesymb: CTL_DIVGRPASSCITM_GRP];
 		input CTL_DIVGRPASSCITM_DIV [size: (75, 21) margin: 4 tabstop label: "@department"] int16;
@@ -3479,7 +3479,7 @@ dialog DLG_DIVGRPASSCITM [vertical title: "@divgroupassocentry" size: (455, 140)
 	}
 }
 
-dialog DLG_TAGFLT [vertical title: "@tagfilt" size: (590, 340) minsize: (590, 340) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.6
+dialog DLG_TAGFLT [vertical title: "@tagfilt" size: (590, 340) minsize: (590, 340) padding: 4] { // @v12.5.6
 	input CTL_TAGFLT_INFO [width: bycontainer height: 21 margin: 4 readonly] string[128];
 	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
 		listbox CTL_TAGFLT_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 title: "@tagfilt_tagrestrict" columns: "@lbt_tagfiltlist"];
@@ -3503,7 +3503,7 @@ dialog DLG_TAGFLT [vertical title: "@tagfilt" size: (590, 340) minsize: (590, 34
 	}	
 }
 
-dialog DLG_TAGVSTR [vertical title: "@tagvalue" size: (600, 220) minsize: (600, 220) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.6
+dialog DLG_TAGVSTR [vertical title: "@tagvalue" size: (600, 220) minsize: (600, 220) padding: 4 ] { // @v12.5.6
 	view [horizontal width: bycontainer height: 45] {
 		input CTL_TAGV_OBJNAME [growfactor: 1 height: 21 margin: 4 readonly label: "@object"] string[128];
 		button STDCTL_LINKOBJBUTTON [title: "@{linkobject}..." tabstop size: (120, 21) margin: (4, 17, 4, 4) command: cmLinkObj];
@@ -3523,7 +3523,7 @@ dialog DLG_TAGVSTR [vertical title: "@tagvalue" size: (600, 220) minsize: (600, 
 	}	
 }
 
-dialog DLG_RTOPLIST [vertical title: "@rt_item_op_s" size: (380, 350) minsize: (380, 300) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.7
+dialog DLG_RTOPLIST [vertical title: "@rt_item_op_s" size: (380, 350) minsize: (380, 300) padding: 4] { // @v12.5.7
 	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
 		listbox CTL_RTOPLIST_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_accsoplist"];
 		view [horizontal width: bycontainer height: 28 justifycontent: start] {
@@ -3537,7 +3537,7 @@ dialog DLG_RTOPLIST [vertical title: "@rt_item_op_s" size: (380, 350) minsize: (
 	}
 }
 
-dialog DLG_RTLOCLIST [vertical title: "@rt_item_warehouse_s" size: (380, 350) minsize: (380, 300) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_RTLOCLIST [vertical title: "@rt_item_warehouse_s" size: (380, 350) minsize: (380, 300) padding: 4] {
 	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
 		listbox CTL_RTLOCLIST_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "34,L,@warehouse;2,L"];
 		view [horizontal width: bycontainer height: 28 justifycontent: start] {
@@ -3551,7 +3551,7 @@ dialog DLG_RTLOCLIST [vertical title: "@rt_item_warehouse_s" size: (380, 350) mi
 	}
 }
 
-dialog DLG_RTPOSLIST [vertical title: "@rt_item_posnode_p" size: (380, 350) minsize: (380, 300) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_RTPOSLIST [vertical title: "@rt_item_posnode_p" size: (380, 350) minsize: (380, 300) padding: 4] {
 	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
 		listbox CTL_RTPOSLIST_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_rtposlist"];
 		view [horizontal width: bycontainer height: 28 justifycontent: start] {
@@ -3565,7 +3565,7 @@ dialog DLG_RTPOSLIST [vertical title: "@rt_item_posnode_p" size: (380, 350) mins
 	}
 }
 
-dialog DLG_RTACCLIST [vertical title: "@rt_item_account_s" size: (380, 350) minsize: (380, 300) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_RTACCLIST [vertical title: "@rt_item_account_s" size: (380, 350) minsize: (380, 300) padding: 4] {
 	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
 		listbox CTL_RTACCLIST_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_rtacclist"];
 		view [horizontal width: bycontainer height: 28 justifycontent: start] {
@@ -3579,7 +3579,7 @@ dialog DLG_RTACCLIST [vertical title: "@rt_item_account_s" size: (380, 350) mins
 	}
 }
 
-dialog DLG_RTCFGLIST [vertical title: "@rt_item_config_s" size: (380, 350) minsize: (380, 300) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_RTCFGLIST [vertical title: "@rt_item_config_s" size: (380, 350) minsize: (380, 300) padding: 4] {
 	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
 		listbox CTL_RTCFGLIST_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "34,L,@config;12,L,@accessible"];
 		view [horizontal width: bycontainer height: 28 justifycontent: start] {
@@ -3593,7 +3593,7 @@ dialog DLG_RTCFGLIST [vertical title: "@rt_item_config_s" size: (380, 350) minsi
 	}
 }
 
-dialog DLG_RTQKLIST [vertical title: "@rt_item_quotkind_p" size: (380, 350) minsize: (380, 300) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_RTQKLIST [vertical title: "@rt_item_quotkind_p" size: (380, 350) minsize: (380, 300) padding: 4] {
 	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
 		listbox CTL_RTQKLIST_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_rtquotkindlist"];
 		view [horizontal width: bycontainer height: 28 justifycontent: start] {
@@ -3607,7 +3607,7 @@ dialog DLG_RTQKLIST [vertical title: "@rt_item_quotkind_p" size: (380, 350) mins
 	}
 }
 
-dialog DLG_SYSJFILT2 [vertical title: "@sysjfilt2" size: (420, 230) minsize: (420, 230) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_SYSJFILT2 [vertical title: "@sysjfilt2" size: (420, 230) minsize: (420, 230) padding: 4] {
 	input CTL_SYSJFILT_PERIOD [width: bycontainer(75) height: 21 margin: 4 tabstop label: "@sysjfilt_period"] string[30]
 		supplement daterangecalbutton(CTLCAL_SYSJFILT_PERIOD);
 	combobox CTLSEL_SYSJFILT_USER [width: bycontainer height: 21 margin: 4 tabstop label: "@sysjfilt_user" cblinesymb: CTL_SYSJFILT_USER ];
@@ -3619,7 +3619,7 @@ dialog DLG_SYSJFILT2 [vertical title: "@sysjfilt2" size: (420, 230) minsize: (42
 	}
 }
 
-dialog DLG_VATBFLT [vertical title: "@salespurchaseledger" size: (540, 460) minsize: (540, 460) padding: 4 justifycontent: SpaceBetween font: "MS Shell Dlg,8"] {
+dialog DLG_VATBFLT [vertical title: "@salespurchaseledger" size: (540, 460) minsize: (540, 460) padding: 4 justifycontent: SpaceBetween] {
 	view [horizontal width: bycontainer height: 85] {
 		radiocluster CTL_VATBFLT_WHAT [tabstop growfactor: 1 margin: 4] {
 			radiobutton [title: "@salesledger"];
@@ -3654,7 +3654,7 @@ dialog DLG_VATBFLT [vertical title: "@salespurchaseledger" size: (540, 460) mins
 	}
 }
 
-dialog DLG_GDSOPRMPTOTAL [vertical title: "@goodsopanlztotal" size: (575, 500) minsize: (575, 500) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.7
+dialog DLG_GDSOPRMPTOTAL [vertical title: "@goodsopanlztotal" size: (575, 500) minsize: (575, 500) padding: 4 ] { // @v12.5.7
 	view [horizontal width: bycontainer height: 45 justifycontent: start] {
 		input CTL_GDSOPRTOTAL_COUNT [size: (96, 21) margin: 4 tabstop readonly label: "@goodsopanlztotal_count" ] int32;
 	}
@@ -3665,7 +3665,7 @@ dialog DLG_GDSOPRMPTOTAL [vertical title: "@goodsopanlztotal" size: (575, 500) m
 	}
 }
 
-dialog DLG_GOODSOPR [vertical title: "@goodsopanlzfilt" size: (790, 630) minsize: (790, 630) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.7
+dialog DLG_GOODSOPR [vertical title: "@goodsopanlzfilt" size: (790, 630) minsize: (790, 630) padding: 4 ] { // @v12.5.7
 	view [horizontal width: bycontainer height: 45 justifycontent: SpaceBetween] {
 		input CTL_BILLFLT_PERIOD [size: (173, 21) margin: 4 tabstop label: "@goodsopanlzfilt_period"] string[30] supplement daterangecalbutton(CTLCAL_BILLFLT_PERIOD);
 		statictext CTL_BILLFLT_LABEL [size: (16, 16) margin: 4 staticedge];
@@ -3738,7 +3738,7 @@ dialog DLG_GOODSOPR [vertical title: "@goodsopanlzfilt" size: (790, 630) minsize
 	}
 }
 
-dialog DLG_STATUS [vertical title: "@config_state" size: (680, 530) minsize: (680, 530) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.7
+dialog DLG_STATUS [vertical title: "@config_state" size: (680, 530) minsize: (680, 530) padding: 4] { // @v12.5.7
 	view [horizontal width: bycontainer height: 45] {
 		combobox CTLSEL_STATUS_MAINORG [tabstop growfactor: 1 height: 21 margin: 4 label: "@mainorg" cblinesymb: CTL_STATUS_MAINORG];
 		input CTL_STATUS_DATE [size: (90, 21) margin: 4 tabstop readonly fmtf: (dmy) label: "@currentdate"] date;
@@ -3769,7 +3769,7 @@ dialog DLG_STATUS [vertical title: "@config_state" size: (680, 530) minsize: (68
 	statictext CTL_STATUS_USEGDSMATRIX [width: bycontainer height: 16 margin: 4 staticedge];
 }
 
-dialog DLG_TRFRANLZ [vertical title: "@view_trfranlz" size: (785, 690) minsize: (785, 690) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.7
+dialog DLG_TRFRANLZ [vertical title: "@view_trfranlz" size: (785, 690) minsize: (785, 690) padding: 4] { // @v12.5.7
 	view [horizontal width: bycontainer growfactor: 1] {
 		framebox [horizontal growfactor: 2 height: bycontainer padding: 4 margin: 4] {
 			view [vertical growfactor: 1 height: bycontainer] {
@@ -3850,7 +3850,7 @@ dialog DLG_TRFRANLZ [vertical title: "@view_trfranlz" size: (785, 690) minsize: 
 	}
 }
 
-dialog DLG_TAGRPNG [vertical title: "@trfranlzfilt_title_grouping" size: (745, 420) minsize: (745, 420) padding: 4 font: "MS Shell Dlg 2,8"] {
+dialog DLG_TAGRPNG [vertical title: "@trfranlzfilt_title_grouping" size: (745, 420) minsize: (745, 420) padding: 4 ] {
 	view [horizontal width: bycontainer height: 115] {
 		view [vertical growfactor: 1 height: bycontainer] {
 			combobox CTLSEL_TAGRPNG_GGRPNG [tabstop width: bycontainer height: 21 margin: (4, 4, 4, 1) label: "@trfranlzfilt_grouping" cblinesymb: CTL_TAGRPNG_GGRPNG];
@@ -3889,7 +3889,7 @@ dialog DLG_TAGRPNG [vertical title: "@trfranlzfilt_title_grouping" size: (745, 4
 	}
 }
 
-dialog DLG_TAC [vertical title: "@trfranlzfilt_crosstab" size: (500, 240) minsize: (500, 240) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_TAC [vertical title: "@trfranlzfilt_crosstab" size: (500, 240) minsize: (500, 240) padding: 4] {
 	view [horizontal width: bycontainer growfactor: 1] {
 		radiocluster CTL_TAC_KIND [title: "@trfranlzfilt_ctkind" growfactor: 1 margin: 4 padding: 4] {
 			radiobutton [title: "@trfranlzfilt_ctk_none"];
@@ -3905,7 +3905,7 @@ dialog DLG_TAC [vertical title: "@trfranlzfilt_crosstab" size: (500, 240) minsiz
 	}
 }
 
-dialog DLG_GSTRUC [vertical title: "@goods_struc" size: (895, 600) minsize: (895, 600) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.8
+dialog DLG_GSTRUC [vertical title: "@goods_struc" size: (895, 600) minsize: (895, 600) padding: 4 ] { // @v12.5.8
 	view [horizontal width: bycontainer height: 45] {
 		view [horizontal growfactor: 2 height: bycontainer] {
 			input CTL_GSTRUC_GNAME [growfactor: 1 height: 21 margin: 4 readonly label: "@ware"] string[128];
@@ -3972,7 +3972,7 @@ dialog DLG_GSTRUC [vertical title: "@goods_struc" size: (895, 600) minsize: (895
 	}
 }
 
-dialog DLG_GSITEM [vertical title: "@gsitem" size: (670, 420) minsize: (670, 420) padding: 4 font: "MS Shell Dlg,8"] { // @v12.6.5
+dialog DLG_GSITEM [vertical title: "@gsitem" size: (670, 420) minsize: (670, 420) padding: 4] { // @v12.6.5
 	statictext CTL_GSITEM_HEADER [width: bycontainer height: 21 margin: 4 staticedge];
 	combobox CTLSEL_GSITEM_GGRP [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@gsitem_goodsgroup" cblinesymb: CTL_GSITEM_GGRP ];
 	view [horizontal width: bycontainer height: 30 alignitems: center] {
@@ -4028,7 +4028,7 @@ dialog DLG_GSITEM [vertical title: "@gsitem" size: (670, 420) minsize: (670, 420
 	}
 }
 
-dialog DLG_BILLSTATUS [vertical title: "@bill_status" size: (780, 510) minsize: (780, 510) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.10
+dialog DLG_BILLSTATUS [vertical title: "@bill_status" size: (780, 510) minsize: (780, 510) padding: 4 ] { // @v12.5.10
 	view [horizontal width: bycontainer height: 43] {
 		input CTL_BILLSTATUS_NAME [growfactor: 0.8 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
 		view [horizontal growfactor: 1 height: bycontainer] {
@@ -4088,7 +4088,7 @@ dialog DLG_BILLSTATUS [vertical title: "@bill_status" size: (780, 510) minsize: 
 	}	
 }
 
-dialog DLG_BILLFLTVOPT [vertical title: "@billfilt_viewoptions" size: (395, 280) minsize: (395, 280) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.10
+dialog DLG_BILLFLTVOPT [vertical title: "@billfilt_viewoptions" size: (395, 280) minsize: (395, 280) padding: 4 ] { // @v12.5.10
 	checkcluster CTL_BILLFLTVOPT_FLAGS [title: "@billfilt_flags" width: bycontainer growfactor: 1 margin: 4 padding: (4, 12, 4, 4)] {
 		checkbox [title: "@billfilt_dlifreightissuedate"];
 		checkbox [title: "@billfilt_dlifreightarrivaldate"];
@@ -4106,7 +4106,7 @@ dialog DLG_BILLFLTVOPT [vertical title: "@billfilt_viewoptions" size: (395, 280)
 	}
 }
 
-dialog DLG_GOODSVAD [vertical title: "@goods_vad" size: (860 590) minsize: (860 590) padding: 4 font: "MS Shell Dlg,8"] {  // @v12.5.10
+dialog DLG_GOODSVAD [vertical title: "@goods_vad" size: (860 590) minsize: (860 590) padding: 4] {  // @v12.5.10
 	view [horizontal width: bycontainer growfactor: 1] {
 		view [vertical growfactor: 2 height: bycontainer] {
 			framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
@@ -4173,7 +4173,7 @@ dialog DLG_GOODSVAD [vertical title: "@goods_vad" size: (860 590) minsize: (860 
 	}
 }
 
-dialog DLG_CBASCFG [vertical title: "@ttl_clibnkassoc" size: (545, 425) minsize: (545, 425) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.11
+dialog DLG_CBASCFG [vertical title: "@ttl_clibnkassoc" size: (545, 425) minsize: (545, 425) padding: 4] { // @v12.5.11
 	listbox CTL_CBASCFG_LIST [tabstop width: bycontainer growfactor: 1 columns: "25,L,@article;10,R,@valuesign_s;6,R,@bankstmntassocitem_addedtag;25,L,@oprkind"];
 	view [horizontal width: bycontainer height: 30] {
 		view [horizontal growfactor: 3 height: bycontainer justifycontent: start] {
@@ -4187,7 +4187,7 @@ dialog DLG_CBASCFG [vertical title: "@ttl_clibnkassoc" size: (545, 425) minsize:
 	}
 }
 
-dialog DLG_CLIBNKFMTLIST [horizontal title: "@cfg_clibnkexpimpformatlist" size: (400, 350) minsize: (390, 340) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_CLIBNKFMTLIST [horizontal title: "@cfg_clibnkexpimpformatlist" size: (400, 350) minsize: (390, 340) padding: 4] {
 	listbox CTL_CLIBNKFMTLIST_LIST [height: bycontainer growfactor: 1 margin: 4];
 	view [vertical height: bycontainer width: 110] {
 		view [vertical growfactor: 3 width: bycontainer justifycontent: start] {
@@ -4205,7 +4205,7 @@ dialog DLG_CLIBNKFMTLIST [horizontal title: "@cfg_clibnkexpimpformatlist" size: 
 	}
 }
 
-dialog DLG_RCVRGOODS [vertical title: "@goodsrecoverparam" size: (440, 265) minsize: (440, 265) padding: 4 justifycontent: spacebetween font: "MS Shell Dlg 2,8"] { // @v12.5.10
+dialog DLG_RCVRGOODS [vertical title: "@goodsrecoverparam" size: (440, 265) minsize: (440, 265) padding: 4 justifycontent: spacebetween ] { // @v12.5.10
 	checkcluster CTL_RCVRGOODS_FLAGS [width: bycontainer margin: 4] {
 		checkbox [title: "@goodsrecoverparam_fcorrect"];
 		checkbox [title: "@goodsrecoverparam_fcheckalcoattribs"];
@@ -4222,7 +4222,7 @@ dialog DLG_RCVRGOODS [vertical title: "@goodsrecoverparam" size: (440, 265) mins
 	}
 }
 
-dialog DLG_BILLFLT [vertical title: "%s" size: (650, 540) minsize: (650, 540) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.11 
+dialog DLG_BILLFLT [vertical title: "%s" size: (650, 540) minsize: (650, 540) padding: 4 ] { // @v12.5.11 
 	view [horizontal width: bycontainer height: 45] {
 		view [horizontal growfactor: 2 height: bycontainer] {
 			input CTL_BILLFLT_PERIOD [growfactor: 1 height: 21 margin: 4 tabstop label: "@daterange"] string[30] supplement daterangecalbutton(CTLCAL_BILLFLT_PERIOD);
@@ -4296,7 +4296,7 @@ dialog DLG_BILLFLT [vertical title: "%s" size: (650, 540) minsize: (650, 540) pa
 	}
 }
 
-dialog DLG_GTO [vertical title: "@view_goodstrnovr" size: (545, 325) minsize: (545, 325) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_GTO [vertical title: "@view_goodstrnovr" size: (545, 325) minsize: (545, 325) padding: 4] {
 	input CTL_GTO_PERIOD [size: (175, 21) margin: 4 tabstop label: "@daterange"] string[30] supplement daterangecalbutton(CTLCAL_GTO_PERIOD);
 	combobox CTLSEL_GTO_LOC [tabstop width: bycontainer height: 21 margin: 4 label: "@warehouse" cblinesymb: CTL_GTO_LOC] supplement listbutton(STDCTL_LOCLISTBUTTON cmLocList);
 	combobox CTLSEL_GTO_SUPPL [tabstop width: bycontainer height: 21 margin: 4 label: "@supplier" cblinesymb: CTL_GTO_SUPPL];
@@ -4310,7 +4310,7 @@ dialog DLG_GTO [vertical title: "@view_goodstrnovr" size: (545, 325) minsize: (5
 	}
 }
 
-dialog DLG_SG [vertical title: "" size: (695, 315) minsize: (695, 315) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_SG [vertical title: "" size: (695, 315) minsize: (695, 315) padding: 4] {
 	view [horizontal width: bycontainer height: 45] {
 		combobox CTLSEL_SG_CLS [growfactor: 5 height: 21 margin: 4 tabstop label: "@goods_gdscls" cblinesymb: CTL_SG_CLS];
 		view [horizontal growfactor: 4 height: bycontainer] { // @stub
@@ -4369,7 +4369,7 @@ dialog DLG_SG [vertical title: "" size: (695, 315) minsize: (695, 315) padding: 
 	}
 }
 
-dialog DLG_CNTRG_PERSON [vertical title: "@person" size: (600, 400) minsize: (600, 400) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.12 // @construction
+dialog DLG_CNTRG_PERSON [vertical title: "@person" size: (600, 400) minsize: (600, 400) padding: 4 ] { // @v12.5.12 // @construction
 	view [horizontal width: bycontainer height: 40] {
 		input CTL_PERSON_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@name"] string[128];
 		input CTL_PERSON_ID [size: (55, 21) margin: (4, 17, 4, 4) tabstop readonly fmtf: (nozero)] int32;
@@ -4397,7 +4397,7 @@ dialog DLG_CNTRG_PERSON [vertical title: "@person" size: (600, 400) minsize: (60
 	}
 }
 
-dialog DLG_TECH [vertical title: "@tech" size: (800, 500) minsize: (800, 500) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.5.12
+dialog DLG_TECH [vertical title: "@tech" size: (800, 500) minsize: (800, 500) padding: 4 ] { // @v12.5.12
 	view [horizontal width: bycontainer growfactor: 1] {
 		view [vertical growfactor: 1 height: bycontainer justifycontent: spaceevenly] {
 			input CTL_TECH_CODE [width: bycontainer height: 21 margin: 4 tabstop label: "@code"] string[48];
@@ -4453,7 +4453,7 @@ dialog DLG_TECH [vertical title: "@tech" size: (800, 500) minsize: (800, 500) pa
 	}*/
 }
 
-dialog DLG_CAPACITY [vertical title: "@techcapacity" size: (240, 270) minsize: (240, 270) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.12
+dialog DLG_CAPACITY [vertical title: "@techcapacity" size: (240, 270) minsize: (240, 270) padding: 4] { // @v12.5.12
 	view [horizontal width: bycontainer growfactor: 1] {
 		input CTL_CAPACITY_VAL [growfactor: 1 height: 21 margin: (4, 17, 4, 4) tabstop fmtf: (nozero notrailz) fmtprec: 10] double;
 		radiocluster CTL_CAPACITY_TIMEUNIT [growfactor: 1 margin: 4] {
@@ -4474,7 +4474,7 @@ dialog DLG_CAPACITY [vertical title: "@techcapacity" size: (240, 270) minsize: (
 	}
 }
 
-dialog DLG_TSESSWROFFORD [horizontal title: "@tsesswrofforder" size: (535, 375) minsize: (535, 375) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.12
+dialog DLG_TSESSWROFFORD [horizontal title: "@tsesswrofforder" size: (535, 375) minsize: (535, 375) padding: 4] { // @v12.5.12
 	listbox CTL_TSESSWROFFORD_LIST [tabstop height: bycontainer growfactor: 1 margin: 4 columns: "48,L,@processor;2,L"];
 	view [vertical height: bycontainer width: 110] {
 		view [vertical growfactor: 2 width: bycontainer justifycontent: start alignitems: center] {
@@ -4492,7 +4492,7 @@ dialog DLG_TSESSWROFFORD [horizontal title: "@tsesswrofforder" size: (535, 375) 
 	}
 }
 
-dialog DLG_TSESWOORDI [vertical title: "@tsesswrofforder_item" size: (485, 140) minsize: (485, 140) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.12
+dialog DLG_TSESWOORDI [vertical title: "@tsesswrofforder_item" size: (485, 140) minsize: (485, 140) padding: 4] { // @v12.5.12
 	combobox CTLSEL_TSESWOORDI_PRC [tabstop width: bycontainer height: 21 margin: 4 label: "@processor" cblinesymb: CTL_TSESWOORDI_PRC];
 	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
@@ -4502,7 +4502,7 @@ dialog DLG_TSESWOORDI [vertical title: "@tsesswrofforder_item" size: (485, 140) 
 //
 // Технологический маршрут
 //
-dialog DLG_TECHROUTE [vertical title: "@techroute" size: (550, 450) minsize: (550, 450) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.12
+dialog DLG_TECHROUTE [vertical title: "@techroute" size: (550, 450) minsize: (550, 450) padding: 4] { // @v12.5.12
 	view [horizontal width: bycontainer height: 45] {
 		input CTL_TECHROUTE_CODE [growfactor: 1 height: 21 margin: 4 tabstop label: "@code"] string[48];
 		input CTL_TECHROUTE_ID [size: (50, 21) margin: 4 tabstop readonly label: "@id"] int32;
@@ -4536,7 +4536,7 @@ dialog DLG_TECHROUTE [vertical title: "@techroute" size: (550, 450) minsize: (55
 //
 // Элемент технологического маршрута
 //
-dialog DLG_TECHROUTEITEM [vertical title: "@techroute_item" size: (485, 210) minsize: (485, 210) padding: 4 font: "MS Shell Dlg,8" justifycontent: spacebetween] { // @v12.5.12
+dialog DLG_TECHROUTEITEM [vertical title: "@techroute_item" size: (485, 210) minsize: (485, 210) padding: 4 justifycontent: spacebetween] { // @v12.5.12
 	combobox CTLSEL_TECHROUTEITEM_TECH [tabstop width: bycontainer height: 21 margin: 4 label: "@tech" cblinesymb: CTL_TECHROUTEITEM_TECH];
 	input CTL_TECHROUTEITEM_PRCNAME [width: bycontainer height: 21 margin: 4 readonly label: "@processor"] string[48];
 	view [horizontal width: bycontainer height: 45] {
@@ -4555,7 +4555,7 @@ dialog DLG_TECHROUTEITEM [vertical title: "@techroute_item" size: (485, 210) min
 	}
 }
 
-dialog DLG_TSESSLN [vertical title: "@tsessline" size: (560, 530) minsize: (560, 530) padding: 4 font: "MS Shell Dlg,8"] { // @v12.5.12 @construction
+dialog DLG_TSESSLN [vertical title: "@tsessline" size: (560, 530) minsize: (560, 530) padding: 4] { // @v12.5.12 @construction
 	statictext CTL_TSESSLN_SESSTITLE [width: bycontainer height: 24 margin: 4 staticedge];
 	framebox [vertical width: bycontainer height: 100 margin: 4 padding: 4] {
 		combobox CTLSEL_TSESSLN_GGRP [tabstop width: bycontainer height: 21 margin: 4 label: "@goodsgroup" cblinesymb: CTL_TSESSLN_GGRP];
@@ -4617,7 +4617,7 @@ dialog DLG_TSESSLN [vertical title: "@tsessline" size: (560, 530) minsize: (560,
 	}
 }
 
-dialog DLG_TSESSPLANLN [vertical title: "@tsesslineplan" size: (485, 370) minsize: (485, 370) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_TSESSPLANLN [vertical title: "@tsesslineplan" size: (485, 370) minsize: (485, 370) padding: 4] {
 	statictext CTL_TSESSLN_SESSTITLE [width: bycontainer height: 24 margin: 4 staticedge];
 	framebox [vertical width: bycontainer height: 100 margin: 4 padding: 4] {
 		combobox CTLSEL_TSESSLN_GGRP [tabstop width: bycontainer height: 21 margin: 4 label: "@goodsgroup" cblinesymb: CTL_TSESSLN_GGRP];
@@ -4647,7 +4647,7 @@ dialog DLG_TSESSPLANLN [vertical title: "@tsesslineplan" size: (485, 370) minsiz
 	}
 }
 
-dialog DLG_EXTDEV [vertical title: "@cashnode_sync_devices" size: (700, 605) minsize: (700, 605) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.6.0
+dialog DLG_EXTDEV [vertical title: "@cashnode_sync_devices" size: (700, 605) minsize: (700, 605) padding: 4 ] { // @v12.6.0
 	view [horizontal width: bycontainer height: 140] {
 		framebox [vertical growfactor: 1 height: bycontainer margin: (6, 4, 6, 4) padding: 4] {
 			combobox CTLSEL_EXTDEV_TCHSCREEN [width: bycontainer height: 21 margin: 4 tabstop label: "@cashnode_sync_touchscreen" cblinesymb: CTL_EXTDEV_TCHSCREEN ];
@@ -4715,7 +4715,7 @@ dialog DLG_EXTDEV [vertical title: "@cashnode_sync_devices" size: (700, 605) min
 	}
 }
 
-dialog DLG_CASHNSEXT [vertical title: "@cashnode_sync_extension" size: (830, 360) minsize: (830, 360) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.6.2
+dialog DLG_CASHNSEXT [vertical title: "@cashnode_sync_extension" size: (830, 360) minsize: (830, 360) padding: 4 ] { // @v12.6.2
 	view [horizontal width: bycontainer growfactor: 1] {
 		framebox [vertical title: "@cashnode_sync_scf" growfactor: 4 height: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
 			view [horizontal width: bycontainer height: 30] {
@@ -4752,7 +4752,7 @@ dialog DLG_CASHNSEXT [vertical title: "@cashnode_sync_extension" size: (830, 360
 	}
 }
 
-dialog DLG_DBXCHGCFG [vertical title: "@cfg_dbxchng" size: (700, 450) minsize: (700, 450) padding: 4 font: "MS Shell Dlg,8"] { // @v12.6.3 
+dialog DLG_DBXCHGCFG [vertical title: "@cfg_dbxchng" size: (700, 450) minsize: (700, 450) padding: 4] { // @v12.6.3 
 	view [horizontal width: bycontainer growfactor: 1] {
 		view [vertical growfactor: 1 height: bycontainer] {
 			checkcluster CTL_DBXCHGCFG_FLAGS [tabstop width: bycontainer margin: 4] {
@@ -4803,7 +4803,7 @@ dialog DLG_DBXCHGCFG [vertical title: "@cfg_dbxchng" size: (700, 450) minsize: (
 	}
 }
 
-dialog DLG_TSESS [vertical title: "@{tsession}" size: (700, 690) minsize: (700, 690) padding: 4 font: "MS Shell Dlg,8" justifycontent: spacebetween] { // @v12.5.12
+dialog DLG_TSESS [vertical title: "@{tsession}" size: (700, 690) minsize: (700, 690) padding: 4 justifycontent: spacebetween] { // @v12.5.12
 	view [horizontal width: bycontainer height: 45] {
 		input CTL_TSESS_NUMBER [growfactor: 1 height: 21 margin: 4 tabstop label: "@tsession_num"] int32;
 		input CTL_TSESS_ID [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@id"] int32;
@@ -4914,7 +4914,7 @@ dialog DLG_TSESS [vertical title: "@{tsession}" size: (700, 690) minsize: (700, 
 	}
 }
 
-dialog DLG_TSESSSIMPLE [vertical title: "@{tsession}" size: (700, 600) minsize: (700, 600) padding: 4 font: "MS Shell Dlg,8"] { // @v12.6.0 
+dialog DLG_TSESSSIMPLE [vertical title: "@{tsession}" size: (700, 600) minsize: (700, 600) padding: 4] { // @v12.6.0 
 	view [horizontal width: bycontainer height: 45] {
 		input CTL_TSESS_NUMBER [growfactor: 1 height: 21 margin: 4 tabstop label: "@tsession_num"] int32;
 		input CTL_TSESS_ID [growfactor: 1 height: 21 margin: 4 tabstop readonly label: "@id"] int32;
@@ -5009,7 +5009,7 @@ dialog DLG_TSESSSIMPLE [vertical title: "@{tsession}" size: (700, 600) minsize: 
 	}
 }
 
-dialog DLG_PALM [vertical title: "Palm" size: (830, 590) minsize: (830, 590) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.6.0
+dialog DLG_PALM [vertical title: "Palm" size: (830, 590) minsize: (830, 590) padding: 4 ] { // @v12.6.0
 	view [horizontal width: bycontainer growfactor: 1] {
 		view [vertical growfactor: 5 height: bycontainer] {
 			view [horizontal width: bycontainer height: 45] {
@@ -5071,7 +5071,7 @@ dialog DLG_PALM [vertical title: "Palm" size: (830, 590) minsize: (830, 590) pad
 	}
 }
 
-dialog DLG_BILLAMTCUR [vertical title: "@billamount" size: (415, 240) minsize: (415, 240) padding: 4 justifycontent: spacebetween font: "MS Shell Dlg,8"] { // @v12.6.3 
+dialog DLG_BILLAMTCUR [vertical title: "@billamount" size: (415, 240) minsize: (415, 240) padding: 4 justifycontent: spacebetween] { // @v12.6.3 
 	combobox CTLSEL_BILLAMT_AMTTYPE [width: bycontainer height: 21 margin: 4 tabstop label: "@amounttype" cblinesymb: CTL_BILLAMT_AMTTYPE];
 	framebox [vertical width: bycontainer height: 98 margin: 4 padding: 4] {
 		view [horizontal width: bycontainer growfactor: 1] {
@@ -5094,7 +5094,7 @@ dialog DLG_BILLAMTCUR [vertical title: "@billamount" size: (415, 240) minsize: (
 	}
 }
 
-dialog DLG_GBSTRUC_N [title: "@basket" vertical size: (700, 550) minsize: (650, 430) padding: 4 font: "MS Shell Dlg 2,8"] {
+dialog DLG_GBSTRUC_N [title: "@basket" vertical size: (700, 550) minsize: (650, 430) padding: 4 ] {
 	view [horizontal width: bycontainer height: 100] {
 		view [vertical growfactor: 2 height: bycontainer] {
 			input CTL_GBTRUC_BASKET [width: bycontainer height: 21 margin: 4 tabstop label: "@appellation"] string[48];
@@ -5143,7 +5143,7 @@ dialog DLG_GBSTRUC_N [title: "@basket" vertical size: (700, 550) minsize: (650, 
 	}
 }
 
-dialog DLG_GBSTRUC [vertical title: "@basket" size: (640, 570) minsize: (640, 570) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.6.3 
+dialog DLG_GBSTRUC [vertical title: "@basket" size: (640, 570) minsize: (640, 570) padding: 4 ] { // @v12.6.3 
 	view [horizontal width: bycontainer height: 90] {
 		view [vertical growfactor: 1 height: bycontainer] {
 			combobox CTLSEL_GBTRUC_BASKET [width: bycontainer height: 21 margin: 4 tabstop label: "@appellation" cblinesymb: CTL_GBTRUC_BASKET];
@@ -5187,7 +5187,7 @@ dialog DLG_GBSTRUC [vertical title: "@basket" size: (640, 570) minsize: (640, 57
 	}
 }
 
-dialog DLG_GBITEM [vertical title: "@goodsbasketitem" size: (680, 400) minsize: (680, 400) padding: 4 font: "MS Shell Dlg,8"] { // @v12.6.3 
+dialog DLG_GBITEM [vertical title: "@goodsbasketitem" size: (680, 400) minsize: (680, 400) padding: 4] { // @v12.6.3 
 	view [horizontal width: bycontainer height: 70] {
 		view [vertical growfactor: 4 height: bycontainer] {
 			combobox CTLSEL_GBITEM_BASKET [width: bycontainer height: 21 margin: 4 tabstop label: "@basket" cblinesymb: CTL_GBITEM_BASKET ];
@@ -5232,7 +5232,7 @@ dialog DLG_GBITEM [vertical title: "@goodsbasketitem" size: (680, 400) minsize: 
 	}
 }
 
-dialog DLG_GSDATA [vertical title: "@goods_struc" size: (390, 140) minsize: (390, 140) padding: 4 font: "MS Shell Dlg,8" justifycontent: spacebetween] {
+dialog DLG_GSDATA [vertical title: "@goods_struc" size: (390, 140) minsize: (390, 140) padding: 4 justifycontent: spacebetween] {
 	combobox CTLSEL_GSDATA_NAMEDSTRUC [width: bycontainer height: 21 margin: 4 tabstop label: "@namedgoodsstruc" cblinesymb: CTL_GSDATA_NAMEDSTRUC] supplement ellipsisbutton(CTL_GSDATA_CMD_SHOWGS cmShowGoodsStruc);
 	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
@@ -5240,7 +5240,7 @@ dialog DLG_GSDATA [vertical title: "@goods_struc" size: (390, 140) minsize: (390
 	}
 }
 
-dialog DLG_GLOBUSERACC [vertical title: "@globaluseracc" size: (580, 360) minsize: (580, 360) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.6.4 @construction
+dialog DLG_GLOBUSERACC [vertical title: "@globaluseracc" size: (580, 360) minsize: (580, 360) padding: 4 ] { // @v12.6.4 @construction
 	view [horizontal width: bycontainer height: 45] {
 		input CTL_GLOBUSERACC_NAME [growfactor: 3 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
 		input CTL_GLOBUSERACC_SYMB [growfactor: 3 height: 21 margin: 4 tabstop label: "@symbol"] string[20];
@@ -5276,7 +5276,7 @@ dialog DLG_GLOBUSERACC [vertical title: "@globaluseracc" size: (580, 360) minsiz
 	}
 }
 
-dialog DLG_CLIAGT [vertical title: "@article_p_cliagt" size: (705, 515) minsize: (705, 515) padding: 4 font: "MS Shell Dlg 2,8" justifycontent: spacebetween] { // @v12.6.4
+dialog DLG_CLIAGT [vertical title: "@article_p_cliagt" size: (705, 515) minsize: (705, 515) padding: 4 justifycontent: spacebetween] { // @v12.6.4
 	view [horizontal width: bycontainer height: 45] {
 		input CTL_CLIAGT_CLIENT [growfactor: 2 height: 21 margin: 4 tabstop label: "@client"] string[128];
 		view [horizontal growfactor: 1 height: bycontainer] {
@@ -5350,7 +5350,7 @@ dialog DLG_CLIAGT [vertical title: "@article_p_cliagt" size: (705, 515) minsize:
 	}
 }
 
-dialog DLG_LOTXCLIST [vertical title: "@lotxcodelist" size: (1120, 425) minsize: (1120, 425) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_LOTXCLIST [vertical title: "@lotxcodelist" size: (1120, 425) minsize: (1120, 425) padding: 4] {
 	input CTL_LOTXCLIST_INFO [width: bycontainer height: 21 margin: 4 tabstop readonly] string[128];
 	listbox CTL_LOTXCLIST_LIST [tabstop width: bycontainer growfactor: 1 margin: 4];
 	view [horizontal width: bycontainer height: 30] {
@@ -5372,7 +5372,7 @@ dialog DLG_LOTXCLIST [vertical title: "@lotxcodelist" size: (1120, 425) minsize:
 	}
 }
 
-dialog DLG_LOTXCCKLIST [vertical title: "@lotxcodechecklist" size: (1120, 440) minsize: (1100, 400) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_LOTXCCKLIST [vertical title: "@lotxcodechecklist" size: (1120, 440) minsize: (1100, 400) padding: 4] {
 	statictext CTL_LOTXCCKLIST_INFO [width: bycontainer height: 24 margin: 4 staticedge];
 	listbox CTL_LOTXCCKLIST_LIST [tabstop ownerdraw: fixed width: bycontainer growfactor: 1 margin: 4];
 	checkbox CTL_LOTXCCKLIST_FLAGS [title: "@lotxcodechecklist_showunchecked" tabstop width: bycontainer(50) height: 21 margin: 4];
@@ -5394,7 +5394,7 @@ dialog DLG_LOTXCCKLIST [vertical title: "@lotxcodechecklist" size: (1120, 440) m
 	}
 }
 
-dialog DLG_UNIT [vertical title: "@munit" size: (460, 390) minsize: (460, 390) padding: 4 font: "MS Shell Dlg,8" justifycontent: spacebetween] { // @v12.6.5
+dialog DLG_UNIT [vertical title: "@munit" size: (460, 390) minsize: (460, 390) padding: 4 justifycontent: spacebetween] { // @v12.6.5
 	view [horizontal width: bycontainer height: 45] {
 		input CTL_UNIT_NAME [growfactor: 7 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
 		input CTL_UNIT_ID [growfactor: 3 height: 21 margin: 4 tabstop readonly label: "@id"] int32;
@@ -5433,7 +5433,7 @@ dialog DLG_UNIT [vertical title: "@munit" size: (460, 390) minsize: (460, 390) p
 	}
 }
 
-dialog DLG_CONFIG [vertical title: "@config" size: (530, 150) minsize: (530, 150) padding: 4 font: "MS Shell Dlg,8" justifycontent: spacebetween] {
+dialog DLG_CONFIG [vertical title: "@config" size: (530, 150) minsize: (530, 150) padding: 4 justifycontent: spacebetween] {
 	view [horizontal width: bycontainer height: 45] {
 		input CTL_USRGRP_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
 		input CTL_USRGRP_ID [size: (75, 21) margin: 4 tabstop label: "@id"] int32;
@@ -5451,7 +5451,7 @@ dialog DLG_CONFIG [vertical title: "@config" size: (530, 150) minsize: (530, 150
 	}
 }
 
-dialog DLG_USRGRP [vertical title: "@usergroup" size: (530, 195) minsize: (530, 195) padding: 4 font: "MS Shell Dlg,8" justifycontent: spacebetween] {
+dialog DLG_USRGRP [vertical title: "@usergroup" size: (530, 195) minsize: (530, 195) padding: 4 justifycontent: spacebetween] {
 	view [horizontal width: bycontainer height: 45] {
 		input CTL_USRGRP_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
 		input CTL_USRGRP_ID [size: (75, 21) margin: 4 tabstop label: "@id"] int32;
@@ -5470,7 +5470,7 @@ dialog DLG_USRGRP [vertical title: "@usergroup" size: (530, 195) minsize: (530, 
 	}
 }
 
-dialog DLG_USR [vertical title: "@user" size: (440, 465) minsize: (440, 465) padding: 4 font: "MS Shell Dlg,8"  justifycontent: spacebetween] {
+dialog DLG_USR [vertical title: "@user" size: (440, 465) minsize: (440, 465) padding: 4  justifycontent: spacebetween] {
 	view [horizontal width: bycontainer height: 45] {
 		input CTL_USR_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
 		input CTL_USR_ID [size: (75, 21) margin: 4 tabstop label: "@id"] int32;
@@ -5505,7 +5505,7 @@ dialog DLG_USR [vertical title: "@user" size: (440, 465) minsize: (440, 465) pad
 	}
 }
 
-dialog DLG_LAUNCHAPP [vertical title: "@launchappparam" size: (435, 335) minsize: (435, 335) padding: 4 font: "MS Shell Dlg,8" justifycontent: spacebetween] {
+dialog DLG_LAUNCHAPP [vertical title: "@launchappparam" size: (435, 335) minsize: (435, 335) padding: 4 justifycontent: spacebetween] {
 	input CTL_LAUNCHAPP_APP [width: bycontainer height: 21 margin: 4 tabstop label: "@launchappparam_app"] string[255] supplement filebrowsebutton(CTLBRW_LAUNCHAPP_APP);
 	//button CTLBRW_LAUNCHAPP_APP [title: "@{launchappparam_appselbutton}..." tabstop size: (63, 21)  command: cmNone];
 	input CTL_LAUNCHAPP_PARAMS [width: bycontainer height: 21 margin: 4 tabstop label: "@launchappparam_arg"] string[255];
@@ -5524,7 +5524,7 @@ dialog DLG_LAUNCHAPP [vertical title: "@launchappparam" size: (435, 335) minsize
 	}
 }
 
-dialog DLG_FLTLOTORD [vertical title: "@lotfiltorders" size: (815, 475) minsize: (815, 475) padding: 4 justifycontent: spacebetween font: "MS Shell Dlg 2,8"] { // @v12.6.6
+dialog DLG_FLTLOTORD [vertical title: "@lotfiltorders" size: (815, 475) minsize: (815, 475) padding: 4 justifycontent: spacebetween ] { // @v12.6.6
 	view [horizontal width: bycontainer height: 90] {
 		view [horizontal growfactor: 6 height: bycontainer] {
 			input CTL_FLTLOT_PERIOD [width: bycontainer(50) height: 21 margin: 4 tabstop label: "@daterange"] string[30] supplement daterangecalbutton(CTLCAL_FLTLOT_PERIOD);
@@ -5572,7 +5572,7 @@ dialog DLG_FLTLOTORD [vertical title: "@lotfiltorders" size: (815, 475) minsize:
 	}
 }
 
-dialog DLG_FLTLOT [vertical title: "@lotfilt" size: (790, 430) minsize: (790, 430) padding: 4 justifycontent: spacebetween font: "MS Shell Dlg,8"] { // @v12.6.6
+dialog DLG_FLTLOT [vertical title: "@lotfilt" size: (790, 430) minsize: (790, 430) padding: 4 justifycontent: spacebetween] { // @v12.6.6
 	view [horizontal width: bycontainer growfactor: 1] {
 		view [vertical growfactor: 6 height: bycontainer] {
 			view [horizontal width: bycontainer height: 100] {
@@ -5620,7 +5620,7 @@ dialog DLG_FLTLOT [vertical title: "@lotfilt" size: (790, 430) minsize: (790, 43
 	}
 }
 
-dialog DLG_LOCVIEW [horizontal title: "@warehouse_pl" size: (540, 500) minsize: (400, 450) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_LOCVIEW [horizontal title: "@warehouse_pl" size: (540, 500) minsize: (400, 450) padding: 4] {
 	treelistbox CTL_OBJVIEW_LIST [height: bycontainer growfactor: 1];
 	view [vertical height: bycontainer width: 120] {
 		view [vertical growfactor: 3 width: bycontainer justifycontent: start alignitems: center] {
@@ -5643,7 +5643,7 @@ dialog DLG_LOCVIEW [horizontal title: "@warehouse_pl" size: (540, 500) minsize: 
 	}
 }
 
-dialog DLG_ATRNTMPL [vertical title: "@accturntempl" size: (700, 470) minsize: (700, 470) padding: 4 font: "MS Shell Dlg,8"] { // @v12.6.8 @construction
+dialog DLG_ATRNTMPL [vertical title: "@accturntempl" size: (700, 470) minsize: (700, 470) padding: 4] { // @v12.6.8 @construction
 	framebox [vertical title: "@debit" width: bycontainer height: 80 margin: 4 padding: (4, 13, 4, 8)] {
 		view [horizontal width: bycontainer growfactor: 1] {
 			view [horizontal growfactor: 1 height: bycontainer] {
@@ -5717,7 +5717,7 @@ dialog DLG_ATRNTMPL [vertical title: "@accturntempl" size: (700, 470) minsize: (
 	}
 }
 
-dialog DLG_TSESSCFG [vertical title: "@cfg_techsess" size: (545, 570) minsize: (545, 570) padding: 4 font: "MS Shell Dlg,8" justifycontent: spacebetween] {
+dialog DLG_TSESSCFG [vertical title: "@cfg_techsess" size: (545, 570) minsize: (545, 570) padding: 4 justifycontent: spacebetween] {
 	combobox CTLSEL_TSESSCFG_IDLEAS [width: bycontainer(80) height: 21 margin: 4 tabstop label: "@cfgtechsess_idleaccsheet" cblinesymb: CTL_TSESSCFG_IDLEAS];
 	combobox CTLSEL_TSESSCFG_DEFTMTEC [width: bycontainer(80) height: 21 margin: 4 tabstop label: "@cfgtechsess_deftimetech" cblinesymb: CTL_TSESSCFG_DEFTMTEC];
 	combobox CTLSEL_TSESSCFG_JOBPERITEMWARE [width: bycontainer(80) height: 21 margin: 4 tabstop label: "@cfgtechsess_jobperitemgoods" cblinesymb: CTL_TSESSCFG_JOBPERITEMWARE];
@@ -5757,7 +5757,7 @@ dialog DLG_TSESSCFG [vertical title: "@cfg_techsess" size: (545, 570) minsize: (
 	}
 }
 
-dialog DLG_CHZNIX [vertical title: "@chznprcssrparam" size: (665, 480) minsize: (665, 480) padding: 4 justifycontent: spacebetween font: "MS Shell Dlg 2,8"] { // @v12.6.7
+dialog DLG_CHZNIX [vertical title: "@chznprcssrparam" size: (665, 480) minsize: (665, 480) padding: 4 justifycontent: spacebetween ] { // @v12.6.7
 	combobox CTLSEL_CHZNIX_GUA [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@chznprcssrparam_gua" cblinesymb: CTL_CHZNIX_GUA];
 	view [horizontal width: bycontainer growfactor: 1] {
 		radiocluster CTL_CHZNIX_WHAT [growfactor: 1 margin: 4] {
@@ -5779,7 +5779,7 @@ dialog DLG_CHZNIX [vertical title: "@chznprcssrparam" size: (665, 480) minsize: 
 	}
 }
 
-dialog DLG_TAGLOTDIM [vertical title: "@lotdimension" size: (300, 120) minsize: (300, 120) padding: 4  font: "MS Shell Dlg,8" justifycontent: spacebetween] {
+dialog DLG_TAGLOTDIM [vertical title: "@lotdimension" size: (300, 120) minsize: (300, 120) padding: 4  justifycontent: spacebetween] {
 	view [horizontal width: bycontainer height: 45] {
 		view [horizontal growfactor: 1 height: bycontainer] {
 			input CTL_TAGLOTDIM_X [width: bycontainer height: 21 margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6 label: "X"] double;
@@ -5797,7 +5797,7 @@ dialog DLG_TAGLOTDIM [vertical title: "@lotdimension" size: (300, 120) minsize: 
 	}
 }
 
-dialog DLG_TECRTASGMT [vertical title: "@{tecrouteasgmt}" size: (450, 240) minsize: (400, 240) padding: 4 justifycontent: spacebetween font: "MS Shell Dlg,8"] { // @v12.6.6
+dialog DLG_TECRTASGMT [vertical title: "@{tecrouteasgmt}" size: (450, 240) minsize: (400, 240) padding: 4 justifycontent: spacebetween] { // @v12.6.6
 	combobox CTLSEL_TECRTASGMT_FINPRODGRP [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsgroup" cblinesymb: CTL_TECRTASGMT_FINPRODGRP];
 	combobox CTLSEL_TECRTASGMT_FINPROD [tabstop width: bycontainer height: 21 margin: 4 label: "@tecrouteasgmt_finalware" cblinesymb: CTL_TECRTASGMT_FINPROD];
 	combobox CTLSEL_TECRTASGMT_TECROUTE [tabstop width: bycontainer height: 21 margin: 4 label: "@tecrouteasgmt_route" cblinesymb: CTL_TECRTASGMT_TECROUTE];
@@ -5807,7 +5807,7 @@ dialog DLG_TECRTASGMT [vertical title: "@{tecrouteasgmt}" size: (450, 240) minsi
 	}
 }
 
-dialog DLG_GDSCFG [vertical title: "@cfg_goods" size: (800, 680) minsize: (800, 680) padding: 4 font: "MS Shell Dlg,8"] { // @v12.6.6
+dialog DLG_GDSCFG [vertical title: "@cfg_goods" size: (800, 680) minsize: (800, 680) padding: 4] { // @v12.6.6
 	view [horizontal width: bycontainer height: 45] {
 		input CTL_GDSCFG_CODLEN [growfactor: 1 height: 21 margin: 4 tabstop label: "@cfggoods_barcodelen"] string[32];
 		combobox CTLSEL_GDSCFG_DEFUNIT [growfactor: 1 height: 21 margin: 4 tabstop label: "@cfggoods_defunit" cblinesymb: CTL_GDSCFG_DEFUNIT];
@@ -5883,7 +5883,7 @@ dialog DLG_GDSCFG [vertical title: "@cfg_goods" size: (800, 680) minsize: (800, 
 	}
 }
 
-dialog DLG_CORATURN [vertical title: "@cmd_correctaccturn" size: (470, 260) minsize: (470, 260) padding: 4 justifycontent: spacebetween font: "MS Shell Dlg,8"] { // @v12.6.6
+dialog DLG_CORATURN [vertical title: "@cmd_correctaccturn" size: (470, 260) minsize: (470, 260) padding: 4 justifycontent: spacebetween] { // @v12.6.6
 	input CTL_CORATURN_LOG [width: bycontainer height: 21 margin: 4 tabstop label: "@logfilename"] string[252] supplement filebrowsebutton(CTLBRW_CORATURN_LOG);
 	checkcluster CTL_CORATURN_FLAGS [width: bycontainer margin: 4] {
 		checkbox [title: "@atrprf_checkbilllink"];
@@ -5898,7 +5898,7 @@ dialog DLG_CORATURN [vertical title: "@cmd_correctaccturn" size: (470, 260) mins
 	}
 }
 
-dialog DLG_IMAGEINFO [vertical title: "" size: (600, 570) minsize: (600, 570) padding: 4 font: "MS Shell Dlg,8"] { // @v12.6.9
+dialog DLG_IMAGEINFO [vertical title: "" size: (600, 570) minsize: (600, 570) padding: 4] { // @v12.6.9
 	imageview CTL_IMAGEINFO_IMAGE [width: bycontainer growfactor: 1 staticedge];
 	statictext CTL_IMAGEINFO_INFO [width: bycontainer height: 32 margin: 4 staticedge];
 	view [horizontal width: bycontainer height: 30 alignitems: center] {
@@ -5911,7 +5911,7 @@ dialog DLG_IMAGEINFO [vertical title: "" size: (600, 570) minsize: (600, 570) pa
 	}
 }
 
-dialog DLG_IMAGEINFO2 [vertical title: "" size: (500, 500) minsize: (500, 500) font: "MS Shell Dlg,8"] { // @v12.6.9
+dialog DLG_IMAGEINFO2 [vertical title: "" size: (500, 500) minsize: (500, 500)] { // @v12.6.9
 	imageview CTL_IMAGEINFO_IMAGE [width: bycontainer growfactor: 1 staticedge];
 	view [horizontal width: bycontainer height: 1 alignitems: center] { // very-very tiny for invisibility
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (1, 1) command: cmOK];
@@ -5923,7 +5923,7 @@ dialog DLG_IMAGEINFO2 [vertical title: "" size: (500, 500) minsize: (500, 500) f
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 
 // @construction
-dialog DLG_WMSBILL__ [vertical title: "@oprcategory_wms" size: (530, 350) minsize: (530, 350) font: "MS Shell Dlg,8"] {
+dialog DLG_WMSBILL__ [vertical title: "@oprcategory_wms" size: (530, 350) minsize: (530, 350)] {
 	view [horizontal] {
 		input CTL_BILL_DOC [size: (143, 21) tabstop label: "@billno" labelsize: (96, 13)] string[48];
 		input CTL_BILL_DATE [size: (90, 21) tabstop fmtf: (dmy) label: "@date" labelsize: (30, 13)] date;
@@ -5986,7 +5986,7 @@ view LAYOUT_LI_CENTRIGONAV [horizontal height: 32 padding: 4 alignitems: center]
 	view LOITEM_LI_CENTRIGONAV_MAINTEXT [growfactor: 1 height: bycontainer]; // Основной текст
 }
 
-dialog DLG_TSESS_EXEC_TR [vertical title: "@{tsession}" size: (700, 400) minsize: (700, 400) padding: 4 justifycontent: spacebetween font: "MS Shell Dlg,8"] { // @v12.6.0 
+dialog DLG_TSESS_EXEC_TR [vertical title: "@{tsession}" size: (700, 400) minsize: (700, 400) padding: 4 justifycontent: spacebetween] { // @v12.6.0 
 	view [horizontal width: bycontainer height: 120] {
 		view [vertical growfactor: 2 height: bycontainer] {
 			combobox CTLSEL_TSESS_PRC [tabstop width: bycontainer height: 21 margin: 4 label: "@processor" cblinesymb: CTL_TSESS_PRC];
@@ -6019,7 +6019,7 @@ dialog DLG_TSESS_EXEC_TR [vertical title: "@{tsession}" size: (700, 400) minsize
 	}
 }
 
-dialog DLG_TSESS_EXEC_TR_PARAM [vertical title: "@{tsession}" size: (450, 200) minsize: (400, 200) padding: 4 justifycontent: spacebetween font: "MS Shell Dlg,8"] { // @v12.6.1
+dialog DLG_TSESS_EXEC_TR_PARAM [vertical title: "@{tsession}" size: (450, 200) minsize: (400, 200) padding: 4 justifycontent: spacebetween] { // @v12.6.1
 	combobox CTLSEL_TSESS_PRC [tabstop width: bycontainer height: 21 margin: 4 label: "@processor" cblinesymb: CTL_TSESS_PRC];
 	combobox CTLSEL_TSESS_OBJ [tabstop width: bycontainer height: 21 margin: 4 label: "@contractor" cblinesymb: CTL_TSESS_OBJ];
 	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
@@ -6095,7 +6095,7 @@ dialog DLG_CHKPAN__ [vertical title: "" size: (825, 700) minsize: (825, 700) pad
 	button CTL_CHKPAN_ENTER [title: "" size: (1, 1) command: cmaInsert];
 }
 
-dialog DLG_PRCRSRCC [vertical title: "@prcssrsourcecodemaintaining" size: (455, 230) minsize: (455, 230) padding: 4 justifycontent: spacebetween font: "MS Shell Dlg 2,8"] { // @v12.6.6
+dialog DLG_PRCRSRCC [vertical title: "@prcssrsourcecodemaintaining" size: (455, 230) minsize: (455, 230) padding: 4 justifycontent: spacebetween ] { // @v12.6.6
 	checkcluster CTL_PRCRSRCC_FLAGS [width: bycontainer margin: 4 tabstop] {
 		checkbox [title: "@prcssrsourcecodemaintaining_fparsewinrcfornativetext"];
 		checkbox [title: "@prcssrsourcecodemaintaining_ffindsourcecodewithnotutf8encoding"];
@@ -6109,36 +6109,8 @@ dialog DLG_PRCRSRCC [vertical title: "@prcssrsourcecodemaintaining" size: (455, 
 	}
 }
 
-dialog DLG_SECRETPOOL [horizontal title: "Secret Pool" size: (700, 600) minsize: (600, 600) padding: 4  font: "MS Shell Dlg,8"] {
-	treelistbox CTL_SECRETPOOL_LIST [tabstop growfactor: 1 height: bycontainer];
-	view [vertical growfactor: 3 height: bycontainer] {
-		view [horizontal width: bycontainer height: 45] {
-			input CTL_SECRETPOOL_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[128];
-			input CTL_SECRETPOOL_ID [width: 60 height: 21 margin: 4 tabstop readonly fmtf: (nozero) label: "@id"] uint64;
-		}
-		combobox CTLSEL_SECRETPOOL_TYPE [width: bycontainer height: 21 margin: 4 tabstop label: "@type" cblinesymb: CTL_SECRETPOOL_TYPE];
-		combobox CTLSEL_SECRETPOOL_PARENT [width: bycontainer height: 21 margin: 4 tabstop label: "Parent" cblinesymb: CTL_SECRETPOOL_PARENT];
-		view [horizontal width: bycontainer height: 45] {
-			input CTL_SECRETPOOL_CRTM [width: 80 height: 21 margin: 4 tabstop readonly label: "Creation Time"] string[64];
-			input CTL_SECRETPOOL_EXPIRY [width: 80 height: 21 margin: 4 tabstop label: "Expiry"] date;
-		}
-		framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
-			input CTL_SECRETPOOL_TOPEN [width: bycontainer height: 21 margin: 4 tabstop label: "Open Text"] string[128];
-			input CTL_SECRETPOOL_THIDDEN [width: bycontainer height: 21 margin: 4 tabstop label: "Hidden Text"] string[128];
-			view [horizontal width: bycontainer height: 45] {
-				input CTL_SECRETPOOL_TEXPIRY [growfactor: 1 height: 21 margin: 4 tabstop label: "Expiry Text"] string[128];
-				input CTL_SECRETPOOL_TEXT1 [growfactor: 1 height: 21 margin: 4 tabstop label: "Ext 1"] string[128];
-			}
-			view [horizontal width: bycontainer height: 45] {
-				input CTL_SECRETPOOL_TEXT2 [growfactor: 1 height: 21 margin: 4 tabstop label: "Ext 2"] string[128];
-				input CTL_SECRETPOOL_TEXT3 [growfactor: 1 height: 21 margin: 4 tabstop label: "Ext 3"] string[128];
-			}
-		}
-		input CTL_SECRETPOOL_DESCR [width: bycontainer growfactor: 1 margin: 4 tabstop multiline wantreturn label: "@memo"] string[252];
-	}
-}
-
-dialog DLG_PASSWORD [vertical title: "@setpassword" size: (355, 180) minsize: (355, 180) padding: 4 font: "MS Shell Dlg,8" justifycontent: spacebetween] {
+dialog DLG_PASSWORD [vertical title: "@setpassword" size: (355, 180) minsize: (355, 180) padding: 4 justifycontent: spacebetween] {
+	//statictext CTL_PASSWORD_INFO [width: bycontainer growfactor: 0.3 staticedge margin: 4];
 	view [horizontal width: bycontainer growfactor: 1 alignitems: center] {
 		view [vertical growfactor: 1 height: bycontainer justifycontent: center] {
 			input CTL_PASSWORD_FIRST [width: bycontainer height: 21 margin: 4 tabstop password label: "@setpassword_input1"] string[20] supplement passwordrig (CTLRIG_PASSWORD_FIRST);
@@ -6158,7 +6130,7 @@ dialog DLG_PASSWORD [vertical title: "@setpassword" size: (355, 180) minsize: (3
 	}
 }
 
-dialog DLG_FPACKAGE [vertical title: "@trfritem_freightpackage" size: (445, 190) minsize: (445, 190) padding: 4 font: "MS Shell Dlg,8" justifycontent: spacebetween] { // @v12.6.9
+dialog DLG_FPACKAGE [vertical title: "@trfritem_freightpackage" size: (445, 190) minsize: (445, 190) padding: 4 justifycontent: spacebetween] { // @v12.6.9
 	combobox CTLSEL_FPACKAGE_FPT [width: bycontainer height: 21 margin: 4 tabstop label: "@trfritem_freightpackage_type" cblinesymb: CTL_FPACKAGE_FPT];
 	combobox CTLSEL_FPACKAGE_TARETYPE [width: bycontainer height: 21 margin: 4 tabstop label: "@trfritem_freightpackage_tare" cblinesymb: CTL_FPACKAGE_TARETYPE];
 	view [horizontal width: bycontainer(60) height: 30] {
@@ -6170,7 +6142,7 @@ dialog DLG_FPACKAGE [vertical title: "@trfritem_freightpackage" size: (445, 190)
 	}
 }
 
-dialog DLG_PRCFILT [vertical title: "@processorfilt" size: (365, 250) minsize: (300, 250) padding: 4 font: "MS Shell Dlg,8" justifycontent: spacebetween] { // @v12.6.9
+dialog DLG_PRCFILT [vertical title: "@processorfilt" size: (365, 250) minsize: (300, 250) padding: 4 justifycontent: spacebetween] { // @v12.6.9
 	radiocluster CTL_PRCFILT_KIND [width: bycontainer margin: 4] {
 		radiobutton [title: "@processorfilt_ppprck_group"];
 		radiobutton [title: "@processorfilt_ppprck_processor"];
@@ -6183,7 +6155,7 @@ dialog DLG_PRCFILT [vertical title: "@processorfilt" size: (365, 250) minsize: (
 	}
 }
 
-dialog DLG_PRC [vertical title: "@processor" size: (755, 500) minsize: (755, 500) padding: 4 font: "MS Shell Dlg 2,8"] { // @v12.6.8
+dialog DLG_PRC [vertical title: "@processor" size: (755, 500) minsize: (755, 500) padding: 4 ] { // @v12.6.8
 	view [horizontal width: bycontainer height: 45] {
 		input CTL_PRC_NAME [growfactor: 4 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
 		input CTL_PRC_SYMB [growfactor: 3 height: 21 margin: 4 tabstop label: "@symbol"] string[10];
@@ -6246,7 +6218,7 @@ dialog DLG_PRC [vertical title: "@processor" size: (755, 500) minsize: (755, 500
 	}
 }
 
-dialog DLG_PRCGROUP_ [vertical title: "@{processorgroup}" size: (725, 615) minsize: (725, 615) padding: 4 font: "MS Shell Dlg 2,8" justifycontent: spacebetween] { // @v12.6.9 @construction
+dialog DLG_PRCGROUP_ [vertical title: "@{processorgroup}" size: (725, 615) minsize: (725, 615) padding: 4 justifycontent: spacebetween] { // @v12.6.9 @construction
 	view [horizontal width: bycontainer height: 45] {
 		input CTL_PRC_NAME [growfactor: 4 height: 21 margin: 4 tabstop label: "@processor_name"] string[48];
 		input CTL_PRC_SYMB [growfactor: 3 height: 21 margin: 4 tabstop label: "@symbol"] string[10];
@@ -6310,9 +6282,132 @@ dialog DLG_PRCGROUP_ [vertical title: "@{processorgroup}" size: (725, 615) minsi
 	}
 }
 
-dialog DLG_DIAGPOSNODE [vertical title: "@diagposnode" size: (550, 425) minsize: (300, 300) padding: 4 font: "MS Shell Dlg,8"] {
+dialog DLG_DIAGPOSNODE [vertical title: "@diagposnode" size: (550, 425) minsize: (300, 300) padding: 4] {
 	input CTL_DIAGPOSNODE_RESULT [width: bycontainer growfactor: 1 margin: 4 tabstop readonly multiline] string[252];
 	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_close" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+	}
+}
+
+dialog DLG_TR_CAR [vertical title: "@car" size: (460, 430) minsize: (460, 430) padding: 4 justifycontent: spacebetween] { // @v12.6.9
+	input CTL_TRANSPORT_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@transport_name"] string[128];
+	input CTL_TRANSPORT_DESCR [width: bycontainer height: 21 margin: 4 tabstop label: "@transport_descr"] string[128];
+	combobox CTLSEL_TRANSPORT_MODEL [width: bycontainer height: 21 margin: 4 tabstop label: "@transport_trmodel" cblinesymb: CTL_TRANSPORT_MODEL];
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_TRANSPORT_CODE [growfactor: 1 height: 21 margin: 4 tabstop label: "@number"] string[16];
+		input CTL_TRANSPORT_TRAILCODE [growfactor: 1 height: 21 margin: 4 tabstop label: "@transport_trailercode"] string[16];
+	}
+	combobox CTLSEL_TRANSPORT_OWNER [width: bycontainer height: 21 margin: 4 tabstop label: "@transport_owner" cblinesymb: CTL_TRANSPORT_OWNER ];
+	combobox CTLSEL_TRANSPORT_CAPTAIN [width: bycontainer height: 21 margin: 4 tabstop label: "@chauffeur" cblinesymb: CTL_TRANSPORT_CAPTAIN ];
+	view [horizontal width: bycontainer height: 35] {
+		view [horizontal growfactor: 1 height: bycontainer] {
+			input CTL_TRANSPORT_CAPACITY [design: B size: (60, 21) margin: 4 tabstop fmtf: (nozero) fmtprec: 3 label: "@transport_capacity"] double;
+		}
+		view [horizontal growfactor: 1 height: bycontainer] {
+			input CTL_TRANSPORT_VOLCAPACITY [design: B size: (60, 21) margin: 4 tabstop fmtf: (nozero) fmtprec: 3 label: "@transport_volcapacity"] double;
+		}
+	}
+	view [horizontal width: bycontainer height: 45 justifycontent: spacebetween] {
+		combobox CTLSEL_TRANSPORT_VANTYP [width: bycontainer(40) height: 21 margin: 4 tabstop label: "@transport_vantyp" cblinesymb: CTL_TRANSPORT_VANTYP];
+		checkbox CTL_TRANSPORT_FLAGS [title: "@passive" tabstop width: bycontainer(40) height: 21 margin: (4, 17, 4, 4)];
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12] {
+		view [horizontal growfactor: 1 height: bycontainer] {
+			button STDCTL_TAGSBUTTON [title: "@but_tags" tabstop size: (90, 21) margin: 4 command: cmTags];
+		}
+		view [horizontal growfactor: 2 height: bycontainer justifycontent: end alignitems: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_C_LINKBILL [vertical title: "@linkbillrecover" size: (335, 250) minsize: (335, 250) padding: 4 justifycontent: spacebetween] { // @v12.6.9
+	input CTL_C_LINKBILL_PERIOD [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@daterange"] string[48] supplement daterangecalbutton(CTLCAL_C_LINKBILL_PERIOD);
+	checkcluster CTL_C_LINKBILL_FLAGS [tabstop width: bycontainer margin: 4] {
+		checkbox [title: "@linkbillrecover_dorecover"];
+		checkbox [title: "@linkbillrecover_verifyreckons"];
+	}
+	//checkbox CTL_C_LINKBILL_FLAGS [title: "@linkbillrecover_dorecover" tabstop width: bycontainer(60) height: 21 margin: 4];
+	//@linkbillrecover_verifyreckons
+	input CTL_C_LINKBILL_LOG [width: bycontainer height: 21 margin: 4 tabstop label: "@logfilename"] string[128] supplement filebrowsebutton(CTLBRW_C_LINKBILL_LOG);
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_SECRETPOOLPASSWORD [vertical title: "@setpassword" size: (355, 250) minsize: (355, 250) padding: 4 justifycontent: spacebetween] {
+	statictext CTL_PASSWORD_INFO [width: bycontainer growfactor: 1 staticedge margin: 4];
+	view [horizontal width: bycontainer growfactor: 1 alignitems: center] {
+		view [vertical growfactor: 1 height: bycontainer justifycontent: center] {
+			input CTL_PASSWORD_FIRST [width: bycontainer height: 21 margin: 4 tabstop password label: "@setpassword_input1"] string[20] supplement passwordrig (CTLRIG_PASSWORD_FIRST);
+			input CTL_PASSWORD_SECOND [width: bycontainer height: 21 margin: 4 tabstop password label: "@setpassword_input2"] string[20];
+		}
+		imageview CTL_PASSWORD_IMG [size: (68, 68) margin: (4, 12, 4, 4) imagesymb: PPDV_KEY01];
+	}
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 1 height: bycontainer justifycontent: start] {
+			button STDCTL_KEYBOARDLAYOUT [title: "" size: (25, 21) margin: 4 command: cmKeyboardLayout];
+			button STDCTL_KBSTATECAPSLOCK [title: "" size: (25, 21) margin: 4 command: cmKbStateCapsLock];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_SRCHBCODE [vertical title: "@searchbybarcode" size: (425, 105) minsize: (425, 105) padding: 4 justifycontent: spacebetween] { // @v12.6.9
+	view [horizontal width: bycontainer growfactor: 1 aligncontent: center]  {
+		imageview CTL_SRCHBCODE_IMG [size: (45, 45) margin: 4 imagesymb: PPDV_BARCODE01];
+		view [vertical growfactor: 1 height: bycontainer] {
+			view [horizontal width: bycontainer height: 30] {
+				input CTL_SRCHBCODE_CODE [growfactor: 1 height: 21 margin: 4 tabstop] string[252];
+				input CTL_SRCHBCODE_CHKDIG [size: (15, 21) margin: 4 tabstop readonly] string[10];
+			}
+			view [horizontal width: bycontainer growfactor: 1] { // @stub
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 23 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_SECRETPOOL [horizontal title: "Secret Pool" size: (700, 600) minsize: (600, 600) padding: 4 ] { // @construction
+	view [vertical growfactor: 1 height: bycontainer] {
+		view [horizontal width: bycontainer height: 30] {
+			button STDCTL_EDITBUTTON [/*title: "@but_edit"*/defaultitem size: (30, 21) margin: 4 command: cmaEdit];
+			button STDCTL_INSBUTTON [/*title: "@but_add"*/size: (30, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [/*title: "@but_delete"*/size: (30, 21) margin: 4 command: cmaDelete];
+		}
+		treelistbox CTL_SECRETPOOL_LIST [tabstop width: bycontainer growfactor: 1];
+	}
+	view [vertical growfactor: 3 height: bycontainer] {
+		view [horizontal width: bycontainer height: 45] {
+			input CTL_SECRETPOOL_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[128];
+			input CTL_SECRETPOOL_ID [width: 60 height: 21 margin: 4 tabstop readonly fmtf: (nozero) label: "@id"] uint64;
+		}
+		combobox CTLSEL_SECRETPOOL_TYPE [width: bycontainer height: 21 margin: 4 tabstop label: "@type" cblinesymb: CTL_SECRETPOOL_TYPE];
+		combobox CTLSEL_SECRETPOOL_PARENT [width: bycontainer height: 21 margin: 4 tabstop label: "Parent" cblinesymb: CTL_SECRETPOOL_PARENT];
+		view [horizontal width: bycontainer height: 45] {
+			input CTL_SECRETPOOL_CRTM [width: 80 height: 21 margin: 4 tabstop readonly label: "Creation Time"] string[64];
+			input CTL_SECRETPOOL_EXPIRY [width: 80 height: 21 margin: 4 tabstop label: "Expiry"] date;
+		}
+		framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+			input CTL_SECRETPOOL_TOPEN [width: bycontainer height: 21 margin: 4 tabstop label: "Open Text"] string[128];
+			input CTL_SECRETPOOL_THIDDEN [width: bycontainer height: 21 margin: 4 tabstop label: "Hidden Text"] string[128];
+			view [horizontal width: bycontainer height: 45] {
+				input CTL_SECRETPOOL_TEXPIRY [growfactor: 1 height: 21 margin: 4 tabstop label: "Expiry Text"] string[128];
+				input CTL_SECRETPOOL_TEXT1 [growfactor: 1 height: 21 margin: 4 tabstop label: "Ext 1"] string[128];
+			}
+			view [horizontal width: bycontainer height: 45] {
+				input CTL_SECRETPOOL_TEXT2 [growfactor: 1 height: 21 margin: 4 tabstop label: "Ext 2"] string[128];
+				input CTL_SECRETPOOL_TEXT3 [growfactor: 1 height: 21 margin: 4 tabstop label: "Ext 3"] string[128];
+			}
+		}
+		input CTL_SECRETPOOL_DESCR [width: bycontainer growfactor: 1 margin: 4 tabstop multiline wantreturn label: "@memo"] string[252];
 	}
 }

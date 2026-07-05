@@ -442,10 +442,11 @@ class EgaisMarkAutoSelector;
 class PPMarketplaceInterface;
 class PrcssrMarketplaceInterchange;
 struct PEExportOptions; // @v12.3.11
-class DocNalogRu_WriteBillBlock; // @v12.4.11
+class  DocNalogRu_WriteBillBlock; // @v12.4.11
 struct PPGoodsTaxEntry;
 struct PPTransportConfig; // @v12.5.5
 struct ExecSessionOnTechRouteBlock; // @v12.6.1
+class  ExtCodeRefCore;
 
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef int32 PPID; // @v11.6.8 long-->int32
@@ -1338,6 +1339,7 @@ public:
 	//   Компонент P_Vault никака не участвует в сравнении.
 	//
 	bool   FASTCALL IsEq(const PPSecretSegmentPool & rS) const;
+	bool   GetText(uint textP, SString & rBuf) const;
 	//
 	// Descr: Функция аналогична по назначению TSCollection::CreateNewItem, но отличается тем, что новый элемент
 	//   создается со ссылкой на SStrGroup Sg, приндалежащей this.
@@ -5696,7 +5698,7 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 struct PPLastInputData {
 	double CalcMem;
 	double VaPercent;
-	char   Barcode[24];
+	char   Barcode[256]; // @v12.6.9 [24]-->[256]
 	PPID   QuotCurID;
 	PPID   BasketID;
 	PPID   QCertID;
@@ -8772,7 +8774,7 @@ public:
 	//   для обратной совместимости при считывании старых версий пакетов. Важный элемент применения
 	//   заключается в том, чтобы можно было отличить пакеты, которые не имеют такой сигнатуры.
 	//
-	struct SerializeSignature { // @v11.1.12
+	struct SerializeSignature {
 		//
 		// Descr: Конструктор, создающий пустую сигнатуру (S == 0 && V == 0)
 		//
@@ -9513,9 +9515,9 @@ private:
 #define PSNF_NONOTIFICATIONS      0x00000008L // Запрет на рассылку для этой персоналии
 #define PSNF_GENDER_MALE          0x00000010L // Физическое лицо мужского пола
 #define PSNF_GENDER_FEMALE        0x00000020L // Физическое лицо женского пола
-#define PSNF_DONTSENDCCHECK       0x00000040L // @v11.3.5 Запрет на отправку чека по электронной почте или SMS
+#define PSNF_DONTSENDCCHECK       0x00000040L // Запрет на отправку чека по электронной почте или SMS
 
-#define MAXSAMEPSNREL  4 // Максимальное число отношений между одинаковыми персоналиями
+#define MAXSAMEPSNREL                       4 // Максимальное число отношений между одинаковыми персоналиями
 
 class PersonCore : public PersonTbl {
 public:
@@ -13358,7 +13360,7 @@ public:
 	//
 	int    GetPoolOwnerList(PPID billID, PPID poolType, PPIDArray * pList);
 	int    GetPoolList(PPID poolType, LAssocArray * pAry);
-	int    IsMemberOfPool(PPID billID, PPID poolType, PPID * pPullOwnerID);
+	bool   IsMemberOfPool(PPID billID, PPID poolType, PPID * pPullOwnerID);
 	int    UpdatePool(PPID billID, PPID poolType, PPID poolOwnerID, int use_ta);
 	int    RemoveFromPool(PPID billID, PPID poolType, PPID poolOwnerID, int use_ta);
 	int    CalcPoolAmounts(PPID poolType, PPID poolOwnerID, AmtList *);
@@ -13721,26 +13723,6 @@ public:
 	int    GetRecListByMark(const char * pCode, TSVector<LotExtCodeTbl::Rec> & rList);
 	int    GetListByBillRow(PPID billID, int rbb, bool firstOnly, StringSet & rSs, uint * pCount);
 	int    FindMarkToTransfer(const char * pCode, PPID goodsID, PPID lotID, PPLotExtCodeContainer::MarkSet & rResult);
-};
-
-class ExtCodeRefCore : public ExtCodeRefTbl { // @v12.6.8
-public:
-	//
-	// Descr: Виды записей 
-	//
-	enum { // @persistent
-		kUndef       = 0, // Не определено 
-		kOps         = 1, // Операции по марке
-		kAggregation = 2, // Агрегации марки (то есть, какие марки входят в упаковку с кодом this->Rec.Code).
-			// Хвост переменной длины хранит сериализованную структуру PPLotExtCodeContainer::MarkSet
-		kCodeInfo    = 3, // @v12.6.9 Подробная информация о марке, полученная с сервера chzn
-	};
-	ExtCodeRefCore();
-	int    PutAggregation(const char * pCode, PPLotExtCodeContainer::MarkSet & rSet, int use_ta);
-	int    PutAggregation2(const PPLotExtCodeContainer::MarkSet & rSet, int use_ta);
-	int    GetAggregation(const char * pCode, PPLotExtCodeContainer::MarkSet & rSet, bool recursive);
-	//int    PutInfo(const PPChZnPrcssr::CodeInfoCollection & rSet, int use_ta); // @v12.6.9
-	//int    GetInfo(const char * pCode, PPChZnPrcssr::CodeInfoCollection & rResult); // @v12.6.9
 };
 //
 //
@@ -20375,8 +20357,7 @@ public:
 	//
 	int    GetQuoteReqSeqOpList(PPID linkOpID, PPIDArray * pList);
 	//
-	// Descr: Возвращает список видов операций, требующих оплаты и связанных
-	//   с таблицей статей accSheetID.
+	// Descr: Возвращает список видов операций, требующих оплаты и связанных с таблицей статей accSheetID.
 	//   Операции относящиеся к типу PPOPT_GOODSORDER пропускаются, если
 	//   в конфигурации установлена опция CCFLG_IGNOREORDERSDEBT.
 	//   Если accSheetID == -1, то извлекаются все виды операций, требующие
@@ -31013,6 +30994,29 @@ struct PPSupplDeal {
 	double DnDev;      // Нижнее отклонение (%)
 	int    IsDisabled; // Блокированная комбинация (ввод строки в документ невозможен) //
 };
+
+/*
+	struct CodeInputBlock { // @v12.6.9 @construction
+		explicit CodeInputBlock(int initChar = 0) : InitChar(initChar)
+		{
+		}
+		int    InitChar; // IN
+		SString Code;    // OUT
+		SNaturalTokenArray SNTokList; // OUT Список натуральных токенов, которым соответствует введенный код
+	};
+	struct GoodsByCodeSelectionBlock : public CodeInputBlock {
+		explicit GoodsByCodeSelectionBlock(int initChar = 0) : CodeInputBlock(initChar), Flags(0), ArID(0), LocID(0), Qtty(0.0), LotID(0)
+		{
+		}
+		uint   Flags; // IN
+		PPID   ArID;  // IN
+		PPID   LocID; // IN/OUT
+		Goods2Tbl::Rec GoodsRec; // OUT
+		double Qtty;  // OUT
+		PPID   LotID; // OUT
+	};
+*/ 
+
 //
 // Descr: Структура, используемая для поиска товара по коду функцией PPObjGoods::SearchByCodeExt()
 //
@@ -31032,7 +31036,8 @@ struct GoodsCodeSrchBlock {
 		fChZnCode    = 0x0100, // OUT Товар найден по коду "честный знак"
 		fMarkedCode  = 0x0200  // OUT Идентифицированный код имеет признак "маркируемый" (BARCODE_TYPE_MARKED)
 	};
-	char   Code[256];      // IN CONST
+	//char   Code[256];      // IN CONST
+	SString Code_;         // IN CONST
 	char   RetCode[32];    // OUT
 	char   ChZnCode[32];   // OUT
 	char   ChZnGtin[32];   // OUT
@@ -31124,8 +31129,7 @@ public:
 			fUseSpcFormEgais = 0x0002, // В качестве диалога объединения применять специальную форму,
 				// позволяющую фильтровать товары по критериям ЕГАИС.
 			fOnce    = 0x0004, // После завершения объединения одной пары товаров возвращать
-				// управление вызывающей функции (в противном случае будет предложено повторить процедуру
-				// для иной пары товаров).
+				// управление вызывающей функции (в противном случае будет предложено повторить процедуру для иной пары товаров).
 			fAllToOne        = 0x0008  // Все товары списка DestList объединяются на ResultID
 		};
 		long   Flags;
@@ -31278,6 +31282,29 @@ public:
 	//    0 - error
 	//
 	int    SelectGoodsInPlaceOfRemoved(PPID rmvdGoodsID, PPID extGoodsID, PPID * pReplaceGoodsID);
+
+	struct CodeInputBlock { // @v12.6.9 @construction
+		explicit CodeInputBlock(int initChar = 0) : InitChar(initChar)
+		{
+		}
+		int    InitChar; // IN
+		SString Code;    // OUT
+		SNaturalTokenArray SNTokList; // OUT Список натуральных токенов, которым соответствует введенный код
+	};
+	struct GoodsByCodeSelectionBlock : public CodeInputBlock {
+		explicit GoodsByCodeSelectionBlock(int initChar = 0) : CodeInputBlock(initChar), Flags(0), ArID(0), LocID(0), Qtty(0.0), LotID(0)
+		{
+		}
+		uint   Flags; // IN
+		PPID   ArID;  // IN
+		PPID   LocID; // IN/OUT
+		Goods2Tbl::Rec GoodsRec; // OUT
+		double Qtty;  // OUT
+		PPID   LotID; // OUT
+	};
+
+	static int CodeInputDialog(CodeInputBlock & rBlk);
+	int    SelectGoodsByBarcode2(GoodsByCodeSelectionBlock & rBlk);
 	int    SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Rec *, double *, SString * pRetCode);
 	int    GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode);
 	int    GetParentID(PPID, PPID * pParentID);
@@ -32375,7 +32402,7 @@ struct PPTransportConfig {
 //
 // @todo @dbd_exchange Добавить теги
 //
-struct PPTransport {       // @persistent @store(Goods2Tbl)
+struct PPTransport { // @persistent @store(Goods2Tbl)
 	//
 	// Descr: Типы фургонов (изначально сделаны для сопоставления с соответствующими типами VETIS, в дальнейшем будет расширяться)
 	//
@@ -32391,7 +32418,8 @@ struct PPTransport {       // @persistent @store(Goods2Tbl)
 
 	PPID   ID;             // @id
 	long   TrType;         // PPTRTYP_XXX (Stored as Goods2.GdsClsID)
-	char   Name[64];       // @name
+	char   Name[128];      // @name  (Stored as Name) // @v12.6.9 [64]-->[128]
+	char   Descr[128];     // @v12.6.9 Описание или текстовый тип траснпорта. (Stored as Abbr) 
 	char   Code[16];       // Номер транспортного средства         (Stored as Barcode.Code with prefix '^' and Qtty = 1.0)
 	char   TrailerCode[16]; // Номер прицепа (для автотранспорта)  (Stored as Barcode.Code with prefix '^' and Qtty = 2.0)
 	PPID   TrModelID;      // ->Ref(PPOBJ_TRANSPMODEL) ИД модели (Stored as Goods2.BrandID)
@@ -32399,6 +32427,7 @@ struct PPTransport {       // @persistent @store(Goods2Tbl)
 	PPID   CountryID;      // ->Country.ID (Stored as Goods2.DefBCodeStrucID)
 	PPID   CaptainID;      // ->Person.ID (PPPRK_CAPTAIN) Командир транспорта (Stored as Goods2.RspnsPersonID)
 	long   Capacity;       // Грузоподьемность (кг) (Stored as Goods2.PhUPerU)
+	long   VolumeCapacity; // @v12.6.9 Полезная объемная вместимость (литр) (Stored as Goods2.GoodsLimit)
 	int16  VanType;        // PPTransport::vantypXXX Тип фургона
 	int16  Flags;          // @flags
 };
@@ -32433,6 +32462,7 @@ public:
 	static int GetRegisterCodes(GoodsCore * pTbl, PPID id, SString * pCode, SString * pTrailerCode); // @v12.5.5
 	explicit PPObjTransport(void * extraPtr = 0);
 	~PPObjTransport();
+	int    SerializePacket(int dir, PPTransportPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    FetchConfig(PPTransportConfig & rCfg);
 	int    Get(PPID id, PPTransportPacket * pPack);
 	int    Put(PPID * pID, const PPTransportPacket * pPack, int use_ta);
@@ -34494,7 +34524,7 @@ private:
 	// @v12.4.1 @obsolete int    AcceptLocOp(SBIILocOp * pRec);
 	int    FindGoods(PPID goodsID, const char * pBarcode, SBIIGoodsRec * pRec);
 	int    FindLocCell(PPID locID, const char * pName, SBIILocCellRec * pRec);
-	int    PrintBarcode(const char * pBarcode);
+	// @v12.6.9 @obsolete int    PrintBarcode(const char * pBarcode);
 	int    SendCmd(TcpSocket & rSo, int16 cmd, int32 retcode, const void * pBuf, size_t bufSize);
 	int    RecvCommand(TcpSocket & rSo, void * pBuf, size_t bufSize, size_t * pRecvBytes = 0);
 	int    Log_(uint errCode, uint msgCode, const char * pAddInfo);
@@ -35817,7 +35847,7 @@ public:
 	int    ConvertGenAccturnToExtAccBill(PPID srcID, PPID * pDestID, const CvtAt2Ab_Param * pParam, int use_ta);
 	int    GetShipmByOrder(PPID orderID, const DateRange *, PPIDArray & rList);
 	int    EnumMembersOfPool(PPID poolType, PPID poolOwnerID, PPID * pMemberID, BillTbl::Rec * pRec = 0);
-	int    IsMemberOfPool(PPID billID, PPID poolType, PPID * pPullOwnerID);
+	bool   IsMemberOfPool(PPID billID, PPID poolType, PPID * pPullOwnerID);
 		// @>>P_Tbl->IsMemberOfPool(PPID billID, PPID poolType, PPID * pPullOwnerID)
 	//
 	// Descr: Возвращает период расчета долгов по контрагенту, определяемый нижней границей
@@ -41020,7 +41050,7 @@ private:
 	int    InsertIntoPool(PPID billID, int use_ta);
 	int    RemoveFromPool(PPID, int use_ta);
 	int    UpdateInPool(PPID);
-	int    IsMemberOfPool(PPID);
+	bool   IsMemberOfPool(PPID);
 	int    EnumMembersOfPool(PPID * pBillID);
 	int    SetupPoolInsertionFilt(BillFilt *);
 	int    CreateTempPoolPacket(PPBillPacket *);
@@ -41046,13 +41076,13 @@ private:
 	PPObjLocation LocObj;     //
 	PPObjArticle  ArObj;      //
 	PPObjGoods    GObj;       //
-	PPObjPerson   PsnObj;     // @v11.1.9
+	PPObjPerson   PsnObj;     //
 	PPObjBill    * P_BObj;    //
 	TempBillTbl  * P_TempTbl; //
 	TempOrderTbl * P_TempOrd; //
 	PPIDArray OpList;         //
 	PPIDArray LocList_;       //
-	PPIDArray GoodsList;      // @v11.0.11 Список идентификаторов товаров, которые должны содержаться в документах выборки (в каждом документе хотя бы один из товаров)
+	PPIDArray GoodsList;      // Список идентификаторов товаров, которые должны содержаться в документах выборки (в каждом документе хотя бы один из товаров)
 	struct ArFilterBlock { // @v11.9.6 Блок фильтрации по полю BillTbl::Object
 		// Важно: Списки InclList и ExclList содержат идентификаторы персоналий, а не аналитических статей!
 		ArFilterBlock();
@@ -57762,12 +57792,16 @@ public:
 		ptShoe     = GTCHZNPT_SHOE,    // 15 20
 		ptMedicine = GTCHZNPT_MEDICINE //
 	};
-	static int FASTCALL IsChZnCode(const char * pCode);
+	// @v12.6.9 @unused static int FASTCALL IsChZnCode(const char * pCode);
+	static SString & FASTCALL RemoveSpcCharsFromCode(SString & rCode);
 	//
 	// Descr: Проверяет на равенство два кода честный знак pCode1 и pCode2.
 	//   Сопоставление осуществляется без учета специальных символов.
+	// ARG(adaptive IN): Если true, то при неудачном прямом сравнении функция разбирает оба кода и пытается //
+	//   сравнить только компоненты (GTIN, SERIAL, PARTNO). Если эти компоненты совпадают, то считает, что коды равны.
+	//   Эта опция значительно замедляет работу функции.
 	//
-	static bool FASTCALL AreChZnCodesEqual(const char * pCode1, const char * pCode2);
+	static bool FASTCALL AreChZnCodesEqual(const char * pCode1, const char * pCode2, bool adaptive);
 	//
 	// Descr: Варианты интерпретации результата функции ParseChZnCode
 	// Note: Значение больше нуля трактуется как марка, пригодная к обработке честным знаком
@@ -57811,7 +57845,7 @@ public:
 			return chznciPallet;
 		else if(oneof2(r, SNTOK_CHZN_SURROGATE_GTINCOUNT, SNTOK_CHZN_SURROGATE_GTIN))
 			return chznciSurrogate;
-		else if(oneof6(r, SNTOK_CHZN_ALTCIGITEM, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_GS1_GTIN, SNTOK_CHZN_SSCC)) // @v11.9.0 SNTOK_CHZN_ALTCIGITEM
+		else if(oneof5(r, SNTOK_CHZN_ALTCIGITEM, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_GS1_GTIN/*, SNTOK_CHZN_SSCC*/)) // @v11.9.0 SNTOK_CHZN_ALTCIGITEM
 			return chznciReal;
 		else
 			return chznciNone;
@@ -57949,9 +57983,13 @@ public:
 		ptLevel4 = 104,
 		ptLevel5 = 105
 	};
-
+	//
+	// Descr: Информация о марке, полученная с сервера чзн. 
+	// Note: При изменении формата обязательно увеличить номер версии PPChZnPrcssr_CodeInfo_Ver и скорректировать функцию CodeInfo::Serialize 
+	//
 	struct CodeInfo {
 		CodeInfo();
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
 		enum {
 			fIsMultSales = 0x0001, // Признак множественных продаж
@@ -57959,6 +57997,8 @@ public:
 			fIsWithdraw  = 0x0004, // 
 			fVarQtty     = 0x0008, // Признак переменного веса
 		};
+		uint   ReqCisP;
+		uint   CisP;
 		uint   Flags;
 		uint   PackType;        // ptXXX 
 		uint   GeneralPackType; // ptXXX 
@@ -57972,19 +58012,20 @@ public:
 		uint64 UedProducerINN;  // ИНН производителя (хуй его знает чем это отличается от UedManufINN, скорее всего дело в том, что вопросом долбоебы занимаются) //
 		uint64 UedImporterINN;  // ИНН импортера //
 		uint64 UedOwnerINN;     // ИНН владельца //
-		uint   ReqCisP;
-		uint   CisP;
 		uint   OwnerNameP;
 		uint   ManufNameP;
 		uint   ProducerNameP;
 		uint   ProductNameP;
 		uint   BrandNameP;
-		StringSet Children;     // Для упаковки вложенные марки
+		StringSet Children;     // Для упаковки: вложенные марки
 	};
 
 	class CodeInfoCollection : public TSCollection <CodeInfo>, public SStrGroup {
 	public:
 		CodeInfoCollection();
+		bool   SearchCode(const char * pPattern, uint * pIdx) const;
+		int    MoveEntryTo(uint entryIdx/*[0..]*/, CodeInfoCollection & rDest) const;
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	};
 	//
 	// Descr: Интерфейс с ТС-ПИОТ (не спрашивайте: пидоры в кремле не успокоятся пока не загонят нас всех под землю)
@@ -58124,6 +58165,27 @@ private:
 	int    PrepareBillPacketForSending(PPID billID, void * pChZnPacket);
 	void * P_Ib; // Блок инициализации
 	ExtCodeRefCore * P_EcRefC; // @v12.6.8
+};
+
+class ExtCodeRefCore : public ExtCodeRefTbl { // @v12.6.8
+public:
+	//
+	// Descr: Виды записей 
+	//
+	enum { // @persistent
+		kUndef       = 0, // Не определено 
+		kOps         = 1, // Операции по марке
+		kAggregation = 2, // Агрегации марки (то есть, какие марки входят в упаковку с кодом this->Rec.Code).
+			// Хвост переменной длины хранит сериализованную структуру PPLotExtCodeContainer::MarkSet
+		kCodeInfo    = 3, // @v12.6.9 Подробная информация о марке, полученная с сервера chzn
+			// Хвост переменной длины хранит сериализованную структуру PPChZnPrcssr::CodeInfoCollection
+	};
+	ExtCodeRefCore();
+	int    PutAggregation(const char * pCode, PPLotExtCodeContainer::MarkSet & rSet, int use_ta);
+	int    PutAggregation2(const PPLotExtCodeContainer::MarkSet & rSet, int use_ta);
+	int    GetAggregation(const char * pCode, PPLotExtCodeContainer::MarkSet & rSet, bool recursive);
+	int    PutInfo(const PPChZnPrcssr::CodeInfoCollection & rSet, int use_ta); // @v12.6.9
+	int    GetInfo(const char * pCode, PPChZnPrcssr::CodeInfoCollection & rResult); // @v12.6.9
 };
 //
 // Панель чеков
@@ -64255,7 +64317,6 @@ void   FASTCALL PPWaitDate(LDATE);
 //
 int    PPCheckUserBreak();
 int    SetupComboByBuddyList(TDialog * pDlg, uint ctlCombo, const ObjIdListFilt & rList);
-int    STDCALL BarcodeInputDialog(int initChar, SString & rBuf);
 //
 // Descr: Устанавливает список баз данных в комбо-бокс ctl диалога dlg.
 // ARG(dlg IN): указатель на диалог, в котором находится комбо-бок
@@ -64786,13 +64847,29 @@ int    STDCALL ViewSysJournal(PPID objType, PPID objID, int modeless);
 int    ChangeBillFlagsDialog(long * pSetFlags, long * pResetFlags, PPID * pStatusID);
 int    EditRightsDialog(PPRights &);
 int    GenericObjRightsDialog(PPID obj, ObjRights *, EmbedDialog * = 0);
+//int    PasswordDialog(uint dlgID, char * pBuf, size_t bufSize, size_t minLen, bool withoutEncrypt = false);
+//
+// Descr: Структура параметров функции вызова диалога ввода пароля //
+//
+struct PasswordDialogParam { // @v12.6.9
+	PasswordDialogParam() : Flags(0), MinLen(0)
+	{
+	}
+	enum {
+		fWithoutEncrypt = 0x0001,
+		fNoConfirmation = 0x0002
+	};
+	uint   Flags;
+	uint   MinLen;
+	SString Hint; // 
+};
 //
 // Descr: выдает на экран диалог с запросом ввода пароля и подтверждения.
 //   Если параметр dlgID == 0, то используется стандартный диалог (DLG_PASSWORD).
 //   В противном случае будет использоваться указанный диалог. В нем должны
 //   присутствовать поля ввода CTL_PASSWORD_FIRST и CTL_PASSWORD_SECOND.
 //
-int    PasswordDialog(uint dlgID, char * pBuf, size_t bufSize, size_t minLen, int withoutEncrypt = 0);
+int    PasswordDialog2(uint dlgID, char * pBuf, size_t bufSize, PasswordDialogParam & rParam);
 int    UpdatePassword();
 int    UnifyGoodsPrice();
 //int    SelectLot__(PPID loc, PPID goods, PPID exclude, PPID * pLotID, ReceiptTbl::Rec *);

@@ -1924,7 +1924,7 @@ int PPViewTSessLine::AddItemByCode(const char * pInitStr)
 				if(TSesObj.EditLine(sess_id, &(oprno = 0), tidi.GoodsID, 0, qtty) > 0)
 					ok = 1;
 			}
-			else if(code.NotEmptyS()) { // @v10.8.10 @fix if(code.NotEmptyS())
+			else if(code.NotEmptyS()) {
 				PPObjTSession::SelectBySerialParam ssp(sess_id, code);
 				int    r2 = TSesObj.SelectBySerial(&ssp);
 				if(r2 == 1) {

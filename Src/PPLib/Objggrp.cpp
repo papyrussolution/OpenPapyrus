@@ -1419,6 +1419,7 @@ bool FASTCALL PPTransport::IsEq(const PPTransport & rS) const
 	CMP_FLD(CountryID);
 	CMP_FLD(CaptainID);
 	CMP_FLD(Capacity);
+	CMP_FLD(VolumeCapacity); // @v12.6.9
 	CMP_FLD(VanType);
 	CMP_FLD(Flags);
 	if(!sstreq(Name, rS.Name))
@@ -1426,6 +1427,8 @@ bool FASTCALL PPTransport::IsEq(const PPTransport & rS) const
 	if(!sstreq(Code, rS.Code))
 		return false;
 	if(!sstreq(TrailerCode, rS.TrailerCode))
+		return false;
+	if(!sstreq(Descr, rS.Descr)) // @v12.6.9
 		return false;
 	return true;
 #undef CMP_FLD
@@ -1501,11 +1504,13 @@ int PPObjTransport::Get(PPID id, PPTransportPacket * pPack)
 			pPack->Rec.ID = goods_rec.ID;
 			pPack->Rec.TrType = goods_rec.GdsClsID;
 			STRNSCPY(pPack->Rec.Name, goods_rec.Name);
+			STRNSCPY(pPack->Rec.Descr, goods_rec.Abbr); // @v12.6.9
 			pPack->Rec.TrModelID = goods_rec.BrandID;
 			pPack->Rec.TrOwnerID = goods_rec.ManufID;
 			pPack->Rec.CountryID = goods_rec.DefBCodeStrucID;
 			pPack->Rec.CaptainID = goods_rec.RspnsPersonID;
 			pPack->Rec.Capacity  = static_cast<long>(goods_rec.PhUPerU);
+			pPack->Rec.VolumeCapacity = goods_rec.GoodsLimit; // @v12.6.9
 			pPack->Rec.VanType   = goods_rec.VanType;
 			SETFLAG(pPack->Rec.Flags, GF_PASSIV, goods_rec.Flags & GF_PASSIV);
 			PPObjTransport::GetRegisterCodes(P_Tbl, id, &code, &trailer_code);
@@ -1526,11 +1531,13 @@ int PPObjTransport::Get(PPID id, PPTransportPacket * pPack)
 	pRawRec->Kind = PPGDSK_TRANSPORT;
 	pRawRec->GdsClsID = pRec->TrType;
 	STRNSCPY(pRawRec->Name, pRec->Name);
+	STRNSCPY(pRawRec->Abbr, pRec->Descr); // @v12.6.9
 	pRawRec->BrandID = pRec->TrModelID;
 	pRawRec->ManufID = pRec->TrOwnerID;
 	pRawRec->DefBCodeStrucID = pRec->CountryID;
 	pRawRec->RspnsPersonID = pRec->CaptainID;
 	pRawRec->PhUPerU = pRec->Capacity;
+	pRawRec->GoodsLimit = pRec->VolumeCapacity; // @v12.6.9
 	pRawRec->VanType = pRec->VanType;
 	SETFLAG(pRawRec->Flags, GF_PASSIV, pRec->Flags & GF_PASSIV);
 	if(pBcList) {
@@ -1650,9 +1657,11 @@ public:
 		PPID   owner_kind_id = NZOR(Cfg.OwnerKindID, PPPRK_SHIPOWNER);
 		PPID   captain_kind_id = NZOR(Cfg.CaptainKindID, PPPRK_CAPTAIN);
 		setCtrlData(CTL_TRANSPORT_NAME,  Data.Rec.Name);
+		setCtrlData(CTL_TRANSPORT_DESCR,  Data.Rec.Descr); // @v12.6.9
 		setCtrlData(CTL_TRANSPORT_CODE,  Data.Rec.Code);
 		setCtrlData(CTL_TRANSPORT_TRAILCODE, Data.Rec.TrailerCode);
 		setCtrlReal(CTL_TRANSPORT_CAPACITY, fdiv1000i(Data.Rec.Capacity));
+		setCtrlReal(CTL_TRANSPORT_VOLCAPACITY, fdiv1000i(Data.Rec.VolumeCapacity)); // @v12.6.9
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_MODEL, PPOBJ_TRANSPMODEL, Data.Rec.TrModelID, OLW_CANINSERT);
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_OWNER, PPOBJ_PERSON, Data.Rec.TrOwnerID, OLW_CANINSERT, reinterpret_cast<void *>(owner_kind_id));
 		SetupPPObjCombo(this, CTLSEL_TRANSPORT_CAPTAIN, PPOBJ_PERSON, Data.Rec.CaptainID, OLW_CANINSERT, reinterpret_cast<void *>(captain_kind_id));
@@ -1710,6 +1719,7 @@ private:
 	void   Helper_GetDTS()
 	{
 		getCtrlData(CTL_TRANSPORT_NAME,  Data.Rec.Name);
+		getCtrlData(CTL_TRANSPORT_DESCR,  Data.Rec.Descr); // @v12.6.9
 		getCtrlData(CTL_TRANSPORT_CODE,  Data.Rec.Code);
 		getCtrlData(CTL_TRANSPORT_TRAILCODE,  Data.Rec.TrailerCode);
 		getCtrlData(CTLSEL_TRANSPORT_MODEL, &Data.Rec.TrModelID);
@@ -1722,6 +1732,7 @@ private:
 			Data.Rec.VanType = static_cast<int16>(temp_val);
 		}
 		Data.Rec.Capacity = static_cast<long>(getCtrlReal(CTL_TRANSPORT_CAPACITY) * 1000.0);
+		Data.Rec.VolumeCapacity = static_cast<long>(getCtrlReal(CTL_TRANSPORT_VOLCAPACITY) * 1000.0); // @v12.6.9
 		Data.Rec.Flags = static_cast<int16>(GetClusterData(CTL_TRANSPORT_FLAGS));
 	}
 	int    LockAutoName;
@@ -1776,35 +1787,62 @@ int PPObjTransport::Edit(PPID * pID, void * extraPtr /*initTrType*/)
 	return ok;
 }
 
-IMPL_DESTROY_OBJ_PACK(PPObjTransport, PPTransport);
+int PPObjTransport::SerializePacket(int dir, PPTransportPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW_SL(pSCtx->Serialize(dir, pPack->Rec.ID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, pPack->Rec.TrType, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, pPack->Rec.Name, sizeof(pPack->Rec.Name), rBuf));
+	THROW_SL(pSCtx->Serialize(dir, pPack->Rec.Descr, sizeof(pPack->Rec.Descr), rBuf));
+	THROW_SL(pSCtx->Serialize(dir, pPack->Rec.Code, sizeof(pPack->Rec.Code), rBuf));
+	THROW_SL(pSCtx->Serialize(dir, pPack->Rec.TrailerCode, sizeof(pPack->Rec.TrailerCode), rBuf));
+	THROW_SL(pSCtx->Serialize(dir, pPack->Rec.TrModelID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, pPack->Rec.TrOwnerID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, pPack->Rec.CountryID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, pPack->Rec.CaptainID, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, pPack->Rec.Capacity, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, pPack->Rec.VolumeCapacity, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, pPack->Rec.VanType, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, pPack->Rec.Flags, rBuf));
+	THROW(pPack->TagL.Serialize(dir, rBuf, pSCtx));
+	CATCHZOK
+	return ok;
+}
+
+IMPL_DESTROY_OBJ_PACK(PPObjTransport, PPTransportPacket); // @v12.6.9 PPTransport-->PPTransportPacket
 
 int PPObjTransport::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx)
 {
 	if(p && p->Data) {
-		PPTransport * p_pack = static_cast<PPTransport *>(p->Data);
-		ProcessObjRefInArray(PPOBJ_TRANSPMODEL, &p_pack->TrModelID, ary, replace);
-		ProcessObjRefInArray(PPOBJ_PERSON,  &p_pack->TrOwnerID, ary, replace);
-		ProcessObjRefInArray(PPOBJ_WORLD,   &p_pack->CountryID, ary, replace); // @v12.5.6 PPOBJ_COUNTRY-->PPOBJ_WORLD
-		ProcessObjRefInArray(PPOBJ_PERSON,  &p_pack->CaptainID, ary, replace);
+		PPTransportPacket * p_pack = static_cast<PPTransportPacket *>(p->Data); // @v12.6.9 PPTransport-->PPTransportPacket
+		ProcessObjRefInArray(PPOBJ_TRANSPMODEL, &p_pack->Rec.TrModelID, ary, replace);
+		ProcessObjRefInArray(PPOBJ_PERSON,  &p_pack->Rec.TrOwnerID, ary, replace);
+		ProcessObjRefInArray(PPOBJ_WORLD,   &p_pack->Rec.CountryID, ary, replace); // @v12.5.6 PPOBJ_COUNTRY-->PPOBJ_WORLD
+		ProcessObjRefInArray(PPOBJ_PERSON,  &p_pack->Rec.CaptainID, ary, replace);
 		return 1;
 	}
 	return -1;
 }
 
-int PPObjTransport::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext *)
+int PPObjTransport::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext * pCtx)
 {
 	// @v11.2.12 @dbd_exchange
 	int    ok = -1;
-	PPTransport * p_pack = 0;
-	THROW_MEM(p->Data = new PPTransport);
-	p_pack = static_cast<PPTransport *>(p->Data);
+	PPTransportPacket * p_pack = 0; // @v12.6.9 PPTransport-->PPTransportPacket
+	THROW_MEM(p->Data = new PPTransportPacket);
+	p_pack = static_cast<PPTransportPacket *>(p->Data);
 	if(stream == 0) {
-		PPTransportPacket temp_pack;
-		THROW(Get(id, &temp_pack) > 0);
-		*p_pack = temp_pack.Rec;
+		// @v12.6.9 PPTransportPacket temp_pack;
+		THROW(Get(id, p_pack) > 0);
+		// @v12.6.9 *p_pack = temp_pack.Rec;
 	}
 	else {
-		THROW(ReadBlk(p_pack, sizeof(*p_pack), stream));
+		// @v12.6.9 THROW(ReadBlk(p_pack, sizeof(*p_pack), stream));
+		// @v12.6.9 {
+		SBuffer buffer;
+		THROW_SL(buffer.ReadFromFile(static_cast<FILE *>(stream), 0));
+		THROW(SerializePacket(-1, p_pack, buffer, &pCtx->SCtx));
+		// } @v12.6.9 
 	}
 	CATCHZOK
 	return ok;
@@ -1815,28 +1853,31 @@ int PPObjTransport::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCon
 	// @v11.2.12 @dbd_exchange
 	int    ok = 1;
 	if(p && p->Data) {
-		PPTransport * p_pack = static_cast<PPTransport *>(p->Data);
+		PPTransportPacket * p_pack = static_cast<PPTransportPacket *>(p->Data); // @v12.6.9 PPTransport-->PPTransportPacket
 		if(stream == 0) {
-			PPTransport temp_rec;
-			PPTransportPacket temp_pack; // @v11.2.12
-			if((*pID || SearchByName(p_pack->Name, pID, 0) > 0) && Get(*pID, &temp_pack) > 0) {
-				temp_pack.Rec = *p_pack;
-				if(!Put(pID, &temp_pack, 1)) {
-					pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTTRANSPORT, p_pack->ID, p_pack->Name);
+			//PPTransport temp_rec;
+			PPTransportPacket ex_pack;
+			if((*pID || SearchByName(p_pack->Rec.Name, pID, 0) > 0) && Get(*pID, &ex_pack) > 0) {
+				ex_pack.Rec = p_pack->Rec;
+				ex_pack.TagL = p_pack->TagL;
+				if(!Put(pID, &ex_pack, 1)) {
+					pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTTRANSPORT, p_pack->Rec.ID, p_pack->Rec.Name);
 					ok = -1;
 				}
 			}
 			else {
-				temp_pack.Z();
-				temp_pack.Rec = *p_pack;
-				if(!Put(pID, &temp_pack, 1)) {
-					pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTTRANSPORT, p_pack->ID, p_pack->Name);
+				if(!Put(pID, p_pack, 1)) {
+					pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTTRANSPORT, p_pack->Rec.ID, p_pack->Rec.Name);
 					ok = -1;
 				}
 			}
 		}
 		else {
-			THROW(WriteBlk(p_pack, sizeof(*p_pack), stream));
+			// @todo изменить под 12.6.9, Добавить теги
+			// @v12.6.9 THROW(WriteBlk(p_pack, sizeof(*p_pack), stream));
+			SBuffer buffer;
+			THROW_SL(SerializePacket(+1, p_pack, buffer, &pCtx->SCtx));
+			THROW_SL(buffer.WriteToFile(static_cast<FILE *>(stream), 0, 0));
 		}
 	}
 	else

@@ -1596,21 +1596,24 @@ int PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 		switch(ppvCmd) {
 			case PPVCMD_INPUTCHAR:
 				ok = -1;
-				if(Filt.QkCls != PPQuot::clsMtxRestr && pHdr && isdec(*static_cast<const char *>(pHdr))) {
-					int    init_char = *static_cast<const char *>(pHdr);
-					Goods2Tbl::Rec goods_rec;
-					double qtty = 0.0;
-					if(pBrw) {
-						const  int r = GObj.SelectGoodsByBarcode(init_char, Filt.ArID, &goods_rec, &qtty, 0);
-						if(r > 0) {
-							if(!pBrw->search2(&goods_rec.ID, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/)) {
-								if(AddItem(&goods_rec.ID) > 0)
-									ok = 1;
-							}
+				if(pBrw && Filt.QkCls != PPQuot::clsMtxRestr && pHdr && isdec(*static_cast<const char *>(pHdr))) {
+					const  int init_char = *static_cast<const char *>(pHdr);
+					// @v12.6.9 Goods2Tbl::Rec goods_rec;
+					// @v12.6.9 double qtty = 0.0;
+					// @v12.6.9 const  int r = GObj.SelectGoodsByBarcode(init_char, Filt.ArID, &goods_rec, &qtty, 0);
+					// @v12.6.9 {
+					PPObjGoods::GoodsByCodeSelectionBlock blk(init_char);
+					blk.ArID = Filt.ArID;
+					const  int r = GObj.SelectGoodsByBarcode2(blk);
+					// } @v12.6.9 
+					if(r > 0) {
+						if(!pBrw->search2(&blk.GoodsRec.ID, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/)) {
+							if(AddItem(&blk.GoodsRec.ID) > 0)
+								ok = 1;
 						}
-						else if(r != -1)
-							pBrw->bottom();
 					}
+					else if(r != -1)
+						pBrw->bottom();
 				}
 				break;
 			case PPVCMD_EDITITEM:

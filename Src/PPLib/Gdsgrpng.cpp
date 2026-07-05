@@ -288,13 +288,15 @@ int AdjGdsGrpng::MakeBillIDList(const GCTFilt * pF, const PPIDArray * pOpList, i
 		for(q.initIteration(false, &k, spGt); q.nextIteration() > 0;) {
 			if(ObjRts.CheckLocID(p_t->data.LocID, 0)) {
 				if(byReckon) {
-					if(p_t->IsMemberOfPool(p_t->data.ID, PPASS_PAYMBILLPOOL, &(id = 0)) <= 0)
+					if(!p_t->IsMemberOfPool(p_t->data.ID, PPASS_PAYMBILLPOOL, &(id = 0)))
 						id = 0;
 				}
-				else
+				else {
 					id = p_t->data.LinkBillID;
-				if(id && !links.bsearch(id))
+				}
+				if(id && !links.bsearch(id)) {
 					THROW_SL(links.ordInsert(id, 0));
+				}
 			}
 		}
 		//
@@ -416,8 +418,7 @@ int AdjGdsGrpng::PrevPaymentList(const GCTFilt & rF)
 		THROW(MakeBillIDList(&rF, &op_list, 1));
 	}
 	if(rF.SupplAgentID) {
-		THROW(BillObj->P_Tbl->GetBillListByExt(rF.SupplAgentID, 0L, SupplAgentBillList));
-		// @v8.1.0 (сортировку теперь выполняет GetBillListByExt) SupplAgentBillList.sort();
+		THROW(BillObj->P_Tbl->GetBillListByExt(rF.SupplAgentID, 0L, SupplAgentBillList)); // GetBillListByExt выполняет и сортировку 
 	}
 	// AHTOXA {
 	if(rF.BillList.IsExists()) {
@@ -853,7 +854,7 @@ int GoodsGrpngArray::ProcessTrfrRec(const GCTFilt & rF, const AdjGdsGrpng * pAgg
 							bool do_skip_paym = false;
 							if(rF.Flags & OPG_MERGECORRECTION) {
 								PPID   pool_id = 0;
-								if(P_BObj->IsMemberOfPool(bill_rec.ID, PPASS_PAYMBILLPOOL, &pool_id) > 0) {
+								if(P_BObj->IsMemberOfPool(bill_rec.ID, PPASS_PAYMBILLPOOL, &pool_id)) {
 									BillTbl::Rec pool_bill_rec;
 									if(P_BObj->Fetch(pool_id, &pool_bill_rec) > 0 && GetOpType(pool_bill_rec.OpID) == PPOPT_CORRECTION)
 										do_skip_paym = true;
@@ -1084,7 +1085,7 @@ int GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 								}
 								bill_entry_list.insert(bill_entry.Init(id, op_rec, 0, amount, part));
 								if(pFilt->Flags & OPG_PROCESSRECKONING) {
-									if(P_BObj->IsMemberOfPool(bill_rec.ID, PPASS_PAYMBILLPOOL, &pool_id) > 0) {
+									if(P_BObj->IsMemberOfPool(bill_rec.ID, PPASS_PAYMBILLPOOL, &pool_id)) {
 										THROW(r = P_BObj->Fetch(pool_id, &link_bill_rec));
 										if(r > 0) {
 											part = fdivnz(amount, BR2(link_bill_rec.Amount));

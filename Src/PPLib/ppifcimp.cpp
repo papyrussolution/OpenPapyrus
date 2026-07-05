@@ -3962,15 +3962,17 @@ int32 DL6ICLS_PPObjGoods::SearchQttyByBarcode(SString & rBCode, SPpyO_Goods * pG
 	PPObjGoods * p_obj = static_cast<PPObjGoods *>(ExtraPtr);
 	if(p_obj) {
 		Goods2Tbl::Rec grec;
-		if((ok = p_obj->SearchByBarcode(rBCode, 0, &grec, adoptSearching)) > 0) {
+		ok = p_obj->SearchByBarcode(rBCode, 0, &grec, adoptSearching);
+		if(ok > 0) {
 			PPGoodsPacket pack;
-			ok = p_obj->GetPacket(grec.ID, &pack, PPObjGoods::gpoSkipQuot); // @v8.3.7 PPObjGoods::gpoSkipQuot
+			ok = p_obj->GetPacket(grec.ID, &pack, PPObjGoods::gpoSkipQuot);
 			FillGoodsRec(&pack, pGRec);
 		}
 		else {
 			GoodsCodeSrchBlock blk;
-			rBCode.CopyTo(blk.Code, sizeof(blk.Code));
-			if((ok = p_obj->SearchByCodeExt(&blk)) > 0) {
+			blk.Code_ = rBCode;
+			ok = p_obj->SearchByCodeExt(&blk);
+			if(ok > 0) {
 				SString temp_buf;
 				pGRec->ID = blk.Rec.ID;
 				(temp_buf = blk.Rec.Name).CopyToOleStr(&pGRec->Name);

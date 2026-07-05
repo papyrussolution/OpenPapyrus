@@ -1,10 +1,10 @@
 // WINCEXCH.CPP
-// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024, 2025
+// Copyright (c) A.Starodub 2006, 2007, 2008, 2009, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
 #pragma hdrstop
-//# @v11.9.12 include <sbht.h>
+//@v11.9.12 #include <sbht.h>
 #include <stylobhtII.h>
 //
 // @v11.8.12 inlined sbht.h {
@@ -64,8 +64,9 @@ int SendCmd(TcpSocket * pSo, SBHTCmdBuf * pBuf, void * pParam)
 	int    ok = -1;
 	if(pSo) {
 		THROW_SL(pSo->Send(pBuf, sizeof(SBHTCmdBuf), 0));
-		if(pParam && pBuf->BufSize)
+		if(pParam && pBuf->BufSize) {
 			THROW_SL(pSo->Send(pParam, pBuf->BufSize, 0));
+		}
 		ok = 1;
 	}
 	CATCHZOK
@@ -435,8 +436,8 @@ int StyloBhtIIExchanger::FindGoods(PPID goodsID, const char * pBarcode, SBIIGood
 	Goods2Tbl::Rec goods_rec;
 	GoodsCodeSrchBlock srch_blk;
 	ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
-	if(pBarcode) {
-		STRNSCPY(srch_blk.Code, pBarcode);
+	if(!isempty(pBarcode)) {
+		srch_blk.Code_ = pBarcode;
 		srch_blk.Flags = GoodsCodeSrchBlock::fGoodsId;
 		if(GObj.SearchByCodeExt(&srch_blk) > 0)
 			goods_id = srch_blk.Rec.ID;
@@ -541,7 +542,7 @@ int StyloBhtIIExchanger::FindLocCell(PPID locID, const char * pName, SBIILocCell
 		Log_(DS.GetTLA().LastErr, 0, DS.GetTLA().AddedMsgString);
 	return ok;
 }*/
-
+/* @v12.6.9 @obsolete
 int StyloBhtIIExchanger::PrintBarcode(const char * pBarcode)
 {
 	int    ok = -1;
@@ -570,9 +571,10 @@ int StyloBhtIIExchanger::PrintBarcode(const char * pBarcode)
 			GObj.GetSingleBarcode(goods_id, 0, temp_buf);
 			STRNSCPY(rgi.BarCode, temp_buf);
 		}
-		else
+		else {
 			STRNSCPY(rgi.BarCode, pBarcode);
-		if(sstrlen(rgi.Serial) > 0) {
+		}
+		if(sstrlen(rgi.Serial)) {
 			rgi.LotID = lot_rec.ID;
 			rgi.Qtty = lot_rec.Quantity;
 			rgi.UnitPerPack = lot_rec.UnitPerPack;
@@ -582,7 +584,7 @@ int StyloBhtIIExchanger::PrintBarcode(const char * pBarcode)
 	}
 	CATCHZOK
 	return ok;
-}
+}*/
 
 int StyloBhtIIExchanger::Log_(uint errCode, uint msgCode, const char * pAddInfo)
 {
@@ -767,7 +769,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 					{
 						GoodsCodeSrchBlock srch_blk;
 						Goods2Tbl::Rec goods_rec;
-						STRNSCPY(srch_blk.Code, code);
+						srch_blk.Code_ = code;
 						srch_blk.Flags |= GoodsCodeSrchBlock::fAdoptSearch;
 						if(GObj.SearchByCodeExt(&srch_blk) > 0 && GObj.Fetch(srch_blk.Rec.ID, &goods_rec) > 0) {
 							SOemToChar(goods_rec.Name);
@@ -916,13 +918,14 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 					r = AcceptLocOp(&loc_op);
 				}
 				break;*/
+			/* @v12.6.9 @obsolete
 			case SBhtIICmdBuf::cmPrintBarcode:
 				{
 					char code[128];
 					strnzcpy(code, static_cast<const char *>(in_buf.constptr()), MIN(sizeof(code), in_buf.GetAvailableSize()));
 					r = PrintBarcode(code);
 				}
-				break;
+				break;*/
 			case SBhtIICmdBuf::cmLogout:
 				reply_sended = 1;
 				ok = -1;

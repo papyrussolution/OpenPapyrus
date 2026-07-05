@@ -4268,7 +4268,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 	 		if(!sdr_brow.GoodsID) {
 	 			GoodsCodeSrchBlock srch_blk;
 	 			srch_blk.Flags = GoodsCodeSrchBlock::fGoodsId;
-	 			serial.CopyTo(srch_blk.Code, sizeof(srch_blk.Code));
+				srch_blk.Code_ = serial;
 	 			if(gobj.SearchByCodeExt(&srch_blk) > 0)
 		 			sdr_brow.GoodsID = srch_blk.GoodsID;
 		 	}

@@ -1975,13 +1975,13 @@ bool PPLotExtCodeContainer::SearchAdaptive(const char * pCode, int * pRowIdx, ui
 		gts.GetToken(GtinStruc::fldGTIN14, &pattern_gtin);
 		gts.GetToken(GtinStruc::fldSerial, &pattern_serial);
 		gts.GetToken(GtinStruc::fldPart, &pattern_partno);
-		const   bool do_adopt_cmp = (pattern_gtin.NotEmpty() && (pattern_serial.NotEmpty() || pattern_partno.NotEmpty()));
+		const   bool do_adapt_cmp = (pattern_gtin.NotEmpty() && (pattern_serial.NotEmpty() || pattern_partno.NotEmpty()));
 		for(uint i = 0; !ok && i < GetCount(); i++) {
 			if(GetByIdx(i, item)) {
 				if(item.Num.IsEqiAscii(pCode)) {
 					ok = true;
 				}
-				else if(do_adopt_cmp) {
+				else if(do_adapt_cmp) {
 					const  int iczcr_iter = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(item.Num, gts, 0));
 					gts.GetToken(GtinStruc::fldGTIN14, &iter_gtin);
 					if(iter_gtin.IsEqiAscii(pattern_gtin)) {

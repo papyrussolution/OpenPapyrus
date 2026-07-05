@@ -2416,8 +2416,10 @@ IMPL_HANDLE_EVENT(BillDialog)
 				}
 				break;
 			case cmReckonBill:
-				if((id = P_Pack->PaymBillID) != 0)
+				id = P_Pack->PaymBillID;
+				if(id) {
 					P_BObj->Edit(&id, 0);
+				}
 				break;
 			case cmBillTaxes:       
 				{
@@ -2617,12 +2619,13 @@ IMPL_HANDLE_EVENT(BillDialog)
 						case CTLSEL_BILL_OBJECT:
 						case CTL_BILL_OBJECT:
 							{
-								SString code;
+								//SString code;
 								const  PPID reg_type_id = P_BObj->Cfg.ClCodeRegTypeID;
-								if(P_Pack->AccSheetID && reg_type_id > 0 && BarcodeInputDialog(0, code) > 0) {
+								PPObjGoods::CodeInputBlock blk;
+								if(P_Pack->AccSheetID && reg_type_id > 0 && PPObjGoods::CodeInputDialog(blk) > 0) {
 									ArticleTbl::Rec ar_rec;
 									PPID   ar_id = 0;
-									if(ArObj.SearchByRegCode(P_Pack->AccSheetID, reg_type_id, code, &ar_id, &ar_rec) > 0) {
+									if(ArObj.SearchByRegCode(P_Pack->AccSheetID, reg_type_id, blk.Code, &ar_id, &ar_rec) > 0) {
 										setCtrlLong(CTLSEL_BILL_OBJECT, ar_rec.ID);
 										ReplyCntragntSelection(0);
 									}

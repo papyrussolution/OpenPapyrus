@@ -2750,7 +2750,8 @@ int PPObjLocation::Read(PPObjPack * p, PPID id, void * stream, ObjTransmContext 
 
 int PPObjLocation::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx) // @srlz
 {
-	int    ok = 1, r = 1;
+	int    ok = 1;
+	int    r = 1;
 	if(p && p->Data) {
 		PPLocationPacket * p_pack = static_cast<PPLocationPacket *>(p->Data);
 		Reference * p_ref(PPRef);
@@ -2794,7 +2795,6 @@ int PPObjLocation::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCont
 						}
 					}
 				}
-				// @v11.1.11 {
 				if(p_pack->Type == LOCTYP_WAREHOUSE) {
 					//
 					// Специальный случай: нельзя менять тег ВЕТИС-идентификатора склада - они редактируются локально для каждого раздела
@@ -2804,7 +2804,6 @@ int PPObjLocation::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCont
 					const ObjTagItem * p_vetis_uuid_tag = ex_tag_list.GetItem(PPTAG_LOC_VETIS_GUID);
 					p_pack->TagL.PutItem(PPTAG_LOC_VETIS_GUID, p_vetis_uuid_tag);
 				}
-				// } @v11.1.11 
 				r = PutPacket(pID, p_pack, 1);
 			}
 			else {

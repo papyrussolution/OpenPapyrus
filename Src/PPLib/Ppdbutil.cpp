@@ -1550,11 +1550,11 @@ int PrcssrDbDump::Helper_Undump(long tblID)
 	THROW(P.Mode == 0);
 	if(P.SpcOb == spcobNone) {
 		if(TblEntryList.lsearch(&tblID, &pos, CMPF_LONG)) {
-			const TableEntry & r_entry = *static_cast<const TableEntry *>(TblEntryList.at(pos));
+			const  TableEntry & r_entry = *static_cast<const TableEntry *>(TblEntryList.at(pos));
 			SString tbl_name;
 			TblNameList.GetText(tblID, tbl_name);
 			//PPERR_DBUNDUMP_INVENTRYOFFS "Недопустимое значение смещения в потоке для dump-точки таблицы '%s'"
-			THROW_PP(r_entry.Offs >= 0LL, PPERR_DBUNDUMP_INVENTRYOFFS, tbl_name);
+			THROW_PP_S(r_entry.Offs >= 0LL, PPERR_DBUNDUMP_INVENTRYOFFS, tbl_name);
 			THROW_SL(FDump.Seek64(r_entry.Offs));
 			{
 				DbProvider * p_dict = CurDict;
@@ -2927,7 +2927,8 @@ static int _DoProtect(PPDbEntrySet2 * pDbes, PPBackup * ppb)
 	int    ok = 1;
 	TDialog * dlg = new TDialog(DLG_PROTECT);
 	if(CheckDialogPtrErr(&dlg)) {
-		char   new_pw[64], old_pw[64];
+		char   new_pw[64];
+		char   old_pw[64];
 		dlg->selectCtrl(CTL_LOGIN_PROTECT);
 		SetupDBEntryComboBox(dlg, CTLSEL_LOGIN_DB, pDbes, 0);
 		dlg->disableCtrl(CTLSEL_LOGIN_DB, true);
@@ -2936,7 +2937,11 @@ static int _DoProtect(PPDbEntrySet2 * pDbes, PPBackup * ppb)
 			dlg->getCtrlData(CTL_LOGIN_PROTECT, &prot);
 			dlg->getCtrlData(CTL_LOGIN_PASSWORD, old_pw);
 			prot++;
-			if((prot - 1) == 1 || PasswordDialog(0, new_pw, sizeof(new_pw), 0, 1) > 0) {
+			//
+			PasswordDialogParam param;
+			param.MinLen = 0;
+			param.Flags |= PasswordDialogParam::fWithoutEncrypt;
+			if((prot - 1) == 1 || PasswordDialog2(0, new_pw, sizeof(new_pw), param) > 0) {
 				long   dbentry = NZOR(pDbes->GetSelection(), pDbes->SetDefaultSelection());
 				DbLoginBlock dlb;
 				if(pDbes->GetByID(dbentry, &dlb) > 0) {
@@ -3185,21 +3190,27 @@ int CreateBackupCopy(const char * pActiveUser, int skipCfm)
 int SetDatabaseChain()
 {
 	int    ok = -1;
-	int    r = 0;
 	char   password[32];
 	TDialog * dlg = 0;
-	THROW(r = PPCheckDatabaseChain());
+	const  int r = PPCheckDatabaseChain();
+	THROW(r);
 	if(r > 0) {
-		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_DBUNCHAIN))));
+		dlg = new TDialog(DLG_DBUNCHAIN);
+		THROW(CheckDialogPtr(&dlg));
 		if(ExecView(dlg) == cmOK) {
 			dlg->getCtrlData(CTL_DBUNCHAIN_PASSWORD, password);
 			THROW(PPUnchainDatabase(password));
 			ok = 1;
 		}
 	}
-	else if(PasswordDialog(DLG_DBCHAIN, password, sizeof(password), 3, 1) > 0) {
-		strip(password);
-		THROW(PPChainDatabase(password[0] ? password : 0));
+	else {
+		PasswordDialogParam param;
+		param.MinLen = 3;
+		param.Flags |= PasswordDialogParam::fWithoutEncrypt;
+		if(PasswordDialog2(DLG_DBCHAIN, password, sizeof(password), param) > 0) {
+			strip(password);
+			THROW(PPChainDatabase(password[0] ? password : 0));
+		}
 	}
 	CATCHZOKPPERR
 	delete dlg;

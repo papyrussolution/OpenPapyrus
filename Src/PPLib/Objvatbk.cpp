@@ -2524,8 +2524,9 @@ int PPViewVatBook::ProcessOp2(const OpEntryVector & rList, uint listIdx, const O
 				p_paym_rec = &bill_rec;
 				paym_bill_id = bill_id;
 				if(mode == 2) { // Reckoning
-					if(P_BObj->IsMemberOfPool(paym_bill_id, PPASS_PAYMBILLPOOL, &pool_id) > 0)
+					if(P_BObj->IsMemberOfPool(paym_bill_id, PPASS_PAYMBILLPOOL, &pool_id)) {
 						bill_id = pool_id;
+					}
 					else
 						continue;
 				}
@@ -2567,7 +2568,7 @@ int PPViewVatBook::ProcessOp2(const OpEntryVector & rList, uint listIdx, const O
 				else if(is_neg)
 					mrbbf = mrbbfIsNeg;
 				THROW(MRBB(bill_id, p_paym_rec, p_tai, mrbbf, pEbfBlk, r_entry));
-				if(storn_reckon && (mode == 1 || do_storno) && is_paym && P_BObj->IsMemberOfPool(paym_bill_id, PPASS_PAYMBILLPOOL, &pool_id) > 0) {
+				if(storn_reckon && (mode == 1 || do_storno) && is_paym && P_BObj->IsMemberOfPool(paym_bill_id, PPASS_PAYMBILLPOOL, &pool_id)) {
 					if(P_BObj->Search(pool_id, &temp_rec) > 0 && rList.Search(temp_rec.OpID, 0, 0) && p_paym_rec->Dt >= temp_rec.Dt) {
 						THROW(MRBB(pool_id, p_paym_rec, p_tai, mrbbfIsNeg | mrbbfIsStorno, pEbfBlk, r_entry));
 					}

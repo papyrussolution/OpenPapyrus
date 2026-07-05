@@ -1405,7 +1405,7 @@ int GoodsDialog::setDTS(const PPGoodsPacket * pPack)
 		if(GObj.Fetch(Data.Rec.ParentID, &grp_rec) > 0)
 			prev_grp_level = grp_rec.ParentID;
 	}
-	long   f = OLW_LOADDEFONOPEN | OLW_WORDSELECTOR | ((gpk == gpkndGoods) ? OLW_CANINSERT : OLW_CANSELUPLEVEL); // @v11.1.10 OLW_WORDSELECTOR
+	long   f = OLW_LOADDEFONOPEN|OLW_WORDSELECTOR|((gpk == gpkndGoods) ? OLW_CANINSERT : OLW_CANSELUPLEVEL);
 	long   selgrp_bias = GGRTYP_SEL_NORMAL;
 	setCtrlLong(CTL_GOODS_ID, Data.Rec.ID);
 	if(oneof2(gpk, gpkndGoods, gpkndOrdinaryGroup)) {

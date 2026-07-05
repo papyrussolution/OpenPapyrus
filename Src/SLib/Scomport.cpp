@@ -162,14 +162,13 @@ int SCommPort::ClosePort()
 int SCommPort::InitPort(int portNo, int ctsControl, int rtsControl)
 {
 	PortNo = portNo;
-
 	int    ok = 1;
 	DCB    dcb;
 	COMMTIMEOUTS cto;
 	SString name;
 	GetComDvcSymb(comdvcsCom, portNo+1, 1, name);
 	ClosePort();
-	H_Port = ::CreateFile(SUcSwitch(name), GENERIC_READ|GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
+	H_Port = ::CreateFileW(SUcSwitchW(name), GENERIC_READ|GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0);
 	SLS.SetAddedMsgString(name);
 	THROW(H_Port != INVALID_HANDLE_VALUE);
 	THROW(GetCommState(H_Port, &dcb));
@@ -205,11 +204,11 @@ int SCommPort::InitPort(int portNo, int ctsControl, int rtsControl)
 	//dcb.fOutxDsrFlow = (CPP.Flags & CPP.fOutxDsrFlow) ? 1 : 0;
 	//dcb.fDsrSensitivity = (CPP.Flags & CPP.fDsrSensitivity) ? 1 : 0;
 	THROW(SetCommState(H_Port, &dcb));
-	cto.ReadIntervalTimeout = 10000; // @v11.4.10 MAXDWORD-->10000
-	cto.ReadTotalTimeoutMultiplier = 20; // @v11.4.10 MAXDWORD-->20
+	cto.ReadIntervalTimeout = 10; // @v11.4.10 MAXDWORD-->10000 // @v12.6.9 10000-->10
+	cto.ReadTotalTimeoutMultiplier = 0; // @v11.4.10 MAXDWORD-->20 // @v12.6.9 20-->0
 	cto.ReadTotalTimeoutConstant = 1000; // @v11.4.10 CPT.W_Get_Delay-->1000
-	cto.WriteTotalTimeoutConstant = 20; // @v11.4.10 0-->20
-	cto.WriteTotalTimeoutMultiplier = 1000; // @v11.4.10 0-->1000
+	cto.WriteTotalTimeoutConstant = 30000; // @v11.4.10 0-->20 // @v12.6.9 20-->30000
+	cto.WriteTotalTimeoutMultiplier = 0; // @v11.4.10 0-->1000 // @v12.6.9 1000-->0
 	THROW(SetCommTimeouts(H_Port, &cto));
 	CATCH
 		ok = (SLibError = SLERR_COMMINIT, 0);

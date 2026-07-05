@@ -598,7 +598,7 @@ int PPObjBill::EnumMembersOfPool(PPID poolType, PPID poolOwnerID, PPID * pMember
 	return ok;
 }
 
-int PPObjBill::IsMemberOfPool(PPID billID, PPID poolType, PPID * pPullOwnerID)
+bool PPObjBill::IsMemberOfPool(PPID billID, PPID poolType, PPID * pPullOwnerID)
 {
 	return P_Tbl->IsMemberOfPool(billID, poolType, pPullOwnerID);
 }
@@ -3468,8 +3468,7 @@ int PPObjBill::SetStatus(PPID id, PPID statusID, int use_ta)
 					rec.StatusID = statusID;
 					if(bs_rec.CheckFields || (bs_rec.Flags & BILSTF_STRICTPRICECONSTRAINS)) {
 						//
-						// Если новый статус требует проверки заполнения полей, то придется извлечь
-						// пакет документа полностью.
+						// Если новый статус требует проверки заполнения полей, то придется извлечь пакет документа полностью.
 						//
 						PPBillPacket pack;
 						THROW(ExtractPacket(id, &pack) > 0);
@@ -8091,7 +8090,7 @@ int PPObjBill::CheckPoolStatus(PPID billID, int poolType)
 {
 	int    ok = 1;
 	PPID   owner_id = 0;
-	if(IsMemberOfPool(billID, poolType, &owner_id) > 0) {
+	if(IsMemberOfPool(billID, poolType, &owner_id)) {
 		BillTbl::Rec bill_rec;
 		if(Search(owner_id, &bill_rec) > 0) {
 			THROW_PP(!bill_rec.StatusID || !CheckStatusFlag(bill_rec.StatusID, BILSTF_DENY_CHANGELINK), PPERR_BILLST_DENY_CHANGELINK);
@@ -9213,13 +9212,14 @@ int PPObjBill::Helper_GetPoolMembership(PPID id, const PPBillPacket * pPack, lon
 {
 	int    ok = -1;
 	PPID   pool_id = 0;
-	if(!flag || pPack->Rec.Flags & flag)
-		if(IsMemberOfPool(id, poolType, &pool_id) > 0) {
+	if(!flag || pPack->Rec.Flags & flag) {
+		if(IsMemberOfPool(id, poolType, &pool_id)) {
 			ASSIGN_PTR(pPoolID, pool_id);
 			ok = 2;
 		}
 		else
 			ok = 1;
+	}
 	return ok;
 }
 
@@ -9260,7 +9260,7 @@ int PPObjBill::SetupSpecialAmounts(PPBillPacket * pPack)
 		}
 		else if(pPack->Rec.ID) {
 			PPID   pool_id = 0;
-			if(IsMemberOfPool(pPack->Rec.ID, PPASS_TSESSBILLPOOL, &pool_id) > 0) {
+			if(IsMemberOfPool(pPack->Rec.ID, PPASS_TSESSBILLPOOL, &pool_id)) {
 				PPObjTSession tses_obj;
 				TSessionTbl::Rec tses_rec;
 				if(tses_obj.Search(pool_id, &tses_rec) > 0 && pPack->Rec.Flags & BILLF_TSESSWROFF) {

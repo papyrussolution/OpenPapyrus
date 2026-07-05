@@ -3190,14 +3190,16 @@ int PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTransm
 				// Зачетные оплаты не передаем
 				//
 				PPID   paym_pool_owner_id = 0;
-				if(IsMemberOfPool(bill_rec.ID, PPASS_PAYMBILLPOOL, &paym_pool_owner_id) > 0) {
+				if(IsMemberOfPool(bill_rec.ID, PPASS_PAYMBILLPOOL, &paym_pool_owner_id)) {
 					msg_id = PPTXT_LOG_NTRANS_BILLRECKON;
 					ok = -1;
 				}
-				else if(rDestDbDivPack.ResponsibleForLoc(bill_rec.LocID, 0))
-					if(Search(bill_rec.LinkBillID, &bill_rec) > 0)
+				else if(rDestDbDivPack.ResponsibleForLoc(bill_rec.LocID, 0)) {
+					if(Search(bill_rec.LinkBillID, &bill_rec) > 0) {
 						if(rDestDbDivPack.ResponsibleForLoc(bill_rec.LocID, 0))
 							ok = 1;
+					}
+				}
 			}
 			else if(op_type_id == PPOPT_INVENTORY)
 				ok = 1;
@@ -3250,8 +3252,7 @@ int PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTransm
 					// приемнике установлен флаг DBDIVF_RCVCSESSANDWROFFBILLS (@v4.6.4)).
 					//
 					PPID   sess_id = 0;
-					if(pCtx->Cfg.Flags & DBDXF_SENDCSESSION && !(rDestDbDivPack.Rec.Flags & DBDIVF_RCVCSESSANDWROFFBILLS) &&
-						IsMemberOfPool(id, PPASS_CSESSBILLPOOL, &sess_id) > 0) {
+					if(pCtx->Cfg.Flags & DBDXF_SENDCSESSION && !(rDestDbDivPack.Rec.Flags & DBDIVF_RCVCSESSANDWROFFBILLS) && IsMemberOfPool(id, PPASS_CSESSBILLPOOL, &sess_id)) {
 						msg_id = PPTXT_LOG_NTRANS_BILLCSWRO;
 						ok = -1;
 					}
@@ -3260,7 +3261,9 @@ int PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTransm
 		}
 	}
 	if(ok < 0 && msg_id && pCtx) {
-		SString fmt_buf, msg_buf, bill_buf;
+		SString fmt_buf;
+		SString msg_buf;
+		SString bill_buf;
 		PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_buf);
 		pCtx->Output(msg_buf.Printf(PPLoadTextS(msg_id, fmt_buf), bill_buf.cptr()));
 	}

@@ -622,9 +622,10 @@ int PrcssrAbsentBill::Repair(const AbsentEntry * pEntry)
 
 	THROW(CheckDialogPtr(&(dlg = new AbsBillDialog)));
 	dlg->setDTS(&rabd);
-	for(valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
+	for(valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 		if(dlg->getDTS(&rabd))
 			valid_data = 1;
+	}
 	stop = BIN(dlg->getCtrlUInt16(CTL_ABSBILL_STOP));
 	ZDELETE(dlg);
 	if(valid_data) {
@@ -646,15 +647,12 @@ int PrcssrAbsentBill::Repair(const AbsentEntry * pEntry)
 			bill_rec.Object = rabd.ObjectID;
 			bill_rec.Flags = temp_pack.Rec.Flags;
 			STRNSCPY(bill_rec.Code, "ABSRCVR");
-			// @v11.1.12 STRNSCPY(bill_rec.Memo, "Absent recovered");
 			THROW(P_BObj->P_Tbl->_GetBillNo(bill_rec.Dt, &bill_rec.BillNo));
 			THROW_DB(P_BObj->P_Tbl->insertRecBuf(&bill_rec, 0, &new_id));
-			// @v11.1.12 {
 			{
 				temp_buf = "Absent recovered";
 				THROW(P_BObj->P_Tbl->PutItemMemo(new_id, &temp_buf, 0));
 			}
-			// } @v11.1.12 
 			THROW(tra.Commit());
 			ok = 1;
 		}
@@ -691,11 +689,12 @@ int RecoverAbsenceBills()
 	PrcssrAbsentBill prcssr;
 	PrcssrAbsentBill::Param param;
 	prcssr.InitParam(&param);
-	if(prcssr.EditParam(&param) > 0)
+	if(prcssr.EditParam(&param) > 0) {
 		if(prcssr.Init(&param) && prcssr.Run())
 			ok = 1;
 		else
 			ok = PPErrorZ();
+	}
 	return ok;
 }
 
@@ -770,77 +769,173 @@ int PPObjBill::SearchPaymWOLinkBill()
 {
 	int    ok = 1;
 	PPID   op_id;
-	PPOprKind  opk;
-	PPIDArray  op_ary;
-	StrAssocArray op_name_ary;
-	PPObjArticle  ar_obj;
-	BillTbl::Key2 bk2, bk2_;
-	BExtQuery  bq(P_Tbl, 2, 1);
-	DBQ * dbq = 0;
+	PPOprKind opk;
+	PPObjArticle ar_obj;
 	IterCounter cntr;
 	PPLogger logger;
-	int    repare = 0;
-	SString log_filename, wait_msg_buf, msg_buf, code;
+	SString wait_msg_buf;
+	SString msg_buf;
+	SString temp_buf;
+	SString code;
+	SString op_name;
+	struct Param {
+		Param() : Flags(0)
+		{
+			Period.Z();
+		}
+		enum {
+			fDoRepair      = 0x0001,
+			fVerifyReckons = 0x0002,
+		};
+		uint   Flags;
+		DateRange Period;
+		SString LogFileName;
+	};
+	Param _param;
 	{
 		TDialog * dlg = new TDialog(DLG_C_LINKBILL);
 		THROW(CheckDialogPtr(&dlg));
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_C_LINKBILL_LOG, CTL_C_LINKBILL_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
-		PPGetFileName(PPFILNAM_PAYMLINK_LOG, log_filename);
-		dlg->setCtrlString(CTL_C_LINKBILL_LOG, log_filename);
-		dlg->setCtrlUInt16(CTL_C_LINKBILL_FLAGS, BIN(repare));
+		PPGetFileName(PPFILNAM_PAYMLINK_LOG, _param.LogFileName);
+		dlg->setCtrlString(CTL_C_LINKBILL_LOG, _param.LogFileName);
+		SetPeriodInput(dlg, CTL_C_LINKBILL_PERIOD, _param.Period);
+		//dlg->setCtrlUInt16(CTL_C_LINKBILL_FLAGS, LOGIC(_param.Flags & Param::fDoRepair));
+		dlg->AddClusterAssoc(CTL_C_LINKBILL_FLAGS, 0, Param::fDoRepair);
+		dlg->AddClusterAssoc(CTL_C_LINKBILL_FLAGS, 1, Param::fVerifyReckons);
+		dlg->SetClusterData(CTL_C_LINKBILL_FLAGS, _param.Flags);
 		if(ExecView(dlg) == cmOK) {
-			dlg->getCtrlString(CTL_C_LINKBILL_LOG, log_filename);
-			repare = BIN(dlg->getCtrlUInt16(CTL_C_LINKBILL_FLAGS));
+			GetPeriodInput(dlg, CTL_C_LINKBILL_PERIOD, &_param.Period);
+			//SETFLAG(_param.Flags, Param::fDoRepair, BIN(dlg->getCtrlUInt16(CTL_C_LINKBILL_FLAGS)));
+			dlg->GetClusterData(CTL_C_LINKBILL_FLAGS, &_param.Flags);
+			dlg->getCtrlString(CTL_C_LINKBILL_LOG, _param.LogFileName);
+			ok = 1;
 		}
 		else
-			repare = -1;
+			ok = -1;
 		delete dlg;
 	}
-	if(repare >= 0) {
+	if(ok > 0) {
+		PPObjOprKind op_obj;
+		PPIDArray op_list;
+		StrAssocArray op_name_list;
+		PPIDArray reckon_op_list;
 		PPWaitStart();
 		PPWaitMsg(PPLoadTextS(PPTXT_WAIT_SEARCHUNLINKEDPAYMS, wait_msg_buf));
-		PPTransaction tra(BIN(repare > 0));
-		THROW(tra);
 		for(op_id = 0; EnumOperations(PPOPT_PAYMENT, &op_id, &opk) > 0;) {
-			THROW(op_ary.add(op_id));
-			THROW_SL(op_name_ary.Add(op_id, opk.Name));
+			THROW(op_list.add(op_id));
+			THROW_SL(op_name_list.Add(op_id, opk.Name));
 		}
 		for(op_id = 0; EnumOperations(PPOPT_GOODSRETURN, &op_id, &opk) > 0;) {
-			THROW(op_ary.add(op_id));
-			THROW_SL(op_name_ary.Add(op_id, opk.Name));
+			THROW(op_list.add(op_id));
+			THROW_SL(op_name_list.Add(op_id, opk.Name));
 		}
-		op_name_ary.SortByID();
-		dbq = &(ppidlist(P_Tbl->OpID, &op_ary));
-		bq.selectAll().where(*dbq);
-		MEMSZERO(bk2);
-		bk2_ = bk2;
-		cntr.Init(bq.countIterations(0, &bk2_, spGe));
-		for(bq.initIteration(false, &bk2, spGe); bq.nextIteration() > 0; cntr.Increment()) {
-			BillTbl::Rec b_rec;
-			P_Tbl->CopyBufTo(&b_rec);
-			if(b_rec.LinkBillID == 0 || P_Tbl->Search(b_rec.LinkBillID) <= 0) {
-				ArticleTbl::Rec ar_rec;
-				MakeCodeString(&b_rec, 0, code);
-				msg_buf.Z();
-				op_name_ary.GetText(b_rec.OpID, msg_buf);
-				msg_buf.Space().Cat(code);
-				if(b_rec.Object && ar_obj.Fetch(b_rec.Object, &ar_rec) && ar_rec.Name[0])
-					msg_buf.Space().Cat(ar_rec.Name);
-				if(repare > 0) {
-					if(b_rec.LinkBillID) {
-						THROW_DB(updateFor(P_Tbl, 0, (P_Tbl->ID == b_rec.ID), set(P_Tbl->LinkBillID, dbconst(0L))));
-						DS.LogAction(PPACN_BILLCORRECTED, Obj, b_rec.ID, PPACN_EXT_BILLCORRECTED_LINKRESET, 0);
-						msg_buf.CatDiv(';', 2).Cat(PPLoadStringS("corrected", code));
+		{
+			PPReckonOpEx rox;
+			for(op_id = 0; EnumOperations(0, &op_id, &opk) > 0;) {
+				if(opk.Flags & OPKF_RECKON) {
+					if(op_obj.GetReckonExData(opk.ID, &rox) > 0) {
+						reckon_op_list.add(&rox.OpList);
 					}
 				}
-				logger.Log(msg_buf);
 			}
-			PPWaitPercent(cntr, wait_msg_buf);
+			reckon_op_list.sortAndUndup();
 		}
-		THROW(tra.Commit());
+		op_name_list.SortByID();
+		if(op_list.getCount()) {
+			PPIDArray problem_bill_list; // Документы оплат с висячей ссылкой на долговой документ
+			PPIDArray problem_reckon_bill_list; // Документы зачитывающих оплат, не ссылающиеся на платежный документ
+			BillTbl::Rec b_rec;
+			for(uint opidx = 0; opidx < op_list.getCount(); opidx++) {
+				const   PPID op_id = op_list.get(opidx);
+				const   bool is_reckon = reckon_op_list.bsearch(op_id);
+				op_name_list.GetText(op_id, op_name);
+				BillTbl::Key2 bk2;
+				BillTbl::Key2 bk2_;
+				BExtQuery  bq(P_Tbl, 2, 1);
+				DBQ * dbq = 0;
+				dbq = &(*ppcheckfiltid(dbq, P_Tbl->OpID, op_id) && daterange(P_Tbl->Dt, &_param.Period));
+				bq.selectAll().where(*dbq);
+				MEMSZERO(bk2);
+				bk2.OpID = op_id;
+				bk2.Dt = _param.Period.low;
+				bk2_ = bk2;
+				cntr.Init(bq.countIterations(0, &bk2_, spGe));
+				for(bq.initIteration(false, &bk2, spGe); bq.nextIteration() > 0; cntr.Increment()) {
+					P_Tbl->CopyBufTo(&b_rec);
+					assert(b_rec.OpID == op_id);
+					if(b_rec.LinkBillID == 0 || P_Tbl->Search(b_rec.LinkBillID) <= 0) {
+						problem_bill_list.add(b_rec.ID);
+						MakeCodeString(&b_rec, mcsAddOpName|mcsAddObjName, code);
+						msg_buf.Z().Cat(code);
+						logger.Log(msg_buf);
+					}
+					if(is_reckon && _param.Flags & Param::fVerifyReckons) {
+						PPID   paym_bill_id = 0;
+						if(IsMemberOfPool(b_rec.ID, PPASS_PAYMBILLPOOL, &paym_bill_id)) {
+							;
+						}
+						else { // trouble
+							problem_reckon_bill_list.add(b_rec.ID);
+							MakeCodeString(&b_rec, mcsAddOpName|mcsAddObjName, code);
+							msg_buf.Z();
+							//PPTXT_LOG_RECKONISNTATPAYMPOOL            "Документ оплаты (%s), будучи зачитывающим, не привязан ни к одному зачетному документу"
+							PPLoadText(PPTXT_LOG_RECKONISNTATPAYMPOOL, temp_buf);
+							msg_buf.Printf(temp_buf, code.cptr());
+							logger.Log(msg_buf);
+						}
+					}
+					(temp_buf = wait_msg_buf).CatDiv('-', 1).Cat(op_name);
+					PPWaitPercent(cntr, temp_buf);
+					//PPWaitMsg(temp_buf);
+				}
+			}
+			if((_param.Flags & Param::fDoRepair) && (problem_bill_list.getCount() || problem_reckon_bill_list.getCount())) {
+				PPTransaction tra(1);
+				THROW(tra);
+				{
+					for(uint bidx = 0; bidx < problem_reckon_bill_list.getCount(); bidx++) {
+						const   PPID bill_id = problem_reckon_bill_list.get(bidx);
+						if(Search(bill_id, &b_rec) > 0) {
+							PPID   paym_bill_id = 0;
+							if(IsMemberOfPool(b_rec.ID, PPASS_PAYMBILLPOOL, &paym_bill_id)) {
+								;
+							}
+							else { // trouble
+								MakeCodeString(&b_rec, mcsAddOpName|mcsAddObjName, code);
+								if(RemovePacket(b_rec.ID, 0)) {
+									//PPTXT_LOG_RECKONISNTATPAYMPOOL_REMOVED    "Удален документ оплаты (%s) который, будучи зачитывающим, не привязан ни к одному зачетному документу"	
+									PPLoadText(PPTXT_LOG_RECKONISNTATPAYMPOOL_REMOVED, temp_buf);
+									msg_buf.Printf(temp_buf, code.cptr());
+									logger.Log(msg_buf);
+								}
+								else {
+									logger.LogLastError();
+								}
+							}
+						}
+					}
+				}
+				{
+					for(uint bidx = 0; bidx < problem_bill_list.getCount(); bidx++) {
+						const   PPID bill_id = problem_bill_list.get(bidx);
+						if(Search(bill_id, &b_rec) > 0) {
+							if(b_rec.LinkBillID && P_Tbl->Search(b_rec.LinkBillID) <= 0) {
+								MakeCodeString(&b_rec, mcsAddOpName|mcsAddObjName, code);
+								msg_buf.Z().Cat(code);
+								THROW_DB(updateFor(P_Tbl, 0, (P_Tbl->ID == b_rec.ID), set(P_Tbl->LinkBillID, dbconst(0L))));
+								DS.LogAction(PPACN_BILLCORRECTED, Obj, b_rec.ID, PPACN_EXT_BILLCORRECTED_LINKRESET, 0);
+								msg_buf.CatDiv(';', 2).Cat(PPLoadStringS("corrected", code));
+								logger.Log(msg_buf);
+							}
+						}
+					}
+				}
+				THROW(tra.Commit());
+			}
+		}
 	}
 	CATCHZOKPPERR
-	logger.Save(log_filename, 0);
+	logger.Save(_param.LogFileName, 0);
 	PPWaitStop();
 	return ok;
 }

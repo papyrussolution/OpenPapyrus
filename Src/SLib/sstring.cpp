@@ -8262,7 +8262,7 @@ static const SIntToSymbTabEntry SNTokSymb_List[] = {
 	{ SNTOK_NUMERIC_COM, "numeric-com" },
 	{ SNTOK_CHZN_GS1_GTIN, "chzn-gs1-gtin" },
 	{ SNTOK_CHZN_SIGN_SGTIN, "chzn-sign-sgtin" },
-	{ SNTOK_CHZN_SSCC, "chzn-sscc" },
+	// @v12.6.9 @unused { SNTOK_CHZN_SSCC, "chzn-sscc" },
 	{ SNTOK_CHZN_CIGITEM, "chzn-cigitem" },
 	{ SNTOK_CHZN_CIGBLOCK, "chzn-cigblock" },
 	{ SNTOK_RU_OKPO, "ru-okpo" },
@@ -9076,8 +9076,9 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 			}
 			if(h & SNTOKSEQ_DECLAT) {
 				rResultList.AddTok(SNTOK_DIGLAT, 1.0f, 0/*flags*/);
-				if(oneof2(toklen, 68, 150))
+				if(oneof2(toklen, 68, 150)) {
 					rResultList.AddTok(SNTOK_EGAISMARKCODE, 0.8f, 0/*flags*/);
+				}
 				else if(toklen == 9) {
 					int   is_ru_kpp = 1;
 					for(i = 0; is_ru_kpp && i < toklen; i++) {
@@ -9331,6 +9332,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 							else {
 								rResultList.AddTok(SNTOK_CHZN_CIGITEM, (toklen == 29) ? 0.8f : 0.4f, 0/*flags*/);
 							}
+							rResultList.AddTok(SNTOK_CHZN_GENERAL, 0.5f, 0); // @v12.6.9
 						}
 					}
 				}
@@ -9363,10 +9365,14 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						}
 						if(is_chzn_cigblock) {
 							assert(_offs == 16 || _offs == 18);
-							if(strstr(PTRCHRC_(pToken)+_offs, "8005")) // код сигаретного блока может содержать тег цены с префиксом 80005
+							if(strstr(PTRCHRC_(pToken)+_offs, "8005")) { // код сигаретного блока может содержать тег цены с префиксом 80005
 								rResultList.AddTok(SNTOK_CHZN_CIGBLOCK, 0.8f, 0/*flags*/);
-							else if(toklen == 25)
+								rResultList.AddTok(SNTOK_CHZN_GENERAL, 0.8f, 0); // @v12.6.9
+							}
+							else if(toklen == 25) {
 								rResultList.AddTok(SNTOK_CHZN_CIGBLOCK, 0.5f, 0/*flags*/);
+								rResultList.AddTok(SNTOK_CHZN_GENERAL, 0.5f, 0); // @v12.6.9
+							}
 						}
 					}
 				}

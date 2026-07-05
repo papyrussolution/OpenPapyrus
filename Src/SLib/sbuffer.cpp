@@ -1870,9 +1870,12 @@ int SSerializeContext::Serialize(int dir, TYPEID typ, void * pData, uint8 * pInd
 			TempSBuf.Z();
 			THROW(stype(typ, &_t).Serialize(dir, pData, &ind, TempSBuf, this));
 			THROW(rBuf.Write(&ind, sizeof(ind)));
-			const size_t avsz = TempSBuf.GetAvailableSize();
-			if(avsz)
-				THROW(rBuf.Write(TempSBuf.GetBuf(TempSBuf.GetRdOffs()), avsz));
+			{
+				const  size_t avsz = TempSBuf.GetAvailableSize();
+				if(avsz) {
+					THROW(rBuf.Write(TempSBuf.GetBuf(TempSBuf.GetRdOffs()), avsz));
+				}
+			}
 		}
 		else if(dir < 0) {
 			THROW(rBuf.ReadV(&ind, sizeof(ind)));
@@ -1916,7 +1919,7 @@ int SSerializeContext::Serialize(int dir, LDATETIME & rV, SBuffer & rBuf) { retu
 int SSerializeContext::Serialize(int dir, float  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_FLOAT, sizeof(rV)), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, double & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_FLOAT, sizeof(rV)), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, S_GUID & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_UUID_, sizeof(rV)), &rV, 0, rBuf); }
-int SSerializeContext::Serialize(int dir, SColor & rV, SBuffer & rBuf) { return Serialize(dir, T_COLOR_RGBA, &rV, 0, rBuf); } // @v10.9.10
+int SSerializeContext::Serialize(int dir, SColor & rV, SBuffer & rBuf) { return Serialize(dir, T_COLOR_RGBA, &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, SPoint2S & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_IPOINT2, 4), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, SPoint2F & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_FPOINT2, 8), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, FRect & rV, SBuffer & rBuf) 

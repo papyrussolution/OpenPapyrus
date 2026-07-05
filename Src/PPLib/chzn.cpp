@@ -902,39 +902,58 @@ DRAFTBEER HORECA @v11.9.4
 	return ok;
 }
 
-/*static*/bool FASTCALL PPChZnPrcssr::AreChZnCodesEqual(const char * pCode1, const char * pCode2)
+/*static*/SString & FASTCALL PPChZnPrcssr::RemoveSpcCharsFromCode(SString & rCode)
+{
+	if(rCode.NotEmptyS()) {
+		rCode.ShiftLeftChr('0xE8');
+		if(rCode.HasPrefix("]C1")) {
+			rCode.ShiftLeft(3);
+			rCode.ShiftLeftChr('0xE8');
+		}
+		size_t p = 0;
+		while(rCode.SearchChar('0x1D', &p)) {
+			rCode.Excise(p, 1);
+		}
+	}
+	return rCode;
+}
+
+/*static*/bool FASTCALL PPChZnPrcssr::AreChZnCodesEqual(const char * pCode1, const char * pCode2, bool adaptive)
 {
 	bool eq = true;
 	if(!sstreq(pCode1, pCode2)) {
 		SString code1(pCode1);
 		SString code2(pCode2);
-		{
-			code1.ShiftLeftChr('0xE8');
-			if(code1.HasPrefix("]C1")) {
-				code1.ShiftLeft(3);
-				code1.ShiftLeftChr('0xE8');
-			}
-			size_t p = 0;
-			while(code1.SearchChar('0x1D', &p)) {
-				code1.Excise(p, 1);
+		eq = RemoveSpcCharsFromCode(code1).IsEq(RemoveSpcCharsFromCode(code2));
+		if(!eq && adaptive) {
+			SString pattern_gtin;
+			SString pattern_serial;
+			SString pattern_partno;
+			GtinStruc gts;
+			const  int iczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(code1, gts, 0));
+			gts.GetToken(GtinStruc::fldGTIN14, &pattern_gtin);
+			gts.GetToken(GtinStruc::fldSerial, &pattern_serial);
+			gts.GetToken(GtinStruc::fldPart, &pattern_partno);
+			if(pattern_gtin.NotEmpty() && (pattern_serial.NotEmpty() || pattern_partno.NotEmpty())) {
+				SString iter_gtin;
+				SString iter_serial;
+				SString iter_partno;
+				const  int iczcr_iter = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(code2, gts, 0));
+				gts.GetToken(GtinStruc::fldGTIN14, &iter_gtin);
+				if(iter_gtin.IsEqiAscii(pattern_gtin)) {
+					gts.GetToken(GtinStruc::fldSerial, &iter_serial);
+					gts.GetToken(GtinStruc::fldPart, &iter_partno);
+					if((iter_serial.IsEmpty() || iter_serial.IsEqiAscii(pattern_serial)) && (iter_partno.IsEmpty() || iter_partno.IsEqiAscii(pattern_partno))) {
+						eq = true;
+					}
+				}
 			}
 		}
-		{
-			code2.ShiftLeftChr('0xE8');
-			if(code2.HasPrefix("]C1")) {
-				code2.ShiftLeft(3);
-				code2.ShiftLeftChr('0xE8');
-			}
-			size_t p = 0;
-			while(code2.SearchChar('0x1D', &p)) {
-				code2.Excise(p, 1);
-			}
-		}
-		eq = code1.IsEq(code2);
 	}
 	return eq;
 }
 
+#if 0 // @v12.6.9 @unused {
 /*static*/int FASTCALL PPChZnPrcssr::IsChZnCode(const char * pCode)
 {
 	//#define SNTOK_CHZN_GS1_GTIN    28 // честный знак Идентификационный номер GS1 для идентификации товаров regexp: "[0-9]{14}"
@@ -956,10 +975,12 @@ DRAFTBEER HORECA @v11.9.4
 				pattern value: "[0-9]{18}"
 		*/
 		if(oneof2(len, 14, 18)) {
-			if(len == 14)
+			if(len == 14) {
 				result = SNTOK_CHZN_GS1_GTIN;
-			else // len == 18
+			}
+			else { // len == 18
 				result = SNTOK_CHZN_SSCC;
+			}
 			for(const char * p = pCode; result && *p; p++) {
 				if(!isdec(*p))
 					result = 0;
@@ -984,6 +1005,7 @@ DRAFTBEER HORECA @v11.9.4
 	}
 	return result;
 }
+#endif // } 0 @v12.6.9 @unused
 
 /*static*/int PPChZnPrcssr::InputMark(SString & rMark, SString * pReconstructedOriginal, const char * pExtraInfoText)
 {
@@ -4952,11 +4974,11 @@ int PPChZnPrcssr::CodeStatusCollection::SetupResultEntry(int rowN, const CodeSta
 		for(uint i = 0; !result && i < getCount(); i++) {
 			CodeStatus * p_iter = at(i);
 			if(p_iter) {
-				if(AreChZnCodesEqual(p_iter->OrgMark, rEntry.Cis)) {
+				if(AreChZnCodesEqual(p_iter->OrgMark, rEntry.Cis, false/*adaptive*/)) {
 					p_iter->AssignExceptOrgValues(rEntry);
 					result = i+1;
 				}
-				else if(AreChZnCodesEqual(p_iter->OrgMark_Offl, rEntry.Cis)) {
+				else if(AreChZnCodesEqual(p_iter->OrgMark_Offl, rEntry.Cis, false/*adaptive*/)) {
 					p_iter->AssignExceptOrgValues(rEntry);
 					result = i+1;
 				}
@@ -4972,8 +4994,151 @@ PPChZnPrcssr::CodeInfo::CodeInfo() : Flags(0), PackType(0), GeneralPackType(0), 
 {
 }
 
+static constexpr uint PPChZnPrcssr_CodeInfo_Ver = 0; // 
+
+int PPChZnPrcssr::CodeInfo::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	uint   ver = PPChZnPrcssr_CodeInfo_Ver;
+	THROW_SL(pSCtx->Serialize(dir, ver, rBuf)); // !
+	THROW_SL(pSCtx->Serialize(dir, ReqCisP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, CisP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, PackType, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, GeneralPackType, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedChZnProdType, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedAppTm, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedIntroduceTm, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedProductTm, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedEmissionTm, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedExpiryTm, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedManufINN, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedProducerINN, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedImporterINN, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedOwnerINN, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, OwnerNameP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, ManufNameP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, ProducerNameP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, ProductNameP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, BrandNameP, rBuf));
+	THROW_SL(Children.Serialize(dir, rBuf, pSCtx));
+	CATCHZOK
+	return ok;
+}
+
 PPChZnPrcssr::CodeInfoCollection::CodeInfoCollection()
 {
+}
+
+bool PPChZnPrcssr::CodeInfoCollection::SearchCode(const char * pPattern, uint * pIdx) const
+{
+	bool   ok = false;
+	uint   result_idx = 0;
+	if(!isempty(pPattern) && getCount()) {
+		SString pattern(pPattern);
+		SString iter_code;
+
+		SString pattern_gtin;
+		SString pattern_serial;
+		SString pattern_partno;
+		SString iter_gtin;
+		SString iter_serial;
+		SString iter_partno;
+		GtinStruc gts;
+		const  int iczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(pPattern, gts, 0));
+		gts.GetToken(GtinStruc::fldGTIN14, &pattern_gtin);
+		gts.GetToken(GtinStruc::fldSerial, &pattern_serial);
+		gts.GetToken(GtinStruc::fldPart, &pattern_partno);
+		const   bool do_adapt_cmp = (pattern_gtin.NotEmpty() && (pattern_serial.NotEmpty() || pattern_partno.NotEmpty()));
+		for(uint i = 0; !ok && i < getCount(); i++) {
+			const  CodeInfo * p_entry = at(i);
+			if(p_entry) {
+				GetS(p_entry->ReqCisP, iter_code);
+				if(AreChZnCodesEqual(pattern, iter_code, false)) {
+					result_idx = i;
+					ok = true;
+				}
+				else if(do_adapt_cmp) {
+					const  int iczcr_iter = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(iter_code, gts, 0));
+					gts.GetToken(GtinStruc::fldGTIN14, &iter_gtin);
+					if(iter_gtin.IsEqiAscii(pattern_gtin)) {
+						gts.GetToken(GtinStruc::fldSerial, &iter_serial);
+						gts.GetToken(GtinStruc::fldPart, &iter_partno);
+						if((iter_serial.IsEmpty() || iter_serial.IsEqiAscii(pattern_serial)) &&
+							(iter_partno.IsEmpty() || iter_partno.IsEqiAscii(pattern_partno))) {
+							result_idx = i;
+							ok = true;
+						}
+					}
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pIdx, result_idx);
+	return ok;
+}
+
+int PPChZnPrcssr::CodeInfoCollection::MoveEntryTo(uint entryIdx/*[0..]*/, CodeInfoCollection & rDest) const
+{
+	int    ok = 0;
+	if(entryIdx < getCount()) {
+		const  CodeInfo * p_entry = at(entryIdx);
+		if(p_entry) {
+			SString temp_buf;
+			SString code;
+			uint   ex_idx = 0;
+			GetS(p_entry->ReqCisP, code);
+			if(rDest.SearchCode(code, &ex_idx)) {
+				ok = -1;
+			}
+			else {
+				CodeInfo * p_new_entry = rDest.CreateNewItem();
+				if(p_new_entry) {
+					GetS(p_entry->ReqCisP, temp_buf);
+					rDest.AddS(temp_buf, &p_new_entry->ReqCisP);
+					GetS(p_entry->CisP, temp_buf);
+					rDest.AddS(temp_buf, &p_new_entry->CisP);
+					p_new_entry->Flags = p_entry->Flags;
+					p_new_entry->PackType = p_entry->PackType;
+					p_new_entry->GeneralPackType = p_entry->GeneralPackType;
+					p_new_entry->UedChZnProdType = p_entry->UedChZnProdType;
+					p_new_entry->UedAppTm = p_entry->UedAppTm;
+					p_new_entry->UedIntroduceTm = p_entry->UedIntroduceTm;
+					p_new_entry->UedProductTm = p_entry->UedProductTm;
+					p_new_entry->UedEmissionTm = p_entry->UedEmissionTm;
+					p_new_entry->UedExpiryTm = p_entry->UedExpiryTm;
+					p_new_entry->UedManufINN = p_entry->UedManufINN;
+					p_new_entry->UedProducerINN = p_entry->UedProducerINN;
+					p_new_entry->UedImporterINN = p_entry->UedImporterINN;
+					p_new_entry->UedOwnerINN = p_entry->UedOwnerINN;
+					GetS(p_entry->OwnerNameP, temp_buf);
+					rDest.AddS(temp_buf, &p_new_entry->OwnerNameP);
+					GetS(p_entry->ManufNameP, temp_buf);
+					rDest.AddS(temp_buf, &p_new_entry->ManufNameP);
+					GetS(p_entry->ProducerNameP, temp_buf);
+					rDest.AddS(temp_buf, &p_new_entry->ProducerNameP);
+					GetS(p_entry->ProductNameP, temp_buf);
+					rDest.AddS(temp_buf, &p_new_entry->ProductNameP);
+					GetS(p_entry->BrandNameP, temp_buf);
+					rDest.AddS(temp_buf, &p_new_entry->BrandNameP);
+					p_new_entry->Children = p_entry->Children;
+					ok = 1;
+				}
+				else
+					ok = 0;
+			}
+		}
+	}
+	return ok;
+}
+
+int PPChZnPrcssr::CodeInfoCollection::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW_SL(SStrGroup::SerializeS(dir, rBuf, pSCtx));
+	THROW_SL(TSCollection_Serialize(*this, dir, rBuf, pSCtx));
+	CATCHZOK
+	return ok;
 }
 
 PPChZnPrcssr::PermissiveModeInterface::LocalSvcStatus::LocalSvcStatus() : Flags(0), Status(stUndef), OpMode(opmodeUndef), UedLastUpdateTm(0), UedLastSyncTm(0)

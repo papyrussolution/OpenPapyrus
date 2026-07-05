@@ -5152,7 +5152,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 					PPID   goods_id = 0;
 					PPID   loc_id = 0;
 					GoodsCodeSrchBlock gcsb;
-					Input.CopyTo(gcsb.Code, sizeof(gcsb.Code));
+					gcsb.Code_ = Input;
 					Input.CopyTo(code, sizeof(code));
 					gcsb.Flags |= (GoodsCodeSrchBlock::fAdoptSearch|GoodsCodeSrchBlock::fUse2dTempl);
 					if(GObj.SearchByCodeExt(&gcsb) > 0) {
@@ -5206,7 +5206,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 						if(gcsb.Flags & gcsb.fChZnCode) {
 							if(!isempty(gcsb.ChZnSerial))
 								pgsb.ChZnSerial = gcsb.ChZnSerial;
-							pgsb.ChZnMark = gcsb.Code;
+							pgsb.ChZnMark = gcsb.Code_;
 							pgsb.ChZnSNTokID = gcsb.ChZnSNTokID; // @v12.6.5
 						}
 						if(PreprocessGoodsSelection(loc_id, pgsb) > 0) {

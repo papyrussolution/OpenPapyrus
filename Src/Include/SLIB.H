@@ -991,6 +991,7 @@ typedef int32               TYPEID;
 #define SLERR_CRYPTO_OPENSSL                   655  // @v11.0.11 Ошибка OpenSSL
 #define SLERR_CRYPTO_UNSUPPORTEDKDF            656  // @v12.6.6 Ошибка SLCRYPTO - неподдерживаемая KDF
 #define SLERR_CRYPTO_KDF_FAULT                 657  // @v12.6.6 Ошибка SLCRYPTO - сбой генерации порожденного ключа
+#define SLERR_CRYPTO_INVCRYPTOKEY              658  // @v12.6.9 Ошибка SLCRYPTO - неверный ключ шифрования //
 // Коды с префиксом SLERR_AMQP_ являются трансляцией кодов состояний библиотеки rabbitmq-c
 #define SLERR_AMQP_UNKN                        700 // Неизвестный AMQP-статус
 #define SLERR_AMQP_BAD_AMQP_DATA               701
@@ -12752,7 +12753,7 @@ int STDCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags);
 	// Если число не имеет дробной части, то применяется SNTOK_NUMERIC_DOT
 #define SNTOK_CHZN_GS1_GTIN             28 // честный знак Идентификационный номер GS1 для идентификации товаров regexp: "[0-9]{14}"
 #define SNTOK_CHZN_SIGN_SGTIN           29 // честный знак Индивидуальный серийный номер вторичной упаковки regexp: "[0-9]{14}[&#x21;-&#x22;&#x25;-&#x2F;&#x30;-&#x39;&#x41;-&#x5A;&#x5F;&#x61;-&#x7A;]{13}"
-#define SNTOK_CHZN_SSCC                 30 // честный знак Индивидуальный серийный номер третичной/транспортной упаковки regexp: "[0-9]{18}"
+// @v12.6.9 @unused (use SNTOK_SSCC instead) #define SNTOK_CHZN_SSCC                 30 // честный знак Индивидуальный серийный номер третичной/транспортной упаковки regexp: "[0-9]{18}"
 #define SNTOK_CHZN_CIGITEM              31 // честный знак Маркировка пачки сигарет
 #define SNTOK_CHZN_CIGBLOCK             32 // честный знак Маркировка блока сигарет
 #define SNTOK_RU_OKPO                   33 // Российский код ОКПО
@@ -12787,6 +12788,7 @@ int STDCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags);
 	// Важно: SNTOK_CHZN_PALLET_GTIN является мутантной вариацией SSCC в связи с этим SNTOK_CHZN_PALLET_GTIN обработка, а, возможно, и символ кода изменится.
 #define SNTOK_CHZN_PALLET_MOTOROIL      62 // @v12.5.12 Код транспортной упаковки чзн моторное масло
 #define SNTOK_CHZN_BULK                 63 // @v12.5.12 Код чзн весового товара с префиксом 02-
+#define SNTOK_CHZN_GENERAL              64 // @v12.6.5  Код можно трактовать как маркировку честного знака (в любом из вариантов). Часто совмещен с одним из иных варантов SNTOK_CHZN_XXX
 
 #define SNTOKSEQ_DEC                0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR             0x00000002 // a-z

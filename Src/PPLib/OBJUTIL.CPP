@@ -937,7 +937,7 @@ ListBoxDef * PPObject::Selector(ListBoxDef * pOrgDef, long flags, void * extraPt
 			}
 			else {
 				if(ImplementFlags & implTreeSelector)
-					p_def = new StdTreeListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData, MKSTYPE(S_ZSTRING, 128)); // @v11.9.4 64-->128
+					p_def = new StdTreeListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData, MKSTYPE(S_ZSTRING, 128));
 				else
 					p_def = new StrAssocListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData);
 				if(!p_def)

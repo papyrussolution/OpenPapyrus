@@ -139,7 +139,7 @@ SArray * PPObjBill::MakePaymentList(PPID id, int kind)
 				MEMSZERO(entry);
 				entry.ID    = bill_rec.ID;
 				entry.LinkBillID = bill_rec.LinkBillID;
-				if(IsMemberOfPool(bill_rec.ID, PPASS_PAYMBILLPOOL, &pool_id) > 0)
+				if(IsMemberOfPool(bill_rec.ID, PPASS_PAYMBILLPOOL, &pool_id))
 					entry.RcknBillID = pool_id;
 				entry.Date  = bill_rec.Dt;
 				entry.CurID = bill_rec.CurID;
@@ -486,8 +486,9 @@ int PPViewLinkedBill::MakeList()
 				MEMSZERO(entry);
 				entry.ID    = bill_rec.ID;
 				entry.LinkBillID = bill_rec.LinkBillID;
-				if(P_BObj->IsMemberOfPool(bill_rec.ID, PPASS_PAYMBILLPOOL, &pool_id) > 0)
+				if(P_BObj->IsMemberOfPool(bill_rec.ID, PPASS_PAYMBILLPOOL, &pool_id)) {
 					entry.RcknBillID = pool_id;
+				}
 				entry.LinkKind = link_kind;
 				if(bill_rec.StatusID && bs_obj.Fetch(bill_rec.StatusID, &bs_rec) > 0)
 					no_paym = BIN(bs_rec.Flags & BILSTF_LOCK_PAYMENT);
@@ -934,7 +935,7 @@ int PPObjBill::GetPayableOpListByReckonOp(const PPReckonOpEx & rRcknData, PPID a
 		if(opk.LinkOpID) {
 			GetOpData(opk.LinkOpID, &opk);
 			const  PPID op_id     = opk.ID;
-			const long opk_flags = opk.Flags;
+			const  long opk_flags = opk.Flags;
 			PPID   acc_sheet_id = opk.AccSheetID;
 			PPID   article_id = 0;
 			if(!acc_sheet_id && opk.LinkOpID) {

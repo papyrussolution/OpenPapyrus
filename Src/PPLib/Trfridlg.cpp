@@ -1209,19 +1209,18 @@ int TrfrItemDialog::selectGoodsByBarCode()
 int TrfrItemDialog::setupGoodsListByPrice()
 {
 	int    ok = 1;
-	double tmp = getCtrlReal(CTL_LOT_PRICE);
-	if(getCtrlView(CTLSEL_LOT_GOODS) && tmp && Item.Price != tmp) {
-		Item.Price = tmp;
-		ListWindow * p_lw  = 0;
-		StrAssocArray * p_list = 0;
-		THROW(p_list = GObj.CreateListByPrice(P_Pack->Rec.LocID, Item.Price));
-		p_lw = CreateListWindow(p_list, lbtDisposeData|lbtDblClkNotify|lbtFocNotify);
+	double _price = getCtrlReal(CTL_LOT_PRICE);
+	if(getCtrlView(CTLSEL_LOT_GOODS) && _price != 0.0 && Item.Price != _price) {
+		Item.Price = _price;
+		StrAssocArray * p_list = GObj.CreateListByPrice(P_Pack->Rec.LocID, Item.Price);
+		ListWindow * p_lw = p_list ? CreateListWindow(p_list, lbtDisposeData|lbtDblClkNotify|lbtFocNotify) : 0;
+		THROW(p_list);
 		THROW_MEM(p_lw);
 		static_cast<ComboBox *>(getCtrlView(CTLSEL_LOT_GOODS))->setListWindow(p_lw);
 		messageToCtrl(CTLSEL_LOT_GOODS, cmCBActivate, 0);
 	}
 	else
-		Item.Price = tmp;
+		Item.Price = _price;
 	CATCHZOKPPERR
 	return ok;
 }

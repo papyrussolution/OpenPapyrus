@@ -1342,16 +1342,17 @@ int BillCore::GetCreditList(PPID id, PctChargeArray * pList)
 		pList->Add(rec.Dt, BR2(rec.Amount));
 		if(GetAmount(id, PPAMT_FIXPAYMENT, 0, &paym) > 0)
 			pList->Add(rec.Dt, -paym);
-		for(DateIter di; (r = EnumLinks(id, &di, BLNK_PAYMRETN | BLNK_CHARGEPAYM)) > 0;) {
+		for(DateIter di; (r = EnumLinks(id, &di, BLNK_PAYMRETN|BLNK_CHARGEPAYM)) > 0;) {
 			id_list.add(data.ID);
 			double p = -BR2(data.Amount);
 			if(CheckOpFlags(data.OpID, OPKF_CHARGENEGPAYM))
 				p = -p;
 			pList->Add(data.Dt, p);
 		}
-		for(PPID reckon_id = 0; EnumMembersOfPool(PPASS_PAYMBILLPOOL, id, &reckon_id) > 0;)
+		for(PPID reckon_id = 0; EnumMembersOfPool(PPASS_PAYMBILLPOOL, id, &reckon_id) > 0;) {
 			if(!id_list.lsearch(reckon_id) && Search(reckon_id, &rec) > 0)
 				pList->Add(rec.Dt, -BR2(rec.Amount));
+		}
 	}
 	return r ? 1 : 0;
 }
@@ -1631,20 +1632,20 @@ int BillCore::GetPoolOwnerList(PPID billID, PPID poolType, PPIDArray * pList)
 	return ok;
 }
 
-int BillCore::IsMemberOfPool(PPID billID, PPID poolType, PPID * pPoolOwnerID)
+bool BillCore::IsMemberOfPool(PPID billID, PPID poolType, PPID * pPoolOwnerID)
 {
-	int    yes = 0;
+	bool   yes = false;
 	PPID   owner_id = DEREFPTRORZ(pPoolOwnerID);
 	Reference * p_ref(PPRef);
 	if(owner_id) {
 		if(p_ref->AsscC.Search(poolType, owner_id, billID) > 0)
-			yes = 1;
+			yes = true;
 	}
 	else {
 		ObjAssocTbl::Rec assc_rec;
 		for(SEnum en = p_ref->AsscC.Enum(poolType, billID, 1); !yes && en.Next(&assc_rec) > 0;) {
 			owner_id = assc_rec.PrmrObjID;
-			yes = 1;
+			yes = true;
 		}
 	}
 	ASSIGN_PTR(pPoolOwnerID, owner_id);
@@ -1662,8 +1663,9 @@ int BillCore::UpdatePool(PPID billID, PPID pullType, PPID pullOwnerID, int use_t
 		const ObjAssocTbl::Rec org_assc_rec(assc_rec);
 		assc_id = assc_rec.ID;
 		memzero(assc_rec.Text, max_va_sz);
-		if(memcmp(&assc_rec, &org_assc_rec, sizeof(assc_rec)) != 0)
+		if(memcmp(&assc_rec, &org_assc_rec, sizeof(assc_rec)) != 0) {
 			THROW(p_ref->AsscC.Update(assc_id, &assc_rec, use_ta));
+		}
 	}
 	else {
 		assc_rec.Clear();

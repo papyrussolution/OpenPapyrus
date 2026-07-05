@@ -1175,8 +1175,12 @@ private:
 		if(event.isCmd(cmPassword)) {
  			char pwd[32];
 			memzero(pwd, sizeof(pwd));
-			if(PasswordDialog(0, pwd, sizeof(pwd), 3, 5) > 0)
+			PasswordDialogParam param;
+			param.MinLen = 3;
+			param.Flags |= PasswordDialogParam::fWithoutEncrypt;
+			if(PasswordDialog2(0, pwd, sizeof(pwd), param) > 0) {
 				Data.Password = pwd;
+			}
 		 	clearEvent(event);
 		}
 	}

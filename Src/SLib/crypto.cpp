@@ -379,9 +379,9 @@ static constexpr GUID VG[] = {
 					tag_pattern.Cat(rBlk.VB+vb_offs, r_cp.TagSize);
 				}
 			}
-			THROW(crypto.Decrypt(key, data.PtrC(), data.Len(), decrypted, &tag));
-			THROW(decrypted.IsEq(VG, decrypted.Len()));
-			THROW(tag == tag_pattern);
+			THROW_S(crypto.Decrypt(key, data.PtrC(), data.Len(), decrypted, &tag), SLERR_CRYPTO_INVCRYPTOKEY);
+			THROW_S(decrypted.IsEq(VG, decrypted.Len()), SLERR_CRYPTO_INVCRYPTOKEY);
+			THROW_S(tag == tag_pattern, SLERR_CRYPTO_INVCRYPTOKEY);
 			ok = 1;
 		}
 	}
