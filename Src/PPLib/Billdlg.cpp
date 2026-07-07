@@ -2615,24 +2615,6 @@ IMPL_HANDLE_EVENT(BillDialog)
 								}
 							}
 							break;
-						/* @v12.5.12 этот участок вообще не работает - функция перехватывается и реализуется на уровне ArticleCtrlGroup
-						case CTLSEL_BILL_OBJECT:
-						case CTL_BILL_OBJECT:
-							{
-								//SString code;
-								const  PPID reg_type_id = P_BObj->Cfg.ClCodeRegTypeID;
-								PPObjGoods::CodeInputBlock blk;
-								if(P_Pack->AccSheetID && reg_type_id > 0 && PPObjGoods::CodeInputDialog(blk) > 0) {
-									ArticleTbl::Rec ar_rec;
-									PPID   ar_id = 0;
-									if(ArObj.SearchByRegCode(P_Pack->AccSheetID, reg_type_id, blk.Code, &ar_id, &ar_rec) > 0) {
-										setCtrlLong(CTLSEL_BILL_OBJECT, ar_rec.ID);
-										ReplyCntragntSelection(0);
-									}
-								}
-							}
-							break;
-						*/
 						case CTL_BILL_PAYDATE:
 							if(PaymTerm >= 0) {
 								// @v12.1.12 getCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);

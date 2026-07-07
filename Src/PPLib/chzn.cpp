@@ -3598,101 +3598,107 @@ int _ParseMarkInfoJsonResult(const SJson * pJs, PPChZnPrcssr::CodeInfoCollection
 		for(const SJson * p_js_item = pJs->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
 			if(SJson::IsObject(p_js_item)) {
 				for(const SJson * p_cur = p_js_item->P_Child; p_cur; p_cur = p_cur->P_Next) {
-					if(p_cur->Text.IsEqiAscii("cisInfo")) {
+					if(p_cur->Text.IsEqiAscii("errorMessage")) {
+						(rResult.ErrMessage = p_cur->P_Child->Text).Unescape();
+					}
+					else if(p_cur->Text.IsEqiAscii("errorCode")) {
+						rResult.ErrCode = p_cur->P_Child->Text.ToLong();
+					}
+					else if(p_cur->Text.IsEqiAscii("cisInfo")) {
 						if(SJson::IsObject(p_cur->P_Child)) {
 							p_new_entry = new PPChZnPrcssr::CodeInfo();
 							THROW_SL(p_new_entry);
 							for(const SJson * p_si = p_cur->P_Child->P_Child; p_si; p_si = p_si->P_Next) {
 								if(p_si->Text.IsEqiAscii("requestedCis")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 									rResult.AddS(temp_buf, &p_new_entry->ReqCisP);
 								}
 								else if(p_si->Text.IsEqiAscii("cis")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 									rResult.AddS(temp_buf, &p_new_entry->CisP);
 								}
 								else if(p_si->Text.IsEqiAscii("gtin")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 								}
 								else if(p_si->Text.IsEqiAscii("tnVedEaes")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 								}
 								else if(p_si->Text.IsEqiAscii("tnVedEaesGroup")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 								}
 								else if(p_si->Text.IsEqiAscii("productName")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 									rResult.AddS(temp_buf, &p_new_entry->ProductNameP);
 								}
 								else if(p_si->Text.IsEqiAscii("productGroupId")) {
-									uint   grp_id = p_si->Text.ToULong();
+									uint   grp_id = p_si->P_Child->Text.ToULong();
 								}
 								else if(p_si->Text.IsEqiAscii("brand")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 									rResult.AddS(temp_buf, &p_new_entry->BrandNameP);
 								}
 								else if(p_si->Text.IsEqiAscii("productGroup")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 								}
 								else if(p_si->Text.IsEqiAscii("packageType")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 								}
 								else if(p_si->Text.IsEqiAscii("generalPackageType")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 								}
 								else if(p_si->Text.IsEqiAscii("ownerInn")) {
-									p_new_entry->UedOwnerINN = UED::SetRaw_Ru_INN(p_si->Text, true);
+									p_new_entry->UedOwnerINN = UED::SetRaw_Ru_INN(p_si->P_Child->Text, true);
 								}
 								else if(p_si->Text.IsEqiAscii("ownerName")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 									rResult.AddS(temp_buf, &p_new_entry->OwnerNameP);
 								}
 								else if(p_si->Text.IsEqiAscii("manufacturerInn")) {
-									p_new_entry->UedManufINN = UED::SetRaw_Ru_INN(p_si->Text, true);
+									p_new_entry->UedManufINN = UED::SetRaw_Ru_INN(p_si->P_Child->Text, true);
 								}
 								else if(p_si->Text.IsEqiAscii("manufacturerName")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 									rResult.AddS(temp_buf, &p_new_entry->ManufNameP);
 								}
 								else if(p_si->Text.IsEqiAscii("producerInn")) {
-									p_new_entry->UedProducerINN = UED::SetRaw_Ru_INN(p_si->Text, true);
+									p_new_entry->UedProducerINN = UED::SetRaw_Ru_INN(p_si->P_Child->Text, true);
 								}
 								else if(p_si->Text.IsEqiAscii("producerName")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 									rResult.AddS(temp_buf, &p_new_entry->ProducerNameP);
 								}
 								else if(p_si->Text.IsEqiAscii("status")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 								}
 								else if(p_si->Text.IsEqiAscii("statusEx")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 								}
 								else if(p_si->Text.IsEqiAscii("applicationDate")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 									SUniTime_Internal ut;
 									if(strtodatetime(temp_buf, ut, DATF_ISO8601CENT, 0))
 										p_new_entry->UedAppTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
 								}
 								else if(p_si->Text.IsEqiAscii("introducedDate")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 									SUniTime_Internal ut;
 									if(strtodatetime(temp_buf, ut, DATF_ISO8601CENT, 0))
 										p_new_entry->UedIntroduceTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
 								}
 								else if(p_si->Text.IsEqiAscii("producedDate")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 									SUniTime_Internal ut;
 									if(strtodatetime(temp_buf, ut, DATF_ISO8601CENT, 0))
 										p_new_entry->UedProductTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
 								}
 								else if(p_si->Text.IsEqiAscii("expirationDate")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 									SUniTime_Internal ut;
 									if(strtodatetime(temp_buf, ut, DATF_ISO8601CENT, 0))
 										p_new_entry->UedExpiryTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
 								}
 								else if(p_si->Text.IsEqiAscii("emissionDate")) {
-									(temp_buf = p_si->Text).Unescape();
+									(temp_buf = p_si->P_Child->Text).Unescape();
 									SUniTime_Internal ut;
 									if(strtodatetime(temp_buf, ut, DATF_ISO8601CENT, 0))
 										p_new_entry->UedEmissionTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
@@ -4420,7 +4426,7 @@ int PPChZnPrcssr::InteractiveQuery()
 							if(P_EcRefC) {
 								PPLotExtCodeContainer::MarkSet set_from_db;	
 								for(uint ssp = 0; ss_box.get(&ssp, temp_buf);) {
-									if(P_EcRefC->GetAggregation(temp_buf, set_from_db, true) > 0) {
+									if(P_EcRefC->GetAggregation(temp_buf, true, set_from_db) > 0) {
 										temp_buf.Space().Cat("found in db");
 										Log(temp_buf);
 									}
@@ -5026,7 +5032,7 @@ int PPChZnPrcssr::CodeInfo::Serialize(int dir, SBuffer & rBuf, SSerializeContext
 	return ok;
 }
 
-PPChZnPrcssr::CodeInfoCollection::CodeInfoCollection()
+PPChZnPrcssr::CodeInfoCollection::CodeInfoCollection() : ErrCode(0)
 {
 }
 

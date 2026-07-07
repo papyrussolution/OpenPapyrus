@@ -4392,6 +4392,11 @@ bool FASTCALL PPSecretSegmentPool::IsEq(const PPSecretSegmentPool & rS) const
 	return TSCollection_IsEq(this, &rS);
 }
 
+bool PPSecretSegmentPool::PutText(const char * pText, uint * pTextP)
+{
+	return LOGIC(Sg.AddS(pText, pTextP));
+}
+
 bool PPSecretSegmentPool::GetText(uint textP, SString & rBuf) const
 {
 	return Sg.GetS(textP, rBuf);
@@ -4495,6 +4500,19 @@ PPSecretSegment * PPSecretSegmentPool::CreateNewSegment(uint * pPos)
 	uint   pos = 0;
 	PPSecretSegment * p_result = new PPSecretSegment(&Sg);
 	if(p_result) {
+		uint   max_id = 0;
+		for(uint i = 0; i < getCount(); i++) {
+			const  PPSecretSegment * p_item = at(i);
+			if(p_item) {
+				SETMAX(max_id, p_item->InternalID);
+			}
+		}
+		p_result->InternalID = (max_id > 0) ? (max_id+1) : 1;
+		{
+			SUniTime_Internal ut;
+			ut.SetCurrent();
+			p_result->UedEnterTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
+		}
 		if(insert(p_result)) {
 			assert(getCount());
 			pos = getCount() - 1;
@@ -4504,6 +4522,42 @@ PPSecretSegment * PPSecretSegmentPool::CreateNewSegment(uint * pPos)
 		}
 	}
 	ASSIGN_PTR(pPos, pos);
+	return p_result;
+}
+
+PPSecretSegment * PPSecretSegmentPool::SearchSegmentByID(uint id, uint * pPos)
+{
+	PPSecretSegment * p_result = 0;
+	uint   pos = 0;
+	if(id) {
+		for(uint i = 0; !p_result && i < getCount(); i++) {
+			PPSecretSegment * p_item = at(i);
+			if(p_item && p_item->InternalID == id) {
+				p_result = p_item;
+				pos = i;
+			}
+		}
+	}
+	ASSIGN_PTR(pPos, pos);
+	return p_result;
+}
+
+PPSecretSegment * PPSecretSegmentPool::SearchSegmentByName(const char * pKey, uint * pPos)
+{
+	PPSecretSegment * p_result = 0;
+	uint   pos = 0;
+	if(!isempty(pKey)) {
+		SString temp_buf;
+		for(uint i = 0; !p_result && i < getCount(); i++) {
+			PPSecretSegment * p_item = at(i);
+			if(p_item && GetText(p_item->NameP, temp_buf)) {
+				if(temp_buf.IsEqiUtf8(pKey)) {
+					p_result = p_item;
+					pos = i;
+				}
+			}
+		}
+	}
 	return p_result;
 }
 
@@ -4589,7 +4643,7 @@ int PPSecretSegmentPool::SaveStorage(const char * pFileName)
 	return ok;
 }
 
-int PPSecretSegmentPool::PutSegmentIntoPool(const PPSecretSegment * pSeg) // @construction
+int PPSecretSegmentPool::PutSegmentIntoPool(const PPSecretSegment * pSeg)
 {
 	int    ok = -1;
 	SJson * p_js = 0;
@@ -4756,8 +4810,89 @@ public:
 		if(!SetupStrListBox(P_Box))
 			PPError();
 		updateList(-1);
+		{
+			SetupStringCombo(this, CTLSEL_SECRETPOOL_TYPE, PPTXT_SECSEGTYPES, 0);
+		}
 	}
 private:
+	bool   MakeNewSegName(SString & rBuf) const
+	{
+		long   _counter = 1;
+		SString name_template("New secret");
+		rBuf.Z().Cat(name_template);
+		while(R_SecPool.SearchSegmentByName(rBuf, 0)) {
+			rBuf.Z().Cat(name_template).Space().CatChar('#').CatLongZ(++_counter, 3);
+		}
+		return true;
+	}
+	virtual int  addItem(long * pPos, long * pID)
+	{
+		int    ok = 0;
+		uint   new_seg_pos = 0;
+		PPSecretSegment * p_new_seg = R_SecPool.CreateNewSegment(&new_seg_pos);
+		if(p_new_seg) {
+			SString name_buf;
+			MakeNewSegName(name_buf);
+			R_SecPool.PutText(name_buf, &p_new_seg->NameP);
+			p_new_seg->SecType = PPSecretSegment::sectypGeneric;
+			ASSIGN_PTR(pPos, static_cast<long>(new_seg_pos));
+			ASSIGN_PTR(pID, static_cast<long>(p_new_seg->InternalID));
+			ok = 1;
+		}
+		return ok;
+	}
+	virtual int  editItem(long pos, long id)
+	{
+		int    ok = -1;
+		return ok;
+	}
+	virtual int  delItem(long pos, long id)
+	{
+		int    ok = -1;
+		if(pos >= 0 && pos < R_SecPool.getCount()) {
+			// @todo Надо не забыть упаковать пул строк иначе все старые секреты останутся в хранилище, а это - плохо.
+			R_SecPool.atFree(pos);
+			ok = 1;
+		}
+		return ok;
+	}
+	void    ClearInputBlock()
+	{
+	}
+	void    SetupSelectedSegment(uint segIdx/*[0..]*/)
+	{
+		SString temp_buf;
+		if(segIdx < R_SecPool.getCount()) {
+			const  PPSecretSegment * p_item = R_SecPool.at(segIdx);
+			if(p_item) {
+				R_SecPool.GetText(p_item->NameP, temp_buf);
+				setCtrlString(CTL_SECRETPOOL_NAME, temp_buf);
+				setCtrlLong(CTL_SECRETPOOL_ID, p_item->InternalID);
+				setCtrlLong(CTLSEL_SECRETPOOL_TYPE, p_item->SecType);
+				{
+					SUniTime_Internal ut;
+					UED::_GetRaw_Time(p_item->UedEnterTm, ut);
+					//datetimefmt()
+				}
+				// input CTL_SECRETPOOL_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[128];
+				// input CTL_SECRETPOOL_ID [width: 60 height: 21 margin: 4 tabstop readonly fmtf: (nozero) label: "@id"] uint64;
+				// combobox CTLSEL_SECRETPOOL_TYPE [width: bycontainer height: 21 margin: 4 tabstop label: "@type" cblinesymb: CTL_SECRETPOOL_TYPE];
+				// combobox CTLSEL_SECRETPOOL_PARENT [width: bycontainer height: 21 margin: 4 tabstop label: "Parent" cblinesymb: CTL_SECRETPOOL_PARENT];
+				// input CTL_SECRETPOOL_CRTM [width: 80 height: 21 margin: 4 tabstop readonly label: "Creation Time"] string[64];
+				// input CTL_SECRETPOOL_EXPIRY [width: 80 height: 21 margin: 4 tabstop label: "Expiry"] date;
+				// input CTL_SECRETPOOL_TOPEN [width: bycontainer height: 21 margin: 4 tabstop label: "Open Text"] string[128];
+				// input CTL_SECRETPOOL_THIDDEN [width: bycontainer height: 21 margin: 4 tabstop label: "Hidden Text"] string[128];
+				// input CTL_SECRETPOOL_TEXPIRY [growfactor: 1 height: 21 margin: 4 tabstop label: "Expiry Text"] string[128];
+				// input CTL_SECRETPOOL_TEXT1 [growfactor: 1 height: 21 margin: 4 tabstop label: "Ext 1"] string[128];
+				// input CTL_SECRETPOOL_TEXT2 [growfactor: 1 height: 21 margin: 4 tabstop label: "Ext 2"] string[128];
+				// input CTL_SECRETPOOL_TEXT3 [growfactor: 1 height: 21 margin: 4 tabstop label: "Ext 3"] string[128];
+				// input CTL_SECRETPOOL_DESCR [width: bycontainer growfactor: 1 margin: 4 tabstop multiline wantreturn label: "@memo"] string[252];
+			}
+		}
+	}
+	void    GetCurrentInput()
+	{
+	}
 	DECL_HANDLE_EVENT
 	{
 		SmartListBox * p_box = P_Box;
@@ -4766,13 +4901,22 @@ private:
 		TDialog::handleEvent(event);
 		if(TVCOMMAND) {
 			switch(TVCMD) {
+				case cmLBItemFocused:
+					if(event.isCtlEvent(CTL_SECRETPOOL_LIST)) {
+						long   pos = 0;
+						long   id;
+						if(getCurItem(&pos, &id)) {
+							if(pos >= 0 && pos < R_SecPool.getCountI()) {
+								SetupSelectedSegment(pos);
+							}
+						}
+					}
+					break;
 				case cmaInsert:
 					if(p_box) {
 						p = i = 0;
 						int    r = addItem(&p, &i);
-						if(r == 2)
-							updateListById(i);
-						else if(r > 0)
+						if(r > 0)
 							updateList(p);
 					}
 					break;

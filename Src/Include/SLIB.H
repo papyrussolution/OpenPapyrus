@@ -3228,6 +3228,7 @@ struct SUniDate_Internal { // @v11.9.2
 	bool   IsFullyNonZero() const { return (Y && M && D); }
 	SUniDate_Internal & Z();
 	bool   FASTCALL operator == (const SUniDate_Internal & rS) const { return (Y == rS.Y && M == rS.M && D == rS.D); }
+
 	int    Y; // @v11.9.2 uint-->int Год - signed int поскольку в некоторых системах представления даты отрицательное значение
 		// может отражать год до начала какой-то эпохи (B.C., например)
 	uint   M;
@@ -3292,6 +3293,9 @@ struct SUniTime_Internal : public SUniDate_Internal { // @internal
 	bool   FASTCALL GetTime(LTIME * Tm) const;
 	bool   FASTCALL GetDatetime(LDATETIME * pDtm) const;
 	bool   SetCurrent();
+	SString & DateToStr(long fmt, SString & rBuf) const;
+	SString & TimeToStr(long fmt, SString & rBuf) const;
+	SString & ToStr(long dtFmt, long tmFmt, SString & rBuf) const;
 
 	uint   Hr;
 	uint   Mn;
@@ -6052,6 +6056,7 @@ char * STDCALL  decfmt(const char * pBcdVal, int len, int prec, long fmt, char *
 char * STDCALL  datefmt(const void *, long fmt, char *);
 char * STDCALL  timefmt(LTIME, long fmt, char *);
 char * STDCALL  datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, size_t bufLen);
+char * STDCALL  datetimefmt(const SUniTime_Internal & rUt, long dtfmt, long tmfmt, char * pBuf, size_t bufLen); // @v12.6.10
 char * FASTCALL periodfmt(const DateRange & rPeriod, char *);
 // @v12.3.7 (replaced with DateRange::ToStr) int    STDCALL  periodfmtex(const DateRange & rPeriod, char *, size_t bufLen);
 //
@@ -8971,7 +8976,7 @@ struct LAssoc : public LAssocBase {
 	LAssoc(int32 key, int32 val);
 	LAssoc(const LAssoc & rS);
 	bool   FASTCALL operator == (const LAssoc &) const;
-	bool   FASTCALL operator != (const LAssoc &) const; // @v11.3.2
+	bool   FASTCALL operator != (const LAssoc &) const;
 	void   Set(int32 key, int32 val);
 };
 

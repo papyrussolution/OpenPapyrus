@@ -2940,6 +2940,84 @@ static void FASTCALL __TimeToTimeFields(uint64 time100ns, SUniTime_Internal * pT
 }
 #endif // } 0
 
+SString & SUniTime_Internal::DateToStr(long fmt, SString & rBuf) const // @v12.6.10
+{
+	char   buf[128];
+	buf[0] = 0;
+	uint   flag = SFMTFLAG(fmt);
+	//_decodedate(&d, &m, &y, binDate, BinDateFmt);
+	if(fmt & COMF_SQL)
+		flag = DATF_SQL;
+	else if((flag & 0xf) == 0)
+		flag |= TxtDateFmt;
+	_commfmt(fmt, _datefmt(D, M, Y, flag, buf));
+	rBuf = buf;
+	return rBuf;
+}
+
+SString & SUniTime_Internal::TimeToStr(long fmt, SString & rBuf) const // @v12.6.10
+{
+	char   buf[128];
+	buf[0] = 0;
+	char   fs[64];
+	if((!Hr && !Mn && !Sc && !MSc) && (fmt & TIMF_BLANK)) {
+		buf[0] = 0;
+	}
+	else if(fmt & COMF_SQL) {
+		sprintf(buf, "TIMESTAMP '%04d-%02d-%02d %02d:%02d:%02d.%03d'", 2000, 1, 1, Hr, Mn, Sc, MSc);
+	}
+	else {
+		const bool _no_div = LOGIC(fmt & TIMF_NODIV);
+		if(_no_div)
+			strcpy(fs, "%02d%02d%02d");
+		else if(fmt & TIMF_DOTDIV)
+			strcpy(fs, "%02d.%02d.%02d");
+		else
+			strcpy(fs, "%02d:%02d:%02d");
+		switch(fmt & 7) {
+			case 2: // TIMF_HM
+				fs[_no_div ? 8 : 9] = 0;
+				sprintf(buf, fs, Hr, Mn);
+				break;
+			case 3: // TIMF_MS
+				fs[_no_div ? 8 : 9] = 0;
+				sprintf(buf, fs, Mn, Sc);
+				break;
+			case 4: // TIMF_S
+				fs[4] = 0;
+				sprintf(buf, fs, Sc);
+				break;
+			default: // include 1
+				sprintf(buf, fs, Hr, Mn, Sc);
+				break;
+		}
+		if(fmt & TIMF_MSEC) {
+			if(_no_div) { // @v12.6.6
+				sprintf(buf + sstrlen(buf), "%03d", MSc);
+			}
+			else
+				sprintf(buf + sstrlen(buf), ".%03d", MSc);
+		}
+		if(fmt & TIMF_TIMEZONE) {
+			int    tz = gettimezone();
+			char * p = buf + sstrlen(buf);
+			*p++ = ' ';
+			*p++ = ((tz < 0) ? '+' : '-');
+			tz = abs(tz);
+			sprintf(p, "%02d%02d", tz / 60, tz % 60);
+		}
+	}
+	_commfmt(fmt, buf);
+	rBuf = buf;
+	return rBuf;
+}
+
+SString & SUniTime_Internal::ToStr(long dtFmt, long tmFmt, SString & rBuf) const // @v12.6.10 @construction
+{
+	// @todo
+	return rBuf;
+}
+
 bool SUniTime_Internal::SetCurrent()
 {
 	bool   ok = false;

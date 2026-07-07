@@ -1602,13 +1602,13 @@ int PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 					// @v12.6.9 double qtty = 0.0;
 					// @v12.6.9 const  int r = GObj.SelectGoodsByBarcode(init_char, Filt.ArID, &goods_rec, &qtty, 0);
 					// @v12.6.9 {
-					PPObjGoods::GoodsByCodeSelectionBlock blk(init_char);
+					GoodsCodeSrchBlock blk(init_char);
 					blk.ArID = Filt.ArID;
 					const  int r = GObj.SelectGoodsByBarcode2(blk);
 					// } @v12.6.9 
 					if(r > 0) {
-						if(!pBrw->search2(&blk.GoodsRec.ID, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/)) {
-							if(AddItem(&blk.GoodsRec.ID) > 0)
+						if(!pBrw->search2(&blk.Rec.ID, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/)) {
+							if(AddItem(&blk.Rec.ID) > 0)
 								ok = 1;
 						}
 					}

@@ -6376,7 +6376,7 @@ dialog DLG_SRCHBCODE [vertical title: "@searchbybarcode" size: (425, 105) minsiz
 	}
 }
 
-dialog DLG_SECRETPOOL [horizontal title: "Secret Pool" size: (700, 600) minsize: (600, 600) padding: 4 ] { // @construction
+dialog DLG_SECRETPOOL [horizontal title: "Secret Pool" size: (700, 600) minsize: (600, 600) padding: 4] { // @construction
 	view [vertical growfactor: 1 height: bycontainer] {
 		view [horizontal width: bycontainer height: 30] {
 			button STDCTL_EDITBUTTON [/*title: "@but_edit"*/defaultitem size: (30, 21) margin: 4 command: cmaEdit];
@@ -6388,7 +6388,7 @@ dialog DLG_SECRETPOOL [horizontal title: "Secret Pool" size: (700, 600) minsize:
 	view [vertical growfactor: 3 height: bycontainer] {
 		view [horizontal width: bycontainer height: 45] {
 			input CTL_SECRETPOOL_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[128];
-			input CTL_SECRETPOOL_ID [width: 60 height: 21 margin: 4 tabstop readonly fmtf: (nozero) label: "@id"] uint64;
+			input CTL_SECRETPOOL_ID [width: 60 height: 21 margin: 4 tabstop readonly fmtf: (nozero) label: "@id"] uint32;
 		}
 		combobox CTLSEL_SECRETPOOL_TYPE [width: bycontainer height: 21 margin: 4 tabstop label: "@type" cblinesymb: CTL_SECRETPOOL_TYPE];
 		combobox CTLSEL_SECRETPOOL_PARENT [width: bycontainer height: 21 margin: 4 tabstop label: "Parent" cblinesymb: CTL_SECRETPOOL_PARENT];
@@ -6409,5 +6409,16 @@ dialog DLG_SECRETPOOL [horizontal title: "Secret Pool" size: (700, 600) minsize:
 			}
 		}
 		input CTL_SECRETPOOL_DESCR [width: bycontainer growfactor: 1 margin: 4 tabstop multiline wantreturn label: "@memo"] string[252];
+	}
+}
+
+dialog DLG_G2OA [vertical title: "@{association} @{ware}-%s" size: (500, 260) minsize: (500, 260) padding: 4 justifycontent: spacebetween] {
+	combobox CTLSEL_G2OA_ASSOC [width: bycontainer height: 21 margin: 4 tabstop label: "Association" cblinesymb: CTL_G2OA_ASSOC];
+	combobox CTLSEL_G2OA_GOODSGRP [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsgroup" cblinesymb: CTL_G2OA_GOODSGRP];
+	combobox CTLSEL_G2OA_GOODS [width: bycontainer height: 21 margin: 4 tabstop label: "@ware" cblinesymb: CTL_G2OA_GOODS];
+	combobox CTLSEL_G2OA_OBJ [width: bycontainer height: 21 margin: 4 tabstop label: "@warehouse" cblinesymb: CTL_G2OA_OBJ];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }

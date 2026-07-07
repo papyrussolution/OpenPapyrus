@@ -547,21 +547,24 @@ PPID ExtGoodsSelDialog::getSelectedItem()
 
 void ExtGoodsSelDialog::searchBarcode()
 {
-	Goods2Tbl::Rec rec;
-	SString bcode;
-	int    r = GObj.SelectGoodsByBarcode(0, ArID, &rec, 0, &bcode);
+	//Goods2Tbl::Rec rec;
+	//SString bcode;
+	GoodsCodeSrchBlock blk;
+	blk.ArID = ArID;
+	//int    r = GObj.SelectGoodsByBarcode(0, ArID, &rec, 0, &bcode);
+	int    r = GObj.SelectGoodsByBarcode2(blk);
 	if(r > 0) {
-		if(OpID && !GObj.CheckMatrix(rec.ID, NZOR(LocID, LConfig.Location), OpID, ArID))
+		if(OpID && !GObj.CheckMatrix(blk.Rec.ID, NZOR(LocID, LConfig.Location), OpID, ArID))
 			PPError();
 		else
-			selectGoods(rec.ParentID, rec.ID);
+			selectGoods(blk.Rec.ParentID, blk.Rec.ID);
 	}
 	else if(r == -2 && PPMessage(mfConf|mfYesNo, PPCFM_ADDNEWGOODS) == cmYes) {
 		PPID   id = 0;
 		PPID   grp_id = getCtrlLong(CTLSEL_EXTGSEL_GGRP);
-		r = GObj.Edit(&id, gpkndGoods, grp_id, 0, bcode);
+		r = GObj.Edit(&id, gpkndGoods, grp_id, 0, blk.RetCode_);
 		if(r == cmOK) {
-			grp_id = (GObj.Fetch(id, &rec) > 0) ? rec.ParentID : 0;
+			grp_id = (GObj.Fetch(id, &blk.Rec) > 0) ? blk.Rec.ParentID : 0;
 			selectGoods(grp_id, id);
 		}
 		else if(!r)

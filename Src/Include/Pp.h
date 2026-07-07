@@ -1291,7 +1291,7 @@ public:
 	//
 	// Descr: типы секретов
 	//
-	enum { // @persistent
+	enum { // @persistent PPTXT_SECSEGTYPES
 		sectypUndef      = 0,
 		sectypFolder     = 1, // Вообще не секрет никакой - папка для других сегментов
 		sectypGeneric    = 2, // Обобщенный секрет. pair {open-string; hidden-string}
@@ -1339,12 +1339,15 @@ public:
 	//   Компонент P_Vault никака не участвует в сравнении.
 	//
 	bool   FASTCALL IsEq(const PPSecretSegmentPool & rS) const;
+	bool   PutText(const char * pText, uint * pTextP);
 	bool   GetText(uint textP, SString & rBuf) const;
 	//
 	// Descr: Функция аналогична по назначению TSCollection::CreateNewItem, но отличается тем, что новый элемент
 	//   создается со ссылкой на SStrGroup Sg, приндалежащей this.
 	//
 	PPSecretSegment * CreateNewSegment(uint * pPos);
+	PPSecretSegment * SearchSegmentByID(uint id, uint * pPos);
+	PPSecretSegment * SearchSegmentByName(const char * pKey, uint * pPos);
 	//
 	// Returns:
 	//   >0 - путь pFileName определяет имя существующего хранилища секретов
@@ -30994,63 +30997,44 @@ struct PPSupplDeal {
 	double DnDev;      // Нижнее отклонение (%)
 	int    IsDisabled; // Блокированная комбинация (ввод строки в документ невозможен) //
 };
-
-/*
-	struct CodeInputBlock { // @v12.6.9 @construction
-		explicit CodeInputBlock(int initChar = 0) : InitChar(initChar)
-		{
-		}
-		int    InitChar; // IN
-		SString Code;    // OUT
-		SNaturalTokenArray SNTokList; // OUT Список натуральных токенов, которым соответствует введенный код
-	};
-	struct GoodsByCodeSelectionBlock : public CodeInputBlock {
-		explicit GoodsByCodeSelectionBlock(int initChar = 0) : CodeInputBlock(initChar), Flags(0), ArID(0), LocID(0), Qtty(0.0), LotID(0)
-		{
-		}
-		uint   Flags; // IN
-		PPID   ArID;  // IN
-		PPID   LocID; // IN/OUT
-		Goods2Tbl::Rec GoodsRec; // OUT
-		double Qtty;  // OUT
-		PPID   LotID; // OUT
-	};
-*/ 
-
 //
 // Descr: Структура, используемая для поиска товара по коду функцией PPObjGoods::SearchByCodeExt()
 //
 struct GoodsCodeSrchBlock {
-	GoodsCodeSrchBlock();
+	explicit GoodsCodeSrchBlock(int initChar = 0);
 	~GoodsCodeSrchBlock();
 
 	enum {
-		fAdoptSearch = 0x0001, // IN
-		fWeightCode  = 0x0002, // OUT Весовой код
-		fArCode      = 0x0004, // OUT Артикул
-		fOwnArCode   = 0x0008, // OUT Собственный артикул
-		fGoodsId     = 0x0010, // OUT ИД товара
-		fList        = 0x0020, // OUT Список штрихкодов по шаблону
-		fUse2dTempl  = 0x0040, // IN  Искать по шаблону 2-мерного штрихкода
-		fBc2d        = 0x0080, // OUT Товар найден по шаблону 2d-кода
-		fChZnCode    = 0x0100, // OUT Товар найден по коду "честный знак"
-		fMarkedCode  = 0x0200  // OUT Идентифицированный код имеет признак "маркируемый" (BARCODE_TYPE_MARKED)
+		fAdoptSearch     = 0x0001, // IN
+		fWeightCode      = 0x0002, // OUT Весовой код
+		fArCode          = 0x0004, // OUT Артикул
+		fOwnArCode       = 0x0008, // OUT Собственный артикул
+		fGoodsId         = 0x0010, // OUT ИД товара
+		fList            = 0x0020, // OUT Список штрихкодов по шаблону
+		fUse2dTempl      = 0x0040, // IN  Искать по шаблону 2-мерного штрихкода
+		fBc2d            = 0x0080, // OUT Товар найден по шаблону 2d-кода
+		fChZnCode        = 0x0100, // OUT Товар найден по коду "честный знак"
+		fMarkedCode      = 0x0200, // OUT Идентифицированный код имеет признак "маркируемый" (BARCODE_TYPE_MARKED)
+		fSearchMarkCodes = 0x0400, // @v12.6.10 IN Если искомый код является кодом маркировки, то искать соответствующие лоты
 	};
-	//char   Code[256];      // IN CONST
+	int    InitChar;       // IN @v12.6.9
 	SString Code_;         // IN CONST
-	char   RetCode[32];    // OUT
-	char   ChZnCode[32];   // OUT
-	char   ChZnGtin[32];   // OUT
-	char   ChZnSerial[32]; // OUT
+	SString RetCode_;      // OUT
+	//char   ChZnCode_[32];   // OUT
+	//char   ChZnGtin[32];   // OUT
+	char   ChZnSerial_[32]; // OUT
 	uint   ChZnSNTokID;    // OUT @v12.6.5 Натуральный токен, сопоставленный марке чзн (если Code - таковая)
 	double ChZnPrice;      // OUT @v12.5.9 Цена, указанная в марке chzn
 	PPID   ArID;           // IN CONST
+	PPID   LocID;          // IN CONST @v12.6.9
 	long   Flags;          // IN/OUT
 	PPID   GoodsID;        // OUT
+	PPID   LotID;          // OUT @v12.6.9
 	PPID   ScaleID;        // OUT
 	double Qtty;           // OUT
 	BarcodeArray * P_List; // OUT
 	Goods2Tbl::Rec Rec;    // OUT
+	GtinStruc GtS;         // OUT @v12.6.10
 };
 //
 // Флаги реализации функции PPObjGoods::CheckForFilt
@@ -31128,7 +31112,7 @@ public:
 		enum {
 			fUseSpcFormEgais = 0x0002, // В качестве диалога объединения применять специальную форму,
 				// позволяющую фильтровать товары по критериям ЕГАИС.
-			fOnce    = 0x0004, // После завершения объединения одной пары товаров возвращать
+			fOnce            = 0x0004, // После завершения объединения одной пары товаров возвращать
 				// управление вызывающей функции (в противном случае будет предложено повторить процедуру для иной пары товаров).
 			fAllToOne        = 0x0008  // Все товары списка DestList объединяются на ResultID
 		};
@@ -31282,30 +31266,9 @@ public:
 	//    0 - error
 	//
 	int    SelectGoodsInPlaceOfRemoved(PPID rmvdGoodsID, PPID extGoodsID, PPID * pReplaceGoodsID);
-
-	struct CodeInputBlock { // @v12.6.9 @construction
-		explicit CodeInputBlock(int initChar = 0) : InitChar(initChar)
-		{
-		}
-		int    InitChar; // IN
-		SString Code;    // OUT
-		SNaturalTokenArray SNTokList; // OUT Список натуральных токенов, которым соответствует введенный код
-	};
-	struct GoodsByCodeSelectionBlock : public CodeInputBlock {
-		explicit GoodsByCodeSelectionBlock(int initChar = 0) : CodeInputBlock(initChar), Flags(0), ArID(0), LocID(0), Qtty(0.0), LotID(0)
-		{
-		}
-		uint   Flags; // IN
-		PPID   ArID;  // IN
-		PPID   LocID; // IN/OUT
-		Goods2Tbl::Rec GoodsRec; // OUT
-		double Qtty;  // OUT
-		PPID   LotID; // OUT
-	};
-
-	static int CodeInputDialog(CodeInputBlock & rBlk);
-	int    SelectGoodsByBarcode2(GoodsByCodeSelectionBlock & rBlk);
-	int    SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Rec *, double *, SString * pRetCode);
+	static int CodeInputDialog(GoodsCodeSrchBlock & rBlk);
+	int    SelectGoodsByBarcode2(GoodsCodeSrchBlock & rBlk);
+	// @v12.6.10 int    SelectGoodsByBarcode(int initChar, PPID arID, Goods2Tbl::Rec *, double *, SString * pRetCode);
 	int    GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2Tbl::Rec * pRec, double * pQtty, SString * pRetCode);
 	int    GetParentID(PPID, PPID * pParentID);
 	int    SearchByName(const char * pName, PPID * pID, Goods2Tbl::Rec * pRec = 0);
@@ -32043,6 +32006,7 @@ public:
 	GoodsToObjAssoc(PPID asscTyp, PPID objType, int dupAllowing = 0);
 	operator const LAssocArray & () const;
 	bool   IsValid() const;
+	PPID   GetAssocType() const { return AsscType; }
 	uint   GetCount() const;
 	const  LAssoc & FASTCALL at(uint pos) const;
 	//
@@ -58026,6 +57990,9 @@ public:
 		bool   SearchCode(const char * pPattern, uint * pIdx) const;
 		int    MoveEntryTo(uint entryIdx/*[0..]*/, CodeInfoCollection & rDest) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		
+		int    ErrCode;     // @transient 
+		SString ErrMessage; // @transient utf8
 	};
 	//
 	// Descr: Интерфейс с ТС-ПИОТ (не спрашивайте: пидоры в кремле не успокоятся пока не загонят нас всех под землю)
@@ -58183,9 +58150,9 @@ public:
 	ExtCodeRefCore();
 	int    PutAggregation(const char * pCode, PPLotExtCodeContainer::MarkSet & rSet, int use_ta);
 	int    PutAggregation2(const PPLotExtCodeContainer::MarkSet & rSet, int use_ta);
-	int    GetAggregation(const char * pCode, PPLotExtCodeContainer::MarkSet & rSet, bool recursive);
-	int    PutInfo(const PPChZnPrcssr::CodeInfoCollection & rSet, int use_ta); // @v12.6.9
-	int    GetInfo(const char * pCode, PPChZnPrcssr::CodeInfoCollection & rResult); // @v12.6.9
+	int    GetAggregation(const char * pCode, bool recursive, PPLotExtCodeContainer::MarkSet & rSet);
+	int    PutInfo(PPChZnPrcssr::CodeInfoCollection & rSet, int use_ta); // @v12.6.9
+	int    GetInfo(const char * pCode, bool recursive, PPChZnPrcssr::CodeInfoCollection & rResult); // @v12.6.9
 };
 //
 // Панель чеков

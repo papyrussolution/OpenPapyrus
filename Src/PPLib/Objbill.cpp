@@ -1444,7 +1444,7 @@ static int _EditCcByBillParam(PPBillPacket::ConvertToCCheckParam & rParam)
 				ok = PPErrorByDialog(this, CTL_CCBYBILL_POSNODE, PPERR_CASHNODENEEDED);
 			}
 			else {
-				GetClusterData(CTL_CCBYBILL_FLAGS, &Data.Flags_); // @v11.1.5
+				GetClusterData(CTL_CCBYBILL_FLAGS, &Data.Flags_);
 				Data.PaymType = GetClusterData(CTL_CCBYBILL_PAYMTYPE);
 				Data.DivisionN = getCtrlLong(CTL_CCBYBILL_DIVISION);
 				if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) { 

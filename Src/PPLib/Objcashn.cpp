@@ -143,19 +143,11 @@ int PPGenCashNode::DrvVerFromStr(const char * pS)
 		SNaturalTokenArray nta;
 		tr.Run(temp_buf.Strip(), nta, 0);
 		if(nta.Has(SNTOK_SOFTWAREVER) > 0.0f) {
-			// @v11.9.12 {
 			SVerT ver;
 			if(ver.FromStr(temp_buf) > 0) {
 				DrvVerMajor = ver.GetMajor();
 				DrvVerMinor = ver.GetMinor();				
 			}
-			// } @v11.9.12
-			/* @v11.9.12
-			SString major, minor;
-			temp_buf.Divide('.', major, minor);
-			DrvVerMajor = static_cast<int16>(major.ToLong());
-			DrvVerMinor = static_cast<int16>(minor.ToLong());
-			*/
 		}
 		else {
 			ok = PPSetError(PPERR_INVVERSIONTEXT, pS);

@@ -2419,6 +2419,8 @@ PPERR_TSPIOT_CALLFAULT              "Ошибка вызова функции т
 PPERR_TSPIOT_CHECKFAULT             "Ошибка проверки марки тс пиот: %s" // codesResponse: {code; description}
 PPERR_GSITEMGOODSUNRESOLVED         "Не удалось разрешить товар (%s) в элементе структуры"
 PPERR_SYNCPOSNODEREGPORTUNDEF       "У синхронного кассового узла '%s' не определен порт кассового регистратора"
+PPERR_ETRNEXP_FREIGHTNEEDED         "Для экспорта документа '%s' в формате nalog.ru etrn необходимы параметры фрахта"
+PPERR_ETRNEXP_TRANSPORTNEEDED       "Для экспорта документа '%s' в формате nalog.ru etrn в параметрах фрахта необходим транспорт"
 
 // LastError
 
@@ -5232,6 +5234,8 @@ PPTXT_USERAGENT_DEFAULT                "Mozilla/5.0 (Windows NT 10.0; Win64; x64
 PPTXT_CHZNPMSVRADDRHASBEENRESET        "Адрес сервера разрешительного режима чзн был успешно сброшен"
 PPTXT_CHZNPMSVRADDRRESET_NOTDONE       "Адрес сервера разрешительного режима чзн либо не задан"
 PPTXT_CHZN_LOG_DEBUGAUTH_SUCCESS       "Тестовая авторизация на сервере @{brand_chzn} прошла успешно" // @v12.6.7
+//PPSecretSegment::sectypXXX
+PPTXT_SECSEGTYPES                      "1,Папка;2,Общий;3,Пароль;4,Секрет авторизации;5,Открытый регистр;6,Банковская карта;7,SSH;8,Электронная подпись" // @v12.6.10
 //
 // LastText
 
@@ -19047,8 +19051,26 @@ PPHSC_RU_TRANSPORTINFO_TYPE    "Тип"
 PPHSC_RU_TRANSPORTINFO_MODEL   "Марка"
 PPHSC_RU_TRANSPORTINFO_LCAPAS  "Грузопод"
 PPHSC_RU_TRANSPORTINFO_VCAPAS  "Вместим"
-
 PPHSC_RU_LOADINGINFO           "СвПогруз"   // @v12.6.9
+//"ЗаявПогр"
+//"НалКоорТочВрЗаяв"
+//"ФДатВрПриб"
+//"НалКоорТочВрФПогр"
+//"ФДатВрУбыт"
+//"НалКоорТочВрФУбыт"
+//"ФСостТар"
+//"ФСостУп"
+//"ФСостКуз"
+//"МасБрутОтгр"
+//"МетОпрМасс"
+//"КолМестПрием"
+// "ФАдресПогр"
+// "СвЛицПогрГр"
+// "ВладИнфр"
+// "ОснДостОбИнфрДок"
+// "ОснДостОбИнфрТекст"
+// "ИнфПол"
+
 PPHSC_RU_PAYLOADINFO           "СвГруз"     // @v12.6.9 
 PPHSC_RU_PAYLOAD_DESCR         "ОпГруз"     // @v12.6.9 
 PPHSC_RU_PAYLOAD_APPEL         "НаимГруз"   // @v12.6.9 

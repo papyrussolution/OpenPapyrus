@@ -2944,21 +2944,14 @@ void AssignDescriptorsImpl(const DescriptorTable* table, bool eager) {
 	}
 
 	// Fill the arrays with pointers to descriptors and reflection classes.
-	const FileDescriptor* file =
-	    DescriptorPool::internal_generated_pool()->FindFileByName(
-		table->filename);
+	const FileDescriptor* file = DescriptorPool::internal_generated_pool()->FindFileByName(table->filename);
 	GOOGLE_CHECK(file != nullptr);
-
 	MessageFactory* factory = MessageFactory::generated_factory();
-
-	AssignDescriptorsHelper helper(
-		factory, table->file_level_metadata, table->file_level_enum_descriptors,
+	AssignDescriptorsHelper helper(factory, table->file_level_metadata, table->file_level_enum_descriptors,
 		table->schemas, table->default_instances, table->offsets);
-
 	for(int i = 0; i < file->message_type_count(); i++) {
 		helper.AssignMessageDescriptor(file->message_type(i));
 	}
-
 	for(int i = 0; i < file->enum_type_count(); i++) {
 		helper.AssignEnumDescriptor(file->enum_type(i));
 	}
@@ -2967,14 +2960,13 @@ void AssignDescriptorsImpl(const DescriptorTable* table, bool eager) {
 			table->file_level_service_descriptors[i] = file->service(i);
 		}
 	}
-	MetadataOwner::Instance()->AddArray(table->file_level_metadata,
-	    helper.GetCurrentMetadataPtr());
+	MetadataOwner::Instance()->AddArray(table->file_level_metadata, helper.GetCurrentMetadataPtr());
 }
 
-void AddDescriptorsImpl(const DescriptorTable* table) {
+void AddDescriptorsImpl(const DescriptorTable* table) 
+{
 	// Reflection refers to the default fields so make sure they are initialized.
 	internal::InitProtobufDefaults();
-
 	// Ensure all dependent descriptors are registered to the generated descriptor
 	// pool and message factory.
 	int num_deps = table->num_deps;

@@ -1,5 +1,5 @@
 // LOCTRANSF.CPP
-// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2020, 2021, 2024, 2025
+// Copyright (c) A.Sobolev 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2020, 2021, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -240,8 +240,9 @@ int LocTransfCore::GetTransByBill(PPID billID, int16 rByBill, TSVector <LocTrans
 	MEMSZERO(k3);
 	k3.BillID  = billID;
 	k3.RByBillLT = rByBill;
-	for(q.initIteration(false, &k3, spEq); q.nextIteration() > 0;)
+	for(q.initIteration(false, &k3, spEq); q.nextIteration() > 0;) {
 		pList->insert(&data);
+	}
 	return 1;
 }
 
@@ -437,14 +438,6 @@ int LocTransfCore::PrepareRec(PPID locID, const LocTransfOpBlock * pBlk, LocTran
 	if(pBlk)
 		pRec->Flags |= (pBlk->Flags & (LOCTRF_OWNEDBYBILL|LOCTRF_ORDER));
 	// } @v12.4.2 
-	/* @v7.2.6 Ошибочный участок кода: RByBill должен соответствовать значению RByBill из BillTbl
-	if(billID) {
-		int16  rbybill = 0;
-		pRec->BillID = billID;
-		THROW(GetLastOpByBill(billID, &rbybill, 0));
-		pRec->RByBill = rbybill+1;
-	}
-	*/
 	pRec->UserID = LConfig.UserID;
 	CATCHZOK
 	return ok;
@@ -833,11 +826,10 @@ int LocTransfCore::GetDisposition(PPID billID, int rByBill, TSVector <LocTransfT
 	LocTransfTbl::Key3 k3;
 	k3.BillID = billID;
 	k3.RByBillLT = rByBill;
-	if(search(3, &k3, spEq))
-		do {
-			THROW_SL(rDispositionList.insert(&data));
-			ok = 1;
-		} while(search(3, &k3, spNext) && data.BillID == billID && data.RByBillLT == rByBill);
+	if(search(3, &k3, spEq)) do {
+		THROW_SL(rDispositionList.insert(&data));
+		ok = 1;
+	} while(search(3, &k3, spNext) && data.BillID == billID && data.RByBillLT == rByBill);
 	THROW(BTROKORNFOUND);
 	CATCHZOK
 	return ok;
@@ -849,11 +841,10 @@ int LocTransfCore::GetDisposition(PPID billID, TSVector <LocTransfTbl::Rec> & rD
 	LocTransfTbl::Key3 k3;
 	k3.BillID = billID;
 	k3.RByBillLT = 0;
-	if(search(3, &k3, spGe) && data.BillID == billID)
-		do {
-			THROW_SL(rDispositionList.insert(&data));
-			ok = 1;
-		} while(search(3, &k3, spNext) && data.BillID == billID);
+	if(search(3, &k3, spGe) && data.BillID == billID) do {
+		THROW_SL(rDispositionList.insert(&data));
+		ok = 1;
+	} while(search(3, &k3, spNext) && data.BillID == billID);
 	THROW(BTROKORNFOUND);
 	CATCHZOK
 	return ok;

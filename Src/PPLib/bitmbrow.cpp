@@ -4043,31 +4043,31 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 		const  int  init_chr = (TVKEY == kbF3) ? 0 : c;
 		const  long cfg_flags = LConfig.Flags;
 		//double qtty = 0.0;
-		PPObjGoods::GoodsByCodeSelectionBlock blk(init_chr);
+		GoodsCodeSrchBlock blk(init_chr);
 		blk.ArID = R_Pack.Rec.Object;
-		blk.LocID = blk.GoodsRec.ID;
+		blk.LocID = R_Pack.Rec.LocID;
 		//if(GObj.SelectGoodsByBarcode(init_chr, R_Pack.Rec.Object, &grec, &qtty, &code) > 0) {
 		if(GObj.SelectGoodsByBarcode2(blk) > 0) {
 			uint   pos = 0;
-			if(!(P_BObj->Cfg.Flags & BCF_DONTWARNDUPGOODS) && R_Pack.SearchGoods(blk.GoodsRec.ID, &pos) && !CONFIRM(PPCFM_SAMEGOODSINPACK))
+			if(!(P_BObj->Cfg.Flags & BCF_DONTWARNDUPGOODS) && R_Pack.SearchGoods(blk.Rec.ID, &pos) && !CONFIRM(PPCFM_SAMEGOODSINPACK))
 				go(pos);
 			else {
 				const  PPID op_type_id = GetOpType(R_Pack.Rec.OpID);
 				const  bool skip_dlg = ((P_BObj->GetConfig().Flags & BCF_ADDAUTOQTTYBYBRCODE) && oneof2(op_type_id, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
 				TIDlgInitData tidi;
 				SETFLAG(tidi.Flags, TIDIF_AUTOQTTY, skip_dlg);
-				tidi.GoodsID  = blk.GoodsRec.ID;
+				tidi.GoodsID  = blk.Rec.ID;
 				tidi.Quantity = (tidi.Flags & TIDIF_AUTOQTTY) ? 1.0 : ((cfg_flags & CFGFLG_USEPACKAGE) ? 0.0 : blk.Qtty);
 				addItem_(0, &tidi, 0);
 			}
 		}
-		else if(P_BObj->SelectPckgByCode(blk.Code, R_Pack.Rec.LocID, &pckg_id) > 0) {
+		else if(P_BObj->SelectPckgByCode(blk.Code_, blk.LocID, &pckg_id) > 0) {
 			if(P_BObj->AddPckgToBillPacket(pckg_id, &R_Pack))
 				update(pos_bottom);
 			else
 				PPError();
 		}
-		else if(P_BObj->SelectLotBySerial(blk.Code, 0, R_Pack.Rec.LocID, &lot_rec) > 0) {
+		else if(P_BObj->SelectLotBySerial(blk.Code_, 0, blk.LocID, &lot_rec) > 0) {
 			TIDlgInitData tidi;
 			tidi.GoodsID  = labs(lot_rec.GoodsID);
 			tidi.LotID    = lot_rec.ID;

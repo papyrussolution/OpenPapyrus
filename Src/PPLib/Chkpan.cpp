@@ -5171,7 +5171,7 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 						PPID   lot_id = 0;
 						ReceiptTbl::Rec lot_rec;
 						PPIDArray  lot_list;
-						if(p_bobj->SearchLotsBySerialExactly(code, &lot_list) > 0) { // @v11.4.2 SearchLotsBySerial-->SearchLotsBySerialExactly
+						if(p_bobj->SearchLotsBySerialExactly(code, &lot_list) > 0) {
 							if(PNP.CnFlags & CASHF_DISABLEZEROAGENT && !P.GetAgentID()) {
 								r = 1000;
 								MessageError(PPERR_CHKPAN_SALERNEEDED, 0, eomBeep|eomStatusLine);
@@ -5204,8 +5204,8 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 						if(gcsb.Flags & (gcsb.fMarkedCode|gcsb.fChZnCode))
 							pgsb.Flags |= PgsBlock::fMarkedBarcode;
 						if(gcsb.Flags & gcsb.fChZnCode) {
-							if(!isempty(gcsb.ChZnSerial))
-								pgsb.ChZnSerial = gcsb.ChZnSerial;
+							if(!isempty(gcsb.ChZnSerial_))
+								pgsb.ChZnSerial = gcsb.ChZnSerial_;
 							pgsb.ChZnMark = gcsb.Code_;
 							pgsb.ChZnSNTokID = gcsb.ChZnSNTokID; // @v12.6.5
 						}
@@ -9428,14 +9428,12 @@ void CheckPaneDialog::SetupRetCheck(bool ret)
 											STRNSCPY(r_cur_item.EgaisMark, temp_buf);
 											chk_pack.GetLineTextExt(1, CCheckPacket::lnextSerial, temp_buf);
 											STRNSCPY(r_cur_item.Serial, temp_buf);
-											// @v11.3.6 {
 											chk_pack.GetLineTextExt(1, CCheckPacket::lnextChZnSerial, temp_buf);
 											STRNSCPY(r_cur_item.ChZnSerial, temp_buf);
 											chk_pack.GetLineTextExt(1, CCheckPacket::lnextChZnGtin, temp_buf);
 											STRNSCPY(r_cur_item.ChZnGtin, temp_buf);
 											chk_pack.GetLineTextExt(1, CCheckPacket::lnextChZnMark, temp_buf);
 											STRNSCPY(r_cur_item.ChZnMark, temp_buf);
-											// } @v11.3.6 
 											P.CurCcItemPos = P.getCount();
 											SetupRowData(true/*doCalcRest*/);
 											SetupState(sLISTSEL_BUF);

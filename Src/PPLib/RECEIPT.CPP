@@ -1378,76 +1378,115 @@ ExtCodeRefCore::ExtCodeRefCore() : ExtCodeRefTbl()
 {
 }
 
-int ExtCodeRefCore::PutInfo(const PPChZnPrcssr::CodeInfoCollection & rSet, int use_ta) // @v12.6.9
+int ExtCodeRefCore::PutInfo(PPChZnPrcssr::CodeInfoCollection & rSet, int use_ta) // @v12.6.9
 {
 	int    ok = 1;
-#if 0 // {
+	const  bool do_remove = false;
 	if(!rSet.getCount()) {
 		ok = -1;
 	}
-	else {
-		//const  bool do_remove = (rSet.GetCount() == 0);
-		SBuffer cbuf;
-		ExtCodeRefTbl::Rec rec;
-		ExtCodeRefTbl::Key0 k0;
-		{
-			PPTransaction tra(use_ta);
-			THROW(tra);
-			for(uint i = 0; i < rSet.getCount(); i++) {
-				MEMSZERO(k0);
-				STRNSCPY(k0.Code, pCode);
-				k0.Kind = kCodeInfo;
-				if(!do_remove) {
-					SBuffer _sbuf;
-					SSerializeContext sctx;
-					THROW(rSet.Serialize(+1, _sbuf, &sctx));
-					THROW_SL(_sbuf.CompressOptional(256, cbuf));
-				}
+	if(!rSet.getCount() == 1) {
+		const  PPChZnPrcssr::CodeInfo * p_item = rSet.at(0);
+		if(p_item) {
+			SBuffer cbuf;
+			ExtCodeRefTbl::Rec rec;
+			ExtCodeRefTbl::Key0 k0;
+			SString code;
+			rSet.GetS(p_item->ReqCisP, code);
+			if(code.NotEmpty()) {
+				PPTransaction tra(use_ta);
+				THROW(tra);
 				{
-					if(search(0, &k0, spEq)) {
-						THROW(rereadForUpdate(0, &k0));
-						if(do_remove) {
-							THROW_DB(deleteRec());
-						}
-						else {
-							STRNSCPY(rec.Code, pCode);
-							rec.Kind = kAggregation;
-							CopyBufFrom(&rec, sizeof(rec));
-							const  size_t cbuf_len = cbuf.GetAvailableSize(); 
-							if(cbuf_len) {
-								THROW(writeLobData(this->VT, cbuf.constptr(), cbuf_len));
-							}
-							THROW_DB(updateRec());
-						}
+					MEMSZERO(k0);
+					STRNSCPY(k0.Code, code);
+					k0.Kind = kCodeInfo;
+					if(!do_remove) {
+						SBuffer _sbuf;
+						SSerializeContext sctx;
+						THROW(rSet.Serialize(+1, _sbuf, &sctx));
+						THROW_SL(_sbuf.CompressOptional(256, cbuf));
 					}
-					else {
-						if(do_remove) {
-							ok = -1;
+					{
+						if(search(0, &k0, spEq)) {
+							THROW(rereadForUpdate(0, &k0));
+							if(do_remove) {
+								THROW_DB(deleteRec());
+							}
+							else {
+								STRNSCPY(rec.Code, code);
+								rec.Kind = kCodeInfo;
+								CopyBufFrom(&rec, sizeof(rec));
+								const  size_t cbuf_len = cbuf.GetAvailableSize(); 
+								if(cbuf_len) {
+									THROW(writeLobData(this->VT, cbuf.constptr(), cbuf_len));
+								}
+								THROW_DB(updateRec());
+							}
 						}
 						else {
-							STRNSCPY(rec.Code, pCode);
-							rec.Kind = kAggregation;
-							CopyBufFrom(&rec, sizeof(rec));
-							const  size_t cbuf_len = cbuf.GetAvailableSize(); 
-							if(cbuf_len) {
-								THROW(writeLobData(this->VT, cbuf.constptr(), cbuf_len));
+							if(do_remove) {
+								ok = -1;
 							}
-							THROW(insertRec());
+							else {
+								STRNSCPY(rec.Code, code);
+								rec.Kind = kCodeInfo;
+								CopyBufFrom(&rec, sizeof(rec));
+								const  size_t cbuf_len = cbuf.GetAvailableSize(); 
+								if(cbuf_len) {
+									THROW(writeLobData(this->VT, cbuf.constptr(), cbuf_len));
+								}
+								THROW(insertRec());
+							}
 						}
 					}
 				}
+				THROW(tra.Commit());
 			}
-			THROW(tra.Commit());
+		}		
+	}
+	else {
+		assert(rSet.getCount() > 1);
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		for(uint i = 0; i < rSet.getCount(); i++) {
+			PPChZnPrcssr::CodeInfoCollection single_set;
+			THROW(rSet.MoveEntryTo(i, single_set));
+			THROW(PutInfo(single_set, 0)); // @recursion
 		}
+		THROW(tra.Commit());
 	}
 	CATCHZOK
-#endif
 	return ok;
 }
 
-int ExtCodeRefCore::GetInfo(const char * pCode, PPChZnPrcssr::CodeInfoCollection & rResult) // @v12.6.9
+int ExtCodeRefCore::GetInfo(const char * pCode, bool recursive, PPChZnPrcssr::CodeInfoCollection & rResult) // @v12.6.9
 {
+	rResult.freeAll();
 	int    ok = -1;
+	ExtCodeRefTbl::Key0 k0;
+	MEMSZERO(k0);
+	STRNSCPY(k0.Code, pCode);
+	k0.Kind = kCodeInfo;
+	if(search(0, &k0, spEq)) {
+		SBuffer temp_sbuf;
+		readLobData(this->VT, temp_sbuf);
+		{
+			SBuffer _sbuf;
+			THROW_SL(temp_sbuf.DecompressOptional(_sbuf));
+			{
+				SSerializeContext sctx;
+				THROW(rResult.Serialize(-1, _sbuf, &sctx));
+			}
+			if(recursive) {
+				//for(uint )
+			}
+		}
+		ok = 1;
+	}
+	else {
+		THROW_DB(BTROKORNFOUND);
+	}
+	CATCHZOK
 	return ok;
 }
 
@@ -1534,7 +1573,7 @@ int ExtCodeRefCore::PutAggregation2(const PPLotExtCodeContainer::MarkSet & rSet,
 	return ok;
 }
 
-int ExtCodeRefCore::GetAggregation(const char * pCode, PPLotExtCodeContainer::MarkSet & rSet, bool recursive)
+int ExtCodeRefCore::GetAggregation(const char * pCode, bool recursive, PPLotExtCodeContainer::MarkSet & rSet)
 {
 	rSet.Z();
 	int    ok = -1;

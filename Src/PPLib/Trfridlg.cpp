@@ -1194,10 +1194,13 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 int TrfrItemDialog::selectGoodsByBarCode()
 {
 	int    ok = -1;
-	Goods2Tbl::Rec rec;
-	if(GObj.SelectGoodsByBarcode(0, P_Pack->Rec.Object, &rec, 0, 0) > 0) {
-		GoodsGrpID = rec.ParentID;
-		Item.SetupGoods(rec.ID, TISG_SETPWOTF);
+	//Goods2Tbl::Rec rec;
+	GoodsCodeSrchBlock blk;
+	blk.ArID = P_Pack->Rec.Object;
+	//if(GObj.SelectGoodsByBarcode(0, P_Pack->Rec.Object, &rec, 0, 0) > 0) {
+	if(GObj.SelectGoodsByBarcode2(blk) > 0) {
+		GoodsGrpID = blk.Rec.ParentID;
+		Item.SetupGoods(blk.Rec.ID, TISG_SETPWOTF);
 		setCtrlData(CTLSEL_LOT_GOODSGRP, &GoodsGrpID);
 		setupGoodsList();
 		replyGoodsSelection();

@@ -2662,30 +2662,33 @@ void GoodsCtrlGroup::handleEvent(TDialog * dlg, TEvent & event)
 		SetupCtrls(dlg);
 		if(isComboCurrent(dlg, dlg->getCtrlView(CtlGrp)) || isComboCurrent(dlg, dlg->getCtrlView(CtlGoods))) {
 			PPObjGoods gobj;
-			Goods2Tbl::Rec rec;
-			if(gobj.SelectGoodsByBarcode(0, ArID, &rec, 0, 0) > 0) {
-				if(rec.Kind == PPGDSK_GOODS) {
+			//Goods2Tbl::Rec rec;
+			GoodsCodeSrchBlock blk;
+			blk.ArID = ArID;
+			//if(gobj.SelectGoodsByBarcode(0, ArID, &rec, 0, 0) > 0) {
+			if(gobj.SelectGoodsByBarcode2(blk) > 0) {
+				if(blk.Rec.Kind == PPGDSK_GOODS) {
 					{
 						ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(CtlselGrp));
 						if(p_combo) {
 							TView::messageCommand(p_combo->getListWindow(), cmLBLoadDef);
-							dlg->setCtrlLong(CtlselGrp, rec.ParentID);
+							dlg->setCtrlLong(CtlselGrp, blk.Rec.ParentID);
 						}
 					}
 					long   fl = OLW_LOADDEFONOPEN;
 					if(Flags & enableInsertGoods)
 						fl |= OLW_CANINSERT;
-					SetupPPObjCombo(dlg, CtlselGoods, PPOBJ_GOODS, rec.ID, fl, reinterpret_cast<void *>(rec.ParentID));
+					SetupPPObjCombo(dlg, CtlselGoods, PPOBJ_GOODS, blk.Rec.ID, fl, reinterpret_cast<void *>(blk.Rec.ParentID));
 					TView::messageCommand(dlg, cmCBSelected, dlg->getCtrlView(CtlselGoods));
 				}
-				else if(rec.Kind == PPGDSK_GROUP) {
+				else if(blk.Rec.Kind == PPGDSK_GROUP) {
 					PPID prev_grp_id = dlg->getCtrlLong(CtlselGrp);
-					if(prev_grp_id != rec.ID) {
-						dlg->setCtrlLong(CtlselGrp, rec.ID);
+					if(prev_grp_id != blk.Rec.ID) {
+						dlg->setCtrlLong(CtlselGrp, blk.Rec.ID);
 						long   fl = OLW_LOADDEFONOPEN;
 						if(Flags & enableInsertGoods)
 							fl |= OLW_CANINSERT;
-						SetupPPObjCombo(dlg, CtlselGoods, PPOBJ_GOODS, 0, fl, reinterpret_cast<void *>(rec.ID));
+						SetupPPObjCombo(dlg, CtlselGoods, PPOBJ_GOODS, 0, fl, reinterpret_cast<void *>(blk.Rec.ID));
 						TView::messageCommand(dlg, cmCBSelected, dlg->getCtrlView(CtlselGoods));
 					}
 				}
@@ -3523,13 +3526,11 @@ public:
 			AddClusterAssoc(CTL_GDSFVOPT_OWNCODES, 1, GoodsFilt::fShowWoArCode);
 			SetClusterData(CTL_GDSFVOPT_OWNCODES, Data.Flags);
 		}
-		// @v11.5.9 {
 		{
 			StrAssocArray assc_list;
 			PPObjNamedObjAssoc::MakeGoodsToWarehouseAssocList(assc_list);
 			SetupStrAssocCombo(this, CTLSEL_GDSFVOPT_ASSOC, assc_list, Data.GoodsLocAssocID, 0);
 		}
-		// } @v11.5.9 
 		SetupCtrls();
 		return 1;
 	}
@@ -3541,7 +3542,7 @@ public:
 		else
 			Data.Flags &= ~GoodsFilt::fShowOwnArCode;
 		Data.CodeArID = (Data.Flags & GoodsFilt::fShowArCode) ? getCtrlLong(CTLSEL_GDSFVOPT_AR) : 0;
-		Data.GoodsLocAssocID = (Data.Flags2 & GoodsFilt::f2ShowWhPlace) ? getCtrlLong(CTLSEL_GDSFVOPT_ASSOC) : 0; // @v11.5.9
+		Data.GoodsLocAssocID = (Data.Flags2 & GoodsFilt::f2ShowWhPlace) ? getCtrlLong(CTLSEL_GDSFVOPT_ASSOC) : 0;
 		if(Data.Flags & GoodsFilt::fShowOwnArCode)
 			Data.CodeArID = 0;
 		ASSIGN_PTR(pData, Data);

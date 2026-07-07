@@ -9769,12 +9769,19 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 {
 	rResultFileName.Z();
 	int    ok  = 1;
+	PPObjBill * p_bobj(BillObj);
 	SString temp_buf;
+	SString bill_text;
 	const  SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
 	const  bool no_marks_because_notch = G.SsNotch.searchNcAscii("#nomarks", 0, 0); // @v12.5.10
+	PPFreight freight;
+	PPObjBill::MakeCodeString(&R_Bp.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, bill_text);
+	THROW_PP_S(R_Bp.GetFreight(&freight) > 0, PPERR_ETRNEXP_FREIGHTNEEDED, bill_text);
+	THROW_PP_S(freight.ShipID, PPERR_ETRNEXP_TRANSPORTNEEDED, bill_text);
 	{
 		PPObjPerson psn_obj;
 		PPPersonPacket psn_pack;
+		PPObjTransport tr_obj;
         {
 			DocNalogRu_Generator::File f(G, _Hi);
 			GetMainOrgName(temp_buf);
@@ -9783,7 +9790,7 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 			docinfo.Subj = temp_buf;
 			(docinfo.NameOfDoc2 = G.GetToken_Utf8(PPHSC_RU_NAMEOFDOC2_TRNT1)).Transf(CTRANSF_UTF8_TO_INNER); // @v12.4.11
 			PPObjBill::ExportParticipantIdentBlock epi_blk;
-			THROW(BillObj->MakeExportParticipantIdentBlock(R_Bp, epi_blk));
+			THROW(p_bobj->MakeExportParticipantIdentBlock(R_Bp, epi_blk));
 			DocNalogRu_Generator::Document d(G, docinfo);
 			{
 				SXml::WNode n(G.P_X, G.GetToken_Ansi(PPHSC_RU_TRANSACTIONCONTENT_TRNT1));
@@ -9961,6 +9968,64 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 				}
 				{
 					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO));
+					/*
+						PPHSC_RU_TRANSPORTINFO         "СвТС"       // @v12.6.9
+						PPHSC_RU_TRANSPORTINFO_TRANSP  "ТС"         // @v12.6.9
+						PPHSC_RU_TRANSPORTINFO_TRAILER "Прицеп"     // @v12.6.9
+						PPHSC_RU_TRANSPORTINFO_SPCCOND "СпецУслДвиж" // @v12.6.9
+						PPHSC_RU_TRANSPORTINFO_ADDNDM  "ИнфПол"     // @v12.6.9
+						PPHSC_RU_TRANSPORTINFO_VRCN    "НомСТС"     // Vehicle Registration Certificate Number
+						PPHSC_RU_TRANSPORTINFO_VIN     "НомерВИН"
+						PPHSC_RU_TRANSPORTINFO_REGN    "РегНомер"
+						PPHSC_RU_TRANSPORTINFO_OWNST   "ТипВлад"
+						PPHSC_RU_TRANSPORTINFO_VPARAMS "ПарТС"
+						PPHSC_RU_TRANSPORTINFO_OWNSR   "ОснАрЛиз"   // Реквизиты документа (документов), подтверждающего основание владения грузовым автомобилем (тягачом), а также прицепом (полуприцепом)
+						PPHSC_RU_TRANSPORTINFO_TYPE    "Тип"
+						PPHSC_RU_TRANSPORTINFO_MODEL   "Марка"
+						PPHSC_RU_TRANSPORTINFO_LCAPAS  "Грузопод"
+						PPHSC_RU_TRANSPORTINFO_VCAPAS  "Вместим"
+
+						<СвТС>
+						<ТС РегНомер="В777УС116" ТипВлад="1">
+						<ПарТС Тип="тягач с полуприцепом" Марка="Hyundai Xcient" Грузопод="40" Вместим="26"/>
+						</ТС>
+						</СвТС>
+					*/ 
+					PPTransportPacket tr_pack;
+					THROW_PP_S(tr_obj.Search(freight.ShipID, &tr_pack) > 0, PPERR_ETRNEXP_TRANSPORTNEEDED, bill_text);
+					{
+						SXml::WNode n3(G.P_X, G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_TRANSP));
+						n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_REGN), G.EncText(temp_buf = tr_pack.Rec.Code));
+						n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_OWNST), "1");
+						{
+							SXml::WNode n4(G.P_X, G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_VPARAMS));
+							{
+								if(!isempty(tr_pack.Rec.Descr))
+									temp_buf = tr_pack.Rec.Descr;
+								else
+									temp_buf = tr_pack.Rec.Name;
+								n4.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_TYPE), G.EncText(temp_buf));
+							}
+							{
+								temp_buf.Z();
+								if(tr_pack.Rec.TrModelID) {
+									GetObjectName(PPOBJ_TRANSPMODEL, tr_pack.Rec.TrModelID, temp_buf);
+								}
+								if(temp_buf.IsEmpty()) {
+									temp_buf = "UNKN";
+								}
+								n4.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_MODEL), G.EncText(temp_buf));
+							}
+							{
+								temp_buf.Z().Cat(tr_pack.Rec.Capacity > 0.0 ? (static_cast<double>(tr_pack.Rec.Capacity) / 1000.0) : 1.0);
+								n4.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_LCAPAS), G.EncText(temp_buf));
+							}
+							{
+								temp_buf.Z().Cat(tr_pack.Rec.VolumeCapacity > 0.0 ? (static_cast<double>(tr_pack.Rec.VolumeCapacity) / 1000.0) : 1.0);
+								n4.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_VCAPAS), G.EncText(temp_buf));
+							}
+						}
+					}
 				}
 				{
 					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_LOADINGINFO));

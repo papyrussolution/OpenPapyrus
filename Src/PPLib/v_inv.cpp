@@ -1388,36 +1388,41 @@ int PPViewInventory::SelectByBarcode(int initChar, PPViewBrowser * pBrw)
 	const  int  accel_mode = PPInventoryOpEx::Helper_GetAccelInputMode(CommonIoeFlags);
 	int    ok = -1;
 	int    r = 0;
-	SString code;
-	Goods2Tbl::Rec goods_rec;
+	//SString code;
+	//Goods2Tbl::Rec goods_rec;
 	ReceiptTbl::Rec lot_rec;
 	PPIDArray lot_list;
-	double qtty = 0.0;
+	//double qtty = 1.0;
+	GoodsCodeSrchBlock blk(initChar);
+	blk.LocID = loc_id;
+	blk.Qtty = 1.0;
 	const  PPID single_bill_id = Filt.GetSingleBillID();
 	if(accel_mode == PPInventoryOpEx::accsliCodeAndQtty) {
-		qtty = 1.0;
-		r = PPViewInventory::SelectGoodsByBarcode(initChar, 0, &goods_rec, &qtty, &code);
+		r = PPViewInventory::SelectGoodsByBarcode(initChar, 0, &blk.Rec, &blk.Qtty, &blk.Code_);
 	}
 	else {
-		qtty = 1.0;
-		r = GObj.SelectGoodsByBarcode(initChar, 0, &goods_rec, &qtty, &code);
+		//r = GObj.SelectGoodsByBarcode(initChar, 0, &goods_rec, &qtty, &code);
+		r = GObj.SelectGoodsByBarcode2(blk);
+	}
+	if(blk.Qtty <= 0.0) {
+		blk.Qtty = 1.0;
 	}
 	if(r > 0) {
-		if(single_bill_id && (accel_mode || InvTbl.SearchByGoods(single_bill_id, goods_rec.ID, 0) < 0)) {
+		if(single_bill_id && (accel_mode || InvTbl.SearchByGoods(single_bill_id, blk.Rec.ID, 0) < 0)) {
 			TIDlgInitData tidi;
-			tidi.GoodsID  = goods_rec.ID;
-			tidi.Quantity = accel_mode ? qtty : 0.0;
+			tidi.GoodsID  = blk.Rec.ID;
+			tidi.Quantity = accel_mode ? blk.Qtty : 0.0;
 			tidi.Flags    = 0;
 			SETFLAG(tidi.Flags, TIDIF_AUTOQTTY, accel_mode);
 			ok = AddItem(&tidi);
 		}
 		else if(pBrw) {
-			pBrw->search2(&goods_rec.ID, CMPF_LONG, srchFirst, INVDBQ_GOODSIDOFFS, nullptr/*pExtraData*/);
+			pBrw->search2(&blk.Rec.ID, CMPF_LONG, srchFirst, INVDBQ_GOODSIDOFFS, nullptr/*pExtraData*/);
 			ok = 1;
 		}
 	}
-	else if(P_BObj->SearchLotsBySerial(code, &lot_list) > 0) {
-		const uint c = lot_list.getCount();
+	else if(P_BObj->SearchLotsBySerial(blk.Code_, &lot_list) > 0) {
+		const  uint c = lot_list.getCount();
 		PPID   lot_id = 0;
 		if(c == 1) {
 			lot_id = lot_list.get(0);
@@ -1436,27 +1441,29 @@ int PPViewInventory::SelectByBarcode(int initChar, PPViewBrowser * pBrw)
 			}
 			lot_id = 0;
 			if(p_ary->getCount()) {
-				SelLotBrowser::Entry * p_sel = 0;
 				SelLotBrowser * p_brw = new SelLotBrowser(P_BObj, p_ary, 0, 0);
-				if(ExecView(p_brw) == cmOK && (p_sel = (SelLotBrowser::Entry *)p_brw->getCurItem()) != 0)
-					lot_id = p_sel->LotID;
+				if(ExecView(p_brw) == cmOK) {
+					const  SelLotBrowser::Entry * p_sel = static_cast<const SelLotBrowser::Entry *>(p_brw->getCurItem());
+					if(p_sel)
+						lot_id = p_sel->LotID;
+				}
 				delete p_brw;
 			}
 		}
 		if(lot_id && P_BObj->trfr->Rcpt.Search(lot_id, &lot_rec) > 0) {
-			if(single_bill_id && (accel_mode || InvTbl.SearchIdentical(single_bill_id, lot_rec.GoodsID, code, 0) < 0)) {
+			if(single_bill_id && (accel_mode || InvTbl.SearchIdentical(single_bill_id, lot_rec.GoodsID, blk.Code_, 0) < 0)) {
 				BillTbl::Rec bill_rec;
 				if(P_BObj->Fetch(single_bill_id, &bill_rec) > 0) {
 					TIDlgInitData tidi;
 					tidi.GoodsID  = lot_rec.GoodsID;
 					P_BObj->trfr->GetRest(lot_rec.ID, bill_rec.Dt, MAXLONG, &tidi.Quantity, 0);
 					tidi.Flags = 0;
-					STRNSCPY(tidi.Serial, code);
+					STRNSCPY(tidi.Serial, blk.Code_);
 					ok = AddItem(&tidi);
 				}
 			}
 			else {
-				pBrw->search2(&goods_rec.ID, CMPF_LONG, srchFirst, INVDBQ_GOODSIDOFFS, nullptr/*pExtraData*/);
+				pBrw->search2(&blk.Rec.ID, CMPF_LONG, srchFirst, INVDBQ_GOODSIDOFFS, nullptr/*pExtraData*/);
 				ok = 1;
 			}
 		}

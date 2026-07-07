@@ -754,7 +754,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 				{
 					char   code[128];
 					SBIIGoodsRec sbii_grec;
-					strnzcpy(code, (const char *)in_buf.constptr(), MIN(sizeof(code), in_buf.GetAvailableSize()));
+					strnzcpy(code, (const char *)in_buf.constptr(), smin(sizeof(code), in_buf.GetAvailableSize()));
 					if(FindGoods(0, code, &sbii_grec) > 0) {
 						THROW_SL(ret_buf.Write(&sbii_grec, sizeof(sbii_grec)));
 						//THROW(MakeParam(&sbii_grec, &p_param_buf, out_buf_size = sizeof(sbii_grec)));
@@ -765,7 +765,7 @@ int FASTCALL StyloBhtIIExchanger::ProcessSocketInput(TcpSocket & rSo)
 			case SBhtIICmdBuf::cmSearchGoodsByCode:
 				{
 					char   code[128];
-					strnzcpy(code, (const char *)in_buf.constptr(), MIN(sizeof(code), in_buf.GetAvailableSize()));
+					strnzcpy(code, (const char *)in_buf.constptr(), smin(sizeof(code), in_buf.GetAvailableSize()));
 					{
 						GoodsCodeSrchBlock srch_blk;
 						Goods2Tbl::Rec goods_rec;

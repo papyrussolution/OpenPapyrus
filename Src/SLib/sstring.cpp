@@ -3440,7 +3440,7 @@ SString & FASTCALL SString::Cat(LTIME tm)
 	return Cat(timefmt(tm, TIMF_HMS, temp_buf));
 }
 
-SString & SString::Cat(const LDATETIME & rDtm, long datFmt /*=DATF_DMY*/, long timFmt /*=TIMF_HMS*/)
+SString & SString::Cat(const LDATETIME & rDtm, long datFmt/*=DATF_DMY*/, long timFmt/*=TIMF_HMS*/)
 {
 	Cat(rDtm.d, datFmt);
 	if((datFmt & 0x000f) == DATF_ISO8601 && oneof2(timFmt, 0, TIMF_TIMEZONE)) {

@@ -3992,10 +3992,13 @@ int PPViewGoodsRest::ExportUhtt(int silent)
 				if(pHdr && pBrw) {
 					char   init_char = static_cast<const char *>(pHdr)[0];
 					if(isdec(init_char)) {
-						Goods2Tbl::Rec goods_rec;
-						double qtty = 0.0;
-						if(GObj.SelectGoodsByBarcode(init_char, Filt.SupplID, &goods_rec, &qtty, 0) > 0) {
-							if(pBrw->search2(&goods_rec.ID, CMPF_LONG, srchFirst, sizeof(long), nullptr/*pExtraData*/))
+						//Goods2Tbl::Rec goods_rec;
+						//double qtty = 0.0;
+						GoodsCodeSrchBlock blk(init_char);
+						blk.ArID = Filt.SupplID;
+						//if(GObj.SelectGoodsByBarcode(init_char, Filt.SupplID, &goods_rec, &qtty, 0) > 0) {
+						if(GObj.SelectGoodsByBarcode2(blk) > 0) {
+							if(pBrw->search2(&blk.Rec.ID, CMPF_LONG, srchFirst, sizeof(long), nullptr/*pExtraData*/))
 								ok = 1;
 						}
 					}

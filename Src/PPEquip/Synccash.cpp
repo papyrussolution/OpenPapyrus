@@ -917,8 +917,8 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPARTN, sl_param.ChZnPartN));
 							THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPRODTYPE, sl_param.ChZnProductType));
 							if(sl_param.PpChZnR.LineIdx > 0) {
-								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPPRESULT, sl_param.PpChZnR.CheckResult)); // @v11.1.11 Результат проверки марки честный знак на фазе препроцессинга
-								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPPSTATUS, sl_param.PpChZnR.Status)); // @v11.1.11 Статус, присвоенный марке честный знак на фазе препроцессинга
+								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPPRESULT, sl_param.PpChZnR.CheckResult)); // Результат проверки марки честный знак на фазе препроцессинга
+								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPPSTATUS, sl_param.PpChZnR.Status)); // Статус, присвоенный марке честный знак на фазе препроцессинга
 							}
 							if(ofdf.Sid.NotEmpty())
 								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSID, ofdf.Sid));

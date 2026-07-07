@@ -1372,7 +1372,7 @@ private:
 					if(cur_id) {
 						LocationFilt loc_filt;
 						loc_filt.LocType = LOCTYP_WAREPLACE;
-						loc_filt.Parent = cur_id; // @v12.6.7 @fix ParentID-->cur_id
+						loc_filt.Parent = ParentID; // @v12.6.7 @fix ParentID-->cur_id // @v12.6.10 (это была тяжелая ошибка!) cur_id-->ParentID
 						ViewGoodsToLocAssoc(cur_id, PPASS_GOODS2WAREPLACE, &loc_filt, goafModal|goafFreeExtraAsPtr);
 					}
 				}

@@ -1075,17 +1075,19 @@ void GoodsListDialog::selectGoods(PPID grp, PPID goodsID)
 
 void GoodsListDialog::searchBarcode()
 {
-	Goods2Tbl::Rec rec;
-	SString bcode;
-	int    r = GObj.SelectGoodsByBarcode(0, 0, &rec, 0, &bcode);
+	//Goods2Tbl::Rec rec;
+	//SString bcode;
+	GoodsCodeSrchBlock blk;
+	//int    r = GObj.SelectGoodsByBarcode(0, 0, &rec, 0, &bcode);
+	int    r = GObj.SelectGoodsByBarcode2(blk);
 	if(r > 0) {
-		selectGoods(rec.ParentID, rec.ID);
+		selectGoods(blk.Rec.ParentID, blk.Rec.ID);
 	}
 	else if(r == -2 && PPMessage(mfConf|mfYesNo, PPCFM_ADDNEWGOODS) == cmYes) {
 		PPID   id = 0;
 		Goods2Tbl::Rec goods_rec;
 		PPID   grp_id = getCtrlLong(CTLSEL_GDSLST_GGRP);
-		r = GObj.Edit(&id, gpkndGoods, grp_id, 0, bcode);
+		r = GObj.Edit(&id, gpkndGoods, grp_id, 0, blk.RetCode_);
 		if(r == cmOK && GObj.Search(id, &goods_rec) > 0) {
 			grp_id = goods_rec.ParentID;
 			selectGoods(grp_id, id);
@@ -4038,12 +4040,12 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 						// @v12.6.9 double qtty = 0.0;
 						// @v12.6.9 const  int r = GObj.SelectGoodsByBarcode(c, NZOR(Filt.CodeArID, Filt.SupplID), &goods_rec, &qtty, 0);
 						// @v12.6.9 {
-						PPObjGoods::GoodsByCodeSelectionBlock blk(c);
+						GoodsCodeSrchBlock blk(c);
 						blk.ArID = NZOR(Filt.CodeArID, Filt.SupplID);
 						const  int r = GObj.SelectGoodsByBarcode2(blk);
 						// } @v12.6.9 
 						if(r > 0) {
-							CALLPTRMEMB(pBrw, search2(&blk.GoodsRec.ID, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/));
+							CALLPTRMEMB(pBrw, search2(&blk.Rec.ID, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/));
 						}
 						else if(r != -1 && pBrw)
 							pBrw->bottom();
@@ -4125,7 +4127,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 						UpdateTempTable(0, pBrw);
 				}
 				break;
-			case PPVCMD_QUICKTAGEDIT: // @v11.2.8
+			case PPVCMD_QUICKTAGEDIT:
 				// В этой команде указатель pHdr занят под список идентификаторов тегов, соответствующих нажатой клавише
 				// В связи с этим текущий элемент таблицы придется получить явным вызовом pBrw->getCurItem()
 				//
@@ -4238,7 +4240,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 			case PPVCMD_ADDEDFIELDS:
 				ok = GObj.EditVad(id);
 				break;
-			case PPVCMD_EDITWHPLACE: // @v11.5.9
+			case PPVCMD_EDITWHPLACE:
 				if(id && Filt.Flags2 & GoodsFilt::f2ShowWhPlace && P_G2OAssoc) {
 					PPID   obj_type = 0;
 					LocationFilt * p_locf = 0;
@@ -4275,9 +4277,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 										PPSetError(PPERR_NAMEDOBJASSCNGOODS);
 								}
 								else {
-									SString msg_buf;
-									msg_buf.Cat(assoc_type);
-									PPSetError(PPERR_UNKGOODSTOOBJASSOC, msg_buf);
+									PPSetError(PPERR_UNKGOODSTOOBJASSOC, assoc_type);
 								}
 							}
 							break;
@@ -4287,9 +4287,11 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 						bool   is_new_item = true;
 						PPID   obj_id = 0;
 						int    r = P_G2OAssoc->Get(id, &obj_id);
+						LAssoc org_assc; // @v12.6.10
 						if(r == 1) {
 							assc.Key = id;
 							assc.Val = obj_id;
+							org_assc = assc; // @v12.6.10
 							is_new_item = false;
 						}
 						else if(r == 2) { // Существует унаследованная ассоциация //
@@ -4304,6 +4306,56 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 							if(PPObjNamedObjAssoc::EditGoodsToObjAssoc(assoc_type, obj_type, &assc, p_locf, p_extra_ptr, is_new_item) > 0) {
 								if(assc.Key == id && assc.Val) {
 									uint   pos = 0;
+									// @v12.6.10 {
+									Reference * p_ref(PPRef);
+									bool   local_fault = false;
+									PPID   new_id = 0;
+									if(is_new_item) {
+										ObjAssocTbl::Rec assc_rec;
+										assc_rec.AsscType = assoc_type;
+										assc_rec.PrmrObjID = assc.Key;
+										assc_rec.ScndObjID = assc.Val;
+										assc_rec.InnerNum = 1;
+										if(p_ref->AsscC.Add(&new_id, &assc_rec, 1)) {
+											P_G2OAssoc->Add(assc.Key, assc.Val, 0);
+											ok = 1;
+										}
+										else
+											local_fault = true;
+									}
+									else if(assc != org_assc) {
+										PPTransaction tra(1);
+										if(!!tra) {
+											if(p_ref->AsscC.Remove(assoc_type, org_assc.Key, org_assc.Val, 0)) {
+												P_G2OAssoc->Remove(org_assc.Key, org_assc.Val);
+												ObjAssocTbl::Rec assc_rec;
+												assc_rec.AsscType = assoc_type;
+												assc_rec.PrmrObjID = assc.Key;
+												assc_rec.ScndObjID = assc.Val;
+												assc_rec.InnerNum = 1;
+												if(p_ref->AsscC.Add(&new_id, &assc_rec, 0)) {
+													P_G2OAssoc->Add(assc.Key, assc.Val, 0);
+												}
+												else
+													local_fault = true;
+											}
+											else
+												local_fault = true;
+											if(!local_fault) {
+												if(tra.Commit()) {
+													ok = 1;
+												}
+												else {
+													local_fault = true;
+												}
+											}
+										}
+									}
+									if(local_fault) {
+										PPError();
+									}
+									// } @v12.6.10 
+									/* @v12.6.10 
 									if(P_G2OAssoc->SearchPair(assc.Key, assc.Val, &pos)) {
 										if(!P_G2OAssoc->UpdateByPos(pos, assc.Key, assc.Val) || !P_G2OAssoc->Save())
 											PPError();
@@ -4327,7 +4379,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 											else
 												ok = 1;
 										}
-									}
+									}*/
 								}
 							}
 						}
@@ -4367,7 +4419,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 										else {
 											ok = 1;
 										}
-									// @v12.3.4 }
+									// } @v12.3.4
 								}
 							}
 							delete dlg;
@@ -4437,12 +4489,6 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				if(ok > 0)
 					UpdateTempTable(0, pBrw);
 				break;
-			/* @v11.2.9 (processed in PPView::ProcessCommand) case PPVCMD_SYSJ:
-				if(id) {
-					ViewSysJournal(PPOBJ_GOODS, id, 0);
-					ok = -1;
-				}
-				break;*/
 			case PPVCMD_SORT:
 				ok = ChangeOrder(pBrw);
 				break;

@@ -87,7 +87,7 @@ int GoodsToObjAssoc::UpdateByPos(uint pos, PPID goodsID, PPID objID)
 {
 	int    ok = 0;
 	if(pos < List.getCount()) {
-		LAssoc temp_item = List.at(pos);
+		const  LAssoc temp_item(List.at(pos));
 		List.atFree(pos);
 		{
 			if(List.SearchPair(goodsID, objID, 0))
@@ -412,18 +412,35 @@ int PPViewGoodsToObjAssoc::EditGoodsToObjAssoc(LAssoc * pData, PPID objType, voi
 int PPViewGoodsToObjAssoc::AddItem(PPViewBrowser * pBrw)
 {
 	int    ok = -1;
+	Reference * p_ref(PPRef);
 	LAssoc assc;
+	assc.Val = Filt.Oid.Id; // @v12.6.10
 	while(EditGoodsToObjAssoc(&assc, Filt.Oid.Obj, Filt.ExtraPtr, true) > 0) {
 		uint   pos = 0;
-		if(!P_Assoc->Add(assc.Key, assc.Val, &pos) || !P_Assoc->Save())
-			PPError();
-		else {
-			if(pBrw) {
-				UpdateOnEdit(pBrw);
-				pBrw->Update();
+		bool   local_fault = false;
+		PPID   new_id = 0;
+		{
+			ObjAssocTbl::Rec assc_rec;
+			assc_rec.AsscType = P_Assoc->GetAssocType();
+			assc_rec.PrmrObjID = assc.Key;
+			assc_rec.ScndObjID = assc.Val;
+			assc_rec.InnerNum = 1;
+			if(p_ref->AsscC.Add(&new_id, &assc_rec, 1)) {
+				if(P_Assoc->Add(assc.Key, assc.Val, &pos)) {
+					if(pBrw) {
+						UpdateOnEdit(pBrw);
+						pBrw->Update();
+					}
+					ok = 1;
+				}
+				else
+					local_fault = true;
 			}
-			ok = 1;
+			else
+				local_fault = true;
 		}
+		if(local_fault)
+			PPError();
 	}
 	return ok;
 }
@@ -431,24 +448,58 @@ int PPViewGoodsToObjAssoc::AddItem(PPViewBrowser * pBrw)
 int PPViewGoodsToObjAssoc::EditItem(PPViewBrowser * pBrw, const BrwHdr * pHdr)
 {
 	int    ok = -1;
+	Reference * p_ref(PPRef);
 	if(pHdr && P_Assoc) {
 		PPID   obj_id = 0;
 		if(P_Assoc->Get(pHdr->GoodsID, &obj_id) > 0) {
-			LAssoc assc(pHdr->GoodsID, pHdr->ObjID);
+			const  LAssoc org_assc(pHdr->GoodsID, pHdr->ObjID);
+			LAssoc assc(org_assc);
 			while(ok < 0 && EditGoodsToObjAssoc(&assc, Filt.Oid.Obj, Filt.ExtraPtr, false) > 0) {
-				uint   pos = 0;
-				if(P_Assoc->SearchPair(assc.Key, assc.Val, &pos)) {
-					if(!P_Assoc->UpdateByPos(pos, assc.Key, assc.Val) || !P_Assoc->Save())
-						PPError();
-					else {
-						UpdateOnEdit(pBrw);
-						ok = 1;
-					}
+				if(assc == org_assc) {
+					ok = 1;
 				}
 				else {
-					long   ex_val = 0;
-					pos = 0;
-					if(P_Assoc->Search(assc.Key, &ex_val, &pos) && ex_val != assc.Val) {
+					// @v12.6.10 {
+					PPID   new_id = 0;
+					uint   pos = 0;
+					bool   local_fault = false;
+					{
+						PPTransaction tra(1);
+						if(!!tra) {
+							if(p_ref->AsscC.Remove(P_Assoc->GetAssocType(), org_assc.Key, org_assc.Val, 0)) {
+								ObjAssocTbl::Rec assc_rec;
+								assc_rec.AsscType = P_Assoc->GetAssocType();
+								assc_rec.PrmrObjID = assc.Key;
+								assc_rec.ScndObjID = assc.Val;
+								assc_rec.InnerNum = 1;
+								if(p_ref->AsscC.Add(&new_id, &assc_rec, 0)) {
+									if(!P_Assoc->Remove(org_assc.Key, org_assc.Val)) {
+										local_fault = true;
+									}
+									else if(!P_Assoc->Add(assc.Key, assc.Val, &pos)) {
+										local_fault = true;
+									}
+								}
+							}
+							else
+								local_fault = true;
+							if(!local_fault) {
+								if(tra.Commit()) {
+									UpdateOnEdit(pBrw);
+									ok = 1;
+								}
+								else {
+									local_fault = true;
+								}
+							}
+						}
+					}
+					if(local_fault)
+						PPError();
+					// } @v12.6.10 
+					/* @v12.6.10
+					uint   pos = 0;
+					if(P_Assoc->SearchPair(assc.Key, assc.Val, &pos)) {
 						if(!P_Assoc->UpdateByPos(pos, assc.Key, assc.Val) || !P_Assoc->Save())
 							PPError();
 						else {
@@ -456,6 +507,18 @@ int PPViewGoodsToObjAssoc::EditItem(PPViewBrowser * pBrw, const BrwHdr * pHdr)
 							ok = 1;
 						}
 					}
+					else {
+						long   ex_val = 0;
+						pos = 0;
+						if(P_Assoc->Search(assc.Key, &ex_val, &pos) && ex_val != assc.Val) {
+							if(!P_Assoc->UpdateByPos(pos, assc.Key, assc.Val) || !P_Assoc->Save())
+								PPError();
+							else {
+								UpdateOnEdit(pBrw);
+								ok = 1;
+							}
+						}
+					}*/
 				}
 			}
 		}
@@ -469,12 +532,18 @@ int PPViewGoodsToObjAssoc::DeleteItem(const BrwHdr * pHdr)
 	if(pHdr && P_Assoc) {
 		// @v10.5.3 (мешает удалить запись с висячим pHdr->GoodsID) if(P_Assoc->Get(pHdr->GoodsID, 0) > 0)
 		{
-			if(!P_Assoc->Remove(pHdr->GoodsID, pHdr->ObjID) || !P_Assoc->Save())
+			PPTransaction tra(1);
+			THROW(tra);
+			THROW(PPRef->AsscC.Remove(P_Assoc->GetAssocType(), pHdr->GoodsID, pHdr->ObjID, 0));
+			THROW(P_Assoc->Remove(pHdr->GoodsID, pHdr->ObjID));
+			ok = 1;
+			/*if(!P_Assoc->Remove(pHdr->GoodsID, pHdr->ObjID) || !P_Assoc->Save())
 				ok = PPError(PPERR_DBENGINE);
 			else
-				ok = 1;
+				ok = 1;*/
 		}
 	}
+	CATCHZOKPPERR
 	return ok;
 }
 
@@ -585,19 +654,18 @@ PPNamedObjAssoc2::PPNamedObjAssoc2()
 		dlg->setLabelText(CTL_G2OA_OBJ, obj_title);
 		dlg->addGroup(1, new GoodsCtrlGroup(CTLSEL_G2OA_GOODSGRP, CTLSEL_G2OA_GOODS));
 		GoodsCtrlGroup::Rec rec;
-		// @v11.5.9 {
 		{
 			StrAssocArray assc_list;
 			PPObjNamedObjAssoc::MakeGoodsToWarehouseAssocList(assc_list);
 			SetupStrAssocCombo(dlg, CTLSEL_G2OA_ASSOC, assc_list, assocID, 0);
 			dlg->disableCtrl(CTLSEL_G2OA_ASSOC, true);
 		}
-		// } @v11.5.9 
-		if(pData->Key && goods_obj.Fetch(pData->Key, &goods_rec) > 0)
+		if(pData->Key && goods_obj.Fetch(pData->Key, &goods_rec) > 0) {
 			if(goods_rec.Kind == PPGDSK_GROUP)
 				rec.GoodsGrpID = goods_rec.ID;
 			else
 				rec.GoodsID = goods_rec.ID;
+		}
 		rec.Flags |= GoodsCtrlGroup::enableSelUpLevel;
 		dlg->setGroupData(1, &rec);
 		if(objType == PPOBJ_LOCATION && pLocF)

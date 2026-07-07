@@ -1907,25 +1907,27 @@ int PPViewTSessLine::AddItemExt(PPID tsesID, PPViewBrowser * pBrw)
 int PPViewTSessLine::AddItemByCode(const char * pInitStr)
 {
 	int    ok = -1;
-	PPID   sess_id = Filt.TSesList.GetSingle();
+	const  PPID sess_id = Filt.TSesList.GetSingle();
 	if(sess_id) {
 		if(!TSesObj.CheckRights(TSESRT_ADDLINE))
 			ok = PPErrorZ();
 		else {
 			long   oprno = 0;
-			SString code;
-			Goods2Tbl::Rec goods_rec;
-			double qtty = 0.0;
+			//SString code;
+			//Goods2Tbl::Rec goods_rec;
+			//double qtty = 0.0;
 			int    init_chr = pInitStr ? pInitStr[0] : 0;
-			if(GObj.SelectGoodsByBarcode(init_chr, 0, &goods_rec, &qtty, &code) > 0) {
+			GoodsCodeSrchBlock blk(init_chr);
+			//if(GObj.SelectGoodsByBarcode(init_chr, 0, &goods_rec, &qtty, &code) > 0) {
+			if(GObj.SelectGoodsByBarcode2(blk) > 0) {
 				TIDlgInitData tidi;
 				SETFLAG(tidi.Flags, TIDIF_AUTOQTTY, 1);
-				tidi.GoodsID  = goods_rec.ID;
-				if(TSesObj.EditLine(sess_id, &(oprno = 0), tidi.GoodsID, 0, qtty) > 0)
+				tidi.GoodsID  = blk.Rec.ID;
+				if(TSesObj.EditLine(sess_id, &(oprno = 0), tidi.GoodsID, 0, blk.Qtty) > 0)
 					ok = 1;
 			}
-			else if(code.NotEmptyS()) {
-				PPObjTSession::SelectBySerialParam ssp(sess_id, code);
+			else if(blk.RetCode_.NotEmptyS()) {
+				PPObjTSession::SelectBySerialParam ssp(sess_id, blk.RetCode_);
 				int    r2 = TSesObj.SelectBySerial(&ssp);
 				if(r2 == 1) {
 					if(TSesObj.EditLine(sess_id, &(oprno = 0), ssp.GoodsID, ssp.Serial, ssp.Qtty) > 0)

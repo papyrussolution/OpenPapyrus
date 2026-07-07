@@ -501,9 +501,9 @@ int StringSet::Append(const char * pStr, size_t len, uint * pPos)
 		const  size_t clen = sstrnlen(pStr, len);
 		SETMIN(len, clen);
 	}
-	const size_t delim_len = DataLen ? (Delim[0] ? sstrlen(Delim) : 1) : (Delim[0] ? 1 : 2);
-	const size_t add_len   = len/*sstrlen(pStr)*/;
-	const size_t new_len   = DataLen + add_len + delim_len;
+	const  size_t delim_len = DataLen ? (Delim[0] ? sstrlen(Delim) : 1) : (Delim[0] ? 1 : 2);
+	const  size_t add_len   = len/*sstrlen(pStr)*/;
+	const  size_t new_len   = DataLen + add_len + delim_len;
 	size_t p;
 	if(new_len <= Size || Alloc(new_len)) {
 		if(DataLen == 0) {
