@@ -724,7 +724,7 @@ int PPDS_CrrBill::IdentifySuppl(PPID * pArID, int use_ta)
 	PPID   op_id = CConfig.ReceiptOp;
 	PPID   suppl_id = 0;
 	PPID   ar_id = 0;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	ArticleTbl::Rec ar_rec;
 	THROW_PP(op_id, PPERR_UNDEFRECEIPTOP);
 	THROW(GetOpData(op_id, &op_rec) > 0);
@@ -796,7 +796,7 @@ int PPDS_CrrBill::InitData(Ido op, void * /*dataPtr*/, long addedParam)
 		PPID   op_id = CConfig.ReceiptOp;
 		SString clb;
 		PPBillPacket pack;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		PPTransferItem * p_ti;
 		PPObjLocation loc_obj;
 		THROW_PP(op_id, PPERR_UNDEFRECEIPTOP);
@@ -1559,7 +1559,7 @@ int PPDS_CrrDbDiv::TransferField(long fldID, Tfd dir, uint * pIter, SString & rB
 				if(dir == tfdBufToData) {
 					if(TempBuf.NotEmptyS()) {
 						PPObjOprKind op_obj;
-						PPOprKind op_rec;
+						PPOprKind2 op_rec;
 						PPID op_id = 0;
 						if(op_obj.SearchByName(TempBuf, &op_id, &op_rec) > 0)
 							Data.Rec.IntrRcptOpr = op_id;
@@ -4922,7 +4922,7 @@ int PPDS_CrrInvOpExEntry::TransferField(long fldID, Tfd dir, uint * pIter, SStri
 			break;
 		case DSF_CRRINVOPEXENTRY_WRDNOPSYMB:
 			{
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				if(dir == tfdDataToBuf) {
 					if(Obj.Search(Data.WrDnOp, &op_rec) > 0)
 						ok = TransferData(op_rec.Symb, sizeof(op_rec.Symb), dir, rBuf);
@@ -4933,7 +4933,7 @@ int PPDS_CrrInvOpExEntry::TransferField(long fldID, Tfd dir, uint * pIter, SStri
 			break;
 		case DSF_CRRINVOPEXENTRY_WRUPOPSYMB:
 			{
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				if(dir == tfdDataToBuf) {
 					if(Obj.Search(Data.WrUpOp, &op_rec) > 0)
 						ok = TransferData(op_rec.Symb, sizeof(op_rec.Symb), dir, rBuf);
@@ -5259,7 +5259,7 @@ int PPDS_CrrDraftOpExEntry::TransferField(long fldID, Tfd dir, uint * pIter, SSt
 	switch(fldID) {
 		case DSF_CRRDRAFTOPEXENTRY_WROFFOP:
 			{
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				if(dir == tfdDataToBuf) {
 					if(Obj.Search(Data.WrOffOpID, &op_rec) > 0)
 						ok = TransferData(op_rec.Symb, sizeof(op_rec.Symb), dir, rBuf);
@@ -5270,7 +5270,7 @@ int PPDS_CrrDraftOpExEntry::TransferField(long fldID, Tfd dir, uint * pIter, SSt
 			break;
 		case DSF_CRRDRAFTOPEXENTRY_WROFFCOMPLOP:
 			{
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				if(dir == tfdDataToBuf) {
 					if(Obj.Search(Data.WrOffComplOpID, &op_rec) > 0)
 						ok = TransferData(op_rec.Symb, sizeof(op_rec.Symb), dir, rBuf);

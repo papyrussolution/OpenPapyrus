@@ -388,7 +388,7 @@ void PPViewAlcoDeclRu::GetManufList(PPID divID, long alcoCodeId, PPIDArray & rLi
 									const  PPID op_id = ta_item.Item.OpID;
 									bool  is_rcpt = false;
 									bool  is_rcpt_ret = false;
-									PPOprKind op_rec;
+									PPOprKind2 op_rec;
 									if(GetOpData(op_id, &op_rec) > 0 && !(op_rec.Flags & OPKF_NOUPDLOTREST) && op_rec.OpTypeID != PPOPT_CORRECTION) {
 										uint   item_idx = GetMovListItemIdx(div_id, alco_code_ident, alc_goods_ext.MnfOrImpPsnID);
 										assert(item_idx > 0 && item_idx <= MovList.getCount());

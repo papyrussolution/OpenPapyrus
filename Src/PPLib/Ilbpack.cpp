@@ -1063,7 +1063,7 @@ int PPObjBill::ConvertILTI(ILTI & rIlti, PPBillPacket * pBp, LongArray * pRows, 
 				THROW(pBp->InsertRow(&ti, &temp_rows));
 				if(ti.Flags & PPTFR_RECEIPT && flags & CILTIF_INHLOTTAGS && trfr->Rcpt.GetLastLot(ti.GoodsID, -labs(ti.LocID), sd, &tmpl_lot_rec) > 0) {
  					ObjTagList inh_tag_list;
-					GetTagListByLot(tmpl_lot_rec.ID, 1, &inh_tag_list);
+					GetTagListByLot(tmpl_lot_rec.ID, 1, inh_tag_list);
 					const uint tc = inh_tag_list.GetCount();
 					if(tc) {
 						PPObjTag tag_obj;
@@ -1498,7 +1498,7 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 				THROW_SL(Lots.insert(&ilti));
 				{
 					ObjTagList tag_list;
-					p_bobj->GetTagListByLot(ti.LotID, 0/*skipReserveTags*/, &tag_list);
+					p_bobj->GetTagListByLot(ti.LotID, 0/*skipReserveTags*/, tag_list);
 					LTagL.Set(row_idx, tag_list.GetCount() ? &tag_list : 0);
 				}
 			}
@@ -1862,7 +1862,7 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 							r_ti.Flags |= PPTFR_LOTSYNC;
 						}
 						r_ti.TFlags |= PPTransferItem::tfForceNew;
-						if(p_bobj->GetTagListByLot(lot_id, 1, &lot_tag_list) > 0) {
+						if(p_bobj->GetTagListByLot(lot_id, 1, lot_tag_list) > 0) {
 							THROW(rPack.LTagL.Set(rj, lot_tag_list.GetCount() ? &lot_tag_list : 0));
 						}
 						else {
@@ -2539,23 +2539,26 @@ int PPObjBill::SerializePacket_Base(int dir, PPBill * pPack, SBuffer & rBuf, SSe
 			uint32 sz = pPack->Rent.IsEmpty() ? 0 : sizeof(pPack->Rent);
 			THROW_SL(pSCtx->SerializeBlock(+1, sz, &pPack->Rent, rBuf, 1));
 		}
-		THROW_SL(pSCtx->SerializeBlock(+1, sizeof(*pPack->P_Freight), pPack->P_Freight, rBuf, 1)); 
+		// @v12.6.10 THROW_SL(pSCtx->SerializeBlock(+1, sizeof(*pPack->P_Freight), pPack->P_Freight, rBuf, 1)); 
+		THROW_SL(pSCtx->SerializeBlock(+1, PPFreight::GetSizeBeforeV12610(), pPack->P_Freight, rBuf, 1)); // @v12.6.10 @dbd_exchange
 		THROW_SL(pSCtx->SerializeBlock(+1, sizeof(*pPack->P_AdvRep), pPack->P_AdvRep, rBuf, 1));
 	}
 	else if(dir < 0) {
 		int    r;
 		PPFreight freight;
 		PPAdvanceRep adv_rep;
-		const long ff = (GetOpType(pPack->Rec.OpID) == PPOPT_ACCTURN) ? SBuffer::ffAryCount32 : (SBuffer::ffAryCount32|SBuffer::ffAryForceEmpty);
+		const  long ff = (GetOpType(pPack->Rec.OpID) == PPOPT_ACCTURN) ? SBuffer::ffAryCount32 : (SBuffer::ffAryCount32|SBuffer::ffAryForceEmpty);
 		THROW_SL(rBuf.Read(&pPack->Turns, ff));
 		THROW_SL(pSCtx->SerializeBlock(-1, sizeof(pPack->Rent), &pPack->Rent, rBuf, 1));
-		THROW_SL(pSCtx->SerializeBlock(-1, sizeof(*pPack->P_Freight), &freight, rBuf, 0));
+		// @v12.6.10 THROW_SL(pSCtx->SerializeBlock(-1, sizeof(*pPack->P_Freight), &freight, rBuf, 0));
+		THROW_SL(pSCtx->SerializeBlock(-1, PPFreight::GetSizeBeforeV12610(), &freight, rBuf, 0)); // @v12.6.10 @dbd_exchange
 		if(!freight.IsEmpty()) {
 			THROW_MEM(SETIFZ(pPack->P_Freight, new PPFreight));
 			*pPack->P_Freight = freight;
 		}
-		else
+		else {
 			ZDELETE(pPack->P_Freight);
+		}
 		THROW_SL(r = pSCtx->SerializeBlock(-1, sizeof(*pPack->P_AdvRep), &adv_rep, rBuf, 1));
 		if(r > 0) {
 			THROW_MEM(SETIFZ(pPack->P_AdvRep, new PPAdvanceRep));
@@ -2586,7 +2589,7 @@ int PPObjBill::SerializePacket__(int dir, PPBillPacket * pPack, SBuffer & rBuf, 
 			THROW_SL(GetInvT().SerializeArrayOfRecords(dir, &pPack->InvList, rBuf, pSCtx));
 		}
 		{
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			if(GetOpData(pPack->Rec.OpID, &op_rec)) {
 				pPack->OpTypeID  = op_rec.OpTypeID;
 				pPack->AccSheetID = op_rec.AccSheetID;
@@ -3158,7 +3161,7 @@ int PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTransm
 	if(Search(id, &bill_rec) > 0 && bill_rec.OpID && !(bill_rec.Flags & BILLF_CASH) && bill_rec.OpID != PPOPK_EDI_STOCK) {
 		if(!bill_rec.StatusID || !CheckStatusFlag(bill_rec.StatusID, BILSTF_DENY_TRANSM)) {
 			const  PPID op_id = bill_rec.OpID;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			const  PPID op_type_id = GetOpType(op_id, &op_rec);
 			if(op_type_id == PPOPT_ACCTURN) {
 				if(op_rec.Flags & OPKF_EXTACCTURN) {

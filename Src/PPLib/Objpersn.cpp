@@ -946,7 +946,7 @@ int ClientActivityDetectionListDialog::setupList()
 			ss.add(pok_rec.Name);
 		}
 		else if(item.Obj == PPOBJ_OPRKIND) {
-			PPOprKind op_kind;
+			PPOprKind2 op_kind;
 			GetOpName(item.Id, temp_buf.Z());
 			ss.add(temp_buf);
 		}
@@ -7227,7 +7227,7 @@ int PPNewContragentDetectionBlock::InitProcess()
 			{
 				for(uint i = 0; i < OpList.getCount(); i++) {
 					const  PPID op_id = OpList.get(i);
-					PPOprKind  op_rec;
+					PPOprKind2 op_rec;
 					if(GetOpData(op_id, &op_rec) > 0 && op_rec.AccSheetID)
 						AcsList.add(op_rec.AccSheetID);
 				}
@@ -7266,7 +7266,7 @@ int PPNewContragentDetectionBlock::IsNewPerson(PPID psnID, const DateRange & rPe
 		LAssocArray ar_op_list;
 		{
 			PPIDArray ar_list;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			for(i = 0; i < AcsList.getCount(); i++) {
 				const  PPID acs_id = AcsList.get(i);
 				PPID   ar_id = 0;
@@ -8824,7 +8824,7 @@ int PrcssrClientActivityStatistics::Implement_ScanDetailedActivityListForSingleP
 				// Все обобщенные операции в op_list уже развернуты (see above)
 				for(uint opidx = 0; opidx < op_list.getCount(); opidx++) {
 					const PPID op_id = op_list.get(opidx);
-					PPOprKind op_rec;
+					PPOprKind2 op_rec;
 					if(GetOpData(op_id, &op_rec) > 0 && op_rec.AccSheetID) {
 						PPID   ar_id = 0;
 						if(ArObj.P_Tbl->PersonToArticle(personID, op_rec.AccSheetID, &ar_id) && ar_id) {

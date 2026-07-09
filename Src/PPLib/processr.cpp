@@ -1760,7 +1760,7 @@ IMPL_HANDLE_EVENT(ProcessorDialog)
 
 void ProcessorDialog::setupAccSheet(uint opSelCtl, uint objSelCtl, PPID arID)
 {
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	GetOpData(getCtrlLong(opSelCtl), &op_rec);
 	SetupArCombo(this, objSelCtl, arID, OLW_LOADDEFONOPEN, op_rec.AccSheetID, sacfDisableIfZeroSheet|sacfNonGeneric);
 	DisableClusterItem(CTL_PRC_GRP_FLAGS, 6, BIN(op_rec.AccSheet2ID));

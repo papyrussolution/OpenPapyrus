@@ -659,10 +659,12 @@ int Reference::_SearchProp(PPID obj, PPID id, PPID prop, int spMode, void * b, s
 	k.ObjType = obj;
 	k.ObjID   = id;
 	k.Prop    = prop;
-	if(Prop.search(0, &k, spMode))
+	if(Prop.search(0, &k, spMode)) {
 		ReadPropBuf(b, s, 0);
-	else
+	}
+	else {
 		ok = PPDbSearchError();
+	}
 	return ok;
 }
 

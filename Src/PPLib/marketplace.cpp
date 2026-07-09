@@ -4827,7 +4827,7 @@ PPID PPMarketplaceInterface_Wildberries::CreateBuyer(const Sale * pSaleEntry, in
 	if(pSaleEntry) {
 		const  PPID sale_op_id = R_Prc.GetSaleOpID();
 		if(sale_op_id) {
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			if(GetOpData(sale_op_id, &op_rec) > 0) {
 				const PPID acs_id = op_rec.AccSheetID;
 				if(acs_id) {
@@ -5236,7 +5236,7 @@ PPID PPMarketplaceInterface_Wildberries::AdjustReceiptOnExpend(
 		ReceiptTbl::Rec lot_rec;
 		{
 			PPObjOprKind op_obj;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			for(SEnum en = op_obj.Enum(0); !intrexp_op_id && en.Next(&op_rec) > 0;) {
 				if(IsIntrOp(op_rec.ID) == INTREXPND)
 					intrexp_op_id = op_rec.ID;
@@ -5498,7 +5498,7 @@ int PPMarketplaceInterface_Wildberries::ImportSales()
 						PPID  src_lot_id = 0;
 						//p_bobj->GetShipmByOrder(ord_bill_rec.ID, 0, shipm_bill_id_list);
 						const int fsr = FindShipmentBillByOrderIdent(p_wb_item->SrID, shipm_bill_id_list);
-						PPOprKind ret_op_rec;
+						PPOprKind2 ret_op_rec;
 						PPID  link_bill_id = 0;
 						LongArray row_idx_list;
 						THROW(GetOpData(ret_op_id, &ret_op_rec) > 0);
@@ -6671,7 +6671,7 @@ bool PPMarketplaceConfig::IsEq_ForStorage(const PPMarketplaceConfig & rS) const
 	int    ok = -1;
 	SString temp_buf;
 	PPObjOprKind op_obj;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	PPID   acs_id = GetSellAccSheet();
 	PPAlbatrossConfig albtr_cfg;
 	const int acgr = PPAlbatrosCfgMngr::Get(&albtr_cfg);
@@ -6713,7 +6713,7 @@ bool PPMarketplaceConfig::IsEq_ForStorage(const PPMarketplaceConfig & rS) const
 				}
 			}
 			if(rCfg.OrderOpID) {
-				PPOprKind order_op_rec;
+				PPOprKind2 order_op_rec;
 				THROW(GetOpData(rCfg.OrderOpID, &order_op_rec) > 0);
 				if(rCfg.SalesOpID > 0 && GetOpType(rCfg.SalesOpID, &op_rec) == PPOPT_GOODSEXPEND && op_rec.AccSheetID == order_op_rec.AccSheetID && op_rec.Flags & OPKF_ONORDER) {
 					;
@@ -6750,7 +6750,7 @@ bool PPMarketplaceConfig::IsEq_ForStorage(const PPMarketplaceConfig & rS) const
 					}
 				}
 				if(rCfg.SalesOpID) {
-					PPOprKind sales_op_rec;
+					PPOprKind2 sales_op_rec;
 					THROW(GetOpData(rCfg.SalesOpID, &sales_op_rec) > 0);
 					if(rCfg.ReturnOpID && GetOpType(rCfg.ReturnOpID, &op_rec) == PPOPT_GOODSRETURN && op_rec.LinkOpID == rCfg.SalesOpID) {
 						;
@@ -6976,11 +6976,11 @@ PPID PrcssrMarketplaceInterchange::GetSaleOpID()
 		result_id = Cfg.SalesOpID;
 	else {
 		if(Cfg.SalesOpID == 0) {
-			const PPID order_op_id = GetOrderOpID();
-			PPOprKind order_op_rec;
+			const  PPID order_op_id = GetOrderOpID();
+			PPOprKind2 order_op_rec;
 			if(order_op_id) {
 				if(GetOpData(order_op_id, &order_op_rec) > 0) {
-					PPOprKind op_rec;
+					PPOprKind2 op_rec;
 					for(PPID iter_op_id = 0; !result_id && EnumOperations(PPOPT_GOODSEXPEND, &iter_op_id, &op_rec) > 0;) {
 						if(op_rec.Flags & OPKF_ONORDER && op_rec.AccSheetID == order_op_rec.AccSheetID) {
 							result_id = op_rec.ID;
@@ -7017,7 +7017,7 @@ PPID PrcssrMarketplaceInterchange::GetRetOpID() // @v12.1.11
 		if(Cfg.ReturnOpID == 0) {
 			PPID sale_op_id = GetSaleOpID();
 			if(sale_op_id > 0) {
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				for(PPID iter_op_id = 0; !result_id && EnumOperations(PPOPT_GOODSRETURN, &iter_op_id, &op_rec) > 0;) {
 					if(op_rec.LinkOpID == sale_op_id) {
 						result_id = op_rec.ID;

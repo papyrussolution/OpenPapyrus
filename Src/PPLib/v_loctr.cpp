@@ -177,7 +177,7 @@ public:
 		int    ok = 1;
 		double bill_qtty = 0.0;
 		SString temp_buf;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		RVALUEPTR(Data, pData);
 		Data.Qtty = fabs(Data.Qtty);
 		int    fixed_lt_op = 0;

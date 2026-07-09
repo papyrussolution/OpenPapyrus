@@ -1012,7 +1012,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 						PPTransaction tra(1);
 						THROW(tra);
 						if(prc_rec.WrOffOpID) {
-							PPOprKind op_rec;
+							PPOprKind2 op_rec;
 							if(GetOpData(prc_rec.WrOffOpID, &op_rec) > 0) {
 								if(op_rec.AccSheetID && acs_obj.Fetch(op_rec.AccSheetID, &acs_rec) > 0) {
 									PPID   person_id = 0;
@@ -1073,7 +1073,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 			PPID   _op_id = 0; // ‘инальный вид операции создаваемого или модифицируемого документа 
 			PPID   loc_id = 0;
 			PPID   stylopalm_id = 0;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			StyloQIncomingListParam incl_param;
 			bool   inl_param_inited = false;
 			bool   is_there_accept_rows = false; // ≈сли стреди строк вход€щего документа встречаютс€ строки с подтверждени€ми, то true
@@ -2843,7 +2843,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 	{
 		PPObjBill * p_bobj(BillObj);
 		SString temp_buf;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		PPID   local_person_id = 0;
 		SString cmd_name;
 		(cmd_name = rCmdItem.Name).Transf(CTRANSF_UTF8_TO_INNER);

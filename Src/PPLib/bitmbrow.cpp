@@ -191,7 +191,7 @@ private:
 		stAccsCost         = 0x0080, // @*BillItemBrowser::BillItemBrowser
 		stActivateNewRow   = 0x0100, // If !0 && !EditMode then execute() calls addItem()
 		stIsModified       = 0x0400,
-		stTagPreKey        = 0x0800  // @v11.2.9 Нажата клавиша, предваряющая последующее нажатие горячей клавиши для редактирования тега.
+		stTagPreKey        = 0x0800  // Нажата клавиша, предваряющая последующее нажатие горячей клавиши для редактирования тега.
 	};
 	int    State;
 	const  int BillDetailType; // @v12.4.1
@@ -819,7 +819,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket & r
 	}
 	// @v12.0.8 {
 	if(R_Pack.OpTypeID == PPOPT_GOODSORDER) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		if(GetOpData(R_Pack.Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_MNGPREFSUPPL) {
 			CfgShowFlags |= cfgshowfPrefSuppl;
 		}
@@ -1068,8 +1068,8 @@ SArray * BillItemBrowser::MakeList()
 	THROW_MEM(p_packed_list = new BillGoodsBrwItemArray);
 	// @v12.4.1 {
 	if(oneof2(BillDetailType, PPBillPacket::detailtypeLocTrfr, PPBillPacket::detailtypeLocTrfr_Bailment)) {
-		PPOprKind op_rec;
-		PPOprKind link_op_rec;
+		PPOprKind2 op_rec;
+		PPOprKind2 link_op_rec;
 		const bool is_order = (GetOpData(r_pack.Rec.OpID, &op_rec) > 0 && op_rec.SubType == OPSUBT_BAILMENT_ORDER);
 		const bool is_link_op_get = (P_LinkPack && GetOpData(P_LinkPack->Rec.OpID, &link_op_rec) > 0 && link_op_rec.SubType == OPSUBT_BAILMENT_GET);
 		const bool is_link_op_put = (P_LinkPack && GetOpData(P_LinkPack->Rec.OpID, &link_op_rec) > 0 && link_op_rec.SubType == OPSUBT_BAILMENT_PUT);
@@ -2263,8 +2263,9 @@ void BillItemBrowser::addItem_(int fromOrder, TIDlgInitData * pInitData, int sig
 {
 	int    lc;
 	BillItemBrowser * brw = 0;
-	if(GetOpType(R_Pack.Rec.OpID) == PPOPT_GOODSEXPEND && CheckOpFlags(R_Pack.Rec.OpID, OPKF_PCKGMOUNTING) && !P_Pckg)
+	if(GetOpType(R_Pack.Rec.OpID) == PPOPT_GOODSEXPEND && CheckOpFlags(R_Pack.Rec.OpID, OPKF_PCKGMOUNTING) && !P_Pckg) {
 		selectPckg(0);
+	}
 	else if(fromOrder) {
 		if(CheckOpFlags(R_Pack.Rec.OpID, OPKF_ONORDER)) {
 			if(SelectOrder() > 0 && OrderBillID) {
@@ -2275,9 +2276,9 @@ void BillItemBrowser::addItem_(int fromOrder, TIDlgInitData * pInitData, int sig
 				brw->State |= BillItemBrowser::stOrderSelector;
 				while(ExecView(brw) == cmOK) {
 					int    r = brw->AsSelector;
+					int    gr = 0;
 					brw->AsSelector = 1;
 					lc = order_bpack.GetTCount();
-					int    gr = 0;
 					if(r >= 0 && r < lc) {
 						THROW(r = addItemByOrder(&order_bpack, r));
 						if(r > 0)
@@ -2358,7 +2359,7 @@ void BillItemBrowser::addItem_(int fromOrder, TIDlgInitData * pInitData, int sig
 		if(!skip) {
 			// @v12.4.2 {
 			if(oneof2(BillDetailType, PPBillPacket::detailtypeLocTrfr, PPBillPacket::detailtypeLocTrfr_Bailment)) {
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				if(GetOpData(R_Pack.Rec.OpID, &op_rec) > 0) {
 					const int lt_domain = (BillDetailType == PPBillPacket::detailtypeLocTrfr_Bailment) ? LOCTRFRDOMAIN_BAILMENT : LOCTRFRDOMAIN_WMS;
 					const int lt_op = 0;
@@ -2378,7 +2379,7 @@ void BillItemBrowser::addItem_(int fromOrder, TIDlgInitData * pInitData, int sig
 					if(R_Pack.SampleBillID) {
 						PPBillPacket sample_bpack;
 						BillTbl::Rec sample_bill_rec;
-						PPOprKind sampl_op_rec;
+						PPOprKind2 sampl_op_rec;
 						if(P_BObj->Fetch(R_Pack.SampleBillID, &sample_bill_rec) > 0 && GetOpType(sample_bill_rec.OpID, &sampl_op_rec) == PPOPT_WAREHOUSE) {
 							if(sampl_op_rec.SubType == OPSUBT_BAILMENT_ORDER) {
 								if(P_BObj->ExtractPacket(R_Pack.SampleBillID, &sample_bpack) > 0) {
@@ -3202,7 +3203,7 @@ public:
 		ASSIGN_PTR(pData, Data);
 		return 1;
 	}
-	int PasteFromClipboardAll(int validation) // @erik v10.8.0
+	int PasteFromClipboardAll(int validation) // @erik
 	{
 		int    ok = -1;
 		uint   sel = 0;
@@ -4016,6 +4017,7 @@ int BillItemBrowser::SpecialGeneration() // @v12.1.12
 IMPL_HANDLE_EVENT(BillItemBrowser)
 {
 	int    c;
+	PPOprKind2 op_rec;
 	{
 		/* @construction (попытка сделать быстрое редактирование тегов в строках документа) if(TVKEYDOWN && TVCHR == '/' && !(State & stTagPreKey)) {
 			State |= stTagPreKey;
@@ -4049,8 +4051,30 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 		//if(GObj.SelectGoodsByBarcode(init_chr, R_Pack.Rec.Object, &grec, &qtty, &code) > 0) {
 		if(GObj.SelectGoodsByBarcode2(blk) > 0) {
 			uint   pos = 0;
-			if(!(P_BObj->Cfg.Flags & BCF_DONTWARNDUPGOODS) && R_Pack.SearchGoods(blk.Rec.ID, &pos) && !CONFIRM(PPCFM_SAMEGOODSINPACK))
+			if(!(P_BObj->Cfg.Flags & BCF_DONTWARNDUPGOODS) && R_Pack.SearchGoods(blk.Rec.ID, &pos) && !CONFIRM(PPCFM_SAMEGOODSINPACK)) {
+				// @v12.6.10 {
+				if(blk.Code_.NotEmpty()) {
+					bool  is_expend_ret = false;
+					if(R_Pack.OpTypeID == PPOPT_GOODSRETURN) {
+						GetOpData(R_Pack.Rec.OpID, &op_rec);
+						if(op_rec.LinkOpID == PPOPT_GOODSRECEIPT) {
+							is_expend_ret = true;
+						}
+					}
+					if(R_Pack.OpTypeID == PPOPT_GOODSEXPEND || is_expend_ret) {
+						if(R_Pack.XcL.SearchAdaptive(blk.Code_, 0, 0)) {
+							; // Марка уже есть в документе
+						}
+						else {
+							if(pos < R_Pack.GetTCount()) {
+								R_Pack.XcL.Add(pos+1, 0, 0, blk.Code_, 0);
+							}
+						}
+					}
+				}
+				// } @v12.6.10 
 				go(pos);
+			}
 			else {
 				const  PPID op_type_id = GetOpType(R_Pack.Rec.OpID);
 				const  bool skip_dlg = ((P_BObj->GetConfig().Flags & BCF_ADDAUTOQTTYBYBRCODE) && oneof2(op_type_id, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT));
@@ -4058,6 +4082,9 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 				SETFLAG(tidi.Flags, TIDIF_AUTOQTTY, skip_dlg);
 				tidi.GoodsID  = blk.Rec.ID;
 				tidi.Quantity = (tidi.Flags & TIDIF_AUTOQTTY) ? 1.0 : ((cfg_flags & CFGFLG_USEPACKAGE) ? 0.0 : blk.Qtty);
+				if(oneof2(blk.SNTokId, SNTOK_EGAISMARKCODE, SNTOK_CHZN_GENERAL)) {
+					tidi.Mark_ = blk.Code_;
+				}
 				addItem_(0, &tidi, 0);
 			}
 		}
@@ -4077,8 +4104,9 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 	}
 	else {
 		if(event.isCmd(cmExecute)) {
-			if((State & stActivateNewRow) && !EditMode)
+			if((State & stActivateNewRow) && !EditMode) {
 				addItem_(0/*fromOrder*/, 0, 0);
+			}
 			// Далее управление передается базовому классу
 		}
 		BrowserWindow::handleEvent(event);
@@ -4138,7 +4166,6 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 					if(c >= 0 && c < R_Pack.GetTCountI()) {
 						const PPID goods_id = labs(R_Pack.ConstTI(static_cast<uint>(c)).GoodsID);
 						if(goods_id) {
-							PPOprKind op_rec;
 							if(R_Pack.OpTypeID == PPOPT_GOODSORDER && GetOpData(R_Pack.Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_MNGPREFSUPPL) {
 								if(SelectPrefSuppl(static_cast<uint>(c)) > 0) {
 									update(pos_cur);
@@ -4506,7 +4533,7 @@ int BillItemBrowser::SelectOrder()
 	int    r = -1;
 	if(!R_Pack.SampleBillID) {
 		BillFilt flt;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		flt.Period.upp = R_Pack.Rec.Dt;
 		PPID   op_id = 0;
 		for(PPID id = 0; (r = EnumOperations(PPOPT_GOODSORDER, &id, &op_rec)) > 0;) {
@@ -4581,7 +4608,7 @@ void BillItemBrowser::addItemBySerial()
 	else {
 		isd_param.P_Wse = new ObjTagSelExtra(PPOBJ_LOT, PPTAG_LOT_SN);
 		{
-			const long _flags = opened_only ? ObjTagSelExtra::lfOpenedSerialsOnly : 0;
+			const  long _flags = opened_only ? ObjTagSelExtra::lfOpenedSerialsOnly : 0;
 			static_cast<ObjTagSelExtra *>(isd_param.P_Wse)->SetupLotSerialParam(R_Pack.Rec.LocID, _flags);
 		}
 		if(InputStringDialog(isd_param, serial) > 0 && serial.NotEmptyS()) {
@@ -4605,10 +4632,12 @@ void BillItemBrowser::addItemExt(int mode)
 	double sel_price = 0.0;
 	SString sub;
 	ExtGoodsSelDialog * dlg = 0;
-	if(State & stUseLinkSelection)
+	if(State & stUseLinkSelection) {
 		addItem_(0/*fromOrder*/, 0, 0);
-	else if(op_type_id == PPOPT_GOODSEXPEND && CheckOpFlags(op_id, OPKF_PCKGMOUNTING) && !P_Pckg)
+	}
+	else if(op_type_id == PPOPT_GOODSEXPEND && CheckOpFlags(op_id, OPKF_PCKGMOUNTING) && !P_Pckg) {
 		selectPckg(0);
+	}
 	else {
 		StrAssocArray goods_list;
 		const bool opened_only = (IsExpendOp(op_id) > 0 || op_type_id == PPOPT_GOODSREVAL || (op_type_id == PPOPT_GOODSORDER && CheckOpFlags(op_id, OPKF_ORDEXSTONLY)));

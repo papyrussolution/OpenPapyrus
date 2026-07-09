@@ -1270,7 +1270,7 @@ int PPBillPacket::InsertAutoComplRow(uint pos, int pcug)
 int PPBillPacket::InitACPacket()
 {
 	int    ok = 1;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	const  PPCommConfig & r_ccfg = CConfig;
 	THROW_PP(r_ccfg.AutoComplOp, PPERR_UNDEFAUTOCOMPLOP);
 	THROW_PP(GetOpData(r_ccfg.AutoComplOp, &op_rec) > 0, PPERR_UNDEFAUTOCOMPLOP);

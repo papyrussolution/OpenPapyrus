@@ -1558,7 +1558,7 @@ int SCS_SYNCCASH::GetCheckInfo(const PPBillPacket * pPack, Sync_BillTaxArray * p
 		PPTransferItem * ti;
 		PPObjGoods  goods_obj;
 		if(pPack->OpTypeID == PPOPT_GOODSRETURN) {
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			if(GetOpData(pPack->Rec.OpID, &op_rec) > 0 && IsExpendOp(op_rec.LinkOpID) > 0)
 				flags |= PRNCHK_RETURN;
 		}

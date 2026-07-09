@@ -117,8 +117,8 @@ PPViewGoodsTrnovr::~PPViewGoodsTrnovr()
 	SString wait_msg;
 	IterCounter cntr;
 	GoodsGrpngEntry * p_entry;
-	PPOprKind op_rec;
-	PPOprKind link_op_rec;
+	PPOprKind2 op_rec;
+	PPOprKind2 link_op_rec;
 	GCTFilt filt;
 	AdjGdsGrpng agg;
 	int    zero;
@@ -497,8 +497,8 @@ int PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 	SString wait_msg;
 	IterCounter cntr;
 	GoodsGrpngEntry * p_entry;
-	PPOprKind op_rec;
-	PPOprKind link_op_rec;
+	PPOprKind2 op_rec;
+	PPOprKind2 link_op_rec;
 	GCTFilt filt;
 	AdjGdsGrpng agg;
 	int    zero;

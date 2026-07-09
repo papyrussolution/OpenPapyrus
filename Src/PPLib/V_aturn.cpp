@@ -1046,7 +1046,7 @@ int PPViewAccturn::ConvertGenAccturnToExtAccBill()
 		{
 			RVALUEPTR(Data, pData);
 			ushort v;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			SetupOprKindCombo(this, CTLSEL_CVTAT2AB_OP, 0, 0, Data.P_OpList, OPKLF_OPLIST);
 			if(GetOpData(Data.OpID, &op_rec) > 0) {
 				AccSheetID  = (op_rec.AccSheetID != 0)  ? op_rec.AccSheetID  : (Data.ObjID = 0);
@@ -1083,7 +1083,7 @@ int PPViewAccturn::ConvertGenAccturnToExtAccBill()
 		{
 			TDialog::handleEvent(event);
 			if(event.isCbSelected(CTLSEL_CVTAT2AB_OP)) {
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				PPID   op_id = getCtrlLong(CTLSEL_CVTAT2AB_OP);
 				if(GetOpData(op_id, &op_rec) > 0) {
 					if(op_rec.AccSheet2ID != 0) {
@@ -1116,7 +1116,7 @@ int PPViewAccturn::ConvertGenAccturnToExtAccBill()
 	CvtAt2Ab_Dialog * dlg = 0;
 	AccturnViewItem item;
 	if(oneof2(Filt.Aco, ACO_2, ACO_3) && Filt.DbtAcct.ac && Filt.CrdAcct.ac) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		PPIDArray op_list;
 		int    skip = 0;
 		if(IsGenericOp(Filt.OpID) > 0) {

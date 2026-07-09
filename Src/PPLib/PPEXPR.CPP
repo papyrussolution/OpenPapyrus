@@ -1603,12 +1603,12 @@ int GoodsContext::Resolve(const char * pSymb, double * pVal)
 						p_tag_item = p_tag_list ? p_tag_list->GetItem(tag_id) : 0;
 					}
 					else if(P_Ti->LotID) {
-						p_bobj->GetTagListByLot(P_Ti->LotID, 0, &tag_list);
+						p_bobj->GetTagListByLot(P_Ti->LotID, 0, tag_list);
 						p_tag_item = tag_list.GetItem(tag_id);
 					}
 				}
-				else if(P.LotID) { // @v11.1.12
-					p_bobj->GetTagListByLot(P.LotID, 0, &tag_list);
+				else if(P.LotID) {
+					p_bobj->GetTagListByLot(P.LotID, 0, tag_list);
 					p_tag_item = tag_list.GetItem(tag_id);
 				}
 				CALLPTRMEMB(p_tag_item, GetReal(&v));
@@ -1776,7 +1776,7 @@ int PPCalcExpression(const char * pStr, double * pResult, PPBillPacket * pPack, 
 {
 	int    ok = 1;
 	BillContext * p_ctx = 0;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	if(pPack && GetOpType(pPack->Rec.OpID, &op_rec) == PPOPT_ACCTURN && op_rec.SubType == OPSUBT_ACCWROFF) {
 		DL2_Resolver dl200r;
 		DateRange period;

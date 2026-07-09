@@ -1292,7 +1292,7 @@ int LotExtCodeCore::FindMarkToTransfer(const char * pCode, PPID goodsID, PPID lo
 			assert(rec_list.getCount());
 			const int is_box = BIN(rec_list.at(0).Flags & PPLotExtCodeContainer::fBox);
 			for(uint i = 0; i < rec_list.getCount(); i++) {
-				const LotExtCodeTbl::Rec & r_rec = rec_list.at(i);
+				const  LotExtCodeTbl::Rec & r_rec = rec_list.at(i);
 				if(r_rec.BillID && p_bobj->Fetch(r_rec.BillID, &bill_rec) > 0) {
 					const  PPID op_type_id = GetOpType(bill_rec.OpID);
 					if(oneof2(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND)) {

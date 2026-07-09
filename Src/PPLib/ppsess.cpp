@@ -3064,7 +3064,7 @@ int PPSession::SetupConfigByOps()
 	int    ok = 1;
 	bool   missingnoupdrestopflag = false;
 	PPObjOprKind op_obj;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	PPCommConfig & r_cc = GetTLA().Cc;
 	for(PPID op_id = 0; EnumOperations(0, &op_id, &op_rec) > 0;) {
 		if(!(r_cc.Flags & CCFLG_USENOUPDRESTOPFLAG) && op_rec.Flags & OPKF_NOUPDLOTREST)

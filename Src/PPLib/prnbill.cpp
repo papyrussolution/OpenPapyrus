@@ -592,7 +592,7 @@ static int PrintBillImages(const PPBillPacket & rPack, int prnFlags)
 		PPID org_lot_id = 0L;
 		if(p_bobj->trfr->Rcpt.SearchOrigin(p_ti->LotID, &org_lot_id, 0, 0) > 0) {
 			ObjTagList tag_list;
-			p_bobj->GetTagListByLot(org_lot_id, 1, &tag_list);
+			p_bobj->GetTagListByLot(org_lot_id, 1, tag_list);
 			const uint tag_count = tag_list.GetCount();
 			if(p_bobj->IsPriceChanged(p_ti, rPack.ProcessFlags)) {
 				for(uint j = 0; j < tag_count; j++) {
@@ -634,7 +634,7 @@ int STDCALL Helper_PrintGoodsBill(PPBillPacket & rPack, SVector ** ppAry, long *
 	uint   alt_rpt_id = 0;
 	uint   amt_types = 0;
 	const  long preserve_process_flags = rPack.ProcessFlags;
-	PPOprKind opk;
+	PPOprKind2 opk;
 	PPObjOprKind op_obj;
 	PPReportEnv env(0, 0);
 	// @v12.4.7 {

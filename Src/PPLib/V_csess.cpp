@@ -962,7 +962,7 @@ IMPL_HANDLE_EVENT(DraftCreateRuleDialog)
 		SetupCtrls();
 	}
 	else if(event.isCbSelected(CTLSEL_DFRULE_OPKIND)) {
-		PPOprKind op_kind;
+		PPOprKind2 op_kind;
 		getCtrlData(CTLSEL_DFRULE_OPKIND, &Data.Rec.OpID);
 		GetOpData(Data.Rec.OpID, &op_kind);
 		SetupArCombo(this, CTLSEL_DFRULE_OBJECT,  0, 0, op_kind.AccSheetID, sacfDisableIfZeroSheet);
@@ -1020,7 +1020,7 @@ int DraftCreateRuleDialog::setDTS(const PPDfCreateRulePacket * pData)
 	ushort v = 0;
 	SString cash_nn;
 	PPIDArray types;
-	PPOprKind op_kind;
+	PPOprKind2 op_kind;
 	if(!RVALUEPTR(Data, pData))
 		Data.Z();
 	setCtrlData(CTL_DFRULE_NAME, Data.Rec.Name);

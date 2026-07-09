@@ -1749,7 +1749,7 @@ static int EditSupplExchOpList(PPSupplAgreement::ExchangeParam * pData)
 			if(!RVALUEPTR(Data, pData))
 				Data.Z();
 			{
-				PPOprKind op_kind;
+				PPOprKind2 op_kind;
 				PPIDArray op_list_exp;
 				PPIDArray op_list_rcpt;
 				PPIDArray op_list_ret;
@@ -1868,7 +1868,7 @@ int SupplAgtDialog::EditExchangeCfg()
 		DECL_DIALOG_SETDTS()
 		{
 			SString temp_buf;
-			PPOprKind op_kind;
+			PPOprKind2 op_kind;
 			PPIDArray op_list;
 			if(!RVALUEPTR(Data, pData))
 				Data.Z();

@@ -929,7 +929,7 @@ int PPObjBill::GetPayableOpListByReckonOp(const PPReckonOpEx & rRcknData, PPID a
 	THROW(ArObj.Fetch(arID, &ar_rec) > 0);
 	paym_sheet_id = ar_rec.AccSheetID;
 	for(i = 0; i < rRcknData.OpList.getCount(); i++) {
-		PPOprKind opk;
+		PPOprKind2 opk;
 		const  PPID paym_op_id = rRcknData.OpList.at(i);
 		GetOpData(paym_op_id, &opk);
 		if(opk.LinkOpID) {
@@ -977,7 +977,7 @@ int PPObjBill::GetPaymentOpListByDebtOp(PPID debtOpID, PPID arID, ReckonOpArList
 {
 	int    ok = 1;
 	uint   i, j;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	PPIDArray op_list, paym_op_list, ar_list;
 	PPID   prim_sheet_id = 0; // Таблица, к которой относится статья arID
 	ArticleTbl::Rec ar_rec;
@@ -993,7 +993,7 @@ int PPObjBill::GetPaymentOpListByDebtOp(PPID debtOpID, PPID arID, ReckonOpArList
 		if(GetOpData(op_id, &op_rec) > 0 && op_rec.Flags & OPKF_RECKON) {
 			PPID   acc_sheet_id = op_rec.AccSheetID;
 			if(!acc_sheet_id) {
-				PPOprKind link_op_rec;
+				PPOprKind2 link_op_rec;
 				if(op_rec.LinkOpID && GetOpData(op_rec.LinkOpID, &link_op_rec) > 0)
 					acc_sheet_id = link_op_rec.AccSheetID;
 			}

@@ -5771,6 +5771,8 @@
 	#define CTL_FREIGHT_COST             (21 + WINDOWS_ID_BIAS)
 	#define CTL_FREIGHT_CAPTAIN2         (22 + WINDOWS_ID_BIAS)
 	#define CTLSEL_FREIGHT_CAPTAIN2      (23 + WINDOWS_ID_BIAS)
+	#define CTLCLC_FREIGHT_COST          (24 + WINDOWS_ID_BIAS)  
+	#define CTL_FREIGHT_CMD_DLVRLOCLIST  (25 + WINDOWS_ID_BIAS)
 #define DLG_SELBBSMPL             492 // Выбор способа создания документа по образцу
 	#define CTL_SELBBSMPL_WHAT           (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELBBSMPL_OP             (2 + WINDOWS_ID_BIAS)

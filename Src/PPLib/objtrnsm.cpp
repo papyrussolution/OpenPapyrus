@@ -99,7 +99,7 @@ struct RestoreStackItem {
 			getCtrlData(CTLSEL_DBXCHGCFG_DROP,    &Data.DfctRcptOpID);
 			sel = CTL_DBXCHGCFG_DROP;
 			if(Data.DfctRcptOpID) {
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				THROW(GetOpData(Data.DfctRcptOpID, &op_rec) > 0);
 				THROW_PP(op_rec.AccSheetID == GetSupplAccSheet(), PPERR_DFCTRCPTOPACSNEQSUPPLACS);
 			}
@@ -2226,7 +2226,7 @@ public:
 		SetupOprKindCombo(this, CTLSEL_BTRAN_OP, Data.OpID, 0, &op_list, 0);
 		{
 			op_list.clear();
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			for(PPID op_id = 0; EnumOperations(0, &op_id, &op_rec) > 0;)
 				if(oneof2(op_rec.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND))
 					op_list.add(op_id);

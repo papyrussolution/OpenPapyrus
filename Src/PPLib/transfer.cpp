@@ -1047,7 +1047,7 @@ int Transfer::GetRest(PPID lotID, LDATE date, long oprno, double * pRest, double
 	k.LotID = lotID;
 	k.Dt    = date;
 	k.OprNo = oprno;
-	const int r = (search(2, &k, spLe) && k.LotID == lotID) ? 1 : PPDbSearchError();
+	const  int r = (search(2, &k, spLe) && k.LotID == lotID) ? 1 : PPDbSearchError();
 	if(r > 0) {
 		ASSIGN_PTR(pRest, R6(data.Rest));
 		ASSIGN_PTR(pPhRest, R6(data.WtRest));

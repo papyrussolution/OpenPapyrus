@@ -441,7 +441,7 @@ int PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 			THROW(bs_obj.Fetch(pPack->Rec.StatusID, &bs_rec) > 0);
 			if(bs_rec.CheckFields) {
 				if(!(flags & vpfFreightOnly)) {
-					PPOprKind op_rec;
+					PPOprKind2 op_rec;
 					if(bs_rec.CheckFields & BILCHECKF_OBJECT && !pPack->Rec.Object) {
 						if(GetOpData(pPack->Rec.OpID, &op_rec) > 0) {
 							THROW_PP(op_rec.AccSheetID == 0, PPERR_BILLSTCHECKFLD_OBJECT);
@@ -608,7 +608,7 @@ int PPObjBill::UpdateOpCounter(PPBillPacket * pPack)
 	int    ok = -1;
 	int    valid_data = 0;
 	TDialog * dlg = 0;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	PPObjOpCounter opc_obj;
 	THROW_INVARG(pPack);
 	THROW(opc_obj.CheckRights(PPR_MOD));
@@ -1875,7 +1875,7 @@ int PPObjBill::AddBailmentByOrder(PPID * pBillID, PPID sampleBillID, const SelAd
 	PPID   op_type = 0;
 	PPID   org_acc_sheet_id = 0;
 	PPID   new_acc_sheet_id = 0;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	PPBillPacket pack;
 	PPBillPacket sample_pack;
 	ASSIGN_PTR(pBillID, 0L);
@@ -1910,7 +1910,7 @@ int PPObjBill::AddExpendByReceipt(PPID * pBillID, PPID sampleBillID, const SelAd
 	uint   i;
 	SString clb;
 	PPTransferItem * p_ti;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	PPBillPacket pack;
 	PPBillPacket sample_pack;
 	ASSIGN_PTR(pBillID, 0L);
@@ -1975,7 +1975,7 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 	PPID   loc_id = preserve_cfg_loc;
 	PPID   op_type = 0;
 	SString temp_buf;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	PPBillPacket pack;
 	PPBillPacket sample_pack;
 	ASSIGN_PTR(pBillID, 0L);
@@ -2050,7 +2050,7 @@ int PPObjBill::AddExpendByOrder(PPID * pBillID, PPID sampleBillID, const SelAddB
 			}
 			if(is_there_limited_goods) {
 				const  PPID   rcpt_op_id = GetReceiptOp();
-				PPOprKind rcpt_op_rec;
+				PPOprKind2 rcpt_op_rec;
 				//PPID   rcpt_ar_id = 0;
 				PPID   default_suppl_id = 0;
 				// @v12.0.7 {
@@ -2217,7 +2217,7 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 	PPID   loc_id = preserve_loc;
 	PPID   op_type = 0;
 	SString temp_buf;
-	PPOprKind    op_rec;
+	PPOprKind2 op_rec;
 	PPBillPacket pack;
 	PPBillPacket sample_pack;
 	ASSIGN_PTR(pBillID, 0L);
@@ -2372,7 +2372,7 @@ int PPObjBill::AddGoodsBillByFilt(PPID * pBillID, const BillFilt * pFilt, PPID o
 	int    ok = 1;
 	int    r = cmCancel;
 	PPID   op_type = 0L;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	PPBillPacket pack;
 	ASSIGN_PTR(pBillID, 0L);
 	THROW(CheckRights(PPR_INS));
@@ -2570,11 +2570,10 @@ int PPObjBill::AddGoodsBill(PPID * pBillID, const AddBlock * pBlk)
 {
 	const  PPConfig & r_cfg = LConfig;
 	const  PPID preserve_loc = r_cfg.Location;
-
 	int    ok = 1;
 	int    r = 1;
 	int    res = cmCancel;
-	PPOprKind    op_rec;
+	PPOprKind2 op_rec;
 	PPBillPacket pack;
 	const AddBlock blk(pBlk);
 	ASSIGN_PTR(pBillID, 0L);
@@ -2901,7 +2900,7 @@ int PPObjBill::AddAccturn(PPID * pBillID, const AddBlock * pBlk)
 		PPIDArray op_list;
 		uint   opfl = 0;
 		if(blk.RegisterID) {
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			for(PPID op_id = 0; EnumOperations(PPOPT_ACCTURN, &op_id, &op_rec) > 0;) {
 				if(op_rec.SubType == OPSUBT_REGISTER)
 					op_list.add(op_id);
@@ -3400,7 +3399,7 @@ int PPObjBill::SetStatus(PPID id, PPID statusID, int use_ta)
 		BillTbl::Rec rec;
 		PPObjBillStatus bs_obj;
 		PPBillStatus bs_rec, prev_bs_rec;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		PPObjOpCounter opc_obj;
 		PPLogger logger;
 		THROW(CheckRights(BILLOPRT_MODSTATUS, 1));
@@ -4600,7 +4599,7 @@ int PPObjBill::SearchQuoteReqSeq(const DateRange * pPeriod, TSArray <QuoteReqLin
 	int    ok = -1;
 	PPIDArray bill_id_list;
 	PPIDArray op_list;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	for(PPID op_id = 0; EnumOperations(PPOPT_DRAFTQUOTREQ, &op_id, &op_rec) > 0;) {
 		if(op_rec.LinkOpID)
 			op_list.add(op_id);
@@ -6814,11 +6813,11 @@ int PPObjBill::GetExpendedPartOfReceipt(PPID lotID, const DateRange * pPeriod, c
 	return ok;
 }
 
-int PPObjBill::GetTagListByLot(PPID lotID, int skipReserveTags, ObjTagList * pList)
+int PPObjBill::GetTagListByLot(PPID lotID, int skipReserveTags, ObjTagList & rList)
 {
+	rList.Z();
 	int    ok = -1;
 	int    is_parent_lot = 0;
-	ObjTagList list;
 	if(lotID) {
 		PPIDArray lot_id_list;
 		ReceiptTbl::Rec lot_rec;
@@ -6830,8 +6829,8 @@ int PPObjBill::GetTagListByLot(PPID lotID, int skipReserveTags, ObjTagList * pLi
 					temp_list.PutItem(PPTAG_LOT_CLB, 0);
 					temp_list.PutItem(PPTAG_LOT_SN, 0);
 				}
-				temp_list.Merge(list, ObjTagList::mumAdd|ObjTagList::mumUpdate);
-				list = temp_list;
+				temp_list.Merge(rList, ObjTagList::mumAdd|ObjTagList::mumUpdate);
+				rList = temp_list;
 				ok = 1;
 			}
 			if(trfr->Rcpt.Search(lotID, &lot_rec) > 0 && lot_id_list.addUnique(lotID = lot_rec.PrevLotID) > 0)
@@ -6840,7 +6839,6 @@ int PPObjBill::GetTagListByLot(PPID lotID, int skipReserveTags, ObjTagList * pLi
 				lotID = 0;
 		} while(lotID);
 	}
-	ASSIGN_PTR(pList, list);
 	return ok;
 }
 
@@ -7101,14 +7099,14 @@ int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 				if(r_ti.LotID) {
 					if(r_ti.IsReceipt() || force || is_intrexpnd) {
 						ObjTagList tag_list;
-						GetTagListByLot(r_ti.LotID, 0/*skipReserveTags*/, &tag_list);
+						GetTagListByLot(r_ti.LotID, 0/*skipReserveTags*/, tag_list);
 						pPack->LTagL.Set(row_idx, tag_list.GetCount() ? &tag_list : 0);
 					}
 					if(is_intrexpnd && trfr->SearchByBill(r_ti.BillID, 1, r_ti.RByBill, 0) > 0) {
 						const  PPID mirror_lot_id = trfr->data.LotID;
 						if(mirror_lot_id) {
 							ObjTagList mirror_tag_list;
-							GetTagListByLot(mirror_lot_id, 1, &mirror_tag_list);
+							GetTagListByLot(mirror_lot_id, 1, mirror_tag_list);
 							uint   j = mirror_tag_list.GetCount();
 							if(j) {
 								do {
@@ -7418,7 +7416,7 @@ int PPObjBill::Helper_StoreClbList(PPBillPacket * pPack)
 					//
 					ObjTagList inh_tag_list;
 					if(r_ti.LotID) {
-						GetTagListByLot(r_ti.LotID, 0/*skipReserveTags*/, &inh_tag_list);
+						GetTagListByLot(r_ti.LotID, 0/*skipReserveTags*/, inh_tag_list);
 					}
 					ObjTagList tag_list_copy;
 					if(p_tag_list) {
@@ -7594,7 +7592,7 @@ int PPObjBill::SetupModifPacket(PPBillPacket * pPack)
 				mh |= mhPlus;
 		}
 		if((mh & (mhPlus|mhMinus)) != (mhPlus|mhMinus)) {
-            PPOprKind op_rec;
+            PPOprKind2 op_rec;
             if(GetOpData(pPack->Rec.OpID, &op_rec) > 0) {
 				THROW_PP(!(op_rec.ExtFlags & OPKFX_DSBLHALFMODIF), PPERR_HALFMODIFBILLDISABLED);
             }
@@ -7946,7 +7944,7 @@ int PPObjBill::LoadAdvList(PPID billID, PPID opID, PPAdvBillItemList * pList)
 	int    ok = 1;
 	pList->Clear();
 	if(CcFlags & CCFLG_USEADVBILLITEMS && P_AdvBI && billID) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		if(GetOpType(opID, &op_rec) == PPOPT_ACCTURN && op_rec.Flags & OPKF_ADVACC) {
 			AdvBillItemTbl::Key0 k0;
 			k0.BillID  = billID;
@@ -8938,7 +8936,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 				const  PPID link_op_id = P_Tbl->data.OpID;
 				if(link_op_id) {
 					const  PPID link_id = P_Tbl->data.ID;
-					PPOprKind link_op_rec;
+					PPOprKind2 link_op_rec;
 					if(GetOpData(link_op_id, &link_op_rec) > 0 && !link_op_rec.AccSheetID && P_Tbl->data.Object == org.Object) {
 						PPBillPacket link_pack;
 						THROW(ExtractPacket(link_id, &link_pack) > 0);
@@ -9474,8 +9472,8 @@ int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, cons
 	SString msg_buf;
 	SString fmt_buf;
 	PPAccTurn at;
-	PPOprKind op_rec;
-	PPOprKind link_op_rec;
+	PPOprKind2 op_rec;
+	PPOprKind2 link_op_rec;
 	PPBillPacket shadow;
 	PPTransferItem * p_ti;
 	pPack->destroy();
@@ -10497,7 +10495,7 @@ int PPObjBill::ConvertGenAccturnToExtAccBill(PPID srcID, PPID * pDestID, const C
 {
 	int    ok = 1;
 	double amt;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	PPBillPacket src_pack;
 	PPBillPacket dest_pack;
 	PPAccTurn * p_at = 0;
@@ -10962,8 +10960,8 @@ int PPObjBill::MakeExportParticipantIdentBlock(const PPBillPacket & rBp, ExportP
 		rBlk.ConsignorLocID = rBp.GetDlvrAddrID();
 	}
 	else if(rBp.OpTypeID == PPOPT_GOODSRETURN) {
-		PPOprKind op_rec;
-		PPOprKind link_op_rec;
+		PPOprKind2 op_rec;
+		PPOprKind2 link_op_rec;
 		GetOpData(rBp.Rec.OpID, &op_rec);
 		if(op_rec.LinkOpID) {
 			GetOpData(op_rec.LinkOpID, &link_op_rec);
@@ -11020,7 +11018,7 @@ SLTEST_R(PPBillGuid)
 	int    ok = 1, r;
 	TSArray <BillGuidAssocItem> g_list;
 	SString temp_buf, op_symb;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	BillTbl::Rec bill_rec;
 	uint argp = 0;
 	if(EnumArg(&argp, temp_buf)) {

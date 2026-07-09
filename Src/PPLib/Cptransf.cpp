@@ -676,7 +676,7 @@ int PPObjBill::Helper_WrOffDrft_ExpExp(WrOffDraftBlock & rBlk, int use_ta)
 						const uint row_pos = local_row_pos_list.at(i);
 						const PPTransferItem & r_item = p_pack->ConstTI(row_pos);
 						ObjTagList tag_list;
-						GetTagListByLot(r_item.LotID, 0/*skipReserveTags*/, &tag_list);
+						GetTagListByLot(r_item.LotID, 0/*skipReserveTags*/, tag_list);
 						p_pack->LTagL.Set(row_pos, tag_list.GetCount() ? &tag_list : 0);
 					}
 				}
@@ -1403,7 +1403,7 @@ int PPObjBill::Helper_CreateDeficitTi(PPBillPacket & rPack, const PUGL * pPugl, 
 int PPObjBill::ProcessDeficit(PPID compOpID, PPID compArID, const PUGL * pPugl, PPLogger * pLogger, int use_ta)
 {
 	int    ok = -1;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	THROW_PP(compOpID, PPERR_UNDEFDWODFCTOP);
 	THROW_PP(GetOpData(compOpID, &op_rec) > 0, PPERR_UNDEFDWODFCTOP);
 	if(pPugl) {

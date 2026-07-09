@@ -240,7 +240,7 @@ int CreateByExample(const char * pPath)
 							// Перенос тегов лота с исходной базы в создаваемую.
 							//
 							ObjTagList lot_tag_list;
-							if(p_bobj->GetTagListByLot(rcpt_rec.ID, 0, &lot_tag_list) > 0) {
+							if(p_bobj->GetTagListByLot(rcpt_rec.ID, 0, lot_tag_list) > 0) {
 								THROW(dest_ot.PutList(PPOBJ_LOT, rcpt_rec.ID, &lot_tag_list, 0));
 							}
 						}

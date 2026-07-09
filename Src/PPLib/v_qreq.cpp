@@ -139,7 +139,7 @@ int PPViewQuoteReqAnalyze::CreateList(PPID leadBillID, int leadRbb)
 	int    ok = 1;
 	if(!leadBillID) {
 		PPIDArray op_list;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		List.clear();
 		if(Filt.OpID) {
 			op_list.add(Filt.OpID);
@@ -336,14 +336,14 @@ int PPViewQuoteReqAnalyze::CreateLinkedRequest(PPID leadBillID, int leadRbb)
 			if(seq_op_list.getCount()) {
 				PPID   seq_op_id = seq_op_list.get(0);
 				PPBillPacket seq_bpack;
-				TIDlgInitData tidid;
-				tidid.GoodsID = r_lead_ti.GoodsID;
-				tidid.Quantity = fabs(r_lead_ti.Quantity_);
-				tidid.Flags |= TIDIF_SEQQREQ;
+				TIDlgInitData tidi;
+				tidi.GoodsID = r_lead_ti.GoodsID;
+				tidi.Quantity = fabs(r_lead_ti.Quantity_);
+				tidi.Flags |= TIDIF_SEQQREQ;
 				THROW(seq_bpack.CreateBlank(seq_op_id, lead_bpack.Rec.ID, lead_bpack.Rec.LocID, 1));
 				seq_bpack.Rec.Dt = lead_bpack.Rec.Dt;
 				seq_bpack.Rec.DueDate = lead_bpack.Rec.DueDate;
-				if(EditTransferItem(seq_bpack, -1, &tidid, 0, 0) == cmOK) {
+				if(EditTransferItem(seq_bpack, -1, &tidi, 0, 0) == cmOK) {
 					const  uint tipos = seq_bpack.GetTCount() - 1;
 					PPTransferItem * p_ti = &seq_bpack.TI(tipos);
 					p_ti->Cost = 0.0;

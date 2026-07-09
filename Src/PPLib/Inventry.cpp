@@ -290,7 +290,7 @@ private:
 
 void InventoryOptionsDialog::setupAccSheet(uint opSelCtl, uint objSelCtl, PPID arID)
 {
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	const  PPID op_id = getCtrlLong(opSelCtl);
 	GetOpData(op_id, &op_rec);
 	SetupArCombo(this, objSelCtl, arID, OLW_LOADDEFONOPEN | OLW_CANINSERT, op_rec.AccSheetID, sacfDisableIfZeroSheet);

@@ -2890,7 +2890,7 @@ private:
 	int    RemoveWorkingPanel();
 	int    DrawNavTreeItem(void * pCustomDrawDescriptor);
 	int    GetSecretsFilePath(SString & rBuf);
-	int    LoadSecrets(bool interactive);
+	int    LoadSecrets(SString * pFilePath, bool interactive);
 	int    CloseSecrets();
 
 	CentrigoNavBlock NavBlk;
@@ -4082,8 +4082,8 @@ bool FASTCALL PPSecretSegment::IsEq(const PPSecretSegment & rS) const
 				SString t1;
 				SString t2;
 				for(uint i = 0; eq && i < spl1.getCount(); i++) {
-					const   uint p1 = spl1.at(i);
-					const   uint p2 = spl2.at(i);
+					const  uint p1 = spl1.at(i);
+					const  uint p2 = spl2.at(i);
 					r_sg1.GetS(p1, t1);
 					r_sg2.GetS(p2, t2);
 					if(t1 != t2)
@@ -4611,7 +4611,7 @@ int PPSecretSegmentPool::CreateStorage(const char * pFileName, const char * pMas
 	return ok;
 }
 
-int PPSecretSegmentPool::SaveStorage(const char * pFileName)
+int PPSecretSegmentPool::SaveStorage(const char * pFileName) const
 {
 	int   ok = 1;
 	bool  is_file_created = false;
@@ -4750,7 +4750,7 @@ int TFacadeWindow::GetSecretsFilePath(SString & rBuf)
 	return ok;
 }
 
-int TFacadeWindow::LoadSecrets(bool interactive)
+int TFacadeWindow::LoadSecrets(SString * pFilePath, bool interactive)
 {
 	int    ok = -1;
 	SString file_path;
@@ -4789,6 +4789,7 @@ int TFacadeWindow::LoadSecrets(bool interactive)
 			}
 		}
 	}
+	ASSIGN_PTR(pFilePath, file_path);
 	return ok;
 }
 
@@ -4804,7 +4805,8 @@ int TFacadeWindow::CloseSecrets()
 //
 class CentrigoSecretsDialog : public TDialog, public PPListDialogBaseInterface {
 public:
-	CentrigoSecretsDialog(PPSecretSegmentPool & rSecPool) : TDialog(DLG_SECRETPOOL), R_SecPool(rSecPool)
+	CentrigoSecretsDialog(PPSecretSegmentPool & rSecPool, const SString & rFilePath) : TDialog(DLG_SECRETPOOL), R_SecPool(rSecPool), CurrentSegIdx(0),
+		FilePath(rFilePath)
 	{
 		P_Box = static_cast<SmartListBox *>(getCtrlView(CTL_SECRETPOOL_LIST));
 		if(!SetupStrListBox(P_Box))
@@ -4835,6 +4837,13 @@ private:
 			MakeNewSegName(name_buf);
 			R_SecPool.PutText(name_buf, &p_new_seg->NameP);
 			p_new_seg->SecType = PPSecretSegment::sectypGeneric;
+			{
+				if(FilePath.NotEmpty()) {
+					// @todo Тут надо перенести сегменты в секретный пул
+					if(!R_SecPool.SaveStorage(FilePath))
+						PPError();
+				}
+			}
 			ASSIGN_PTR(pPos, static_cast<long>(new_seg_pos));
 			ASSIGN_PTR(pID, static_cast<long>(p_new_seg->InternalID));
 			ok = 1;
@@ -4849,7 +4858,7 @@ private:
 	virtual int  delItem(long pos, long id)
 	{
 		int    ok = -1;
-		if(pos >= 0 && pos < R_SecPool.getCount()) {
+		if(pos >= 0 && pos < R_SecPool.getCountI()) {
 			// @todo Надо не забыть упаковать пул строк иначе все старые секреты останутся в хранилище, а это - плохо.
 			R_SecPool.atFree(pos);
 			ok = 1;
@@ -4865,6 +4874,7 @@ private:
 		if(segIdx < R_SecPool.getCount()) {
 			const  PPSecretSegment * p_item = R_SecPool.at(segIdx);
 			if(p_item) {
+				CurrentSegIdx = segIdx+1;
 				R_SecPool.GetText(p_item->NameP, temp_buf);
 				setCtrlString(CTL_SECRETPOOL_NAME, temp_buf);
 				setCtrlLong(CTL_SECRETPOOL_ID, p_item->InternalID);
@@ -4872,7 +4882,14 @@ private:
 				{
 					SUniTime_Internal ut;
 					UED::_GetRaw_Time(p_item->UedEnterTm, ut);
-					//datetimefmt()
+					setCtrlString(CTL_SECRETPOOL_CRTM, ut.ToStr(DATF_ISO8601CENT, TIMF_HMS, temp_buf));
+				}
+				{
+					SUniTime_Internal ut;
+					UED::_GetRaw_Time(p_item->CE.UedBeforeTm, ut);
+					LDATE  dt = ZERODATE;
+					ut.GetDate(&dt);
+					setCtrlDate(CTL_SECRETPOOL_EXPIRY, dt);
 				}
 				// input CTL_SECRETPOOL_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[128];
 				// input CTL_SECRETPOOL_ID [width: 60 height: 21 margin: 4 tabstop readonly fmtf: (nozero) label: "@id"] uint64;
@@ -4892,6 +4909,34 @@ private:
 	}
 	void    GetCurrentInput()
 	{
+		SString temp_buf;
+		if(CurrentSegIdx && CurrentSegIdx <= R_SecPool.getCount()) {
+			PPSecretSegment * p_item = R_SecPool.at(CurrentSegIdx-1);
+			if(p_item) {
+				const  PPSecretSegment preserve_segment(*p_item);
+				p_item->SecType = getCtrlLong(CTLSEL_SECRETPOOL_TYPE);
+				getCtrlString(CTL_SECRETPOOL_NAME, temp_buf);
+				R_SecPool.PutText(temp_buf, &p_item->NameP);
+				{
+					LDATE  dt = getCtrlDate(CTL_SECRETPOOL_EXPIRY);
+					SUniTime_Internal ut;
+					ut.SetDate(dt);
+					p_item->CE.UedBeforeTm = UED::_SetRaw_Time(UED_META_DATE_DAY, ut);
+				}
+				//
+				if(!p_item->IsEq(preserve_segment)) {
+					if(FilePath.NotEmpty()) {
+						if(!R_SecPool.SaveStorage(FilePath))
+							PPError();
+					}
+					SString preserve_name;
+					R_SecPool.GetText(preserve_segment.NameP, preserve_name);
+					if(temp_buf != preserve_name) {
+						updateList(-1); // -1 принципиально, поскольку функция возможно была вызвана в ответ на изменение фокус списка.
+					}
+				}
+			}
+		}
 	}
 	DECL_HANDLE_EVENT
 	{
@@ -4907,6 +4952,9 @@ private:
 						long   id;
 						if(getCurItem(&pos, &id)) {
 							if(pos >= 0 && pos < R_SecPool.getCountI()) {
+								if(CurrentSegIdx && CurrentSegIdx != (pos+1)) {
+									GetCurrentInput();	
+								}
 								SetupSelectedSegment(pos);
 							}
 						}
@@ -4986,6 +5034,8 @@ private:
 	}
 
 	PPSecretSegmentPool & R_SecPool;
+	const  SString FilePath;
+	uint   CurrentSegIdx; // [1..], 0 - undef
 	uint   CtlList;
 	SmartListBox * P_Box;
 };
@@ -4994,9 +5044,10 @@ int TFacadeWindow::DoSecrets()
 {
 	//PPListDialog aaa;
 	int    ok = -1;
+	SString file_path;
 	CentrigoSecretsDialog * dlg = 0;
-	if(LoadSecrets(true/*interactive*/)) {
-		dlg = new CentrigoSecretsDialog(SecPool);
+	if(LoadSecrets(&file_path, true/*interactive*/)) {
+		dlg = new CentrigoSecretsDialog(SecPool, file_path);
 		ExecView(dlg);
 	}
 	delete dlg;

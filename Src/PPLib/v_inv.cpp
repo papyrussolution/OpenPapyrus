@@ -1305,7 +1305,7 @@ int PPViewInventory::AddItem(TIDlgInitData * pInitData)
 	long   oprno = 0;
 	PPID   goods_id = pInitData ? pInitData->GoodsID : 0;
 	double qtty = pInitData ? pInitData->Quantity : 0.0;
-	const  char * p_serial = pInitData ? pInitData->Serial : 0;
+	const  char * p_serial = pInitData ? pInitData->Serial_.cptr() : 0;
 	PPID   bill_id = Filt.GetSingleBillID();
 	if(bill_id) {
 		int    r = EditLine(bill_id, &oprno, goods_id, p_serial, qtty, accel_mode);
@@ -1458,7 +1458,7 @@ int PPViewInventory::SelectByBarcode(int initChar, PPViewBrowser * pBrw)
 					tidi.GoodsID  = lot_rec.GoodsID;
 					P_BObj->trfr->GetRest(lot_rec.ID, bill_rec.Dt, MAXLONG, &tidi.Quantity, 0);
 					tidi.Flags = 0;
-					STRNSCPY(tidi.Serial, blk.Code_);
+					tidi.Serial_ = blk.Code_;
 					ok = AddItem(&tidi);
 				}
 			}

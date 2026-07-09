@@ -41,7 +41,7 @@ void PrcTechCtrlGroup::EnablePrcInsert(bool enbl) { SETFLAG(Flags, fEnablePrcIns
 
 void PrcTechCtrlGroup::setupArticle(TDialog * pDlg, const ProcessorTbl::Rec * pPrcRec)
 {
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	GetOpData(pPrcRec->WrOffOpID, &op_rec);
 	SetupArCombo(pDlg, CtlselAr, Data.ArID, OLW_LOADDEFONOPEN|OLW_CANINSERT, op_rec.AccSheetID, sacfDisableIfZeroSheet);
 	bool   was_idle_sheet_set = false;
@@ -468,7 +468,7 @@ int TSessionDialog::SetupPayment()
 				text_buf.Cat(PPLoadStringS("debt", temp_buf)).CatDiv(':', 2).Cat(debt_netto, SFMT_MONEY).CRB();
 			}
 			if(TSesObj.GetPrc(Data.Rec.PrcID, &prc_rec, 1, 1) > 0 && prc_rec.WrOffOpID) {
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				if(GetOpData(prc_rec.WrOffOpID, &op_rec) > 0 && op_rec.Flags & OPKF_NEEDPAYMENT) {
 					ReckonOpArList op_list;
 					PPIDArray finish_op_list;
@@ -501,7 +501,7 @@ int TSessionDialog::AddPayment()
 	if(Data.Rec.ID && Data.Rec.PrcID) {
 		ProcessorTbl::Rec prc_rec;
 		if(TSesObj.GetPrc(Data.Rec.PrcID, &prc_rec, 1, 1) > 0 && prc_rec.WrOffOpID) {
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			if(GetOpData(prc_rec.WrOffOpID, &op_rec) > 0 && op_rec.Flags & OPKF_NEEDPAYMENT) {
 				ReckonOpArList op_list;
 				PPIDArray finish_op_list; // Список зачетных операций, приемлемых для ввода документа оплаты
@@ -689,7 +689,7 @@ void TSessionDialog::setupOrder()
 			P_BObj->GetSerialNumberByLot(lot_rec.ID, serial, 0);
 			if(ar_obj.Fetch(lot_rec.SupplID, &ar_rec) > 0) {
 				ProcessorTbl::Rec prc_rec;
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				if(TSesObj.GetPrc(Data.Rec.PrcID, &prc_rec, 1, 1) > 0 && GetOpData(prc_rec.WrOffOpID, &op_rec) > 0)
 					if(op_rec.AccSheetID == ar_rec.AccSheetID) {
 						if(!Data.Rec.ArID || !Data.Rec.ID)
@@ -2681,7 +2681,7 @@ ExecSessionOnTechRouteFilt & FASTCALL ExecSessionOnTechRouteFilt::operator = (co
 			PPID   acs_id = 0;
 			ProcessorTbl::Rec prc_rec;
 			if(PrcObj.GetRecWithInheritance(Data.PrcID, &prc_rec, 1) > 0) {
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				if(GetOpData(prc_rec.WrOffOpID, &op_rec) > 0) {
 					acs_id = op_rec.AccSheetID;
 				}

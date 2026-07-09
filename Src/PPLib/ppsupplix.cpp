@@ -2957,7 +2957,7 @@ int iSalesPepsi::ReceiveReceipts()
 	if(p_result->getCount()) {
 		PPAlbatrossConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		if(acfg.Hdr.EdiDesadvOpID && GetOpData(acfg.Hdr.EdiDesadvOpID, &op_rec) > 0 && oneof2(op_rec.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
 			PPObjLocation loc_obj;
 			LocationTbl::Rec loc_rec;
@@ -3087,7 +3087,7 @@ int iSalesPepsi::ReceiveVDocs()
 		const SString srcloc_attr_pattern("ORD_GROUPCODE1");
 		PPAlbatrossConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		LocationTbl::Rec loc_rec;
 		PPID   op_id = 0;
 		{
@@ -3327,7 +3327,7 @@ int iSalesPepsi::ReceiveOrder_Csv(const char * pInBuf, size_t inBufLen)
 		StringSet ss(";");
 		PPAlbatrossConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		LocationTbl::Rec loc_rec;
 		PPID   loc_id = 0;
 		const  PPID  op_id = acfg.Hdr.OpID;
@@ -3593,7 +3593,7 @@ int iSalesPepsi::ReceiveOrders()
 		const SString srcloc_attr_pattern("ORD_GROUPCODE1");
 		PPAlbatrossConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		LocationTbl::Rec loc_rec;
 		const  PPID  op_id = acfg.Hdr.OpID;
 		if(op_id && GetOpData(op_id, &op_rec) > 0 && oneof2(op_rec.OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
@@ -4835,7 +4835,7 @@ int iSalesPepsi::SendInvoices()
     {
 		PPAlbatrossConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		if(acfg.Hdr.EdiDesadvOpID && GetOpData(acfg.Hdr.EdiDesadvOpID, &op_rec) > 0) {
 			if(op_rec.OpTypeID == PPOPT_DRAFTRECEIPT) {
 				PPObjOprKind op_obj;
@@ -5328,7 +5328,7 @@ int SapEfes::ReceiveOrders()
 	if(p_result->getCount()) {
 		PPAlbatrossConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		if(acfg.Hdr.OpID && GetOpData(acfg.Hdr.OpID, &op_rec) > 0 && oneof2(op_rec.OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
 			PPID   loc_id = 0;
 			PPIDArray dlvr_loc_list;
@@ -6390,7 +6390,7 @@ int SfaHeineken::ReceiveOrders()
 	if(result_list.getCount()) {
 		PPAlbatrossConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		if(acfg.Hdr.OpID && GetOpData(acfg.Hdr.OpID, &op_rec) > 0 && oneof2(op_rec.OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
 			PPIDArray loc_list;
 			PPIDArray psn_list;
@@ -6880,7 +6880,7 @@ int SfaHeineken::SendReceipts()
     {
 		PPAlbatrossConfig acfg;
 		PPAlbatrosCfgMngr::Get(&acfg);
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		if(acfg.Hdr.EdiDesadvOpID && GetOpData(acfg.Hdr.EdiDesadvOpID, &op_rec) > 0) {
 			if(op_rec.OpTypeID == PPOPT_DRAFTRECEIPT) {
 				PPObjOprKind op_obj;
@@ -9793,7 +9793,7 @@ public:
 					for(uint ggaidx = 0; ggaidx < gga.getCount(); ggaidx++) {
 						auto & r_entry = gga.at(ggaidx);
 						if(!rExclList.lsearch(r_entry.OpID)) {
-							PPOprKind op_rec;
+							PPOprKind2 op_rec;
 							if(IsIntrExpndOp(r_entry.OpID)) {
 								new_entry.Mov_Tk04 += fabs(r_entry.Quantity);
 							}
@@ -12378,8 +12378,8 @@ private:
 					PPIDArray ret_op_list;
 					PPIDArray ord_op_list;
 					{
-						PPOprKind op_rec;
-						PPOprKind link_op_rec;
+						PPOprKind2 op_rec;
+						PPOprKind2 link_op_rec;
 						for(uint i = 0; i < base_op_list.getCount(); i++) {
 							const PPID base_op_id = base_op_list.get(i);
 							if(GetOpData(base_op_id, &op_rec) > 0) {
@@ -13659,7 +13659,7 @@ int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringS
 		PPBillPacket bpack;
 		PPBillPacket ord_bpack;
 		if(P_BObj->ExtractPacket(billID, &bpack) > 0 && bpack.Rec.LinkBillID == rOrderBillRec.ID) {
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			const uint ltc = SVectorBase::GetCount(bpack.P_LocTrfrList);
 			if(GetOpType(bpack.Rec.OpID, &op_rec) == PPOPT_WAREHOUSE && oneof2(op_rec.SubType, OPSUBT_BAILMENT_PUT, OPSUBT_BAILMENT_GET) && ltc) {
 				SString svc_file_name; // SERVICE    "Data_xxxx_date"
@@ -14223,7 +14223,7 @@ int COCACOLA::ImportBailmentOrders()
 		PPID   todo_code_tag_id = 0;
 		PPObjBrand brand_obj; // На случай если придется автоматически создавать товар
 		PPIDArray todo_id_list; // Список идентификаторов созданных задач
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		// @v12.6.6 {
 		bool   do_create_absent_goods = true;
 		PPID   def_bailment_goodsgrp_id = 0;

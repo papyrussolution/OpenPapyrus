@@ -189,7 +189,7 @@ int PPTransferItem::Init(const BillTbl::Rec * pBillRec, int zeroRByBill, int for
 	if(pBillRec) {
 		if(zeroRByBill)
 			RByBill = 0;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		const  PPID op_id  = pBillRec->OpID;
 		const  PPID op_type_id = GetOpType(op_id, &op_rec);
 		Date     = pBillRec->Dt;

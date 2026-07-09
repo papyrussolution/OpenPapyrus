@@ -4998,7 +4998,7 @@ int PPViewClientActivityDetails::MakeList()
 						code_buf = bill_rec.Code;
 						//PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName, temp_buf);
 						//obj_buf.Cat("Bill").CatDiv(':', 2).Cat(temp_buf);
-						PPOprKind op_rec;
+						PPOprKind2 op_rec;
 						GetOpData(bill_rec.OpID, &op_rec);
 						op_buf = op_rec.Name;
 					}

@@ -141,7 +141,7 @@ static int CanUpdateSuppl(const PPBillPacket * pBp, int itemNo)
 			yes = 1;
 	}
 	else if(pBp->OpTypeID == PPOPT_DRAFTQUOTREQ) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		GetOpData(pBp->Rec.OpID, &op_rec);
 		if(op_rec.AccSheetID && op_rec.AccSheetID == GetSupplAccSheet())
 			yes = 1;
@@ -212,15 +212,16 @@ int EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData * pInitData
 	const bool   allow_suppl_sel = (CanUpdateSuppl(&rPack, itemNo) && p_bobj->CheckRights(BILLOPRT_ACCSSUPPL, 1));
 	const bool   goods_fixed = (itemNo >= 0 || (pInitData && pInitData->GoodsID));
 	bool   skip_dlg = (pInitData && (pInitData->Flags & TIDIF_AUTOQTTY));
+	bool   goods_by_price = false;
+	bool   is_expend_ret = false; // @v12.6.9 Если операция возврат прихода (то есть, расход), то true
 	int    r = cmCancel;
-	int    goods_by_price  = 0;
 	int    valid_data = 0;
 	int    modified = 0;
 	uint   i;
 	uint   dlg_id = 0;
 	int    rt_to_modif = 1;
 	SpecSeriesCore * p_spc_core = 0;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	PPTransferItem pattern;
 	PPTransferItem * p_item = 0;
 	PPTransferItem * p_ti = 0;
@@ -229,10 +230,15 @@ int EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData * pInitData
 		case PPOPT_GOODSRETURN:
 			GetOpData(op_id, &op_rec);
 			switch(GetOpType(op_rec.LinkOpID)) {
-				case PPOPT_GOODSRECEIPT: dlg_id = DLG_LOTITEM; break;
+				case PPOPT_GOODSRECEIPT: 
+					is_expend_ret = true;
+					dlg_id = DLG_LOTITEM; 
+					break;
 				case PPOPT_GOODSEXPEND:
-					if(r_cfg.Flags & CFGFLG_SELGOODSBYPRICE && !goods_fixed)
-						dlg_id = ((goods_by_price = 1), DLG_PSELLITEM);
+					if(r_cfg.Flags & CFGFLG_SELGOODSBYPRICE && !goods_fixed) {
+						goods_by_price = true;
+						dlg_id = DLG_PSELLITEM;
+					}
 					else
 						dlg_id = DLG_SELLITEM;
 					break;
@@ -257,8 +263,10 @@ int EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData * pInitData
 		case PPOPT_GOODSEXPEND:
 			if(IsIntrOp(op_id))
 				dlg_id = DLG_INTRITEM;
-			else if(r_cfg.Flags & CFGFLG_SELGOODSBYPRICE && !goods_fixed)
-				dlg_id = ((goods_by_price = 1), DLG_PSELLITEM);
+			else if(r_cfg.Flags & CFGFLG_SELGOODSBYPRICE && !goods_fixed) {
+				goods_by_price = true;
+				dlg_id = DLG_PSELLITEM;
+			}
 			else
 				dlg_id = DLG_SELLITEM;
 			break;
@@ -319,20 +327,22 @@ int EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData * pInitData
 			p_item->OrdLotID = pOrder->LotID; // @ordlotid
 			p_item->Flags   |= PPTFR_ONORDER;
 		}
-		if(rPack.OpTypeID == PPOPT_GOODSRECEIPT || (rPack.OpTypeID == PPOPT_GOODSMODIF && sign > 0))
+		if(rPack.OpTypeID == PPOPT_GOODSRECEIPT || (rPack.OpTypeID == PPOPT_GOODSMODIF && sign > 0)) {
 			if(ccfgflags & CCFLG_COSTWOVATBYDEF)
 				p_item->Flags |= PPTFR_COSTWOVAT;
+		}
 	}
 	else {
 		p_item = &rPack.TI(itemNo);
 		dlg->EditMode = 1;
-		if(p_item->Flags & PPTFR_ONORDER)
+		if(p_item->Flags & PPTFR_ONORDER) {
 			if(rPack.SearchShLot(p_item->OrdLotID, &(i = 0))) // @ordlotid
 				pOrder = &rPack.P_ShLots->at(i);
 			else {
 				pOrder = 0;
 				p_item->Flags &= ~PPTFR_ONORDER;
 			}
+		}
 	}
 	SETFLAG(dlg->St, TrfrItemDialog::stGoodsByPrice, goods_by_price);
 	dlg->ItemNo = itemNo;
@@ -406,9 +416,28 @@ int EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData * pInitData
 				if(!modified && memcmp(p_item, &pattern, sizeof(pattern)) == 0)
 					r = cmCancel;
 			}
-			THROW(rPack.SetupRow(itemNo, p_item, pOrder, extra_qtty));
-			if(p_item->Flags & PPTFR_REVAL && !p_item->IsRecomplete())
+			{
+				LongArray row_idx_list; // @v12.6.10
+				THROW(rPack.SetupRow(itemNo, p_item, pOrder, extra_qtty, &row_idx_list));
+				// @v12.6.10 {
+				if(pInitData && pInitData->Mark_.NotEmpty() && row_idx_list.getCount()) {
+					if(rPack.OpTypeID == PPOPT_GOODSEXPEND || is_expend_ret) {
+						if(rPack.XcL.SearchAdaptive(pInitData->Mark_, 0, 0)) {
+							; // Марка уже есть в документе
+						}
+						else {
+							const uint row_idx = static_cast<uint>(row_idx_list.get(0));
+							if(row_idx < rPack.GetTCount()) {
+								rPack.XcL.Add(row_idx+1, 0, 0, pInitData->Mark_, 0);
+							}
+						}
+					}
+				}
+				// } @v12.6.10 
+			}
+			if(p_item->Flags & PPTFR_REVAL && !p_item->IsRecomplete()) {
 				THROW(dlg->ProcessRevalOnAllLots(p_item));
+			}
 			r = cmOK;
 		}
 		else
@@ -1579,7 +1608,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 			Item.Discount = 0.0;
 		}
 		if(suppl_deal_cost > 0.0) {
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_USESUPPLDEAL)
 				Item.Cost = suppl_deal_cost;
 		}
@@ -1588,7 +1617,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 		//
 		if(ItemNo < 0 && Item.LotID && Item.Flags & PPTFR_RECEIPT) {
 			ObjTagList inh_tag_list;
-			P_BObj->GetTagListByLot(Item.LotID, 1, &inh_tag_list);
+			P_BObj->GetTagListByLot(Item.LotID, 1, inh_tag_list);
 			const uint tc = inh_tag_list.GetCount();
 			if(tc) {
 				PPObjectTag2 tag_rec;
@@ -1890,7 +1919,7 @@ bool TrfrItemDialog::IsSourceSerialUsed()
 {
 	bool   yes = false;
 	if(P_Pack && IsTaggedItem() && getCtrlView(CTL_LOT_SOURCESERIAL)) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		PPObjectTag2 tag_rec;
 		if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_SOURCESERIAL && TagObj.Fetch(PPTAG_LOT_SOURCESERIAL, &tag_rec) > 0)
 			yes = true;
@@ -2181,7 +2210,7 @@ int TrfrItemDialog::GetPriceRestrictions(RealRange * pRange)
 {
 	RealRange range;
 	range.SetVal(0.0);
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	GetOpData(OpID, &op_rec);
 	int    ok = (op_rec.ExtFlags & OPKFX_RESTRICTPRICE) ? P_BObj->GetPriceRestrictions(*P_Pack, Item, ItemNo, &range) : -1;
 	ASSIGN_PTR(pRange, range);
@@ -2426,7 +2455,7 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	}
 	else if(IsIntrExpndOp(P_Pack->Rec.OpID)) {
 		ObjTagList tag_list;
-		P_BObj->GetTagListByLot(Item.LotID, 0/*skipReserveTags*/, &tag_list);
+		P_BObj->GetTagListByLot(Item.LotID, 0/*skipReserveTags*/, tag_list);
 		P_Pack->LTagL.Set(ItemNo, tag_list.GetCount() ? &tag_list : 0);
 	}
 	if(P_Pack->OpTypeID == PPOPT_DRAFTEXPEND) {

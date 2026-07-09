@@ -809,7 +809,7 @@ PPID GetSupplAccSheet()
 	const  PPCommConfig & r_ccfg = CConfig;
 	PPID   acs_id = r_ccfg.SupplAccSheet;
 	if(!acs_id) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		if(r_ccfg.ReceiptOp && GetOpData(r_ccfg.ReceiptOp, &op_rec) > 0)
 			acs_id = op_rec.AccSheetID;
 		if(!acs_id) {
@@ -825,7 +825,7 @@ PPID GetSellAccSheet()
 	const  PPCommConfig & r_ccfg = CConfig;
 	PPID   acc_sheet_id = 0;
 	if(r_ccfg.SellAccSheet == 0) {
-		PPOprKind opk;
+		PPOprKind2 opk;
 		acc_sheet_id = GetOpData(PPOPK_SELL, &opk) ? opk.AccSheetID : 0;
 	}
 	else

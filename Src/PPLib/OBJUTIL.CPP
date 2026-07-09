@@ -707,7 +707,7 @@ int PPObject::CreateReservedObjects(long flags)
 			}
 			{
 				PPObjOprKind op_obj;
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				if(suppl_acs_id) {
 					if(op_obj.Search(PPOPK_RECEIPT, &op_rec) > 0 && op_rec.AccSheetID == suppl_acs_id) {
 						rcpt_op_id = op_rec.ID;
@@ -2629,7 +2629,7 @@ void PPALDD_QuotArray::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStac
 			double rest = 0.0;
 			PPID   rest_op_id = 0;
 			PPID   order_op_id = 0;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			if(GetOpBySymb("GOODSREST", &op_rec) > 0)
 				rest_op_id = op_rec.ID;
 			if(GetOpBySymb("DRAFTORDER", &op_rec) > 0)
@@ -2681,7 +2681,7 @@ int PPALDD_UhttStoreItemArray::NextIteration(long iterId)
 		I.Tm = r_item.Dtm.t;
 		I.Value = r_item.Val;
 		if((r_item.GoodsID > 0) && (r_item.LocID > 0)) {
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			const  PPID rest_op_id = (GetOpBySymb("GOODSREST", &op_rec) > 0) ? op_rec.ID : 0;
 			const  PPID order_op_id = (GetOpBySymb("DRAFTORDER", &op_rec) > 0) ? op_rec.ID : 0;
 			if(rest_op_id)

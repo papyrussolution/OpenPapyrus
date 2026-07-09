@@ -2408,7 +2408,7 @@ int PPBillPacket::PreprocessArContext(PPID arID, PPID ar2ID, SetupObjectBlock & 
 	if(arID) {
 		PPObjArticle & r_ar_obj = P_BObj->ArObj;
 		ArticleTbl::Rec ar_rec;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		const  bool getopdata_result = (GetOpData(Rec.OpID, &op_rec) > 0);
 		PPID   force_ar2_id = 0; // Если в соглашении для клиента жестко задана доп статья, то это - она
 		THROW(getopdata_result);
@@ -2417,7 +2417,7 @@ int PPBillPacket::PreprocessArContext(PPID arID, PPID ar2ID, SetupObjectBlock & 
 		if(ar_rec.AccSheetID != op_rec.AccSheetID) {
 			bool local_err = true;
 			if(!op_rec.AccSheetID && op_rec.LinkOpID) {
-				PPOprKind link_op_rec;
+				PPOprKind2 link_op_rec;
 				if(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0 && link_op_rec.AccSheetID == ar_rec.AccSheetID)
 					local_err = false;
 			}
@@ -2528,7 +2528,7 @@ int PPBillPacket::SetupObject2(PPID ar2ID, SetupObjectBlock * pSob)
 	if(ar2ID != Rec.Object2) {
 		const  int  pacr = PreprocessArContext(Rec.Object, ar2ID, *p_sob); // @v12.5.11
 		if(ar2ID) {
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			PPObjArticle ar_obj;
 			ArticleTbl::Rec ar_rec;
 			THROW(GetOpData(Rec.OpID, &op_rec) > 0);
@@ -2562,7 +2562,7 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 	const  PPID preserve_agt_id = Rec.AgtBillID; // @v12.5.11
 	//PPID   force_agt_bill_id = 0; // Если необходимо установить новый документ соглашения в данный документ, то здесь - ид этого соглашения //
 	SString temp_buf;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	rRet.Z();
 	ProcessFlags &= ~(pfRestrictByArCodes | pfSubCostOnSubPartStr);
 	LAssocArray rglist;
@@ -2780,11 +2780,12 @@ int PPBillPacket::AttachToOrder(const PPBillPacket * pOrdPack)
 	return ok;
 }
 
-int PPBillPacket::SetupRow(int itemNo, PPTransferItem * pItem, const PPTransferItem * pOrdItem, double extraQtty)
+int PPBillPacket::SetupRow(int itemNo, PPTransferItem * pItem, const PPTransferItem * pOrdItem, double extraQtty, LongArray * pRowIdxList)
 {
 	int    ok = 1;
 	int    j = -2;
 	uint   p;
+	LongArray row_idx_list; // @v12.6.9
 	if(pItem->Flags & PPTFR_ONORDER) {
 		uint    i = 0;
 		j = SearchShLot(pItem->OrdLotID, &i) ? i : -1; // @ordlotid
@@ -2794,22 +2795,24 @@ int PPBillPacket::SetupRow(int itemNo, PPTransferItem * pItem, const PPTransferI
 			THROW(AddShadowItem(pOrdItem, &p));
 			j = (int)p;
 		}
-		THROW(InsertRow(pItem, 0, PCUG_USERCHOICE));
+		THROW(InsertRow(pItem, &row_idx_list, PCUG_USERCHOICE));
 		LTagL.ReplacePosition(-1, GetTCount() - 1);
 		CheckLargeBill(1);
 	}
 	else if(pItem->Flags & PPTFR_AUTOCOMPL) {
 		THROW(UpdateAutoComplRow(itemNo));
+		row_idx_list.add(itemNo);
 	}
 	if(j >= 0) {
-		PPTransferItem * ti = &P_ShLots->at(j);
-		THROW(CalcShadowQuantity(ti->LotID, &ti->Quantity_));
+		PPTransferItem * p_ti = &P_ShLots->at(j);
+		THROW(CalcShadowQuantity(p_ti->LotID, &p_ti->Quantity_));
 	}
-	else if(j == -1)
+	else if(j == -1) {
 		pItem->Flags &= ~PPTFR_ONORDER;
+	}
 	if(R6(extraQtty) > 0.0 && pItem->Flags & PPTFR_MINUS) {
 		ILTI   ilti;
-		LongArray row_pos_list;
+		LongArray local_row_idx_list;
 		uint   fl = CILTIF_ABSQTTY;
 		ilti.GoodsID  = pItem->GoodsID;
 	   	ilti.Price    = pItem->NetPrice();
@@ -2825,18 +2828,23 @@ int PPBillPacket::SetupRow(int itemNo, PPTransferItem * pItem, const PPTransferI
 				fl |= CILTIF_ALLOWZPRICE;
 		}
 		// } @v11.7.4 
-		THROW(P_BObj->ConvertILTI(ilti, this, &row_pos_list, fl, 0));
+		THROW(P_BObj->ConvertILTI(ilti, this, &local_row_idx_list, fl, 0));
+		row_idx_list.add(&local_row_idx_list);
 		if(IsIntrExpndOp(Rec.OpID)) {
-			for(uint i = 0; i < row_pos_list.getCount(); i++) {
-				const uint row_pos = row_pos_list.at(i);
-				const PPTransferItem & r_item = TI(row_pos);
+			for(uint i = 0; i < local_row_idx_list.getCount(); i++) {
+				const  uint row_pos = local_row_idx_list.at(i);
+				const  PPTransferItem & r_item = TI(row_pos);
 				ObjTagList tag_list;
-				P_BObj->GetTagListByLot(r_item.LotID, 0/*skipReserveTags*/, &tag_list);
+				P_BObj->GetTagListByLot(r_item.LotID, 0/*skipReserveTags*/, tag_list);
 				LTagL.Set(row_pos, tag_list.GetCount() ? &tag_list : 0);
 			}
 		}
 	}
 	CATCHZOK
+	if(pRowIdxList) {
+		row_idx_list.sortAndUndup();
+		*pRowIdxList = row_idx_list;
+	}
 	return ok;
 }
 
@@ -3292,7 +3300,7 @@ int PPBillPacket::GetDetailType() const // @v12.4.1
 {
 	int    result = detailtypeUndef;
 	if(OpTypeID == PPOPT_WAREHOUSE) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		GetOpData(Rec.OpID, &op_rec);
 		if(oneof3(op_rec.SubType, OPSUBT_BAILMENT_ORDER, OPSUBT_BAILMENT_PUT, OPSUBT_BAILMENT_GET))
 			result = detailtypeLocTrfr_Bailment;
@@ -3311,7 +3319,7 @@ int PPBillPacket::UngetCounter()
 {
 	int    ok = -1;
 	if(!(CConfig.Flags & CCFLG_DONTUNDOOPCNTRONESC) && Counter) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		if(GetOpData(Rec.OpID, &op_rec) > 0) {
 			PPObjOpCounter opc_obj;
 			ok = opc_obj.UngetCounter(op_rec.OpCounterID, Counter, Rec.LocID, 1);
@@ -3357,7 +3365,7 @@ int PPBillPacket::CreateBlankByFilt(PPID opID, const BillFilt * pFilt, int use_t
 {
 	int    ok = 1;
 	PPID   single_loc_id = pFilt->LocList.GetSingle();
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	THROW(_CreateBlank(NZOR(opID, pFilt->OpID), 0L, single_loc_id, 0, use_ta));
 	if(pFilt->Period.upp)
 		Rec.Dt = pFilt->Period.upp;
@@ -3464,7 +3472,7 @@ int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontI
 	int    ok = 1;
 	int    r;
 	const PPConfig & r_cfg = LConfig;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	destroy();
 	if(opID) {
 		PPID   op_counter_id = 0;
@@ -3674,7 +3682,7 @@ void PPBillPacket::CreateAccTurn(PPAccTurn & rAt) const
 	rAt.Date   = Rec.Dt;
 	rAt.BillID = Rec.ID;
 	rAt.Opr    = Rec.OpID;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	if(GetOpData(Rec.OpID, &op_rec) > 0) {
 		if(op_rec.SubType == OPSUBT_REGISTER)
 			rAt.Flags |= PPAF_REGISTER;
@@ -3686,7 +3694,7 @@ void PPBillPacket::CreateAccTurn(PPAccTurn & rAt) const
 int PPBillPacket::SetCurTransit(const PPCurTransit * pTrans)
 {
 	int    ok = 1;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	double scale;
 	double in_tran_crate;
 	double out_tran_crate;
@@ -4085,7 +4093,7 @@ int PPBillPacket::CheckGoodsForRestrictions(int rowIdx, PPID goodsID, int sign, 
 	}
 	if(ok) {
 		if(OpTypeID == PPOPT_GOODSMODIF) {
-            PPOprKind op_rec;
+            PPOprKind2 op_rec;
             if(GetOpData(Rec.OpID, &op_rec) > 0 && (op_rec.ExtFlags & (OPKFX_MCR_GROUP|OPKFX_MCR_SUBSTSTRUC|OPKFX_MCR_EQQTTY))) {
 				TSCollection <ModifGoodsItem> mg_list;
 				uint   i;
@@ -6647,7 +6655,7 @@ void PPBillPacket::Implement_SumAmounts(AmtList & rList, const PPBillPacket * pO
 	BillTotalData total_data;
 	BillTotalData total_data_orgpack;
 	// @v11.6.6 {
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	if(Rec.OpID && GetOpData(Rec.OpID, &op_rec)) {
 		if(op_rec.Flags & OPKF_CALCSTAXES)
 			btb_flags |= BTC_CALCSALESTAXES;

@@ -5347,7 +5347,7 @@ int CSessGrouping::ConvertDeficit(PPID sessID, PPID locID, CSessTotal * pTotal)
 						if(op_id) {
 							ReceiptTbl::Rec lot_rec;
 							PPTransferItem ti;
-							PPOprKind op_rec;
+							PPOprKind2 op_rec;
 							for(j = 0; !p_pack && j < pack_list.getCount(); j++) {
 								PPBillPacket * p = pack_list.at(j);
 								if(p && p->Rec.LocID == loc_id && p->Rec.Dt == date)

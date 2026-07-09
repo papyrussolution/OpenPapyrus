@@ -1260,7 +1260,7 @@ int PPViewDebtTrnovr::NextProcessIteration(PPID reckonOpID, ProcessBlock & rBlk)
 	if(reckonOpID) {
 		rBlk.IterPath = ProcessBlock::ipReckonOp;
 		rBlk.ReckonOpID = reckonOpID;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		PPLoadText(PPTXT_WAIT_DEBTTRNOVR, rBlk.IterMsgPrefix);
 		if(GetOpData(reckonOpID, &op_rec) > 0) {
 			rBlk.ReckonAccSheetID = op_rec.AccSheetID;

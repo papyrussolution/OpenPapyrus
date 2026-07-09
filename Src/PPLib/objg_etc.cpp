@@ -86,9 +86,10 @@ int PPObjGoodsType::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	if(msg == DBMSG_OBJDELETE) {
 		if(_obj == PPOBJ_AMOUNTTYPE && _id) {
 			PPGoodsType2 rec;
-			for(PPID id = 0; EnumItems(&id, &rec) > 0;)
+			for(PPID id = 0; EnumItems(&id, &rec) > 0;) {
 				if(oneof4(_id, rec.AmtCost, rec.AmtPrice, rec.AmtDscnt, rec.AmtCVat))
 					return RetRefsExistsErr(Obj, id);
+			}
 		}
 	}
 	return DBRPL_OK;
@@ -490,7 +491,7 @@ private:
 		SetupOprKindCombo(dlg, CTLSEL_SHIPMCTRL_RETOP, Data.Rec.ScpRetOpID, 0, &op_type_list, 0);
 		{
 			op_type_list.clear();
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			for(PPID op_id = 0; EnumOperations(0, &op_id, &op_rec) > 0;) {
 				if(op_rec.SubType == OPSUBT_TRADEPLAN && oneof3(op_rec.OpTypeID, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT))
 					op_type_list.add(op_id);

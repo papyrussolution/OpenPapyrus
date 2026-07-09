@@ -2496,7 +2496,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 int PPViewVatBook::ProcessOp2(const OpEntryVector & rList, uint listIdx, const OpEntryVector * pNegList, const AutoBuildFilt * pFilt, int mode, PPObjBill::PplBlock * pEbfBlk)
 {
 	int    ok = 1;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	BillTbl::Rec bill_rec;
 	SString wait_msg;
 	const  OpEntry & r_entry = rList.at(listIdx);

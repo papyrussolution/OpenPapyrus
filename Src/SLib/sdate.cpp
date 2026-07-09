@@ -3014,7 +3014,20 @@ SString & SUniTime_Internal::TimeToStr(long fmt, SString & rBuf) const // @v12.6
 
 SString & SUniTime_Internal::ToStr(long dtFmt, long tmFmt, SString & rBuf) const // @v12.6.10 @construction
 {
-	// @todo
+	rBuf.Z();
+	const  int df = SFMTFLAG(dtFmt);
+	const  int tf = SFMTFLAG(tmFmt);
+	if(df == DATF_SQL || tf == TIMF_SQL) {
+		/* это - какая-то древняя дичь! const char * p_format = "%02d:%02d:%04d %02d:%02d:%02d.%03d";
+		rBuf.Printf(p_format, M, D, Y, Hr, Mn, Sc, MSc);*/
+		SString & r_buf = SLS.AcquireRvlStr();
+		const  long eff_tm_fmt = MSc ? (TIMF_HMS|TIMF_MSEC) : TIMF_HMS;
+		rBuf.Cat(DateToStr(DATF_ISO8601CENT, r_buf)).Space().Cat(TimeToStr(eff_tm_fmt, r_buf));
+	}
+	else {
+		SString & r_buf = SLS.AcquireRvlStr();
+		rBuf.Cat(DateToStr(dtFmt, r_buf)).Space().Cat(TimeToStr(tmFmt, r_buf));
+	}
 	return rBuf;
 }
 

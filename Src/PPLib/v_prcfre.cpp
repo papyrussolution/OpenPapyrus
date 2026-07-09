@@ -546,7 +546,7 @@ int PPViewPrcBusy::EditTimeGridItem(PPID * pID, PPID rowID, const LDATETIME & rD
 			if(P_OCtx->PersonID) {
 				ProcessorTbl::Rec prc_rec;
 				if(TSesObj.PrcObj.GetRecWithInheritance(prc_id, &prc_rec) > 0) {
-					PPOprKind op_rec;
+					PPOprKind2 op_rec;
 					GetOpData(prc_rec.WrOffOpID, &op_rec);
 					if(op_rec.AccSheetID) {
 						PPObjArticle ar_obj;

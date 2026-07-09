@@ -206,7 +206,7 @@ int PickLot(PickLotParam & rParam, TIDlgInitData * pResult)
 					if(pResult) {
 						pResult->LotID = p_sel->LotID;
 						pResult->GoodsID = p_sel->GoodsID;
-						STRNSCPY(pResult->Serial, p_sel->Serial);
+						pResult->Serial_ = p_sel->Serial;
 					}
 					ok = 1;
 				}
@@ -223,9 +223,9 @@ int PickLot(PickLotParam & rParam, TIDlgInitData * pResult)
 //
 //
 //
-TIDlgInitData::TIDlgInitData()
+TIDlgInitData::TIDlgInitData() : GoodsGrpID(0), GoodsID(0), LotID(0), ArID(0), Flags(0), ModifMode(0), Quantity(0.0)
 {
-	THISZERO();
+	QttyBounds.Z();
 }
 
 void FASTCALL TIDlgInitData::SetTiSign(int tisign)
@@ -773,7 +773,7 @@ int ExtGoodsSelDialog::getDTS(TIDlgInitData * pTidi)
 				pTidi->GoodsID = goods_id;
 				getCtrlData(CTLSEL_EXTGSEL_GGRP, &pTidi->GoodsGrpID);
 				if(SerialData.Serial[0]) {
-					STRNSCPY(pTidi->Serial, SerialData.Serial);
+					pTidi->Serial_ = SerialData.Serial;
 					pTidi->Quantity = SerialData.Qtty;
 					pTidi->LotID    = SerialData.LotID;
 				}

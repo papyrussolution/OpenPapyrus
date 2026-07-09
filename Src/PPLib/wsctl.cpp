@@ -1234,7 +1234,7 @@ int WsCtlSrvBlock::StartSess(StartSessBlock & rBlk)
 			THROW(TSesObj.CheckSessionTime(pack.Rec));
 			THROW(TSesObj.GetPrc(prc_id, &inh_prc_rec, 1, 1) > 0);
 			if(inh_prc_rec.WrOffOpID) {
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				if(GetOpData(inh_prc_rec.WrOffOpID, &op_rec) > 0 && op_rec.AccSheetID && sc_rec.PersonID) {
 					PPID   ar_id = 0;
 					if(ArObj.P_Tbl->PersonToArticle(sc_rec.PersonID, op_rec.AccSheetID, &ar_id)) {

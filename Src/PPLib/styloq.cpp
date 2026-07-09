@@ -7580,7 +7580,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportClients(const SBinaryCh
 		ArticleViewItem ar_item;
 		PPObjAccSheet acc_sheet_obj;
 		PPAccSheet acs_rec;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		PersonTbl::Rec psn_rec; // @v11.8.1
 		//StyloQBlobInfo blob_info;
 		SString blob_signature;
@@ -10101,7 +10101,7 @@ int PPStyloQInterchange::GetContextualOpAndLocForOrder(const StyloQDocumentPrere
 {
 	int    ok = -1;
 	PPID   op_id = 0;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	CALLPTRMEMB(pLocList, Z());
 	if(rParam.PalmID) {
 		PPObjStyloPalm stp_obj;

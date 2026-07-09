@@ -2289,8 +2289,8 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 					if(oneof4(doc_type, PPEDIOP_EGAIS_WAYBILL, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4)) {
 						const  PPBillPacket * p_bp = static_cast<const PPBillPacket *>(rPack.P_Data);
 						int    wb_type = 0;
-						PPOprKind op_rec;
-						PPOprKind link_op_rec;
+						PPOprKind2 op_rec;
+						PPOprKind2 link_op_rec;
 						THROW(GetOpData(p_bp->Rec.OpID, &op_rec) > 0);
 						PPObjBill::MakeCodeString(&p_bp->Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, bill_text);
 						if(op_rec.LinkOpID) {
@@ -4695,7 +4695,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 		else if(was_header_accepted && !is_pack_inited) {
 			PPID   ar_id = 0;
 			PPID   dlvr_loc_id = 0;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			if(!pPack) {
 				; // @skip next block
 			}
@@ -6465,7 +6465,7 @@ int PPEgaisProcessor::Read_Rests(xmlNode * pFirstNode, PPID locID, const DateRan
 		int    do_skip = 0;
 		PPID   op_id = 0;
 		PPObjOprKind op_obj;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		ObjTagItem tag_item;
 		const char * p_code_suffix = 0;
 		if(pPack->DocType == PPEDIOP_EGAIS_REPLYRESTSSHOP)
@@ -7569,7 +7569,7 @@ int PPEgaisProcessor::ReadInput(PPID locID, const DateRange * pPeriod, long flag
 					BillTbl::Rec bill_rec;
 					for(uint i = 0; i < bill_id_list.getCount(); i++) {
 						const  PPID bill_id = bill_id_list.get(i);
-						PPOprKind op_rec;
+						PPOprKind2 op_rec;
 						PPFreight freight;
 						if(P_BObj->Search(bill_id, &bill_rec) > 0) {
                             if(bill_rec.Object && GetOpData(bill_rec.OpID, &op_rec) > 0) {
@@ -7779,7 +7779,7 @@ int PPEgaisProcessor::GetActChargeOnOp(PPID * pID, int egaisOp, int use_ta)
 	PPID   op_id = 0;
 	SString temp_buf;
 	PPObjOprKind op_obj;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	if(egaisOp == PPEDIOP_EGAIS_ACTCHARGEON) {
 		reserved_id = PPOPK_EDI_ACTCHARGEON;
 		name_id = PPTXT_OPK_EGAIS_ACTCHARGEON;
@@ -7959,7 +7959,7 @@ int PPEgaisProcessor::GetAcceptedBillList(const PPBillIterchangeFilt & rP, long 
 	for(i = 0; i < op_list.getCount(); i++) {
 		const  PPID op_id = op_list.get(i);
 		if(op_id) {
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			GetOpData(op_id, &op_rec);
 			if(rP.IdList.getCount()) {
 				for(uint j = 0; j < rP.IdList.getCount(); j++) {
@@ -8154,7 +8154,7 @@ int PPEgaisProcessor::GetBillListForTransmission(const PPBillIterchangeFilt & rP
 	}
 	for(i = 0; i < op_list.getCount(); i++) {
 		const  PPID op_id = op_list.get(i);
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		GetOpData(op_id, &op_rec);
 		if(rP.IdList.getCount()) {
 			for(uint j = 0; j < rP.IdList.getCount(); j++) {
@@ -8271,7 +8271,7 @@ int PPEgaisProcessor::GetBillListForConfirmTicket(const PPBillIterchangeFilt & r
 	}
     for(i = 0; i < op_list.getCount(); i++) {
 		const  PPID op_id = op_list.get(i);
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		GetOpData(op_id, &op_rec);
 		if(rP.IdList.getCount()) {
 			for(uint j = 0; j < rP.IdList.getCount(); j++) {
@@ -8359,7 +8359,7 @@ int PPEgaisProcessor::Helper_SendBillsByPattern(const PPBillIterchangeFilt & rP,
 	SString temp_buf;
 	PPIDArray totransm_bill_list;
 	if(rPattern.EdiOp == PPEDIOP_EGAIS_CONFIRMREPEALWB) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		SString edi_ident;
 		SString repeal_tag;
 		StrAssocArray repealreq_bill_list;

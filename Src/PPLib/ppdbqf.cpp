@@ -828,7 +828,7 @@ static IMPL_DBE_PROC(dbqf_objname_goodsbytech_i)
 
 static IMPL_DBE_PROC(dbqf_objname_oprkind_i)
 {
-	PPOprKind rec;
+	PPOprKind2 rec;
 	if(!DbeInitSize(option, result, sizeof(rec.Name))) {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, rec.Name);
 		if(id)

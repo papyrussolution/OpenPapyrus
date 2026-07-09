@@ -642,7 +642,7 @@ private:
 class PPDS_CrrOprKindEntry : public PPDeclStruc {
 public:
 	PPDS_CrrOprKindEntry() : PPDeclStruc() {}
-	PPOprKind       Data;
+	PPOprKind Data;
 private:
 	virtual int InitData(Ido op, void * dataPtr, long addedParam);
 	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);

@@ -1716,7 +1716,7 @@ int32 DL6ICLS_PPUtil::GetSupplInterchangeConfig(int32 supplID, PpySupplInterchan
 		{
 			PPAlbatrossConfig acfg;
 			PPAlbatrosCfgMngr::Get(&acfg);
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			if(acfg.Hdr.OpID && GetOpData(acfg.Hdr.OpID, &op_rec) > 0 && oneof2(op_rec.OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND))
 				pValue->OrderOp = acfg.Hdr.OpID;
 			else
@@ -2496,9 +2496,9 @@ int32 DL6ICLS_PPObjOprKind::Search(int32 id, PPYOBJREC rec)
 	int    ok = 0;
 	PPObjOprKind * p_obj = static_cast<PPObjOprKind *>(ExtraPtr);
 	if(p_obj) {
-		PPOprKind oprk_rec;
-		ok = p_obj->Search(id, &oprk_rec);
-		FillOprKindRec(&oprk_rec, static_cast<SPpyO_OprKind *>(rec));
+		PPOprKind2 op_rec;
+		ok = p_obj->Search(id, &op_rec);
+		FillOprKindRec(&op_rec, static_cast<SPpyO_OprKind *>(rec));
 	}
 	SetAppError(ok);
 	return ok;
@@ -2509,7 +2509,7 @@ int32 DL6ICLS_PPObjOprKind::SearchByName(SString & text, int32 kind, int32 extra
 	int    ok = 0;
 	PPObjOprKind * p_obj = static_cast<PPObjOprKind *>(ExtraPtr);
 	if(p_obj) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		PPID id = 0;
 		if(kind == 1) {
 			ok = p_obj->SearchBySymb(text, &id);
@@ -5395,7 +5395,7 @@ int32 DL6ICLS_PPBillPacket::PutItem(SPpyO_TrfrItem * pItem)
 		PPTransferItem ti;
 		FillInnerTrfrItem(pItem, &ti);
 		THROW(ti.Init(&p_pack->Rec));
-		THROW(ok = p_pack->SetupRow(0, &ti, 0, 0));
+		THROW(ok = p_pack->SetupRow(0, &ti, 0, 0, 0/*pRowIdxList*/));
 		THROW(ok = p_pack->InsertRow(&ti, 0));
 	}
 	CATCH
@@ -6019,7 +6019,7 @@ int32 DL6ICLS_PPObjBill::GetLotTagValue(int32 lotID, int32 tagID, SString * pVal
 	InnerBillExtra * p_e = static_cast<InnerBillExtra *>(ExtraPtr);
 	if(p_e && p_e->P_BObj) {
 		ObjTagList list;
-		if(p_e->P_BObj->GetTagListByLot(lotID, 0, &list) > 0) {
+		if(p_e->P_BObj->GetTagListByLot(lotID, 0, list) > 0) {
 			const ObjTagItem * p_item = list.GetItem(tagID);
 			if(p_item) {
 				if(p_item->TagDataType != OTTYP_OBJLINK)

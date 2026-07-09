@@ -1793,7 +1793,7 @@ PPERR_SMS_NOSENDERNUMBER            "Не указан адрес отправи
 PPERR_SMS_SMSTEXTEMPTY              "Не указан текст SMS-сообщения"
 PPERR_SMS_ADDRRANGEERRLEN           "Длина поля 'Address Range' не может превышать 40 символов"
 PPERR_SMS_FROMMUSTBELATIN           "Адрес отправителя SMS-сообщения может содержать только латинские символы"
-PPERR_EDI_SPRRECADVWOTTN            "Документ '%s' по может быть экспортирован по спецификации RECADV поскольку в нем отсутствует тег ТТН"
+PPERR_EDI_SPRRECADVWOTTN            "Документ '%s' не может быть экспортирован по спецификации RECADV поскольку в нем отсутствует тег ТТН"
 PPERR_EDI_PRVUNDEF                  "@{err_internal}: не определен EDI-провайдер"
 PPERR_EDI_DOCIDENTLEN               "Идентификатор документа/сообщения '%s' пустой или имеет длину более 17 символов"
 PPERR_EDI_GLNISEMPTY                "Не допускается пустой @{gln}"
@@ -4108,7 +4108,8 @@ PPTXT_LOG_EXPFILENAME                     "@{export}: @{filename} '@zstr'"
 PPTXT_LOG_JOBEXPBILL_READFILT             "Job '@{exportbills}': считан фильтр"
 PPTXT_LOG_JOBEXPBILL_GETPARAM             "Job '@{exportbills}': получены параметры экспорта '@zstr' - '@zstr'"
 PPTXT_LOG_JOBEXPBILL_DONE                 "Job '@{exportbills}': экспорт завершен с кодом возврата @int"
-PPTXT_LOG_EXPBILL_ITEM                    "@{export}: экспортирован документ '@zstr'"
+PPTXT_LOG_EXPBILL_ITEM                    "Экспортирован документ '@zstr'"
+PPTXT_LOG_EXPBILL_ITEM_TO_FILE            "Экспортирован документ '@zstr' в файл '@zstr'" // @v12.6.10
 PPTXT_LOG_DISPINVOKEFAULT                 "Ошибка вызова Dispatch-метода '@zstr': @zstr"
 PPTXT_LOG_NTRANS_CSESTEMP                 "Кассовая сессия '%s' не передана поскольку является временной"
 PPTXT_LOG_NTRANS_CSESNCL                  "Кассовая сессия '%s' не передана поскольку не закрыта"
@@ -19040,7 +19041,6 @@ PPHSC_RU_TRANSPORTINFO         "СвТС"       // @v12.6.9
 PPHSC_RU_TRANSPORTINFO_TRANSP  "ТС"         // @v12.6.9
 PPHSC_RU_TRANSPORTINFO_TRAILER "Прицеп"     // @v12.6.9
 PPHSC_RU_TRANSPORTINFO_SPCCOND "СпецУслДвиж" // @v12.6.9
-PPHSC_RU_TRANSPORTINFO_ADDNDM  "ИнфПол"     // @v12.6.9
 PPHSC_RU_TRANSPORTINFO_VRCN    "НомСТС"     // Vehicle Registration Certificate Number
 PPHSC_RU_TRANSPORTINFO_VIN     "НомерВИН"
 PPHSC_RU_TRANSPORTINFO_REGN    "РегНомер"
@@ -19052,24 +19052,24 @@ PPHSC_RU_TRANSPORTINFO_MODEL   "Марка"
 PPHSC_RU_TRANSPORTINFO_LCAPAS  "Грузопод"
 PPHSC_RU_TRANSPORTINFO_VCAPAS  "Вместим"
 PPHSC_RU_LOADINGINFO           "СвПогруз"   // @v12.6.9
-//"ЗаявПогр"
-//"НалКоорТочВрЗаяв"
-//"ФДатВрПриб"
-//"НалКоорТочВрФПогр"
-//"ФДатВрУбыт"
-//"НалКоорТочВрФУбыт"
-//"ФСостТар"
-//"ФСостУп"
-//"ФСостКуз"
-//"МасБрутОтгр"
-//"МетОпрМасс"
-//"КолМестПрием"
-// "ФАдресПогр"
-// "СвЛицПогрГр"
-// "ВладИнфр"
-// "ОснДостОбИнфрДок"
-// "ОснДостОбИнфрТекст"
-// "ИнфПол"
+PPHSC_RU_LOADINGINFO_SHPTIME   "ЗаявПогр"   // Заявленные дата и время подачи транспортного средства под погрузку
+PPHSC_RU_LOADINGINFO_ARRVTIME  "ФДатВрПриб"        // Фактические дата и время прибытия под погрузку
+PPHSC_RU_LOADINGINFO_DPRTTIME  "ФДатВрУбыт"        // Фактические дата и время убытия
+PPHSC_RU_LOADINGINFO_SHPUTCTAG "НалКоорТочВрЗаяв" // Применение координации точного времени (UTC) в типовом элементе ДатаВремяВЗТип
+PPHSC_RU_LOADINGINFO_ARRVUTCTAG "НалКоорТочВрФПогр" // Применение координации точного времени (UTC) в типовом элементе ДатаВремяВЗТип
+PPHSC_RU_LOADINGINFO_DPRTUTCTAG "НалКоорТочВрФУбыт" // Применение координации точного времени (UTC) в типовом элементе ДатаВремяВЗТип
+PPHSC_RU_LOADINGINFO_TARESTATE  "ФСостТар" // Фактическое состояние тары при приеме груза перевозчиком от лица, осуществляющего погрузку груза в транспортное средство
+PPHSC_RU_LOADINGINFO_PACKSTATE  "ФСостУп"  // Фактическое состояние упаковки при приеме груза перевозчиком от лица, осуществляющего погрузку груза в транспортное средство
+PPHSC_RU_LOADINGINFO_TRKBDYSTATE "ФСостКуз" // Фактическое состояние кузова при приеме груза перевозчиком от лица, осуществляющего погрузку груза в транспортное средство
+PPHSC_RU_LOADINGINFO_BRUTTO     "МасБрутОтгр" // Масса брутто груза
+PPHSC_RU_LOADINGINFO_BRUTTOMETH "МетОпрМасс"  // Метод определения массы груза
+PPHSC_RU_LOADINGINFO_PACKCOUNT  "КолМестПрием" // Количество грузовых мест при приеме груза перевозчиком
+PPHSC_RU_LOADINGINFO_SHPADDR    "ФАдресПогр"   // Адрес места погрузки
+PPHSC_RU_LOADINGINFO_LOADER     "СвЛицПогрГр"  // Сведения о лице, производящем погрузку груза
+PPHSC_RU_LOADINGINFO_PORTOWNER  "ВладИнфр"     // Сведения о владельце объекта инфраструктуры пункта погрузки
+PPHSC_RU_LOADINGINFO_ACCSDOC    "ОснДостОбИнфрДок" // Doc - Основание беспрепятственного доступа к объекту инфраструктуры пункта погрузки лица, осуществляющего погрузку груза в транспортное средство 
+PPHSC_RU_LOADINGINFO_ACCSTEXT   "ОснДостОбИнфрТекст" // Text - Основание беспрепятственного доступа к объекту инфраструктуры пункта погрузки лица, осуществляющего погрузку груза в транспортное средство
+PPHSC_RU_LOADINGINFO_CSNERISLDR "СовпГОП"      // Признак совпадения с грузоотправителем: лицо, которое осуществляет погрузку груза в транспортное средство, является грузоотправителем 
 
 PPHSC_RU_PAYLOADINFO           "СвГруз"     // @v12.6.9 
 PPHSC_RU_PAYLOAD_DESCR         "ОпГруз"     // @v12.6.9 
@@ -19337,6 +19337,7 @@ PPHSC_RU_TRANSACTIONCONTENT2   "СодФХЖ2"
 PPHSC_RU_TRANSACTIONCONTENT_TRNT1 "СодИнфГО"  // @v12.6.9
 PPHSC_RU_EXTRA1                "ИнфПолФХЖ1"
 PPHSC_RU_EXTRA2                "ИнфПолФХЖ2"
+PPHSC_RU_EXTRA0                "ИнфПол"       // @v12.6.9
 PPHSC_RU_TRANSACTIONCONTENTEX1 "ДопСвФХЖ1"
 PPHSC_RU_EXTRA_GLN_SUPPL       "GLN_поставщика"
 PPHSC_RU_EXTRA_GLN_SUPPL2      "GLNПост"             // @v11.9.12 SBIS

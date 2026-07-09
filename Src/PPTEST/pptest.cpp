@@ -1064,7 +1064,7 @@ int GenerateGoodsBills()
 	//для определения типа и вида операции
 	PPID  op_id = 0,  id = 0;//id операции
 	PPID  op_type = 0; //тип операции
-	PPOprKind op_kind; //тип операции
+	PPOprKind2 op_kind; //тип операции
 	PPIDArray ops;  //массив типов операции по доходам и расходам
 	PPIDArray allow_ops;  //массив доступных операции за временной период
 	uint opscount, allow_opscount;  //кол-во элементов в массиве ооперации

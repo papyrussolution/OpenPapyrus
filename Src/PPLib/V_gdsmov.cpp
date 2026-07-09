@@ -169,7 +169,7 @@ int PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 	GCTFilt temp_filt;
 	AdjGdsGrpng agg;
 	GoodsGrpngEntry * p_entry;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	GoodsFilt gf;
 	GoodsIterator  iter(static_cast<GoodsFilt *>(0), 0);
 	Goods2Tbl::Rec goods_rec;

@@ -406,7 +406,7 @@ int PPObjStyloPalm::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	TDialog * dlg = new TDialog(DLG_SPIICFG);
 	PPIDArray  op_list;
 	PPObjOprKind op_obj;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	THROW(CheckCfgRights(PPCFGOBJ_STYLOPALM, PPR_READ, 0));
 	for(PPID op_id = 0; EnumOperations(PPOPT_INVENTORY, &op_id, &op_rec) > 0;) {
 		PPInventoryOpEx  inv_op_ex;
@@ -1687,7 +1687,7 @@ int PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID locID
 	pack.SMemo = pSrcPack->Hdr.Memo; // @v11.1.12
 	pack.Rec.EdiOp = PPEDIOP_SALESORDER;
 	if(ar_obj.Fetch(pSrcPack->Hdr.ClientID, &ar_rec) > 0) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		if(GetOpData(opID, &op_rec) > 0 && op_rec.AccSheetID == ar_rec.AccSheetID)
 			pack.Rec.Object = pSrcPack->Hdr.ClientID;
 	}
@@ -1835,7 +1835,7 @@ int PPObjStyloPalm::ImportInventory(PalmBillPacket * pSrcPack, PPID opID, PPID l
 	MakeBillCode(palm_rec, PPStyloPalmConfig::ordercodeIdHash, pSrcPack->Hdr.Code, temp_buf);
 	STRNSCPY(pack.Rec.Code, temp_buf);
 	if(ar_obj.Fetch(pSrcPack->Hdr.ClientID, &ar_rec) > 0) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		if(GetOpData(opID, &op_rec) > 0 && op_rec.AccSheetID == ar_rec.AccSheetID)
 			pack.Rec.Object = pSrcPack->Hdr.ClientID;
 	}
@@ -3621,7 +3621,7 @@ struct PalmExpStruc {
 struct PalmDebtExpStruc {
 	PalmDebtExpStruc(const PPStyloPalmPacket & rPack, int dontPrepareDebtData)
 	{
-		PPOprKind opk;
+		PPOprKind2 opk;
 		AcsID = GetOpData(rPack.Rec.OrderOpID, &opk) ? opk.AccSheetID : 0;
 		SETIFZ(AcsID, GetSellAccSheet());
 		Flags = (rPack.Rec.Flags & (PLMF_EXPCLIDEBT|PLMF_EXPSTOPFLAG|PLMF_BLOCKED));

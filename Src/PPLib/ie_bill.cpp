@@ -1086,7 +1086,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 	SString temp_buf;
 	StrAssocArray param_list;
 	PPObjOprKind op_obj;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	PPObjectTag2 tag_rec;
 	THROW(PPImpExpParam::SerializeConfig(dir, rHdr, rTail, pSCtx));
 	if(dir > 0) {
@@ -1164,7 +1164,7 @@ int PPBillImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 	THROW(PPLoadText(PPTXT_IMPEXPPARAM_BILH, params));
 	if(Direction != 0) { // import
 		PPObjOprKind op_obj;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		PPGetSubStr(params, IMPEXPPARAM_BILH_IMPOPSYMB, fld_name);
 		{
 			param_val.Z();
@@ -1245,7 +1245,7 @@ int PPBillImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const Stri
 		excl.add(fld_name);
 		if(pFile->GetParam(pSect, fld_name, param_val) > 0) {
 			PPObjOprKind op_obj;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			PPID   op_id = 0;
 			if(op_obj.SearchBySymb(param_val, &op_id) > 0)
 				ImpOpID = op_id;
@@ -1987,7 +1987,7 @@ int PPBillImporter::LoadConfig(int import)
 int PPBillImporter::InitUhttImport(PPID opID, PPID locID, PPID posNodeID)
 {
 	int    ok = 1;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	Init();
 	OpID = opID;
 	LocID = NZOR(locID, LConfig.Location);
@@ -2009,7 +2009,7 @@ int PPBillImporter::InitUhttImport(PPID opID, PPID locID, PPID posNodeID)
 int PPBillImporter::Init(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam, PPID opID, PPID locID)
 {
 	int    ok = 1;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	Init();
 	OpID = opID;
 	LocID = NZOR(locID, LConfig.Location);
@@ -2054,7 +2054,7 @@ int PPBillImporter::RunUhttImport()
 	SString serial_buf;
 	SString fmt_buf;
 	SString msg_buf;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	PPObjAccSheet acs_obj;
 	LocationTbl::Rec loc_rec;
 	UhttLocationPacket uhtt_loc_pack;
@@ -3524,7 +3524,7 @@ int PPBillImporter::Import(int useTa)
 	ObjTagItem tag_item;
 	ObjTagList tag_list;
 	PPID   mnf_lot_tag_id = 0;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	GetOpData(OpID, &op_rec);
 	const bool restrict_by_matrix  = LOGIC(BillParam.Flags & PPBillImpExpParam::fRestrictByMatrix);
 	const bool need_price_restrict = LOGIC(op_rec.ExtFlags & OPKFX_RESTRICTPRICE);
@@ -4447,7 +4447,7 @@ int PPBillImporter::BillToBillRec(const Sdr_Bill * pBill, PPBillPacket * pPack)
 		PPID   ar_id = 0;
 		ArticleTbl::Rec ar_rec;
 		PersonTbl::Rec psn_rec;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		PPObjAccSheet acs_obj;
 		PPAccSheet acs_rec;
 		THROW(GetOpData(OpID, &op_rec) > 0);
@@ -5028,7 +5028,7 @@ int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opI
 		PPID   promo_lot_tag_id = 0;
 		LongArray row_pos_list;
 		PPObjectTag2 tag_rec;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		THROW(GetOpData(opID, &op_rec) > 0);
 		if(TagObj.SearchBySymb("AGENT-COKE", &agent_tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_PERSON) {
 			;
@@ -5267,7 +5267,7 @@ int PPBillImporter::Run()
 	SString temp_buf;
 	SString msg_buf;
 	StringSet ss_files;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	const  PPID _op_id = NZOR(OpID, BillParam.ImpOpID); // @v12.5.4
 	LineIdSeq = 0;
 	PPWaitStart();
@@ -6148,7 +6148,7 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 					//
 					// ¬ дальнейшем нам понадобитс€ список тегов лота
 					//
-					P_BObj->GetTagListByLot(org_lot_id, 0, &org_lot_tag_list);
+					P_BObj->GetTagListByLot(org_lot_id, 0, org_lot_tag_list);
 					if(P_BObj->Search(org_lot_rec.BillID, &bill_rec) > 0)
 						brow.LotDocDate = bill_rec.Dt;
 					//
@@ -6483,7 +6483,7 @@ int PPBillExporter::BillRecToBill(const PPBillPacket * pPack, Sdr_Bill * pBill)
 	if(pBill && pPack) {
 		ArticleTbl::Rec ar_rec;
 		LocationTbl::Rec loc_rec;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		memzero(pBill, sizeof(*pBill));
 		ltoa(pPack->Rec.ID, pBill->ID, 10);
 		GetReg(pPack->Rec.Object, PPREGT_TPID, temp_buf);
@@ -6866,7 +6866,7 @@ int DocNalogRu_Generator::MakeOutFileIdent(const PPBillPacket * pBPack, FileInfo
 								n_list[2] = 1; // _N4
 							}
 							else if(gt_rec.ChZnProdType == GTCHZNPT_TOBACCO) {
-								n_list[3] = 3; // _N5
+								n_list[3] = 1; // _N5 // @v12.6.10 @fix (=3)-->(=1)
 							}
 						}
 					}
@@ -8738,7 +8738,7 @@ int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCo
 	LocationCore::GetAddress(rP, 0, addr_text);
 	PPLocAddrStruc las;
 	las.Recognize((temp_buf = addr_text).Transf(CTRANSF_INNER_TO_OUTER));
-	long    hdr_tag = oneof2(hdrTag, PPHSC_RU_ADDRESS, PPHSC_RU_ORGADDR) ? hdrTag : PPHSC_RU_ADDRESS;
+	long    hdr_tag = oneof3(hdrTag, PPHSC_RU_ADDRESS, PPHSC_RU_ORGADDR, PPHSC_RU_LOADINGINFO_SHPADDR) ? hdrTag : PPHSC_RU_ADDRESS;
 	SXml::WNode n__(P_X, GetToken_Ansi(hdr_tag));
 	if(hdr_tag == PPHSC_RU_ORGADDR) {
 		n__.PutInner(GetToken_Ansi(PPHSC_RU_ADDR_COUNTRYCODE2), "643");
@@ -8921,7 +8921,8 @@ int DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID personID,
 	int    ok = 1;
 	int    region_code = 0;
 	int    j_status = 0; // 1 - росс юр, 2 - росс ип, 3 - иностранец (не “—), 4 - иностранец (таможенный союз)
-	SString inn, kpp;
+	SString inn;
+	SString kpp;
 	SString priv_reg_text; // @v11.7.6 —видетельство часного предпринимател€ //
 	SString temp_buf;
 	RegisterTbl::Rec reg_rec;
@@ -9973,7 +9974,7 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 						PPHSC_RU_TRANSPORTINFO_TRANSP  "“—"         // @v12.6.9
 						PPHSC_RU_TRANSPORTINFO_TRAILER "ѕрицеп"     // @v12.6.9
 						PPHSC_RU_TRANSPORTINFO_SPCCOND "—пец”слƒвиж" // @v12.6.9
-						PPHSC_RU_TRANSPORTINFO_ADDNDM  "»нфѕол"     // @v12.6.9
+						PPHSC_RU_EXTRA0                "»нфѕол"     // @v12.6.9
 						PPHSC_RU_TRANSPORTINFO_VRCN    "Ќом—“—"     // Vehicle Registration Certificate Number
 						PPHSC_RU_TRANSPORTINFO_VIN     "Ќомер¬»Ќ"
 						PPHSC_RU_TRANSPORTINFO_REGN    "–егЌомер"
@@ -10029,6 +10030,50 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 				}
 				{
 					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_LOADINGINFO));
+					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_SHPTIME), "");
+					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_SHPUTCTAG), "1");
+					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_ARRVTIME), "");
+					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_ARRVUTCTAG), "1");
+					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_DPRTTIME), "");
+					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_DPRTUTCTAG), "1");
+					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_BRUTTO), "");
+					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_BRUTTOMETH), "01");
+					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_PACKCOUNT), "");
+					{
+						PPLocationPacket loc_pack;
+						uint   region_code = 0;
+						G.PsnObj.LocObj.GetPacket(R_Bp.Rec.LocID, &loc_pack);
+						G.WriteAddress(loc_pack, region_code, PPHSC_RU_LOADINGINFO_SHPADDR); // @v12.6.10
+					}
+					{
+						SXml::WNode n3(G.P_X, G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_LOADER));
+						n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_CSNERISLDR), "1");
+					}
+					{
+						SXml::WNode n3(G.P_X, G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_PORTOWNER));
+						n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_CSNERISLDR), "1");
+					}
+					/*
+						PPHSC_RU_LOADINGINFO           "—вѕогруз"   // @v12.6.9
+						PPHSC_RU_LOADINGINFO_SHPTIME   "«а€вѕогр"   // «а€вленные дата и врем€ подачи транспортного средства под погрузку
+						PPHSC_RU_LOADINGINFO_ARRVTIME  "‘ƒат¬рѕриб"        // ‘актические дата и врем€ прибыти€ под погрузку
+						PPHSC_RU_LOADINGINFO_DPRTTIME  "‘ƒат¬р”быт"        // ‘актические дата и врем€ убыти€
+						PPHSC_RU_LOADINGINFO_SHPUTCTAG "Ќал оор“оч¬р«а€в" // ѕрименение координации точного времени (UTC) в типовом элементе ƒата¬рем€¬«“ип
+						PPHSC_RU_LOADINGINFO_ARRVUTCTAG "Ќал оор“оч¬р‘ѕогр" // ѕрименение координации точного времени (UTC) в типовом элементе ƒата¬рем€¬«“ип
+						PPHSC_RU_LOADINGINFO_DPRTUTCTAG "Ќал оор“оч¬р‘”быт" // ѕрименение координации точного времени (UTC) в типовом элементе ƒата¬рем€¬«“ип
+						PPHSC_RU_LOADINGINFO_TARESTATE  "‘—ост“ар" // ‘актическое состо€ние тары при приеме груза перевозчиком от лица, осуществл€ющего погрузку груза в транспортное средство
+						PPHSC_RU_LOADINGINFO_PACKSTATE  "‘—ост”п"  // ‘актическое состо€ние упаковки при приеме груза перевозчиком от лица, осуществл€ющего погрузку груза в транспортное средство
+						PPHSC_RU_LOADINGINFO_TRKBDYSTATE "‘—ост уз" // ‘актическое состо€ние кузова при приеме груза перевозчиком от лица, осуществл€ющего погрузку груза в транспортное средство
+						PPHSC_RU_LOADINGINFO_BRUTTO     "ћасЅрутќтгр" // ћасса брутто груза
+						PPHSC_RU_LOADINGINFO_BRUTTOMETH "ћетќпрћасс"  // ћетод определени€ массы груза
+						PPHSC_RU_LOADINGINFO_PACKCOUNT  " олћестѕрием" //  оличество грузовых мест при приеме груза перевозчиком
+						PPHSC_RU_LOADINGINFO_SHPADDR    "‘јдресѕогр"   // јдрес места погрузки
+						PPHSC_RU_LOADINGINFO_LOADER     "—вЋицѕогр√р"  // —ведени€ о лице, производ€щем погрузку груза
+							PPHSC_RU_LOADINGINFO_CSNERISLDR "—овп√ќѕ"      // ѕризнак совпадени€ с грузоотправителем: лицо, которое осуществл€ет погрузку груза в транспортное средство, €вл€етс€ грузоотправителем 
+						PPHSC_RU_LOADINGINFO_PORTOWNER  "¬лад»нфр"     // —ведени€ о владельце объекта инфраструктуры пункта погрузки
+						PPHSC_RU_LOADINGINFO_ACCSDOC    "ќснƒостќб»нфрƒок" // Doc - ќснование беспреп€тственного доступа к объекту инфраструктуры пункта погрузки лица, осуществл€ющего погрузку груза в транспортное средство 
+						PPHSC_RU_LOADINGINFO_ACCSTEXT   "ќснƒостќб»нфр“екст" // Text - ќснование беспреп€тственного доступа к объекту инфраструктуры пункта погрузки лица, осуществл€ющего погрузку груза в транспортное средство
+					*/ 
 				}
 			}
 			G.Underwriter(0);

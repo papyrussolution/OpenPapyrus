@@ -1386,7 +1386,7 @@ int SCS_SHTRIHFRF::GetCheckInfo(const PPBillPacket * pPack, BillTaxArray * pAry,
 		PPTransferItem * ti;
 		PPObjGoods  goods_obj;
 		if(pPack->OpTypeID == PPOPT_GOODSRETURN) {
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			if(GetOpData(pPack->Rec.OpID, &op_rec) > 0 && IsExpendOp(op_rec.LinkOpID) > 0)
 				flags |= PRNCHK_RETURN;
 		}

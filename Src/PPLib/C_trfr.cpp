@@ -665,7 +665,7 @@ int CorrectLotSuppl()
 {
 	int    ok = 1;
 	PPObjBill * p_bobj(BillObj);
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	BillTbl::Rec bill_rec;
 	SString msg_buf;
 	SString log_fname;

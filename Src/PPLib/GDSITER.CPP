@@ -428,7 +428,7 @@ int GoodsIterator::Init(const GoodsFilt * pFilt, int aOrder)
 
 			PPID   uhttsloc_id = 0;
 			int    do_calc_uhtt_rest = 0;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			PPViewQuot qview;
 			QuotFilt qfilt;
 			qfilt.QuotKindID = Filt.RestrictQuotKindID;

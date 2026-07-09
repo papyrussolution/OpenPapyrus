@@ -417,7 +417,7 @@ int TestOprKindOutput()
 {
 	int    ok = 1;
 	PPID   op_id;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	PPDeclStruc * p_decl = 0;
 	FILE * out = fopen("oprkind.", "w");
 	THROW(out);

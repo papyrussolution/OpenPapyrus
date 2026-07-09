@@ -678,7 +678,7 @@ int ClientBankImportDef::ImportAll()
 				const  Assoc * p_assoc = static_cast<const Assoc *>(best_assoc.at(0));
 				PPID   obj2_ar_id = 0, agent_id = 0;
 				PPAccSheet acs_rec2;
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				if(op_obj.Search(p_assoc->P_Item->OpID, &op_rec) > 0 && op_rec.AccSheet2ID && acc_sheet_obj.Fetch(op_rec.AccSheet2ID, &acs_rec2) > 0) {
 					if(acs_rec2.Assoc == PPOBJ_PERSON) {
 						if(item.Obj2INN[0]) {
@@ -1140,7 +1140,7 @@ int SetupCliBnkAssoc()
 		{
 			int    ok = 1;
 			uint   i;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			PPObjAccSheet acs_obj;
 			PPAccSheet acs_rec;
 			SString temp_buf;

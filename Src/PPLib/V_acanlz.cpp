@@ -312,7 +312,7 @@ private:
 						acs_id = ar_rec.AccSheetID;
 					}
 					else {
-						PPOprKind op_rec;
+						PPOprKind2 op_rec;
 						PPIDArray obj2_acs_list;
 						for(SEnum en = op_obj.Enum(0); en.Next(&op_rec) > 0;) {
 							obj2_acs_list.addnz(op_rec.AccSheet2ID);

@@ -1358,7 +1358,7 @@ public:
 	int    LoadStorage(const char * pFileName, const char * pMasterPassword, size_t masterPasswordLen);
 	int    DescryptSegments(const char * pMasterPassword, size_t masterPasswordLen);
 	int    CreateStorage(const char * pFileName, const char * pMasterPassword, size_t masterPasswordLen);
-	int    SaveStorage(const char * pFileName);
+	int    SaveStorage(const char * pFileName) const;
 	int    ReadTestJson(const char * pJsFileName);
 private:
 	int    PutSegmentIntoPool(const PPSecretSegment * pSeg);
@@ -11596,7 +11596,7 @@ struct PPFreight { // @persistent @store(PropertyTbl)
 	bool   FASTCALL IsEq(const PPFreight &) const;
 	int    FASTCALL CheckForFilt(const FreightFilt & rFilt) const;
 	int    SetupDlvrAddr(PPID dlvrAddrID);
-
+	static constexpr size_t GetSizeBeforeV12610() { return offsetof(PPFreight, UedTmLoading); }
 	PPID   Tag;            // Const=PPOBJ_BILL
 	PPID   ID;             // ->Bill.ID
 	PPID   PropID;         // Const=BILLPRP_FREIGHT
@@ -11619,6 +11619,12 @@ struct PPFreight { // @persistent @store(PropertyTbl)
 	PPID   ShipID;         // ->Ship.ID
 	PPID   Captain2ID;     // 2-й командир транспорта
 	uint8  Reserve2[16];   // @reserve
+	// Далее следуют поля, введенные в версии @v12.6.10 из-за необходимости формировать сложную электронную товарно-транспортную накладную
+	// И да, я по-тихоньку начинаю внедрять UED. Здесь используется UED time там, где раньше я использовал бы LDATETIME
+	uint64 UedTmLoading;   // @anchor @v12.6.10 Заявленное время начала погрузки
+	uint64 UedTmLdArrv;    // @v12.6.10 Фактическое время прибытие для погрузки
+	uint64 UedTmLdDprt;    // @v12.6.10 Фактическое время отправления // 
+	uint8  Reserve3[32];   // @reserve
 };
 #pragma pop
 //
@@ -12836,8 +12842,9 @@ public:
 	//   Она добавляет новую или изменяет существующую товарную строку, одновременно обрабатывая все
 	//   служебные данные, связанные с этой строкой (заказ, автокомплект, дополнительное количество
 	//   расходуемого товара сверх остатка текущего лота).
+	// ARG(pRowIdxList OUT): По этому указателю (если не нулевой) заполняется список индексов новых строк, вставленных или измененных функцией.
 	//
-	int    SetupRow(int itemNo, PPTransferItem * pItem, const PPTransferItem * pOrdItem, double extraQtty);
+	int    SetupRow(int itemNo, PPTransferItem * pItem, const PPTransferItem * pOrdItem, double extraQtty, LongArray * pRowIdxList);
 	int    AttachRowToOrder(int itemNo, const PPBillPacket * pOrdPack);
 	int    AttachToOrder(const PPBillPacket * pOrdPack);
 	int    SetupItemQuotInfo(int itemNo, PPID quotKindID, double quotValue, long flags);
@@ -31020,13 +31027,13 @@ struct GoodsCodeSrchBlock {
 	int    InitChar;       // IN @v12.6.9
 	SString Code_;         // IN CONST
 	SString RetCode_;      // OUT
-	//char   ChZnCode_[32];   // OUT
-	//char   ChZnGtin[32];   // OUT
+	uint   SNTokId;        // OUT @v12.6.10 Натуральный токен (самый характерный), которому соответствует Code_
 	char   ChZnSerial_[32]; // OUT
 	uint   ChZnSNTokID;    // OUT @v12.6.5 Натуральный токен, сопоставленный марке чзн (если Code - таковая)
 	double ChZnPrice;      // OUT @v12.5.9 Цена, указанная в марке chzn
 	PPID   ArID;           // IN CONST
 	PPID   LocID;          // IN CONST @v12.6.9
+	LDATE  ActualDate;     // IN CONST @v12.6.10 
 	long   Flags;          // IN/OUT
 	PPID   GoodsID;        // OUT
 	PPID   LotID;          // OUT @v12.6.9
@@ -31880,6 +31887,7 @@ private:
 	int    Helper_SearchByBarcodeAdopt(const char * pCode, int mode, StringSet & rProcessedList, BarcodeTbl::Rec * pBcRec, Goods2Tbl::Rec * pGoodsRec);
 	bool   Helper_GetOriginalRawGoodsByStruc(PPID goodsID, const PPIDArray * pValidBcStdList, PPID * pOriginalGoodsID, SString * pValidCode); // @v12.0.5
 	int    CombineTaxEntry(const PPGoodsTaxEntry & rGtx, PPID taxPayerPersonID, PPID taxPayerLocID, LDATE dt, PPID opID, PPGoodsTaxEntry * pResultGtx);
+	int    Helper_SelectGoodsByBarcode_LotExtCode(uint32 sntok, GoodsCodeSrchBlock & rBlk);
 
 	PPGoodsConfig * P_Cfg;
 	SCtrSpecial Sctr;
@@ -35592,7 +35600,7 @@ public:
 	//    0 - error (либо lotID == 0, либо this->P_LotXcT [type of LotExtCodeCore] == 0)
 	//
 	int    GetMarkListByLot(PPID lotID, StringSet & rSs);
-	int    GetTagListByLot(PPID lotID, int skipReserveTags, ObjTagList * pList);
+	int    GetTagListByLot(PPID lotID, int skipReserveTags, ObjTagList & rList);
 	int    SetClbNumberByLot(PPID lotID, const char *, int use_ta);
 		// @>>PPObjBill::SetTagNumberByLot
 	int    SetSerialNumberByLot(PPID lotID, const char *, int use_ta);
@@ -36673,7 +36681,7 @@ struct GoodsGrpngEntry { // @flat
 	GoodsGrpngEntry();
 	PPID   FASTCALL IsProfitable(int incomeCalcMethod = -1) const;
 	double FASTCALL Income(int incomeCalcMethod = -1) const;
-	void   FASTCALL SetOp(const PPOprKind & rOpRec);
+	void   FASTCALL SetOp(const PPOprKind2 & rOpRec);
 	int    FASTCALL GetSign(int * pSign) const;
 	bool   IsInRest() const { return OpID == -1; }
 	bool   IsOutRest() const { return OpID == 10000; }
@@ -36764,7 +36772,7 @@ protected:
 		AddEntryBlock();
 		TransferTbl::Rec TrfrRec;
 		ReceiptTbl::Rec LotRec;
-		PPOprKind OpRec;
+		PPOprKind2 OpRec;
 		double Part;
 		long   Flags;
 	};
@@ -56730,8 +56738,10 @@ struct TIDlgInitData {
 	PPID   ArID;       // Контекстная статья для поиска по артикулу и проверки принадлежности товара матрице (для внутренней передачи)
 	long   Flags;      // @flags
 	int    ModifMode;  // Режим ввода строки модификации TISIGN_MINUS||TISIGN_PLUS||TISIGN_RECOMPLETE
-	char   Serial[32]; // Выбранный пользователем серийный номер
+	// @v12.6.10 char   Serial[32]; // Выбранный пользователем серийный номер
 	double Quantity;
+	SString Serial_;   // @v12.6.10 Выбранный пользователем серийный номер
+	SString Mark_;     // @v12.6.10 Марка, с помощью которой выбран товар 
 	RealRange QttyBounds;
 };
 
@@ -59939,7 +59949,7 @@ public:
 		SString SupplCode; // @v11.9.5 Код товара у поставщика
 		SString BuyerCode; // @v11.9.5 Код товара у покупателя //
 		SString GTIN; // Штрихкод товара (EAN/UPC)
-		SString NonEAN_Code; // @v11.5.3 Код товара, не являющийся EAN или UPC-кодом. Пытаемся идентифицировать товар по нему как коду по статье
+		SString NonEAN_Code; // Код товара, не являющийся EAN или UPC-кодом. Пытаемся идентифицировать товар по нему как коду по статье
 		SString OKEI;
 		SString UOM;
 		double Qtty;
@@ -60209,8 +60219,8 @@ public:
 	const  PPBillPacket & R_Bp;
 
 	PPObjAccSheet AcsObj;
-	PPOprKind OpRec;
-	PPOprKind LinkOpRec;
+	PPOprKind2 OpRec;
+	PPOprKind2 LinkOpRec;
 	PPID   DtoPersonID;  // PPOBJ_PERSON Провайдер обмена данными
 	PPID   MainOrgID;    // PPOBJ_PERSON
 	PPID   ContragentID; // PPOBJ_PERSON

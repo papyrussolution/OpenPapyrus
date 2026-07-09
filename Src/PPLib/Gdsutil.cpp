@@ -349,10 +349,9 @@ static int BarcodeList(BarcodeArray * pCodes, int * pSelection)
 	return ok;
 }
 
-GoodsCodeSrchBlock::GoodsCodeSrchBlock(int initChar) : InitChar(initChar), ArID(0), LocID(0), Flags(0), GoodsID(0), ScaleID(0), Qtty(0.0), P_List(0), ChZnSNTokID(0), ChZnPrice(0.0)
+GoodsCodeSrchBlock::GoodsCodeSrchBlock(int initChar) : InitChar(initChar), SNTokId(0), ArID(0), LocID(0), 
+	ActualDate(ZERODATE), Flags(0), GoodsID(0), ScaleID(0), Qtty(0.0), P_List(0), ChZnSNTokID(0), ChZnPrice(0.0)
 {
-	//ChZnCode_[0] = 0;
-	//ChZnGtin[0] = 0;
 	ChZnSerial_[0] = 0;
 }
 
@@ -742,6 +741,109 @@ int PPObjGoods::GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2Tbl::R
 	return ok;
 }
 
+int PPObjGoods::Helper_SelectGoodsByBarcode_LotExtCode(uint32 sntok, GoodsCodeSrchBlock & rBlk)
+{
+	int    ok = -1;
+	const  LDATE actual_date = checkdate(rBlk.ActualDate) ? rBlk.ActualDate.getactual(ZERODATE) : getcurdate_();
+	PPObjBill * p_bobj(BillObj);
+	TSVector <LotExtCodeTbl::Rec> lxc_rec_list;
+	p_bobj->P_LotXcT->GetRecListByMark(rBlk.Code_, lxc_rec_list);
+	SString temp_buf;
+	Goods2Tbl::Rec goods_rec_by_code;
+	Goods2Tbl::Rec goods_rec_by_lot;
+	ReceiptTbl::Rec _lot_rec;
+	ReceiptTbl::Rec any_lot_rec;
+	ReceiptTbl::Rec recent_lot_rec;
+	ReceiptTbl::Rec recent_opened_lot_rec;
+	for(uint i = 0; i < lxc_rec_list.getCount(); i++) {
+		const  LotExtCodeTbl::Rec & r_lxc_rec = lxc_rec_list.at(i);
+		if(r_lxc_rec.LotID && p_bobj->trfr->Rcpt.Search(r_lxc_rec.LotID, &_lot_rec) > 0 && _lot_rec.GoodsID > 0) {
+			any_lot_rec = _lot_rec;
+			if(!rBlk.LocID || rBlk.LocID == _lot_rec.LocID) {
+				if(_lot_rec.ID != recent_lot_rec.ID) {
+					if((_lot_rec.Dt > recent_lot_rec.Dt) || (_lot_rec.Dt == recent_lot_rec.Dt && _lot_rec.OprNo > recent_lot_rec.OprNo)) {
+						recent_lot_rec = _lot_rec;
+					}
+				}
+				if(_lot_rec.ID != recent_opened_lot_rec.ID) {
+					double rest = 0.0;
+					if(p_bobj->trfr->GetRest(_lot_rec.ID, actual_date, &rest, 0) > 0 && rest > 0.0) {
+						if((_lot_rec.Dt > recent_opened_lot_rec.Dt) || (_lot_rec.Dt == recent_opened_lot_rec.Dt && _lot_rec.OprNo > recent_opened_lot_rec.OprNo)) {
+							recent_opened_lot_rec = _lot_rec;
+						}
+					}
+				}
+			}
+		}
+	}
+	if(recent_opened_lot_rec.ID && Fetch(recent_opened_lot_rec.GoodsID, &goods_rec_by_lot) > 0) {
+		rBlk.GoodsID = goods_rec_by_lot.ID;
+		rBlk.LotID = recent_opened_lot_rec.ID;
+		rBlk.Rec = goods_rec_by_lot;
+		rBlk.RetCode_ = rBlk.Code_;
+		ok = 3;
+	}
+	else if(recent_lot_rec.ID && Fetch(recent_lot_rec.GoodsID, &goods_rec_by_lot) > 0) {
+		rBlk.GoodsID = goods_rec_by_lot.ID;
+		rBlk.LotID = recent_lot_rec.ID;
+		rBlk.Rec = goods_rec_by_lot;
+		rBlk.RetCode_ = rBlk.Code_;
+		ok = 2;
+	}
+	else if(any_lot_rec.ID && Fetch(recent_lot_rec.GoodsID, &goods_rec_by_lot) > 0) {
+		rBlk.GoodsID = goods_rec_by_lot.ID;
+		rBlk.Rec = goods_rec_by_lot;
+		rBlk.RetCode_ = rBlk.Code_;
+		ok = 1;
+	}
+	//
+	if(sntok == SNTOK_CHZN_GENERAL && rBlk.GtS.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+		assert(temp_buf.Len() == 14);
+		if(temp_buf.Len() == 14) {
+			temp_buf.ShiftLeft();
+			BarcodeTbl::Rec bc_rec;
+			if(SearchByBarcode(temp_buf, &bc_rec, &goods_rec_by_code, BIN(rBlk.Flags & GoodsCodeSrchBlock::fAdoptSearch)) > 0) {
+				rBlk.GoodsID = goods_rec_by_code.ID;
+				rBlk.Qtty = bc_rec.Qtty;
+				rBlk.Rec = goods_rec_by_code;
+				SETFLAG(rBlk.Flags, GoodsCodeSrchBlock::fMarkedCode, IsInnerBarcodeType(bc_rec.BarcodeType, BARCODE_TYPE_MARKED));
+				rBlk.RetCode_ = bc_rec.Code;
+				//rBlk.GtS.GetToken(GtinStruc::fldGTIN14, &temp_buf);
+				rBlk.GtS.GetToken(GtinStruc::fldSerial, &temp_buf);
+				STRNSCPY(rBlk.ChZnSerial_, temp_buf);
+				//rBlk.GtS.GetToken(GtinStruc::fldOriginalText, &temp_buf);
+				if(goods_rec_by_lot.ID) {
+					if(goods_rec_by_code.ID == goods_rec_by_lot.ID) {
+						if(ok > 0) {
+							ok += 100;
+						}
+						else {
+							ok = 100;
+						}
+					}
+					else {
+						// Тут непонятно что делать. Будем считать, что просканированный марки приоритетный - кто знает что там в лоты было внесено когда-то.
+						ok = 100;
+					}
+				}
+				else
+					ok = 100;
+			}
+			if(ok > 0 && rBlk.GoodsID) {
+				rBlk.Flags |= GoodsCodeSrchBlock::fChZnCode;
+				rBlk.ChZnSNTokID = rBlk.GtS.GetSpecialNaturalToken(); // дублирование! (обратная совместимость - надо чистить)
+				if(rBlk.GtS.GetToken(GtinStruc::fldPrice, &temp_buf)) {
+					double chzn_price = temp_buf.ToReal_Plain();
+					if(chzn_price > 100.0) {
+						rBlk.ChZnPrice = chzn_price / 100.0;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int PPObjGoods::SelectGoodsByBarcode2(GoodsCodeSrchBlock & rBlk)
 {
 	if(rBlk.Code_.IsEmpty())
@@ -750,7 +852,8 @@ int PPObjGoods::SelectGoodsByBarcode2(GoodsCodeSrchBlock & rBlk)
 	if(r > 0) {
 		PPObjBill * p_bobj(BillObj);
 		assert(rBlk.Code_.Len());
-		uint32  sntok = 0;
+		//uint32 sntok = 0;
+		const  LDATE actual_date = checkdate(rBlk.ActualDate) ? rBlk.ActualDate.getactual(ZERODATE) : getcurdate_();
 		{
 			STokenRecognizer tr;
 			SNaturalTokenStat nts;
@@ -760,39 +863,31 @@ int PPObjGoods::SelectGoodsByBarcode2(GoodsCodeSrchBlock & rBlk)
 				static const uint32 single_sntok_list[] = {
 					SNTOK_EGAISMARKCODE, SNTOK_EAN13, SNTOK_EAN8, SNTOK_UPCA, SNTOK_UPCE
 				};
-				for(uint i = 0; !sntok && i < SIZEOFARRAY(single_sntok_list); i++) {
+				for(uint i = 0; !rBlk.SNTokId && i < SIZEOFARRAY(single_sntok_list); i++) {
 					if(nta.Has(single_sntok_list[i])) {
-						sntok = single_sntok_list[i];
+						rBlk.SNTokId = single_sntok_list[i];
 					}
 				}
 			}
-			if(!sntok) {
+			if(!rBlk.SNTokId) {
 				const  int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(rBlk.Code_, rBlk.GtS, 0));
 				if(ipczcr > 0) {
-					sntok = SNTOK_CHZN_GENERAL;
+					rBlk.SNTokId = SNTOK_CHZN_GENERAL;
 				}
 			}
 		}
 		bool   found = false;
 		SString ret_code;
 		// @construction {
-		if(sntok == SNTOK_CHZN_GENERAL) {
-			//result_id_list.Z();
-			TSVector <LotExtCodeTbl::Rec> lxc_rec_list;
-			p_bobj->P_LotXcT->GetRecListByMark(rBlk.Code_, lxc_rec_list);
-			ReceiptTbl::Rec recent_lot_rec;
-			ReceiptTbl::Rec recent_opened_lot_rec;
-			for(uint i = 0; i < lxc_rec_list.getCount(); i++) {
-				const LotExtCodeTbl::Rec & r_lxc_rec = lxc_rec_list.at(i);
-				// @todo
-				//result_id_list.add(lxc_rec_list.at(i).BillID);
-			}
-			/*{
-				result_id_list.sortAndUndup();
-				AddResult(PPOBJ_BILL, result_id_list, PPOBJATTR_CHZNMARK);
-			}*/
+		if(rBlk.SNTokId == SNTOK_CHZN_GENERAL) {
+			const  int r1 = Helper_SelectGoodsByBarcode_LotExtCode(rBlk.SNTokId, rBlk);
+			if(r1 > 0)
+				found = true;
 		}
-		else if(sntok == SNTOK_EGAISMARKCODE) {
+		else if(rBlk.SNTokId == SNTOK_EGAISMARKCODE) {
+			const  int r2 = Helper_SelectGoodsByBarcode_LotExtCode(rBlk.SNTokId, rBlk);
+			if(r2 > 0)
+				found = true;
 		} // } @construction
 		if(!found) {
 			r = GetGoodsByBarcode(rBlk.Code_, rBlk.ArID, &rBlk.Rec, &rBlk.Qtty, &ret_code);

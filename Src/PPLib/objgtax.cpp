@@ -263,7 +263,7 @@ PPID GTaxVect::EvalBlock::GetMainOrgPersonID(const BillTbl::Rec * pBillRec) cons
 	PPID   result_id = 0;
 	if(pBillRec) {
 		PPID   ar2_main_org_id = 0;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		GetOpData(pBillRec->OpID, &op_rec);
 		PPObjAccSheet acs_obj;
 		if(pBillRec->Object2 && acs_obj.IsLinkedToMainOrg(op_rec.AccSheet2ID))
@@ -279,7 +279,7 @@ PPID GTaxVect::EvalBlock::GetMainOrgPersonID(const BillTbl::Rec * pBillRec) cons
 /*static*/int GTaxVect::GetTaxNominalAmountType(const BillTbl::Rec & rBillRec) // @v12.2.4
 {
 	int   at = 0;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	GetOpData(rBillRec.OpID, &op_rec);
 	if(op_rec.Flags & OPKF_BUYING)
 		at = TIAMT_COST;

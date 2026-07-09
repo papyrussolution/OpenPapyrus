@@ -4700,7 +4700,7 @@ int PPChZnPrcssr::Run(const Param & rP)
 		for(uint opidx = 0; opidx < op_assoc_list.getCount(); opidx++) {
 			const  PPID op_id = op_assoc_list.at(opidx).Key;
 			const  PPID chzn_op_id = op_assoc_list.at(opidx).Val;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			BillTbl::Rec bill_rec;
 			GetOpData(op_id, &op_rec);
 			for(DateIter di(&rP.Period); p_bobj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {

@@ -2228,7 +2228,7 @@ int PPObjTSession::SetSCardID(TSessionTbl::Rec * pRec, const SCardTbl::Rec * pSC
 		pRec->SCardID = pSCardRec->ID;
 		if(pSCardRec->PersonID) {
 			ProcessorTbl::Rec prc_rec;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			if(GetPrc(pRec->PrcID, &prc_rec, 1, 1) > 0 && GetOpData(prc_rec.WrOffOpID, &op_rec) > 0) {
 				PPObjArticle ar_obj;
 				PPID   ar_id = 0;
@@ -2323,7 +2323,7 @@ int PPObjTSession::CreateOnlineByLinkBill(PPID * pSessID, const ProcessorTbl::Re
 	rec.Incomplete = 10;
 	rec.LinkBillID = pBillRec->ID;
 	if(pPrcRec && pBillRec && pPrcRec->WrOffOpID) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		if(GetOpData(pPrcRec->WrOffOpID, &op_rec) > 0) {
 			PPObjArticle ar_obj;
 			ArticleTbl::Rec ar_rec;
@@ -3368,7 +3368,7 @@ int PPObjTSession::EditNewIdleSession(PPID prcID, PPID curSessID, PPID * pSessID
 		else {
 			ProcessorTbl::Rec prc_rec;
 			if(PrcObj.GetRecWithInheritance(labs(prcID), &prc_rec) > 0) {
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				GetOpData(prc_rec.WrOffOpID, &op_rec);
 				SetupArCombo(dlg, CTLSEL_TSESS_OBJ2, pack.Rec.Ar2ID, OLW_CANINSERT, op_rec.AccSheet2ID, sacfDisableIfZeroSheet|sacfNonGeneric);
 			}
@@ -3770,7 +3770,7 @@ int PPObjTSession::ConvertWrOffDeficit(PPID sessID, PPID locID, const PUGL * pDf
 					if(op_id) {
 						ReceiptTbl::Rec lot_rec;
 						PPTransferItem ti;
-						PPOprKind op_rec;
+						PPOprKind2 op_rec;
 						for(j = 0; !p_pack && j < pack_list.getCount(); j++) {
 							PPBillPacket * p = pack_list.at(j);
 							if(p && p->Rec.LocID == loc_id)
@@ -3926,7 +3926,7 @@ int PPObjTSession::GetWrOffAttrib(const TSessionTbl::Rec * pRec, WrOffAttrib * p
 	PPID   agent_acs_id = 0;
 	PPObjArticle ar_obj;
 	ProcessorTbl::Rec prc_rec;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	memzero(pAttr, sizeof(*pAttr));
 	pAttr->ArID = pRec->ArID;
 	THROW(PrcObj.GetRecWithInheritance(pRec->PrcID, &prc_rec, 1) > 0);

@@ -4514,7 +4514,7 @@ int PPViewCCheck::CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID)
 				if(chk_rec.SCardID) {
 					SCardTbl::Rec  sc_rec;
 					if(pV->P_CC->Cards.Search(chk_rec.SCardID, &sc_rec) > 0 && sc_rec.PersonID) {
-						PPOprKind  op_rec;
+						PPOprKind2 op_rec;
 						if(GetOpData(op_id, &op_rec) > 0) {
 							PPObjArticle ar_obj;
 							ar_obj.GetByPerson(op_rec.AccSheetID, sc_rec.PersonID, &ar_id);

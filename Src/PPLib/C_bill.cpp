@@ -282,7 +282,7 @@ int RecalcBillTurns(int checkAmounts)
 			PPObjTag tag_obj;
 			PPObjectTag2 tag_rec;
 			if(flt.OpID && GetOpType(flt.OpID) == PPOPT_GOODSORDER) {
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				if(GetOpData(flt.OpID, &op_rec) && op_rec.ExtFlags & OPKFX_MNGPREFSUPPL) {
 					if(tag_obj.Fetch(PPTAG_LOT_PREFSUPPL, &tag_rec) > 0) {
 						do_process_contract_by_pref_suppl = true;
@@ -511,7 +511,7 @@ public:
 	{
 		RVALUEPTR(Data, pData);
 		SString src_text;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		SString loc_name;
 		PPIDArray op_list;
 		PPGetSubStr(PPTXT_ABSBILL_SRC, BIN(Data.Flags & PrcssrAbsentBill::AbsentEntry::fByAccTurn), src_text);
@@ -736,7 +736,7 @@ int RemoveBadReckons()
 			PPObjBill::MakeCodeString(&prmr_bill_rec, 1, code2);
 			msg_buf.Cat(code1).Space().CatChar('-').CatChar('>').Space().Cat(code2).Quot('[', ']').Space().Cat("removed");
 			if(r1 > 0 && r2 > 0) {
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				PPID   op_type_id = GetOpType(scnd_bill_rec.OpID, &op_rec);
 				if(op_type_id != PPOPT_PAYMENT) {
 					THROW_DB(r_ac.deleteRec());
@@ -769,7 +769,7 @@ int PPObjBill::SearchPaymWOLinkBill()
 {
 	int    ok = 1;
 	PPID   op_id;
-	PPOprKind opk;
+	PPOprKind2 opk;
 	PPObjArticle ar_obj;
 	IterCounter cntr;
 	PPLogger logger;

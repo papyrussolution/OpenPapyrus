@@ -304,7 +304,7 @@ int PPObjBill::AutoCharge(PPID id)
 	period.Z();
 	if(P_Tbl->GetRentCondition(id, &rc) > 0 && rc.Cycle && !(rc.Flags & PPRentCondition::fClosed) && Search(id, &bill_rec) > 0) {
 		if(bill_rec.OpID && DateRangeDialog(0, 0, period) > 0) {
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			for(PPID temp_id = 0; ok < 0 && EnumOperations(PPOPT_CHARGE, &temp_id, &op_rec) > 0;)
 				if(op_rec.LinkOpID == bill_rec.OpID) {
 					THROW(AutoCharge(id, temp_id, &rc, &period, &logger));
@@ -341,7 +341,7 @@ int PPObjBill::AutoCharge()
 			const  PPID op = P_Tbl->data.OpID;
 			if(op) {
 				if(parent_op != op) {
-					PPOprKind opk;
+					PPOprKind2 opk;
 					parent_op = 0;
 					charge_op = 0;
 					for(PPID temp_id = 0; EnumOperations(PPOPT_CHARGE, &temp_id, &opk) > 0;)

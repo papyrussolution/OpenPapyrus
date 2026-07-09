@@ -144,7 +144,7 @@ public:
 		RVALUEPTR(Data, pData);
 		int    ok = 1;
 		PPIDArray types;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		setCtrlData(CTL_DRAFTWROFF_NAME, Data.Rec.Name);
 		setCtrlData(CTL_DRAFTWROFF_ID, &Data.Rec.ID);
 		AddClusterAssoc(CTL_DRAFTWROFF_FLAGS, 0, DWOF_USEMRPTAB);
@@ -278,7 +278,7 @@ int DraftWrOffDialog::delItem(long pos, long)
 void DraftWrOffDialog::setupDfctSelectors(PPID arID)
 {
 	int    ok = -1;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	const  PPID op_id = getCtrlLong(CTLSEL_DRAFTWROFF_DFCTOP);
 	if(op_id) {
 		if(IsIntrExpndOp(op_id)) {

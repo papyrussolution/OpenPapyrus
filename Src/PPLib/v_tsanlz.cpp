@@ -710,7 +710,7 @@ int PPViewTSessAnlz::CreateBySess(PPID sessID, TSessAnlzList * pResult, PPIDArra
 int PPViewTSessAnlz::GetDutySchedPacket(PPID prcID, PPDutySchedPacket * pDsPack)
 {
 	int    ok = -1;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	ProcessorTbl::Rec prc_rec;
 	if(TSesObj.GetPrc(prcID, &prc_rec, 1, 1) > 0 && GetOpData(prc_rec.WrOffOpID, &op_rec) > 0 && op_rec.AccSheetID) {
 		PPObjDutySched ds_obj;

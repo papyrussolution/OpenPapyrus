@@ -6056,7 +6056,6 @@ char * STDCALL  decfmt(const char * pBcdVal, int len, int prec, long fmt, char *
 char * STDCALL  datefmt(const void *, long fmt, char *);
 char * STDCALL  timefmt(LTIME, long fmt, char *);
 char * STDCALL  datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, size_t bufLen);
-char * STDCALL  datetimefmt(const SUniTime_Internal & rUt, long dtfmt, long tmfmt, char * pBuf, size_t bufLen); // @v12.6.10
 char * FASTCALL periodfmt(const DateRange & rPeriod, char *);
 // @v12.3.7 (replaced with DateRange::ToStr) int    STDCALL  periodfmtex(const DateRange & rPeriod, char *, size_t bufLen);
 //

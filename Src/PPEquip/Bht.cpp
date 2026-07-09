@@ -3331,7 +3331,7 @@ int PPObjBHT::PrepareConfigData(const PPBhtTerminalPacket * pPack, StyloBhtIICon
 		for(uint i = 0; i < p_op_list->getCount(); i++) {
 			const SBIIOpInfo & op_info = pPack->P_SBIICfg->P_OpList->at(i);
 			long op_id = op_info.ToHostOpID;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			if(op_id && GetOpData(op_id, &op_rec) > 0) {
 				Sdr_SBIIOpRestr sdr_op;
 				sdr_op.OpID     = op_info.OpID;
@@ -4758,7 +4758,7 @@ static int GetBillRows(const char * pLName, TSVector <Sdr_SBIIBillRow> * pList)
 				eb_rec.get(fldn_dt, dt);
 				SETIFZ(dt, r_cfg.OperDate);
 				if(in_loc_id && out_loc_id) {
-					PPOprKind op_rec;
+					PPOprKind2 op_rec;
 					op_id = pBhtRec->IntrExpndOpID;
 					THROW_PP(GetOpData(op_id, &op_rec) > 0, PPERR_INTREXPNDNOTDEF);
 					THROW_PP(oneof2(op_rec.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND), PPERR_INTREXPNDNOTDEF);
@@ -5211,7 +5211,7 @@ int IdentifyGoods(PPObjGoods * pGObj, SString & rBarcode, PPID * pGoodsID, Goods
 	BhtFile bf_line(pLName);
 	BhtRecord br_bill;
 	BhtRecord br_line;
-	PPOprKind  op_rec;
+	PPOprKind2 op_rec;
 	PPObjGoods g_obj;
 	r = GetOpData(pBhtRec->ExpendOpID, &op_rec);
 	PPSetAddedMsgString(longfmtz(op_rec.ID, 0, op_id, sizeof(op_id)));

@@ -1405,7 +1405,7 @@ int PPViewSStat::CreatePurchaseBill(LDATE docDt, int autoOrder, PPBillPacket * p
 		flt.AccSheetID = GetSupplAccSheet();
 		flt.ObjectID   = Filt.SupplID;
 		flt.Period.upp = docDt;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		const  PPID suppl_deal_qk_id = (GetOpData(op_id, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_USESUPPLDEAL) ? DS.GetConstTLA().SupplDealQuotKindID : 0;
 		THROW(BillObj->CheckRights(PPR_INS));
 		THROW(pPack->CreateBlankByFilt(op_id, &flt, -1));

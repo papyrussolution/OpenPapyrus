@@ -462,7 +462,7 @@ static IMPL_CMPFUNC(OpkListEntry, i1, i2)
 {
 	int    r;
 	PPID   id = 0;
-	PPOprKind opk;
+	PPOprKind2 opk;
 	SVector temp_list(sizeof(OpkListEntry));
 	StrAssocArray * p_list = 0;
 	while((r = EnumOperations(0, &id, &opk)) > 0) {
@@ -511,7 +511,7 @@ int PPObjOprKind::AssignImages(ListBoxDef * pDef)
 		LongArray list;
 		pDef->ClearImageAssocList();
 		if(pDef->getIdList(list) > 0) {
-			PPOprKind rec;
+			PPOprKind2 rec;
 			for(uint i = 0; i < list.getCount(); i++) {
 				PPID id = list.at(i);
 				if(GetOpData(id, &rec) > 0) {
@@ -1142,7 +1142,7 @@ int PPObjOprKind::Helper_GetOpListByLink(PPID opTypeID, PPID linkOpID, PPIDArray
 	int    ok = 1;
 	if(opTypeID && pList) {
 		PROFILE_START
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		for(SEnum en = P_Ref->Enum(PPOBJ_OPRKIND, 0); ok && en.Next(&op_rec) > 0;) {
 			if(op_rec.OpTypeID == opTypeID && (!linkOpID || op_rec.LinkOpID == linkOpID)) {
 				if(!pList->add(op_rec.ID))
@@ -1161,7 +1161,7 @@ int PPObjOprKind::GetQuoteReqSeqOpList(PPID linkOpID, PPIDArray * pList) { retur
 int FASTCALL GetOpList(PPID opTypeID, PPIDArray * pList)
 {
 	int    ok = -1;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	for(SEnum en = PPRef->Enum(PPOBJ_OPRKIND, 0); en.Next(&op_rec) > 0;) {
 		if(!opTypeID || op_rec.OpTypeID == opTypeID) {
 			CALLPTRMEMB(pList, addUnique(op_rec.ID));
@@ -1174,7 +1174,7 @@ int FASTCALL GetOpList(PPID opTypeID, PPIDArray * pList)
 int PPObjOprKind::GetPayableOpList(PPID accSheetID, PPIDArray * pList)
 {
 	int    ok = 1;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	if(pList) {
 		for(SEnum en = P_Ref->Enum(PPOBJ_OPRKIND, 0); ok && en.Next(&op_rec) > 0;) {
    		    if((accSheetID == -1 || op_rec.AccSheetID == accSheetID) && op_rec.Flags & OPKF_NEEDPAYMENT) {
@@ -1190,7 +1190,7 @@ int PPObjOprKind::GetPayableOpList(PPID accSheetID, PPIDArray * pList)
 int PPObjOprKind::GetProfitableOpList(PPID accSheetID, PPIDArray * pList)
 {
 	int    ok = 1;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	if(pList) {
 		for(SEnum en = P_Ref->Enum(PPOBJ_OPRKIND, 0); ok && en.Next(&op_rec) > 0;) {
    		    if(op_rec.AccSheetID == accSheetID && op_rec.Flags & OPKF_PROFITABLE)
@@ -1210,7 +1210,7 @@ int PPObjOprKind::Helper_GetReservedOp(PPID * pID, const ReservedOpCreateBlock &
 {
 	int    ok = 1;
 	PPID   op_id = 0;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	if(rBlk.OpID && Search(rBlk.OpID, &op_rec) > 0) {
 		op_id = op_rec.ID;
 	}
@@ -1351,7 +1351,7 @@ int PPObjOprKind::GetGenericAccTurnForRegisterOp(PPID * pID, int use_ta) // @v12
 		// PPTXT_OPK_COMM_ORDER           "Заказ от покупателя"
 		// PPTXT_OPK_COMM_PURCHASE        "Закупка"
 		long    _count = 0;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		{
 			for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&op_rec) > 0;) {
 				_count++;
@@ -1588,7 +1588,7 @@ int OprKindView::setupList()
 	PPID   ext_id = getCtrlLong(CTLSEL_OPKVIEW_TYPE);
 	if(ExtDataKind == 3) {
 		OpCounterID = ext_id;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		for(PPID op_id = 0; EnumOperations(0, &op_id, &op_rec) > 0;)
 			if(op_rec.OpCounterID == OpCounterID)
 				op_list.add(op_id);
@@ -1627,7 +1627,7 @@ int OprKindView::addItem(long *, long * pID)
 	int    ok = -1;
 	if(ExtDataKind == 3) {
 		PPID      op_id = 0;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		PPOprKindPacket pack;
 		PPIDArray op_list;
 		while(EnumOperations(0, &op_id, &op_rec) > 0)
@@ -1845,7 +1845,7 @@ void OprKindDialog::setup()
 
 void OprKindDialog::setupAccSheet(uint opSelCtl, uint objSelCtl, PPID arID)
 {
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	GetOpData(getCtrlLong(opSelCtl), &op_rec);
 	SetupArCombo(this, objSelCtl, arID, OLW_LOADDEFONOPEN, op_rec.AccSheetID, sacfDisableIfZeroSheet|sacfNonGeneric);
 }
@@ -3101,7 +3101,7 @@ int PPObjOprKind::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	if(msg == DBMSG_OBJDELETE) {
 		if(_id && oneof4(_obj, PPOBJ_OPRTYPE, PPOBJ_ACCSHEET, PPOBJ_ACCOUNT2, PPOBJ_ARTICLE)) {
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&op_rec) > 0;) {
 				if(_obj == PPOBJ_ACCSHEET && op_rec.AccSheetID == _id)
 					return RetRefsExistsErr(Obj, op_rec.ID);
@@ -3312,7 +3312,7 @@ int PPObjOprKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmConte
 		PPOprKindPacket * p_pack = static_cast<PPOprKindPacket *>(p->Data);
 		if(stream == 0) {
 			PPID   same_id = 0;
-			PPOprKind same_rec;
+			PPOprKind2 same_rec;
 			if(*pID == 0) {
 				if(p_pack->Rec.ID < PP_FIRSTUSRREF) {
 					*pID = p_pack->Rec.ID;
@@ -3562,7 +3562,7 @@ PPID FASTCALL OpCache::GetBySymb(const char * pSymb)
 			SRWLOCKER_TOGGLE(SReadWriteLocker::Write);
 			if(!(State & stOpSymbListInited)) {
 				OpSymbList.Z();
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				for(SEnum en = PPRef->Enum(PPOBJ_OPRKIND, Reference::eoIdSymb); en.Next(&op_rec) > 0;) {
 					if(op_rec.Symb[0]) {
 						OpSymbList.Add(op_rec.ID, strip(op_rec.Symb));
@@ -3645,7 +3645,7 @@ int OpCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 {
 	int    ok = 1;
 	OpData * p_cache_rec = static_cast<OpData *>(pEntry);
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	if((ok = PPRef->GetItem(PPOBJ_OPRKIND, id, &op_rec)) > 0) {
 		#define FLD(f) p_cache_rec->f = op_rec.f
 		FLD(InitStatusID);
@@ -3673,9 +3673,9 @@ int OpCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraData*/)
 
 void OpCache::EntryToData(const ObjCacheEntry * pEntry, void * dataRec) const
 {
-	PPOprKind * p_data_rec = static_cast<PPOprKind *>(dataRec);
+	PPOprKind2 * p_data_rec = static_cast<PPOprKind *>(dataRec);
 	const OpData * p_cache_rec  = static_cast<const OpData *>(pEntry);
-	memzero(p_data_rec, sizeof(PPOprKind));
+	memzero(p_data_rec, sizeof(*p_data_rec));
 	p_data_rec->Tag = PPOBJ_OPRKIND;
 	#define FLD(f) p_data_rec->f = p_cache_rec->f
 	FLD(ID);
@@ -3723,8 +3723,8 @@ int FASTCALL GetReckonOpList(PPIDArray * pList)
 int FASTCALL GetOpData(PPID op, PPOprKind * pData)
 {
 	OpCache * p_cache = GetDbLocalCachePtr <OpCache> (PPOBJ_OPRKIND);
-	PPOprKind stub_data; // @v11.4.9
-	SETIFZQ(pData, &stub_data); // @v11.4.9
+	PPOprKind2 stub_data;
+	SETIFZQ(pData, &stub_data);
 	int    r = p_cache ? p_cache->Get(op, pData) : 0;
 	if(r < 0)
 		r = 0;
@@ -3794,13 +3794,13 @@ int FASTCALL GetOpBySymb(const char * pSymb, PPOprKind * pData)
 int FASTCALL GetOpName(PPID opID, SString & rBuf)
 {
 	rBuf.Z();
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	return (opID && GetOpData(opID, &op_rec)) ? ((rBuf = op_rec.Name), 1) : 0;
 }
 
 int STDCALL GetOpName(PPID op, char * buf, size_t buflen)
 {
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	if(op && GetOpData(op, &op_rec)) {
 		strnzcpy(buf, op_rec.Name, buflen);
 		return 1;
@@ -3813,7 +3813,7 @@ int STDCALL GetOpName(PPID op, char * buf, size_t buflen)
 
 int STDCALL CheckOpFlags(PPID op, long andF, long notF)
 {
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	if(op && GetOpData(op, &op_rec))
 		if(andF && (op_rec.Flags & andF) != andF)
 			return 0;
@@ -3827,7 +3827,7 @@ int STDCALL CheckOpFlags(PPID op, long andF, long notF)
 
 int FASTCALL CheckOpPrnFlags(PPID op, long andF)
 {
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	if(op && GetOpData(op, &op_rec))
 		return (andF && (op_rec.PrnFlags & andF) != andF) ? 0 : 1;
 	else
@@ -3838,7 +3838,7 @@ int STDCALL EnumOperations(PPID opTypeID, PPID * pID, PPOprKind * pOpData)
 {
 	int    r;
 	Reference * p_ref(PPRef);
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	while((r = p_ref->EnumItems(PPOBJ_OPRKIND, pID, &op_rec)) > 0) {
 		if(!opTypeID || op_rec.OpTypeID == opTypeID) {
 			if(pOpData)
@@ -3863,14 +3863,14 @@ PPID FASTCALL GetOpType(PPID opID, PPOprKind * pOpData)
 
 int FASTCALL GetOpSubType(PPID opID)
 {
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	return GetOpData(opID, &op_rec) ? op_rec.SubType : 0;
 }
 
 PPID FASTCALL IsOpPaymOrRetn(PPID opID)
 {
 	if(opID) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		const  PPID op_type_id = GetOpType(opID, &op_rec);
 		return (oneof2(op_type_id, PPOPT_PAYMENT, PPOPT_GOODSRETURN) || (op_type_id == PPOPT_CHARGE && op_rec.Flags & OPKF_CHARGENEGPAYM)) ? op_type_id : 0;
 	}
@@ -3881,7 +3881,7 @@ PPID FASTCALL IsOpPaymOrRetn(PPID opID)
 bool FASTCALL IsOpPaym(PPID opID)
 {
 	if(opID) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		const  PPID op_type_id = GetOpType(opID, &op_rec);
 		return ((op_type_id == PPOPT_PAYMENT) || (op_type_id == PPOPT_CHARGE && op_rec.Flags & OPKF_CHARGENEGPAYM));
 	}
@@ -3891,7 +3891,7 @@ bool FASTCALL IsOpPaym(PPID opID)
 
 int FASTCALL _IsSellingOp(PPID opID)
 {
-	PPOprKind opk;
+	PPOprKind2 opk;
 	if(opID == 0)
 		return -1;
 	PPID   t = GetOpType(opID, &opk);
@@ -3911,7 +3911,7 @@ int FASTCALL IsIntrOp(PPID opID)
 {
 	int    r = 0;
 	if(opID) {
-		PPOprKind opk;
+		PPOprKind2 opk;
 		if(opID == PPOPK_INTREXPEND)
 			r = INTREXPND;
 		else if(opID == PPOPK_INTRRECEIPT)
@@ -3948,7 +3948,7 @@ int FASTCALL IsSellingOp(PPID opID)
 {
 	int    ret = -1;
 	if(opID) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		GetOpData(opID, &op_rec);
 		const long s = (op_rec.Flags & OPKF_SELLING);
 		ret = (s ^ (op_rec.Flags & OPKF_BUYING)) ? BIN(s) : _IsSellingOp(opID);
@@ -3960,7 +3960,7 @@ int FASTCALL IsExpendOp(PPID opID)
 {
 	int    ret = -1;
 	if(opID) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		const  PPID op_type_id = GetOpType(opID, &op_rec);
 		if(op_type_id == PPOPT_GOODSEXPEND)
 			ret = 1;
@@ -4016,7 +4016,7 @@ int STDCALL GetOpCommonAccSheet(PPID opID, PPID * pAccSheetID, PPID * pAccSheet2
 	int    ok = -1;
 	PPID   acc_sheet_id = 0;
 	PPID   acc_sheet2_id = 0;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	if(GetOpData(opID, &op_rec)) {
 		if(op_rec.AccSheet2ID)
 			acc_sheet2_id = op_rec.AccSheet2ID;
@@ -4065,7 +4065,7 @@ PPID GetCashRetOp()
 		op_id_ = r_ccfg.RetailRetOp;
 	else {
 		const  PPID cash_op_id = GetCashOp();
-		PPOprKind opk;
+		PPOprKind2 opk;
 		for(PPID iter_op_id = 0; op_id_ < 0 && EnumOperations(PPOPT_GOODSRETURN, &iter_op_id, &opk) > 0;)
 			if(opk.LinkOpID == cash_op_id)
 				op_id_ = iter_op_id;
@@ -4082,7 +4082,7 @@ PPID FASTCALL GetSingleOp(PPID opTypeID)
 {
 	int    count = 0;
 	PPID   ret_op_id = 0;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	for(PPID op_id = 0; EnumOperations(opTypeID, &op_id, &op_rec) > 0;) {
 		if(++count > 1) {
 			ret_op_id = -1;
@@ -4111,7 +4111,7 @@ int PPALDD_OprKind::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		PPOprKind rec;
+		PPOprKind2 rec;
 		PPObjOprKind op_obj;
 		if(op_obj.Search(rFilt.ID, &rec) > 0) {
 			SString temp_buf;

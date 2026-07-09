@@ -9609,7 +9609,7 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 	PPObjBill * p_bobj(BillObj);
 	for(uint i = 0; i < rOpList.getCount(); i++) {
 		const  PPID op_id = rOpList.get(i);
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		BillTbl::Rec bill_rec;
 		GetOpData(op_id, &op_rec);
 		for(DateIter di(&rPeriod); p_bobj->P_Tbl->EnumByOpr(op_id, &di, &bill_rec) > 0;) {
@@ -12910,7 +12910,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 						MatchCodeBlock mcb(rRec.WayBillNumber);
 						if(select_intrrcpt) {
 							PPObjOprKind op_obj;
-							PPOprKind op_rec;
+							PPOprKind2 op_rec;
 							PPIDArray op_list_intrexpnd;
 							PPIDArray op_list_intrrcpt;
 							for(SEnum en = op_obj.Enum(0); en.Next(&op_rec) > 0;) {

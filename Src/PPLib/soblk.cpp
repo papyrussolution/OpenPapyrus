@@ -2222,7 +2222,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						PPBillPacket pack;
 						PPObjCurrency cur_obj;
 						PPCurrency cur_rec;
-						PPOprKind op_rec;
+						PPOprKind2 op_rec;
 						LocationTbl::Rec loc_rec;
 						THROW(GetOpData(P_SetBlk->U.B.OpID, &op_rec) > 0);
 						THROW(PsnObj.LocObj.Fetch(P_SetBlk->U.B.LocID, &loc_rec) > 0);
@@ -2341,7 +2341,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						double rest = 0.0;
 						PPID   rest_op_id = 0;
 						PPID   order_op_id = 0;
-						PPOprKind op_rec;
+						PPOprKind2 op_rec;
 						if(GetOpBySymb("GOODSREST", &op_rec) > 0)
 							rest_op_id = op_rec.ID;
 						if(GetOpBySymb("DRAFTORDER", &op_rec) > 0)
@@ -2358,7 +2358,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 						TSVector <UhttGoodsRestVal> r_list;
 						PPID   rest_op_id = 0;
 						PPID   order_op_id = 0;
-						PPOprKind op_rec;
+						PPOprKind2 op_rec;
 						if(GetOpBySymb("GOODSREST", &op_rec) > 0)
 							rest_op_id = op_rec.ID;
 						if(GetOpBySymb("DRAFTORDER", &op_rec) > 0)
@@ -2501,7 +2501,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 					}
 					if(P_QF->LocalFlags & P_QF->lfNonZeroDraftRestOnly) {
 						if(c && p_bobj) {
-							PPOprKind op_rec;
+							PPOprKind2 op_rec;
 							const  PPID rest_op_id = (GetOpBySymb("GOODSREST", &op_rec) > 0) ? op_rec.ID : 0;
 							const  PPID order_op_id = (GetOpBySymb("DRAFTORDER", &op_rec) > 0) ? op_rec.ID : 0;
 							if(rest_op_id) {
@@ -3652,7 +3652,7 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 			{
 				use_filt = 1;
 				PPObjOprKind op_obj;
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				if(IdList.getCount()) {
 					for(uint i = 0; i < IdList.getCount(); i++) {
 						if(op_obj.Search(IdList.at(i), &op_rec) > 0)

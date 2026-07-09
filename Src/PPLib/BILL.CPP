@@ -1050,7 +1050,7 @@ int BillCore::GetListOfActualAgreemts(PPID arID, PPID addendumArID, LDATE dt, in
 			const  PPID acs_id = ar_rec.AccSheetID;
 			const  PPID acs2_id = (ar_obj.Fetch(addendumArID, &ar2_rec) > 0) ? ar2_rec.AccSheetID : 0;
 			PPIDArray op_list;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			for(PPID op_id = 0; EnumOperations(PPOPT_AGREEMENT, &op_id, &op_rec) > 0;) {
 				if(op_rec.AccSheetID == acs_id) {
 					if(!op_rec.AccSheet2ID || op_rec.AccSheet2ID == acs2_id) { // @v12.3.9
@@ -1109,7 +1109,7 @@ int BillCore::EnumLinks(PPID id, DateIter * diter, uint blnk, BillTbl::Rec * pRe
 {
 	int    r;
 	while((r = _Enum(4, id, diter, pRec)) > 0) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		BillTbl::Rec bill_rec;
 		if(blnk == BLNK_ALL)
 			break;
@@ -1175,7 +1175,7 @@ int BillCore::GetTrnovrBySCard(PPID cardID, const DateRange * pPeriod, PPID rest
 	DateIter diter(pPeriod);
 	BillTbl::Rec rec;
 	while(_Enum(6, cardID, &diter, &rec) > 0) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		PPID op_type_id = GetOpType(rec.OpID, &op_rec);
 		if(op_type_id == PPOPT_GOODSEXPEND)
 			crd += BR2(rec.Amount);
@@ -1193,7 +1193,7 @@ int BillCore::CreateSCardsTurnoverList(const DateRange * pPeriod, RAssocArray * 
 {
 	int    ok = 1;
 	IterCounter cntr;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	BillTbl::Key6 k, k_;
 	BExtQuery q(this, 6, 64);
 	q.select(this->ID, this->OpID, this->Amount, this->SCardID, 0L).where(this->SCardID > 0L && daterange(this->Dt, pPeriod));

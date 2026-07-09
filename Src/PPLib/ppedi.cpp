@@ -1709,7 +1709,7 @@ bool PPEanComDocument::SetImportOpID(PPID opID)
 	if(!opID)
 		ImportOpID = opID;
 	else {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		if(GetOpData(opID, &op_rec) > 0)
 			ImportOpID = opID;
 		else
@@ -4260,7 +4260,7 @@ int PPEanComDocument::Read_Document(/*PPEdiProcessor::ProviderImplementation * p
 	else if(SXml::IsName(p_root, "ORDERS")) {
 		PPID   op_id = 0;
 		PPID   loc_id = ImportLocID;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		if(ImportOpID) {
 			THROW(GetOpType(ImportOpID, &op_rec) == PPOPT_GOODSORDER); // @todo @err
 			op_id = op_rec.ID;
@@ -7094,7 +7094,7 @@ int PPEdiProcessor::SendOrders(const PPBillIterchangeFilt & rP, const PPIDArray 
 	}
 	for(uint i = 0; i < op_list.getCount(); i++) {
 		const  PPID op_id = op_list.get(i);
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		GetOpData(op_id, &op_rec);
 		if(rP.IdList.getCount()) {
 			for(uint j = 0; j < rP.IdList.getCount(); j++) {

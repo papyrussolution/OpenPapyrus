@@ -1111,7 +1111,7 @@ int PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, int use_
 			THROW(ScObj.Fetch(sc_id, &sc_pack) > 0);
 			PPGetWord(PPWORD_CHARGE, 0, memo_buf).CatDiv('-', 1).Cat(sc_pack.Rec.Name);
 			if(sc_pack.Rec.WrOffOpID) {
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				double amount = 0.0;
 				PPIDArray list, bill_id_list;
 				Logger.LogString(PPTXT_LOG_PRCSALWROFFCHARGE, sc_pack.Rec.Name);
@@ -2030,7 +2030,7 @@ int PrcssrSalary::Expr_ResolveFunc(int funcId, uint argCount, double * pArgList,
 		if(op_id) {
 			uint   i;
 			PPID   psn_id = CurPostPack.Rec.PersonID;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			//
 			// 0 - то документы поднимаются по персоналии, как контрагенту документа
 			// 1 - документы поднимаются по персоналии, как дополнительному объекту документа

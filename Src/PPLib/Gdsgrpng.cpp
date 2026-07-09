@@ -12,7 +12,7 @@ GoodsGrpngEntry::GoodsGrpngEntry()
 	THISZERO();
 }
 
-void FASTCALL GoodsGrpngEntry::SetOp(const PPOprKind & rOpRec)
+void FASTCALL GoodsGrpngEntry::SetOp(const PPOprKind2 & rOpRec)
 {
 	OpID     = rOpRec.ID;
 	OpTypeID = rOpRec.OpTypeID;
@@ -80,7 +80,7 @@ double FASTCALL GoodsGrpngEntry::Income(int incomeCalcMethod /*=-1*/) const
 	else if(op_id == 10000)
 		sign = -1;
 	else {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		int    op_type = GetOpType(op_id, &op_rec);
 		if(op_type == PPOPT_GOODSMODIF)
 			sign = NZOR(rawSign, +1);
@@ -333,14 +333,14 @@ int AdjGdsGrpng::CorrectionList(const GCTFilt & rF)
 {
 	int    ok = 1;
 	PPID   op_id = 0;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	PPIDArray op_list;
 	PPObjBill * p_bobj(BillObj);
 	BillCore * p_bc = p_bobj->P_Tbl;
 	BillTbl::Rec bill_rec;
 	CorrectionBillList.clear();
 	for(op_id = 0; EnumOperations(PPOPT_CORRECTION, &op_id, &op_rec) > 0;) {
-		PPOprKind link_op_rec;
+		PPOprKind2 link_op_rec;
 		if(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0) {
 			if(link_op_rec.Flags & OPKF_PROFITABLE) {
 				THROW_SL(op_list.add(op_rec.ID));
@@ -373,7 +373,7 @@ int AdjGdsGrpng::PrevPaymentList(const GCTFilt & rF)
 	int    ok = 1;
 	PPID   op_id = 0;
 	PPObjOprKind op_obj;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	PPIDArray op_list;
 	Period.low = MAXDATE;
 	Period.upp = ZERODATE;
@@ -383,7 +383,7 @@ int AdjGdsGrpng::PrevPaymentList(const GCTFilt & rF)
 	// Найдем все коды операций оплат по продажам приносящим доход
 	//
 	for(op_id = 0; EnumOperations(PPOPT_PAYMENT, &op_id, &op_rec) > 0;) {
-		PPOprKind link_op_rec;
+		PPOprKind2 link_op_rec;
 		if(GetOpData(op_rec.LinkOpID, &link_op_rec) > 0) {
 			if(link_op_rec.Flags & OPKF_NEEDPAYMENT) {
 				if(link_op_rec.Flags & OPKF_PROFITABLE) {
@@ -1060,7 +1060,7 @@ int GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 		p_bill->CopyBufTo(&bill_rec);
 		PPID op_id = bill_rec.OpID;
 		if((!(pFilt->Flags & OPG_LABELONLY) || (bill_rec.Flags & BILLF_WHITELABEL)) && ObjRts.CheckOpID(op_id, PPR_READ) && pFilt->BillList.CheckID(bill_rec.ID)) {
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			op_type_id = GetOpType(op_id);
 			if(oneof6(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_PAYMENT, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF)) {
 				const int r2 = pFilt->AcceptIntr3(bill_rec);
@@ -1191,7 +1191,7 @@ int GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 		GoodsRestTotal  gr_total;
 		GoodsRestFilt   gr_flt;
 		PPViewGoodsRest gr_view;
-		PPOprKind       r_op_rec;
+		PPOprKind2 r_op_rec;
 		if(pFilt->Flags & OPG_CALCINREST) {
 			r_op_rec.ID = -1;
 			entry.SetOp(r_op_rec);
@@ -1209,9 +1209,9 @@ int GoodsGrpngArray::_ProcessBillGrpng(GCTFilt * pFilt)
 				entry.Price    = gr_total.SumPrice;
 				entry.Discount = gr_total.Count;
 				if(ExtCostAmtID)
-					entry.ExtCost = gr_total.Amounts.Get(ExtCostAmtID, 0  /* curID */);
+					entry.ExtCost = gr_total.Amounts.Get(ExtCostAmtID, 0/*curID*/);
 				if(ExtPriceAmtID)
-					entry.ExtPrice = gr_total.Amounts.Get(ExtPriceAmtID, 0  /* curID */);
+					entry.ExtPrice = gr_total.Amounts.Get(ExtPriceAmtID, 0/*curID*/);
 			}
 			AddEntry(&entry);
 		}
@@ -1326,12 +1326,12 @@ int GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt & rFilt, const AdjGdsGrp
 				TransferTbl::Rec trfr_rec;
 				if(filt.Flags & (OPG_CALCINREST|OPG_CALCOUTREST)) {
 					GoodsRestParam gp;
-					PPOprKind      op_rec;
+					PPOprKind2 op_rec;
 					gp.CalcMethod = GoodsRestParam::pcmSum;
 					filt.LocList.Get(gp.LocList);
-					gp.GoodsID    = filt.GoodsID;
-					gp.SupplID    = filt.SupplID;
-					gp.AgentID    = filt.SupplAgentID;
+					gp.GoodsID = filt.GoodsID;
+					gp.SupplID = filt.SupplID;
+					gp.AgentID = filt.SupplAgentID;
 					if(gp.AgentID && pAgg)
 						gp.P_SupplAgentBillList = &pAgg->SupplAgentBillList;
 					if(filt.Flags & OPG_SETCOSTWOTAXES)

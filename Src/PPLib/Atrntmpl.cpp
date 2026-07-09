@@ -648,7 +648,7 @@ int PPAccTurnTempl::EnumerateExtLines(const PPBillPacket * pPack, ExtLinesBlock 
 		pBlk->P_Pack = pPack;
 		if(pPack->OpTypeID == PPOPT_ACCTURN && GetOpSubType(pPack->Rec.OpID) == OPSUBT_ACCWROFF) {
 			pBlk->AccWrOff = 1;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			if(GetOpData(pPack->Rec.OpID, &op_rec) > 0 && op_rec.AccSheetID) {
 				PPObjArticle ar_obj;
 				pBlk->AccSheetID = op_rec.AccSheetID;

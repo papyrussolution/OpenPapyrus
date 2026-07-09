@@ -2373,7 +2373,7 @@ int PPObjBill::ConvertBasket(const PPBasketPacket & rBasket, PPBillPacket * pPac
 							// Наследуем теги (имеющие признак OTF_INHERITABLE) от последнего лота.
 							//
 							ObjTagList inh_tag_list;
-							GetTagListByLot(lot_rec.ID, 1, &inh_tag_list);
+							GetTagListByLot(lot_rec.ID, 1, inh_tag_list);
 							const uint tc = inh_tag_list.GetCount();
 							if(tc) {
 								PPObjTag tag_obj;

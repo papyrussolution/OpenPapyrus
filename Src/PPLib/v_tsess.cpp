@@ -1891,7 +1891,7 @@ int PPViewTSessLine::AddItemExt(PPID tsesID, PPViewBrowser * pBrw)
 				while(ExecView(dlg) == cmOK) {
 					if(dlg->getDTS(&tidi) > 0) {
 						long   oprno = 0;
-						if(TSesObj.EditLine(tsesID, &oprno, tidi.GoodsID, tidi.Serial, tidi.Quantity) > 0) {
+						if(TSesObj.EditLine(tsesID, &oprno, tidi.GoodsID, tidi.Serial_, tidi.Quantity) > 0) {
 							CALLPTRMEMB(pBrw, Update());
 							ok = 1;
 						}

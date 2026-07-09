@@ -100,7 +100,7 @@ public:
 		ushort v = 0;
 		PPIDArray op_list;
 		PPIDArray gen_op_list;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		PPID   acc_sheet_id = 0;
 		PPID   op_id = 0;
 		SetPeriodInput(this, CTL_FRGHTFLT_PERIOD, Data.BillPeriod);

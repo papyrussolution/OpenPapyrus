@@ -69,7 +69,7 @@ int PPViewShipmAnalyze::EditBaseFilt(PPBaseFilt * pFilt)
 		{
 			RVALUEPTR(Data, pData);
 			PPIDArray types;
-			PPOprKind opk;
+			PPOprKind2 opk;
 			const PPConfig & r_cfg = LConfig;
 			SETIFZ(Data.Period.low, r_cfg.InitDate);
 			SETIFZ(Data.Period.upp, r_cfg.OperDate);
@@ -114,7 +114,7 @@ int PPViewShipmAnalyze::EditBaseFilt(PPBaseFilt * pFilt)
 			if(event.isCbSelected(CTLSEL_SHANLZFLT_OPRKIND)) {
 				if(getCtrlView(CTLSEL_SHANLZFLT_OBJECT)) {
 					PPID   acc_sheet_id = 0;
-					PPOprKind opk;
+					PPOprKind2 opk;
 					getCtrlData(CTLSEL_SHANLZFLT_OPRKIND, &Data.OpID);
 					if(GetOpData(Data.OpID, &opk))
 						if(opk.AccSheetID || GetOpData(opk.LinkOpID, &opk))

@@ -432,7 +432,7 @@ int GCTIterator::GoodsRestArray::Serialize(int dir, SBuffer & rBuf, SSerializeCo
 	}
 	else if(opID == PPOPK_INTRRECEIPT) {
 		result |= aorfIntrRcpt;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		for(SEnum en = PPRef->Enum(PPOBJ_OPRKIND, 0); en.Next(&op_rec) > 0;)
 			if(IsIntrExpndOp(op_rec.ID))
 				op_list.add(op_rec.ID);
@@ -1007,7 +1007,7 @@ int GCTIterator::TrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRec,
 		BillTbl::Rec bill_rec;
 		Cbb.Z();
 		if(Filt.Flags & OPG_COMPAREWROFF && BCache && BCache->Get(CurrID, &bill_rec) > 0) {
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			GetOpData(bill_rec.OpID, &op_rec);
 			if(op_rec.OpTypeID == PPOPT_GOODSORDER) {
 				PPObjBill * p_bobj(BillObj);
@@ -1133,7 +1133,7 @@ int GCTIterator::CpTrfrQuery(TransferTbl::Rec * pTrfrRec, BillTbl::Rec * pBillRe
 	if(Filt.Flags & OPG_COMPAREWROFF && ByWhat_ == bwBill) {
 		BillTbl::Rec bill_rec;
         if(BCache && BCache->Get(CurrID, &bill_rec) > 0) {
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			GetOpData(bill_rec.OpID, &op_rec);
 			const  PPID opt_id = op_rec.OpTypeID;
 			if(oneof3(opt_id, PPOPT_DRAFTEXPEND, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTTRANSIT) || (opt_id == PPOPT_GOODSORDER && op_rec.ExtFlags & OPKFX_WROFFTODRAFTORD)) {

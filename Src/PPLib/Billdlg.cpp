@@ -1131,7 +1131,7 @@ private:
 
 static uint GetBillDialogID(const PPBillPacket * pack, uint * pPrnForm)
 {
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	*pPrnForm = 0;
 	switch(pack->OpTypeID) {
 		case PPOPT_ACCTURN:
@@ -1247,7 +1247,7 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 	SETFLAG(Flags, fEditMode, isEdit);
 	const bool is_cash = LOGIC(P_Pack->Rec.Flags & BILLF_CASH);
 	PPObjOprKind op_obj;
-	PPOprKind  op_rec;
+	PPOprKind2 op_rec;
 	// @v12.2.8 {
 	if(P_Pack->ProcessFlags & PPBillPacket::pfDetectModificDetails) {
 		P_OrgPack = new PPBillPacket(*P_Pack);
@@ -1453,7 +1453,7 @@ int BillDialog::editPaymOrder(int forceUpdateRcvr)
 		}
 		SETIFZ(order.PayerKindID, PPPRK_MAIN);
 		if(!order.RcvrKindID) {
-			PPOprKind  op_rec;
+			PPOprKind2 op_rec;
 			PPObjAccSheet acs_obj;
 			PPAccSheet acs_rec;
 			GetOpData(P_Pack->Rec.OpID, &op_rec);
@@ -2272,7 +2272,7 @@ int BillDialog::EditLinkedToDo() // @v12.4.7 @construction
 	//
 	int    ok = -1;
 	/* 
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_USETODOLINK) {
 		PPObjPrjTask todo_obj;
 		const PPID bill_id = P_Pack->Rec.ID;
@@ -2371,7 +2371,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 						P_BObj->Edit(&id, &ep);
 					}
 					else if(P_Pack->OpTypeID == PPOPT_PAYMENT) {
-						PPOprKind op_rec;
+						PPOprKind2 op_rec;
 						if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.LinkOpID) {
 							BillFilt bill_filt;
 							bill_filt.OpID = op_rec.LinkOpID;
@@ -3078,7 +3078,7 @@ void BillDialog::SetupPaymDateCtrls()
 		LDATE  dt = ZERODATE;
 		P_Pack->GetLastPayDate(&dt);
 		setCtrlData(CTL_BILL_PAYDATE, &dt);
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		GetOpData(P_Pack->Rec.OpID, &op_rec);
 		if(P_Pack->Rec.Flags & BILLF_NEEDPAYMENT || P_Pack->OpTypeID == PPOPT_GOODSORDER || op_rec.SubType == OPSUBT_WARRANT) {
 			disableCtrls(P_Pack->Pays.getCount() > 1, CTL_BILL_PAYDATE, CTLCAL_BILL_PAYDATE, 0);
@@ -3691,7 +3691,7 @@ int BillDialog::getDTS(int onCancel)
 		THROW_PP(P_Pack->GetTCount() || P_BObj->CheckRights(BILLOPRT_EMPTY, 1), PPERR_EMPTYGOODSLIST);
 	}
 	{
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		GetOpData(P_Pack->Rec.OpID, &op_rec);
 		if(op_rec.ExtFlags & OPKFX_CANBEDECLINED) {
 			GetClusterData(CTL_BILL_DECLINE, &P_Pack->Rec.Flags2);
@@ -3994,7 +3994,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			{
 				int    dlvr_loc_as_warehouse = 0;
 				if(oneof2(R_Pack.OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_GOODSRECEIPT)) {
-					PPOprKind op_rec;
+					PPOprKind2 op_rec;
 					if(GetOpData(R_Pack.Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_DLVRLOCASWH)
 						dlvr_loc_as_warehouse = 1;
 				}

@@ -1523,7 +1523,7 @@ int PPViewBill::GetOpList(const BillFilt * pFilt, PPIDArray * pList, PPID * pSin
 		else if(pFilt->Flags & BillFilt::fWmsOnly)
 			ot_list.add(PPOPT_WAREHOUSE);
 		else if(pFilt->Flags & BillFilt::fPaymNeeded) {
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			for(PPID op_id = 0; EnumOperations(0L, &op_id, &op_rec) > 0;)
 				if(op_rec.Flags & OPKF_NEEDPAYMENT && r_orts.CheckOpID(op_id, PPR_READ))
 					pList->add(op_id);
@@ -2438,7 +2438,7 @@ int PPViewBill::WriteOffDraft(PPID id)
 					}
 				}
 				//
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				GoodsOpAnalyzeFilt goa_filt;
 				PPViewGoodsOpAnalyze goa_view;
 				P_BObj->P_OpObj->GetDraftExData(op_id, &doe);
@@ -3347,7 +3347,7 @@ int PPViewBill::AddItem(PPID * pID, PPID opID)
 		PPID   loc_id = r_cfg.Location;
 	 	const  PPID save_loc_id = loc_id;
 		if(!(Filt.DenyFlags & BillFilt::fDenyAdd)) {
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			if(Filt.Flags & BillFilt::fSetupNewBill) {
 				if(Filt.OpID)
 					GetOpData(Filt.OpID, &op_rec);
@@ -3564,7 +3564,7 @@ static int SelectAddByDraftAction(SelAddBySampleParam * pData, const BillTbl::Re
 		{
 			GetClusterData(CTL_SELBBSMPL_WHAT, &Data.Action);
 			PPIDArray op_list;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			if(Data.Action == Data.acnDraftExpByDraftRcpt) {
 				for(PPID id = 0; EnumOperations(PPOPT_DRAFTEXPEND, &id, &op_rec) > 0;)
 					op_list.add(id);
@@ -3706,7 +3706,7 @@ static int SelectAddByOrderAction(SelAddBySampleParam * pData, int allowBulkMode
 		{
 			GetClusterData(CTL_SELBBSMPL_WHAT, &Data.Action);
 			PPIDArray op_list;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			SString hint_buf; // @v11.9.12
 			if(Data.Action == Data.acnShipmByOrder) {
 				// @v11.9.12 {
@@ -3740,7 +3740,7 @@ int PPViewBill::AddItemBySample(PPID * pID, PPID sampleBillID)
 	BillTbl::Rec bill_rec;
 	if(sampleBillID && P_BObj->Search(sampleBillID, &bill_rec) > 0) {
 		PPID   bill_id = 0;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		const  PPID op_type_id = GetOpType(bill_rec.OpID, &op_rec);
 		if(Filt.DenyFlags & BillFilt::fDenyAdd)
 			ok = -1;
@@ -4166,7 +4166,7 @@ int PPViewBill::AttachBillToOrder(PPID billID)
 	BillTbl::Rec bill_rec;
 	if(P_BObj->Search(billID, &bill_rec) > 0 && CheckOpFlags(bill_rec.OpID, OPKF_ONORDER)) {
 		BillFilt flt;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		GetOpData(bill_rec.OpID, &op_rec);
 		const  PPID acc_sheet_id = op_rec.AccSheetID;
 		flt.Period.upp = bill_rec.Dt;
@@ -4242,7 +4242,7 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 			msg_id = PPTXT_BILLHASNTOBJFORLINK;
 		else {
 			PPObjOprKind op_obj;
-			PPOprKind op_rec;
+			PPOprKind2 op_rec;
 			GetOpData(bill_rec.OpID, &op_rec);
 			const  PPID acc_sheet_id = op_rec.AccSheetID;
 			DateRange period;
@@ -4682,7 +4682,7 @@ int PPViewBill::SetupPoolInsertionFilt(BillFilt * pFilt)
 			pFilt->OpID = P_BPOX->OpList.at(0);
 			ArticleTbl::Rec ar_rec;
 			if(pool_rec.Object && ArObj.Fetch(pool_rec.Object, &ar_rec) > 0) {
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				if(GetOpData(pFilt->OpID, &op_rec) > 0 && op_rec.AccSheetID == ar_rec.AccSheetID)
 					pFilt->ObjectID = pool_rec.Object;
 			}
@@ -5324,7 +5324,7 @@ int PPViewBill::UpdateAttributes()
 	SetupArCombo(dlg, CTLSEL_UPDBLIST_OBJECT,  ua.ObjectID,  OLW_CANINSERT, obj_sheet_id,       sacfDisableIfZeroSheet);
 	SetupArCombo(dlg, CTLSEL_UPDBLIST_OBJECT2, ua.Object2ID, OLW_CANINSERT, obj_sheet2_id,      sacfDisableIfZeroSheet);
 	if(Filt.OpID && !IsGenericOp(Filt.OpID)) {
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		GetOpData(Filt.OpID, &op_rec);
 		if(op_rec.OpCounterID) {
 			if(opc_obj.Search(op_rec.OpCounterID, &opc_rec) > 0 && opc_rec.CodeTemplate[0]) {
@@ -5612,7 +5612,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 	PPLogger logger;
 	StringSet result_file_list;
 	PPIDArray bill_id_list;
-	PPIDArray exported_bill_id_list; // @v11.5.6 Список идентификаторов документов, которые были в действительности экспортированы
+	PPIDArray exported_bill_id_list; // Список идентификаторов документов, которые были в действительности экспортированы
 	PPID   single_loc_id = -1;
 	int    is_there_bnkpaym = 0;
 	for(InitIteration(OrdByDefault); NextIteration(&view_item) > 0;) {
@@ -5662,13 +5662,11 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 				bill_param.FileName = b_e.GetIEBill()->GetPreservedOrgFileName();
 			if(b_e.GetIEBRow())
 				brow_param.FileName = b_e.GetIEBRow()->GetPreservedOrgFileName();
-			// @v11.5.6 {
 			/* @v11.8.6
 			if(bill_param.FixTagID) {
 				if(tag_obj.Search(bill_param.FixTagID, &fix_tag_rec) > 0 && fix_tag_rec.ObjTypeID == PPOBJ_BILL)
 					fix_tag_id = fix_tag_rec.ID;	
 			}*/
-			// } @v11.5.6 
 			// (не надо: сервисные функции PPBillImpExpBaseProcessBlock сами все сделают) fix_tag_id = b_e.GetFixTagID(0); // @v11.8.6
 			if(b_e.BillParam.PredefFormat) {
 				if(oneof8(b_e.BillParam.PredefFormat, piefNalogR_Invoice, piefNalogR_REZRUISP, piefNalogR_SCHFDOPPR, piefExport_Marks, 
@@ -5684,7 +5682,7 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 						const  bool do_skip = b_e.SkipExportBillBecauseFixTag(bill_id); // @v11.8.6
 						if(!do_skip && P_BObj->ExtractPacketWithFlags(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
 							const  bool is_exp_correction = pack.IsExpCorrection();
-							int    r = 0;
+							int    r = -1;
 							THROW(b_e.Init(&bill_param, &brow_param, &pack, 0 /*&result_file_list*/));
 							{
 								const  SString nominal_file_name(b_e.BillParam.FileName);
@@ -5747,7 +5745,18 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 								}
 								if(r > 0) {
 									result_file_list.add(result_file_name_);
-									exported_bill_id_list.add(bill_id); // @v11.5.6
+									exported_bill_id_list.add(bill_id);
+									// @v12.6.10 {
+									{
+										PPObjBill::MakeCodeString(&pack.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, temp_buf);
+										PPFormatT(PPTXT_LOG_EXPBILL_ITEM_TO_FILE, &msg_buf, temp_buf.cptr(), result_file_name_.cptr());
+										logger.Log(msg_buf);
+									}
+									// } @v12.6.10 
+								}
+								else if(r == 0) { // @v12.6.10
+									SFile::Remove(result_file_name_);
+									logger.LogLastError();
 								}
 							}
 						}
@@ -6443,7 +6452,7 @@ int PPViewBill::AddBySCard(PPID * pID)
 		THROW((r = SCardInfoDlg(sc_pack, &op_id, Filt.Flags, without_psn)));
 		if(r > 0) {
 			PPID   b_id = 0;
-			PPOprKind    opr_kind;
+			PPOprKind opr_kind;
 			ArticleTbl::Rec ar_rec;
 			THROW(GetOpData(op_id, &opr_kind) > 0);
 			PPSetAddedMsgObjName(PPOBJ_PERSON, sc_pack.Rec.PersonID);
@@ -6932,7 +6941,7 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 			case PPVCMD_UNITEBILLS:
 				ok = -1;
 				{
-					PPOprKind op_rec;
+					PPOprKind2 op_rec;
 					if(!SingleLocID) {
 						ok = (PPError(PPERR_NONSINGLELOCFORBILLUN), 0);
 					}
@@ -7490,7 +7499,7 @@ int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 	DlGoodsBillBaseBlock * p_extra = new DlGoodsBillBaseBlock(static_cast<PPBillPacket *>(rFilt.Ptr));
 	Extra[0].Ptr = p_extra;
 	PPBillPacket * p_pack = p_extra->P_Pack;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	const  long bill_f = p_pack->Rec.Flags;
 	const  PPID optype = p_pack->OpTypeID;
 	PPID   main_org_id = 0;
@@ -8000,7 +8009,7 @@ int PPALDD_GoodsBillDispose::InitData(PPFilt & rFilt, long rsrv)
 {
 	DlGoodsBillDisposeBlock * p_blk = new DlGoodsBillDisposeBlock(rFilt.Ptr);
 	Extra[0].Ptr = p_blk;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	PPBillPacket * p_pack = static_cast<PPBillPacket *>(p_blk->P_Pack);
 	const  long bill_f = p_pack->Rec.Flags;
 	const  PPID optype = p_pack->OpTypeID;
@@ -8811,7 +8820,7 @@ int PPALDD_GoodsReval::InitData(PPFilt & rFilt, long rsrv)
 	BillTbl::Rec rec = p_pack->Rec;
 	BillTotalData total_data;
 	PPObjPerson psn_obj;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	GetOpData(rec.OpID, &op_rec);
 	PPID   main_org_id = 0;
 	const  PPID ar_id = (op_rec.PrnFlags & OPKF_PRT_EXTOBJ2OBJ) ? rec.Object2 : rec.Object;
@@ -9321,7 +9330,7 @@ int PPALDD_GoodsBillQCert::InitIteration(PPIterID iterId, int sortId, long)
 		I.nn = 0;
 		PPBillPacket * p_pack = static_cast<PPBillPacket *>(Extra[0].Ptr);
 		long   f = 0;
-		PPOprKind op_rec;
+		PPOprKind2 op_rec;
 		if(GetOpData(p_pack->Rec.OpID, &op_rec) > 0) {
 			if(op_rec.PrnFlags & OPKF_PRT_MERGETI)
 				f = (ETIEF_UNITEBYGOODS | ETIEF_DIFFBYPACK | ETIEF_DIFFBYQCERT | ETIEF_DIFFBYNETPRICE);

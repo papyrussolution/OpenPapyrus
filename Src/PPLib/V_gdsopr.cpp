@@ -1056,7 +1056,7 @@ void GoodsOpAnlzFiltDialog::ReplyOprGrpChanged()
 			Data.OpID = 0;
 			if(getCtrlView(CTLSEL_BILLFLT_OBJECT)) {
 				PPID   last = 0;
-				PPOprKind op_rec;
+				PPOprKind2 op_rec;
 				for(SEnum en = PPRef->Enum(PPOBJ_OPRKIND, 0); en.Next(&op_rec) > 0;) {
 					if(op_rec.Flags & OPKF_PROFITABLE && op_rec.AccSheetID)
 						last = (last && op_rec.AccSheetID != last) ? -1 : op_rec.AccSheetID;
@@ -2145,7 +2145,7 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 	bool   debug_mark = false;
 	PPIDArray op_list;
 	PPIDArray neg_op_list;
-	PPOprKind op_rec;
+	PPOprKind2 op_rec;
 	PPID   id;
 	TempGoodsOprTbl * p_prev_temp_tbl = 0;
 	SString wait_msg;
