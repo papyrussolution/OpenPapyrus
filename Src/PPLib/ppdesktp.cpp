@@ -2299,7 +2299,7 @@ int PPDesktop::ProcessRawInput(void * rawInputHandle)
 			else if(kflags & RI_KEY_BREAK || (kflags == 0 && Rib.RawKeyStatus)) {
 				if(rid.GetDeviceName(Rib.DvcNameBuf_ = 0) > 0) {
 					LTIME tm = getcurtime_();
-					if(tm < Rib.LastRawKeyTime || DiffTime(tm, Rib.LastRawKeyTime, 4) > 1000) {
+					if(tm < Rib.LastRawKeyTime || DiffTime_(tm, Rib.LastRawKeyTime, SUOM_MSECOND) > 1000) {
 						Rib.ClearInput();
 					}
 					Rib.LastRawKeyTime = tm;
@@ -4392,6 +4392,20 @@ bool FASTCALL PPSecretSegmentPool::IsEq(const PPSecretSegmentPool & rS) const
 	return TSCollection_IsEq(this, &rS);
 }
 
+bool FASTCALL PPSecretSegmentPool::HasChildrenByID(uint32 id) const
+{
+	bool   result = false;
+	if(id) {
+		for(uint i = 0; !result && i < getCount(); i++) {
+			const  PPSecretSegment * p_seg = at(i);
+			if(p_seg && p_seg->ParentID == id) {
+				result = true;
+			}
+		}
+	}
+	return result;
+}
+
 bool PPSecretSegmentPool::PutText(const char * pText, uint * pTextP)
 {
 	return LOGIC(Sg.AddS(pText, pTextP));
@@ -4525,13 +4539,13 @@ PPSecretSegment * PPSecretSegmentPool::CreateNewSegment(uint * pPos)
 	return p_result;
 }
 
-PPSecretSegment * PPSecretSegmentPool::SearchSegmentByID(uint id, uint * pPos)
+const PPSecretSegment * PPSecretSegmentPool::SearchSegmentByID(uint id, uint * pPos) const
 {
-	PPSecretSegment * p_result = 0;
+	const  PPSecretSegment * p_result = 0;
 	uint   pos = 0;
 	if(id) {
 		for(uint i = 0; !p_result && i < getCount(); i++) {
-			PPSecretSegment * p_item = at(i);
+			const  PPSecretSegment * p_item = at(i);
 			if(p_item && p_item->InternalID == id) {
 				p_result = p_item;
 				pos = i;
@@ -4576,6 +4590,67 @@ int PPSecretSegmentPool::IsThereStorage(const char * pFileName)
 	return ok;
 }
 
+void PPSecretSegmentPool::GetChildren(uint32 id, bool recursive, LongArray & rChildrenList) const
+{
+	if(id) {
+		for(uint i = 0; i < getCount(); i++) {
+			const  PPSecretSegment * p_seg = at(i);
+			if(p_seg && p_seg->ParentID == id) {
+				rChildrenList.add(p_seg->InternalID);
+				if(recursive) {
+					GetChildren(p_seg->InternalID, recursive, rChildrenList); // @recursion
+				}
+			}
+		}
+	}
+}
+
+void PPSecretSegmentPool::GetHierarchyByID(uint32 id, LongArray & rHierarchyList) const
+{
+	const  PPSecretSegment * p_seg = SearchSegmentByID(id, 0);
+	if(p_seg) {
+		rHierarchyList.add(p_seg->InternalID);
+		if(p_seg->ParentID) {
+			GetHierarchyByID(p_seg->ParentID, rHierarchyList); // @recursion
+		}
+	}
+}
+
+int PPSecretSegmentPool::Helper_MakeFolderList(uint32 parentId, uint currentSegmentIdent, StrAssocArray & rList) const
+{
+	int   ok = 1;
+	SString temp_buf;
+	LongArray children_of_current;
+	if(currentSegmentIdent) {
+		GetChildren(currentSegmentIdent, true, children_of_current);
+		children_of_current.add(currentSegmentIdent);
+		children_of_current.sortAndUndup();
+	}
+	for(uint i = 0; i < getCount(); i++) {
+		const  PPSecretSegment * p_seg = at(i);
+		if(p_seg && p_seg->SecType == PPSecretSegment::sectypFolder && p_seg->ParentID == parentId) {
+			if(!children_of_current.bsearch(p_seg->InternalID)) {
+				GetText(p_seg->NameP, temp_buf);
+				if(temp_buf.IsEmpty()) {
+					temp_buf.Cat("Entry").Space().CatChar('#').Cat(p_seg->InternalID);
+				}
+				rList.Add(p_seg->InternalID, p_seg->ParentID, temp_buf);
+				if(p_seg->SecType == PPSecretSegment::sectypFolder) {
+					THROW(Helper_MakeFolderList(p_seg->InternalID, currentSegmentIdent, rList)); // @recursion
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPSecretSegmentPool::MakeFolderList(uint currentSegmentIdent, StrAssocArray & rList) const
+{
+	rList.Z();
+	return Helper_MakeFolderList(0, currentSegmentIdent, rList);
+}
+
 int PPSecretSegmentPool::CreateStorage(const char * pFileName, const char * pMasterPassword, size_t masterPasswordLen)
 {
 	ZDELETE(P_Vault);
@@ -4611,21 +4686,39 @@ int PPSecretSegmentPool::CreateStorage(const char * pFileName, const char * pMas
 	return ok;
 }
 
-int PPSecretSegmentPool::SaveStorage(const char * pFileName) const
+int PPSecretSegmentPool::SaveStorage(const char * pFileName)
 {
-	int   ok = 1;
-	bool  is_file_created = false;
+	int    ok = 1;
+	bool   is_file_created = false;
 	if(!P_Vault) {
 		ok = -1;
 	}
 	else {
 		THROW(!isempty(pFileName));
 		if(fileExists(pFileName)) {
-			// @todo Создать резервную копию
+			/*
+			SFile::Stat fst;
+			if(SFile::GetStat(pFileName, 0, &fst, 0) && fst.Size > 0) {
+				SFsPath ps(pFileName);
+				ps.Ext.DotCat("bak");
+				SString bak_file_path;
+				ps.Merge(bak_file_path);
+				SCopyFile(pFileName, bak_file_path, 0, FILE_SHARE_READ, 0);
+			}
+			*/
 		}
 		{
 			SFile f(pFileName, SFile::mWrite|SFile::mBinary|SFile::mNoStd);
 			THROW(f.IsValid());
+			{
+				THROW_SL(P_Vault->RemoveNonSystemItems());
+				for(uint segi = 0; segi < getCount(); segi++) {
+					const PPSecretSegment * p_seg = at(segi);
+					if(p_seg) {
+						THROW(PutSegmentIntoPool(p_seg));
+					}
+				}
+			}
 			{
 				SSerializeContext sctx;
 				SBuffer sbuf;
@@ -4737,6 +4830,45 @@ int PPSecretSegmentPool::ReadTestJson(const char * pJsFileName)
 	return ok;
 }
 
+int PPSecretSegmentPool::Pack()
+{
+	int    ok = -1;
+	if(Sg.GetPoolDataLen()) {
+		void * p_pack_handle = Sg.Pack_Start();
+		if(p_pack_handle) {
+			const uint c = getCount();
+			for(uint i = 0; i < c; i++) {
+				PPSecretSegment * p_item = at(i);
+				if(p_item) {
+					Sg.Pack_Replace(p_pack_handle, p_item->NameP);
+					Sg.Pack_Replace(p_pack_handle, p_item->DescrP);
+					Sg.Pack_Replace(p_pack_handle, p_item->ExecCmdLineP);
+					Sg.Pack_Replace(p_pack_handle, p_item->CE.STextOpenP);
+					Sg.Pack_Replace(p_pack_handle, p_item->CE.STextHiddenP);
+					Sg.Pack_Replace(p_pack_handle, p_item->CE.STextExpiryP);
+					Sg.Pack_Replace(p_pack_handle, p_item->CE.STextExt1P);
+					Sg.Pack_Replace(p_pack_handle, p_item->CE.STextExt2P);
+					Sg.Pack_Replace(p_pack_handle, p_item->CE.STextExt3P);
+					for(uint j = 0; j < p_item->History.getCount(); j++) {
+						PPSecretSegment::CoreEntry & r_ce = p_item->History.at(j);
+						Sg.Pack_Replace(p_pack_handle, r_ce.STextOpenP);
+						Sg.Pack_Replace(p_pack_handle, r_ce.STextHiddenP);
+						Sg.Pack_Replace(p_pack_handle, r_ce.STextExpiryP);
+						Sg.Pack_Replace(p_pack_handle, r_ce.STextExt1P);
+						Sg.Pack_Replace(p_pack_handle, r_ce.STextExt2P);
+						Sg.Pack_Replace(p_pack_handle, r_ce.STextExt3P);
+					}
+				}
+			}
+			Sg.Pack_Finish(p_pack_handle);
+			ok = 1;
+		}
+		else
+			ok = 0;
+	}
+	return ok;
+}
+
 int TFacadeWindow::GetSecretsFilePath(SString & rBuf)
 {
 	rBuf.Z();
@@ -4805,7 +4937,7 @@ int TFacadeWindow::CloseSecrets()
 //
 class CentrigoSecretsDialog : public TDialog, public PPListDialogBaseInterface {
 public:
-	CentrigoSecretsDialog(PPSecretSegmentPool & rSecPool, const SString & rFilePath) : TDialog(DLG_SECRETPOOL), R_SecPool(rSecPool), CurrentSegIdx(0),
+	CentrigoSecretsDialog(PPSecretSegmentPool & rSecPool, const SString & rFilePath) : TDialog(DLG_SECRETPOOL), R_SecPool(rSecPool), CurrentSegIdent(0),
 		FilePath(rFilePath)
 	{
 		P_Box = static_cast<SmartListBox *>(getCtrlView(CTL_SECRETPOOL_LIST));
@@ -4813,7 +4945,20 @@ public:
 			PPError();
 		updateList(-1);
 		{
-			SetupStringCombo(this, CTLSEL_SECRETPOOL_TYPE, PPTXT_SECSEGTYPES, 0);
+			//SetupStringCombo(this, CTLSEL_SECRETPOOL_TYPE, PPTXT_SECSEGTYPES, 0);
+			//int STDCALL SetupStringComboWithAllowedList(TDialog * dlg, uint ctlID, const char * pStrSignature, const LongArray * pAllowedList, long initID) // @v12.6.11
+		}
+		{
+			const uint input_ctl_fld_id_list[] = {
+				CTL_SECRETPOOL_NAME, CTL_SECRETPOOL_DESCR, CTL_SECRETPOOL_TOPEN, CTL_SECRETPOOL_THIDDEN,
+				CTL_SECRETPOOL_TEXPIRY, CTL_SECRETPOOL_TEXT1, CTL_SECRETPOOL_TEXT2, CTL_SECRETPOOL_TEXT3
+			};
+			for(uint i = 0; i < SIZEOFARRAY(input_ctl_fld_id_list); i++) {
+				TView * p_view = getCtrlView(input_ctl_fld_id_list[i]);
+				if(TView::IsSubSign(p_view, TV_SUBSIGN_INPUTLINE)) {
+					p_view->ViewOptions |= ofUtf8;
+				}
+			}
 		}
 	}
 private:
@@ -4821,6 +4966,16 @@ private:
 	{
 		long   _counter = 1;
 		SString name_template("New secret");
+		rBuf.Z().Cat(name_template);
+		while(R_SecPool.SearchSegmentByName(rBuf, 0)) {
+			rBuf.Z().Cat(name_template).Space().CatChar('#').CatLongZ(++_counter, 3);
+		}
+		return true;
+	}
+	bool   MakeNewFolderName(SString & rBuf) const
+	{
+		long   _counter = 1;
+		SString name_template("New folder");
 		rBuf.Z().Cat(name_template);
 		while(R_SecPool.SearchSegmentByName(rBuf, 0)) {
 			rBuf.Z().Cat(name_template).Space().CatChar('#').CatLongZ(++_counter, 3);
@@ -4839,7 +4994,6 @@ private:
 			p_new_seg->SecType = PPSecretSegment::sectypGeneric;
 			{
 				if(FilePath.NotEmpty()) {
-					// @todo Тут надо перенести сегменты в секретный пул
 					if(!R_SecPool.SaveStorage(FilePath))
 						PPError();
 				}
@@ -4858,27 +5012,160 @@ private:
 	virtual int  delItem(long pos, long id)
 	{
 		int    ok = -1;
-		if(pos >= 0 && pos < R_SecPool.getCountI()) {
-			// @todo Надо не забыть упаковать пул строк иначе все старые секреты останутся в хранилище, а это - плохо.
-			R_SecPool.atFree(pos);
-			ok = 1;
+		uint   item_idx = 0;
+		const  PPSecretSegment * p_item = R_SecPool.SearchSegmentByID(id, &item_idx);
+		if(p_item) {
+			SString temp_buf;
+			if(R_SecPool.HasChildrenByID(id)) {
+				//PPERR_SECSEGHASCHLDRN_UNABLEDEL     "Невозможно удалить '%s'. Существуют дочерние элементы"
+				R_SecPool.GetText(p_item->NameP, temp_buf);
+				ok = PPSetError(PPERR_SECSEGHASCHLDRN_UNABLEDEL, temp_buf);
+			}
+			else {
+				R_SecPool.atFree(item_idx);
+				{
+					if(FilePath.NotEmpty()) {
+						if(!R_SecPool.SaveStorage(FilePath))
+							ok = 0;
+					}
+				}
+				if(ok < 0)
+					ok = 1;
+			}
 		}
+		if(!ok)
+			PPError();
 		return ok;
 	}
 	void    ClearInputBlock()
 	{
 	}
-	void    SetupSelectedSegment(uint segIdx/*[0..]*/)
+	void    SetupParentList(uint currentIdent)
+	{
+		StrAssocArray list;
+		const  PPSecretSegment * p_current_item = R_SecPool.SearchSegmentByID(currentIdent, 0);
+		R_SecPool.MakeFolderList(currentIdent, list);
+		SetupStrAssocTreeCombo(this, CTLSEL_SECRETPOOL_PARENT, list, p_current_item ? p_current_item->ParentID : 0, 0/*flags*/, 0/*ownerDrawListBox*/);
+	}
+	void    SetupSegmentType(uint type)
+	{
+		bool   enable_type_selection = true;
+		switch(type) {
+			case PPSecretSegment::sectypUndef:
+				showCtrl(CTL_SECRETPOOL_EXPIRY, true);
+				showCtrl(CTL_SECRETPOOL_TOPEN, true);
+				showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+				showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+				showCtrl(CTL_SECRETPOOL_TEXT1, false);
+				showCtrl(CTL_SECRETPOOL_TEXT2, false);
+				showCtrl(CTL_SECRETPOOL_TEXT3, false);
+				break;
+			case PPSecretSegment::sectypFolder:
+				showCtrl(CTL_SECRETPOOL_EXPIRY, false);
+				showCtrl(CTL_SECRETPOOL_TOPEN, false);
+				showCtrl(CTL_SECRETPOOL_THIDDEN, false);
+				showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+				showCtrl(CTL_SECRETPOOL_TEXT1, false);
+				showCtrl(CTL_SECRETPOOL_TEXT2, false);
+				showCtrl(CTL_SECRETPOOL_TEXT3, false);
+				enable_type_selection = false;
+				break;
+			case PPSecretSegment::sectypGeneric:
+				showCtrl(CTL_SECRETPOOL_EXPIRY, true);
+				showCtrl(CTL_SECRETPOOL_TOPEN, true);
+				showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+				showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+				showCtrl(CTL_SECRETPOOL_TEXT1, false);
+				showCtrl(CTL_SECRETPOOL_TEXT2, false);
+				showCtrl(CTL_SECRETPOOL_TEXT3, false);
+				break;
+			case PPSecretSegment::sectypPassword:
+				showCtrl(CTL_SECRETPOOL_EXPIRY, true);
+				showCtrl(CTL_SECRETPOOL_TOPEN, false);
+				showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+				showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+				showCtrl(CTL_SECRETPOOL_TEXT1, false);
+				showCtrl(CTL_SECRETPOOL_TEXT2, false);
+				showCtrl(CTL_SECRETPOOL_TEXT3, false);
+				break;
+			case PPSecretSegment::sectypAuthSecret:
+				showCtrl(CTL_SECRETPOOL_EXPIRY, true);
+				showCtrl(CTL_SECRETPOOL_TOPEN, true);
+				showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+				showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+				showCtrl(CTL_SECRETPOOL_TEXT1, false);
+				showCtrl(CTL_SECRETPOOL_TEXT2, false);
+				showCtrl(CTL_SECRETPOOL_TEXT3, false);
+				break;
+			case PPSecretSegment::sectypOpenKey:
+				showCtrl(CTL_SECRETPOOL_EXPIRY, true);
+				showCtrl(CTL_SECRETPOOL_TOPEN, true);
+				showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+				showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+				showCtrl(CTL_SECRETPOOL_TEXT1, false);
+				showCtrl(CTL_SECRETPOOL_TEXT2, false);
+				showCtrl(CTL_SECRETPOOL_TEXT3, false);
+				break;
+			case PPSecretSegment::sectypBankCard:
+				showCtrl(CTL_SECRETPOOL_EXPIRY, true);
+				showCtrl(CTL_SECRETPOOL_TOPEN, true);
+				showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+				showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+				showCtrl(CTL_SECRETPOOL_TEXT1, false);
+				showCtrl(CTL_SECRETPOOL_TEXT2, false);
+				showCtrl(CTL_SECRETPOOL_TEXT3, false);
+				break;
+			case PPSecretSegment::sectypSSH:
+				showCtrl(CTL_SECRETPOOL_EXPIRY, true);
+				showCtrl(CTL_SECRETPOOL_TOPEN, true);
+				showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+				showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+				showCtrl(CTL_SECRETPOOL_TEXT1, false);
+				showCtrl(CTL_SECRETPOOL_TEXT2, false);
+				showCtrl(CTL_SECRETPOOL_TEXT3, false);
+				break;
+			case PPSecretSegment::sectypESignature:
+				showCtrl(CTL_SECRETPOOL_EXPIRY, true);
+				showCtrl(CTL_SECRETPOOL_TOPEN, true);
+				showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+				showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+				showCtrl(CTL_SECRETPOOL_TEXT1, false);
+				showCtrl(CTL_SECRETPOOL_TEXT2, false);
+				showCtrl(CTL_SECRETPOOL_TEXT3, false);
+				break;
+		}
+	}
+	struct TextFieldDescr {
+		uint   CtlId;
+		uint32 * P_DataIdx;
+	};
+	void    SetupSelectedSegment(uint segIdent)
 	{
 		SString temp_buf;
-		if(segIdx < R_SecPool.getCount()) {
-			const  PPSecretSegment * p_item = R_SecPool.at(segIdx);
+		//if(segIdx < R_SecPool.getCount()) 
+		{
+			//const  PPSecretSegment * p_item = R_SecPool.at(segIdx);
+			uint   seg_pos = 0;
+			const  PPSecretSegment * p_item = R_SecPool.SearchSegmentByID(segIdent, &seg_pos);
 			if(p_item) {
-				CurrentSegIdx = segIdx+1;
-				R_SecPool.GetText(p_item->NameP, temp_buf);
-				setCtrlString(CTL_SECRETPOOL_NAME, temp_buf);
+				//CurrentSegIdx = segIdx+1;
+				CurrentSegIdent = segIdent;
 				setCtrlLong(CTL_SECRETPOOL_ID, p_item->InternalID);
 				setCtrlLong(CTLSEL_SECRETPOOL_TYPE, p_item->SecType);
+				{
+					LongArray allowed_type_list;
+					if(p_item->SecType == PPSecretSegment::sectypFolder) {
+						allowed_type_list.add(PPSecretSegment::sectypFolder);
+						disableCtrl(CTLSEL_SECRETPOOL_TYPE, true);
+					}
+					else {
+						allowed_type_list.addzlist(PPSecretSegment::sectypGeneric, PPSecretSegment::sectypPassword, PPSecretSegment::sectypAuthSecret,
+							PPSecretSegment::sectypOpenKey, PPSecretSegment::sectypBankCard, PPSecretSegment::sectypSSH, PPSecretSegment::sectypESignature, 0L);
+						disableCtrl(CTLSEL_SECRETPOOL_TYPE, false);
+					}
+					SetupStringComboWithAllowedList(this, CTLSEL_SECRETPOOL_TYPE, PPTXT_SECSEGTYPES, &allowed_type_list, p_item->SecType);
+				}
+				SetupParentList(segIdent);
 				{
 					SUniTime_Internal ut;
 					UED::_GetRaw_Time(p_item->UedEnterTm, ut);
@@ -4904,24 +5191,59 @@ private:
 				// input CTL_SECRETPOOL_TEXT2 [growfactor: 1 height: 21 margin: 4 tabstop label: "Ext 2"] string[128];
 				// input CTL_SECRETPOOL_TEXT3 [growfactor: 1 height: 21 margin: 4 tabstop label: "Ext 3"] string[128];
 				// input CTL_SECRETPOOL_DESCR [width: bycontainer growfactor: 1 margin: 4 tabstop multiline wantreturn label: "@memo"] string[252];
+				{
+					const TextFieldDescr tctl_tab[] = {
+						{ CTL_SECRETPOOL_NAME, const_cast<uint32 *>(&p_item->NameP) },
+						{ CTL_SECRETPOOL_TOPEN, const_cast<uint32 *>(&p_item->CE.STextOpenP) },
+						{ CTL_SECRETPOOL_THIDDEN, const_cast<uint32 *>(&p_item->CE.STextHiddenP) },
+						{ CTL_SECRETPOOL_TEXPIRY, const_cast<uint32 *>(&p_item->CE.STextExpiryP) },
+						{ CTL_SECRETPOOL_TEXT1, const_cast<uint32 *>(&p_item->CE.STextExt1P) },
+						{ CTL_SECRETPOOL_TEXT2, const_cast<uint32 *>(&p_item->CE.STextExt2P) },
+						{ CTL_SECRETPOOL_TEXT3, const_cast<uint32 *>(&p_item->CE.STextExt3P) },
+						{ CTL_SECRETPOOL_DESCR, const_cast<uint32 *>(&p_item->DescrP) },
+					};
+					for(uint i = 0; i < SIZEOFARRAY(tctl_tab); i++) {
+						const TextFieldDescr & r_entry = tctl_tab[i];
+						R_SecPool.GetText(*r_entry.P_DataIdx, temp_buf);
+						setCtrlString(r_entry.CtlId, temp_buf);
+					}
+				}
+				SetupSegmentType(p_item->SecType);
 			}
 		}
 	}
-	void    GetCurrentInput()
+	bool   GetCurrentInput()
 	{
+		bool   ok = false;
 		SString temp_buf;
-		if(CurrentSegIdx && CurrentSegIdx <= R_SecPool.getCount()) {
-			PPSecretSegment * p_item = R_SecPool.at(CurrentSegIdx-1);
+		if(CurrentSegIdent) {
+			PPSecretSegment * p_item = const_cast<PPSecretSegment *>(R_SecPool.SearchSegmentByID(CurrentSegIdent, 0)); // @badcast
 			if(p_item) {
 				const  PPSecretSegment preserve_segment(*p_item);
 				p_item->SecType = getCtrlLong(CTLSEL_SECRETPOOL_TYPE);
-				getCtrlString(CTL_SECRETPOOL_NAME, temp_buf);
-				R_SecPool.PutText(temp_buf, &p_item->NameP);
+				p_item->ParentID = getCtrlLong(CTLSEL_SECRETPOOL_PARENT);
 				{
 					LDATE  dt = getCtrlDate(CTL_SECRETPOOL_EXPIRY);
 					SUniTime_Internal ut;
 					ut.SetDate(dt);
 					p_item->CE.UedBeforeTm = UED::_SetRaw_Time(UED_META_DATE_DAY, ut);
+				}
+				{
+					TextFieldDescr tctl_tab[] = {
+						{ CTL_SECRETPOOL_NAME, &p_item->NameP },
+						{ CTL_SECRETPOOL_TOPEN, &p_item->CE.STextOpenP },
+						{ CTL_SECRETPOOL_THIDDEN, &p_item->CE.STextHiddenP },
+						{ CTL_SECRETPOOL_TEXPIRY, &p_item->CE.STextExpiryP },
+						{ CTL_SECRETPOOL_TEXT1, &p_item->CE.STextExt1P },
+						{ CTL_SECRETPOOL_TEXT2, &p_item->CE.STextExt2P },
+						{ CTL_SECRETPOOL_TEXT3, &p_item->CE.STextExt3P },
+						{ CTL_SECRETPOOL_DESCR, &p_item->DescrP },
+					};
+					for(uint i = 0; i < SIZEOFARRAY(tctl_tab); i++) {
+						TextFieldDescr & r_entry = tctl_tab[i];
+						getCtrlString(r_entry.CtlId, temp_buf);
+						R_SecPool.PutText(temp_buf, r_entry.P_DataIdx);
+					}
 				}
 				//
 				if(!p_item->IsEq(preserve_segment)) {
@@ -4931,12 +5253,14 @@ private:
 					}
 					SString preserve_name;
 					R_SecPool.GetText(preserve_segment.NameP, preserve_name);
-					if(temp_buf != preserve_name) {
+					if(temp_buf != preserve_name || p_item->ParentID != preserve_segment.ParentID) {
 						updateList(-1); // -1 принципиально, поскольку функция возможно была вызвана в ответ на изменение фокус списка.
 					}
 				}
+				ok = true;
 			}
 		}
+		return ok;
 	}
 	DECL_HANDLE_EVENT
 	{
@@ -4952,13 +5276,21 @@ private:
 						long   id;
 						if(getCurItem(&pos, &id)) {
 							if(pos >= 0 && pos < R_SecPool.getCountI()) {
-								if(CurrentSegIdx && CurrentSegIdx != (pos+1)) {
+								if(CurrentSegIdent && CurrentSegIdent != id) {
 									GetCurrentInput();	
 								}
-								SetupSelectedSegment(pos);
+								SetupSelectedSegment(id);
 							}
 						}
 					}
+					clearEvent(event);
+					break;
+				case cmCBSelected:
+					if(event.isCtlEvent(CTLSEL_SECRETPOOL_TYPE)) {
+						uint   sec_type = static_cast<uint>(getCtrlLong(CTLSEL_SECRETPOOL_TYPE));
+						SetupSegmentType(sec_type);
+					}
+					clearEvent(event);
 					break;
 				case cmaInsert:
 					if(p_box) {
@@ -4967,11 +5299,41 @@ private:
 						if(r > 0)
 							updateList(p);
 					}
+					clearEvent(event);
+					break;
+				case cmInsertFolder:
+					if(p_box) {
+						p = i = 0;
+						int    r = 0;
+						{
+							uint   new_seg_pos = 0;
+							PPSecretSegment * p_new_seg = R_SecPool.CreateNewSegment(&new_seg_pos);
+							if(p_new_seg) {
+								SString name_buf;
+								MakeNewFolderName(name_buf);
+								R_SecPool.PutText(name_buf, &p_new_seg->NameP);
+								p_new_seg->SecType = PPSecretSegment::sectypFolder;
+								{
+									if(FilePath.NotEmpty()) {
+										if(!R_SecPool.SaveStorage(FilePath))
+											PPError();
+									}
+								}
+								p = static_cast<long>(new_seg_pos);
+								i = static_cast<long>(p_new_seg->InternalID);
+								r = 1;
+							}
+						}
+						if(r > 0)
+							updateList(p);						
+					}
+					clearEvent(event);
 					break;
 				case cmaDelete:
 					if(getCurItem(&p, &i) && delItem(p, i) > 0) {
 						updateList(-1);
 					}
+					clearEvent(event);
 					break;
 				case cmaEdit:
 					if(getCurItem(&p, &i) && editItem(p, i) > 0) {
@@ -4982,12 +5344,10 @@ private:
 						else
 							updateList(id);
 					}
+					clearEvent(event);
 					break;
-				default:
-					return;
 			}
 		}
-		clearEvent(event);
 	}
 	virtual SmartListBox * GetListBoxCtl() const { return P_Box; }
 	virtual int  setupList()
@@ -5035,14 +5395,14 @@ private:
 
 	PPSecretSegmentPool & R_SecPool;
 	const  SString FilePath;
-	uint   CurrentSegIdx; // [1..], 0 - undef
+	//uint   CurrentSegIdx; // [1..], 0 - undef
+	uint   CurrentSegIdent; 
 	uint   CtlList;
 	SmartListBox * P_Box;
 };
 
 int TFacadeWindow::DoSecrets()
 {
-	//PPListDialog aaa;
 	int    ok = -1;
 	SString file_path;
 	CentrigoSecretsDialog * dlg = 0;

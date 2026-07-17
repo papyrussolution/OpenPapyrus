@@ -723,6 +723,7 @@ int ACS_ATOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange *
 	if(!pPrd) {
 		dlg = new TDialog(DLG_SELSESSRNG);
 		if(CheckDialogPtrErr(&dlg)) {
+			const   LDATE now_date = getcurdate_();
 			SString dt_buf;
 			ChkRepPeriod.SetDate(LConfig.OperDate);
 			dlg->SetupCalPeriod(CTLCAL_DATERNG_PERIOD, CTL_DATERNG_PERIOD);
@@ -730,7 +731,7 @@ int ACS_ATOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange *
 			PPWaitStop();
 			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 				if(dlg->getCtrlString(CTL_DATERNG_PERIOD, dt_buf) && ChkRepPeriod.FromStr(dt_buf, 0) && !ChkRepPeriod.IsZero()) {
-					SETIFZ(ChkRepPeriod.upp, plusdate(LConfig.OperDate, 2));
+					SETIFZ(ChkRepPeriod.upp, plusdate(now_date, 2)); // @v12.6.11 LConfig.OperDate-->now_date
 					if(diffdate(ChkRepPeriod.upp, ChkRepPeriod.low) >= 0)
 						ok = valid_data = 1;
 				}
@@ -792,7 +793,7 @@ int ACS_ATOL::GetSessionData(int * pSessCount, int * pIsForwardSess, DateRange *
 	}
 	CATCHZOK
 	*pSessCount = BIN(ok > 0);
-	*pIsForwardSess = 0; // 1; @v6.0.7 1-->0
+	*pIsForwardSess = 0;
 	delete dlg;
 	return ok;
 }

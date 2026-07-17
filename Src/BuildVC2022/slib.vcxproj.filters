@@ -828,6 +828,7 @@
     <ClCompile Include="..\SLib\argon2\blake2\blake2b.c">
       <Filter>Argon2</Filter>
     </ClCompile>
+    <ClCompile Include="..\SLib\slib-ued.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

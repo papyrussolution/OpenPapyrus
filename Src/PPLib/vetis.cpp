@@ -2576,7 +2576,6 @@ int VetisEntityCore::Put(PPID * pID, const S_GUID & rBusEntGuid, const S_GUID & 
 	PPID   result_id = 0;
 	Reference * p_ref(PPRef);
 	SString temp_buf;
-	//SStringU temp_buf_u;
 	PPIDArray id_list;
 	VetisDocumentTbl::Rec rec;
 	LocationTbl::Rec loc_rec;
@@ -4321,10 +4320,12 @@ int PPVetisInterface::ParseGoodsDate(const xmlNode * pParentNode, VetisGoodsDate
 {
 	int    ok = 1;
 	FOREACHXMLCHILD(pParentNode, p_a) {
-		if(SXml::IsName(p_a, "firstDate"))
+		if(SXml::IsName(p_a, "firstDate")) {
 			ParseComplexDate(p_a, rResult.FirstDate);
-		else if(SXml::IsName(p_a, "secondDate"))
+		}
+		else if(SXml::IsName(p_a, "secondDate")) {
 			ParseComplexDate(p_a, rResult.SecondDate);
+		}
 	}
 	return ok;
 }
@@ -7095,15 +7096,13 @@ void PPVetisInterface::PutListOptionsParam(xmlTextWriter * pWriter, uint offs, u
 	const  uint uts = rUt.GetSignature();
 	if(oneof5(uts, SUniTime::indYr, SUniTime::indMon, SUniTime::indDay, SUniTime::indHr, SUniTime::indMSec)) {
 		if(rUt.Get(dtm)) {
-			if(oneof5(uts, SUniTime::indYr, SUniTime::indMon, SUniTime::indDay, SUniTime::indHr, SUniTime::indMSec)) {
-				rBuf.Cat(dtm.d.year());
-				if(oneof4(uts, SUniTime::indMon, SUniTime::indDay, SUniTime::indHr, SUniTime::indMSec)) {
-					rBuf.CatDiv('/', 0).Cat(dtm.d.month());
-					if(oneof3(uts, SUniTime::indDay, SUniTime::indHr, SUniTime::indMSec)) {
-						rBuf.CatDiv('/', 0).Cat(dtm.d.day());
-						if(oneof2(uts, SUniTime::indHr, SUniTime::indMSec))
-							rBuf.CatDiv(' ', 0).Cat(dtm.t.hour());
-					}
+			rBuf.Cat(dtm.d.year());
+			if(oneof4(uts, SUniTime::indMon, SUniTime::indDay, SUniTime::indHr, SUniTime::indMSec)) {
+				rBuf.CatDiv('/', 0).Cat(dtm.d.month());
+				if(oneof3(uts, SUniTime::indDay, SUniTime::indHr, SUniTime::indMSec)) {
+					rBuf.CatDiv('/', 0).Cat(dtm.d.day());
+					if(oneof2(uts, SUniTime::indHr, SUniTime::indMSec))
+						rBuf.CatDiv(' ', 0).Cat(dtm.t.hour());
 				}
 			}
 			ok = 1;

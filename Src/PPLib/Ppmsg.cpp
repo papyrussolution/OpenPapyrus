@@ -724,9 +724,9 @@ int PPThreadLocalArea::WaitBlock::Stop()
 {
 	int    ok = 1;
 	if(WaitDlg) {
-	   	uint32 save;
+	   	uint32 preserve_view_options = 0;
 		if(PrevView && PrevView->IsConsistent()) {
-			save = PrevView->ViewOptions;
+			preserve_view_options = PrevView->ViewOptions;
 			PrevView->ViewOptions |= ofSelectable;
 		}
 		::DestroyWindow(WaitDlg);
@@ -735,7 +735,7 @@ int PPThreadLocalArea::WaitBlock::Stop()
 		if(OrgCur)
 			::SetCursor(OrgCur);
 		if(PrevView && PrevView->IsConsistent())
-			PrevView->ViewOptions = save;
+			PrevView->ViewOptions = preserve_view_options;
 	}
 	else
 		ok = -1;
@@ -815,8 +815,8 @@ void STDCALL PPThreadLocalArea::WaitBlock::SetPercent(ulong p, ulong t, const ch
 		PrevPromille = promille;
 		PrevMsg = pMsg;
 		if(hwndPB) {
-			ShowWindow(hwndPB, SW_SHOWNA);
-			SendMessage(hwndPB, PBM_SETPOS, percent, 0);
+			::ShowWindow(hwndPB, SW_SHOWNA);
+			::SendMessageW(hwndPB, PBM_SETPOS, percent, 0);
 		}
 		SetMessage(SLS.AcquireRvlStr().Cat(pMsg).CatDivIfNotEmpty(' ', 0).Cat(percent).CatChar('%'));
 	}

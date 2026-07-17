@@ -752,9 +752,50 @@ int STDCALL TWindow::setCtrlLong(uint ctlID, long val) { return setCtrlData(ctlI
 int STDCALL TWindow::setCtrlReal(uint ctlID, double val) { return setCtrlData(ctlID, &val); }
 int STDCALL TWindow::setCtrlDate(uint ctlID, LDATE val) { return setCtrlData(ctlID, &val); }
 int STDCALL TWindow::setCtrlTime(uint ctlID, LTIME val) { return setCtrlData(ctlID, &val); }
-int TWindow::setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME dtm) { return BIN(setCtrlData(dtCtlID, &dtm.d) && setCtrlData(tmCtlID, &dtm.t)); }
-int TWindow::setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATE dt, LTIME tm) { return BIN(setCtrlData(dtCtlID, &dt) && setCtrlData(tmCtlID, &tm)); }
-int TWindow::getCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME & rDtm) { return BIN(getCtrlData(dtCtlID, &rDtm.d) && getCtrlData(tmCtlID, &rDtm.t)); }
+bool TWindow::setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME dtm) { return BIN(setCtrlData(dtCtlID, &dtm.d) && setCtrlData(tmCtlID, &dtm.t)); }
+bool TWindow::setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATE dt, LTIME tm) { return BIN(setCtrlData(dtCtlID, &dt) && setCtrlData(tmCtlID, &tm)); }
+int  TWindow::getCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME & rDtm) { return BIN(getCtrlData(dtCtlID, &rDtm.d) && getCtrlData(tmCtlID, &rDtm.t)); }
+
+bool TWindow::setCtrlDatetime(uint dtCtlID, uint tmCtlID, ued_t uedTime) // @v12.6.11
+{
+	bool   ok = false;
+	SUniTime_Internal ut;
+	if(UED::_GetRaw_Time(uedTime, ut)) {
+		LDATETIME dtm;
+		if(ut.GetDatetime(&dtm)) {
+			ok = setCtrlDatetime(dtCtlID, tmCtlID, dtm);
+		}
+	}
+	return ok;
+}
+
+int TWindow::getCtrlDatetime(uint dtCtlID, uint tmCtlID, ued_t & rUedTm) // @v12.6.11
+{
+	rUedTm.Z();
+	bool   ok = false;
+	LDATETIME dtm;
+	if(getCtrlDatetime(dtCtlID, tmCtlID, dtm)) {
+		if(checkdate(dtm.d)) {
+			SUniTime_Internal ut(dtm);
+			rUedTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
+			if(!!rUedTm) {
+				ok = true;
+			}
+		}
+	}
+	return ok;
+}
+
+bool TWindow::SetDefaultButton(uint ctlID, bool setDefault)
+{
+	bool   ok = false;
+	TButton * p_ctl = static_cast<TButton *>(getCtrlView(ctlID));
+	if(p_ctl) {
+		p_ctl->MakeDefault(setDefault, true);
+		ok = true;
+	}
+	return ok;
+}
 
 void TWindow::setCtrlOption(ushort ctlID, ushort flags, int s)
 {
@@ -854,12 +895,14 @@ int TWindow::setStaticText(ushort ctlID, const char * pText)
 void TWindow::showCtrl(ushort ctlID, bool s)
 {
 	TView * v = getCtrlView(ctlID);
-	if(v)
+	if(v) {
 		v->setState(sfVisible, LOGIC(s));
+	}
 	else {
 		HWND   w_ctl = ::GetDlgItem(HW, ctlID);
-		if(w_ctl)
+		if(w_ctl) {
 			::ShowWindow(w_ctl, s ? SW_SHOW : SW_HIDE);
+		}
 	}
 }
 
@@ -1046,8 +1089,9 @@ IMPL_HANDLE_EVENT(TWindow)
 void TWindow::setState(uint aState, bool enable)
 {
 	TViewGroup::setState(aState, enable);
-	if(aState & sfSelected)
+	if(aState & sfSelected) {
 		setState(sfActive, enable); // @recursion
+	}
 }
 //
 //

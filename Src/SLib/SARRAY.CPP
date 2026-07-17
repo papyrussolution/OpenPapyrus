@@ -4935,13 +4935,15 @@ int STimeChunkArray::GetFreeList(STimeChunkArray * pList) const
 		const STimeChunk & entry = *static_cast<const STimeChunk *>(at(i));
 		if(cmp(last, entry.Start) < 0) {
 			free_entry.Init(last, entry.Start);
-			if(!free_entry.Finish.IsFar())
-				free_entry.Finish = plusdatetime(free_entry.Finish, -1, 3);
-			last = entry.Finish.IsFar() ? entry.Finish : plusdatetime(entry.Finish, 1, 3);
+			if(!free_entry.Finish.IsFar()) {
+				free_entry.Finish = plusdatetime(free_entry.Finish, -1, SUOM_SECOND);
+			}
+			last = entry.Finish.IsFar() ? entry.Finish : plusdatetime(entry.Finish, 1, SUOM_SECOND);
 			pList->insert(&free_entry);
 		}
-		else
-			last = entry.Finish.IsFar() ? entry.Finish : plusdatetime(entry.Finish, 1, 3);
+		else {
+			last = entry.Finish.IsFar() ? entry.Finish : plusdatetime(entry.Finish, 1, SUOM_SECOND);
+		}
 	}
 	if(!last.IsFar()) {
 		free_entry.Start = last;

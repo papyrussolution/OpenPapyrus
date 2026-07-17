@@ -1102,7 +1102,7 @@ int GenerateGoodsBills()
 
 	//генерация периода времени (год назад от настоящего)
 	period.SetDate(r_lcfg.OperDate);
-	plusperiod(&period.low, PRD_ANNUAL, -1, 0);
+	plusperiod(&period.low, PRD_ANNUAL, -1);
 
 	//введение количества документов
 	PPLoadText(PPTXT_BILL_COUNT, title);

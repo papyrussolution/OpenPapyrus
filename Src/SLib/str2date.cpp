@@ -255,7 +255,7 @@ int STDCALL _strtodate(const char * pBuf, int style, SUniDate_Internal * pData, 
 			}
 		}
 	}
-	if(!_checkdate(d, m, y)) {
+	if(!_checkdate(d, m, y, 1801)) {
 		d = 0;
 		m = 0;
 		y = 0;

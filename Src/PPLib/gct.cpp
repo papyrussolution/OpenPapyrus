@@ -132,7 +132,7 @@ PPViewGoodsTrnovr::~PPViewGoodsTrnovr()
 		THROW_MEM(P_DsList = new SArray(sizeof(GoodsTrnovrViewItem)));
 	}
 	filt = Filt; // AHTOXA
-	cntr.Init(diffdate(&Filt.Period.upp, &Filt.Period.low, 0) + 1);
+	cntr.Init(diffdate(Filt.Period.upp, Filt.Period.low) + 1);
 	dt = filt.Period.low;
 	if(!checkdate(dt)) {
 		THROW(BillObj->P_Tbl->GetFirstDate(0, &dt) > 0);
@@ -235,7 +235,7 @@ PPViewGoodsTrnovr::~PPViewGoodsTrnovr()
 		if(!zero || !(filt.Flags & OPG_IGNOREZERO)) {
 			THROW_SL(P_DsList->insert(&entry));
 		}
-		plusdate(&dt, 1, 0);
+		dt = plusdate(dt, 1);
 		agg.EndGoodsGroupingProcess();
 		PPWaitPercent(cntr.Increment(), wait_msg);
 	}
@@ -511,7 +511,7 @@ int PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 		THROW_MEM(P_Items = new SArray(sizeof(GoodsTrnovrViewItem)));
 	}
 	filt = Filt; // AHTOXA
-	cntr.Init(diffdate(&Filt.Period.upp, &Filt.Period.low, 0) + 1);
+	cntr.Init(diffdate(Filt.Period.upp, Filt.Period.low, 0) + 1);
 	dt = filt.Period.low;
 	if(!dt)
 		THROW(BillObj->P_Tbl->GetFirstDate(0, &dt) > 0);
@@ -612,7 +612,7 @@ int PPViewGoodsTrnovr::Init(const GoodsTrnovrFilt * pFilt)
 		}
 		if(!zero || !(filt.Flags & OPG_IGNOREZERO))
 			THROW_SL(P_Items->insert(&entry));
-		plusdate(&dt, 1, 0);
+		dt = plusdate(dt, 1);
 		agg.EndGoodsGroupingProcess();
 		PPWaitPercent(cntr.Increment(), wait_msg);
 	}

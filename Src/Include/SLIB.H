@@ -504,6 +504,8 @@ typedef int32               TYPEID;
 #define SUOM_TIBIBYTE        44 // @v11.9.4 Тебибайт (1024*1024*1024*1024 байт)
 #define SUOM_GR_EM           45 // Графическая единица: em // @v11.9.4 21-->45
 #define SUOM_WEEK            46 // @v12.3.8 неделя = 7 суток 
+#define SUOM_MSECOND         47 // @v12.6.11 Миллисекунда
+#define SUOM_CSECOND         48 // @v12.6.11 Сантисекунда (сотая доля секунды)
 //
 // Половая принадлежность
 // @persistent
@@ -1644,6 +1646,26 @@ public:
 
 const SCtrGenerate SCtrGenerate_;
 //
+// Descr: Определение базового типа для онтологической модели UED.
+// Note: Вообще-то, это определение должно быть в ued.h но из-за того, что тот файл тянет за собой слишком много лишнего,
+//   решил воткнут ued_t сюда.
+//
+#pragma pack(push,1)
+class ued_t { // @v12.6.11
+public:
+	ued_t();
+	ued_t(uint64 v);
+	ued_t(const ued_t & rS);
+	ued_t & Z();
+	constexpr bool operator !() const { return (I == 0ULL); }
+	constexpr operator uint64() const { return I; }
+	ued_t  FASTCALL operator = (ued_t s);
+	ued_t  FASTCALL operator = (uint64 v);
+	
+	uint64 I;
+};
+#pragma pack(pop)
+//
 // Descr: Возвращает идентификатор системы программной инфраструктуры ssisXXX
 //   по символу pSymb.
 //
@@ -2729,7 +2751,11 @@ struct LDATE { // @noctr
 	operator unsigned long() const { return v; }
 	OleDate GetOleDate() const;
 	time_t GetTimeT() const;
-	LDATE  Z() { v = 0; return *this; }
+	LDATE  Z() 
+	{ 
+		v = 0; 
+		return *this; 
+	}
 	LDATE  operator = (OleDate);
 	LDATE  operator = (double); // OleDate
 	int    day() const { return static_cast<int>(v & 0x00ff); }
@@ -2762,10 +2788,7 @@ struct LDATE { // @noctr
 	//   величинами, соответственно, дня, месяца и года.
 	//   Для использования только в критичных к скорости исполнения блоках!
 	//
-	void   FORCEINLINE EncodeRegular(int d, int m, int y)
-	{
-		v = static_cast<ulong>(MakeLong((m << 8) | d, y));
-	}
+	void   FORCEINLINE EncodeRegular(int d, int m, int y) { v = static_cast<ulong>(MakeLong((m << 8) | d, y)); }
 	int    decode(int * pD, int * pM, int * pY) const;
 	//
 	// Descr: Возвращает эффективное значение даты. Если дата представлена
@@ -3216,6 +3239,7 @@ struct SUniDate_Internal { // @v11.9.2
 	SUniDate_Internal();
 	SUniDate_Internal(int y, uint m, uint d);
 	explicit SUniDate_Internal(LDATE dt);
+	bool   IsValidDate() const;
 	bool   SetDate(LDATE dt);
 	bool   GetDate(LDATE * pDt) const;
 	bool   SetDaysSinceChristmas(uint g);
@@ -3224,6 +3248,8 @@ struct SUniDate_Internal { // @v11.9.2
 	bool   SetSdnJulian(uint g);
 	int    GetSdnGregorian() const { return GregorianToSdn(Y, M, D); }
 	int    GetSdnJulian() const { return JulianToSdn(Y, M, D); }
+	bool   FASTCALL IncrementDate(int numDays); // @v12.6.11
+	bool   DifferenceDate(const SUniDate_Internal & rS, int * pResult) const; // @v12.6.11
 	bool   IsZero() const { return (Y == 0 && M == 0 && D == 0); }
 	bool   IsFullyNonZero() const { return (Y && M && D); }
 	SUniDate_Internal & Z();
@@ -3254,12 +3280,14 @@ struct SUniTime_Internal : public SUniDate_Internal { // @internal
 	explicit SUniTime_Internal(LDATE);
 	explicit SUniTime_Internal(LTIME);
 	explicit SUniTime_Internal(LDATETIME);
+	SUniTime_Internal(LDATE dt, LTIME tm);
 #if defined(__WIN32__)
 	explicit SUniTime_Internal(const SYSTEMTIME & rS);
 #endif
 	SUniTime_Internal(SCtrGenerate); // for-testing-only
 	SUniTime_Internal & Z();
 	SUniTime_Internal & Z_ThisOnly(); // Очищает только this без очистки родительского объекта SUniDate_Internal
+	bool   IsValidTime() const;
 	bool   IsValid() const;
 	int    FASTCALL Cmp(const SUniTime_Internal & rS) const;
 	//
@@ -3296,6 +3324,15 @@ struct SUniTime_Internal : public SUniDate_Internal { // @internal
 	SString & DateToStr(long fmt, SString & rBuf) const;
 	SString & TimeToStr(long fmt, SString & rBuf) const;
 	SString & ToStr(long dtFmt, long tmFmt, SString & rBuf) const;
+	//
+	// Descr: Увеличивает значение времени this на incrValue единиц.
+	// ARG(incrValue IN): Количество единиц типа suomDim, на которое надо увеличит значение времени this.
+	//   Если incrValue < 0, то время this уменьшается.
+	// ARG(suomDim IN): SUOM_XXX Размерность единиц времени, на которые надо изменить значение this
+	//
+	bool   Increment(int incrValue, uint suomDim); // @v12.6.9
+	bool   DifferenceTime(const SUniTime_Internal & rS, uint suomDim, int * pResult) const; // @v12.6.11
+	bool   Difference(const SUniTime_Internal & rS, uint suomDim, int * pDiffDays, int * pResult) const; // @v12.6.11
 
 	uint   Hr;
 	uint   Mn;
@@ -4582,6 +4619,7 @@ public:
 	// @#out{Len() <= n}
 	//
 	SString & FASTCALL Trim(size_t n);
+	SString & FASTCALL TrimUtf8(size_t n); // @v12.6.11
 	//
 	// Descr: Обрезает строку справа, оставляя в строке не более чем n символов.
 	//   Если в подстроке [0..n-1] встречается один из символов, перечисленных в
@@ -5244,7 +5282,7 @@ public:
 	int    Read(SFile & rFile, long);
 	//
 	// @v11.8.3 @experimental
-	// Descr: Строи суффиксный массив по набора для быстрого поиска подстроки.
+	// Descr: Строит суффиксный массив для набора для быстрого поиска подстроки.
 	//
 	int    BuildSa();
 private: // @v11.8.3
@@ -5776,7 +5814,7 @@ extern const uchar  daysPerMonth[NUM_MONTHES];
 //
 void   STDCALL  _encodedate(int d, int m, int y, void *, int);
 void   STDCALL  _decodedate(int * pD, int * pM, int * pY, const void *, int);
-int    STDCALL  _checkdate(int d, int m, int y);
+int    STDCALL  _checkdate(int d, int m, int y, int minAllowedYear);
 char * STDCALL  _datefmt(int d, int m, int y, int format, char *);
 void   STDCALL  encodedate(int, int, int, void *);
 void   STDCALL  decodedate(int *, int *, int *, const void *);
@@ -5842,33 +5880,16 @@ LDATE  getcurdate_();
 LTIME  getcurtime_();
 bool   FASTCALL getcurdatetime(LDATETIME *);
 bool   FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm);
-//uint64 FASTCALL GetCurDateTimeUed(); // @v12.6.6
 LDATETIME FASTCALL getcurdatetime_();
 int    setcurdatetime(LDATETIME dtm);
 int    gettimezone();
 //
 // Date arithmetic
 //
-long   STDCALL _diffdate(const void * pDest, const void * pSrc, int fmt, int _360); /* dest - src */
-void   STDCALL _plusdate(void * pDest, int numdays, int format, int _360);
-//
-// Descr: К дате pDest прибавляет numperiods периодов вида period. Результат заносится //
-//   по указателю pDest.
-// ARG(pDest  IN/OUT): Указатель на дату, к которой необходимо прибавить требуемое количество периодов
-// ARG(period     IN): Вид периода для сложения. Используется одна из констант PRD_XXX.
-// ARG(numperiods IN): Количество периодов для сложения //
-// ARG(format     IN): Бинарный формат представления даты. Используестя одна из констант DF_XXX
-// ARG(_360       IN): Если этот параметр !0, то применяется банковская календарная арифметика,
-//   при этом длительность года полагается равной 360 дням.
-//
-void   _plusperiod(void * pDest, int period, int numperiods, int format, int _360);
-//
-// Descr: Возвращает день недели для даты pDate, заданой в бинарном формате, определенном аргументом format
-//   Валидный результат лежит в диапазоне [0..6], где 0 - воскресенье (Sunday).
-//
-int    FASTCALL _dayofweek(const void * pDate, int format); 
-long   STDCALL diffdate(const void *, const void *, int _360);
-void   STDCALL plusdate(void *, int, int _360);
+// @v12.6.11 long   STDCALL _diffdate(const void * pDest, const void * pSrc, int fmt); /* dest - src */
+long   STDCALL _diffdate360(LDATE dt1, LDATE dt2); /* dest - src */
+// @v12.6.11 long   FASTCALL diffdate(const void *, const void */*, int _360*/);
+// @v12.6.11 long   FASTCALL diffdate360(const void *, const void *);
 //
 // Descr: К дате pDest прибавляет numperiods периодов вида period. Результат заносится //
 //   по указателю pDest. Функция считает, что бинарный формат представления даты pDest
@@ -5876,20 +5897,20 @@ void   STDCALL plusdate(void *, int, int _360);
 // ARG(pDest  IN/OUT): Указатель на дату, к которой необходимо прибавить требуемое количество периодов
 // ARG(period     IN): Вид периода для сложения. Используется одна из констант PRD_XXX.
 // ARG(numperiods IN): Количество периодов для сложения //
-// ARG(_360       IN): Если этот параметр !0, то применяется банковская календарная арифметика,
+// @v12.6.11 eliminated - ARG(_360       IN): Если этот параметр !0, то применяется банковская календарная арифметика,
 //   при этом длительность года полагается равной 360 дням.
 //
-void   STDCALL plusperiod(void * pDest, int period, int numperiods, int _360);
+void   STDCALL plusperiod(LDATE * pDest, int period, int numperiods/*, int _360*/);
 //
 // Descr: возвращает день недели, на который приходится дата pDate.
 // Parameters:
-//   pDate - указатель на дату в бинарном формате BinDateFmt
-//   sundayIsSeventh - если !0, то воскресенье является 7-м днем недели,
+//   ARG(dt IN): дата
+//   ARG(sundayIsSeventh IN): если !0, то воскресенье является 7-м днем недели,
 //     иначе, воскресение имеет значение 0.
 // Returns:
 //   Номер дня недели. См комментарии к параметру sundayIsSeventh
 //
-int    FASTCALL dayofweek(const void * pDate, int sundayIsSeventh = 0); // 0..6 (0=Sunday) // @>>_dayofweek
+int    FASTCALL dayofweek(LDATE dt, int sundayIsSeventh = 0);
 //
 // Descr: возвращает количество дней в месяце month для года year.
 // ARG(month IN): номер месяца @# [1..12]
@@ -5924,20 +5945,20 @@ void   STDCALL decodetime(int * h, int * m, int * s, int * ts, const void *);
 LTIME  STDCALL encodetime(int h, int m, int s, int ts);
 /*
 	Result of difftime:
-		(dim == 1) : hours
-		(dim == 2) : minuts
-		(dim == 3) : seconds
-		(dim == 4) : thousandths of second
+		(suomDim == SUOM_HOUR) : hours
+		(suomDim == SUOM_MINUTE) : minuts
+		(suomDim == SUOM_SECOND) : seconds
+		(suomDim == SUOM_MSECOND) : thousandths of second
 */
-long   STDCALL  DiffTime(LTIME t1, LTIME t2, int dim);
-long   STDCALL  diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, int dim, long * pDiffDays);
-long   STDCALL  diffdatetime(const LDATETIME &, const LDATETIME &, int dim, long * pDiffDays);
+long   STDCALL  DiffTime_(LTIME t1, LTIME t2, uint suomDim);
+long   STDCALL  diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, uint suomDim, long * pDiffDays);
+long   STDCALL  diffdatetime(const LDATETIME &, const LDATETIME &, uint suomDim, long * pDiffDays);
 long   STDCALL  diffdatetimesec(LDATE d1, LTIME t1, LDATE d2, LTIME t2);
 long   FASTCALL diffdatetimesec(const LDATETIME &, const LDATETIME &);
-LDATETIME FASTCALL plusdatetime(const LDATETIME &, long plus, int dim);
+LDATETIME FASTCALL plusdatetime(const LDATETIME &, long plus, uint suomDim);
 LDATE  STDCALL  encodedate(int day, int month, int year);
-LDATE  FASTCALL plusdate(LDATE d, long a);
-long   FASTCALL diffdate(LDATE d, LDATE s);
+LDATE  FASTCALL plusdate(LDATE dt, long a);
+long   FASTCALL diffdate(LDATE dt, LDATE s);
 char * FASTCALL _commfmt(long fmt, char * pBuf);
 SString & FASTCALL _commfmt(long fmt, SString & rBuf);
 //
@@ -8812,7 +8833,7 @@ public:
 class LongArray : public TSVector <long> {
 public:
 	LongArray();
-	LongArray(const long * pInitList, size_t initListCount); // @v11.6.2
+	LongArray(const long * pInitList, size_t initListCount);
 	LongArray(const LongArray & s);
 	LongArray & FASTCALL operator = (const LongArray & s);
 	bool   FASTCALL operator == (const LongArray & rS) const;
@@ -9326,7 +9347,7 @@ public:
 	int    SerializeS(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    FASTCALL WriteS(SBuffer & rBuf) const;
 	int    FASTCALL ReadS(SBuffer & rBuf);
-protected:
+public: // @v12.6.11 protected-->public
 	//
 	// Три метода для реализации упаковки пула строк (штатный метод Add не предполагает утилизацию
 	// пространства, которое уже не используется).
@@ -9347,7 +9368,7 @@ protected:
 	void * Pack_Start() const;
 	int    Pack_Finish(void * pHandle);
 	int    Pack_Replace(void * pHandle, uint & rPos) const;
-
+protected:
 	StringSet Pool;
 };
 //
@@ -10899,6 +10920,7 @@ public:
 
 	SVaultPool();
 	~SVaultPool();
+	bool   RemoveNonSystemItems();
 	int    SetupPrimaryPassword(const char * pPw, size_t pwLen);
 	int    CheckInPrimaryPassword(const char * pPw, size_t pwLen);
 	uint64 GetKeyRef() const;
@@ -16544,6 +16566,7 @@ public:
 	int    Serialize(int dir, double & rV, SBuffer & rBuf);
 	int    Serialize(int dir, S_GUID & rV, SBuffer & rBuf);
 	int    Serialize(int dir, SColor & rV, SBuffer & rBuf);
+	int    Serialize(int dir, ued_t & rV, SBuffer & rBuf); // @v12.6.11 ued_t сериализуется как плоский отрезок размером 8байт
 	int    Serialize(int dir, char * pV, size_t valBufLen, SBuffer & rBuf);
 	int    SerializeFieldList(int dir, BNFieldList2 * pFldList, SBuffer & rBuf);
 	int    Serialize(int dir, SPoint2S & rV, SBuffer & rBuf);

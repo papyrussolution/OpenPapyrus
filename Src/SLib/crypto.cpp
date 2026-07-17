@@ -193,6 +193,24 @@ uint64 SVaultPool::GetUedSymmCipher() const
 	return SVaultPool_CBlk.UedSymmCipher; 
 }
 
+bool SVaultPool::RemoveNonSystemItems()
+{
+	bool   ok = true;
+	LongArray id_list;
+	for(uint _pos = 0, _id = 0; Enum(&_pos, &_id, 0);) {
+		id_list.add(static_cast<long>(_id));
+	}
+	id_list.sortAndUndup();
+	for(uint i = 0; i < id_list.getCount(); i++) {
+		const  uint iter_id = static_cast<uint>(id_list.get(i));
+		if(iter_id > 0 && iter_id != tagKeyVerification) {
+			THROW(Put(iter_id, 0, 0, 0));
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SVaultPool::SetupPrimaryPassword(const char * pPw, size_t pwLen)
 {
 	int    ok = 1;

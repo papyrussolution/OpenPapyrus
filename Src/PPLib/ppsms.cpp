@@ -1330,8 +1330,8 @@ int SmsClient::ReceiveToTimer()
 	int    ok = 1;
 	long   diff = 0;
 	if(USE_ENQUIRELINK) {
-		const LDATETIME now_dtm = getcurdatetime_();
-		if(diffdatetime(now_dtm, StartTime, 4, &diff) >= ENQUIRE_LINK_TIMEOUT) {
+		const  LDATETIME now_dtm = getcurdatetime_();
+		if(diffdatetime(now_dtm, StartTime, SUOM_MSECOND, &diff) >= ENQUIRE_LINK_TIMEOUT) {
 			//THROW(SendEnquireLink(SequenceNumber++));
 			//int SmsClient::SendEnquireLink(int sequenceNumber)
 			{

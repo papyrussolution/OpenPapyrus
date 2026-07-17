@@ -78,6 +78,12 @@ public:
 		return result;
 	}
 	static constexpr bool BelongsToMeta(uint64 ued, uint64 meta) { return (IsMetaId(meta) && GetMeta(ued) == meta); }
+	static constexpr bool BelongsToTimeMeta(uint64 ued)
+	{
+		uint64 _meta = GetMeta(ued);
+		return oneof8(_meta, UED_META_TIME_HR, UED_META_TIME_MIN, UED_META_TIME_SEC, UED_META_TIME_MSEC, 
+			UED_META_TIME_TZHR, UED_META_TIME_TZMIN, UED_META_TIME_TZSEC, UED_META_TIME_TZMSEC);
+	}
 	static bool   GetRawValue(uint64 ued, uint64 * pRawValue);
 	static bool   GetRawValue32(uint64 ued, uint32 * pRawValue);
 	static constexpr uint32 GetRawValue32(uint64 ued)

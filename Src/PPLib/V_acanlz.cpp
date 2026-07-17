@@ -2384,7 +2384,7 @@ static int SelectPrintingAccSheetTrnovr(int * pWhat, LDATE * pExpiry, uint * pFl
 		if(ok > 0 && Filt.Period.low != Filt.Period.upp) {
 			int    leaf_no = Filt.LeafNo;
 			PPViewAccAnlz temp_view;
-			for(LDATE dt = Filt.Period.low; dt <= Filt.Period.upp; plusdate(&dt, 1, 0)) {
+			for(LDATE dt = Filt.Period.low; dt <= Filt.Period.upp; dt = plusdate(dt, 1)) {
 				int r;
 				AccAnlzFilt temp_flt = Filt;
 				temp_flt.Period.SetDate(dt);

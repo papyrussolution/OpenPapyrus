@@ -1903,6 +1903,20 @@ int SSerializeContext::Serialize(int dir, bool & rV, SBuffer & rBuf)
 	return ok;
 }
 
+int SSerializeContext::Serialize(int dir, ued_t & rV, SBuffer & rBuf) // @v12.6.11
+{
+	assert(dir != 0);
+	int    ok = 1;
+	if(dir > 0) {
+		THROW(rBuf.Write(&rV, sizeof(rV)));
+	}
+	else if(dir < 0) {
+		THROW(rBuf.ReadV(&rV, sizeof(rV)));
+	}
+	CATCHZOK
+	return ok;
+}
+
 int SSerializeContext::Serialize(int dir, int8   & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, int16  & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }
 int SSerializeContext::Serialize(int dir, int    & rV, SBuffer & rBuf) { return Serialize(dir, MKSTYPE(S_INT, sizeof(rV)), &rV, 0, rBuf); }

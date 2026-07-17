@@ -1123,7 +1123,9 @@ int PPAsyncCashSession::GetLastSess(long cashNumber, LDATETIME dtm, long * pSess
 		for(uint i = 0; P_LastSessList->enumItems(&i, (void **)&p_entry);) {
 			if(p_entry->CashNumber == cashNumber) {
 				if(!pSessNumber || !(*pSessNumber) || *pSessNumber == p_entry->SessNumber) {
-					if(diffdatetime(dtm, p_entry->Dtm, 0, 0) <= 0 && diffdatetime(last_sess_dtm, p_entry->Dtm, 0, 0) > 0) {
+					// @v12.6.11 @fix В условии ниже функция diffdatetime вызывалась с критерием единицы измерения 0, то есть оба вызова всегда возращали 0.
+					// Как это вообще работало?!
+					if(diffdatetime(dtm, p_entry->Dtm, SUOM_SECOND, 0) <= 0 && diffdatetime(last_sess_dtm, p_entry->Dtm, SUOM_SECOND, 0) > 0) {
 						last_sess_dtm = p_entry->Dtm;
 						sess_no      = p_entry->SessNumber;
 						sess_id      = p_entry->SessID;
@@ -1194,8 +1196,8 @@ int PPAsyncCashSession::GetCashSessID(LDATETIME dtm, long cashNumber, long sessN
 			CCheckTbl::Rec chk_rec;
 			if(GetLastSess(cashNumber, dtm, &fw_sess_number, &sess_id) <= 0) {
 				if(CC.SearchForwardZCheck(cashNumber, dtm.d, dtm.t, &chk_rec) > 0) {
-					long diff_date, diff_time;
-					diff_time = diffdatetime(chk_rec.Dt, chk_rec.Tm, dtm.d, dtm.t, 2, &diff_date);
+					long   diff_date = 0;
+					long   diff_time = diffdatetime(chk_rec.Dt, chk_rec.Tm, dtm.d, dtm.t, SUOM_MINUTE, &diff_date);
 					if(labs(diff_date * (60L*24L) + diff_time) < assc_period) {
 						fw_sess_number = chk_rec.Code;
 						if(CS.SearchByNumber(&sess_id, NodeID, cashNumber, fw_sess_number, dtm.d) <= 0)

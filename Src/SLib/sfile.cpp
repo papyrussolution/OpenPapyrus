@@ -1144,7 +1144,7 @@ int SFile::Stat::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 /*static*/int SFile::GetStat(const char * pFileName, uint flags, Stat * pStat, SBinarySet * pExtSet)
 {
 	EXCEPTVAR(SLibError);
-	int    ok = 1; // @v11.2.0 @fix (-1)-->(1)
+	int    ok = 1;
 #ifdef __WIN32__
 	{
 		SDirEntry de;

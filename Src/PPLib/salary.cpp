@@ -1,5 +1,5 @@
 // SALARY.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1504,17 +1504,17 @@ int PrcssrSalary::Helper_GetPeriod(double arg, const DateRange & rInitPeriod, Da
 		LDATE td = encodedate(1, period.low.month(), period.low.year());
 		if((p % 360) == 0) { // LastYear
 			period.upp = plusdate(td, -1);
-			plusperiod(&td, PRD_ANNUAL, p / 360, 0);
+			plusperiod(&td, PRD_ANNUAL, p / 360);
 			period.low = td;
 		}
 		else if((p % 90) == 0) { // LastQuart
 			period.upp = plusdate(td, -1);
-			plusperiod(&td, PRD_QUART, p / 90, 0);
+			plusperiod(&td, PRD_QUART, p / 90);
 			period.low = td;
 		}
 		else if((p % 30) == 0) { // LastMonth
 			period.upp = plusdate(td, -1);
-			plusperiod(&td, PRD_MONTH, p / 30, 0);
+			plusperiod(&td, PRD_MONTH, p / 30);
 			period.low = td;
 		}
 		else { // @error
@@ -1545,12 +1545,12 @@ int PrcssrSalary::Helper_GetPeriod(double arg, const DateRange & rInitPeriod, Da
 		LDATE td = plusdate(encodedate(period.upp.dayspermonth(), period.upp.month(), period.upp.year()), 1);
 		if((p % 360) == 0) { // NextYear
 			period.low = td;
-			plusperiod(&td, PRD_ANNUAL, labs(p / 360), 0);
+			plusperiod(&td, PRD_ANNUAL, labs(p / 360));
 			period.upp = td;
 		}
 		else if((p % 90) == 0) { // NextQuart
 			period.low = td;
-			plusperiod(&td, PRD_QUART, labs(p / 90), 0);
+			plusperiod(&td, PRD_QUART, labs(p / 90));
 			period.upp = td;
 		}
 		else if((p % 30) == 0) { // NextMonth

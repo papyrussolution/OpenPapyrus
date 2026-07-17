@@ -815,6 +815,7 @@
 		// Регистр решает проблему привязки, поскольку содержит атрибут регистрирующей организации.
 		// И я в очередной раз восхищен тупостью всех тех, кто организовывал весь этот бардак.
 	#define PPREGT_DRIVERLICENSE 20 // @v12.6.9 Водительские права
+	#define PPREGT_OGRNIP        21 // @v12.6.11 RU ОГРНИП индивидуального предпринимателя //
 	//
 	// Extra records of PPOBJ_REGISTERTYPE
 	#define REGTPRP_FORMAT       1L // Формат вывода регистра
@@ -1978,6 +1979,7 @@
 #define STDCTL_PWTOGGLESHOW       176 // @v12.6.9 кнопка переключения видимости введенного пароля // 
 #define STDCTL_KEYBOARDLAYOUT     177 // @v12.6.9 кнопка отображения текущего варианта раскладки клавиатуры // 
 #define STDCTL_KBSTATECAPSLOCK    178 // @v12.6.9 кнопка отображения признака состояния клавиатуры CAPSLOCK // 
+#define STDCTL_INSFOLDERBUTTON    179 // @v12.6.11 кнопка создания папки (элемента иерархии верхнего уровня)
 
 #define cmPPAccSelected          1101 // Сообщение, посылаемое группой
 	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr
@@ -5773,6 +5775,18 @@
 	#define CTLSEL_FREIGHT_CAPTAIN2      (23 + WINDOWS_ID_BIAS)
 	#define CTLCLC_FREIGHT_COST          (24 + WINDOWS_ID_BIAS)  
 	#define CTL_FREIGHT_CMD_DLVRLOCLIST  (25 + WINDOWS_ID_BIAS)
+	#define CTL_FREIGHT_LOADINGDT        (26 + WINDOWS_ID_BIAS) // @v12.6.11
+	#define CTLCAL_FREIGHT_LOADINGDT     (27 + WINDOWS_ID_BIAS) // @v12.6.11
+	#define CTL_FREIGHT_LOADINGTM        (28 + WINDOWS_ID_BIAS) // @v12.6.11
+	#define CTLTM_FREIGHT_LOADINGTM      (29 + WINDOWS_ID_BIAS) // @v12.6.11
+	#define CTL_FREIGHT_LDARRVDT         (30 + WINDOWS_ID_BIAS) // @v12.6.11
+	#define CTLCAL_FREIGHT_LDARRVDT      (31 + WINDOWS_ID_BIAS) // @v12.6.11
+	#define CTL_FREIGHT_LDARRVTM         (32 + WINDOWS_ID_BIAS) // @v12.6.11
+	#define CTLTM_FREIGHT_LDARRVTM       (33 + WINDOWS_ID_BIAS) // @v12.6.11
+	#define CTL_FREIGHT_LDDPRTDT         (34 + WINDOWS_ID_BIAS) // @v12.6.11
+	#define CTLCAL_FREIGHT_LDDPRTDT      (35 + WINDOWS_ID_BIAS) // @v12.6.11
+	#define CTL_FREIGHT_LDDPRTTM         (36 + WINDOWS_ID_BIAS) // @v12.6.11
+	#define CTLTM_FREIGHT_LDDPRTTM       (37 + WINDOWS_ID_BIAS) // @v12.6.11  
 #define DLG_SELBBSMPL             492 // Выбор способа создания документа по образцу
 	#define CTL_SELBBSMPL_WHAT           (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELBBSMPL_OP             (2 + WINDOWS_ID_BIAS)
@@ -5835,7 +5849,7 @@
 	#define CTL_GBTRUC_VOLUME            (13 + WINDOWS_ID_BIAS)
 	#define CTL_GBTRUC_ID                (14 + WINDOWS_ID_BIAS)
 	#define CTL_GBTRUC_PRIVATE           (15 + WINDOWS_ID_BIAS)
-	#define CTL_GBTRUC_USER              (16 + WINDOWS_ID_BIAS) // @v11.4.1 read-only user-name
+	#define CTL_GBTRUC_USER              (16 + WINDOWS_ID_BIAS) // read-only user-name
 	#define CTL_GBTRUC_CMD_ADDFROMBASKET (17 + WINDOWS_ID_BIAS) // @v12.6.0
 	#define CTL_GBTRUC_CMD_CLEARGB       (18 + WINDOWS_ID_BIAS) // @v12.6.0
 #define DLG_GBITEM                501   // Элемент корзины товаров
@@ -12165,6 +12179,16 @@
 	#define CTL_SECRETPOOL_TEXT2                (22 + WINDOWS_ID_BIAS)
 	#define CTL_SECRETPOOL_TEXT3                (23 + WINDOWS_ID_BIAS)
 #define DLG_SECRETPOOLPASSWORD   1599 // @v12.6.9 @centrigo Диалог ввода пароля для создания хранилища или входа в него
+#define DLG_PRCRCHZNMCLLTR       1600 // @v12.6.11 Параметры процессора PrcssrChZnMarkInfoCollector
+	#define CTL_PRCRCHZNMCLLTR_PERIOD           (1 + WINDOWS_ID_BIAS)
+	#define CTLCAL_PRCRCHZNMCLLTR_PERIOD        (2 + WINDOWS_ID_BIAS)
+	#define CTL_PRCRCHZNMCLLTR_GUA              (3 + WINDOWS_ID_BIAS)
+	#define CTLSEL_PRCRCHZNMCLLTR_GUA           (4 + WINDOWS_ID_BIAS)
+	#define CTL_PRCRCHZNMCLLTR_OP               (5 + WINDOWS_ID_BIAS)
+	#define CTLSEL_PRCRCHZNMCLLTR_OP            (6 + WINDOWS_ID_BIAS)
+	#define CTL_PRCRCHZNMCLLTR_LOC              (7 + WINDOWS_ID_BIAS)
+	#define CTLSEL_PRCRCHZNMCLLTR_LOC           (8 + WINDOWS_ID_BIAS)
+	#define CTL_PRCRCHZNMCLLTR_LIMSTOREDAYS     (9 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //

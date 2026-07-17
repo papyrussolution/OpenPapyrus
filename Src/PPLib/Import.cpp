@@ -6,7 +6,6 @@
 #include <pp.h>
 #pragma hdrstop
 #include <sartre.h>
-#include <zlib.h>
 /*
 import.ini
 
@@ -2019,7 +2018,7 @@ int PrcssrPhoneListImport::EditParam(Param * pParam)
 		PhoneListImportDialog() : TDialog(DLG_IEPHONE)
 		{
 			PPPhoneListImpExpParam param;
-			GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_PHONELIST, &param, &CfgList, 2 /* import */);
+			GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_PHONELIST, &param, &CfgList, 2/*import*/);
 		}
 		DECL_DIALOG_SETDTS()
 		{

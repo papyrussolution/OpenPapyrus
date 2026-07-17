@@ -681,7 +681,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 	LDATETIME beg_dtm;
 	LDATETIME end_dtm;
 	getcurdate(&beg_dtm.d);
-	plusperiod(&(end_dtm.d = beg_dtm.d), PRD_ANNUAL, 50, 0);
+	plusperiod(&(end_dtm.d = beg_dtm.d), PRD_ANNUAL, 50);
 	beg_dtm.t = encodetime(0,  0, 0, 0);
 	end_dtm.t = MAXDAYTIMESEC;
 	PPObjGoods::ReadConfig(&gds_cfg);

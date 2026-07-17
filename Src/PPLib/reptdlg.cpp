@@ -429,7 +429,7 @@ static void LogTest(PPLogger & rLogger, LDATE dt)
 	char   date_buf[32];
 	char   log_buf[256];
 	datefmt(&dt, DATF_DMY|DATF_CENTURY, date_buf);
-	sprintf(log_buf, "%10s%20d", date_buf, dayofweek(&dt, 1));
+	sprintf(log_buf, "%10s%20d", date_buf, dayofweek(dt, 1));
 	rLogger.Log(log_buf);
 }
 

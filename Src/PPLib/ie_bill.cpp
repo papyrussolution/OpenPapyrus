@@ -5949,7 +5949,7 @@ int SignBillDialog::DrawList()
 	return ok;
 }
 
-PPBillExporter::PPBillExporter() :  P_IEBill(0), P_IEBRow(0)
+PPBillExporter::PPBillExporter() : P_IEBill(0), P_IEBRow(0)
 {
 }
 
@@ -6175,8 +6175,9 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 							long   manuf_id = 0;
 							int    r = 0;
 							p_manuf_tag->GetInt(&manuf_id);
-							if(PsnObj.Search(manuf_id, &pers_rec) > 0)
+							if(PsnObj.Search(manuf_id, &pers_rec) > 0) {
 								(temp_buf = pers_rec.Name).Transf(CTRANSF_INNER_TO_OUTER).CopyTo(brow.LotManuf, sizeof(brow.LotManuf));
+							}
 							if(PsnObj.GetPersonReq(manuf_id, &persrec) > 0) {
 								STRNSCPY(brow.ManufINN, persrec.TPID);
 								STRNSCPY(brow.ManufKPP, persrec.KPP);
@@ -6186,9 +6187,11 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 								PPIDArray id_list;
 								if(PsnObj.GetRelPersonList(manuf_id, PPPRK_MAIN, 0, &id_list) > 0) {
 									// Ищем по первой записи в отношениях
-									if(PsnObj.Search(id_list.get(0), &pers_rec) > 0)
-										if(PsnObj.GetPersonReq(pers_rec.ID, &persrec) > 0)
+									if(PsnObj.Search(id_list.get(0), &pers_rec) > 0) {
+										if(PsnObj.GetPersonReq(pers_rec.ID, &persrec) > 0) {
 											STRNSCPY(brow.ManufINN, persrec.TPID);
+										}
+									}
 								}
 							}
 							//
@@ -6208,7 +6211,9 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 							LocationTbl::Rec loc_rec;
 							WorldTbl::Rec world_rec;
 							PPLocAddrStruc loc_addr_st;
-							SString address, city_name, region_name;
+							SString address;
+							SString city_name;
+							SString region_name;
 							if(pers_rec.MainLoc)
 								r = LocObj.Fetch(pers_rec.MainLoc, &loc_rec);
 							else if(pers_rec.RLoc)
@@ -6228,14 +6233,16 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 							}
 							PsnObj.GetAddress(manuf_id, address);
 							loc_addr_st.Recognize(address.Transf(CTRANSF_INNER_TO_OUTER));
-							if(world_rec.ZIP[0] == 0)
+							if(isempty(world_rec.ZIP)) {
 								if(loc_addr_st.GetText(PPLocAddrStruc::tZip, temp_buf))
 									temp_buf.CopyTo(world_rec.ZIP, sizeof(world_rec.ZIP));
+							}
 							STRNSCPY(brow.ManufIndex, world_rec.ZIP);
 							brow.ManufRegionCode = BillParam.ImpExpParamDll.ManufRegionCode; // Вытаскиваем из ini-файла
-							if(region_name.IsEmpty())
+							if(region_name.IsEmpty()) {
 								if(loc_addr_st.GetText(PPLocAddrStruc::tLocalArea, temp_buf))
 									temp_buf.CopyTo(brow.ManufDistrict, sizeof(brow.ManufDistrict));
+							}
 							if(city_name.IsEmpty()) {
 								if(loc_addr_st.GetText(PPLocAddrStruc::tCity, temp_buf))
 									temp_buf.CopyTo(brow.ManufCityName, sizeof(brow.ManufCityName));
@@ -6352,7 +6359,7 @@ int PPBillExporter::PutPacket(PPBillPacket * pPack, int sessId /*=0*/, ImpExpDll
 					// Поиск объема единицы в полях расширения
 					//
 					if(BillParam.ImpExpParamDll.GoodsVolSymb.NotEmpty()) {
-						SString goods_vol_symb = BillParam.ImpExpParamDll.GoodsVolSymb;
+						SString goods_vol_symb(BillParam.ImpExpParamDll.GoodsVolSymb);
 						if(goods_vol_symb.NotEmpty()) {
 							PPGdsClsPacket gds_cls_pack;
 							GoodsExtTbl::Rec goods_ext_rec;
@@ -7152,7 +7159,7 @@ DocNalogRu_Generator::DocNalogRu_Generator() : P_X(0), P_Doc(0), Flags(0), State
 	SString tv;
 	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_EXPCHZNGTINSER, &iv) > 0 && iv == 1)
 		Flags |= fExpChZnMarksGTINSER;
-	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_EXPNALOGRUPLAINADDR, &iv) > 0 && iv == 1) // @v11.5.11
+	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_EXPNALOGRUPLAINADDR, &iv) > 0 && iv == 1)
 		Flags |= fExpPlainAddr;
 	// @v12.2.12 {
 	if(ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_EXPNALOGRUDEFVER, tv) > 0 && tv.NotEmptyS()) { 
@@ -10029,13 +10036,70 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 					}
 				}
 				{
+					SString dt_buf;
+					SString tm_buf;
+					SUniTime_Internal ut_surrogate_loading;
+					{
+						if(checkdate(freight.ArrivalDate)) {
+							ut_surrogate_loading.SetDate(freight.ArrivalDate);
+							ut_surrogate_loading.SetTime(encodetime(15, 30, 0, 0));
+						}
+						else {
+							ut_surrogate_loading.SetDate(R_Bp.Rec.Dt);
+							ut_surrogate_loading.SetTime(encodetime(15, 30, 0, 0));
+						}
+					}
 					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_LOADINGINFO));
-					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_SHPTIME), "");
-					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_SHPUTCTAG), "1");
-					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_ARRVTIME), "");
-					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_ARRVUTCTAG), "1");
-					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_DPRTTIME), "");
-					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_DPRTUTCTAG), "1");
+					{
+						SUniTime_Internal ut;
+						if(UED::_GetRaw_Time(freight.UedTmLoading, ut)) {
+							;
+						}
+						else {
+							ut = ut_surrogate_loading;
+						}
+						{
+							ut.DateToStr(DATF_GERMANCENT, dt_buf);
+							ut.TimeToStr(TIMF_HMS|TIMF_TIMEZONE, tm_buf);
+							temp_buf.Z().Cat(dt_buf).CatChar('T').Cat(tm_buf);
+						}
+						n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_SHPTIME), temp_buf);
+						n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_SHPUTCTAG), "1");
+					}
+					{
+						SUniTime_Internal ut;
+						if(UED::_GetRaw_Time(freight.UedTmLdArrv, ut)) {
+							;
+						}
+						else {
+							ut = ut_surrogate_loading;
+							ut.Increment(5, SUOM_MINUTE);
+						}
+						{
+							ut.DateToStr(DATF_GERMANCENT, dt_buf);
+							ut.TimeToStr(TIMF_HMS|TIMF_TIMEZONE, tm_buf);
+							temp_buf.Z().Cat(dt_buf).CatChar('T').Cat(tm_buf);
+						}
+						n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_ARRVTIME), temp_buf);
+						n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_ARRVUTCTAG), "1");
+					}
+					{
+						SUniTime_Internal ut;
+						if(UED::_GetRaw_Time(freight.UedTmLdDprt, ut)) {
+							;
+						}
+						else {
+							ut = ut_surrogate_loading;
+							ut.Increment(65, SUOM_MINUTE);
+						}
+						{
+							ut.DateToStr(DATF_GERMANCENT, dt_buf);
+							ut.TimeToStr(TIMF_HMS|TIMF_TIMEZONE, tm_buf);
+							temp_buf.Z().Cat(dt_buf).CatChar('T').Cat(tm_buf);
+						}
+						n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_DPRTTIME), temp_buf);
+						n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_DPRTUTCTAG), "1");
+					}
 					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_BRUTTO), "");
 					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_BRUTTOMETH), "01");
 					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_PACKCOUNT), "");

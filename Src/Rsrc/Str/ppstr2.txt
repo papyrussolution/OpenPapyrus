@@ -2421,6 +2421,7 @@ PPERR_GSITEMGOODSUNRESOLVED         "Не удалось разрешить то
 PPERR_SYNCPOSNODEREGPORTUNDEF       "У синхронного кассового узла '%s' не определен порт кассового регистратора"
 PPERR_ETRNEXP_FREIGHTNEEDED         "Для экспорта документа '%s' в формате nalog.ru etrn необходимы параметры фрахта"
 PPERR_ETRNEXP_TRANSPORTNEEDED       "Для экспорта документа '%s' в формате nalog.ru etrn в параметрах фрахта необходим транспорт"
+PPERR_SECSEGHASCHLDRN_UNABLEDEL     "Невозможно удалить '%s'. Существуют дочерние элементы"
 
 // LastError
 
@@ -8913,6 +8914,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rregt_taxsystem                          "@{taxsystemkind}"
 @rregt_enalogid                           "Ид участника эл документооборота nalog.ru"
 @rregt_driverlicense                      "Водительские права"
+@rregt_ogrnip                             "ОГРНИП" // @v12.6.11
 /
 // Зарезервированные счетчики операций
 //
@@ -10199,6 +10201,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @bill_freightcost                         "Стоимость фрахта"
 @bill_freight_dlvrdate                    "Дата доставки"
 @bill_freight_dlvrcity                    "Город назначения"
+@bill_freight_tmloading                   "Заявленное время начала погрузки"        // @v12.6.11 for the ETRN
+@bill_freight_tmldarrv                    "Фактическое время прибытие для погрузки" // @v12.6.11 for the ETRN
+@bill_freight_tmlddprt                    "Фактическое время отправления"           // @v12.6.11 for the ETRN
 @bill_crate                               "@{currate}"
 @bill_cur                                 "@{currency}"
 @bill_dlvraddr                            "@{daddress}"
@@ -18132,6 +18137,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @prcssrgoodssaldoparam_fullcalc               "Полностью"
 @prcssrgoodssaldoparam_fromlastcal            "От последнего расчета" // generic !@prcssrgoodssaldoparam_fullcalc
 @prcssrgoodssaldoparam_lastcalcdate           "Последний  расчет"
+
+@prcssrchznmarkinfocollector                  "Коллектор информации о марках @{brand_chzn}"
+@prcssrchznmarkinfocollector_limitstoredays   "Время хранения информации в базе данных (в днях)"
 
 @calcprice                                    "Вычисление цены реализации" // CalcPriceParam
 @calcprice_flags                              "@{flags}"

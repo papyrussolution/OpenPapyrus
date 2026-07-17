@@ -1,5 +1,5 @@
 // ACCOUNT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2026
 // @Kernel
 //
 #include <pp.h>
@@ -11,7 +11,8 @@ int FASTCALL GetAcctName(const Acct * acct, PPID curID, long fmt, SString & rBuf
 {
 	AcctID acctid;
 	rBuf.Z();
-	return (BillObj->atobj->ConvertAcct(acct, curID, &acctid, 0) > 0) ? GetAcctIDName(acctid, fmt, rBuf) : -1;
+	PPObjBill * p_bobj(BillObj);
+	return (p_bobj && p_bobj->atobj && p_bobj->atobj->ConvertAcct(acct, curID, &acctid, 0) > 0) ? GetAcctIDName(acctid, fmt, rBuf) : -1;
 }
 
 int FASTCALL GetAcctIDName(const AcctID & rAci, long, SString & rBuf)
@@ -249,7 +250,7 @@ int AcctRel::SearchNum(int closed, const Acct * pAcct, PPID curID, AcctRelTbl::R
 		sp = spEq;
 	}
 	else {
-		k3.Closed = MAXSHORT; // @v8.9.8 MAXINT-->MAXSHORT
+		k3.Closed = MAXSHORT;
 		sp = spLe;
 	}
 	if(search(3, &k3, sp) && (closed >= 0 || (k3.Ac == pAcct->ac && k3.Sb == pAcct->sb && k3.Ar == pAcct->ar && k3.CurID == curID)))
@@ -314,7 +315,7 @@ int AcctRel::ReplaceAcct(int oldAc, int oldSb, int newAc, int newSb)
 int AcctRel::EnumByAcc(PPID accID, PPID * pArID, AcctRelTbl::Rec * pRec)
 {
 	AcctRelTbl::Key1 k;
-	PPID   ar_id = (*pArID < 0) ? 0 : *pArID;
+	const  PPID ar_id = (*pArID < 0) ? 0 : *pArID;
 	k.AccID = accID;
 	k.ArticleID = ar_id;
 	int    sp = ar_id ? spGt : spGe;

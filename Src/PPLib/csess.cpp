@@ -35,7 +35,7 @@ int CSessionCore::SearchByNumber(PPID * pID, PPID cashNodeID, long cashN, long s
 	k.SessNumber = sessN;
 	k.Dt = MAXDATE;
 	while(search(2, &k, spLt) && k.CashNodeID == cashNodeID && k.CashNumber == cashN && k.SessNumber == sessN) {
-		if(dt == 0 || labs(diffdate(&k.Dt, &dt, 0)) < 7) {
+		if(dt == 0 || labs(diffdate(k.Dt, dt)) < 7) {
 			ASSIGN_PTR(pID, data.ID);
 			return 1;
 		}
@@ -204,7 +204,7 @@ int CSessionCore::CheckUniqueDateTime(PPID superSessID, long posNumber, LDATE * 
 						h++;
 					else {
 						h = 0;
-						plusdate(&dt, 1, 0);
+						dt = plusdate(dt, 1);
 					}
 				}
 			}
@@ -254,7 +254,7 @@ int CSessionCore::CheckUniqueDateTime(PPID cashNodeID, LDATE * pDt, LTIME * pTm)
 						h++;
 					else {
 						h = 0;
-						plusdate(&dt, 1, 0);
+						dt = plusdate(dt, 1);
 					}
 				}
 			}
@@ -404,18 +404,20 @@ int CSessionCore::GetActiveSessList(PPID locID, ObjIdListFilt * pActiveSessList)
 		DateRange prd;
 		PPObjCashNode cn_obj;
 		PPCashNode2 cn_rec;
-		prd.SetDate(getcurdate_());
-		plusdate(&prd.low, -ASYNCSESS_BYLASTDAYS, 0);
+		const  LDATE now_dt = getcurdate_();
+		prd.Set(plusdate(now_dt, -ASYNCSESS_BYLASTDAYS), now_dt);
 		PPIDArray async_sess_list;
 		for(SEnum en = cn_obj.P_Ref->Enum(PPOBJ_CASHNODE, 0); en.Next(&cn_rec) > 0;) {
-			if(!locID || cn_rec.LocID == locID)
+			if(!locID || cn_rec.LocID == locID) {
 				if(PPCashMachine::IsSyncCMT(cn_rec.CashType))
 					pActiveSessList->Add(cn_rec.CurSessID);
 				else
 					GetTempAsyncSessList(cn_rec.ID, &prd, &async_sess_list);
+			}
 		}
-		for(uint i = 0; i < async_sess_list.getCount(); i++)
+		for(uint i = 0; i < async_sess_list.getCount(); i++) {
 			pActiveSessList->Add(async_sess_list.at(i));
+		}
 		ok = 1;
 	}
 	return ok;

@@ -1124,24 +1124,26 @@ IMPL_HANDLE_EVENT(TView)
 void TView::setState(uint aState, bool enable)
 {
 	if(Sf != sfEventBarrier) { // Нельзя произвольно менять флаг sfEventBarrier
-		SETFLAG(Sf, aState, enable);
-		if(aState & sfDisabled)
-			::EnableWindow(getHandle(), !(Sf & sfDisabled));
-		if(P_Owner) {
-			switch(aState) {
-				case sfVisible:
-					{
-						TView * p_label = static_cast<TView *>(TView::messageBroadcast(P_Owner, cmSearchLabel, this));
-						CALLPTRMEMB(p_label, setState(aState, enable));
-						Show(enable);
-					}
-					break;
-				case sfSelected:
-				case sfFocused:
-					TView::messageBroadcast(P_Owner, enable ? cmReceivedFocus : cmReleasedFocus, this);
-					break;
+		//if((enable && !(Sf & aState)) || (!enable && (Sf & aState))) { // @v12.6.11 @condition
+			SETFLAG(Sf, aState, enable);
+			if(aState & sfDisabled)
+				::EnableWindow(getHandle(), !(Sf & sfDisabled));
+			if(P_Owner) {
+				switch(aState) {
+					case sfVisible:
+						{
+							TView * p_label = static_cast<TView *>(TView::messageBroadcast(P_Owner, cmSearchLabel, this));
+							CALLPTRMEMB(p_label, setState(aState, enable));
+							Show(enable);
+						}
+						break;
+					case sfSelected:
+					case sfFocused:
+						TView::messageBroadcast(P_Owner, enable ? cmReceivedFocus : cmReleasedFocus, this);
+						break;
+				}
 			}
-		}
+		//}
 	}
 }
 
@@ -1853,8 +1855,8 @@ ushort FASTCALL TViewGroup::execView(TWindow * p)
 {
 	ushort retval = cmCancel;
 	if(p) {
-		const uint32 save_options = p->ViewOptions;
-		const TViewGroup * p_save_owner = p->P_Owner;
+		const  uint32 preserve_view_options = p->ViewOptions;
+		const  TViewGroup * p_save_owner = p->P_Owner;
 		TWindow * save_top_view = APPL->P_TopView;
 		TView   * save_current = P_Current;
 		TCommandSet save_commands;
@@ -1875,7 +1877,7 @@ ushort FASTCALL TViewGroup::execView(TWindow * p)
 			RemoveChild(p);
 		SetCurrentView(save_current, leaveSelect);
 		p->setState(sfModal, false);
-		p->ViewOptions = save_options;
+		p->ViewOptions = preserve_view_options;
 		APPL->P_TopView = save_top_view;
 		setCommands(save_commands);
 	}
@@ -2065,17 +2067,19 @@ void TViewGroup::SetCurrentView(TView * p, selectMode mode)
 
 void TViewGroup::setState(uint aState, bool enable)
 {
-	TView::setState(aState, enable);
-	if(aState & sfActive) {
-		TView * p_term = P_Last;
-		TView * p_temp = P_Last;
-		if(p_temp) do {
-			p_temp = p_temp->P_Next;
-			p_temp->setState(aState, enable);
-		} while(p_temp != p_term);
-	}
-	if(aState & sfFocused && P_Current)
-		P_Current->setState(sfFocused, enable);
+	//if((enable && !(Sf & aState)) || (!enable && (Sf & aState))) { // @v12.6.11 @condition
+		TView::setState(aState, enable);
+		if(aState & sfActive) {
+			TView * p_term = P_Last;
+			TView * p_temp = P_Last;
+			if(p_temp) do {
+				p_temp = p_temp->P_Next;
+				p_temp->setState(aState, enable);
+			} while(p_temp != p_term);
+		}
+		if(aState & sfFocused && P_Current)
+			P_Current->setState(sfFocused, enable);
+	//}
 }
 
 TView * TViewGroup::GetFirstView() const { return P_Last ? P_Last->P_Next : 0; }

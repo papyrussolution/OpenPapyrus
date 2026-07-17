@@ -825,6 +825,7 @@
     <ClCompile Include="..\SLib\argon2\argon2_encoding.c">
       <Filter>Argon2</Filter>
     </ClCompile>
+    <ClCompile Include="..\SLib\slib-ued.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\Slib.h">

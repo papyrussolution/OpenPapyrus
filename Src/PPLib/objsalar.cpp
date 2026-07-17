@@ -693,7 +693,7 @@ IMPL_INVARIANT_C(PPStaffCal)
 	if(pEntry->TmEnd.InvariantC(&invp)) {
 		if(pEntry->TmStart.InvariantC(&invp)) {
 			if(pEntry->TmEnd > pEntry->TmStart)
-				tm.settotalsec(DiffTime(pEntry->TmEnd, pEntry->TmStart, 3));
+				tm.settotalsec(DiffTime_(pEntry->TmEnd, pEntry->TmStart, SUOM_SECOND));
 		}
 		else {
 			pEntry->TmStart = ZEROTIME;
@@ -753,7 +753,7 @@ int PPStaffCalPacket::Helper_Get(LDATE dt, CALDATE * pCdt, uint * pPos) const
 		if(Items.lsearch(&cdt, &(pos = 0), CMPF_LONG, offs))
 			ok = 1;
 		else {
-			cdt.SetDayOfWeek(dayofweek(&dt, 1));
+			cdt.SetDayOfWeek(dayofweek(dt, 1));
 			if(Items.lsearch(&cdt, &(pos = 0), CMPF_LONG, offs))
 				ok = 1;
 		}
@@ -1409,17 +1409,17 @@ private:
 
 int StaffCalDayDialog::setupDate()
 {
-	// @v11.1.1 @fix ошибки, связанные с днем недели
 	long   kind = 0;
-	//long   dw = 0;
 	GetClusterData(CTL_STAFFCALD_KIND, &kind);
 	if(kind != PrevKind) {
-		LDATE dt = ZERODATE;
+		LDATE  dt = ZERODATE;
 		setCtrlData(CTL_STAFFCALD_DATE, &dt);
 		setCtrlData(CTLSEL_STAFFCALD_DAYOFW, &dt);
 	}
 	else if(kind == CALDATE::kDate) {
-		long dw = dayofweek(&Data.DtVal, 1);
+		LDATE  dt;
+		dt.v = Data.DtVal;
+		long   dw = dayofweek(dt, 1);
 		setCtrlData(CTL_STAFFCALD_DATE, &Data.DtVal);
 		setCtrlData(CTLSEL_STAFFCALD_DAYOFW, &dw);
 	}
@@ -1829,7 +1829,7 @@ int PPObjStaffCal::SearchDate(PPID calID, LDATE dt, TSVector <StaffCalendarTbl::
 				ok = 100;
 			}
 			else {
-				cdt.SetDayOfWeek(dayofweek(&dt, 1));
+				cdt.SetDayOfWeek(dayofweek(dt, 1));
 				if(SearchEntriesByDtVal(calID, cdt, rList) > 0) {
 					assert(rList.getCount());
 					ok = 100;

@@ -3120,7 +3120,7 @@ int RFIDDevPrcssr::IsWait(uint devPos)
 	if(WaitList.Search(devPos, &v, &pos)) {
 		LTIME tm;
 		tm.v = v;
-		if(labs(DiffTime(cur_tm, tm, 3)) >= 15)
+		if(labs(DiffTime_(cur_tm, tm, SUOM_SECOND)) >= 15)
 			WaitList.atFree(pos);
 		else
 			r = 1;

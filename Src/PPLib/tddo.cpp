@@ -764,7 +764,7 @@ int DlContext::ResolveFunc(DlRtm * pRtm, const DlScope * pScope, int exactScope,
 				}
 				if(ok < 0) {
 					THROW_PP_S(!exactScope, PPERR_DL6_NOFUNCBYNAME, func_name);
-					p_scope = NZOR(p_scope->GetBase(), p_scope->GetOwner());
+					p_scope = NZOR(p_scope->GetBase(), p_scope->GetOwnerC());
 				}
 			}
 		}

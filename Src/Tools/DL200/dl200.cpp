@@ -147,7 +147,8 @@ static int FASTCALL chkch(char ** pp, int c, uint16 * pFlags, long f)
 static DL2_CI * _plus2(const DL2_CI * pA1, const DL2_CI * pA2)
 {
 	DL2_CI * p_result = 0;
-	dl2cit t1 = pA1->CiType, t2 = pA2->CiType;
+	dl2cit t1 = pA1->CiType;
+	dl2cit t2 = pA2->CiType;
 	//
 	// If exception occur in this function, then errcode may be only
 	// PPERR_DL200_INVPARAMTYPE
@@ -176,15 +177,13 @@ static DL2_CI * _plus2(const DL2_CI * pA1, const DL2_CI * pA2)
 			CREATE_CI_(pA1->I + pA2->R);
 		}
 		else if(t2 == DL2CIT_DATE) {
-			LDATE dt = pA2->D;
-			plusdate(&dt, (int)pA1->I, 0);
+			LDATE  dt = plusdate(pA2->D, (int)pA1->I);
 			CREATE_CI_(dt);
 		}
 	}
 	else if(t1 == DL2CIT_DATE) {
 		if(t2 == DL2CIT_INT) {
-			LDATE dt = pA1->D;
-			plusdate(&dt, (int)pA2->I, 0);
+			LDATE  dt = plusdate(pA1->D, (int)pA2->I);
 			CREATE_CI_(dt);
 		}
 	}
@@ -218,11 +217,10 @@ static DL2_CI * _minus2(const DL2_CI * pA1, const DL2_CI * pA2)
 	}
 	else if(t1 == DL2CIT_DATE) {
 		if(t2 == DL2CIT_DATE) {
-			CREATE_CI_(diffdate(&pA1->D, &pA2->D, 0));
+			CREATE_CI_(diffdate(pA1->D, pA2->D));
 		}
 		else if(t2 == DL2CIT_INT) {
-			LDATE dt = pA1->D;
-			plusdate(&dt, (int)-pA2->I, 0);
+			LDATE  dt = plusdate(pA1->D, -pA2->I);
 			CREATE_CI_(dt);
 		}
 	}
@@ -233,7 +231,8 @@ static DL2_CI * _minus2(const DL2_CI * pA1, const DL2_CI * pA2)
 static DL2_CI * _mult2(const DL2_CI * pA1, const DL2_CI * pA2)
 {
 	DL2_CI * p_result = 0;
-	dl2cit t1 = pA1->CiType, t2 = pA2->CiType;
+	dl2cit t1 = pA1->CiType;
+	dl2cit t2 = pA2->CiType;
 	//
 	// If exception occur in this function, then errcode may be only
 	// PPERR_DL200_INVPARAMTYPE

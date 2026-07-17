@@ -65,14 +65,14 @@ int PPCycleArray::init(LDATE beg, LDATE end, int cycle, int numCycles)
 			DateRange c;
 			if(fw) {
 				c.low = dt;
-				plusperiod(&dt, Cycle, 1, 0);
+				plusperiod(&dt, Cycle, 1);
 				c.upp = plusdate(dt, -1);
 				if(!insert(&c))
 					return PPSetErrorSLib();
 			}
 			else {
 				c.upp = dt;
-				plusperiod(&dt, Cycle, -1, 0);
+				plusperiod(&dt, Cycle, -1);
 				c.low = plusdate(dt, 1);
 				if(!atInsert(0, &c))
 					return PPSetErrorSLib();

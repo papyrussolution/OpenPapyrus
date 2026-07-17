@@ -3022,7 +3022,7 @@ int PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 					PPPrjTaskPacket new_task_packet;
 					DateRepeating dr = *reinterpret_cast<const DateRepeating *>(&templ_rec.DrPrd);
 					LDATE  dt = (dr.Dtl.RA.AfterStart == 0) ? pack.Rec.FinishDt : ((pack.Rec.StartDt == ZERODATE) ? pack.Rec.Dt : pack.Rec.StartDt);
-					plusperiod(&dt, dr.RepeatKind, dr.Dtl.RA.NumPrd, 0);
+					plusperiod(&dt, dr.RepeatKind, dr.Dtl.RA.NumPrd);
 					memzero(pack.Rec.Code, sizeof(pack.Rec.Code));
 					InitPacketByTemplate(pack, dt, new_task_packet, 0);
 					new_task_packet.Rec.StartTm = pack.Rec.StartTm;

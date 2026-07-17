@@ -814,7 +814,7 @@ int ACS_CRUKM::ImportSession(int sessIdx)
 					in_tbl.CopyBufTo(&in_rec);
 					if(in_rec.DateOperation > last_date)
 						last_date = in_rec.DateOperation;
-					if(last_date && labs(diffdate(&last_date, &in_rec.DateOperation, 0)) > 3)
+					if(last_date && labs(diffdate(last_date, in_rec.DateOperation)) > 3)
 						continue;
 					LStrToZStr(tmpbuf, in_rec.Operation);
 					sign = (toupper(tmpbuf[0]) == 'R') ? 0 : 1;

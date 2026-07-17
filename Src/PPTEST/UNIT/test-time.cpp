@@ -8,8 +8,21 @@
 
 SLTEST_R(LDATE)
 {
-	// @v12.3.0 {
-	{
+	{ // @v12.6.11
+		// Тест для проверки эквивалентности двух методов определения текущего времени
+		SYSTEMTIME st_local1;
+		SYSTEMTIME st_local2;
+		{
+			::GetLocalTime(&st_local1);
+		}
+		{
+			SYSTEMTIME st_utc;
+			::GetSystemTime(&st_utc);
+			::SystemTimeToTzSpecificLocalTime(NULL, &st_utc, &st_local2);
+		}
+		SLCHECK_Z(memcmp(&st_local1, &st_local2, sizeof(SYSTEMTIME)));
+	}
+	{ // @v12.3.0
 		const LDATE now_date = getcurdate_();
 		SLCHECK_NZ(checkdate(encodedate(11, 11, 2011)));
 		{
@@ -24,7 +37,6 @@ SLTEST_R(LDATE)
 		SLCHECK_EQ(ValidDateOr(ZERODATE, ZERODATE), ZERODATE);
 		SLCHECK_EQ(ValidDateOr(encodedate(7, 7, 1997), now_date), encodedate(7, 7, 1997));
 	}
-	// } @v12.3.0 
 	struct Pair {
 		char   In[64];
 		char   Out[64];
@@ -100,8 +112,10 @@ SLTEST_R(LDATE)
 	{
 		const  LDATE rel = encodedate(7, 11, 2007);
 		for(i = 0; i < SIZEOFARRAY(pair_list); i++) {
-			const Pair & r_item = pair_list[i];
-			LDATE test_val, pattern_val, cvt_val;
+			const  Pair & r_item = pair_list[i];
+			LDATE  test_val;
+			LDATE  pattern_val;
+			LDATE  cvt_val;
 			strtodate(r_item.In,  DATF_DMY, &test_val);
 			//
 			// Проверяем конвертацию из даты в строку
@@ -209,25 +223,25 @@ SLTEST_R(LDATE)
 		}
 	}
 	{
-		SLCHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 1), 0L);
-		SLCHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 2), 0L);
-		SLCHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 3), 0L);
-		SLCHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), 4), 0L);
+		SLCHECK_EQ(DiffTime_(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), SUOM_HOUR), 0L);
+		SLCHECK_EQ(DiffTime_(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), SUOM_MINUTE), 0L);
+		SLCHECK_EQ(DiffTime_(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), SUOM_SECOND), 0L);
+		SLCHECK_EQ(DiffTime_(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), SUOM_MSECOND), 0L);
 
-		SLCHECK_EQ(DiffTime(encodetime(12, 1, 10, 17), encodetime(10, 1, 10, 17), 1), 2L);
-		SLCHECK_EQ(DiffTime(encodetime(12, 7, 10, 17), encodetime(12, 1, 10, 17), 2), 6L);
-		SLCHECK_EQ(DiffTime(encodetime(12, 1, 21, 17), encodetime(12, 1, 10, 17), 3), 11L);
-		SLCHECK_EQ(DiffTime(encodetime(12, 1, 10, 27), encodetime(12, 1, 10, 17), 4), 100L);
-		SLCHECK_EQ(DiffTime(encodetime(12, 1, 10, 17), encodetime(12, 1, 10, 27), 4), -100L);
-		SLCHECK_EQ(DiffTime(encodetime(12, 1, 11, 27), encodetime(12, 1, 10, 27), 4), 1000L);
-		SLCHECK_EQ(DiffTime(encodetime(12, 1, 10, 27), encodetime(12, 1, 11, 27), 4), -1000L);
-		SLCHECK_EQ(DiffTime(encodetime(12, 2, 11,  7), encodetime(12, 1, 10, 17), 4), 60900L);
+		SLCHECK_EQ(DiffTime_(encodetime(12, 1, 10, 17), encodetime(10, 1, 10, 17), SUOM_HOUR), 2L);
+		SLCHECK_EQ(DiffTime_(encodetime(12, 7, 10, 17), encodetime(12, 1, 10, 17), SUOM_MINUTE), 6L);
+		SLCHECK_EQ(DiffTime_(encodetime(12, 1, 21, 17), encodetime(12, 1, 10, 17), SUOM_SECOND), 11L);
+		SLCHECK_EQ(DiffTime_(encodetime(12, 1, 10, 27), encodetime(12, 1, 10, 17), SUOM_MSECOND), 100L);
+		SLCHECK_EQ(DiffTime_(encodetime(12, 1, 10, 17), encodetime(12, 1, 10, 27), SUOM_MSECOND), -100L);
+		SLCHECK_EQ(DiffTime_(encodetime(12, 1, 11, 27), encodetime(12, 1, 10, 27), SUOM_MSECOND), 1000L);
+		SLCHECK_EQ(DiffTime_(encodetime(12, 1, 10, 27), encodetime(12, 1, 11, 27), SUOM_MSECOND), -1000L);
+		SLCHECK_EQ(DiffTime_(encodetime(12, 2, 11,  7), encodetime(12, 1, 10, 17), SUOM_MSECOND), 60900L);
 	}
 	{
 		SString temp_buf;
 		LDATETIME dtm;
-		const long datf = DATF_DMY|DATF_CENTURY;
-		const long timf = TIMF_HMS;
+		const  long datf = DATF_DMY|DATF_CENTURY;
+		const  long timf = TIMF_HMS;
 		strtodatetime("31/12/2008 01:17:02", dtm, datf, timf);
 		SLCHECK_EQ(temp_buf.Z().Cat(dtm.addsec(0), datf, timf), "31/12/2008 01:17:02");
 		SLCHECK_EQ(temp_buf.Z().Cat(dtm.addsec(1), datf, timf), "31/12/2008 01:17:03");
@@ -433,5 +447,146 @@ SLTEST_R(LDATE)
 		}
 	}
 	// } @v12.3.7 
+	{ // @v12.6.11 
+		const  LDATE init_dt = encodedate(5, 1, 2004);
+		{
+			for(uint i = 0; i < 1000; i++) {
+				LDATE  test_date = init_dt;
+				plusperiod(&test_date, PRD_DAY, i);
+				SLCHECK_EQ(test_date, plusdate(init_dt, i));
+			}
+		}
+		{
+			for(int i = 1000; i >= 0; i--) {
+				LDATE  test_date = init_dt;
+				plusperiod(&test_date, PRD_DAY, -i);
+				SLCHECK_EQ(test_date, plusdate(init_dt, -i));
+			}
+		}
+		{
+			for(uint i = 0; i < 100; i++) {
+				LDATE  test_date = init_dt;
+				plusperiod(&test_date, PRD_WEEK, i);
+				SLCHECK_EQ(test_date, plusdate(init_dt, i * 7));
+			}
+		}
+		{
+			for(uint i = 0; i < 1000; i++) {
+				LDATE  test_date = init_dt;
+				plusperiod(&test_date, PRD_MONTH, i);
+				SLCHECK_EQ(test_date.day(), init_dt.day());
+				if((i % 12) == 0) {
+					SLCHECK_EQ(test_date.month(), init_dt.month());
+				}
+			}
+		}
+	}
+	{ // @v12.6.11
+		SLCHECK_EQ(dayofweek(encodedate(19, 7, 2026), 1), 7);
+		SLCHECK_EQ(dayofweek(encodedate(19, 7, 2026), 0), 0);
+		SLCHECK_Z(dayofweek(encodedate(20, 7, 2026), 1) == 7);
+		SLCHECK_EQ(dayofweek(encodedate(14, 5, 2025), 1), 3);
+		SLCHECK_EQ(dayofweek(encodedate(1, 1, 1970), 1), 4);
+	}
+	{ // @v12.6.11
+		LDATETIME dtm1;
+		LDATETIME dtm2;
+		long   diff_tm = 0;
+		long   diff_days = 0;
+		{
+			dtm1.Set(encodedate(19, 7, 2026), encodetime(15, 47, 11, 814));
+			dtm2.Set(encodedate(18, 7, 2026), encodetime(15, 47, 11, 814));
+			diff_tm = diffdatetime(dtm1, dtm2, SUOM_MSECOND, &diff_days);
+			SLCHECK_EQ(diff_tm, 0L);
+			SLCHECK_EQ(diff_days, 1L);
+		}
+		{
+			dtm1.Set(encodedate(21, 7, 2026), encodetime(15, 47, 11, 814));
+			dtm2.Set(encodedate(18, 7, 2026), encodetime(15, 47, 11, 814));
+			diff_tm = diffdatetime(dtm2, dtm1, SUOM_MSECOND, &diff_days);
+			SLCHECK_EQ(diff_tm, 0L);
+			SLCHECK_EQ(diff_days, -3L);
+		}
+		{
+			dtm1.Set(encodedate(19, 7, 2026), encodetime(15, 47, 11, 83));
+			dtm2.Set(encodedate(19, 7, 2026), encodetime(15, 47, 11, 81));
+			diff_tm = diffdatetime(dtm1, dtm2, SUOM_MSECOND, &diff_days);
+			SLCHECK_EQ(diff_tm, 20L);
+			SLCHECK_EQ(diff_days, 0L);
+		}
+		{
+			dtm1.Set(encodedate(19, 7, 2026), encodetime(15, 47, 21, 81));
+			dtm2.Set(encodedate(19, 7, 2026), encodetime(15, 47, 11, 81));
+			diff_tm = diffdatetime(dtm1, dtm2, SUOM_SECOND, &diff_days);
+			SLCHECK_EQ(diff_tm, 10L);
+			SLCHECK_EQ(diff_days, 0L);
+		}
+		{
+			dtm1.Set(encodedate(19, 7, 2026), encodetime(15, 47, 11, 81));
+			dtm2.Set(encodedate(19, 7, 2026), encodetime(15, 47, 21, 81));
+			diff_tm = diffdatetime(dtm1, dtm2, SUOM_SECOND, &diff_days);
+			SLCHECK_EQ(diff_tm, -10L);
+			SLCHECK_EQ(diff_days, 0L);
+		}
+		{
+			dtm1.Set(encodedate(18, 7, 2026), encodetime(15, 47, 21, 81));
+			dtm2.Set(encodedate(19, 7, 2026), encodetime(15, 47, 11, 81));
+			diff_tm = diffdatetime(dtm1, dtm2, SUOM_SECOND, &diff_days);
+			SLCHECK_EQ(diff_tm, -(SlConst::SecsPerDay - 10L));
+			SLCHECK_EQ(diff_days, 0L);
+		}
+	}
+	{
+		LDATETIME dtm1;
+		LDATETIME dtm2;
+		long   diff_tm = 0;
+		long   diff_days = 0;
+		{
+			dtm1.Set(encodedate(18, 7, 2026), encodetime(15, 47, 21, 81));
+			dtm2 = dtm1;
+			for(uint i = 1; i <= 24; i++) {
+				dtm1 = plusdatetime(dtm1, 1, SUOM_HOUR);
+			}
+			diff_tm = diffdatetime(dtm1, dtm2, SUOM_SECOND, &diff_days);
+			SLCHECK_EQ(diff_tm, 0L);
+			SLCHECK_EQ(diff_days, 1L);
+		}
+		{
+			dtm1.Set(encodedate(18, 7, 2026), encodetime(15, 47, 21, 81));
+			dtm2 = dtm1;
+			for(uint i = 1; i <= 24*60; i++) {
+				dtm1 = plusdatetime(dtm1, 1, SUOM_MINUTE);
+			}
+			diff_tm = diffdatetime(dtm1, dtm2, SUOM_SECOND, &diff_days);
+			SLCHECK_EQ(diff_tm, 0L);
+			SLCHECK_EQ(diff_days, 1L);
+		}
+		{
+			dtm1.Set(encodedate(18, 7, 2026), encodetime(15, 47, 21, 81));
+			dtm2 = dtm1;
+			for(uint i = 1; i <= SlConst::SecsPerDay; i++) {
+				dtm1 = plusdatetime(dtm1, 1, SUOM_SECOND);
+			}
+			diff_tm = diffdatetime(dtm1, dtm2, SUOM_SECOND, &diff_days);
+			SLCHECK_EQ(diff_tm, 0L);
+			SLCHECK_EQ(diff_days, 1L);
+		}
+		{
+			dtm1.Set(encodedate(18, 7, 2026), encodetime(15, 47, 21, 33));
+			dtm2 = dtm1;
+			{
+				dtm1 = plusdatetime(dtm2, 1010, SUOM_MSECOND);
+				diff_tm = diffdatetime(dtm1, dtm2, SUOM_MSECOND, &diff_days);
+				SLCHECK_EQ(diff_tm, 1010L);
+				SLCHECK_EQ(diff_days, 0L);
+			}
+			{
+				dtm1 = plusdatetime(dtm2, -1010, SUOM_MSECOND);
+				diff_tm = diffdatetime(dtm1, dtm2, SUOM_MSECOND, &diff_days);
+				SLCHECK_EQ(diff_tm, -1010L);
+				SLCHECK_EQ(diff_days, 0L);
+			}
+		}
+	}
 	return CurrentStatus;
 }

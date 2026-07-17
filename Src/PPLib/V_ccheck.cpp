@@ -808,7 +808,7 @@ int FASTCALL PPViewCCheck::CheckForFilt(const CCheckTbl::Rec * pRec, const CChec
 				return 0;
 			else if(ff_ & CCheckFilt::fNotSpFinished && f & CCHKF_SPFINISHED)
 				return 0;
-			else if(Filt.WeekDays && !(Filt.WeekDays & (1 << dayofweek(&pRec->Dt, 0))))
+			else if(Filt.WeekDays && !(Filt.WeekDays & (1 << dayofweek(pRec->Dt, 0))))
 				return 0;
 			else if(Filt.AltRegF > 0 && !(f & CCHKF_ALTREG))
 				return 0;
@@ -1422,7 +1422,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 				switch(Filt.Grp) {
 					case CCheckFilt::gTime:       ccgitem.Tm = encodetime(item.Tm.hour(), 0, 0, 0); break;
 					case CCheckFilt::gDate:       ccgitem.Dt = item.Dt; break;
-					case CCheckFilt::gDayOfWeek:  ccgitem.Dt.setday((uint)dayofweek(&item.Dt, 1)); break;
+					case CCheckFilt::gDayOfWeek:  ccgitem.Dt.setday((uint)dayofweek(item.Dt, 1)); break;
 					case CCheckFilt::gCash:       ccgitem.CashID = item.PosNodeID; break;
 					case CCheckFilt::gCashNode:   ccgitem.CashID = item.CashNodeID; break;
 					case CCheckFilt::gCard:       ccgitem.SCardID = item.SCardID; break;
@@ -1434,7 +1434,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 					case CCheckFilt::gAgents:     ccgitem.CashID = item.AgentID; break;
 					case CCheckFilt::gLinesCount: ccgitem.CashID = item.LinesCount; break;
 					case CCheckFilt::gDowNTime:
-						ccgitem.Dt.setday((uint)dayofweek(&item.Dt, 1));
+						ccgitem.Dt.setday((uint)dayofweek(item.Dt, 1));
 						ccgitem.Tm = encodetime(item.Tm.hour(), 0, 0, 0);
 						break;
 					case CCheckFilt::gDscntPct:
@@ -3329,8 +3329,8 @@ struct CcDupEntry {
 	{
 		int    yes = 0;
 		if(Code == rS.Code && PosId == rS.PosId) {
-			long dif_days = 0;
-			long dif = diffdatetime(Dtm, rS.Dtm, 4, &dif_days);
+			long   dif_days = 0;
+			long   dif = diffdatetime(Dtm, rS.Dtm, SUOM_MSECOND, &dif_days);
 			if(dif_days == 0 && labs(dif) <= 1000 && feqeps(Amount, rS.Amount, 1E-5))
 				yes = 1;
 		}

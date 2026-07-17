@@ -201,8 +201,9 @@ int AccTurnCore::GetAcctRest(LDATE date, PPID accrel, double * pRest, int incomi
 	double rest = 0.0;
 	AccTurnTbl::Key1 k1;
 	if(accrel) {
-		if(!incoming)
-			plusdate(&date, 1, 0);
+		if(!incoming) {
+			date = plusdate(date, 1);
+		}
 		k1.Acc   = accrel;
 		k1.Dt    = date;
 		k1.OprNo = 0;

@@ -3021,7 +3021,7 @@ PPTimeChunkBrowser::PPTimeChunkBrowser() : STimeChunkBrowser()
 				const LDATE dt = plusdate(St.Bounds.Start.d, quant);
 				if(dt <= St.Bounds.Finish.d) {
 					if(IsQuantVisible(quant)) {
-						GetDayOfWeekText(dowtRuFull, dayofweek(&dt, 1), dow_buf);
+						GetDayOfWeekText(dowtRuFull, dayofweek(dt, 1), dow_buf);
 						temp_buf.Z().Cat(dt, DATF_DMY).Space().Cat(dow_buf);
 						p_sheet->SetBgColor(row, column, Ptb.GetColor(colorHeader));
 						THROW(p_sheet->SetCellFormat(row, column, "@") > 0);

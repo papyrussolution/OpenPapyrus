@@ -1,5 +1,5 @@
 // SCP2RC.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000-2002, 2005, 2007, 2011, 2013, 2016, 2017, 2019, 2020, 2021, 2022, 2023
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 1999, 2000-2002, 2005, 2007, 2011, 2013, 2016, 2017, 2019, 2020, 2021, 2022, 2023, 2026
 // @codepage UTF-8
 //
 #include <slib.h>
@@ -1192,7 +1192,8 @@ int main(int argc, char ** argv)
 								error((msg_buf = "Error opening file").Space().Cat(out_file_name));
 							}
 							while(outf.ReadLine(temp_buf)) {
-								temp_buf.ToChar();
+								// @v12.6.11 temp_buf.ToChar();
+								temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v12.6.11 
 								tempf.WriteLine(temp_buf);
 							}
 							outf.Close();

@@ -9677,6 +9677,7 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_PASSWORDHIDE01      // @v12.6.9
 	PPDV_PASSWORDSHOW01      // @v12.6.9
 	PPDV_CAPSLOCK01          // @v12.6.9
+	PPDV_FOLDER_ADD01        // @v12.6.11
 }
 
 //

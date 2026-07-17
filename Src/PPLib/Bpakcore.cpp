@@ -541,6 +541,14 @@ bool FASTCALL PPFreight::IsEq(const PPFreight & s) const
 		return false;
 	else if(StorageLocID != s.StorageLocID)
 		return false;
+	// @v12.6.11 {
+	else if(UedTmLoading != s.UedTmLoading)
+		return false;
+	else if(UedTmLdArrv != s.UedTmLdArrv)
+		return false;
+	else if(UedTmLdDprt != s.UedTmLdDprt)
+		return false;
+	// } @v12.6.11 
 	else if(stricmp866(Name, s.Name) != 0)
 		return false;
 	else

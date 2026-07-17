@@ -1382,12 +1382,18 @@ int ExtCodeRefCore::PutInfo(PPChZnPrcssr::CodeInfoCollection & rSet, int use_ta)
 {
 	int    ok = 1;
 	const  bool do_remove = false;
-	if(!rSet.getCount()) {
+	if(rSet.getCount() == 0) {
 		ok = -1;
 	}
-	if(!rSet.getCount() == 1) {
+	else if(rSet.getCount() == 1) {
 		const  PPChZnPrcssr::CodeInfo * p_item = rSet.at(0);
 		if(p_item) {
+			ued_t  ued_now_dtm;
+			{
+				SUniTime_Internal ut;
+				ut.SetCurrent();
+				ued_now_dtm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
+			}
 			SBuffer cbuf;
 			ExtCodeRefTbl::Rec rec;
 			ExtCodeRefTbl::Key0 k0;
@@ -1415,6 +1421,7 @@ int ExtCodeRefCore::PutInfo(PPChZnPrcssr::CodeInfoCollection & rSet, int use_ta)
 							else {
 								STRNSCPY(rec.Code, code);
 								rec.Kind = kCodeInfo;
+								rec.UedModTm = ued_now_dtm;
 								CopyBufFrom(&rec, sizeof(rec));
 								const  size_t cbuf_len = cbuf.GetAvailableSize(); 
 								if(cbuf_len) {
@@ -1430,6 +1437,7 @@ int ExtCodeRefCore::PutInfo(PPChZnPrcssr::CodeInfoCollection & rSet, int use_ta)
 							else {
 								STRNSCPY(rec.Code, code);
 								rec.Kind = kCodeInfo;
+								rec.UedModTm = ued_now_dtm;
 								CopyBufFrom(&rec, sizeof(rec));
 								const  size_t cbuf_len = cbuf.GetAvailableSize(); 
 								if(cbuf_len) {
@@ -1459,15 +1467,62 @@ int ExtCodeRefCore::PutInfo(PPChZnPrcssr::CodeInfoCollection & rSet, int use_ta)
 	return ok;
 }
 
-int ExtCodeRefCore::GetInfo(const char * pCode, bool recursive, PPChZnPrcssr::CodeInfoCollection & rResult) // @v12.6.9
+int ExtCodeRefCore::GetInfo(const char * pCode, PPChZnPrcssr::CodeInfoCollection & rResult) // @v12.6.9
 {
 	rResult.freeAll();
 	int    ok = -1;
+	bool   found = false;
 	ExtCodeRefTbl::Key0 k0;
 	MEMSZERO(k0);
 	STRNSCPY(k0.Code, pCode);
 	k0.Kind = kCodeInfo;
 	if(search(0, &k0, spEq)) {
+		found = true;
+	}
+	else {
+		SString temp_buf;
+		SString pattern_gtin;
+		SString pattern_serial;
+		SString pattern_partno;
+		GtinStruc gts;
+		const  int iczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(pCode, gts, 0));
+		if(iczcr == PPChZnPrcssr::chznciPallet) {
+			;
+		}
+		else {
+			gts.GetToken(GtinStruc::fldGTIN14, &pattern_gtin);
+			gts.GetToken(GtinStruc::fldSerial, &pattern_serial);
+			gts.GetToken(GtinStruc::fldPart, &pattern_partno);
+			if(pattern_gtin.NotEmpty() && (pattern_serial.NotEmpty() || pattern_partno.NotEmpty())) {
+				SString prefix;
+				SString iter_gtin;
+				SString iter_serial;
+				SString iter_partno;
+				prefix.Z().Cat("01").Cat(pattern_gtin);
+				MEMSZERO(k0);
+				STRNSCPY(k0.Code, prefix);
+				k0.Kind = kCodeInfo;
+				if(search(0, &k0, spGe)) {
+					do {
+						temp_buf = data.Code;
+						if(temp_buf.HasPrefix(prefix) && data.Kind == kCodeInfo) {
+							const  int iczcr2 = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0));
+							gts.GetToken(GtinStruc::fldGTIN14, &iter_gtin);
+							gts.GetToken(GtinStruc::fldSerial, &iter_serial);
+							gts.GetToken(GtinStruc::fldPart, &iter_partno);
+							if(pattern_gtin == iter_gtin && pattern_serial == iter_serial && pattern_partno == iter_partno) {
+								found = true;
+							}
+						}
+						else
+							break;
+					} while(!found && search(0, &k0, spNext));
+				}
+			}
+		}
+		
+	}
+	if(found) {
 		SBuffer temp_sbuf;
 		readLobData(this->VT, temp_sbuf);
 		{
@@ -1476,9 +1531,12 @@ int ExtCodeRefCore::GetInfo(const char * pCode, bool recursive, PPChZnPrcssr::Co
 			{
 				SSerializeContext sctx;
 				THROW(rResult.Serialize(-1, _sbuf, &sctx));
-			}
-			if(recursive) {
-				//for(uint )
+				for(uint i = 0; i < rResult.getCount(); i++) {
+					PPChZnPrcssr::CodeInfo * p_item = rResult.at(i);
+					if(p_item) {
+						p_item->UedRecModifTm = data.UedModTm;
+					}
+				}
 			}
 		}
 		ok = 1;

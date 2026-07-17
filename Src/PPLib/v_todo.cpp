@@ -839,11 +839,12 @@ int CrosstabProcessor::Start()
 		if(Filt.TabType == PrjTaskFilt::crstDateHour) {
 			LDATE  dt = Filt.StartPeriod.low;
 			DateIter dt_iter;
-			for(dt_iter.Init(&Filt.StartPeriod); !dt_iter.IsEnd(); plusdate(&dt, 1, 0), dt_iter.Advance(dt, 0)) {
+			for(dt_iter.Init(&Filt.StartPeriod); !dt_iter.IsEnd(); dt_iter.Advance((dt = plusdate(dt, 1)), 0)) {
 				PrjTaskTbl::Rec rec;
 				rec.StartDt = dt;
-				for(int h = PrjCfg.WorkHoursBeg; h <= PrjCfg.WorkHoursEnd; h++)
+				for(int h = PrjCfg.WorkHoursBeg; h <= PrjCfg.WorkHoursEnd; h++) {
 					THROW(AddRec(h, 0, 0, &rec));
+				}
 			}
 		}
 	}
@@ -2564,15 +2565,15 @@ int ViewPrjTask_ByReminder()
 	PPProjectConfig cfg;
 	if(PPObjProject::ReadConfig(&cfg) > 0 && cfg.Flags & PRJCFGF_INCOMPLETETASKREMIND) {
 		PrjTaskFilt filt;
-		const LDATE cur_dt = getcurdate_();
-		filt.StartPeriod.low = filt.StartPeriod.upp = cur_dt;
-		plusdate(&filt.StartPeriod.upp, abs(cfg.RemindPrd.low), 0);
-		if(cfg.RemindPrd.low != cfg.RemindPrd.upp)
-			plusdate(&filt.StartPeriod.low, -abs(cfg.RemindPrd.upp), 0);
+		const  LDATE now_dt = getcurdate_();
+		filt.StartPeriod.Set(now_dt, plusdate(now_dt, abs(cfg.RemindPrd.low)));
+		if(cfg.RemindPrd.low != cfg.RemindPrd.upp) {
+			filt.StartPeriod.low = plusdate(now_dt, -abs(cfg.RemindPrd.upp));
+		}
 		PPObjPerson::GetCurUserPerson(&filt.EmployerID, 0);
 		filt.Kind  = TODOKIND_TASK;
 		for(uint i = 0; i < 5; i++) {
-			filt.PriorList[i]  = i + 1;
+			filt.PriorList[i] = i + 1;
 			if(i != 1 && i != 4)
 				filt.StatusList[i] = i + 1;
 		}

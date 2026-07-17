@@ -601,10 +601,10 @@ public:
 	SrCProp & FASTCALL operator = (int);
 	SrCProp & FASTCALL operator = (int64);
 	SrCProp & FASTCALL operator = (double);
-	SrCProp & FASTCALL operator = (const SUniTime & rUtVal);
+	// @v12.6.11 SrCProp & FASTCALL operator = (const SUniTime & rUtVal);
 	int    FASTCALL Get(int64 & rIntVal) const;
 	int    FASTCALL Get(double & rRealVal) const;
-	int    FASTCALL Get(SUniTime & rUtVal) const;
+	// @v12.6.11 int    FASTCALL Get(SUniTime & rUtVal) const;
 
 	CONCEPTID CID;     // Ид концепции
 	CONCEPTID PropID;  // Ид свойства (тоже концепция)

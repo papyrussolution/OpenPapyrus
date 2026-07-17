@@ -2492,7 +2492,7 @@ int PPObjSCard::CheckRestrictions(const SCardTbl::Rec * pRec, long flags, LDATET
 		// @v12.5.1 {
 		if(!(flags & chkrfIgnoreUsageDow)) {
 			if(pRec->UsageDow && checkdate(dtm.d)) {
-				const int dow = dayofweek(&dtm.d, 1);
+				const int dow = dayofweek(dtm.d, 1);
 				THROW_PP_S(pRec->UsageDow & (1 << (dow-1)), PPERR_SCARDDAYOFWEEK, pRec->Code);
 			}
 		}
@@ -2961,9 +2961,9 @@ int PPObjSCard::ActivateRec(SCardTbl::Rec * pRec)
 		if(pRec->Flags & SCRDF_NEEDACTIVATION && pRec->Flags & SCRDF_CLOSED) {
 			pRec->Flags &= ~(SCRDF_NEEDACTIVATION|SCRDF_CLOSED|SCRDF_AUTOACTIVATION);
 			if(pRec->PeriodTerm) {
-				const LDATE cd = getcurdate_();
+				const  LDATE cd = getcurdate_();
 				LDATE  dt = cd;
-				plusperiod(&dt, pRec->PeriodTerm, ((pRec->PeriodCount > 0) ? pRec->PeriodCount : 1), 0);
+				plusperiod(&dt, pRec->PeriodTerm, ((pRec->PeriodCount > 0) ? pRec->PeriodCount : 1));
 				pRec->Expiry = (dt > cd) ? plusdate(dt, -1) : dt;
 			}
 			ok = 1;
@@ -3368,7 +3368,7 @@ void SCardDialog::SetupCtrls()
 		Data.Rec.PeriodCount = static_cast<int16>(getCtrlUInt16(CTL_SCARD_PRDCOUNT));
 		if(Data.Rec.PeriodTerm) {
 			LDATE  dt = getcurdate_();
-			plusperiod(&dt, Data.Rec.PeriodTerm, ((Data.Rec.PeriodCount > 0) ? Data.Rec.PeriodCount : 1), 0);
+			plusperiod(&dt, Data.Rec.PeriodTerm, ((Data.Rec.PeriodCount > 0) ? Data.Rec.PeriodCount : 1));
 			setCtrlDate(CTL_SCARD_EXPIRY, dt);
 			flags &= ~SCRDF_INHERITED;
 		}

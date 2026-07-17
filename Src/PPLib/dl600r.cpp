@@ -275,7 +275,7 @@ const DlScope * DlContext::GetEvaluatedVarScope(const DlScope * pScope, const Ct
 	if(pScope) {
 		if(pScope->ID == target_id)
 			p_target = pScope;
-		else if(!pScope->GetOwner() || (p_target = pScope->GetOwner()->SearchByID_Const(target_id, 0)) == 0)
+		else if(!pScope->GetOwnerC() || (p_target = pScope->GetOwnerC()->SearchByID_Const(target_id, 0)) == 0)
 			p_target = pScope->GetBase() ? GetEvaluatedVarScope(pScope->GetBase(), pExpr) : 0; // @recursion
 	}
 	return p_target;
@@ -287,7 +287,7 @@ const DlScope * DlContext::GetEvaluatedVarScope(const DlScope * pScope, DLSYMBID
 	if(pScope) {
 		if(pScope->ID == targetScopeID)
 			p_target = pScope;
-		else if(!pScope->GetOwner() || (p_target = pScope->GetOwner()->SearchByID_Const(targetScopeID, 0)) == 0)
+		else if(!pScope->GetOwnerC() || (p_target = pScope->GetOwnerC()->SearchByID_Const(targetScopeID, 0)) == 0)
 			p_target = pScope->GetBase() ? GetEvaluatedVarScope(pScope->GetBase(), targetScopeID) : 0; // @recursion
 	}
 	return p_target;

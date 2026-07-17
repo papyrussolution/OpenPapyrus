@@ -138,8 +138,7 @@ bool PPObjListWindow::ValidateCommand(TEvent & rEv)
 			if(!r) {
 				if(p_obj) {
 					/* @v12.2.6 (закомментировал, поскольку судя по условию этот участок никогда не выполнялся - но есть иррациональные сомнения) if(r < 0) {
-						// @v11.1.10 p_obj->UpdateSelector(p_lb->def, 0, ExtraPtr);
-						p_obj->Selector(p_lb->P_Def, 0, ExtraPtr); // @v11.1.10
+						p_obj->Selector(p_lb->P_Def, 0, ExtraPtr);
 						p_lb->setRange(p_lb->P_Def->GetRecsCount());
 						p_lb->Draw_();
 					}*/
@@ -281,8 +280,7 @@ void PPObjListWindow::PostProcessHandleEvent(int update, PPID focusID)
 {
 	if(update) {
 		ListWindowSmartListBox * p_lb = P_Lb;
-		// @v11.1.10 P_Obj->UpdateSelector(p_lb->def, 0, ExtraPtr);
-		P_Obj->Selector(p_lb->P_Def, 0, ExtraPtr); // @v11.1.10
+		P_Obj->Selector(p_lb->P_Def, 0, ExtraPtr);
 		p_lb->Draw_();
 		p_lb->setRange(p_lb->P_Def->GetRecsCount());
 		if(update == 2)
@@ -298,7 +296,7 @@ int PPObjListWindow::Transmit(PPID)
 		ObjTransmitParam param;
 		if(ObjTransmDialog(DLG_OBJTRANSM, &param) > 0) {
 			PPID   id = 0;
-			const PPIDArray & rary = param.DestDBDivList.Get();
+			const  PPIDArray & rary = param.DestDBDivList.Get();
 			PPObjIDArray objid_ary;
 			PPWaitStart();
 			for(id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&id, 0) > 0;)

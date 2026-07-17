@@ -873,7 +873,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 						filt.Flags |= GoodsOpAnalyzeFilt::fLeaderInOutGoods;
 						filt.GoodsIdList.Add(goods_id);
 						filt.Period.low = getcurdate_();
-						plusperiod(&filt.Period.low, PRD_ANNUAL, -1, 0);
+						plusperiod(&filt.Period.low, PRD_ANNUAL, -1);
 						ViewGoodsOpAnalyze(&filt);
 					}
 				}

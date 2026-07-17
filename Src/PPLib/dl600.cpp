@@ -1491,6 +1491,13 @@ _skip_switch:
 	#undef CTONLY
 }
 
+DlContext::TypeEntry::TypeEntry() : SymbID(0), MangleC(0), Pad2(0)
+{
+	T.Init();
+	Pad1[0] = 0;
+	Pad1[1] = 0;
+}
+
 DlContext::DlContext(int toCompile) : Ht(8192, 1), ScopeStack(sizeof(DLSYMBID)), Sc(0, DlScope::kGlobal, "global", 0),
 	LastSymbId(0), UniqCntr(0), CurScopeID(0), Flags(0), P_M(0)
 {
@@ -1637,7 +1644,7 @@ int DlContext::ResolveVar(const DlScope * pScope, int exactScope, const char * p
 			p_scope = 0;
 		}
 		else {
-			p_scope = p_scope->GetOwner();
+			p_scope = p_scope->GetOwnerC();
 			if(p_scope && p_scope->GetKind() == DlScope::kExpData && prev_scope_kind == DlScope::kExpDataIter) {
 				if(SearchVarInChildList(p_scope, DlScope::kExpDataHdr, pSymb, &var))
 					ok = 1;
@@ -1833,8 +1840,8 @@ int DlContext::RegisterICls(const DlScope * pCls, int unreg)
 					reg.PutString(0, name_buf);
 				}
 
-				const DlScope * p_parent = pCls->GetOwner();
-				while(p_parent)
+				const DlScope * p_parent = pCls->GetOwnerC();
+				while(p_parent) {
 					if(p_parent->IsKind(DlScope::kLibrary)) {
 						if(GetUuidByScopeID(p_parent->ID, &libid)) {
 							reg.Open(HKEY_CLASSES_ROOT, (key_buf = root_buf).SetLastSlash().Cat("TypeLib"), 0, 0);
@@ -1844,7 +1851,8 @@ int DlContext::RegisterICls(const DlScope * pCls, int unreg)
 						break;
 					}
 					else
-						p_parent = p_parent->GetOwner();
+						p_parent = p_parent->GetOwnerC();
+				}
 				//
 				// HKEY_CLASSES_ROOT\\class_name (no version)
 				//
@@ -3283,7 +3291,8 @@ int DlContext::Error(int errCode, const char * pAddedInfo, long flags /* erfXXX 
 	/* @v12.2.9 for(uint i = 0; i < SIZEOFARRAY(msg_list); i++)
 		if(msg_list[i].Id == errCode)
 			p_msg = msg_list[i].P_Msg;*/
-	SString msg_buf, temp_buf;
+	SString temp_buf;
+	SString msg_buf;
 	SString added_info(NZOR(pAddedInfo, AddedMsgString.cptr()));
 	if(added_info.IsEmpty())
 		added_info.Space().Z();

@@ -4080,8 +4080,8 @@ int CCheckCore::GroupingToGoodsLines(PPID sessID, CSessTotal * pTotal, CCheckGoo
 	};
 	int    ok = 1;
 	Reference * p_ref(PPRef);
-	PPObjBill * p_bobj(BillObj); // @v11.4.0
-	LotExtCodeCore * p_lotxct = p_bobj ? p_bobj->P_LotXcT : 0; // @v11.4.0
+	PPObjBill * p_bobj(BillObj);
+	LotExtCodeCore * p_lotxct = p_bobj ? p_bobj->P_LotXcT : 0;
 	uint   i;
 	LDATE  curdt = getcurdate_();
 	SArray chk_list(sizeof(ChkItem), /*32,*/ O_ARRAY);
@@ -5949,7 +5949,7 @@ IMPL_CMPFUNC(__SessItem, p1, p2)
 	const __SessItem * p_i1 = static_cast<const __SessItem *>(p1);
 	const __SessItem * p_i2 = static_cast<const __SessItem *>(p2);
 	long   diff_date = 0;
-	long   diff_time = diffdatetime(p_i1->Dtm, p_i2->Dtm, 2, &diff_date);
+	long   diff_time = diffdatetime(p_i1->Dtm, p_i2->Dtm, SUOM_MINUTE, &diff_date);
 	return static_cast<int>(diff_date ? diff_date : diff_time);
 }
 
@@ -6016,7 +6016,7 @@ int CSessGrouping::GroupingSessList(PPID nodeID, const PPIDArray * pList, PPIDAr
 					for(j = 0; temp_list.enumItems(&j, (void **)&p_item2);) {
 						if(j != i && !p_item2->HasCGLines) {
 							long   diff_date;
-							long   diff_time = diffdatetime(p_item->Dtm, p_item2->Dtm, 2, &diff_date);
+							long   diff_time = diffdatetime(p_item->Dtm, p_item2->Dtm, SUOM_MINUTE, &diff_date);
 							if(diff_date == 0 && labs(diff_time) < uniting_period)
 								if(p_item->SuperGroup == 0) {
 									if(p_item2->SuperGroup == 0) {

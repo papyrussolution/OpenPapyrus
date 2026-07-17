@@ -4,6 +4,8 @@
 #ifndef __PPDBS_H
 #define __PPDBS_H
 
+#define SLIB_INCLUDE_CPPSTDLIBS
+#define _HAS_EXCEPTIONS 0
 #include <db.h>
 #include <dl600.h>
 
@@ -182,7 +184,9 @@ public:
 		Rec & Clear();
 		char   Code[156];
 		int32  Kind;
-		uint8  Reserve[28]; // raw
+		uint64 UedModTm;
+		int32  GuaID;
+		uint8  Reserve[16]; // raw
 		TSLob <2048> VT;
 	} data;
 	struct Key0 {
@@ -191,6 +195,8 @@ public:
 	};
 	DBField Code;
 	DBField Kind;
+	DBField UedModTm;
+	DBField GuaID;
 	DBField Reserve;
 	DBField VT;
 };

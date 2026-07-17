@@ -560,7 +560,7 @@ public:
 	int    CountRecords(const xmlNode * pRootNode, uint * pCount);
 	int    GetExportBuffer(SBuffer & rBuf);
 private:
-	int    IsUtf8() const;
+	bool   IsUtf8() const;
 	int    WriteField(const char * pFieldName, const char * pFieldValue, int isDtd);
 	int    WriteDTDS(const SdRecord & rRec);
 	int    GetValueByName(const char * pName, SString & rValue);
@@ -575,7 +575,7 @@ private:
 		void   Reset();
 		int    FASTCALL Copy(const State & rS);
 		int    SetParam(const Param * pParam);
-		int    FASTCALL IsRecTag(const char * pTag) const;
+		bool   FASTCALL IsRecTag(const char * pTag) const;
 		int    FASTCALL IsRecNode(const xmlNode * pNode) const;
 		const  xmlNode * FASTCALL GetHeadRecNode(const xmlNode * pNode) const;
 		const  Param & GetParam() const { return P; }

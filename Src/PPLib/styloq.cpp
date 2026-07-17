@@ -5527,7 +5527,7 @@ int PPStyloQInterchange::TestDatabase()
 	int    ok = 1;
 	class InnerBlock {
 	public:
-		InnerBlock() : Timestamp(time(0) * 1000), Expiration(plusdatetime(getcurdatetime_(), 3 * 24 * 3600, 3)), Kind(StyloQCore::kClient), Id(0)
+		InnerBlock() : Timestamp(time(0) * 1000), Expiration(plusdatetime(getcurdatetime_(), 3 * 24 * 3600, SUOM_SECOND)), Kind(StyloQCore::kClient), Id(0)
 		{
 			Ident.Randomize(sizeof(((StyloQCore::StoragePacket *)0)->Rec.BI));
 		}

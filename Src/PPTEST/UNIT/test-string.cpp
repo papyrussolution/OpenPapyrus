@@ -193,8 +193,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				}
 			}
 		}
-		{
-			// @v12.6.5 Тест SString::LenUtf8()
+		{ // @v12.6.5 Тест SString::LenUtf8()
 			(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("utf8len.txt");
 			SFile inf(in_buf, SFile::mRead);
 			SFile::ReadLineCsvContext csv_ctx(';');
@@ -224,6 +223,16 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 						}
 					}
 				}
+			}
+		}
+		{ // @v12.6.11 Тест SString::TrimUtf8()
+			const char * p_text = "С-и-01-н-02-х-03-р-04о-奮発-фазо-трон";
+			str = p_text;
+			const size_t _len = str.LenUtf8();
+			for(uint i = 0; i <= _len; i++) {
+				(str = p_text).TrimUtf8(i);
+				SLCHECK_NZ(str.IsLegalUtf8());
+				SLCHECK_EQ(str.LenUtf8(), i);
 			}
 		}
 		{
@@ -1177,6 +1186,10 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			SLCHECK_EQ(0.0f, nta.Has(SNTOK_CHZN_CIGITEM));
 			tr.Run((const uchar *)"00000%46209443x-8xfgOACZAYGfv", -1, nta.Z(), 0); // !SNTOK_CHZN_CIGITEM
 			SLCHECK_EQ(0.0f, nta.Has(SNTOK_CHZN_CIGITEM));
+			// @v12.6.11 {
+			tr.Run((const uchar *)"01046006823014552150FDIFS", -1, nta.Z(), 0); // !SNTOK_CHZN_CIGITEM
+			SLCHECK_EQ(0.0f, nta.Has(SNTOK_CHZN_CIGITEM));
+			// } @v12.6.11 
 			// @v11.9.0 {
 			tr.Run((const uchar *)"04670190770074MmK).<EAAAAEC/d", -1, nta.Z(), 0); // SNTOK_CHZN_CIGITEM && SNTOK_CHZN_ALTCIGITEM
 			SLCHECK_LT(0.0f, nta.Has(SNTOK_CHZN_ALTCIGITEM));

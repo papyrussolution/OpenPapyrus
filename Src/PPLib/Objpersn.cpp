@@ -5252,12 +5252,12 @@ IMPL_HANDLE_EVENT(PsnSelAnalogDialog)
 	TDialog::handleEvent(event);
 	if(TVBROADCAST && TVCMD == cmReceivedFocus) {
 		if(event.isCtlEvent(CTL_PSNSELANALOG_SRCH)) {
-			SetDefaultButton(STDCTL_MORE, 1);
-			SetDefaultButton(STDCTL_OKBUTTON, 0);
+			SetDefaultButton(STDCTL_MORE, true);
+			SetDefaultButton(STDCTL_OKBUTTON, false);
 		}
 		else if(event.isCtlEvent(CTL_PSNSELANALOG_LIST)) {
-			SetDefaultButton(STDCTL_MORE, 0);
-			SetDefaultButton(STDCTL_OKBUTTON, 1);
+			SetDefaultButton(STDCTL_MORE, false);
+			SetDefaultButton(STDCTL_OKBUTTON, true);
 		}
 		else
 			return;

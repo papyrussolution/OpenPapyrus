@@ -339,17 +339,14 @@ int SGetTimeFromRemoteServer(const char * pServerName, LDATETIME * pDtm)
 			NETAPIBUFFERFREE proc_NetApiBufferFree = (NETAPIBUFFERFREE)lib_netapi.GetProcAddr("NetApiBufferFree");
 			if(proc_NetRemoteTOD && proc_NetApiBufferFree) {
 				LPTIME_OF_DAY_INFO p_server_dtm = NULL;
-				SStringU tm_serv_name; // @v10.8.2 
-				// @v10.8.2 WCHAR  tm_serv[MAX_PATH];
-				// @v10.8.2 memzero(tm_serv, sizeof(tm_serv));
-				// @v10.8.2 MultiByteToWideChar(1251, 0, pServerName, (int)sn_len, tm_serv, SIZEOFARRAYi(tm_serv));
-				tm_serv_name.CopyFromMb_OUTER(pServerName, sn_len); // @v10.8.2
+				SStringU tm_serv_name;
+				tm_serv_name.CopyFromMb_OUTER(pServerName, sn_len);
 				int    oserr = proc_NetRemoteTOD(tm_serv_name, reinterpret_cast<LPBYTE *>(&p_server_dtm));
 				if(oserr == NERR_Success && p_server_dtm) {
 					dtm.d.encode(p_server_dtm->tod_day, p_server_dtm->tod_month, p_server_dtm->tod_year);
 					dtm.t = encodetime(p_server_dtm->tod_hours, p_server_dtm->tod_mins, p_server_dtm->tod_secs, 0);
 					if(p_server_dtm->tod_timezone != -1)
-						dtm = plusdatetime(dtm, -p_server_dtm->tod_timezone, 2 /* minuts */);
+						dtm = plusdatetime(dtm, -p_server_dtm->tod_timezone, SUOM_MINUTE);
 					proc_NetApiBufferFree(p_server_dtm);
 					ok = 1;
 				}

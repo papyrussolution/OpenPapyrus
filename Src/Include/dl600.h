@@ -475,7 +475,8 @@ public:
 	//   Структура значения следующая: LoWord - major, HiWord - minor
 	//
 	uint32 GetVersion() const;
-	const  DlScope * GetOwner() const;
+	const  DlScope * GetOwnerC() const;
+	DlScope * GetOwner_();
 	const  DlScopeList & GetChildList() const; // GetRecList
 	//
 	// Descr: Опции функций перебора (GetChildList)
@@ -509,7 +510,7 @@ public:
 	const  DlScope * SearchByID_Const(DLSYMBID id, DLSYMBID * pParentID) const;
 	const  DlScope * GetBase() const;
 	DLSYMBID EnterScope(DLSYMBID parentId, DLSYMBID newScopeID, uint kind, const char * pName);
-	int    LeaveScope(DLSYMBID scopeId, DLSYMBID * pParentID);
+	DlScope * LeaveScope(DLSYMBID scopeId, DLSYMBID * pParentID);
 	int    FASTCALL SetRecord(const DlScope * pRec);
 	int    FASTCALL SetRecList(const DlScopeList * pList);
 	void   FASTCALL AddFunc(const DlFunc *);
@@ -560,6 +561,8 @@ public:
 	int    AddTempFldConst(COption id, const CtmExprConst & rConst);
 	int    AcceptTempFldConstList(uint fldID);
 	int    AcceptBrakPropList(const CtmPropertySheet & rS);
+	int    AddUnresolvedSymb(const char * pSymb, uint * pSupposedIdent); // @v12.6.11
+	const  StringSet * GetUnresolvedSymbSet() const; // @v12.6.11
 	void   InitLocalIdCounter(DLSYMBID initVal) { LastLocalId = initVal; }
 	DLSYMBID GetLocalId() { return ++LastLocalId; }
 #endif
@@ -596,6 +599,7 @@ private:
 	SBaseBuffer FixDataBuf;      // @transient Буфер записи для фиксированных полей (не формул)
 		// Экземпляр класса DlScope не владеет указателем FixDataBuf.P_Buf, по-этому деструктор не вызывает FixDataBuf.Destroy()
 	TSVector <CfItem> TempCfList;
+	StringSet * P_SsUnresolvedSymb;  // @v12.6.11 compile-time @transient Список символов внутренних элементов, для которых не удалось найти соответствующих идентификаторов (в includ'ах)
 	DLSYMBID LastLocalId;
 };
 //
@@ -839,12 +843,7 @@ private:
 class DlContext {
 public:
 	struct TypeEntry {
-		TypeEntry() : SymbID(0), MangleC(0), Pad2(0)
-		{
-			T.Init();
-			Pad1[0] = 0;
-			Pad1[1] = 0;
-		}
+		TypeEntry();
 		DLSYMBID SymbID;
 		STypEx T;
 		int8   Pad1[2]; // @alignment

@@ -480,7 +480,7 @@ int DateRange::SetPeriod(LDATE dt, int prd)
 			Set(dt, dt);
 		}
 		else if(prd == PRD_WEEK) {
-			int    w_day = dayofweek(&dt, 1) - 1;
+			int    w_day = dayofweek(dt, 1) - 1;
 			low = plusdate(dt, -w_day);
 		}
 		else if(prd != 0) {
@@ -513,7 +513,7 @@ int DateRange::SetPeriod(LDATE dt, int prd)
 		}
 		if(ok) {
 			LDATE  t = plusdate(low, -1);
-			plusperiod(&t, prd, 1, 0);
+			plusperiod(&t, prd, 1);
 			upp = t;
 		}
 	}
@@ -613,14 +613,14 @@ int DateRange::SetPredefined(int predefPrdId, LDATE rel)
 				break;
 			case PREDEFPRD_LASTWEEK:
 				{
-					LDATE d1 = plusdate(rel, 1 - (7 + dayofweek(&rel, 1)));
+					LDATE d1 = plusdate(rel, 1 - (7 + dayofweek(rel, 1)));
 					LDATE d2 = plusdate(d1, 6);
 					Set(d1, d2);
 				}
 				break;
 			case PREDEFPRD_LASTWORKWEEK:
 				{
-					LDATE d1 = plusdate(rel, 1 - (7 + dayofweek(&rel, 1)));
+					LDATE d1 = plusdate(rel, 1 - (7 + dayofweek(rel, 1)));
 					LDATE d2 = plusdate(d1, 4);
 					Set(d1, d2);
 				}
@@ -637,7 +637,7 @@ int DateRange::SetPredefined(int predefPrdId, LDATE rel)
 			case PREDEFPRD_LASTMONTH:
 				{
 					LDATE d = rel;
-					plusperiod(&d, PRD_MONTH, -1, 0);
+					plusperiod(&d, PRD_MONTH, -1);
 					LDATE d1;
 					LDATE d2;
 					(d1 = d).setday(1);

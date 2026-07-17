@@ -5253,4 +5253,5 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_PASSWORDHIDE01                  33052
 #define PPDV_PASSWORDSHOW01                  33053
 #define PPDV_CAPSLOCK01                      33054
+#define PPDV_FOLDER_ADD01                    33055
 

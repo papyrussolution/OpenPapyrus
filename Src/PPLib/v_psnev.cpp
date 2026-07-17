@@ -339,7 +339,7 @@ int FASTCALL PPViewPersonEvent::NextIteration(PersonEventViewItem * pItem)
 			int    skip = 0;
 			PersonEventTbl::Rec rec;
 			if(PsnEvObj.Search(PsnEvObj.P_Tbl->data.ID, &rec) > 0) {
-				if(oneof2(Filt.DayOfWeek, 0, dayofweek(&rec.Dt, 1))) {
+				if(oneof2(Filt.DayOfWeek, 0, dayofweek(rec.Dt, 1))) {
 					if(Filt.Flags & PersonEventFilt::fWithoutPair) {
 						PPPsnOpKind pok_rec;
 						if(PokObj.Fetch(rec.OpID, &pok_rec) > 0 && pok_rec.PairOp) {

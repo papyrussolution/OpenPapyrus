@@ -9,8 +9,8 @@
 #include <ppsoapclient.h>
 #include <sartre.h>
 #if(_MSC_VER >= 1900)
-	#include <unicode\uclean.h> // @v11.4.1
-	#include <unicode\putil.h> // @v11.4.1
+	#include <unicode\uclean.h>
+	#include <unicode\putil.h>
 #endif
 //
 // Descr: Класс, управляющий определением словаря данных в формате описания языком DL600.
@@ -256,10 +256,11 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 							}
 							if(do_rmnd_incompl_task) {
 								DateRange period;
-								period.SetDate(getcurdate_());
-								plusdate(&period.upp, abs(prj_cfg.RemindPrd.low), 0);
-								if(prj_cfg.RemindPrd.low != prj_cfg.RemindPrd.upp)
-									plusdate(&period.low, -abs(prj_cfg.RemindPrd.upp), 0);
+								const  LDATE now_dt = getcurdate_();
+								period.Set(now_dt, plusdate(now_dt, abs(prj_cfg.RemindPrd.low)));
+								if(prj_cfg.RemindPrd.low != prj_cfg.RemindPrd.upp) {
+									period.low = plusdate(now_dt, -abs(prj_cfg.RemindPrd.upp));
+								}
 								for(SEnum en = t->EnumByEmployer(employer, &period, 0); en.Next(&todo_rec) > 0;) {
 									if(!oneof2(todo_rec.Status, TODOSTTS_REJECTED, TODOSTTS_COMPLETED)) {
 										SString & r_temp_buf = SLS.AcquireRvlStr();
@@ -4284,7 +4285,7 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 				THROW(r_tla.Rights.Get(PPOBJ_USR, r_lc.UserID, 0/*ignoreCheckSum*/));
 				r_tla.Rights.GetAccessRestriction(accsr);
 				r_tla.Rights.ExtentOpRights();
-				if(usr_rec.PwUpdate && accsr.PwPeriod && diffdate(&now_dtm.d, &usr_rec.PwUpdate, 0) > accsr.PwPeriod)
+				if(usr_rec.PwUpdate && accsr.PwPeriod && diffdate(now_dtm.d, usr_rec.PwUpdate) > accsr.PwPeriod)
 					r_lc.State |= CFGST_PWEXPIRED;
 				r_lc.AccessLevel = accsr.AccessLevel;
 			}

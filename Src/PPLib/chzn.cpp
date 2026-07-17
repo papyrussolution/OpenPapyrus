@@ -340,10 +340,10 @@ DRAFTBEER HORECA @v11.9.4
 {
 	uint16 product_type_bytes = 0;
 	switch(productType) {
-		case ptFur: product_type_bytes = 0x0002; break;
-		case ptTobacco: product_type_bytes = 0x0005; break;
-		case ptShoe: product_type_bytes = 0x1520; break;
-		case ptMedicine: product_type_bytes = 0x0003; break;
+		case GTCHZNPT_FUR: product_type_bytes = 0x0002; break;
+		case GTCHZNPT_TOBACCO: product_type_bytes = 0x0005; break;
+		case GTCHZNPT_SHOE: product_type_bytes = 0x1520; break;
+		case GTCHZNPT_MEDICINE: product_type_bytes = 0x0003; break;
 	}
 	return product_type_bytes ? STokenRecognizer::EncodeChZn1162(product_type_bytes, pGTIN, pSerial, pResultBuf, resultBufSize) : 0;
 }
@@ -1663,6 +1663,11 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 											SJson * p_js_item = new SJson(SJson::tOBJECT);
 											if(p_js_item) {
 												p_js_item->InsertString("cis", (temp_buf = mark_buf).Escape());
+												// @v12.6.11 {
+												if(cost > 0.0) {
+													p_js_item->InsertString("product_cost", temp_buf.Z().Cat(R0i(cost * 100.0)).Escape()); 
+												}
+												// } @v12.6.11 
 												p_js_inner->InsertChild(p_js_item);
 											}
 										}
@@ -3597,17 +3602,18 @@ int _ParseMarkInfoJsonResult(const SJson * pJs, PPChZnPrcssr::CodeInfoCollection
 	if(SJson::IsArray(pJs)) {
 		for(const SJson * p_js_item = pJs->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
 			if(SJson::IsObject(p_js_item)) {
+				p_new_entry = new PPChZnPrcssr::CodeInfo();
+				THROW_SL(p_new_entry);
 				for(const SJson * p_cur = p_js_item->P_Child; p_cur; p_cur = p_cur->P_Next) {
 					if(p_cur->Text.IsEqiAscii("errorMessage")) {
-						(rResult.ErrMessage = p_cur->P_Child->Text).Unescape();
+						(temp_buf = p_cur->P_Child->Text).Unescape();
+						rResult.AddS(temp_buf, &p_new_entry->ErrMessageP);
 					}
 					else if(p_cur->Text.IsEqiAscii("errorCode")) {
-						rResult.ErrCode = p_cur->P_Child->Text.ToLong();
+						p_new_entry->ErrCode = p_cur->P_Child->Text.ToLong();
 					}
 					else if(p_cur->Text.IsEqiAscii("cisInfo")) {
 						if(SJson::IsObject(p_cur->P_Child)) {
-							p_new_entry = new PPChZnPrcssr::CodeInfo();
-							THROW_SL(p_new_entry);
 							for(const SJson * p_si = p_cur->P_Child->P_Child; p_si; p_si = p_si->P_Next) {
 								if(p_si->Text.IsEqiAscii("requestedCis")) {
 									(temp_buf = p_si->P_Child->Text).Unescape();
@@ -3735,12 +3741,12 @@ int _ParseMarkInfoJsonResult(const SJson * pJs, PPChZnPrcssr::CodeInfoCollection
 									SJson::GetArrayAsStringSet(p_si->P_Child, p_new_entry->Children);
 								}
 							}
-							if(p_new_entry) {
-								rResult.insert(p_new_entry);
-								p_new_entry = 0;
-							}
 						}
 					}
+				}
+				if(p_new_entry) {
+					rResult.insert(p_new_entry);
+					p_new_entry = 0;
 				}
 			}
 		}
@@ -4403,13 +4409,46 @@ int PPChZnPrcssr::InteractiveQuery()
 						if(_param.ParamString.NotEmpty()) {
 							StringSet ss_code;
 							PPChZnPrcssr::CodeInfoCollection result;
+							PPChZnPrcssr::CodeInfoCollection info_from_db;
 							//
 							SETIFZQ(P_EcRefC, new ExtCodeRefCore());
 							//
 							//ss_box.add(_param.ParamString);
 							_param.ParamString.Tokenize(" ", ss_code);
+							if(P_EcRefC) {
+								PPLotExtCodeContainer::MarkSet set_from_db;	
+								for(uint ssp = 0; ss_code.get(&ssp, temp_buf);) {
+									if(P_EcRefC->GetInfo(temp_buf, info_from_db) > 0) {
+										temp_buf.Space().Cat("found in db");
+										Log(temp_buf);
+										result_buf.Z();
+										for(uint i = 0; i < info_from_db.getCount(); i++) {
+											if(info_from_db.EntryToStr(i, 0, temp_buf)) {
+												result_buf.Cat(temp_buf).CR();
+											}
+										}
+										Log(temp_buf);
+									}
+								}
+							}
 							if(ifc.GetMarkInfo(*p_ib, ss_code, result)) {
-								;
+								result_buf.Z();
+								if(result.getCount()) {
+									for(uint i = 0; i < result.getCount(); i++) {
+										if(result.EntryToStr(i, 0, temp_buf)) {
+											result_buf.Cat(temp_buf).CR();
+										}
+									}
+								}
+								else {
+									result_buf.Cat("No results");
+								}
+								_param.InfoText = result_buf;
+								if(P_EcRefC) {
+									if(!P_EcRefC->PutInfo(result, 1)) {
+										LogLastError();
+									}
+								}
 							}
 						}
 						break;
@@ -4994,8 +5033,7 @@ int PPChZnPrcssr::CodeStatusCollection::SetupResultEntry(int rowN, const CodeSta
 	return result;
 }
 
-PPChZnPrcssr::CodeInfo::CodeInfo() : Flags(0), PackType(0), GeneralPackType(0), UedChZnProdType(0), UedAppTm(0), UedIntroduceTm(0), UedProductTm(0),
-	UedEmissionTm(0), UedExpiryTm(0), UedManufINN(0), UedProducerINN(0), UedImporterINN(0), UedOwnerINN(0), ReqCisP(0), CisP(0), 
+PPChZnPrcssr::CodeInfo::CodeInfo() : ErrCode(0), ErrMessageP(0), Flags(0), PackType(0), GeneralPackType(0), ReqCisP(0), CisP(0), 
 	OwnerNameP(0), ManufNameP(0), ProducerNameP(0), ProductNameP(0), BrandNameP(0)
 {
 }
@@ -5007,6 +5045,8 @@ int PPChZnPrcssr::CodeInfo::Serialize(int dir, SBuffer & rBuf, SSerializeContext
 	int    ok = 1;
 	uint   ver = PPChZnPrcssr_CodeInfo_Ver;
 	THROW_SL(pSCtx->Serialize(dir, ver, rBuf)); // !
+	THROW_SL(pSCtx->Serialize(dir, ErrCode, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, ErrMessageP, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, ReqCisP, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, CisP, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
@@ -5028,11 +5068,12 @@ int PPChZnPrcssr::CodeInfo::Serialize(int dir, SBuffer & rBuf, SSerializeContext
 	THROW_SL(pSCtx->Serialize(dir, ProductNameP, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, BrandNameP, rBuf));
 	THROW_SL(Children.Serialize(dir, rBuf, pSCtx));
+	// UedRecModifTm, ErrCode, ErrMsg не сериализовать!
 	CATCHZOK
 	return ok;
 }
 
-PPChZnPrcssr::CodeInfoCollection::CodeInfoCollection() : ErrCode(0)
+PPChZnPrcssr::CodeInfoCollection::CodeInfoCollection()
 {
 }
 
@@ -5084,6 +5125,112 @@ bool PPChZnPrcssr::CodeInfoCollection::SearchCode(const char * pPattern, uint * 
 	return ok;
 }
 
+int PPChZnPrcssr::CodeInfoCollection::EntryToStr(uint entryIdx, long flags, SString & rBuf) const
+{
+	rBuf.Z();
+	int    ok = 1;
+	const  CodeInfo * p_entry = (entryIdx < getCount()) ? at(entryIdx) : 0;
+	if(!p_entry) {
+		ok = 0;
+	}
+	else {
+		SString temp_buf;
+		if(p_entry->ErrCode) {
+			rBuf.CatEq("ErrCode", p_entry->ErrCode).Space();
+			if(GetS(p_entry->ErrMessageP, temp_buf))
+				rBuf.CatEq("ErrMsg", temp_buf);
+			rBuf.CRB();
+		}
+		if(GetS(p_entry->ReqCisP, temp_buf))
+			rBuf.CatEq("ReqCis", temp_buf).CRB();
+		if(GetS(p_entry->CisP, temp_buf))
+			rBuf.CatEq("Cis", temp_buf).CRB();
+		if(GetS(p_entry->ProductNameP, temp_buf))
+			rBuf.CatEq("Product", temp_buf).CRB();
+		if(GetS(p_entry->BrandNameP, temp_buf))
+			rBuf.CatEq("Brand", temp_buf).CRB();
+		{
+			const  SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
+			if(p_uedc && p_uedc->GetSymb(p_entry->UedChZnProdType, temp_buf)) {
+				rBuf.CatEq("ProductType", temp_buf).CRB();
+			}
+		}
+		if(p_entry->Flags) {
+			rBuf.Cat("Flags").CatChar('=').CatHex(p_entry->Flags).CRB();
+		}
+		{
+			SUniTime_Internal ut;
+			if(UED::_GetRaw_Time(p_entry->UedAppTm, ut)) {
+				ut.ToStr(DATF_ISO8601CENT, 0, temp_buf);
+				rBuf.CatEq("AppTime", temp_buf).CRB();
+			}
+			if(UED::_GetRaw_Time(p_entry->UedIntroduceTm, ut)) {
+				ut.ToStr(DATF_ISO8601CENT, 0, temp_buf);
+				rBuf.CatEq("IntroduceTime", temp_buf).CRB();
+			}
+			if(UED::_GetRaw_Time(p_entry->UedProductTm, ut)) {
+				ut.ToStr(DATF_ISO8601CENT, 0, temp_buf);
+				rBuf.CatEq("ProductTime", temp_buf).CRB();
+			}
+			if(UED::_GetRaw_Time(p_entry->UedEmissionTm, ut)) {
+				ut.ToStr(DATF_ISO8601CENT, 0, temp_buf);
+				rBuf.CatEq("EmissionTime", temp_buf).CRB();
+			}
+			if(UED::_GetRaw_Time(p_entry->UedExpiryTm, ut)) {
+				ut.ToStr(DATF_ISO8601CENT, 0, temp_buf);
+				rBuf.CatEq("ExpiryTime", temp_buf).CRB();
+			}
+			//
+			{
+				bool   is_there_anything = false;
+				if(UED::GetRaw_Ru_INN(p_entry->UedManufINN, temp_buf, 0)) {
+					rBuf.CatEq("ManufINN", temp_buf).Space();
+					is_there_anything = true;
+				}
+				if(GetS(p_entry->ManufNameP, temp_buf)) {
+					rBuf.CatEq("Manuf", temp_buf).Space();
+					is_there_anything = true;
+				}
+				if(is_there_anything)
+					rBuf.CRB();
+			}
+			{
+				bool   is_there_anything = false;
+				if(UED::GetRaw_Ru_INN(p_entry->UedProducerINN, temp_buf, 0)) {
+					rBuf.CatEq("ProducerINN", temp_buf).Space();
+					is_there_anything = true;
+				}
+				if(GetS(p_entry->ProducerNameP, temp_buf)) {
+					rBuf.CatEq("Producer", temp_buf).Space();
+					is_there_anything = true;
+				}
+				if(is_there_anything)
+					rBuf.CRB();
+			}
+			if(UED::GetRaw_Ru_INN(p_entry->UedImporterINN, temp_buf, 0)) {
+				rBuf.CatEq("ImporterINN", temp_buf).CRB();
+			}
+			{
+				bool   is_there_anything = false;
+				if(UED::GetRaw_Ru_INN(p_entry->UedOwnerINN, temp_buf, 0)) {
+					rBuf.CatEq("OwnerINN", temp_buf).Space();
+					is_there_anything = true;
+				}
+				if(GetS(p_entry->OwnerNameP, temp_buf)) {
+					rBuf.CatEq("Owner", temp_buf).Space();
+					is_there_anything = true;
+				}
+				if(is_there_anything)
+					rBuf.CRB();
+			}
+			if(p_entry->Children.IsCountGreaterThan(0)) {
+				rBuf.Cat("There are children codes").CRB();
+			}
+		}
+	}
+	return ok;
+}
+
 int PPChZnPrcssr::CodeInfoCollection::MoveEntryTo(uint entryIdx/*[0..]*/, CodeInfoCollection & rDest) const
 {
 	int    ok = 0;
@@ -5100,6 +5247,9 @@ int PPChZnPrcssr::CodeInfoCollection::MoveEntryTo(uint entryIdx/*[0..]*/, CodeIn
 			else {
 				CodeInfo * p_new_entry = rDest.CreateNewItem();
 				if(p_new_entry) {
+					p_new_entry->ErrCode = p_entry->ErrCode;
+					GetS(p_entry->ErrMessageP, temp_buf);
+					rDest.AddS(temp_buf, &p_new_entry->ErrMessageP);
 					GetS(p_entry->ReqCisP, temp_buf);
 					rDest.AddS(temp_buf, &p_new_entry->ReqCisP);
 					GetS(p_entry->CisP, temp_buf);
@@ -5128,6 +5278,7 @@ int PPChZnPrcssr::CodeInfoCollection::MoveEntryTo(uint entryIdx/*[0..]*/, CodeIn
 					GetS(p_entry->BrandNameP, temp_buf);
 					rDest.AddS(temp_buf, &p_new_entry->BrandNameP);
 					p_new_entry->Children = p_entry->Children;
+					p_new_entry->UedRecModifTm = p_entry->UedRecModifTm;
 					ok = 1;
 				}
 				else
@@ -7789,3 +7940,120 @@ int ChZnInterface::Document::Make_Obsolete(SXml::WDoc & rX, const ChZnInterface:
 	return ok;
 }
 #endif // } 0 @v12.6.9
+//
+// Descr: Процессор для сборки информации о марках чзн.
+//   Извлекает марки из документов, отправляет запросы на сервер чзн и сохраняет результаты в базе данных.
+//   Потом этими результатами могут пользоваться разные инфраструктурные компоненты.
+//
+class PrcssrChZnMarkInfoCollector { // @v12.6.11 @construction
+public:
+	struct Param {
+		Param();
+		uint8  ReserveStart[64]; // @anchor
+		uint   Flags;
+		PPID   GuaID;            // Глобальная учетная запись для доступа к сервису чзн
+		DateRange Period;        // Период обзора документов
+		PPID   OpID;             // Вид операции перечисляемых документов 
+		uint   LimitStoreDays;   // Предельное время хранения информации о марке в базе данных (в сутках)
+		uint8  Reserve[64];      // @anchor
+		ObjIdListFilt LocList;   // Список складов, по которым следует перебирать документы
+	};
+	PrcssrChZnMarkInfoCollector();
+	int	   InitParam(Param *);
+	int	   EditParam(Param *);
+	int	   Init(const Param *);
+	int	   Run();
+private:
+	Param  P;
+};
+
+PrcssrChZnMarkInfoCollector::Param::Param() : Flags(0), GuaID(0), OpID(0), LimitStoreDays(0)
+{
+	memzero(ReserveStart, sizeof(ReserveStart));
+	memzero(Reserve, sizeof(Reserve));
+	Period.Z();
+}
+
+PrcssrChZnMarkInfoCollector::PrcssrChZnMarkInfoCollector()
+{
+}
+
+int	PrcssrChZnMarkInfoCollector::InitParam(Param * pParam)
+{
+	int    ok = 1;
+	return ok;
+}
+
+int	PrcssrChZnMarkInfoCollector::EditParam(Param * pParam)
+{
+	enum {
+		ctlgroupLoc = 1
+	};
+	int    ok = -1;
+	TDialog * dlg = new TDialog(DLG_PRCRCHZNMCLLTR);
+	if(CheckDialogPtrErr(&dlg)) {
+		dlg->addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_PRCRCHZNMCLLTR_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0));
+		LocationCtrlGroup * p_cgrp = static_cast<LocationCtrlGroup *>(dlg->getGroup(ctlgroupLoc));
+		PPIDArray op_type_list;
+		op_type_list.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSMODIF, PPOPT_DRAFTRECEIPT, PPOPT_GENERIC, 0L);
+		SetupPPObjCombo(dlg, CTLSEL_PRCRCHZNMCLLTR_GUA, PPOBJ_GLOBALUSERACC, pParam->GuaID, 0);
+		SetPeriodInput(dlg, CTL_PRCRCHZNMCLLTR_PERIOD, pParam->Period);
+		SetupOprKindCombo(dlg, CTLSEL_PRCRCHZNMCLLTR_OP, pParam->OpID, 0, &op_type_list, 0);
+		if(p_cgrp) {
+			LocationCtrlGroup::Rec loc_rec(&pParam->LocList);
+			p_cgrp->SetExtLocList(0);
+			dlg->setGroupData(ctlgroupLoc, &loc_rec);
+		}
+		dlg->setCtrlLong(CTL_PRCRCHZNMCLLTR_LIMSTOREDAYS, pParam->LimitStoreDays);
+		if(ExecView(dlg) == cmOK) {
+			dlg->getCtrlData(CTLSEL_PRCRCHZNMCLLTR_GUA, &pParam->GuaID);
+			dlg->getCtrlData(CTLSEL_PRCRCHZNMCLLTR_OP, &pParam->OpID);
+			GetPeriodInput(dlg, CTL_PRCRCHZNMCLLTR_PERIOD, &pParam->Period);
+			dlg->getCtrlData(CTL_PRCRCHZNMCLLTR_LIMSTOREDAYS, &pParam->LimitStoreDays);
+			if(p_cgrp) {
+				LocationCtrlGroup::Rec loc_rec;
+				dlg->getGroupData(ctlgroupLoc, &loc_rec);
+				pParam->LocList = loc_rec.LocList;
+			}
+			ok = 1;
+		}
+	}
+	else
+		ok = 0;
+	delete dlg;
+	return ok;
+}
+
+int	PrcssrChZnMarkInfoCollector::Init(const Param * pParam)
+{
+	int    ok = 1;
+	RVALUEPTR(P, pParam);
+	return ok;
+}
+
+int	PrcssrChZnMarkInfoCollector::Run()
+{
+	int    ok = -1;
+	BillFilt filt;
+	PPViewBill view;
+	BillViewItem view_item;
+	if(!P.Period.IsZero()) {
+		filt.Period = P.Period;
+	}
+	else {
+		filt.Period.low = plusdate(getcurdate_(), -60);
+	}
+	filt.LocList = P.LocList;
+	if(P.OpID) {
+		filt.OpID = P.OpID;
+	}
+	else {
+		;
+	}
+	THROW(view.Init_(&filt));
+	for(view.InitIteration(PPViewBill::OrdByDefault); view.NextIteration(&view_item) > 0;) {
+		// @todo 
+	}
+	CATCHZOK
+	return ok;
+}

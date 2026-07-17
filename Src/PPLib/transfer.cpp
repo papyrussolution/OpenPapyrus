@@ -378,8 +378,9 @@ int FASTCALL Transfer::GetLotPricesCache::Get(ReceiptTbl::Rec * pLotRec)
 int Transfer::GetLotPrices(ReceiptTbl::Rec * pLotRec, LDATE date, long oprno)
 {
 	int    r = -1;
-	if(oprno == 0)
-		plusdate(&date, 1, 0); // Новая цена вступает в силу на дату переоценки
+	if(oprno == 0) {
+		date = plusdate(date, 1); // Новая цена вступает в силу на дату переоценки
+	}
 	TransferTbl::Key2 k;
 	BExtQuery q(this, 2, 16);
 	q.select(Flags, Cost, Price, 0L).where(LotID == pLotRec->ID && Dt >= date);

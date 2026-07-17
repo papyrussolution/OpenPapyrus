@@ -1969,8 +1969,9 @@ int ShrinkLots()
 	THROW(PPStartTransaction(&ta, 1));
 	MEMSZERO(k2);
 	k2.GoodsID = -MAXLONG;
-	while(p_rc->search(2, &k2, spGt) && k2.GoodsID <= 0)
+	while(p_rc->search(2, &k2, spGt) && k2.GoodsID <= 0) {
 		THROW_DB(p_rc->deleteRec());
+	}
 	while(iter.Next(&goods_rec) > 0) {
 		PPID   lot_id = 0;
 		if(p_rc->GetLastLot(goods_rec.ID, 0, MAXDATE, 0) > 0) {
@@ -1984,9 +1985,10 @@ int ShrinkLots()
 		}
 		MEMSZERO(k2);
 		k2.GoodsID = goods_rec.ID;
-		for(int sp = spGe; p_rc->search(2, &k2, sp) && k2.GoodsID == goods_rec.ID; sp = spGt)
+		for(int sp = spGe; p_rc->search(2, &k2, sp) && k2.GoodsID == goods_rec.ID; sp = spGt) {
 			if(p_rc->data.ID != lot_id)
 				THROW_DB(p_rc->deleteRec());
+		}
 	}
 	THROW(PPCommitWork(&ta));
 	CATCH
@@ -2008,9 +2010,8 @@ public:
 		long   Flags;
 		SString LogFileName;
 	};
-	PrcssrAbsentGoods()
+	PrcssrAbsentGoods() : P_BObj(BillObj)
 	{
-		P_BObj = BillObj;
 	}
 	int    InitParam(Param * pParam)
 	{
@@ -2021,7 +2022,7 @@ public:
 	}
 	int    Init(const Param * pParam)
 	{
-		P = *pParam;
+		RVALUEPTR(P, pParam);
 		AbsentCount = 0;
 		return 1;
 	}
@@ -2040,8 +2041,8 @@ private:
 int PrcssrAbsentGoods::EditParam(Param * pParam)
 {
 	int    ok = -1;
-	TDialog * dlg = 0;
-	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_CABSGOODS)))) {
+	TDialog * dlg = new TDialog(DLG_CABSGOODS);
+	if(CheckDialogPtrErr(&dlg)) {
 		FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CABSGOODS_LOG, CTL_CABSGOODS_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 		dlg->setCtrlString(CTL_CABSGOODS_LOG, pParam->LogFileName);
 		dlg->setCtrlUInt16(CTL_CABSGOODS_FLAGS, BIN(pParam->Flags & Param::fCorrectErrors));

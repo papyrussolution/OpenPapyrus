@@ -189,7 +189,7 @@ int FASTCALL PPViewSysJournal::CheckRecForFilt(const SysJournalTbl::Rec * pRec)
 			return 0;
 		if(Filt.ActionIDList.getCount() && !Filt.ActionIDList.lsearch(pRec->Action))
 			return 0;
-		if(Filt.DayOfWeek != 0 && Filt.DayOfWeek != dayofweek(&pRec->Dt, 1))
+		if(Filt.DayOfWeek != 0 && Filt.DayOfWeek != dayofweek(pRec->Dt, 1))
 			return 0;
 	}
 	else

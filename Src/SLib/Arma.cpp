@@ -260,15 +260,15 @@ int InitSeries(int P, int Q, const char * pInFileName, const char * pOutFileName
 	prev_dt = entry.Dt;
 	while(GetNextDataEntry(p_in, &entry) > 0) {
 		double predict_val = 0.0;
-		for(i = diffdate(&entry.Dt, &prev_dt, 0); i > 1; i--) {
-		    plusdate(&prev_dt, 1, 0);
+		for(i = diffdate(entry.Dt, prev_dt, 0); i > 1; i--) {
+		    prev_dt = plusdate(prev_dt, 1);
 			model.Step((predict_val = roundnev(model.Predict(), 0)));
 			datefmt(&prev_dt, DATF_DMY, dt_buf);
 			fprintf(p_out, "%s;%lf;ARMA PREDICT\n", dt_buf, predict_val);
 		}
 		model.Predict();
 		model.Step(entry.Val);
-		plusdate(&prev_dt, 1, 0);
+		prev_dt = plusdate(prev_dt, 1);
 		datefmt(&entry.Dt, DATF_DMY, dt_buf);
 	   	fprintf(p_out, "%s;%lf\n", dt_buf, entry.Val);
 	}
@@ -320,7 +320,7 @@ int TestARMA(int P, int Q, const char * pInFileName, const char * pOutFileName)
 	//
 	//
 	for(i = 0; i < 10; i++) {
-		plusdate(&last_dt, 1, 0);
+		last_dt = plusdate(last_dt, 1);
 		predict_val = model.Predict();
 		model.Step(predict_val);
 		PrintOutRow(f_out, last_dt, predict_val, predict_val);
@@ -337,10 +337,9 @@ int TestARMA(int P, int Q, const char * pInFileName, const char * pOutFileName)
 	model.GetPhi(&m);
 	// @v10.8.11 m.setname("Phi");
 	print(m, f_out, MKSFMTD(0, 8, NMBF_NOTRAILZ));
-
 	/*
 	for(i = 0; i < 20; i++) {
-		plusdate(&entry.Dt, 1, 0);
+		entry.Dt = plusdate(entry.Dt, 1);
 		entry.Val = predict_val = model.Predict();
 		model.Step(entry.Val);
 		PrintOutRow(f_out, entry.Dt, entry.Val, predict_val);
@@ -504,7 +503,7 @@ void TestArima(int P, int Q, const char * pInFileName, const char * pInFileName1
 		}
 		/*
 		for(i = 0; i < 7; i++) {
-			plusdate(&last_dt, 1, 0);
+			last_dt = plusdate(last_dt, 1);
 			predict_val = model.Predict();
 			model.Step(predict_val);
 			PrintOutRow(p_out, last_dt, predict_val, predict_val);

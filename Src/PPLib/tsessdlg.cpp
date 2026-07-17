@@ -1538,7 +1538,7 @@ int TSessionDialog::SetupTiming(int master)
 		(Data.Rec.Status == TSESST_CLOSED && !Data.Rec.ID)) && timing >= 0) { // @v8.2.9 || (Data.Rec.Status == TSESST_CLOSED && !Data.Rec.ID)
 		InpUpdLock++;
 		if(master == 0) {
-			finish = plusdatetime(start, timing, 3);
+			finish = plusdatetime(start, timing, SUOM_SECOND);
 			if(!start.d)
 				finish.d = ZERODATE;
 			Data.Rec.FinDt = finish.d;

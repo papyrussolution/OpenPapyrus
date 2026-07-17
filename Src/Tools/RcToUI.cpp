@@ -444,7 +444,7 @@ int RcProcessor::LoadExtraData(CtrlInfo * pCtrlInfo)
 					}
 				}
 				out_extras[3].ReplaceChar('\"', ' ');
-				out_extras[3].TrimRightChr('\n').TrimRightChr('\r').ReplaceStr("\\0", "", 0).Strip().ToChar();
+				out_extras[3].TrimRightChr('\n').TrimRightChr('\r').ReplaceStr("\\0", "", 0).Strip().Transf(CTRANSF_INNER_TO_OUTER);
 				ReplaceSpecSymb(out_extras[3]);
 				out_extras[3].ToUtf8();
 			}

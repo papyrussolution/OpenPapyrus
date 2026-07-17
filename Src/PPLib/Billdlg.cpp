@@ -4050,6 +4050,11 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			setCtrlReal(CTL_FREIGHT_COST, Data.Cost);
 			AddClusterAssoc(CTL_FREIGHT_SHIPPED, 0, BILLF_SHIPPED);
 			SetClusterData(CTL_FREIGHT_SHIPPED, R_Pack.Rec.Flags);
+			// @v12.6.11 {
+			setCtrlDatetime(CTL_FREIGHT_LOADINGDT, CTL_FREIGHT_LOADINGTM, Data.UedTmLoading);
+			setCtrlDatetime(CTL_FREIGHT_LDARRVDT, CTL_FREIGHT_LDARRVTM, Data.UedTmLdArrv);
+			setCtrlDatetime(CTL_FREIGHT_LDDPRTDT, CTL_FREIGHT_LDDPRTTM, Data.UedTmLdDprt);
+			// } @v12.6.11 
 			enableCommand(cmFreightEditDlvrLocList, PsnObj.CheckRights(PPR_MOD));
 			return 1;
 		}
@@ -4075,6 +4080,14 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 				Data.Cost = getCtrlReal(CTL_FREIGHT_COST);
 			getCtrlData(CTLSEL_FREIGHT_DLVRLOC,  &Data.DlvrAddrID__);
 			GetClusterData(CTL_FREIGHT_SHIPPED,  &R_Pack.Rec.Flags);
+			// @v12.6.11 {
+			Data.UedTmLoading.Z(); // @debug
+			Data.UedTmLdArrv.Z(); // @debug
+			Data.UedTmLdDprt.Z(); // @debug
+			getCtrlDatetime(CTL_FREIGHT_LOADINGDT, CTL_FREIGHT_LOADINGTM, Data.UedTmLoading);
+			getCtrlDatetime(CTL_FREIGHT_LDARRVDT, CTL_FREIGHT_LDARRVTM, Data.UedTmLdArrv);
+			getCtrlDatetime(CTL_FREIGHT_LDDPRTDT, CTL_FREIGHT_LDDPRTTM, Data.UedTmLdDprt);
+			// } @v12.6.11 
 			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return 1;

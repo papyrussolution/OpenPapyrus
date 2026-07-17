@@ -1184,10 +1184,32 @@ int TInputLine::OnMouseWheel(int delta)
 
 int TInputLine::Implement_GetText()
 {
+	constexpr uint32 default_len_limit = 4096-1;
 	int    ok = 1;
-	TView::SGetWindowText(GetDlgItem(Parent, Id), Data);
-	Data.Transf(CTRANSF_OUTER_TO_INNER);
-	Data.Trim((MaxLen > 0) ? MaxLen : (4096-1));
+	HWND   h_wnd = GetDlgItem(Parent, Id);
+	if(h_wnd) {
+		// @v12.6.11 {
+		if(ViewOptions & ofUtf8) {
+			TView::SGetWindowTextUtf8(h_wnd, Data);
+			uint   _lenutf8 = Data.LenUtf8();
+			if(MaxLen > 0) {
+				if(_lenutf8 > MaxLen) {
+					Data.TrimUtf8(MaxLen);
+				}
+			}
+			else if(_lenutf8 > default_len_limit) {
+				Data.TrimUtf8(default_len_limit);
+			}
+		}
+		else // } @v12.6.11 
+		{
+			TView::SGetWindowText(h_wnd, Data);
+			Data.Transf(CTRANSF_OUTER_TO_INNER);
+			Data.Trim((MaxLen > 0) ? MaxLen : default_len_limit);
+		}
+	}
+	else
+		ok = 0;
 	return ok;
 }
 
@@ -1400,16 +1422,23 @@ void TInputLine::disableDeleteSelection(int _disable)
 
 void TInputLine::Implement_Draw()
 {
-	if(Data.IsLegalUtf8() && !Data.IsCp866()) { // @v12.6.6 // @v12.6.9 некоторые осмысленные сочетания cp866-строк могут трактоваться как легальные utf8-строки (&& !Data.IsCp866())
-		TView::SSetWindowTextUtf8(GetDlgItem(Parent, Id), Data);
+	HWND   h_wnd = getHandle();
+	if(h_wnd) {
+		if(Data.IsLegalUtf8() && !Data.IsCp866()) { // @v12.6.6 // @v12.6.9 некоторые осмысленные сочетания cp866-строк могут трактоваться как легальные utf8-строки (&& !Data.IsCp866())
+			TView::SSetWindowTextUtf8(h_wnd, Data);
+		}
+		else {
+			TView::SSetWindowText(h_wnd, SString(Data).Transf(CTRANSF_INNER_TO_OUTER));
+		}
+		if(IsInState(sfSelected)) {
+			// @v12.6.11 ::SendDlgItemMessageW(Parent, Id, EM_SETSEL, (InlSt & stDisableDelSel) ? -1 : 0, -1);
+			::SendMessageW(h_wnd, EM_SETSEL, (InlSt & stDisableDelSel) ? -1 : 0, -1); // @v12.6.11
+		}
+		if(InlSt & stDisableDelSel) {
+			// @v12.6.11 ::SendDlgItemMessageW(Parent, Id, WM_KEYDOWN, VK_END, 0);
+			::SendMessageW(h_wnd, WM_KEYDOWN, VK_END, 0); // @v12.6.11
+		}
 	}
-	else {
-		TView::SSetWindowText(GetDlgItem(Parent, Id), SString(Data).Transf(CTRANSF_INNER_TO_OUTER));
-	}
-	if(IsInState(sfSelected))
-		::SendDlgItemMessageW(Parent, Id, EM_SETSEL, (InlSt & stDisableDelSel) ? -1 : 0, -1);
-	if(InlSt & stDisableDelSel)
-		::SendDlgItemMessageW(Parent, Id, WM_KEYDOWN, VK_END, 0);
 }
 
 void TInputLine::setType(TYPEID typ)
@@ -1462,8 +1491,9 @@ int TInputLine::TransmitData(int dir, void * pData)
 		}
 	}
 	else if(dir < 0) {
-		if(P_Combo)
+		if(P_Combo) {
 			s = P_Combo->TransmitData(dir, pData);
+		}
 		else if(HasWordSelector() && !P_WordSelBlk->IsTextMode()) {
 			long   id = 0L;
 			P_WordSelBlk->GetData(&id, temp_buf);
@@ -1539,7 +1569,7 @@ void TInputLine::setState(uint newState, bool enable)
 	TView::setState(newState, enable);
 	HWND   h_wnd = getHandle();
 	if(newState == sfReadOnly)
-		::SendMessage(h_wnd, EM_SETREADONLY, enable, 0);
+		::SendMessageW(h_wnd, EM_SETREADONLY, enable, 0);
 	// @v12.4.7 {
 	if(newState == sfVisible) {
 		if(Parent) {

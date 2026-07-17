@@ -7,6 +7,7 @@
 
 #include <tvdefs.h>
 #include <db.h>
+#include <ued.h>
 
 class  TView;
 class  TViewGroup;
@@ -2457,6 +2458,8 @@ private:
 // @v12.5.3 (@unused) #define ofCenterX         0x0100
 // @v12.5.3 (@unused) #define ofCenterY         0x0200
 // @v12.5.3 (@unused) #define ofCentered        0x0300
+#define ofUtf8            0x0040 // @v12.6.11 Элемент оперирует строками в кодировке utf8. Флаг введен ситуативно ради TInputLine, но
+	// будет распространяться и на другие объекты, замещая существующий венегрет.
 
 class TView {
 public:
@@ -2807,6 +2810,8 @@ private:
 };
 
 class TWindow : public TViewGroup {
+	friend class PPDialogConstructor; // @v12.3.6 Этот класс получает доступ к внутренним полям и методам TWindow поскольку это необходимо
+		// для создания экземпляра класса TWindow с использованием инфраструктуры DL600, которая находится на уровне проекта Papyrus.
 public:
 	//
 	// Опции Capability
@@ -2885,14 +2890,17 @@ public:
 	LDATE  FASTCALL getCtrlDate(uint ctlID);
 	LTIME  FASTCALL getCtrlTime(uint ctlID);
 	int    getCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME & rDtm);
+	int    getCtrlDatetime(uint dtCtlID, uint tmCtlID, ued_t & rUedTm); // @v12.6.11
 	int    STDCALL  setCtrlUInt16(uint ctlID, int s);
 	int    STDCALL  setCtrlLong(uint ctlID, long);
 	int    STDCALL  setCtrlReal(uint ctlID, double);
 	int    STDCALL  setCtrlString(uint ctlID, const SString &);
 	int    STDCALL  setCtrlDate(uint ctlID, LDATE val);
 	int    STDCALL  setCtrlTime(uint ctlID, LTIME val);
-	int    setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME dtm);
-	int    setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATE dt, LTIME tm);
+	bool   setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATETIME dtm);
+	bool   setCtrlDatetime(uint dtCtlID, uint tmCtlID, LDATE dt, LTIME tm);
+	bool   setCtrlDatetime(uint dtCtlID, uint tmCtlID, ued_t uedTime); // @v12.6.11
+	bool   SetDefaultButton(uint ctlID, bool setDefault); // @v12.6.11 (moved form TDialog)
 	//
 	// Descr: Высокоуровневая функция, устанавливающая опцию option для SmartListBox::def
 	//   с идентификатором ctlID (вызывает ListBoxDef::SetOption(option, 1)
@@ -3850,7 +3858,6 @@ public:
 	int    SetClusterItemText(uint ctlID, int itemNo /* 0.. */, const char * pText);
 	bool   GetClusterItemByAssoc(uint ctlID, long val, int * pPos) const;
 	uint   GetClusterItemsCount(uint ctlID) const;
-	int    SetDefaultButton(uint ctlID, bool setDefault);
 	int    SetCtrlBitmap(uint ctlID, uint bmID);
 	int    SetupInputLine(uint ctlID, TYPEID typ, long fmt);
 	void   SetupSpin(uint ctlID, uint buddyCtlID, int low, int upp, int cur);

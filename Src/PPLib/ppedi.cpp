@@ -683,7 +683,7 @@ int GtinStruc::Parse(const char * pCode)
 			//tr.Run(code_buf.ucptr(), code_buf.Len(), nta, 0);
 		}
 		if(nta.Has(SNTOK_CHZN_CIGITEM) || nta.Has(SNTOK_CHZN_ALTCIGITEM)) { // @v11.9.4 (SNTOK_CHZN_ALTCIGITEM)
-			// Розничные сигареты и альтернативная табачная продукция по структуре кода схожи. Разнича в том, что 
+			// Розничные сигареты и альтернативная табачная продукция по структуре кода схожи. Разница в том, что 
 			// код альтернативной табачной продукции вместо цены содержит "AAAA".
 			assert(oneof2(code_buf.Len(), 29, 25)); // Возможно,что у марки не будет криптохвоста (len==25)
 			size_t offs = 0; 

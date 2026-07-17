@@ -673,6 +673,7 @@ int PPObjGoods::GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2Tbl::R
 		{
 			//disableCtrl(CTL_SRCHBCODE_CHKDIG, true);
 			//SetCtrlBitmap(CTL_SRCHBCODE_IMG, BM_BARCODE);
+			SetupKeyboardStateControls();
 		}
 	private:
 		DECL_HANDLE_EVENT
@@ -715,6 +716,7 @@ int PPObjGoods::GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2Tbl::R
 		PPObjGoods GObj;
 	};
 	int    ok = -1;
+	SString temp_buf;
 	SString code;
 	BarcodeSrchDialog * dlg = new BarcodeSrchDialog;
 	if(CheckDialogPtrErr(&dlg)) {
@@ -729,6 +731,8 @@ int PPObjGoods::GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2Tbl::R
 		}
 		if(ExecView(dlg) == cmOK) {
 			dlg->getCtrlString(CTL_SRCHBCODE_CODE, code);
+			TranslateLocaleKeyboardTextToLatin(code, temp_buf);
+			code = temp_buf;
 			if(code.NotEmptyS()) {
 				ok = 1;
 			}
@@ -755,9 +759,39 @@ int PPObjGoods::Helper_SelectGoodsByBarcode_LotExtCode(uint32 sntok, GoodsCodeSr
 	ReceiptTbl::Rec any_lot_rec;
 	ReceiptTbl::Rec recent_lot_rec;
 	ReceiptTbl::Rec recent_opened_lot_rec;
+	BillTbl::Rec bill_rec;
+	TransferTbl::Rec trfr_rec;
 	for(uint i = 0; i < lxc_rec_list.getCount(); i++) {
 		const  LotExtCodeTbl::Rec & r_lxc_rec = lxc_rec_list.at(i);
-		if(r_lxc_rec.LotID && p_bobj->trfr->Rcpt.Search(r_lxc_rec.LotID, &_lot_rec) > 0 && _lot_rec.GoodsID > 0) {
+		// @v12.6.11 {
+		PPID   lot_id = 0;
+		if(r_lxc_rec.BillID && r_lxc_rec.RByBill && p_bobj->Fetch(r_lxc_rec.BillID, &bill_rec) > 0) {
+			const  PPID op_type_id = GetOpType(bill_rec.OpID);
+			if(oneof3(op_type_id, PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSMODIF)) {
+				int16 row_idx = 0;
+				int   rbb_target = 0;
+				PPTransferItem ti_iter;
+				for(int rbb_iter = 0; !rbb_target && p_bobj->trfr->EnumItems(r_lxc_rec.BillID, &rbb_iter, &ti_iter) > 0;) {
+					row_idx++;
+					if(row_idx == r_lxc_rec.RByBill)
+						rbb_target = ti_iter.RByBill;
+				}
+				if(rbb_target && p_bobj->trfr->SearchByBill(r_lxc_rec.BillID, 0, rbb_target, &trfr_rec) > 0) {
+					if(trfr_rec.Quantity > 0.0 && trfr_rec.Flags & PPTFR_RECEIPT) {
+						lot_id = trfr_rec.LotID;
+					}
+					else if(trfr_rec.CorrLoc && p_bobj->trfr->SearchByBill(r_lxc_rec.BillID, 1, rbb_target, &trfr_rec) > 0) {
+						PPID org_lot_id = 0;
+						ReceiptTbl::Rec org_lot_rec;
+						if(p_bobj->trfr->Rcpt.SearchOrigin(trfr_rec.LotID, &org_lot_id, 0, &org_lot_rec) > 0) {
+							;
+						}
+					}
+				}
+			}
+		}
+		// } @v12.6.11 
+		if(lot_id && p_bobj->trfr->Rcpt.Search(lot_id, &_lot_rec) > 0 && _lot_rec.GoodsID > 0) {
 			any_lot_rec = _lot_rec;
 			if(!rBlk.LocID || rBlk.LocID == _lot_rec.LocID) {
 				if(_lot_rec.ID != recent_lot_rec.ID) {

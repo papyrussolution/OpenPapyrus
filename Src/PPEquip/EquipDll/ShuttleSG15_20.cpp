@@ -1,5 +1,6 @@
 // PRICECHKR.cpp
 //
+#define SLIB_INCLUDE_CPPSTDLIBS // @v12.6.11
 #include <ppdefs.h>
 #include <slib.h>
 #include <dl600.h>

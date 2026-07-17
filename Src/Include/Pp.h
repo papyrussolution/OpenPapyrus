@@ -1339,6 +1339,7 @@ public:
 	//   Компонент P_Vault никака не участвует в сравнении.
 	//
 	bool   FASTCALL IsEq(const PPSecretSegmentPool & rS) const;
+	bool   FASTCALL HasChildrenByID(uint32 id) const;
 	bool   PutText(const char * pText, uint * pTextP);
 	bool   GetText(uint textP, SString & rBuf) const;
 	//
@@ -1346,7 +1347,7 @@ public:
 	//   создается со ссылкой на SStrGroup Sg, приндалежащей this.
 	//
 	PPSecretSegment * CreateNewSegment(uint * pPos);
-	PPSecretSegment * SearchSegmentByID(uint id, uint * pPos);
+	const  PPSecretSegment * SearchSegmentByID(uint id, uint * pPos) const;
 	PPSecretSegment * SearchSegmentByName(const char * pKey, uint * pPos);
 	//
 	// Returns:
@@ -1358,10 +1359,18 @@ public:
 	int    LoadStorage(const char * pFileName, const char * pMasterPassword, size_t masterPasswordLen);
 	int    DescryptSegments(const char * pMasterPassword, size_t masterPasswordLen);
 	int    CreateStorage(const char * pFileName, const char * pMasterPassword, size_t masterPasswordLen);
-	int    SaveStorage(const char * pFileName) const;
+	int    SaveStorage(const char * pFileName); // non-const (перебрасывет сегменты в P_Vault)
 	int    ReadTestJson(const char * pJsFileName);
+	int    MakeFolderList(uint currentSegmentIdent, StrAssocArray & rList) const;
+	//
+	// Descr: Упаковывает строки в Sg, убирая те, которые не используются (сборка мусора, короче).
+	//
+	int    Pack(); 
 private:
 	int    PutSegmentIntoPool(const PPSecretSegment * pSeg);
+	int    Helper_MakeFolderList(uint32 parentId, uint currentSegmentIdent, StrAssocArray & rList) const;
+	void   GetHierarchyByID(uint32 id, LongArray & rHierarchyList) const;
+	void   GetChildren(uint32 id, bool recursive, LongArray & rChildrenList) const;
 
 	SVaultPool * P_Vault;
 	SStrGroup Sg;
@@ -11621,9 +11630,9 @@ struct PPFreight { // @persistent @store(PropertyTbl)
 	uint8  Reserve2[16];   // @reserve
 	// Далее следуют поля, введенные в версии @v12.6.10 из-за необходимости формировать сложную электронную товарно-транспортную накладную
 	// И да, я по-тихоньку начинаю внедрять UED. Здесь используется UED time там, где раньше я использовал бы LDATETIME
-	uint64 UedTmLoading;   // @anchor @v12.6.10 Заявленное время начала погрузки
-	uint64 UedTmLdArrv;    // @v12.6.10 Фактическое время прибытие для погрузки
-	uint64 UedTmLdDprt;    // @v12.6.10 Фактическое время отправления // 
+	ued_t  UedTmLoading;   // @anchor @v12.6.10 Заявленное время начала погрузки
+	ued_t  UedTmLdArrv;    // @v12.6.10 Фактическое время прибытие для погрузки
+	ued_t  UedTmLdDprt;    // @v12.6.10 Фактическое время отправления // 
 	uint8  Reserve3[32];   // @reserve
 };
 #pragma pop
@@ -22517,7 +22526,7 @@ int FASTCALL GetAcoByGenFlags(long);
 //
 // Descr: Структура бухгалтерского счета
 //
-struct PPAccount { // @persistent
+struct PPAccount { // @persistent @flat
 	PPAccount();
 	long   Tag;         // Const=PPOBJ_ACCOUNT2
 	long   ID;          // @id
@@ -33309,7 +33318,7 @@ public:
     	double Brutto;
     	double Proof;           // Крепость в объемных процентах
     	uint   CategoryCodePos; // Позиция (1..) кода категории в PrcssrAlcReport::CategoryNameList
-    	double UnpackedVolume;  // Если товар имеет единицу измерения, производную от литра (PPUNIT_LITER),
+    	double UnpackedVolume;  // Если товар имеет единицу измерения, производную от литра (SUOM_LITER),
 			// то считается не неупакованным и измеряется в литрах. В этом случае это поле содержит
 			// количество литров в одное торговой единице (PPUnit::BaseRatio). В противном случае это поле 0.0
 		LDATE  BottlingDate;    // Дата розлива
@@ -40847,7 +40856,7 @@ public:
 	int16  EdiRecadvStatus;     // Статус RECADV по каналу EDI. -1 - с нулевым статусом
 	int16  EdiRecadvConfStatus; // Статус подтверждения на RECADV по каналу EDI. -1 - с нулевым статусом
 	int16  OrderFulfillmentStatus; // Статус выполнения заказа (-1) unused (0) ignored, (1) полностью не исполнен, (2) - полностью исполнен, (3) - исполнен частично
-	uint8  Reserve[6];     // @#0 !Использовать начиная со старших адресов // @v11.1.8 [8]-->[6]
+	uint8  Reserve[6];     // @#0 !Использовать начиная со старших адресов //
 	BrowseBillsType Bbt;   // @#1f
 	DateRange Period;      //
 	DateRange PaymPeriod;  // Период поступления платежей (Flags & fShowDebt)
@@ -40891,7 +40900,7 @@ struct BillViewItem : public BillTbl::Rec {
 	double Credit;
 	double Saldo;
 	LDATE  LastPaymDate; // Дата последнего платежа по документу
-	char   SMemo[512];   // @v11.1.12
+	char   SMemo[512];   // 
 };
 
 typedef int (*BillViewEnumProc)(const BillViewItem * pItem, void * pExtraPtr);
@@ -48908,7 +48917,7 @@ struct PPProjectConfig { // @persistent @store(PropertyTbl) @size=90
 	long   WorkHoursEnd;   //
 	int16  RefreshTime;    //
 	PPID   BillOpID;       //
-	IntRange RemindPrd;    // Период напоминания о не выполненных задачах [-x..y]
+	IntRange RemindPrd;    // Период напоминания о невыполненных задачах [-x..y]
 };
 
 //
@@ -57759,13 +57768,13 @@ public:
 		SString ParamString;
 		SString InfoText; // @transient
 	};
-	enum {
+	/* @v12.6.11 enum {
 		ptUnkn     = GTCHZNPT_UNDEF,
 		ptFur      = GTCHZNPT_FUR,     // 00 02
 		ptTobacco  = GTCHZNPT_TOBACCO, // 00 05
 		ptShoe     = GTCHZNPT_SHOE,    // 15 20
 		ptMedicine = GTCHZNPT_MEDICINE //
-	};
+	};*/
 	// @v12.6.9 @unused static int FASTCALL IsChZnCode(const char * pCode);
 	static SString & FASTCALL RemoveSpcCharsFromCode(SString & rCode);
 	//
@@ -57971,27 +57980,30 @@ public:
 			fIsWithdraw  = 0x0004, // 
 			fVarQtty     = 0x0008, // Признак переменного веса
 		};
+		int    ErrCode;         //
+		uint   ErrMessageP;     // utf8
 		uint   ReqCisP;
 		uint   CisP;
 		uint   Flags;
 		uint   PackType;        // ptXXX 
 		uint   GeneralPackType; // ptXXX 
-		uint64 UedChZnProdType; // Тип продукции чзн
-		uint64 UedAppTm;        // Время нанесения //
-		uint64 UedIntroduceTm;  // Время ввода в оборот //
-		uint64 UedProductTm;    // Время производства //
-		uint64 UedEmissionTm;   // Время выпуска марки //
-		uint64 UedExpiryTm;     // Время окончания срока годности продукта //
-		uint64 UedManufINN;     // ИНН производителя //
-		uint64 UedProducerINN;  // ИНН производителя (хуй его знает чем это отличается от UedManufINN, скорее всего дело в том, что вопросом долбоебы занимаются) //
-		uint64 UedImporterINN;  // ИНН импортера //
-		uint64 UedOwnerINN;     // ИНН владельца //
+		ued_t  UedChZnProdType; // Тип продукции чзн
+		ued_t  UedAppTm;        // Время нанесения //
+		ued_t  UedIntroduceTm;  // Время ввода в оборот //
+		ued_t  UedProductTm;    // Время производства //
+		ued_t  UedEmissionTm;   // Время выпуска марки //
+		ued_t  UedExpiryTm;     // Время окончания срока годности продукта //
+		ued_t  UedManufINN;     // ИНН производителя //
+		ued_t  UedProducerINN;  // ИНН производителя (хуй его знает чем это отличается от UedManufINN, скорее всего дело в том, что вопросом долбоебы занимаются) //
+		ued_t  UedImporterINN;  // ИНН импортера //
+		ued_t  UedOwnerINN;     // ИНН владельца //
 		uint   OwnerNameP;
 		uint   ManufNameP;
 		uint   ProducerNameP;
 		uint   ProductNameP;
 		uint   BrandNameP;
 		StringSet Children;     // Для упаковки: вложенные марки
+		ued_t  UedRecModifTm;   // @transient(не обрабатывается при сериализации) Время внесения записи в базу данных Papyrus
 	};
 
 	class CodeInfoCollection : public TSCollection <CodeInfo>, public SStrGroup {
@@ -57999,10 +58011,8 @@ public:
 		CodeInfoCollection();
 		bool   SearchCode(const char * pPattern, uint * pIdx) const;
 		int    MoveEntryTo(uint entryIdx/*[0..]*/, CodeInfoCollection & rDest) const;
+		int    EntryToStr(uint entryIdx, long flags, SString & rBuf) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-		
-		int    ErrCode;     // @transient 
-		SString ErrMessage; // @transient utf8
 	};
 	//
 	// Descr: Интерфейс с ТС-ПИОТ (не спрашивайте: пидоры в кремле не успокоятся пока не загонят нас всех под землю)
@@ -58162,7 +58172,7 @@ public:
 	int    PutAggregation2(const PPLotExtCodeContainer::MarkSet & rSet, int use_ta);
 	int    GetAggregation(const char * pCode, bool recursive, PPLotExtCodeContainer::MarkSet & rSet);
 	int    PutInfo(PPChZnPrcssr::CodeInfoCollection & rSet, int use_ta); // @v12.6.9
-	int    GetInfo(const char * pCode, bool recursive, PPChZnPrcssr::CodeInfoCollection & rResult); // @v12.6.9
+	int    GetInfo(const char * pCode, PPChZnPrcssr::CodeInfoCollection & rResult); // @v12.6.9
 };
 //
 // Панель чеков
@@ -64809,6 +64819,7 @@ int    STDCALL SetComboBoxListText(TDialog *, uint comboBoxCtlID);
 int    STDCALL SetupStringCombo(TDialog *, uint ctlID, int strID, long initID);
 int    STDCALL SetupStringCombo(TDialog *, uint ctlID, const char * pStrSignature, long initID);
 int    STDCALL SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char * pStrSignature, const StrAssocArray * pAddendumList, long initID);
+int    STDCALL SetupStringComboWithAllowedList(TDialog * dlg, uint ctlID, int strID, const LongArray * pAllowedList, long initID); // @v12.6.11
 // id = <string offset> + 1
 int    SetupStringComboDevice(TDialog *, uint ctlID, uint dvcClass, long initID, uint /*flags*/); //@vmiller
 int    GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf);

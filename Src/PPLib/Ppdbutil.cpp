@@ -4047,7 +4047,7 @@ int PrcssrTestDb::GenRef01_Rec(TestRef01Tbl::Rec * pRec)
 {
 	int    ok = 1;
 	static int increment = 0;
-	LDATETIME dtm = plusdatetime(getcurdatetime_(), ++increment, 4);
+	LDATETIME dtm = plusdatetime(getcurdatetime_(), ++increment, SUOM_CSECOND);
 	TestRef01Tbl::Rec rec;
 	rec.L = G.GetUniformInt(100000);
 	rec.I16 = static_cast<int16>(G.GetUniformInt(32000));
@@ -4072,7 +4072,7 @@ int PrcssrTestDb::GenRef02_Rec(TestRef02Tbl::Rec * pRec)
 {
 	int    ok = 1;
 	static int increment = 0;
-	LDATETIME dtm = plusdatetime(getcurdatetime_(), ++increment, 4);
+	LDATETIME dtm = plusdatetime(getcurdatetime_(), ++increment, SUOM_CSECOND);
 	TestRef02Tbl::Rec rec;
 	rec.L = G.GetPoisson(2000000000.0);
 	rec.I16 = static_cast<int16>(G.GetPoisson(64000.0));
@@ -4225,7 +4225,7 @@ int PrcssrTestDb::GenTa_Rec(TestTa01Tbl::Rec * pRec, bool standaloneRecord)
 	int    ok = 1;
 	TestTa01Tbl::Rec rec;
 	static int increment = 0;
-	LDATETIME dtm = plusdatetime(getcurdatetime_(), ++increment, 4);
+	LDATETIME dtm = plusdatetime(getcurdatetime_(), ++increment, SUOM_CSECOND);
 	rec.Dt = dtm.d;
 	rec.Tm = dtm.t;
 	//

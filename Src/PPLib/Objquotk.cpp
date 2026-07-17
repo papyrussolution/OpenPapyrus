@@ -12,7 +12,7 @@ PPQuotKind2::PPQuotKind2()
 }
 
 bool PPQuotKind2::HasWeekDayRestriction() const { return (DaysOfWeek && ((DaysOfWeek & 0x7f) != 0x7f)); }
-bool PPQuotKind2::CheckWeekDay(LDATE dt) const { return (!DaysOfWeek || !dt || (DaysOfWeek & (1 << (dayofweek(&dt, 1)-1)))); }
+bool PPQuotKind2::CheckWeekDay(LDATE dt) const { return (!DaysOfWeek || !dt || (DaysOfWeek & (1 << (dayofweek(dt, 1)-1)))); }
 
 void PPQuotKind2::SetTimeRange(const TimeRange & rRange)
 {

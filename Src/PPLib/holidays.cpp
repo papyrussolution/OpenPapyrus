@@ -66,7 +66,7 @@ private:
 void HldDialog::setupDate()
 {
 	int    kind = (getCtrlUInt16(CTL_HOLIDAY_KIND) + 1);
-	long   dw = dayofweek(&Dt, 1);
+	long   dw = dayofweek(Dt, 1);
 	if(kind != PrevKind) {
 		LDATE dt = ZERODATE;
 		setCtrlData(CTL_HOLIDAY_DATE, &dt);

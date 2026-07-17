@@ -1,5 +1,5 @@
 // OBJCSESS.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -38,7 +38,7 @@ static const struct __RtToS {
 	{ CSESSOPRT_MERGECHK,         1, "M" },
 	{ CSESSOPRT_ESCCLINEBORD,     1, "Q" },
 	{ CSESSOPRT_REPRNUNFCC,       1, "3" },
-	{ CSESSOPRT_ARBITRARYDISC,    1, "4" }, // @v11.0.9
+	{ CSESSOPRT_ARBITRARYDISC,    1, "4" },
 };
 
 /*static*/void PPObjCSession::RightsToString(long rt, long opRt, SString & rBuf)
@@ -966,7 +966,7 @@ int CSessTransmitPacket::Restore(PPID * pID, ObjTransmContext * pCtx)
 							k3.Tm = pack.Rec.Tm;
 							PPID   cc_id = 0;
 							if(p_cc->search(3, &k3, spGe)) do {
-								if(labs(DiffTime(p_cc->data.Tm, pack.Rec.Tm, 3)) < 10 && p_cc->data.Code == pack.Rec.Code) {
+								if(labs(DiffTime_(p_cc->data.Tm, pack.Rec.Tm, SUOM_SECOND)) < 10 && p_cc->data.Code == pack.Rec.Code) {
 									cc_id = p_cc->data.ID;
 								}
 							} while(!cc_id && p_cc->search(3, &k3, spGt));

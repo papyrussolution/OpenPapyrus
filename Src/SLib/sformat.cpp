@@ -470,7 +470,7 @@ char * STDCALL _datefmt(int day, int mon, int year, int style, char * pBuf)
 	else if(style == DATF_INTERNET) {
 		//#define DATF_INTERNET      13  // Wed, 27 Feb 2008
 		LDATE _dt = encodedate(day, mon, year);
-		int   dow = dayofweek(&_dt, 1); // @v9.7.10 0-->1 в связи с вводом глобальной функции STextConst::Get
+		int   dow = dayofweek(_dt, 1); // @v9.7.10 0-->1 в связи с вводом глобальной функции STextConst::Get
 		//const char * p_dow_txt[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
 		//const char * p_mon_txt[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Seb", "Oct", "Nov", "Dec"};
 		//strcat(pBuf, p_dow_txt[dow]);

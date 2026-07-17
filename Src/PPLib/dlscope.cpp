@@ -18,7 +18,7 @@ static long FASTCALL MakeSdRecFlags(uint kind)
 
 DlScope::DlScope(DLSYMBID id, uint kind, const char * pName, int prototype) : SdRecord(MakeSdRecFlags(kind)),
 	ScFlags(0), Kind(kind), DvFlags(0), BaseId(0), ParentId(0), Version(0), P_Parent(0),
-	P_Base(0), P_IfaceBaseList(0), P_DbIdxSegFlags(0), LastLocalId(0)
+	P_Base(0), P_IfaceBaseList(0), P_DbIdxSegFlags(0), LastLocalId(0), P_SsUnresolvedSymb(0)
 {
 	ID = id;
 	Name = pName;
@@ -32,7 +32,7 @@ DlScope::DlScope(DLSYMBID id, uint kind, const char * pName, int prototype) : Sd
 
 DlScope::DlScope(const DlScope & rS) :
 	SdRecord(), // Это - не copy-constructor так как функция копирования сделает работу, которую должен был выполнить copy-constructor базового класса
-	P_Parent(0), P_Base(0), P_IfaceBaseList(0), P_DbIdxSegFlags(0)
+	P_Parent(0), P_Base(0), P_IfaceBaseList(0), P_DbIdxSegFlags(0), P_SsUnresolvedSymb(0)
 {
 	FixDataBuf.Init();
 	Copy(rS, 0);
@@ -42,6 +42,7 @@ DlScope::~DlScope()
 {
 	delete P_IfaceBaseList;
 	delete P_DbIdxSegFlags;
+	delete P_SsUnresolvedSymb; // @v12.6.11
 }
 
 DlScope & FASTCALL DlScope::operator = (const DlScope & rS)
@@ -60,13 +61,23 @@ int DlScope::Copy(const DlScope & s, int withoutChilds)
 	ParentId = s.ParentId;
 	Version  = s.Version;
 	//
-	ZDELETE(P_IfaceBaseList);
-	if(s.P_IfaceBaseList)
-		P_IfaceBaseList = new TSVector <IfaceBase> (*s.P_IfaceBaseList);
+	{
+		ZDELETE(P_IfaceBaseList);
+		if(s.P_IfaceBaseList)
+			P_IfaceBaseList = new TSVector <IfaceBase> (*s.P_IfaceBaseList);
+	}
 	CList = s.CList;
-	ZDELETE(P_DbIdxSegFlags);
-	if(s.P_DbIdxSegFlags)
-		P_DbIdxSegFlags = new LongArray(*s.P_DbIdxSegFlags);
+	{
+		ZDELETE(P_DbIdxSegFlags);
+		if(s.P_DbIdxSegFlags)
+			P_DbIdxSegFlags = new LongArray(*s.P_DbIdxSegFlags);
+	}
+	{ // @v12.6.11
+		ZDELETE(P_SsUnresolvedSymb);
+		if(s.P_SsUnresolvedSymb) {
+			P_SsUnresolvedSymb = new StringSet(*s.P_SsUnresolvedSymb);
+		}
+	}
 	//
 	ChildList.freeAll();
 	if(!withoutChilds) {
@@ -110,7 +121,14 @@ bool FASTCALL DlScope::IsEq(const DlScope & rPat) const
 	else {
 		THROW(P_DbIdxSegFlags == 0 && rPat.P_DbIdxSegFlags == 0);
 	}
-	//
+	// @v12.6.11 {
+	if(P_SsUnresolvedSymb && rPat.P_SsUnresolvedSymb) {
+		THROW(P_SsUnresolvedSymb->IsEq(*rPat.P_SsUnresolvedSymb));
+	}
+	else {
+		THROW(P_SsUnresolvedSymb == 0 && rPat.P_SsUnresolvedSymb == 0);
+	}
+	// } @v12.6.11 
 	THROW(FuncPool.IsEq(rPat.FuncPool));
 	c = ChildList.getCount();
 	THROW(c == rPat.ChildList.getCount());
@@ -235,10 +253,10 @@ DLSYMBID DlScope::GetBaseId() const { return BaseId; }
 const  SString & DlScope::GetName() const { return Name; }
 uint   DlScope::GetKind() const { return Kind; }
 uint32 DlScope::GetVersion() const { return Version; }
-bool  DlScope::CheckDvFlag(long f) const { return LOGIC(DvFlags & f); }
-bool  FASTCALL DlScope::IsKind(const uint kind) const { return (Kind == kind); }
-const DlScope * DlScope::GetOwner() const { return P_Parent; }
-const DlScopeList & DlScope::GetChildList() const { return ChildList; }
+bool   DlScope::CheckDvFlag(long f) const { return LOGIC(DvFlags & f); }
+bool   FASTCALL DlScope::IsKind(const uint kind) const { return (Kind == kind); }
+const  DlScope * DlScope::GetOwnerC() const { return P_Parent; }
+const  DlScopeList & DlScope::GetChildList() const { return ChildList; }
 
 const DlScope * DlScope::GetFirstChildByKind(int kind, int recursive) const
 {
@@ -507,10 +525,11 @@ DLSYMBID DlScope::EnterScope(DLSYMBID parentId, DLSYMBID newScopeID, uint kind, 
 	return scope_id;
 }
 
-int DlScope::LeaveScope(DLSYMBID scopeID, DLSYMBID * pParentID)
+DlScope * DlScope::LeaveScope(DLSYMBID scopeID, DLSYMBID * pParentID)
 {
 	DlScope * p_scope = SearchByID(scopeID, pParentID);
-	return BIN(p_scope);
+	//return BIN(p_scope);
+	return p_scope;
 }
 
 int FASTCALL DlScope::InitInheritance(const DlScope * pTopScope)
@@ -820,6 +839,64 @@ static const SIntToSymbTabEntry DlScopePropIdAssocList[] = {
 		return ok;
 	}
 
+	const StringSet * DlScope::GetUnresolvedSymbSet() const // @v12.6.11
+	{
+		return P_SsUnresolvedSymb;
+	}
+
+	int DlScope::AddUnresolvedSymb(const char * pSymb, uint * pSupposedIdent) // @v12.6.11
+	{
+		static constexpr uint supposed_ident_start = 12000;
+		int    ok = -1;
+		uint   supposed_ident = 0;
+		if(!isempty(pSymb)) {
+			if(!P_SsUnresolvedSymb) {
+				P_SsUnresolvedSymb = new StringSet();
+			}
+			if(P_SsUnresolvedSymb) {
+				uint   ex_pos = 0;
+				if(P_SsUnresolvedSymb->search(pSymb, &ex_pos, 0)) {
+					if(pSupposedIdent) {
+						SString temp_buf;
+						uint   _n = 0;
+						uint   ssp = 0; 
+						bool   local_ok = false;
+						if(ex_pos == 0) {
+							_n++;
+							local_ok = true;
+						}
+						else {
+							while(!local_ok && P_SsUnresolvedSymb->get(&ssp, temp_buf)) {
+								_n++;
+								if(ssp == ex_pos) {
+									local_ok = true;
+								}
+							}
+						}
+						if(local_ok) {
+							supposed_ident = supposed_ident_start+_n;
+						}
+					}
+				}
+				else {
+					if(P_SsUnresolvedSymb->add(pSymb)) {
+						if(pSupposedIdent) {
+							uint   _ssc = P_SsUnresolvedSymb->getCount();
+							supposed_ident = supposed_ident_start+_ssc;
+						}
+						ok = 1;
+					}
+					else
+						ok = 0;
+				}
+			}
+			else
+				ok = 0;
+		}
+		ASSIGN_PTR(pSupposedIdent, supposed_ident);
+		return ok;
+	}
+
 	int DlScope::AcceptBrakPropList(const CtmPropertySheet & rS)
 	{
 		int    ok = 1;
@@ -867,7 +944,7 @@ int DlScope::AddDbIndexSegment(const char * pFieldName, long options)
 	uint   fld_id = 0;
 	SdbField fld;
 	const DlScope * p_sc_table = 0;
-	THROW(p_sc_table = GetOwner()); // @err
+	THROW(p_sc_table = GetOwnerC()); // @err
 	THROW_PP(p_sc_table->GetFieldByName(pFieldName, &fld), PPERR_DL6_IDXSEGINVFLDNAME);
 	THROW_MEM(SETIFZ(P_DbIdxSegFlags, new LongArray));
 	fld_id = fld.ID;

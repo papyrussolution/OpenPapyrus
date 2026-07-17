@@ -80,10 +80,7 @@ int XmlDbFile::State::SetParam(const Param * pParam)
 	return ok;
 }
 
-int FASTCALL XmlDbFile::State::IsRecTag(const char * pTag) const
-{
-	return BIN(stricmp(pTag, P.RecTag) == 0);
-}
+bool FASTCALL XmlDbFile::State::IsRecTag(const char * pTag) const { return (stricmp(pTag, P.RecTag) == 0); }
 
 int FASTCALL XmlDbFile::State::IsRecNode(const xmlNode * pNode) const
 {
@@ -235,11 +232,7 @@ int XmlDbFile::CountRecords(const xmlNode * pRootNode, uint * pCount)
 	return ok;
 }
 
-int XmlDbFile::IsUtf8() const
-{
-	const Param & r_param = St.GetParam();
-	return BIN(r_param.Flags & XmlDbFile::Param::fUtf8Codepage);
-}
+bool XmlDbFile::IsUtf8() const { return LOGIC(St.GetParam().Flags & XmlDbFile::Param::fUtf8Codepage); }
 
 /*static void _Test_XPath(xmlDoc * pDoc, const char * pXPathExpr)
 {
@@ -366,8 +359,8 @@ int XmlDbFile::GetExportBuffer(SBuffer & rBuf)
     int    ok = 1;
     if(P_Buffer) {
 		Helper_CloseWriter();
-        int   sz = xmlBufferLength(P_Buffer);
-        const void * p_content = xmlBufferContent(P_Buffer);
+        const  int sz = xmlBufferLength(P_Buffer);
+        const  void * p_content = xmlBufferContent(P_Buffer);
         if(sz > 0 && p_content)
             rBuf.Write(p_content, (size_t)sz);
     }
@@ -430,7 +423,7 @@ int XmlDbFile::Pop()
 
 int XmlDbFile::Push(const Param * pParam)
 {
-	if(pParam /* @v7.8.2 && !St.IsRecTag(pParam->RecTag) */) {
+	if(pParam/* @v7.8.2 && !St.IsRecTag(pParam->RecTag) */) {
 		const xmlNode * p_last_rec = St.P_LastRec;
 		// @vmiller {
 		State * p_st = new State();
@@ -567,16 +560,18 @@ int XmlDbFile::AppendRecord(const char * pRecTag, const SdRecord & rRec, const v
 	THROW_S(!isempty(pRecTag), SLERR_XMLDB_INVRECORROOTTAG);
 	if(P_Writer) {
 		SdbField fld;
-		SString line, field_name, tag;
-		SFormatParam fp;
+		SString line;
+		SString field_name;
 		StringSet ss("\\");
+		SFormatParam fp;
 		fp.Flags |= SFormatParam::fFloatSize;
-		tag = pRecTag; /*St.P.RecTag*/
+		SString tag(pRecTag); /*St.P.RecTag*/
 		if(IsUtf8())
 			tag.ToUtf8();
 		ss.setBuf(tag);
-		for(uint i = 0; ss.get(&i, tag);)
+		for(uint i = 0; ss.get(&i, tag);) {
 			xmlTextWriterStartElement(P_Writer, tag.ucptr());
+		}
 		for(uint i = 0; rRec.EnumFields(&i, &fld);) {
 			field_name = fld.Name;
 			if(!field_name.NotEmptyS())
@@ -608,10 +603,9 @@ int XmlDbFile::WriteField(const char * pFieldName, const char * pFieldValue, int
 	int    ok = -1;
 	if(P_Writer && pFieldName) {
 		SString & r_fn_buf = SLS.AcquireRvlStr();
-		//SString fn_buf(pFieldName);
 		r_fn_buf = pFieldName;
-		if(!r_fn_buf.IsAscii()) { // @v10.9.7
-			if(IsUtf8() && !r_fn_buf.IsLegalUtf8()) // @v10.9.7 (&& !fn_buf.IsLegalUtf8())
+		if(!r_fn_buf.IsAscii()) {
+			if(IsUtf8() && !r_fn_buf.IsLegalUtf8())
 				r_fn_buf.ToUtf8();
 		}
 		if(isDtd) {
@@ -619,11 +613,10 @@ int XmlDbFile::WriteField(const char * pFieldName, const char * pFieldValue, int
 			ok = 1;
 		}
 		else if(pFieldValue) {
-			//SString sbuf(pFieldValue);
 			SString & r_sbuf = SLS.AcquireRvlStr();
 			r_sbuf = pFieldValue;
-			if(!r_sbuf.IsAscii()) { // @v10.9.7
-				if(IsUtf8() && !r_sbuf.IsLegalUtf8()) // @v10.9.7 (&& !sbuf.IsLegalUtf8())
+			if(!r_sbuf.IsAscii()) {
+				if(IsUtf8() && !r_sbuf.IsLegalUtf8())
 					r_sbuf.ToUtf8();
 			}
 			XMLReplaceSpecSymb(r_sbuf, EntitySpec.NotEmpty() ? EntitySpec.cptr() : 0);
@@ -639,15 +632,16 @@ int XmlDbFile::WriteDTDS(const SdRecord & rRec)
 	int    ok = -1;
 	if(P_Writer) {
 		const long pflags = St.GetParam().Flags;
-		SString root_tag = St.GetParam().RootTag;
-		SString rec_tag = St.GetParam().RecTag;
+		SString root_tag(St.GetParam().RootTag);
+		SString rec_tag(St.GetParam().RecTag);
 		if(IsUtf8()) {
 			root_tag.ToUtf8();
 			rec_tag.ToUtf8();
 		}
 		if(pflags & XmlDbFile::Param::fUseDTD && !UseSubChild) {
 			uint   i;
-			SString buf, field_name;
+			SString buf;
+			SString field_name;
 			SdbField fld;
 			StringSet ss(",");
 			for(i = 0; i < rRec.GetCount(); i++) {
@@ -679,10 +673,7 @@ int XmlDbFile::WriteDTDS(const SdRecord & rRec)
 	return ok;
 }
 
-const char * XmlDbFile::GetFileName() const
-{
-	return (const char *)FileName;
-}
+const char * XmlDbFile::GetFileName() const { return FileName.cptr(); }
 
 #if SLTEST_RUNNING // {
 /* @construction

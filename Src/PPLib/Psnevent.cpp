@@ -633,7 +633,7 @@ int PPObjPersonEvent::TC_SetCalendar(PPID psnID, const PPPsnOpKind * pPok, const
 							entry.DtVal = cdt;
 							entry.TmStart = pair_rec.Tm;
 							entry.TmEnd = pPack->Rec.Tm;
-							entry.TmVal = DiffTime(pPack->Rec.Tm, pair_rec.Tm, 3);
+							entry.TmVal = DiffTime_(pPack->Rec.Tm, pair_rec.Tm, SUOM_SECOND);
 							THROW(StcObj.SetEntry(entry, 0));
 							ok = 1;
 						}
@@ -650,12 +650,12 @@ int PPObjPersonEvent::TC_SetCalendar(PPID psnID, const PPPsnOpKind * pPok, const
 							entry.DtVal = cdt;
 							if(dt == pPack->Rec.Dt) {
 								entry.TmEnd = pPack->Rec.Tm;
-								entry.TmVal = DiffTime(pPack->Rec.Tm, ZEROTIME, 3);
+								entry.TmVal = DiffTime_(pPack->Rec.Tm, ZEROTIME, SUOM_SECOND);
 							}
 							else if(dt == pair_rec.Dt) {
 								entry.TmStart = pair_rec.Tm;
 								entry.TmEnd = encodetime(24, 0, 0, 0);
-								entry.TmVal = DiffTime(entry.TmEnd, pair_rec.Tm, 3);
+								entry.TmVal = DiffTime_(entry.TmEnd, pair_rec.Tm, SUOM_SECOND);
 							}
 							else {
 								entry.TmEnd = encodetime(24, 0, 0, 0);
@@ -994,7 +994,7 @@ int PPObjPersonEvent::TurnClause(PPPsnEventPacket * pPack, const PPPsnOpKind * p
 															dtm1.Set(pPack->Rec.Dt, pPack->Rec.Tm);
 															dtm2.Set(pair_rec.Dt, pair_rec.Tm);
 															long   numdays = 0;
-															long   sec = labs(diffdatetime(dtm1, dtm2, 3, &numdays));
+															long   sec = labs(diffdatetime(dtm1, dtm2, SUOM_SECOND, &numdays));
 															qtty = (sec + labs(numdays) * 3600 * 24) / ratio;
 														}
 													}
@@ -1779,7 +1779,7 @@ int PsnEventDialog::setupPair()
 			dtm2.Set(pair_rec.Dt, pair_rec.Tm);
 			LTIME  dur;
 			long   numdays = 0;
-			dur.settotalsec(labs(diffdatetime(dtm1, dtm2, 3, &numdays)));
+			dur.settotalsec(labs(diffdatetime(dtm1, dtm2, SUOM_SECOND, &numdays)));
 			line_buf.CatDiv(';', 2);
 			if(numdays)
 				line_buf.Cat(labs(numdays)).Space().Cat("days").Space();

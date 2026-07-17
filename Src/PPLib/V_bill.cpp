@@ -769,8 +769,8 @@ void BillFiltDialog::ExtraFilt2()
 			SetupPPObjCombo(this, CTLSEL_BILLEXT_CREATOR, PPOBJ_USR, Data.CreatorID, OLW_CANSELUPLEVEL);
 			SetupCalPeriod(CTLCAL_BILLEXT_DUEPERIOD, CTL_BILLEXT_DUEPERIOD);
 			SetPeriodInput(this, CTL_BILLEXT_DUEPERIOD, Data.DuePeriod);
-			SetupPPObjCombo(this, CTLSEL_BILLEXTFLT_GGRP, PPOBJ_GOODSGROUP, Data.GoodsGroupID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR); // @v11.0.11
-			SetupPPObjCombo(this, CTLSEL_BILLEXTFLT_CLICAT, PPOBJ_PRSNCATEGORY, Data.CliPsnCategoryID, 0); // @v11.1.9
+			SetupPPObjCombo(this, CTLSEL_BILLEXTFLT_GGRP, PPOBJ_GOODSGROUP, Data.GoodsGroupID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR);
+			SetupPPObjCombo(this, CTLSEL_BILLEXTFLT_CLICAT, PPOBJ_PRSNCATEGORY, Data.CliPsnCategoryID, 0);
 			 // @v11.9.4 {
 			{
 				PPIDArray worldobj_kind_list;
@@ -812,15 +812,13 @@ void BillFiltDialog::ExtraFilt2()
 			Data.EdiRecadvStatus = static_cast<int16>(GetClusterData(CTL_BILLEXTFLT_RECADV));
 			Data.EdiRecadvConfStatus = static_cast<int16>(GetClusterData(CTL_BILLEXTFLT_RECADVCFM));
 			getCtrlData(CTLSEL_BILLEXT_CREATOR, &Data.CreatorID);
-			getCtrlData(CTLSEL_BILLEXTFLT_GGRP, &Data.GoodsGroupID); // @v11.0.11
-			getCtrlData(CTLSEL_BILLEXTFLT_CLICAT, &Data.CliPsnCategoryID); // @v11.1.9
+			getCtrlData(CTLSEL_BILLEXTFLT_GGRP, &Data.GoodsGroupID);
+			getCtrlData(CTLSEL_BILLEXTFLT_CLICAT, &Data.CliPsnCategoryID);
 			getCtrlData(CTLSEL_BILLEXTFLT_DPORT, &Data.FreightPortOfDischarge); // @v11.9.4
-			// @v11.1.8 {
 			if(Data.Bbt == bbtOrderBills) {
 				if(Data.OrderFulfillmentStatus >= 0 && getCtrlView(CTL_BILLEXTFLT_ORDFFST))
 					Data.OrderFulfillmentStatus = static_cast<int16>(GetClusterData(CTL_BILLEXTFLT_ORDFFST));
 			}
-			// } @v11.1.8 
 			THROW_PP(GetPeriodInput(this, sel = CTL_BILLEXT_DUEPERIOD, &Data.DuePeriod), CTL_BILLEXT_DUEPERIOD);
 			//
 			ASSIGN_PTR(pData, Data);

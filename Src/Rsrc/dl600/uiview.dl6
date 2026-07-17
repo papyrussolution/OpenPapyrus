@@ -3800,7 +3800,7 @@ dialog DLG_TRFRANLZ [vertical title: "@view_trfranlz" size: (785, 690) minsize: 
 			view [vertical growfactor: 5 height: 65] {
 				combobox CTLSEL_GTO_OBJECT [tabstop width: bycontainer height: 21 margin: (4, 4, 4, 1) label: "@trfranlzfilt_arlist" cblinesymb: CTL_GTO_OBJECT] 
 					supplement listbutton(STDCTL_ARLISTBUTTON cmArList);
-				checkbox CTL_GTO_SHOWALL_AR [title: "@trfranlzfilt_fshowallarticles" tabstop width: bycontainer height: 16 margin: (4, 1, 4, 4)];
+				checkbox CTL_GTO_SHOWALL_AR [title: "@trfranlzfilt_fshowallarticles" tabstop width: bycontainer(70) height: 16 margin: (4, 1, 4, 4) alignself: end];
 			}
 			combobox CTLSEL_GTO_CITY [tabstop growfactor: 4 height: 21 margin: 4 label: "@city" cblinesymb: CTL_GTO_CITY ];
 		}
@@ -3808,7 +3808,7 @@ dialog DLG_TRFRANLZ [vertical title: "@view_trfranlz" size: (785, 690) minsize: 
 			view [vertical growfactor: 5 height: 65] {
 				combobox CTLSEL_GTO_AGENT [tabstop width: bycontainer height: 21 margin: (4, 4, 4, 1) label: "@trfranlzfilt_agent" cblinesymb: CTL_GTO_AGENT] 
 					supplement listbutton(STDCTL_AGENTLISTBUTTON cmAgentList);
-				checkbox CTL_GTO_SHOWALL_AGENT [title: "@trfranlzfilt_fshowallagents" tabstop width: bycontainer height: 16 margin: (4, 1, 4, 4)];
+				checkbox CTL_GTO_SHOWALL_AGENT [title: "@trfranlzfilt_fshowallagents" tabstop width: bycontainer(70) height: 16 margin: (4, 1, 4, 4) alignself: end];
 			}
 			combobox CTLSEL_GTO_PSNCAT [tabstop growfactor: 4 height: 21 margin: 4 label: "@trfranlzfilt_psncat" cblinesymb: CTL_GTO_PSNCAT ];
 		}
@@ -3837,9 +3837,9 @@ dialog DLG_TRFRANLZ [vertical title: "@view_trfranlz" size: (785, 690) minsize: 
 		framebox [vertical growfactor: 6 height: bycontainer margin: 4 padding: 4] {
 			combobox CTLSEL_GTO_GGRP [tabstop width: bycontainer height: 21 margin: (4, 4, 4, 1) label: "@trfranlzfilt_goodsgroup" cblinesymb: CTL_GTO_GGRP] 
 				supplement filtbutton(STDCTL_GOODSFILTBUTTON cmGoodsFilt);
-			checkbox CTL_GTO_SHOWALL_GOODS [title: "@trfranlzfilt_fshowallgoods" tabstop width: bycontainer height: 16 margin: (4, 1, 4, 4) alignself: end];
+			checkbox CTL_GTO_SHOWALL_GOODS [title: "@trfranlzfilt_fshowallgoods" tabstop width: bycontainer(60) height: 16 margin: (4, 1, 4, 4) alignself: end];
 			combobox CTLSEL_GTO_GOODS [tabstop width: bycontainer height: 21 margin: 4 label: "@trfranlzfilt_goods" cblinesymb: CTL_GTO_GOODS ];
-			checkbox CTL_GTO_GRPDATE [title: "@trfranlzfilt_fgbydate" tabstop width: bycontainer height: 16 margin: 4];
+			checkbox CTL_GTO_GRPDATE [title: "@trfranlzfilt_fgbydate" tabstop width: bycontainer(60) height: 16 margin: 4 alignself: end];
 		}
 		view [vertical growfactor: 3] { // @stub
 		}
@@ -5772,7 +5772,7 @@ dialog DLG_CHZNIX [vertical title: "@chznprcssrparam" size: (665, 480) minsize: 
 	}
 	input CTL_CHZNIX_PARAM [width: bycontainer height: 21 margin: 4 tabstop label: "@chznprcssrparam_param"] string[252];
 	combobox CTLSEL_CHZNIX_SUPPL [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@chznprcssrparam_ar" cblinesymb: CTL_CHZNIX_SUPPL];
-	input CTL_CHZNIX_ST_INFO [width: bycontainer growfactor: 1 margin: 4 tabstop readonly] string[252];
+	input CTL_CHZNIX_ST_INFO [width: bycontainer growfactor: 1 margin: 4 tabstop readonly multiline wantreturn] string[2048];
 	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
@@ -5930,7 +5930,7 @@ dialog DLG_G2OA [vertical title: "@{association} @{ware}-%s" size: (500, 260) mi
 	}
 }
 
-dialog DLG_FREIGHT [vertical title: "@freight" size: (660, 460) minsize: (660, 460) padding: 4 justifycontent: spacebetween] { // @v12.6.10
+dialog DLG_FREIGHT [vertical title: "@freight" size: (660, 560) minsize: (660, 560) padding: 4 justifycontent: spacebetween] { // @v12.6.10
 	view [horizontal width: bycontainer height: 200] {
 		view [vertical growfactor: 1 height: bycontainer margin: 4] {
 			radiocluster CTL_FREIGHT_TRTYP [width: bycontainer margin: 4] {
@@ -5938,6 +5938,7 @@ dialog DLG_FREIGHT [vertical title: "@freight" size: (660, 460) minsize: (660, 4
 				radiobutton [title: "@merchantship"];
 			}
 			input CTL_FREIGHT_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@freightno"] string[20];
+			input CTL_FREIGHT_COST [width: bycontainer height: 21 margin: 4 tabstop fmtf: (nozero) fmtprec: 2 label: "@bill_freightcost"] double supplement calcbutton(CTLCLC_FREIGHT_COST);
 		}
 		framebox [vertical growfactor: 2.5 height: bycontainer margin: 4 padding: 4] {
 			combobox CTLSEL_FREIGHT_SHIP [width: bycontainer height: 21 margin: 4 tabstop label: "@bill_ship" cblinesymb: CTL_FREIGHT_SHIP];
@@ -5961,14 +5962,31 @@ dialog DLG_FREIGHT [vertical title: "@freight" size: (660, 460) minsize: (660, 4
 		combobox CTLSEL_FREIGHT_DLVRLOC [width: bycontainer height: 21 margin: 4 tabstop label: "@bill_dlvraddr" cblinesymb: CTL_FREIGHT_DLVRLOC]
 			supplement ellipsisbutton (CTL_FREIGHT_CMD_DLVRLOCLIST cmFreightEditDlvrLocList "*");
 	}
+	view [vertical width: bycontainer(80) height: 110] {
+		view [horizontal width: bycontainer growfactor: 1] {
+			framebox [horizontal growfactor: 1 height: bycontainer margin: 4 padding: (4, 12, 4, 8) label: "@bill_freight_tmloading"] {
+				input CTL_FREIGHT_LOADINGDT [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy)] date supplement datecalbutton(CTLCAL_FREIGHT_LOADINGDT);
+				input CTL_FREIGHT_LOADINGTM [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (hms)] time supplement timebutton(CTLTM_FREIGHT_LOADINGTM);
+			}
+			view [horizontal growfactor: 1 height: bycontainer margin: 4 padding: (4, 12, 4, 8)] { // @stub
+			}
+		}
+		view [horizontal width: bycontainer growfactor: 1] {
+			framebox [horizontal growfactor: 1 height: bycontainer margin: 4 padding: (4, 12, 4, 8) label: "@bill_freight_tmldarrv"] {
+				input CTL_FREIGHT_LDARRVDT [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy)] date supplement datecalbutton(CTLCAL_FREIGHT_LDARRVDT);
+				input CTL_FREIGHT_LDARRVTM [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (hms)] time supplement timebutton(CTLTM_FREIGHT_LDARRVTM);
+			}
+			framebox [horizontal growfactor: 1 height: bycontainer margin: 4 padding: (4, 12, 4, 8) label: "@bill_freight_tmlddprt"] {
+				input CTL_FREIGHT_LDDPRTDT [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy)] date supplement datecalbutton(CTLCAL_FREIGHT_LDDPRTDT);
+				input CTL_FREIGHT_LDDPRTTM [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (hms)] time supplement timebutton(CTLTM_FREIGHT_LDDPRTTM);
+			}
+		}
+	}
 	view [horizontal width: bycontainer height: 30] {
 		view [horizontal growfactor: 1 height: bycontainer] {
 			input CTL_FREIGHT_NMBORIGSBSL [design: B size: (60, 21) margin: 4 tabstop label: "@bill_nmborigsbsl"] int16;
 		}
-		view [horizontal growfactor: 1 height: bycontainer] {
-			input CTL_FREIGHT_COST [design: B size: (75, 21) margin: 4 tabstop fmtf: (nozero) fmtprec: 2 label: "@bill_freightcost"] double supplement calcbutton(CTLCLC_FREIGHT_COST);
-		}
-		view [horizontal growfactor: 0.2 height: bycontainer] { // @stub
+		view [horizontal growfactor: 1.2 height: bycontainer] { // @stub
 		}
 	}
 	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
@@ -5983,9 +6001,11 @@ dialog DLG_SRCHBCODE [vertical title: "@searchbybarcode" size: (425, 105) minsiz
 		view [vertical growfactor: 1 height: bycontainer] {
 			view [horizontal width: bycontainer height: 30] {
 				input CTL_SRCHBCODE_CODE [growfactor: 1 height: 21 margin: 4 tabstop] string[252];
-				input CTL_SRCHBCODE_CHKDIG [size: (15, 21) margin: 4 tabstop readonly] string[10];
+				input CTL_SRCHBCODE_CHKDIG [size: (15, 21) margin: 4 readonly] string[10];
 			}
-			view [horizontal width: bycontainer growfactor: 1] { // @stub
+			view [horizontal width: bycontainer growfactor: 1 justifycontent: start] {
+				button STDCTL_KEYBOARDLAYOUT [title: "" size: (25, 21) margin: 4 command: cmKeyboardLayout];
+				button STDCTL_KBSTATECAPSLOCK [title: "" size: (25, 21) margin: 4 command: cmKbStateCapsLock];
 			}
 		}
 	}
@@ -6437,9 +6457,10 @@ dialog DLG_SECRETPOOLPASSWORD [vertical title: "@setpassword" size: (355, 250) m
 dialog DLG_SECRETPOOL [horizontal title: "Secret Pool" size: (700, 600) minsize: (600, 600) padding: 4] { // @construction
 	view [vertical growfactor: 1 height: bycontainer] {
 		view [horizontal width: bycontainer height: 30] {
-			button STDCTL_EDITBUTTON [/*title: "@but_edit"*/defaultitem size: (30, 21) margin: 4 command: cmaEdit];
+			//button STDCTL_EDITBUTTON [/*title: "@but_edit"*/defaultitem size: (30, 21) margin: 4 command: cmaEdit];
 			button STDCTL_INSBUTTON [/*title: "@but_add"*/size: (30, 21) margin: 4 command: cmaInsert];
 			button STDCTL_DELBUTTON [/*title: "@but_delete"*/size: (30, 21) margin: 4 command: cmaDelete];
+			button STDCTL_INSFOLDERBUTTON [size: (30, 21) margin: 4 command: cmInsertFolder imagesymb: PPDV_FOLDER_ADD01];
 		}
 		treelistbox CTL_SECRETPOOL_LIST [tabstop width: bycontainer growfactor: 1];
 	}
@@ -6469,5 +6490,19 @@ dialog DLG_SECRETPOOL [horizontal title: "Secret Pool" size: (700, 600) minsize:
 			}
 		}
 		input CTL_SECRETPOOL_DESCR [width: bycontainer growfactor: 1 margin: 4 tabstop multiline wantreturn label: "@memo"] string[252];
+	}
+}
+
+dialog DLG_PRCRCHZNMCLLTR [vertical title: "@prcssrchznmarkinfocollector" size: (400, 300) minsize: (400, 300) padding: 4 justifycontent: spacebetween] {
+	combobox CTLSEL_PRCRCHZNMCLLTR_GUA [width: bycontainer height: 21 margin: 4 tabstop label: "@globaluseracc" cblinesymb: CTL_PRCRCHZNMCLLTR_GUA];
+	input CTL_PRCRCHZNMCLLTR_PERIOD [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@daterange"] string[30] supplement daterangecalbutton(CTLCAL_PRCRCHZNMCLLTR_PERIOD);
+	combobox CTLSEL_PRCRCHZNMCLLTR_OP [width: bycontainer height: 21 margin: 4 tabstop label: "@oprkind" cblinesymb: CTL_PRCRCHZNMCLLTR_OP];
+	combobox CTLSEL_PRCRCHZNMCLLTR_LOC [width: bycontainer height: 21 margin: 4 tabstop label: "@warehouse" cblinesymb: CTL_PRCRCHZNMCLLTR_LOC] supplement listbutton(STDCTL_LOCLISTBUTTON cmLocList);
+	view [horizontal width: bycontainer height: 30] {
+		input CTL_PRCRCHZNMCLLTR_LIMSTOREDAYS [design: B width: 60 height: 21 margin: 4 tabstop label: "@prcssrchznmarkinfocollector_limitstoredays"] int;	
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }

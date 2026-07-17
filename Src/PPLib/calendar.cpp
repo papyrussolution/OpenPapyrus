@@ -238,7 +238,7 @@ void TCalendar::Normalize()
 	NDays = D.dayspermonth();
 	LDATE  dt = D;
 	dt.setday(1);
-	FirstMonthDow = dayofweek(&dt, 1)-1;
+	FirstMonthDow = dayofweek(dt, 1)-1;
 }
 
 void TCalendar::SetupCalendar()
@@ -1039,7 +1039,7 @@ void TDateCalendar::SelectWeek(HWND hWnd, SPoint2S pt)
 		const int draw_months = BIN(D2.year() != D.year() || D2.month() != D.month());
 		{
 			const  LDATE  beg_dt = encodedate(1, 1, 1);
-			long   days = ((diffdate(D, beg_dt) - 1)/ 7) * 7/* + 1*/; // @v10.0.1 (+1) removed
+			long   days = ((diffdate(D, beg_dt) - 1)/ 7) * 7;
 			LDATE  dt = plusdate(beg_dt, days);
 			if(!SelStarted1) {
 				D1 = dt;
@@ -1410,29 +1410,31 @@ void TPeriodCalendar::SelectByFastPrd(HWND hWnd)
 	long   fastprd_sel = 0;
 	HWND   cbx_hwnd = GetDlgItem(hWnd, CTL_CALENDAR_FASTPRD);
 	if(P_Inner && cbx_hwnd && (fastprd_sel = SendMessage(cbx_hwnd, CB_GETCURSEL, 0, 0)) != CB_ERR) {
-		LDATE cur_dt = getcurdate_();
-		LDATE d1 = ZERODATE;
-		LDATE d2 = ZERODATE;
-		if(oneof2(fastprd_sel, PPFASTPRD_TODAY, PPFASTPRD_YESTERDAY)) {
-			if(fastprd_sel == PPFASTPRD_YESTERDAY)
-				plusdate(&cur_dt, -1, 0);
-			d1 = d2 = cur_dt;
+		LDATE  now_dt = getcurdate_();
+		LDATE  d1 = ZERODATE;
+		LDATE  d2 = ZERODATE;
+		if(fastprd_sel == PPFASTPRD_TODAY) {
+			d1 = now_dt;
+			d2 = now_dt;
+		}
+		else if(fastprd_sel == PPFASTPRD_YESTERDAY) {
+			d1 = plusdate(now_dt, -1);
+			d2 = d1;
 		}
 		else if(fastprd_sel == PPFASTPRD_LAST7DAYS) {
-			plusdate(&(d1 = cur_dt), -7, 0);
-			plusdate(&(d2 = cur_dt), -1, 0);
+			d1 = plusdate(now_dt, -7);
+			d2 = plusdate(now_dt, -1);
 		}
 		else if(oneof2(fastprd_sel, PPFASTPRD_LASTWEEK, PPFASTPRD_LASTWORKWEEK)) {
 			const int plus_days = (fastprd_sel == PPFASTPRD_LASTWORKWEEK) ? 4 : 6;
-			plusdate(&cur_dt, 1 - (7 + dayofweek(&cur_dt, 1)), 0);
-			d1 = cur_dt;
-			plusdate(&(d2 = cur_dt), plus_days, 0);
+			d1 = plusdate(now_dt, 1 - (7 + now_dt.GetDayOfWeek()));
+			d2 = plusdate(d1, plus_days);
 		}
 		else if(oneof2(fastprd_sel, PPFASTPRD_THISMONTH, PPFASTPRD_LASTMONTH)) {
 			if(fastprd_sel == PPFASTPRD_LASTMONTH)
-				plusperiod(&cur_dt, PRD_MONTH, -1, 0);
-			(d1 = cur_dt).setday(1);
-			(d2 = cur_dt).setday(cur_dt.dayspermonth());
+				plusperiod(&now_dt, PRD_MONTH, -1);
+			(d1 = now_dt).setday(1);
+			(d2 = now_dt).setday(now_dt.dayspermonth());
 		}
 		if(d1 != ZERODATE && d2 != ZERODATE) {
 			P_Inner->D  = d1;
@@ -2231,7 +2233,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 				p_lo_row->SetLayoutBlock(alb_row);
 				for(uint i = 1; i <= dpm; i++) {
 					const LDATE dt = encodedate(i, selectedDate.month(), selectedDate.year());
-					const uint  dow = dayofweek(&dt, 1);
+					const uint  dow = dayofweek(dt, 1);
 					if(i == 1 && dow > 1) {
 						for(uint k = 1; k < dow; k++)
 							InnerBlock::MakeDayLayoutEntry(pMaster, p_lo_row, 0);
@@ -2627,7 +2629,7 @@ void SCalendarPicker::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
 						pen_ident = TProgram::tbiIconRegColor;
 						if(checkirange(p_lo_extra->Value, 1U, 7U)) {
 							const LDATE _isd = ISD();
-							if(p_lo_extra->Value == dayofweek(&_isd, 1)) {
+							if(p_lo_extra->Value == dayofweek(_isd, 1)) {
 								pen_ident = TProgram::tbiIconAlertColor;
 								brush_ident = TProgram::tbiListFocBrush;
 							}
@@ -2783,7 +2785,7 @@ LDATE SCalendarPicker::AdjustLeftDate(int prdType, LDATE d) const
 		switch(prdType) {
 			case PRD_WEEK:
 				{
-					const int dow = dayofweek(&d, 1);
+					const int dow = dayofweek(d, 1);
 					if(dow > 1)
 						d = plusdate(d, -(dow-1));
 				}
@@ -2819,7 +2821,7 @@ LDATE SCalendarPicker::AdjustRightDate(int prdType, LDATE d) const
 		switch(prdType) {
 			case PRD_WEEK:
 				{
-					const int dow = dayofweek(&d, 1);
+					const int dow = dayofweek(d, 1);
 					if(dow >= 1 && dow <= 6)
 						d = plusdate(d, (7-dow));
 				}
@@ -3060,14 +3062,14 @@ IMPL_HANDLE_EVENT(SCalendarPicker)
 			if(p_blk->Type == MouseEvent::tWeel) {
 				if(p_blk->WeelDelta != 0) {
 					LDATE _d = Data.Dtm;
-					plusperiod(&_d, PRD_MONTH, (p_blk->WeelDelta/WHEEL_DELTA), 0);
+					plusperiod(&_d, PRD_MONTH, (p_blk->WeelDelta/WHEEL_DELTA));
 					if(checkdate(_d)) {
 						Data.Dtm.d = _d;
 						do_rebuild = true;
 					}
 				}
 			}
-			else if(p_blk->Type == MouseEvent::tMove) { // @v11.2.8
+			else if(p_blk->Type == MouseEvent::tMove) {
 				const LayoutExtra * p_lo_extra = static_cast<const LayoutExtra *>(SUiLayout::GetManagedPtr(const_cast<SUiLayout *>(P_LoFocused)));
 				if(p_lo_extra && p_lo_extra->Ident)
 					::SetCursor(::LoadCursor(0, IDC_ARROW));

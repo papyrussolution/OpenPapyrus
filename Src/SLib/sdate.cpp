@@ -584,25 +584,26 @@ void STDCALL _decodedate(int * day, int * mon, int * year, const void * pBuf, in
 	}
 }
 
-long STDCALL _diffdate(const void * dest, const void * src, int format, int _360)
+long STDCALL _diffdate360(LDATE dt1, LDATE dt2)
 {
-	if(!_360)
-		return (_datetol(dest, format) - _datetol(src, format));
-	else
-		return (_datetol360(dest, format) - _datetol360(src, format));
+	return (_datetol360(&dt1, DF_BTRIEVE) - _datetol360(&dt2, DF_BTRIEVE));
 }
 
-void STDCALL _plusdate(void * dt, int nd, int fmt, int _360)
+void STDCALL encodedate(int day, int mon, int year, void * pBinDate) { _encodedate(day, mon, year, pBinDate, BinDateFmt); }
+void STDCALL decodedate(int * pDay, int * pMon, int * pYear, const void * pBinDate) { _decodedate(pDay, pMon, pYear, pBinDate, BinDateFmt); }
+// @v12.6.11 long FASTCALL diffdate360(const void * pDest, const void * pSrc) { return _diffdate360(pDest, pSrc, BinDateFmt); }
+//
+// Descr: К дате pDest прибавляет numperiods периодов вида period. Результат заносится //
+//   по указателю pDest.
+// ARG(pDest  IN/OUT): Указатель на дату, к которой необходимо прибавить требуемое количество периодов
+// ARG(period     IN): Вид периода для сложения. Используется одна из констант PRD_XXX.
+// ARG(numperiods IN): Количество периодов для сложения //
+// @v12.6.11 eliminated - ARG(format     IN): Бинарный формат представления даты. Используестя одна из констант DF_XXX
+// @v12.6.11 eliminated - ARG(_360       IN): Если этот параметр !0, то применяется банковская календарная арифметика,
+//   при этом длительность года полагается равной 360 дням.
+//
+static void Implement_plusperiod(LDATE * pDest, int prd, int numperiods)
 {
-	if(!_360)
-		_ltodate(_datetol(dt, fmt) + nd, dt, fmt);
-	else
-		_ltodate360(_datetol360(dt, fmt) + nd, dt, fmt);
-}
-
-void _plusperiod(void * dest, int prd, int numperiods, int format, int _360)
-{
-	int d, m, y;
 	if(numperiods) {
 		if((prd & PRD_PRECDAYSMASK) == PRD_PRECDAYSMASK) {
 			int   t = static_cast<int16>(prd & ~PRD_PRECDAYSMASK);
@@ -623,43 +624,66 @@ void _plusperiod(void * dest, int prd, int numperiods, int format, int _360)
 			numperiods *= prd;
 			prd = PRD_DAY;
 		}
-		if(prd == PRD_DAY)
-			_plusdate(dest, numperiods, format, _360);
+		if(prd == PRD_DAY) {
+			*pDest = plusdate(*pDest, numperiods);
+		}
 		else {
-			_decodedate(&d, &m, &y, dest, format);
+			int    d = pDest->day();
+			int    m = pDest->month();
+			int    y = pDest->year();
 			if(prd == PRD_MONTH) {
-				y += (numperiods+=m) / 12;
-				if((m = numperiods % 12) <= 0) {
+				numperiods += m;
+				y += (numperiods / 12);
+				m = numperiods % 12;
+				if(m <= 0) {
 					m += 12;
 					y--;
 				}
 			}
 			else if(prd == PRD_ANNUAL)
 				y += numperiods;
-			if(d > daysPerMonth[m-1])
+			if(d > daysPerMonth[m-1]) {
 				d = (m == 2 && d >= 29 && IsLeapYear_Gregorian(y)) ? 29 : daysPerMonth[m-1];
-			_encodedate(d, m, y, dest, format);
+			}
+			pDest->encode(d, m, y);
 		}
 	}
 }
 
-int FASTCALL _dayofweek(const void * pDate, int format) // @todo Плохая имплементация - нужно что-то получше
+void STDCALL plusperiod(LDATE * pDest, int period, int numperiods) 
+{ 
+	Implement_plusperiod(pDest, period, numperiods);
+}
+//
+// Descr: Возвращает день недели для даты pDate, заданой в бинарном формате, определенном аргументом format
+//   Валидный результат лежит в диапазоне [0..6], где 0 - воскресенье (Sunday).
+//
+/*static int FASTCALL _dayofweek(const void * pDate, int format) // @todo Плохая имплементация - нужно что-то получше
 {
 	char   beg[32];
 	_encodedate(1, 1, 1970, beg, format); // 1/1/1970 - Thu (4)
-	return (int)((4 + _diffdate(pDate, beg, format, 0) % 7) % 7);
-}
+	return (int)((4 + _diffdate(pDate, beg, format) % 7) % 7);
+}*/
 
-void STDCALL encodedate(int day, int mon, int year, void * pBinDate) { _encodedate(day, mon, year, pBinDate, BinDateFmt); }
-void STDCALL decodedate(int * pDay, int * pMon, int * pYear, const void * pBinDate) { _decodedate(pDay, pMon, pYear, pBinDate, BinDateFmt); }
-long STDCALL diffdate(const void * pDest, const void * pSrc, int _360) { return _diffdate(pDest, pSrc, BinDateFmt, _360); }
-void STDCALL plusdate(void * pDest, int numdays, int _360) { _plusdate(pDest, numdays, BinDateFmt, _360); }
-void STDCALL plusperiod(void * pDest, int period, int numperiods, int _360) { _plusperiod(pDest, period, numperiods, BinDateFmt, _360); }
-
-int FASTCALL dayofweek(const void * pDate, int sundayIsSeventh)
+int FASTCALL dayofweek(LDATE dt, int sundayIsSeventh)
 {
-	const int dow = _dayofweek(pDate, BinDateFmt);
+	//const  int dow = _dayofweek(&dt, DF_BTRIEVE);
+	/* @v12.6.11
+	char   beg[32];
+	_encodedate(1, 1, 1970, beg, DF_BTRIEVE); // 1/1/1970 - Thu (4)
+	const  int dow = (int)((4 + _diffdate(&dt, beg, DF_BTRIEVE) % 7) % 7);
 	return !sundayIsSeventh ? dow : (dow ? dow : 7);
+	*/
+	// @v12.6.11 {
+	int    result = -1;
+	const  int dcls = dt.getclass();
+	if(dcls == LDATE::cNormal) {
+		SUniDate_Internal ud(dt);
+		result = SUniDate_Internal::SdnDayOfWeek(ud.GetSdnGregorian());
+		result = !sundayIsSeventh ? result : (result ? result : 7);
+	}
+	return result;
+	// } @v12.6.11 
 }
 
 LDATE STDCALL encodedate(int day, int month, int year)
@@ -669,21 +693,46 @@ LDATE STDCALL encodedate(int day, int month, int year)
 	return dt;
 }
 
-LDATE FASTCALL plusdate(LDATE d, long a)
+LDATE FASTCALL plusdate(LDATE dt, long daysCount)
 {
-	if(a)
-		plusdate(&d, (int)a, 0);
-	return d;
+	if(daysCount) {
+		// @v12.6.11 _ltodate(_datetol(&dt, DF_BTRIEVE) + daysCount, &dt, DF_BTRIEVE);
+		// @v12.6.11 {
+		SUniDate_Internal ud(dt);
+		ud.IncrementDate(daysCount);
+		ud.GetDate(&dt);
+		// } @v12.6.11 
+	}
+	return dt;
 }
 
-long FASTCALL diffdate(LDATE d, LDATE s) { return (d != s) ? diffdate(&d, &s, 0) : 0; }
+//static long FASTCALL diffdate(const void * pDest, const void * pSrc) { return _diffdate(pDest, pSrc, BinDateFmt); }
+//static long STDCALL _diffdate(const void * pDest, const void * pSrc, int fmt) { return (_datetol(pDest, fmt) - _datetol(pSrc, fmt)); }
+
+long FASTCALL diffdate(LDATE d, LDATE s) 
+{ 
+	// @v12.6.11 return (d != s) ? diffdate(&d, &s) : 0;
+	//return (d != s) ? _diffdate(&d, &s, DF_BTRIEVE) : 0;
+	//return (d != s) ? (_datetol(&d, DF_BTRIEVE) - _datetol(&s, DF_BTRIEVE)) : 0;
+	// @v12.6.11 {
+	int    result = 0;
+	if(d != s) {
+		SUniDate_Internal ud1(d);
+		SUniDate_Internal ud2(s);
+		bool   r = ud1.DifferenceDate(ud2, &result);
+		if(!r)
+			result = 0;
+	}
+	return result;
+	// } @v12.6.11 
+}
 //
 //
 //
-int STDCALL _checkdate(int day, int mon, int year)
+int STDCALL _checkdate(int day, int mon, int year, int minAllowedYear)
 {
 	int    err = SLERR_SUCCESS;
-	if(!(year & REL_DATE_MASK) && (year != ANY_DATE_VALUE) && (year < 1801 || year > 2099))
+	if(!(year & REL_DATE_MASK) && (year != ANY_DATE_VALUE) && ((minAllowedYear && year < /*1801*/minAllowedYear) || year > 2199))
 		err = SLERR_INVYEAR;
 	else if(!(mon & REL_DATE_MASK) && (mon != ANY_DATE_VALUE) && (mon < 1 || mon > 12))
 		err = SLERR_INVMONTH;
@@ -712,7 +761,7 @@ int FASTCALL checkdate(const void * pBinDate)
 {
 	int    d, m, y;
 	_decodedate(&d, &m, &y, pBinDate, BinDateFmt);
-	return _checkdate(d, m, y);
+	return _checkdate(d, m, y, 1801);
 }
 
 int FASTCALL checkdate(LDATE dt, int zeroIsOk)
@@ -720,7 +769,7 @@ int FASTCALL checkdate(LDATE dt, int zeroIsOk)
 	if(dt) {
 		int    d, m, y;
 		_decodedate(&d, &m, &y, &dt, DF_BTRIEVE);
-		return _checkdate(d, m, y);
+		return _checkdate(d, m, y, 1801);
 	}
 	else
 		return BIN(zeroIsOk);
@@ -731,7 +780,7 @@ int FASTCALL checkdate(LDATE dt)
 	if(dt) {
 		int    d, m, y;
 		_decodedate(&d, &m, &y, &dt, DF_BTRIEVE);
-		return _checkdate(d, m, y);
+		return _checkdate(d, m, y, 1801);
 	}
 	else
 		return 0;
@@ -886,69 +935,108 @@ void STDCALL decodetime(int * h, int * m, int * s, int * ts, const void * tm)
 	implement_decodetime(h, m, s, ts, tm);
 }
 
-long STDCALL DiffTime(LTIME t1, LTIME t2, int dim)
+long STDCALL DiffTime_(LTIME t1, LTIME t2, uint suomDim)
 {
+	int    result = 0;
+	SUniTime_Internal ut1(t1);
+	SUniTime_Internal ut2(t2);
+	ut1.DifferenceTime(ut2, suomDim, &result);
+#if 0 // @v12.6.11 {
 	int    h1, m1, s1, ts1;
 	int    h2, m2, s2, ts2;
 	implement_decodetime(&h1, &m1, &s1, &ts1, &t1);
 	implement_decodetime(&h2, &m2, &s2, &ts2, &t2);
 	long   d = ((ts1-ts2) * 10) + 1000L * ((s1-s2) + 60L * ((m1-m2) + 60L * (h1-h2)));
-	if(dim == 1) // Hours
-		return (d / (3600L * 1000L));
-	else if(dim == 2) // Minuts
-		return (d / (60L * 1000L));
-	else if(dim == 3) // Seconds
-		return (d / 1000L);
-	else /*if(dim == 4)*/
-		return d;
+	/* @v12.6.11 switch(suomDim) {
+		case 1: result = (d / (3600L * 1000L)); break; // Hours
+		case 2: result = (d / (60L * 1000L)); break; // Minuts
+		case 3: result = (d / 1000L); break; // Seconds
+		case 4: result = d; break; // milliseconds
+	}*/
+	// @v12.6.11 {
+	switch(suomDim) {
+		case SUOM_HOUR: result = (d / (3600L * 1000L)); break; // Hours
+		case SUOM_MINUTE: result = (d / (60L * 1000L)); break; // Minuts
+		case SUOM_SECOND: result = (d / 1000L); break; // Seconds
+		case SUOM_MSECOND: result = d; break; // milliseconds
+	}
+	// } @v12.6.11 
+#endif // } 0 @v12.6.11
+	return result;
 }
 
-long STDCALL diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, int dim, long * pDiffDays)
+long STDCALL diffdatetime(LDATE d1, LTIME t1, LDATE d2, LTIME t2, uint suomDim, long * pDiffDays)
 {
-	long   dd = _diffdate(&d1, &d2, DF_BTRIEVE, 0);
-	long   dt = DiffTime(t1, t2, 4/*dim*/);
-	if(dd != 0) {
-		if(dd > 0 && dt < 0) {
-			dd--;
+	int    result = 0;
+	int    diff_days = 0;
+	SUniTime_Internal ut1(d1, t1);
+	SUniTime_Internal ut2(d2, t2);
+	ut1.Difference(ut2, suomDim, &diff_days, &result);
+#if 0 // @v12.6.11 {
+	// @v12.6.11 long   diff_days = _diffdate(&d1, &d2, DF_BTRIEVE);
+	diff_days = diffdate(d1, d2); // @v12.6.11
+	long   dt = DiffTime_(t1, t2, SUOM_MSECOND);
+	if(diff_days != 0) {
+		if(diff_days > 0 && dt < 0) {
+			diff_days--;
 			dt += (SlConst::SecsPerDay * 1000L);
 		}
-		else if(dd < 0 && dt > 0) {
-			dd++;
+		else if(diff_days < 0 && dt > 0) {
+			diff_days++;
 			dt -= (SlConst::SecsPerDay * 1000L);
 		}
 	}
-	ASSIGN_PTR(pDiffDays, dd);
-	if(dim == 1)
-		return (dt / (3600L * 1000L));
-	else if(dim == 2)
-		return (dt / (60L * 1000L));
-	else if(dim == 3)
-		return (dt / 1000L);
-	else /*if(dim == 4)*/
-		return dt;
+	/* @v12.6.11 switch(suomDim) {
+		case 1: result = (dt / (3600L * 1000L)); break;
+		case 2: result = (dt / (60L * 1000L)); break;
+		case 3: result = (dt / 1000L); break;
+		case 4: result = dt; break;
+	}*/
+	// @v12.6.11 {
+	switch(suomDim) {
+		case SUOM_HOUR: result = (dt / (3600L * 1000L)); break;
+		case SUOM_MINUTE: result = (dt / (60L * 1000L)); break;
+		case SUOM_SECOND: result = (dt / 1000L); break;
+		case SUOM_MSECOND: result = dt; break;
+	}
+	// } @v12.6.11 
+#endif 0 // @v12.6.11 {
+	ASSIGN_PTR(pDiffDays, diff_days);
+	return result;
 }
 
-long STDCALL diffdatetime(const LDATETIME & dtm1, const LDATETIME & dtm2, int dim, long * pDiffDays)
+long STDCALL diffdatetime(const LDATETIME & dtm1, const LDATETIME & dtm2, uint suomDim, long * pDiffDays)
 {
-	return diffdatetime(dtm1.d, dtm1.t, dtm2.d, dtm2.t, dim, pDiffDays);
+	return diffdatetime(dtm1.d, dtm1.t, dtm2.d, dtm2.t, suomDim, pDiffDays);
 }
 
 long STDCALL diffdatetimesec(LDATE d1, LTIME t1, LDATE d2, LTIME t2)
 {
-	long dif_days = 0;
-	long ds = diffdatetime(d1, t1, d2, t2, 3, &dif_days);
+	long   dif_days = 0;
+	long   ds = diffdatetime(d1, t1, d2, t2, SUOM_SECOND, &dif_days);
 	return (ds + dif_days * SlConst::SecsPerDay);
 }
 
 long FASTCALL diffdatetimesec(const LDATETIME & dtm1, const LDATETIME & dtm2)
 {
 	long   dif_days = 0;
-	long   ds = diffdatetime(dtm1, dtm2, 3, &dif_days);
+	long   ds = diffdatetime(dtm1, dtm2, SUOM_SECOND, &dif_days);
 	return (ds + dif_days * SlConst::SecsPerDay);
 }
 
-LDATETIME FASTCALL plusdatetime(const LDATETIME & dtm1, long plus, int dim)
+LDATETIME FASTCALL plusdatetime(const LDATETIME & dtm1, long plus, uint suomDim)
 {
+	// @v12.6.11 {
+	LDATETIME result = ZERODATETIME;
+	SUniTime_Internal ut(dtm1);
+	if(ut.IsValid()) {
+		if(ut.Increment(plus, suomDim)) {
+			ut.GetDatetime(&result);
+		}
+	}
+	return result;
+	// } @v12.6.11 
+#if 0 // @v12.6.11 {
 	int    days = 0;
 	const  LTIME  tm = dtm1.t;
 	LDATETIME dest;
@@ -956,14 +1044,21 @@ LDATETIME FASTCALL plusdatetime(const LDATETIME & dtm1, long plus, int dim)
 	int    m = tm.minut();
 	int    s = tm.sec();
 	int    hs = tm.hs();
-	if(dim == 1)
-		h += plus;
-	else if(dim == 2)
-		m += plus;
-	else if(dim == 3)
-		s += plus;
-	else if(dim == 4)
-		hs += plus;
+	/* @v12.6.11 switch(suomDim) {
+		case 1: h += plus; break;
+		case 2: m += plus; break;
+		case 3: s += plus; break;
+		case 4: hs += plus; break;
+	}*/
+	// @v12.6.11 {
+	switch(suomDim) {
+		case SUOM_HOUR: h += plus; break;
+		case SUOM_MINUTE: m += plus; break;
+		case SUOM_SECOND: s += plus; break;
+		case SUOM_CSECOND: hs += plus; break; 
+		case SUOM_MSECOND: hs += (plus/10); break; 
+	}
+	// } @v12.6.11 
 	//
 	// Нормализуем величины в случае, если они выходят за допустимые пределы
 	//
@@ -975,6 +1070,7 @@ LDATETIME FASTCALL plusdatetime(const LDATETIME & dtm1, long plus, int dim)
 	dest.d = plusdate(dtm1.d, days);
 	dest.t = encodetime(h, m, s, hs);
 	return dest;
+#endif // } 0 @v12.6.11
 }
 //
 //
@@ -990,31 +1086,15 @@ int setcurdatetime(LDATETIME dtm)
 		return SLS.SetOsError(0, 0);
 }
 
-/*uint64 FASTCALL GetCurDateTimeUed() // @v12.6.6
-{
-	uint64 result = 0ULL;
-	bool   ok = true;
-#if defined(__WIN32__)
-	SYSTEMTIME st;
-	::GetLocalTime(&st);
-	SUniTime_Internal inner(st);
-	result = UED::_SetRaw_Time(UED_META_TIME_MSEC, inner);
-	if(SlDebugMode::CT() && result) {
-		// Так как эта функция - продолжение робкого процесса внедрения UED в продакшн, 
-		// то из осторожности делаю здесь блок авто-тестирования (надо убрать к концу 2026 года, если доживу, конечно).
-		SUniTime_Internal inner_test;
-		const int tr = UED::_GetRaw_Time(result, inner_test);
-		assert(tr);
-		assert(inner_test.Cmp(inner) == 0);
-	}
-#else
-	//
-#endif
-	return ok;
-}*/
-
 bool FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm)
 {
+	// @v12.6.10 (see TEST(LDATE)) {
+	SUniTime_Internal ut;
+	ut.SetCurrent();
+	ut.GetDate(pDt);
+	ut.GetTime(pTm);
+	// } @v12.6.10 
+/* @v12.6.10
 #if defined(__WIN32__)
 	SYSTEMTIME st;
 	::GetLocalTime(&st);
@@ -1041,7 +1121,7 @@ bool FASTCALL getcurdatetime(LDATE * pDt, LTIME * pTm)
 		_tm[2] = t.ti_min;
 		_tm[3] = t.ti_hour;
 	}
-#endif
+#endif*/
 	return true;
 }
 
@@ -1149,7 +1229,7 @@ bool   FASTCALL WorkDate::IsEq(LDATE dt) const
 {
 	int    dow = IsDayOfWeek();
 	if(dow)
-		return (dow == dayofweek(&dt, 1));
+		return (dow == dayofweek(dt, 1));
 	else {
 		LDATE d = IsDate();
 		if(d)
@@ -1209,7 +1289,7 @@ LDATETIME & FASTCALL LDATETIME::SetNs100_AdjToTimezone(int64 ns100Tm) // @v12.3.
 	LDATETIME tmp_dtm;
 	tmp_dtm.d.encode(uti.D, uti.M, uti.Y);
 	tmp_dtm.t.encode(uti.Hr, uti.Mn, uti.Sc, uti.MSc);
-	*this = plusdatetime(tmp_dtm, -(tz.Bias * 60), 3);
+	*this = plusdatetime(tmp_dtm, -(tz.Bias * 60), SUOM_SECOND);
 	return *this;
 }
 
@@ -1358,7 +1438,7 @@ LDATETIME & FASTCALL LDATETIME::addhs(long n)
 
 LDATETIME & FASTCALL LDATETIME::addsec(long nsec)
 {
-	*this = plusdatetime(*this, nsec, 3);
+	*this = plusdatetime(*this, nsec, SUOM_SECOND);
 	return *this;
 }
 
@@ -1410,9 +1490,9 @@ time_t LDATE::GetTimeT() const
 	else {
 		struct tm _t;
 		_t.tm_year = year()-1900;
-		_t.tm_mon = month()-1; // @v10.0.02 @fix (-1)
+		_t.tm_mon = month()-1;
 		_t.tm_mday = day();
-		_t.tm_hour = 12; // @v10.0.03 дабы смещение временного пояса не меняло дату, устанавливаем время полдня.
+		_t.tm_hour = 12; // дабы смещение временного пояса не меняло дату, устанавливаем время полдня.
 		_t.tm_min = 0;
 		_t.tm_sec = 0;
 		return (sizeof(time_t) == 8) ? (time_t)_mktime64(&_t) : mktime(&_t);
@@ -1428,7 +1508,7 @@ int LDATE::weekno() const
 {
 	int    m = month();
 	LDATE  temp_dt = *this;
-	int    dow = dayofweek(&temp_dt);
+	int    dow = dayofweek(temp_dt);
 	temp_dt = plusdate(*this, -NZOR(dow, 7));
 	if(temp_dt.month() != m)
 		return 1; // first week
@@ -1474,8 +1554,9 @@ int LDATE::GetDayOfWeek() const
 {
 	int    result = -1;
 	if(getclass() == cNormal) {
-		result = _dayofweek(this, DF_BTRIEVE);
-		result = result ? result : 7;
+		// @v12.6.11 result = _dayofweek(this, DF_BTRIEVE);
+		result = dayofweek(*this, 1); // @v12.6.11 
+		// @v12.6.11 result = result ? result : 7;
 	}
 	return result;
 }
@@ -1699,11 +1780,11 @@ LDATE LDATE::Helper_GetActual(LDATE rel, LDATE cmp) const
 				d = (m == 2 && d >= 29 && IsLeapYear_Gregorian(y)) ? 29 : daysPerMonth[m-1];
 			result.setday(d);
 			if(plus_y)
-				plusperiod(&result, PRD_ANNUAL, plus_y, 0);
+				plusperiod(&result, PRD_ANNUAL, plus_y);
 			if(plus_m)
-				plusperiod(&result, PRD_MONTH, plus_m, 0);
+				plusperiod(&result, PRD_MONTH, plus_m);
 			if(plus_d)
-				plusperiod(&result, PRD_DAY, plus_d, 0);
+				plusperiod(&result, PRD_DAY, plus_d);
 		}
 	}
 	return result;
@@ -1729,7 +1810,7 @@ IMPL_INVARIANT_C(CALDATE)
 		S_ASSERT_P(checkdate(*this, 1), pInvP);
 	}
 	else if(kind == kCalDate) {
-		S_ASSERT_P(_checkdate(day(), month(), 2000), pInvP);
+		S_ASSERT_P(_checkdate(day(), month(), 2000, 1801), pInvP);
 	}
 	S_INVARIANT_EPILOG(pInvP);
 }
@@ -1753,7 +1834,7 @@ bool CALDATE::IsDate(LDATE dt) const
 	int    d, m, y;
 	decodedate(&d, &m, &y, this);
 	if(d >= 1 && d <= 7 && !m && !y) // day of week
-		return (d == dayofweek(this, 1));
+		return (d == dayofweek(*this, 1));
 	else if(d && m && !y) // calendar date
 		return (d == dt.day() && m == dt.month());
 	else // simple date
@@ -1770,10 +1851,9 @@ SString & CALDATE::Format(int options, SString & rBuf) const
 		rBuf.Transf(CTRANSF_OUTER_TO_INNER);
 	}
 	else if(y == 0) { // calendar date
-		//char   temp_buf[64];
 		SString temp_buf;
 		SGetMonthText(m, MONF_SHORT|MONF_OEM, temp_buf);
-		rBuf.Cat(d).Space().Cat(/*getMonthText(m, MONF_SHORT|MONF_OEM, temp_buf)*/temp_buf);
+		rBuf.Cat(d).Space().Cat(temp_buf);
 	}
 	else // simple date
 		rBuf.Cat(*this, DATF_DMY);
@@ -1819,7 +1899,7 @@ void STimeChunk::Init(const LDATETIME & start, const LDATETIME & finish)
 void STimeChunk::Init(const LDATETIME & start, long cont)
 {
 	Start = start;
-	Finish = plusdatetime(start, cont, 3);
+	Finish = plusdatetime(start, cont, SUOM_SECOND);
 	if(!start.d)
 		Finish.d = ZERODATE;
 }
@@ -1903,8 +1983,8 @@ SString & STimeChunk::ToStr(uint fmt, SString & rBuf) const
 int64 STimeChunk::GetDurationMs() const
 {
 	if(Start.d && Finish.d && !Finish.IsFar()) {
-		long days = 0;
-		long diff = diffdatetime(Finish, Start, 4, &days);
+		long   days = 0;
+		long   diff = diffdatetime(Finish, Start, SUOM_MSECOND, &days);
 		return ((int64)(diff * 10) + ((int64)days * 1000 * SlConst::SecsPerDay));
 	}
 	else
@@ -1984,7 +2064,7 @@ int DateRepeating::DayOfWeekNo(LDATE dt, int weekNo, int dayOfWeek, LDATE * pRes
 		ok = 0;
 	else {
 		temp_dt = encodedate(1, dt.month(), dt.year());
-		int    dow = dayofweek(&temp_dt, 1);
+		int    dow = dayofweek(temp_dt, 1);
 		if(weekNo == 1 && dayOfWeek >= dow) {
 			temp_dt = plusdate(temp_dt, dayOfWeek-dow);
 			ok = 1;
@@ -1997,7 +2077,7 @@ int DateRepeating::DayOfWeekNo(LDATE dt, int weekNo, int dayOfWeek, LDATE * pRes
 		else { // последняя неделя //
 			temp_dt = encodedate(dt.dayspermonth(), dt.month(), dt.year());
 			do {
-				if(dayofweek(&temp_dt, 1) == dayOfWeek)
+				if(dayofweek(temp_dt, 1) == dayOfWeek)
 					ok = 1;
 				else
 					temp_dt = plusdate(temp_dt, -1);
@@ -2013,7 +2093,7 @@ int DateRepeating::Init(int prd, int kind, LDATE dt)
 	int    ok = 1;
 	int    dow = -1;
 	if(dt)
-		dow = dayofweek(&dt, 1);
+		dow = dayofweek(dt, 1);
 	THISZERO();
 	Prd = prd;
 	if(Prd == PRD_DAY) {
@@ -2084,7 +2164,7 @@ int DateRepeating::Next_(LDATE startDate, LDATE * pNextDate) const
 	LDATE  temp_dt = NZOR(startDate, getcurdate_());
 	if(Prd == PRD_DAY) {
 		if(Dtl.D.NumPrd > 0) {
-			plusperiod(&temp_dt, Prd, Dtl.D.NumPrd, 0);
+			plusperiod(&temp_dt, Prd, Dtl.D.NumPrd);
 			ASSIGN_PTR(pNextDate, temp_dt);
 			ok = 1;
 		}
@@ -2093,22 +2173,24 @@ int DateRepeating::Next_(LDATE startDate, LDATE * pNextDate) const
 		if(Dtl.W.NumPrd > 0) {
 			int    i;
 			temp_dt = plusdate(temp_dt, 1);
-			int    dow = dayofweek(&temp_dt, 1);
-			for(i = dow; ok < 0 && i <= 7; i++)
+			int    dow = dayofweek(temp_dt, 1);
+			for(i = dow; ok < 0 && i <= 7; i++) {
 				if(Dtl.W.Weekdays & (1 << (i-1))) {
 					temp_dt = plusdate(temp_dt, i-dow);
 					ASSIGN_PTR(pNextDate, temp_dt);
 					ok = 1;
 				}
+			}
 			if(ok < 0) {
-				plusperiod(&temp_dt, Prd, Dtl.W.NumPrd, 0);
-				dow = dayofweek(&temp_dt, 1);
-				for(i = 1; ok < 0 && i <= 7; i++)
+				plusperiod(&temp_dt, Prd, Dtl.W.NumPrd);
+				dow = dayofweek(temp_dt, 1);
+				for(i = 1; ok < 0 && i <= 7; i++) {
 					if(Dtl.W.Weekdays & (1 << (i-1))) {
 						temp_dt = plusdate(temp_dt, i-dow);
 						ASSIGN_PTR(pNextDate, temp_dt);
 						ok = 1;
 					}
+				}
 			}
 		}
 	}
@@ -2116,7 +2198,7 @@ int DateRepeating::Next_(LDATE startDate, LDATE * pNextDate) const
 		int    month_count = 1;
 		int    month_no = 1;
 		if(GetMonthlyPeriod(&month_count, &month_no)) {
-			plusperiod(&temp_dt, Prd, month_count, 0);
+			plusperiod(&temp_dt, Prd, month_count);
 			if(RepeatKind == 1) {
 				temp_dt = encodedate(Dtl.ME.DayOfMonth, temp_dt.month(), temp_dt.year());
 			}
@@ -2129,13 +2211,13 @@ int DateRepeating::Next_(LDATE startDate, LDATE * pNextDate) const
 	}
 	else if(Prd == PRD_ANNUAL) {
 		if(RepeatKind == 1) {
-			plusperiod(&temp_dt, Prd, 1, 0);
+			plusperiod(&temp_dt, Prd, 1);
 			temp_dt = encodedate(Dtl.AE.DayOfMonth, Dtl.AE.Month, temp_dt.year());
 			ASSIGN_PTR(pNextDate, temp_dt);
 			ok = 1;
 		}
 		else {
-			plusperiod(&temp_dt, Prd, 1, 0);
+			plusperiod(&temp_dt, Prd, 1);
 			temp_dt = encodedate(1, Dtl.AE.Month, temp_dt.year());
 			DayOfWeekNo(temp_dt, Dtl.AY.WeekNo, Dtl.AY.DayOfWeek, &temp_dt);
 			ASSIGN_PTR(pNextDate, temp_dt);
@@ -2143,7 +2225,7 @@ int DateRepeating::Next_(LDATE startDate, LDATE * pNextDate) const
 		}
 	}
 	else if(Prd == PRD_REPEATAFTERPRD) {
-		plusperiod(&temp_dt, RepeatKind, Dtl.RA.NumPrd, 0);
+		plusperiod(&temp_dt, RepeatKind, Dtl.RA.NumPrd);
 		ASSIGN_PTR(pNextDate, temp_dt);
 		ok = 1;
 	}
@@ -2281,7 +2363,6 @@ SString & DateRepeating::Format(int fmt, SString & rBuf) const
 		case PRD_ANNUAL:
 			{
 				long month = 0;
-				//char month_txt[24];
 				SString month_txt;
 				SString buf;
 				rBuf.Cat("ANNUALY");
@@ -2298,8 +2379,6 @@ SString & DateRepeating::Format(int fmt, SString & rBuf) const
 					}
 				}
 				if(month) {
-					//memzero(month_txt, sizeof(month_txt));
-					//getMonthText(month, MONF_CASENOM, month_txt);
 					SGetMonthText(month, MONF_CASENOM, month_txt);
 				}
 				rBuf.CatDiv('-', 1).Cat(buf).Comma().Cat(month_txt).Semicol().Transf(CTRANSF_OUTER_TO_INNER);
@@ -2348,11 +2427,12 @@ int DateTimeRepeating::Next_(LDATETIME startDtm, LDATETIME * pNextDtm) const
 			ok = 1;
 		}
 	}
-	if(ok < 0)
+	if(ok < 0) {
 		if(DateRepeating::Next_(startDtm.d, &temp_dtm.d) > 0) {
 			temp_dtm.t = Time;
 			ok = 1;
 		}
+	}
 	if(ok > 0)
 		ASSIGN_PTR(pNextDtm, temp_dtm);
 	return ok;
@@ -2381,7 +2461,7 @@ LDATE DateRepIterator::Next()
 		switch(Dr.Prd) {
 			case PRD_DAY:
 				if(Dr.Dtl.D.NumPrd > 0) {
-					plusperiod(&temp_dt, PRD_DAY, Dr.Dtl.D.NumPrd, 0);
+					plusperiod(&temp_dt, PRD_DAY, Dr.Dtl.D.NumPrd);
 					result = temp_dt;
 				}
 				break;
@@ -2389,20 +2469,22 @@ LDATE DateRepIterator::Next()
 				if(Dr.Dtl.W.NumPrd > 0) {
 					int    i;
 					temp_dt = plusdate(temp_dt, 1);
-					int    dow = dayofweek(&temp_dt, 1);
-					for(i = dow; i <= 7; i++)
+					int    dow = dayofweek(temp_dt, 1);
+					for(i = dow; i <= 7; i++) {
 						if(Dr.Dtl.W.Weekdays & (1 << (i-1))) {
 							result = plusdate(temp_dt, i-dow);
 							break;
 						}
+					}
 					if(!result) {
-						plusperiod(&temp_dt, PRD_WEEK, Dr.Dtl.W.NumPrd, 0);
-						dow = dayofweek(&temp_dt, 1);
-						for(i = 1; i <= 7; i++)
+						plusperiod(&temp_dt, PRD_WEEK, Dr.Dtl.W.NumPrd);
+						dow = dayofweek(temp_dt, 1);
+						for(i = 1; i <= 7; i++) {
 							if(Dr.Dtl.W.Weekdays & (1 << (i-1))) {
 								result = plusdate(temp_dt, i-dow);
 								break;
 							}
+						}
 					}
 				}
 				break;
@@ -2415,7 +2497,7 @@ LDATE DateRepIterator::Next()
 						uint   nm = month_count * (Count+1);
 						if(month_no && month_no < month_count)
 							nm -= (month_count - month_no);
-						plusperiod(&temp_dt, PRD_MONTH, nm, 0);
+						plusperiod(&temp_dt, PRD_MONTH, nm);
 						if(Dr.RepeatKind == 1) {
 							int dom = Dr.Dtl.ME.DayOfMonth;
 							int max_dom = temp_dt.dayspermonth();
@@ -2430,7 +2512,7 @@ LDATE DateRepIterator::Next()
 				}
 				break;
 			case PRD_ANNUAL:
-				plusperiod(&temp_dt, PRD_ANNUAL, 1, 0);
+				plusperiod(&temp_dt, PRD_ANNUAL, 1);
 				if(Dr.RepeatKind == 1) {
 					result = encodedate(Dr.Dtl.AE.DayOfMonth, Dr.Dtl.AE.Month, temp_dt.year());
 				}
@@ -2441,7 +2523,7 @@ LDATE DateRepIterator::Next()
 				}
 				break;
 			case PRD_REPEATAFTERPRD:
-				plusperiod(&temp_dt, Dr.RepeatKind, Dr.Dtl.RA.NumPrd, 0);
+				plusperiod(&temp_dt, Dr.RepeatKind, Dr.Dtl.RA.NumPrd);
 				result = temp_dt;
 				break;
 		}
@@ -2516,7 +2598,7 @@ int FASTCALL SCycleTimer::Check(LDATETIME * pLast)
 	int    ok = 0;
 	if(Delay) {
 		const LDATETIME now_dtm = getcurdatetime_();
-		const LDATETIME next = plusdatetime(Last, Delay/10, 4);
+		const LDATETIME next = plusdatetime(Last, Delay, SUOM_MSECOND);
 		ASSIGN_PTR(pLast, Last);
 		if(cmp(now_dtm, next) >= 0) {
 			Last = now_dtm;
@@ -2538,9 +2620,14 @@ SUniDate_Internal::SUniDate_Internal(int y, uint m, uint d) : Y(y), M(m), D(d)
 {
 }
 
-SUniDate_Internal::SUniDate_Internal(LDATE dt)
+SUniDate_Internal::SUniDate_Internal(LDATE dt) : Y(0), M(0), D(0)
 {
 	SetDate(dt);
+}
+
+bool SUniDate_Internal::IsValidDate() const
+{
+	return (checkirange(Y, 1, 3000) && checkirange(M, 1U, 12U) && checkirange(D, 1U, dayspermonth(M, Y)));
 }
 
 SUniDate_Internal & SUniDate_Internal::Z()
@@ -2553,21 +2640,24 @@ SUniDate_Internal & SUniDate_Internal::Z()
 
 bool SUniDate_Internal::SetDate(LDATE dt)
 {
-	bool ok = true;
-	if(checkdate(dt)) {
-		Y = dt.year();
-		M = dt.month();
-		D = dt.day();
+	bool   ok = false;
+	if(dt) {
+		int    d, m, y;
+		_decodedate(&d, &m, &y, &dt, DF_BTRIEVE);
+		if(_checkdate(d, m, y, 0)) {
+			Y = y;
+			M = m;
+			D = d;
+			ok = true;
+		}
 	}
-	else
-		ok = false;
 	return ok;
 }
 
 bool SUniDate_Internal::GetDate(LDATE * pDt) const
 {
 	bool   ok = true;
-	if(_checkdate(D, M, Y)) {
+	if(_checkdate(D, M, Y, 0)) {
 		CALLPTRMEMB(pDt, encode(D, M, Y));
 	}
 	else {
@@ -2608,6 +2698,28 @@ bool SUniDate_Internal::SetDaysSinceChristmas(uint g)
 	return ok;
 }
 
+bool FASTCALL SUniDate_Internal::IncrementDate(int numDays) // @v12.6.11
+{
+	const  int n = GetSdnGregorian();
+	return (n > 0 && (n + numDays) > 0) ? SetSdnGregorian(n + numDays) : false;
+}
+
+bool SUniDate_Internal::DifferenceDate(const SUniDate_Internal & rS, int * pResult) const // @v12.6.11
+{
+	bool   ok = false;
+	int    result = 0;
+	if(IsValidDate() && rS.IsValidDate()) {
+		const  int n1 = GetSdnGregorian();
+		const  int n2 = rS.GetSdnGregorian();
+		if(n1 > 0 && n2 > 0) {
+			result = (n1 - n2);
+			ok = true;
+		}
+	}
+	ASSIGN_PTR(pResult, result);
+	return ok;
+}
+
 /*static*/bool SUniTime_Internal::ValidateTimeZone(int tz)
 {
 	assert((tz >= -(12 * 3600) && tz <= +(14 * 3600)) || tz == Undef_TimeZone);
@@ -2633,6 +2745,11 @@ SUniTime_Internal::SUniTime_Internal(LTIME tm) : SUniDate_Internal(), Hr(0), Mn(
 SUniTime_Internal::SUniTime_Internal(LDATETIME dtm) : SUniDate_Internal(dtm.d), Hr(0), Mn(0), Sc(0), MSc(0), Weekday(0), TimeZoneSc(Undef_TimeZone)
 {
 	SetTime(dtm.t);
+}
+
+SUniTime_Internal::SUniTime_Internal(LDATE dt, LTIME tm) : SUniDate_Internal(dt), Hr(0), Mn(0), Sc(0), MSc(0), Weekday(0), TimeZoneSc(Undef_TimeZone)
+{
+	SetTime(tm);
 }
 
 #if defined(__WIN32__)
@@ -2693,11 +2810,14 @@ SUniTime_Internal::SUniTime_Internal(SCtrGenerate)
 	assert(IsValid());
 }
 
+bool SUniTime_Internal::IsValidTime() const
+{
+	return ((Hr < 24) && (Mn < 60) && (Sc < 60) && (MSc < 1000ULL) && ValidateTimeZone(TimeZoneSc));
+}
+
 bool SUniTime_Internal::IsValid() const
 {
-	return (checkirange(Y, 1, 3000) && checkirange(M, 1U, 12U) && 
-		checkirange(D, 1U, dayspermonth(M, Y)) && (Hr < 24) && (Mn < 60) && (Sc < 60) &&
-		(MSc < 1000ULL) && ValidateTimeZone(TimeZoneSc));
+	return (IsValidDate() && IsValidTime());
 }
 	
 int FASTCALL SUniTime_Internal::Cmp(const SUniTime_Internal & rS) const
@@ -3237,6 +3357,135 @@ int FASTCALL SUniTime_Internal::GetTime100ns(uint64 * pTime100ns) const
 		//*pTime = DaysAndFractionToTime(elapsed_days, elapsed_milliseconds);
 		*pTime100ns = ((((uint64)elapsed_days) * (86400ULL * 1000ULL)) + ((uint64)((((hour*60) + minute)*60 + second)*1000ULL + msecs))) * 10000ULL;
 	}
+	return ok;
+}
+
+bool SUniTime_Internal::Increment(int incrValue, uint suomDim) // @v12.6.9
+{
+	bool   ok = false;
+	if(IsValid()) {
+		int    days = 0;
+		// Важно! Компоненты this беззнаковые. Мы будем вычитать величины, стало быть возможны отрицательные результаты.
+		// Из-за этого переводим члены Hr, Mn, Sc, MSc в локальные знаковые переменные, а после преобразований вернем назад.
+		int    _hr = static_cast<int>(Hr);
+		int    _mn = static_cast<int>(Mn);
+		int    _sc = static_cast<int>(Sc);
+		int    _msc = static_cast<int>(MSc);
+		switch(suomDim) {
+			case SUOM_HOUR: _hr += incrValue; break;
+			case SUOM_MINUTE: _mn += incrValue; break;
+			case SUOM_SECOND: _sc += incrValue; break;
+			case SUOM_CSECOND: _msc += (incrValue * 10); break; 
+			case SUOM_MSECOND: _msc += incrValue; break; 
+		}
+		//
+		// Нормализуем величины в случае, если они выходят за допустимые пределы
+		//
+		_sc += (_msc / 1000); 
+		if(_msc < 0) { 
+			_sc--;    
+			_msc = 1000 + _msc%1000; 
+		} 
+		else 
+			_msc %= 1000;
+		//
+		_mn += (_sc / 60);
+		if(_sc < 0) { 
+			_mn--;
+			_sc  = 60 + _sc%60;
+		}
+		else 
+			_sc %= 60;
+		//
+		_hr += (_mn / 60);
+		if(_mn < 0) { 
+			_hr--;
+			_mn = 60 + _mn%60;
+		} 
+		else 
+			_mn %= 60;
+		//
+		days += (_hr / 24);  
+		if(_hr < 0) { 
+			days--; 
+			_hr = 24 + _hr%24;   
+		} 
+		else 
+			_hr %= 24;
+		assert(_hr >= 0);
+		assert(_mn >= 0);
+		assert(_sc >= 0);
+		assert(_msc >= 0);
+		Hr = static_cast<uint>(_hr);
+		Mn = static_cast<uint>(_mn);
+		Sc = static_cast<uint>(_sc);
+		MSc = static_cast<uint>(_msc);
+		if(IncrementDate(days)) {
+			ok = true;
+		}
+	}
+	return ok;
+}
+
+bool SUniTime_Internal::DifferenceTime(const SUniTime_Internal & rS, uint suomDim, int * pResult) const // @v12.6.11
+{
+	bool   ok = false;
+	int    result = 0;
+	if(IsValidTime() && rS.IsValidTime()) {
+		ok = true;
+		const  int d = (MSc-rS.MSc) + 1000L * ((Sc-rS.Sc) + 60L * ((Mn-rS.Mn) + 60L * (Hr-rS.Hr)));
+		switch(suomDim) {
+			case SUOM_HOUR: result = (d / (3600 * 1000)); break; // Hours
+			case SUOM_MINUTE: result = (d / (60 * 1000)); break; // Minuts
+			case SUOM_SECOND: result = (d / 1000); break; // Seconds
+			case SUOM_CSECOND: result = (d / 10); break; // cantiseconds
+			case SUOM_MSECOND: result = d; break; // milliseconds
+			default: 
+				SLS.SetError(SLERR_INVPARAM);
+				ok = false; 
+				break;
+		}
+	}
+	ASSIGN_PTR(pResult, result);
+	return ok;
+}
+
+bool SUniTime_Internal::Difference(const SUniTime_Internal & rS, uint suomDim, int * pDiffDays, int * pResult) const // @v12.6.11
+{
+	bool   ok = false;
+	int    result = 0;
+	int    diff_days = 0;
+	int    diff_time = 0;
+	if(IsValid() && rS.IsValid()) {
+		if(DifferenceDate(rS, &diff_days)) {
+			if(DifferenceTime(rS, SUOM_MSECOND, &diff_time)) {
+				ok = true;
+				if(diff_days) {
+					if(diff_days > 0 && diff_time < 0) {
+						diff_days--;
+						diff_time += (SlConst::SecsPerDay * 1000);
+					}
+					else if(diff_days < 0 && diff_time > 0) {
+						diff_days++;
+						diff_time -= (SlConst::SecsPerDay * 1000);
+					}
+				}
+				switch(suomDim) {
+					case SUOM_HOUR: result = (diff_time / (3600 * 1000)); break;
+					case SUOM_MINUTE: result = (diff_time / (60 * 1000)); break;
+					case SUOM_SECOND: result = (diff_time / 1000); break;
+					case SUOM_CSECOND: result = diff_time / 10; break;
+					case SUOM_MSECOND: result = diff_time; break;
+					default: 
+						SLS.SetError(SLERR_INVPARAM);
+						ok = false; 
+						break;
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pDiffDays, diff_days);
+	ASSIGN_PTR(pResult, result);
 	return ok;
 }
 //
@@ -4032,7 +4281,7 @@ int FASTCALL SUniTime::Get(FILETIME & rD) const
 // 
 // These are the externally visible components of this file:
 // 
-//   void SdnToGregorian(long int  sdn, int      *pYear, int      *pMonth, int      *pDay);
+//   void SdnToGregorian(long int sdn, int * pYear, int * pMonth, int * pDay);
 // 
 // Convert a SDN to a Gregorian calendar date.  If the input SDN is less
 // than 1, the three output values will all be set to zero, otherwise
@@ -4467,6 +4716,6 @@ bool SUniDate_Internal::SetSdnJulian(uint g)
 
 /*static*/int SUniDate_Internal::SdnDayOfWeek(long sdn) // sunday - 0
 {
-	int dow = (sdn + 1) % 7;
+	int    dow = (sdn + 1) % 7;
 	return (dow >= 0) ? dow : (dow + 7);
 }

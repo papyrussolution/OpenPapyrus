@@ -1,5 +1,5 @@
 // RENT.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -11,7 +11,7 @@ int RentChrgDialog(RentChrgFilt *); // Prototype
 //
 double CalcPercent(LDATE beg, LDATE end, double rest, double percent)
 {
-	long   num_days = _diffdate(&end, &beg, DF_BTRIEVE, 1);
+	long   num_days = _diffdate360(end, beg);
 	double result = fdiv100r(rest * num_days * percent) / 360.0;
 	return result;
 }
@@ -83,7 +83,8 @@ double PctChargeArray::GetRest(LDATE dt)
 int PctChargeArray::ChargePercent(LDATE since, LDATE end, double percent, double * pResult) const
 {
 	LDATE  beg = since;
-	double rest = 0.0, result = 0.0;
+	double rest = 0.0;
+	double result = 0.0;
 	PctChargeEntry entry;
 	for(uint i = 0; EnumItems(&i, &entry) > 0;) {
 		if(entry.Dt > since) {

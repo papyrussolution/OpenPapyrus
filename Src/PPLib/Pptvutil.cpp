@@ -745,7 +745,7 @@ int DateAddDialogParam::Recalc()
 	if(!checkdate(BaseDate))
 		BaseDate = getcurdate_();
 	LDATE   td = BaseDate;
-	plusperiod(&td, Period, PeriodCount, 0);
+	plusperiod(&td, Period, PeriodCount);
 	ResultDate = td;
 	return (ResultDate != BaseDate) ? 1 : -1;
 }
@@ -1755,7 +1755,7 @@ int SetupStringComboDevice(TDialog * dlg, uint ctlID, uint dvcClass, long initID
 }
 // } @vmiller
 
-static int Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SString & rLineBuf, const StrAssocArray * pAddendumList, long initID)
+static int Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SString & rLineBuf, const StrAssocArray * pAddendumList, const LongArray * pAllowedList, long initID)
 {
 	int    ok = 1;
 	StrAssocArray * p_list = 0;
@@ -1773,7 +1773,9 @@ static int Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SString & rL
 					id = (idx+1);
 					txt_buf = item_buf;
 				}
-				THROW_SL(p_list->Add(id, txt_buf));
+				if(!pAllowedList || pAllowedList->lsearch(id)) { // @v12.6.11 @condition
+					THROW_SL(p_list->Add(id, txt_buf));
+				}
 			}
 			if(pAddendumList && pAddendumList->getCount()) {
 				for(uint i = 0; i < pAddendumList->getCount(); i++) {
@@ -1794,19 +1796,25 @@ static int Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SString & rL
 int STDCALL SetupStringCombo(TDialog * dlg, uint ctlID, int strID, long initID)
 {
 	SString line_buf;
-	return PPLoadText(strID, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, 0, initID) : 0;
+	return PPLoadText(strID, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, 0, 0, initID) : 0;
 }
 
 int STDCALL SetupStringCombo(TDialog * dlg, uint ctlID, const char * pStrSignature, long initID)
 {
 	SString line_buf;
-	return PPLoadString(pStrSignature, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, 0, initID) : 0;
+	return PPLoadString(pStrSignature, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, 0, 0, initID) : 0;
 }
 
 int STDCALL SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char * pStrSignature, const StrAssocArray * pAddendumList, long initID)
 {
 	SString line_buf;
-	return PPLoadString(pStrSignature, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, pAddendumList, initID) : 0;
+	return PPLoadString(pStrSignature, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, pAddendumList, 0, initID) : 0;
+}
+
+int STDCALL SetupStringComboWithAllowedList(TDialog * dlg, uint ctlID, int strID, const LongArray * pAllowedList, long initID) // @v12.6.11
+{
+	SString line_buf;
+	return PPLoadText(strID, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, 0, pAllowedList, initID) : 0;
 }
 
 int STDCALL SetupStrAssocTreeCombo(TWindow * dlg, uint ctlID, const StrAssocArray & rList, long initID, uint flags, int ownerDrawListBox/*= 0*/)
@@ -3077,632 +3085,6 @@ int  AdvComboBoxSelDialog(const StrAssocArray & rAry, SString & rTitle, SString 
 	delete p_dlg;
 	return ok;
 }
-
-#if 0 // @v12.3.6 (Этот блок отработал свою функцию - переходим на регулярное описание диалогов в DL00) {
-
-// @construction {
-
-static const float FixedCtrlHeight = 21.0f;
-// {75; 21}
-
-/*static*/const char * LayoutedListDialog_Base::GetWindowTitle(const char * pOuterTitle)
-{
-	return isempty(pOuterTitle) ? "" : pOuterTitle;
-}
-
-LayoutedListDialog_Base::LayoutedListDialog_Base(const Param & rParam, ListBoxDef * pDef, TWindow * pTW) : P_TW(pTW), P(rParam), P_Def__(pDef), LldState(0)
-{
-}
-	
-LayoutedListDialog_Base::~LayoutedListDialog_Base()
-{
-	if(!(LldState & lldsDefBailed)) {
-		delete P_Def__;
-	}
-}
-
-void LayoutedListDialog_Base::OnInit2(TWindowBase::CreateBlock * pBlk)
-{
-	{
-		const TRect _def_rect(0, 0, 40, 40);
-		SString font_face;
-		//PPGetSubStr(PPTXT_FONTFACE, /*PPFONT_MSSANSSERIF*/PPFONT_ARIAL, font_face);
-		//TView::setFont(HW, font_face, 12);
-		if(P.Flags & fHeaderStaticText) {
-			TStaticText * p_st = new TStaticText(_def_rect, 0/*spcFlags*/, 0);
-			P_TW->InsertCtlWithCorrespondingNativeItem(p_st, STDCTL_HEADERSTATICTEXT, 0, /*extraPtr*/0);
-		}
-		{
-			TFrame * p_gb = new TFrame();
-			P_TW->InsertCtlWithCorrespondingNativeItem(p_gb, CtlListGroupBox, 0, /*extraPtr*/0);
-		}
-		{
-			SmartListBox * p_lb = P.ColumnDescription.NotEmpty() ? new SmartListBox(_def_rect, P_Def__, P.ColumnDescription) : new SmartListBox(_def_rect, P_Def__, P_Def__->_isTreeList());
-			if(p_lb) {
-				LldState |= lldsDefBailed;
-				P_TW->InsertCtlWithCorrespondingNativeItem(p_lb, STDCTL_SINGLELISTBOX, 0, /*extraPtr*/0);
-				if(font_face.NotEmpty()) {
-					P_TW->SetCtrlFont(STDCTL_SINGLELISTBOX, font_face, /*16*//*22*/12);
-				}
-			}
-		}
-		if(P.Flags & (fcedCreate|fcedEdit|fcedDelete)) {
-			if(P.Flags & fcedCreate) {
-				P_TW->InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_add", cmaInsert, 0, 0), STDCTL_INSBUTTON, 0, /*extraPtr*/0);
-			}
-			if(P.Flags & fcedEdit) {
-				P_TW->InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_edit", cmaEdit, 0, 0), STDCTL_EDITBUTTON, 0, /*extraPtr*/0);
-			}
-			if(P.Flags & fcedDelete) {
-				P_TW->InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_delete", cmaDelete, 0, 0), STDCTL_DELBUTTON, 0, /*extraPtr*/0);
-			}
-		}
-		P_TW->InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_ok", cmOK, 0, 0), STDCTL_OKBUTTON, 0, /*extraPtr*/0);
-		P_TW->InsertCtlWithCorrespondingNativeItem(new TButton(_def_rect, "@but_cancel", cmCancel, 0, 0), STDCTL_CANCELBUTTON, 0, /*extraPtr*/0);
-	}
-	{
-		class InnerBlock {
-		public:
-			static void __stdcall SetupLayoutItemFrameProc(SUiLayout * pItem, const SUiLayout::Result & rR)
-			{
-				if(pItem) {
-					TView * p = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
-					if(p)
-						p->changeBounds(TRect(pItem->GetFrameAdjustedToParent()));
-				}
-			}
-			static void InsertButtonLayout(TWindow * pMaster, SUiLayout * pLoParent, ushort ctlId, SUiLayoutParam & rP, float growFactor)
-			{
-				TView * p = pMaster ? pMaster->getCtrlView(ctlId) : 0;
-				if(p) {
-					rP.GrowFactor = growFactor;
-					SUiLayout * p_lo_item = pLoParent->InsertItem(p, &rP);
-					p_lo_item->SetCallbacks(0, InnerBlock::SetupLayoutItemFrameProc, p);
-				}
-			}		
-			static SUiLayout * InsertCtrlLayout(TWindow * pMaster, SUiLayout * pLoParent, ushort ctlId, SUiLayoutParam & rP, float growFactor)
-			{
-				SUiLayout * p_lo_item = 0;
-				TView * p = pMaster ? pMaster->getCtrlView(ctlId) : 0;
-				if(p) {
-					rP.GrowFactor = growFactor;
-					p_lo_item = pLoParent->InsertItem(p, &rP);
-					p_lo_item->SetCallbacks(0, InnerBlock::SetupLayoutItemFrameProc, p);
-				}
-				return p_lo_item;
-			}		
-		};
-		SUiLayout * p_lo_result = 0;
-		{
-			const UiDescription * p_uid = SLS.GetUiDescription();
-			if(p_uid) {
-				const SUiLayout * p_lo = p_uid->GetLayoutBySymbC("listdialog");
-				if(p_lo)
-					p_lo_result = new SUiLayout(*p_lo);
-			}
-		}
-		if(p_lo_result) {
-			SUiLayout * p_lo_header = p_lo_result->FindBySymb("listdialog_header");
-			SUiLayout * p_lo_footer = p_lo_result->FindBySymb("listdialog_footer");
-			SUiLayout * p_lo_body = p_lo_result->FindBySymb("listdialog_body");
-			SUiLayout * p_lo_groupbox = 0;
-			if(P.Flags & fHeaderStaticText) {
-				if(p_lo_header) {
-					TView * p = P_TW->getCtrlView(STDCTL_HEADERSTATICTEXT);
-					if(TView::IsSubSign(p, TV_SUBSIGN_STATIC)) {
-						
-					}
-					SUiLayoutParam alb;
-					alb.GrowFactor = 1.0f;
-					//alb.SetFixedSizeY(FixedCtrlHeight);
-					alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-					alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-					alb.Margin.Set(DefMargin);
-					InnerBlock::InsertCtrlLayout(P_TW, p_lo_header, STDCTL_HEADERSTATICTEXT, alb, 1.0f);
-				}
-			}
-			{
-				SUiLayoutParam alb(DIREC_VERT);
-				alb.GrowFactor = 1.0f;
-				//alb.SetFixedSizeY(FixedCtrlHeight);
-				alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-				alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-				alb.Margin.Set(DefMargin);
-				alb.Padding.a.y = 8.0f;
-				//alb.Padding.b.x += 20.0f;
-				p_lo_groupbox = InnerBlock::InsertCtrlLayout(P_TW, p_lo_body, CtlListGroupBox, alb, 1.0f);
-			}
-			{
-				SUiLayoutParam alb;
-				alb.GrowFactor = 1.0f;
-				//alb.SetFixedSizeY(FixedCtrlHeight);
-				alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-				alb.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-				alb.Margin.Set(8.0f);
-				{					
-					TView * p = P_TW->getCtrlView(STDCTL_SINGLELISTBOX);
-					if(TView::IsSubSign(p, TV_SUBSIGN_LISTBOX)) {
-						const SmartListBox * p_lb = static_cast<SmartListBox *>(p);
-						if(!p_lb->IsMultiColumn() && !p_lb->IsTreeList()) // Припуск для скролл-бара не нужен для мультиколоночного списка и для treeview
-							alb.Margin.b.x += 20.0f; 
-					}
-				}
-				//alb.Padding.Set(def_margin);
-				//alb.Padding.b.x += 20.0f;
-				InnerBlock::InsertCtrlLayout(P_TW, NZOR(p_lo_groupbox, p_lo_body), STDCTL_SINGLELISTBOX, alb, 1.0f);
-			}
-			if(p_lo_groupbox) {
-				if(P.Flags & (fcedCreate|fcedEdit|fcedDelete)) {
-					SUiLayout * p_lo_ced_button_group = 0;
-					{
-						SUiLayoutParam alb(DIREC_HORZ);
-						alb.GrowFactor = 1.0f;
-						alb.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-						alb.SetFixedSizeY(68.0f);
-						alb.Margin.Set(1.0f);
-						//alb.Margin.b.x += 20.0f;
-						//alb.Padding.Set(def_margin);
-						//alb.Padding.b.x += 20.0f;
-						p_lo_ced_button_group = p_lo_groupbox->InsertItem(0, &alb);
-					}
-					if(p_lo_ced_button_group) {
-						SUiLayoutParam alb;
-						alb.GrowFactor = 0.0f;
-						alb.SetFixedSizeX(80.0f);
-						alb.SetFixedSizeY(FixedCtrlHeight);
-						alb.Margin.Set(DefMargin);
-						alb.Padding.Set(DefMargin);
-						if(P.Flags & fcedCreate) {
-							InnerBlock::InsertButtonLayout(P_TW, p_lo_ced_button_group, STDCTL_INSBUTTON, alb, 0.0f);
-						}
-						if(P.Flags & fcedEdit) {
-							InnerBlock::InsertButtonLayout(P_TW, p_lo_ced_button_group, STDCTL_EDITBUTTON, alb, 0.0f);
-						}
-						if(P.Flags & fcedDelete) {
-							InnerBlock::InsertButtonLayout(P_TW, p_lo_ced_button_group, STDCTL_DELBUTTON, alb, 0.0f);
-						}							
-					}
-				}
-			}
-			{
-				SUiLayoutParam alb;
-				alb.GrowFactor = 0.0f;
-				alb.SetFixedSizeX(80.0f);
-				alb.SetFixedSizeY(FixedCtrlHeight);
-				alb.Margin.Set(DefMargin);
-				alb.Padding.Set(DefMargin);
-				InnerBlock::InsertButtonLayout(P_TW, p_lo_footer, STDCTL_OKBUTTON, alb, 0.0f);
-				InnerBlock::InsertButtonLayout(P_TW, p_lo_footer, STDCTL_CANCELBUTTON, alb, 0.0f);
-			}
-		}
-		P_TW->SetLayout(p_lo_result);
-	}
-	P_TW->EvaluateLayout(pBlk->Coord);
-}
-
-void LayoutedListDialog_Base::DrawLayout(TCanvas2 & rCanv, const SUiLayout * pLo)
-{
-	if(pLo) {
-		{
-			FRect lo_rect = pLo->GetFrameAdjustedToParent();
-			int   pen_ident = 0;
-			int   brush_ident = 0;
-			TWhatmanToolArray::Item tool_item;
-			const SDrawFigure * p_fig = 0;
-			SPaintToolBox * p_tb = APPL->GetUiToolBox();
-			if(p_tb) {
-				SString symb;
-				// Прежде всего закрасим фон
-				rCanv.Rect(lo_rect, 0, TProgram::tbiListBkgBrush);
-				if(pen_ident) {
-					/*if(pLo == P_LoFocused) {
-						pen_ident = TProgram::tbiIconAccentColor;
-					}*/
-					rCanv.Rect(lo_rect);
-					rCanv.Stroke(pen_ident, 0);
-				}
-				if(brush_ident) {
-					rCanv.Rect(lo_rect);
-					rCanv.Fill(brush_ident, 0);
-				}
-				if(p_fig) {
-					const uint _w = 16;
-					const uint _h = 16;
-					SImageBuffer ib(_w, _h);
-					{
-						if(!tool_item.ReplacedColor.IsEmpty()) {
-							SColor replacement_color = p_tb->GetColor(TProgram::tbiIconRegColor);
-							rCanv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
-						}
-						LMatrix2D mtx;
-						SViewPort vp;
-						rCanv.Fill(SColor(192, 192, 192, 255), 0); // Прозрачный фон
-						rCanv.PushTransform();
-						p_fig->GetViewPort(&vp);
-						rCanv.PushTransform();
-						rCanv.AddTransform(vp.GetMatrix(lo_rect, mtx));
-						rCanv.Draw(p_fig);
-						rCanv.PopTransform();
-					}
-				}
-			}
-		}
-		for(uint ci = 0; ci < pLo->GetChildrenCount(); ci++) {
-			DrawLayout(rCanv, pLo->GetChildC(ci)); // @recursion
-		}
-	}
-}
-
-/*static*/int LayoutedListDialog_Base::Exec(TWindow * pView)
-{
-	int    ok = -1;
-	if(pView) {
-		const UiDescription * p_uid = SLS.GetUiDescription();
-		const SUiLayout * p_lo = 0;
-		THROW(p_uid);
-		p_lo = p_uid->GetLayoutBySymbC("listdialog");
-		THROW(p_lo);
-		ok = APPL->P_DeskTop->execView(pView);
-		if(ok > 0) {
-			//p_win->getDTS(&rData);
-		}
-	}
-	CATCHZOK
-	delete pView;
-	return ok;
-}
-
-LayoutedListWindow::LayoutedListWindow(const Param & rParam, ListBoxDef * pDef) : 
-	TWindowBase(SUcSwitch(LayoutedListDialog_Base::GetWindowTitle(rParam.Title)), wbcDrawBuffer),
-	LayoutedListDialog_Base(rParam, pDef, static_cast<TWindow *>(this))
-{
-}
-	
-LayoutedListWindow::~LayoutedListWindow()
-{
-}
-
-IMPL_HANDLE_EVENT(LayoutedListWindow)
-{
-	TWindowBase::handleEvent(event);
-	if(event.isKeyDown(kbEsc)) {
-		if(IsInState(sfModal)) {
-			EndModalCmd = cmCancel;
-			clearEvent(event);
-		}
-	}
-	else if(TVINFOPTR) {
-		if(event.isCmd(cmInit)) {
-			OnInit2(static_cast<TWindowBase::CreateBlock *>(TVINFOPTR));
-			// don't clearEvent
-		}
-		else if(event.isCmd(cmClose)) {
-			if(IsInState(sfModal)) {
-				EndModalCmd = cmCancel;
-				clearEvent(event);
-			}
-		}
-		else if(event.isCmd(cmOK) || event.isCmd(cmCancel)) {
-			if(IsInState(sfModal)) {
-				EndModalCmd = event.message.command;
-				clearEvent(event);
-			}
-			else if(event.message.command == cmCancel) {
-				close();
-				return; // Окно разрушено - делать в этой процедуре больше нечего!
-			}
-		}
-		else if(event.isCmd(cmPaint)) {
-			PaintEvent * p_blk = static_cast<PaintEvent *>(TVINFOPTR);
-			//CreateFont_();
-			if(oneof2(p_blk->PaintType, PaintEvent::tPaint, PaintEvent::tEraseBackground)) {
-				SPaintToolBox * p_tb = APPL->GetUiToolBox();
-				if(p_tb) {
-					if(GetWbCapability() & wbcDrawBuffer) {
-						// Если используется буферизованная отрисовка, то фон нужно перерисовать в любом случае а на событие PaintEvent::tEraseBackground
-						// не реагировать
-						if(p_blk->PaintType == PaintEvent::tPaint) {
-							TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
-							canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
-							DrawLayout(canv, P_Lfc);
-						}
-					}
-					else {
-						TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
-						if(p_blk->PaintType == PaintEvent::tEraseBackground)
-							canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
-						if(p_blk->PaintType == PaintEvent::tPaint)
-							DrawLayout(canv, P_Lfc);
-					}
-				}
-				clearEvent(event);
-			}
-		}
-	}
-}
-
-/*virtual*/SmartListBox * LayoutedListDialog_Base::GetListBoxCtl() const
-{
-	TView * p_box_view = P_TW ? P_TW->getCtrlView(STDCTL_SINGLELISTBOX) : 0;
-	return TView::IsSubSign(p_box_view, TV_SUBSIGN_LISTBOX) ? static_cast<SmartListBox *>(p_box_view) : 0;
-}
-
-LayoutedListDialog::LayoutedListDialog(const Param & rParam, ListBoxDef * pDef) : 
-	TDialog(LayoutedListDialog_Base::GetWindowTitle(rParam.Title), wbcDrawBuffer|wbcStorableUserParams, TDialog::coEmpty),
-	LayoutedListDialog_Base(rParam, pDef, static_cast<TWindow *>(this))
-{
-	if(rParam.Symb.NotEmpty())
-		SetStorableUserParamsSymb(rParam.Symb);
-	if(!rParam.Bounds.IsEmpty()) {
-		TDialog::setBounds(rParam.Bounds);
-	}
-	TDialog::BuildEmptyWindow(0);
-}
-	
-LayoutedListDialog::~LayoutedListDialog()
-{
-}
-
-IMPL_HANDLE_EVENT(LayoutedListDialog)
-{
-	if(event.isCmd(cmInit)) {
-		if(TVINFOPTR)
-			OnInit2(static_cast<TWindowBase::CreateBlock *>(TVINFOPTR));
-		// don't clearEvent
-	}
-	TDialog::handleEvent(event);
-	if(TVCOMMAND) {
-		switch(TVCMD) {
-			case cmClose:
-				if(IsInState(sfModal)) {
-					EndModalCmd = cmCancel;
-					clearEvent(event);
-				}
-				else {
-					close();
-					return; // Окно разрушено - делать в этой процедуре больше нечего!
-				}
-				break;
-			case cmOK:
-				if(IsInState(sfModal)) {
-					EndModalCmd = event.message.command;
-					clearEvent(event);
-				}
-				break;
-			case cmCancel:
-				if(IsInState(sfModal)) {
-					EndModalCmd = event.message.command;
-					clearEvent(event);
-				}
-				else {
-					close();
-					return; // Окно разрушено - делать в этой процедуре больше нечего!
-				}
-				break;
-			case cmPaint:
-				{
-					PaintEvent * p_blk = static_cast<PaintEvent *>(TVINFOPTR);
-					//CreateFont_();
-					if(p_blk && oneof2(p_blk->PaintType, PaintEvent::tPaint, PaintEvent::tEraseBackground)) {
-						SPaintToolBox * p_tb = APPL->GetUiToolBox();
-						if(p_tb) {
-							if(GetWbCapability() & wbcDrawBuffer) {
-								// Если используется буферизованная отрисовка, то фон нужно перерисовать в любом случае а на событие PaintEvent::tEraseBackground
-								// не реагировать
-								if(p_blk->PaintType == PaintEvent::tPaint) {
-									TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
-									canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
-									DrawLayout(canv, P_Lfc);
-								}
-							}
-							else {
-								TCanvas2 canv(*p_tb, static_cast<HDC>(p_blk->H_DeviceContext));
-								if(p_blk->PaintType == PaintEvent::tEraseBackground)
-									canv.Rect(p_blk->Rect, 0, TProgram::tbiListBkgBrush);
-								if(p_blk->PaintType == PaintEvent::tPaint)
-									DrawLayout(canv, P_Lfc);
-							}
-						}
-						clearEvent(event);
-					}
-				}
-				break;
-			case cmDown:
-			case cmUp:
-				{
-					long   p = 0;
-					long   i = 0;
-					if(getCurItem(&p, &i)) {
-						const int up = BIN(TVCMD == cmUp);
-						if(moveItem(p, i, up) > 0)
-							updateList(up ? p-1 : p+1);
-					}
-				}
-				break;
-			case cmLBDblClk:
-				{
-					SmartListBox * p_box = GetListBoxCtl();
-					if(SmartListBox::IsValidS(p_box)) {
-						int    edit = 1;
-						bool   is_tree_list = false;
-						PPID   cur_id = 0;
-						long   p = 0;
-						long   i = 0;
-						p_box->P_Def->getCurID(&cur_id);
-						if(p_box->IsTreeList()) {
-							is_tree_list = true;
-							if(static_cast<const StdTreeListBoxDef *>(p_box->P_Def)->HasChildren(cur_id))
-								edit = 0;
-						}
-						if(event.isCtlEvent(p_box->GetId())) {
-							if(cur_id && false/*Options & oOnDblClkOk*/) {
-								TView::messageCommand(this, cmOK);
-							}
-							else if(edit && getCurItem(&p, &i) && editItem(p, i) > 0) {
-								const long id = is_tree_list ? i : p;
-								if(is_tree_list)
-									updateListById(id);
-								else
-									updateList(id);
-							}
-							else
-								return;
-						}
-						else
-							return;
-					}
-					else
-						return;
-				}
-				break;
-			case cmaInsert:
-				{
-					SmartListBox * p_box = GetListBoxCtl();
-					if(p_box) {
-						long   p = 0;
-						long   i = 0;
-						int    r = addItem(&p, &i);
-						if(r == 2)
-							updateListById(i);
-						else if(r > 0)
-							updateList(p);
-					}
-				}
-				break;
-			case cmaDelete:
-				{
-					long   p = 0;
-					long   i = 0;
-					if(getCurItem(&p, &i) && delItem(p, i) > 0) {
-						updateList(-1);
-					}
-				}
-				break;
-			case cmaEdit:
-				{
-					long   p = 0;
-					long   i = 0;
-					if(getCurItem(&p, &i) && editItem(p, i) > 0) {
-						SmartListBox * p_box = GetListBoxCtl();
-						assert(p_box); // Если getCurItem() вернул !0 то p_box != 0
-						const bool is_tree_list = p_box->IsTreeList();
-						const long id = is_tree_list ? i : p;
-						if(is_tree_list)
-							updateListById(id);
-						else
-							updateList(id);
-					}
-				}
-				break;
-		}
-	}
-	else if(event.isKeyDown(kbEsc)) {
-		if(IsInState(sfModal)) {
-			EndModalCmd = cmCancel;
-			clearEvent(event);
-		}
-	}
-}
-
-#if 0 // @v12.3.6 {
-static ListBoxDef * Test_LayoutedListDialog_MakeTestData(bool multiColumn, bool treeView, SString & rListColumnsDefinition)
-{
-	rListColumnsDefinition.Z();
-	ListBoxDef * p_result = 0;
-	if(treeView) {
-		PPObjGoodsGroup gg_obj;
-		StrAssocArray * p_list = gg_obj.MakeStrAssocList(0);
-		if(p_list) {
-			p_result = new StdTreeListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtSelNotify|lbtDisposeData, MKSTYPE(S_ZSTRING, 128));
-		}
-	}
-	else {
-		//static const char * P_TestDataFile = "D:/Papyrus/Src/PPTEST/DATA/person.txt";
-		SString file_name;
-		PPGetPath(PPPATH_TESTROOT, file_name);
-		file_name.SetLastSlash().Cat("data").SetLastSlash().Cat("person.txt");
-		SFile f_in(file_name, SFile::mRead);
-		if(f_in.IsValid()) {
-			StrAssocArray * p_data = new StrAssocArray;
-			p_result = new StrAssocListBoxDef(p_data, lbtDisposeData|lbtDblClkNotify|lbtFocNotify);
-			//
-			uint   line_no = 0;
-			SString temp_buf;
-			SString line_buf;
-			StringSet ss(SLBColumnDelim);
-			while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-				line_no++;
-				if(line_no >= 8) { // В начале файла там какой-то мусор, который я поосторожничал убирать
-					ss.Z();
-					line_buf.Transf(CTRANSF_OUTER_TO_INNER);
-					line_buf.Tokenize("|", ss);
-					if(multiColumn) {
-						p_result->addItem(line_no, ss.getBuf());
-					}
-					else {
-						if(ss.get(0U, temp_buf)) {
-							p_result->addItem(line_no, temp_buf);
-						}
-					}
-				}
-			}
-			if(multiColumn)
-				rListColumnsDefinition = "20,L,name;20,L,addr;10,L,zip";
-		}
-	}
-	return p_result;
-}
-
-int Test_LayoutedListDialog()
-{
-	#define LIST_SELECTION_DIALOG_BASE_CLASS LayoutedListDialog
-
-	class __TestLayoutedListDialog : public LIST_SELECTION_DIALOG_BASE_CLASS {
-	public:
-		__TestLayoutedListDialog(const LayoutedListDialog_Base::Param & rParam, ListBoxDef * pDef) : LIST_SELECTION_DIALOG_BASE_CLASS(rParam, pDef)
-		{
-		}
-		~__TestLayoutedListDialog()
-		{
-		}
-	private:
-		DECL_HANDLE_EVENT
-		{
-			LIST_SELECTION_DIALOG_BASE_CLASS::handleEvent(event);
-		}
-	};
-	
-	int    ok = 0;
-	// @debug {
-	{
-		static bool single = false;
-		if(!single) {
-			SLS.SaturateRvlStrPool(512);
-			SLS.SaturateRvlStrUPool(512);
-			single = true;
-		}
-	}
-	// } @debug 
-	{
-		LayoutedListDialog_Base::Param param;
-		param.Symb = "Test_LayoutedListDialog";
-		param.Bounds.Set(0, 0, 295, 300); 
-		ListBoxDef * p_lb_def = Test_LayoutedListDialog_MakeTestData(false/*multiColumn*/, true/*treeView*/, param.ColumnDescription);
-		if(p_lb_def) {
-			param.Flags |= (LayoutedListDialog_Base::fcedCreate|LayoutedListDialog_Base::fcedEdit|LayoutedListDialog_Base::fcedDelete|LayoutedListDialog_Base::fOkCancel);
-			param.Flags |= LayoutedListDialog_Base::fHeaderStaticText;
-			param.Title = "Test list selection dialog";
-			__TestLayoutedListDialog * p_view = new __TestLayoutedListDialog(param, p_lb_def);
-			if(p_view) {
-				ok = LayoutedListDialog_Base::Exec(p_view);
-			}
-		}
-	}
-	return ok;
-}
-// } @construction
-#endif // } @v12.3.6
-#endif // } 0 @v12.3.6 (Этот блок отработал свою функцию - переходим на регулярное описание диалогов в DL00) {
 
 /*static*/int STDCALL ListBoxSelDialog::Run(StrAssocArray * pAry, const char * pTitle, PPID * pID/*, uint flags*/)
 {
@@ -8412,15 +7794,16 @@ private:
 		uint   FirstTabbedItemId; // 
 		uint   FirstItemId; //		
 	};
-	void   Build(TDialog * pDlg, DlContext & rCtx, const DlScope * pScope);
+	//void   Build(TDialog * pDlg, DlContext & rCtx, const DlScope * pScope);
+	void   Build(TWindow * pW, DlContext & rCtx, const DlScope * pScope);
 	void   Build(TDialog * pDlg, DlContext & rCtx, const char * pSymb);
 	void   Build(TDialog * pDlg, DlContext & rCtx, uint viewId);
-	void   InsertControlLabel(TDialog * pDlg, DlContext & rCtx, const DlScope * pMainScope, TView * pMainCtrlView, uint & rLastDynId);
-	void   InsertControlItems(TDialog * pDlg, DlContext & rCtx, const DlScope & rParentScope, uint & rLastDynId, FIBlock & rFiBlk, int stage);
-	void   InsertControlLayouts(TDialog * pDlg, DlContext & rCtx, const DlScope & rParentScope, SUiLayout * pLoParent);
-	SUiLayout * InsertCtrlLayout(TDialog * pDlg, SUiLayout * pLoParent, TView * pView, const SUiLayoutParam & rP);
-	SUiLayout * InsertCtrlLayout(TDialog * pDlg, SUiLayout * pLoParent, ushort ctlId, const SUiLayoutParam & rP);
-	bool   MakeComplexLayout_InputLine(TDialog * pDlg, TView * pView, SUiLayoutParam & rLp, DlContext & rCtx, const DlScope * pScope, SUiLayout * pLoParent);
+	void   InsertControlLabel(TWindow * pW, DlContext & rCtx, const DlScope * pMainScope, TView * pMainCtrlView, uint & rLastDynId);
+	void   InsertControlItems(TWindow * pW, DlContext & rCtx, const DlScope & rParentScope, uint & rLastDynId, FIBlock & rFiBlk, int stage);
+	void   InsertControlLayouts(TWindow * pW, DlContext & rCtx, const DlScope & rParentScope, SUiLayout * pLoParent);
+	SUiLayout * InsertCtrlLayout(TWindow * pW, SUiLayout * pLoParent, TView * pView, const SUiLayoutParam & rP);
+	SUiLayout * InsertCtrlLayout(TWindow * pW, SUiLayout * pLoParent, ushort ctlId, const SUiLayoutParam & rP);
+	bool   MakeComplexLayout_InputLine(TWindow * pW, TView * pView, SUiLayoutParam & rLp, DlContext & rCtx, const DlScope * pScope, SUiLayout * pLoParent);
 	long   GetScopeID(const DlScope * pScope) const { return pScope ? (pScope->ID + 2000) : 0; }
 
 	enum {
@@ -8461,9 +7844,9 @@ void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, uint viewId)
 		Status |= stError;
 }
 
-void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const DlScope * pScope)
+void PPDialogConstructor::Build(/*TDialog * pDlg*/TWindow * pW, DlContext & rCtx, const DlScope * pScope)
 {
-	if(pDlg && pScope && pScope->IsKind(DlScope::kUiView)) {
+	if(pW && pScope && pScope->IsKind(DlScope::kUiView)) {
 		const UiDescription * p_uid = SLS.GetUiDescription();
 		TDialog::BuildEmptyWindowParam bew_param;
 		char   c_buf[1024];
@@ -8475,7 +7858,7 @@ void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const DlScope 
 			if(!!__c) {
 				if(rCtx.GetConstData(__c, c_buf, sizeof(c_buf))) {
 					temp_buf = reinterpret_cast<const char *>(c_buf);
-					pDlg->setTitle(temp_buf);
+					pW->setTitle(temp_buf);
 				}
 			}
 		}
@@ -8488,7 +7871,7 @@ void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const DlScope 
 			if(rect.Height() <= 0.0f) {
 				rect.b.y = rect.a.y + 60.0f;
 			}
-			pDlg->setBounds(rect);
+			pW->setBounds(rect);
 		}
 		{
 			{
@@ -8530,7 +7913,12 @@ void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const DlScope 
 			if(temp_buf.NotEmpty()) {
 			}
 		}
-		pDlg->BuildEmptyWindow(&bew_param);
+		{
+			// @todo Здесь надо правильно отработать случай, когда pW не является диалогом (TDialog)
+			if(pW->IsSubSign(TV_SUBSIGN_DIALOG)) {
+				static_cast<TDialog *>(pW)->BuildEmptyWindow(&bew_param);
+			}
+		}
 		//
 		{
 			const int container_direc = p_alb ? p_alb->GetContainerDirection() : DIREC_UNKN;
@@ -8540,7 +7928,7 @@ void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const DlScope 
 				p_lo_main->SetID(GetScopeID(pScope));
 				p_lo_main->SetSymb(pScope->GetName());
 			}
-			pDlg->SetLayout(p_lo_main);
+			pW->SetLayout(p_lo_main);
 			{
 				//
 				// Далее, мы должны вставить управляющие элементы в созданое окно диалога
@@ -8549,8 +7937,8 @@ void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const DlScope 
 				// (@unused) InsertControlItems(rCtx, *pScope, last_dyn_id, insertctrlstagePreprocess);
 				FIBlock fi_blk;
 				FIBlock fake_fi_blk;
-				InsertControlItems(pDlg, rCtx, *pScope, last_dyn_id, fi_blk, insertctrlstageMain);
-				InsertControlItems(pDlg, rCtx, *pScope, last_dyn_id, fake_fi_blk/*на этой стадии не надо*/, insertctrlstagePostprocess);
+				InsertControlItems(pW, rCtx, *pScope, last_dyn_id, fi_blk, insertctrlstageMain);
+				InsertControlItems(pW, rCtx, *pScope, last_dyn_id, fake_fi_blk/*на этой стадии не надо*/, insertctrlstagePostprocess);
 				{
 					uint    ctl_to_select = 0;
 					if(fi_blk.FirstTabbedItemId) {
@@ -8561,14 +7949,14 @@ void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const DlScope 
 						ctl_to_select = fi_blk.FirstItemId;
 					}
 					if(ctl_to_select) {
-						pDlg->selectCtrl(ctl_to_select);
+						pW->selectCtrl(ctl_to_select);
 					}
 				}
 			}
-			InsertControlLayouts(pDlg, rCtx, *pScope, p_lo_main); // Теперь расставляем layout'ы
+			InsertControlLayouts(pW, rCtx, *pScope, p_lo_main); // Теперь расставляем layout'ы
 		}
 		{
-			HWND h_wnd = pDlg->H();
+			HWND h_wnd = pW->H();
 			{
 				TWindow::CreateBlock cr_blk;
 				MEMSZERO(cr_blk);
@@ -8583,19 +7971,24 @@ void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const DlScope 
 				cr_blk.H_Menu = 0;
 				cr_blk.P_WndCls = 0;
 				cr_blk.P_Title = 0;
-				TView::messageCommand(pDlg, cmInit, &cr_blk);
+				TView::messageCommand(pW, cmInit, &cr_blk);
 			}
-			pDlg->SetupCtrlTextProc(h_wnd, 0);
-			pDlg->InitControls(h_wnd, 0/*wParam*/, reinterpret_cast<LPARAM>(this));
-			EnumChildWindows(h_wnd, pDlg->SetupCtrlTextProc, 0);				
+			pW->SetupCtrlTextProc(h_wnd, 0);
+			{
+				// @todo Здесь надо правильно отработать случай, когда pW не является диалогом (TDialog)
+				if(pW->IsSubSign(TV_SUBSIGN_DIALOG)) {
+					static_cast<TDialog *>(pW)->InitControls(h_wnd, 0/*wParam*/, reinterpret_cast<LPARAM>(this));
+				}
+			}
+			EnumChildWindows(h_wnd, pW->SetupCtrlTextProc, 0);				
 		}
-		pDlg->EvaluateLayout(pDlg->getClientRect());
-		pDlg->WbCapability |= TWindow::wbcStorableUserParams;
-		pDlg->SetStorableUserParamsSymb(pScope->Name);
+		pW->EvaluateLayout(pW->getClientRect());
+		pW->WbCapability |= TWindow::wbcStorableUserParams;
+		pW->SetStorableUserParamsSymb(pScope->Name);
 	}
 }
 
-SUiLayout * PPDialogConstructor::InsertCtrlLayout(TDialog * pDlg, SUiLayout * pLoParent, TView * pView, const SUiLayoutParam & rP)
+SUiLayout * PPDialogConstructor::InsertCtrlLayout(TWindow * pW, SUiLayout * pLoParent, TView * pView, const SUiLayoutParam & rP)
 {
 	//
 	// Если pView == 0, то мы вставляем лейаут без привязки к конкретному control'у. Обычно это
@@ -8610,7 +8003,7 @@ SUiLayout * PPDialogConstructor::InsertCtrlLayout(TDialog * pDlg, SUiLayout * pL
 	return p_result;
 }
 
-SUiLayout * PPDialogConstructor::InsertCtrlLayout(TDialog * pDlg, SUiLayout * pLoParent, ushort ctlId, const SUiLayoutParam & rP)
+SUiLayout * PPDialogConstructor::InsertCtrlLayout(TWindow * pW, SUiLayout * pLoParent, ushort ctlId, const SUiLayoutParam & rP)
 {
 	//
 	// Если ctlId == 0, то вставляем лейаут без привязки к control'у
@@ -8619,15 +8012,15 @@ SUiLayout * PPDialogConstructor::InsertCtrlLayout(TDialog * pDlg, SUiLayout * pL
 	//
 	SUiLayout * p_result = 0;
 	if(ctlId) {
-		TView * p_view = pDlg->getCtrlView(ctlId);
-		p_result = p_view ? InsertCtrlLayout(pDlg, pLoParent, p_view, rP) : 0;
+		TView * p_view = pW->getCtrlView(ctlId);
+		p_result = p_view ? InsertCtrlLayout(pW, pLoParent, p_view, rP) : 0;
 	}
 	else
-		p_result = InsertCtrlLayout(pDlg, pLoParent, static_cast<TView *>(0), rP);
+		p_result = InsertCtrlLayout(pW, pLoParent, static_cast<TView *>(0), rP);
 	return p_result;
 }
 
-void PPDialogConstructor::InsertControlLabel(TDialog * pDlg, DlContext & rCtx, const DlScope * pMainScope, TView * pMainCtrlView, uint & rLastDynId)
+void PPDialogConstructor::InsertControlLabel(TWindow * pW, DlContext & rCtx, const DlScope * pMainScope, TView * pMainCtrlView, uint & rLastDynId)
 {
 	SString ctl_text;
 	if(pMainCtrlView && rCtx.GetConst_String(pMainScope, DlScope::cuifCtrlText, ctl_text)) {
@@ -8640,11 +8033,11 @@ void PPDialogConstructor::InsertControlLabel(TDialog * pDlg, DlContext & rCtx, c
 		TRect  rc_label;
 		const  uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp_label, rc_label, 60.0f, 13.0f);
 		TLabel * p_lbl = new TLabel(rc_label, ctl_text, pMainCtrlView);
-		pDlg->InsertCtlWithCorrespondingNativeItem(p_lbl, ++rLastDynId, 0, /*extraPtr*/0);
+		pW->InsertCtlWithCorrespondingNativeItem(p_lbl, ++rLastDynId, 0, /*extraPtr*/0);
 	}
 }
 
-void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, const DlScope & rParentScope, uint & rLastDynId, FIBlock & rFiBlk, int stage)
+void PPDialogConstructor::InsertControlItems(TWindow * pW, DlContext & rCtx, const DlScope & rParentScope, uint & rLastDynId, FIBlock & rFiBlk, int stage)
 {
 	SString temp_buf;
 	SString ctl_text;
@@ -8721,8 +8114,8 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 							p_ctl->setState(sfTabStop, true);
 						}
 						// Label надо вставить до поля ввода
-						InsertControlLabel(pDlg, rCtx, p_scope, p_ctl, rLastDynId);
-						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						InsertControlLabel(pW, rCtx, p_scope, p_ctl, rLastDynId);
+						pW->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 						is_inserted = true;
 						if(oneof11(supplement.Kind, SUiCtrlSupplement::kDateCalendar, SUiCtrlSupplement::kDateRangeCalendar,
 							SUiCtrlSupplement::kTime, SUiCtrlSupplement::kCalc, SUiCtrlSupplement::kAsterisk, 
@@ -8748,7 +8141,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 								rc_sb.b.y = rc_sb.a.y;
 								if(supplement.Kind == SUiCtrlSupplement::kNumberStepper) { // @v12.5.3
 									TNumberStepper * p_ns = new TNumberStepper(rc_sb);
-									pDlg->InsertCtlWithCorrespondingNativeItem(p_ns, supplement.Ident, 0, /*extraPtr*/0);
+									pW->InsertCtlWithCorrespondingNativeItem(p_ns, supplement.Ident, 0, /*extraPtr*/0);
 								}
 								else {
 									uint   pic_id = 0;
@@ -8764,12 +8157,12 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 									}
 									TButton * p_sb = new TButton(rc_sb, p_supplement_title, supplement.Cmd, 0, pic_id);
 									p_sb->SetSupplementFactors(supplement.Kind, item_id);
-									pDlg->InsertCtlWithCorrespondingNativeItem(p_sb, supplement.Ident, 0, /*extraPtr*/0);
+									pW->InsertCtlWithCorrespondingNativeItem(p_sb, supplement.Ident, 0, /*extraPtr*/0);
 									/*{
 										if(supplement.Kind == SUiCtrlSupplement::kDateCalendarButton)
-											pDlg->SetupCalDate_Internal(supplement.Ident, item_id);
+											pW->SetupCalDate_Internal(supplement.Ident, item_id);
 										else if(supplement.Kind == SUiCtrlSupplement::kDateRangeCalendarButton)
-											pDlg->SetupCalPeriod_Internal(supplement.Ident, item_id);
+											pW->SetupCalPeriod_Internal(supplement.Ident, item_id);
 									}*/
 								}
 							}
@@ -8783,7 +8176,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						uint   spc_flags = (ui_flags & UiItemKind::fStaticEdge) ? TStaticText::spcfStaticEdge : 0;
 						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
 						TStaticText * p_ctl = new TStaticText(rc, spc_flags, ctl_text);
-						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						pW->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 						is_inserted = true;
 					}
 					break;
@@ -8818,7 +8211,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 							}
 						}
 						// } @v12.5.1 
-						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						pW->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 						is_inserted = true;
 					}
 					break;
@@ -8836,7 +8229,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 							p_ctl->AddItem(-1, temp_buf, &rc);
 							// } @v12.6.8 
 						}
-						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						pW->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 						ctl_id_for_tab = item_id; // @v12.3.9
 						is_inserted = true;
 					}
@@ -8862,7 +8255,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 								}
 							}
 						}
-						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						pW->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 						ctl_id_for_tab = item_id; // @v12.3.9
 						is_inserted = true;
 					}
@@ -8888,7 +8281,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 								}
 							}
 						}
-						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						pW->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 						ctl_id_for_tab = item_id; // @v12.3.9
 						is_inserted = true;
 					}
@@ -8916,8 +8309,8 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						rc_cb.b.y = rc.b.y;
 						ComboBox * p_cb = new ComboBox(rc_cb, cbxAllowEmpty|cbxDisposeData|cbxListOnly, p_il);
 						p_cb->SetId(item_id);
-						InsertControlLabel(pDlg, rCtx, p_scope, p_il, rLastDynId);
-						pDlg->InsertCtlWithCorrespondingNativeItem(p_cb, item_id, 0, /*extraPtr*/0);
+						InsertControlLabel(pW, rCtx, p_scope, p_il, rLastDynId);
+						pW->InsertCtlWithCorrespondingNativeItem(p_cb, item_id, 0, /*extraPtr*/0);
 						is_inserted = true;
 						// @v12.4.1 {
 						if(oneof3(supplement.Kind, SUiCtrlSupplement::kList, SUiCtrlSupplement::kFilt, SUiCtrlSupplement::kEllipsis)) { // @v12.4.10 SUiCtrlSupplement::kFilt
@@ -8949,7 +8342,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 								}
 								TButton * p_sb = new TButton(rc_sb, supplement.Text, supplement.Cmd, 0, pic_id);
 								p_sb->SetSupplementFactors(supplement.Kind, item_id);
-								pDlg->InsertCtlWithCorrespondingNativeItem(p_sb, _local_id, 0, /*extraPtr*/0);
+								pW->InsertCtlWithCorrespondingNativeItem(p_sb, _local_id, 0, /*extraPtr*/0);
 							}
 						}
 						// } @v12.4.1 
@@ -8976,15 +8369,15 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 								}
 							}
 							// } @v12.6.4 
-							InsertControlLabel(pDlg, rCtx, p_scope, p_lb, rLastDynId); // @v12.5.3
+							InsertControlLabel(pW, rCtx, p_scope, p_lb, rLastDynId); // @v12.5.3
 							//LldState |= lldsDefBailed;
 							if(ui_flags & UiItemKind::fTabStop) {
 								p_lb->setState(sfTabStop, true);
 							}
-							pDlg->InsertCtlWithCorrespondingNativeItem(p_lb, item_id, 0, /*extraPtr*/0);
+							pW->InsertCtlWithCorrespondingNativeItem(p_lb, item_id, 0, /*extraPtr*/0);
 							// @v12.3.10 {
 							if(is_ui_cfg_valid && ui_cfg.ListFont.IsDefined()) {
-								pDlg->SetCtrlFont(item_id, ui_cfg.ListFont);
+								pW->SetCtrlFont(item_id, ui_cfg.ListFont);
 							}
 							// } @v12.3.10 
 							ctl_id_for_tab = item_id; // @v12.3.9
@@ -9007,10 +8400,10 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 							if(ui_flags & UiItemKind::fTabStop) {
 								p_lb->setState(sfTabStop, true);
 							}
-							pDlg->InsertCtlWithCorrespondingNativeItem(p_lb, item_id, 0, /*extraPtr*/0);
+							pW->InsertCtlWithCorrespondingNativeItem(p_lb, item_id, 0, /*extraPtr*/0);
 							// @v12.3.12 {
 							if(is_ui_cfg_valid && ui_cfg.ListFont.IsDefined()) {
-								pDlg->SetCtrlFont(item_id, ui_cfg.ListFont);
+								pW->SetCtrlFont(item_id, ui_cfg.ListFont);
 							}
 							// } @v12.3.12 
 							ctl_id_for_tab = item_id; // @v12.3.9
@@ -9029,10 +8422,10 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						TFrame * p_gb = new TFrame();
 						p_gb->setBounds(rc);
 						p_gb->SetText(ctl_text);
-						pDlg->InsertCtlWithCorrespondingNativeItem(p_gb, item_id, 0, /*extraPtr*/0);
+						pW->InsertCtlWithCorrespondingNativeItem(p_gb, item_id, 0, /*extraPtr*/0);
 						is_inserted = true;
 					}
-					InsertControlItems(pDlg, rCtx, *p_scope, rLastDynId, rFiBlk, stage); // @recursion // Внутри могут быть элементы, которые вставляются на фазе insertctrlstageMain,
+					InsertControlItems(pW, rCtx, *p_scope, rLastDynId, rFiBlk, stage); // @recursion // Внутри могут быть элементы, которые вставляются на фазе insertctrlstageMain,
 						// по этому выводим данный вызов за рамки проверки if(stage == insertctrlstagePostprocess)
 					break;
 				case UiItemKind::kLabel: 
@@ -9044,7 +8437,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 					}
 					break;
 				case UiItemKind::kGenericView: 
-					InsertControlItems(pDlg, rCtx, *p_scope, rLastDynId, rFiBlk, stage); // @recursion
+					InsertControlItems(pW, rCtx, *p_scope, rLastDynId, rFiBlk, stage); // @recursion
 					is_inserted = true;
 					break;
 				case UiItemKind::kImageView: 
@@ -9056,7 +8449,7 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 						rCtx.GetConst_String(p_scope, DlScope::cuifImageSymb, img_symb);
 						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
 						TImageView * p_ctl = new TImageView(rc, spc_flags, img_symb);
-						pDlg->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
+						pW->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
 						is_inserted = true;
 					}
 					break;
@@ -9073,12 +8466,12 @@ void PPDialogConstructor::InsertControlItems(TDialog * pDlg, DlContext & rCtx, c
 	}
 	if(stage == insertctrlstageMain) {
 		if(def_button_ctl_id) {
-			pDlg->SetDefaultButton(def_button_ctl_id, true);
+			pW->SetDefaultButton(def_button_ctl_id, true);
 		}
 	}
 }
 
-bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pView, SUiLayoutParam & rLp, DlContext & rCtx, const DlScope * pScope, SUiLayout * pLoParent)
+bool PPDialogConstructor::MakeComplexLayout_InputLine(TWindow * pW, TView * pView, SUiLayoutParam & rLp, DlContext & rCtx, const DlScope * pScope, SUiLayout * pLoParent)
 {
 	//
 	// Descr: Варианты дизайна комплекса {строка ввода, этикетка, [supplement]}
@@ -9115,7 +8508,7 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 			}
 		}
 		TInputLine * p_il = static_cast<TInputLine *>(pView);
-		TView * p_lbl = pDlg->GetCtrlLabel(p_il);
+		TView * p_lbl = pW->GetCtrlLabel(p_il);
 		TView * p_supplemental_view = 0; // supplemental-view
 		SUiLayoutParam __lp_ib(DIREC_HORZ); // Лейаут для пары {поле ввода; supplemental-кнопка}
 		SUiLayoutParam * p_lb_ib = 0; // Указатель на лейаут для пары {поле ввода; supplemental-кнопка}. if p_lb_ib != 0 then нужно воткнуть supplement-button
@@ -9133,7 +8526,7 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 		}
 		if(supplement.Kind) { 
 			if(supplement.Ident) {
-				p_supplemental_view = pDlg->getCtrlView(supplement.Ident);
+				p_supplemental_view = pW->getCtrlView(supplement.Ident);
 				if(TView::IsSubSign(p_supplemental_view, TV_SUBSIGN_BUTTON)) {
 					;
 				}
@@ -9217,11 +8610,11 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 							lp_label.GrowFactor = 1.0;							
 						}
 						p_lb_ib->Margin.a.x = 4.0f;
-						InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
+						InsertCtrlLayout(pW, p_lo_inp_grp, p_lbl, lp_label);
 						{
 							SUiLayout * p_lo_ib_grp = p_lo_inp_grp->InsertItem(0, p_lb_ib);
-							InsertCtrlLayout(pDlg, p_lo_ib_grp, p_il, lp_il);
-							InsertCtrlLayout(pDlg, p_lo_ib_grp, p_supplemental_view, lp_sb);
+							InsertCtrlLayout(pW, p_lo_ib_grp, p_il, lp_il);
+							InsertCtrlLayout(pW, p_lo_ib_grp, p_supplemental_view, lp_sb);
 						}
 						done = true;
 					}
@@ -9247,8 +8640,8 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 							lp_label.GrowFactor = 1.0;							
 						}
 						lp_il.Margin.a.x = 4.0f;
-						InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
-						InsertCtrlLayout(pDlg, p_lo_inp_grp, p_il, lp_il);
+						InsertCtrlLayout(pW, p_lo_inp_grp, p_lbl, lp_label);
+						InsertCtrlLayout(pW, p_lo_inp_grp, p_il, lp_il);
 						done = true;
 					}
 				}
@@ -9292,7 +8685,7 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 						}
 					}
 					SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, &glp);
-					InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
+					InsertCtrlLayout(pW, p_lo_inp_grp, p_lbl, lp_label);
 					{
 						SUiLayoutParam lp_sb; // supplement-button
 						lp_sb.SetFixedSizeX(sb_sz.x);
@@ -9301,8 +8694,8 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 						//
 						{
 							SUiLayout * p_lo_ib_grp = p_lo_inp_grp->InsertItem(0, p_lb_ib);
-							InsertCtrlLayout(pDlg, p_lo_ib_grp, p_il, lp_il);
-							InsertCtrlLayout(pDlg, p_lo_ib_grp, p_supplemental_view, lp_sb);
+							InsertCtrlLayout(pW, p_lo_ib_grp, p_il, lp_il);
+							InsertCtrlLayout(pW, p_lo_ib_grp, p_supplemental_view, lp_sb);
 						}
 						done = true;
 					}
@@ -9345,8 +8738,8 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 					rLp.Margin.Z();
 					SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, &glp);
 					if(p_lo_inp_grp) {
-						InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
-						InsertCtrlLayout(pDlg, p_lo_inp_grp, p_il, rLp);
+						InsertCtrlLayout(pW, p_lo_inp_grp, p_lbl, lp_label);
+						InsertCtrlLayout(pW, p_lo_inp_grp, p_il, rLp);
 						done = true;
 					}
 				}
@@ -9385,14 +8778,14 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 				rLp.GrowFactor = 0.0f;
 
 				SUiLayout * p_lo_inp_grp = pLoParent->InsertItem(0, p_lb_ib);
-				//InsertCtrlLayout(pDlg, p_lo_inp_grp, p_lbl, lp_label);
+				//InsertCtrlLayout(pW, p_lo_inp_grp, p_lbl, lp_label);
 				//SUiLayout * p_lo_ib_grp = p_lo_inp_grp->InsertItem(0, p_lb_ib);
-				InsertCtrlLayout(pDlg, p_lo_inp_grp, p_il, lp_il);
-				InsertCtrlLayout(pDlg, p_lo_inp_grp, p_supplemental_view, lp_sb);
+				InsertCtrlLayout(pW, p_lo_inp_grp, p_il, lp_il);
+				InsertCtrlLayout(pW, p_lo_inp_grp, p_supplemental_view, lp_sb);
 				done = true;
 			}
 			else {
-				SUiLayout * p_lo = InsertCtrlLayout(pDlg, pLoParent, p_il, rLp);
+				SUiLayout * p_lo = InsertCtrlLayout(pW, pLoParent, p_il, rLp);
 				done = true;
 			}
 		}
@@ -9400,7 +8793,7 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TDialog * pDlg, TView * pV
 	return done;
 }
 
-void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx, const DlScope & rParentScope, SUiLayout * pLoParent)
+void PPDialogConstructor::InsertControlLayouts(TWindow * pW, DlContext & rCtx, const DlScope & rParentScope, SUiLayout * pLoParent)
 {
 	bool   debug_mark = false; // @debug
 	if(pLoParent) {
@@ -9434,7 +8827,7 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 						}
 					}
 					const uint32 item_id = NZOR(symb_ident, GetScopeID(p_scope));
-					TView * p_view = pDlg->getCtrlView(item_id);
+					TView * p_view = pW->getCtrlView(item_id);
 					if(p_view) {
 						bool   done = false;
 						if(oneof3(vk, UiItemKind::kCheckCluster, UiItemKind::kRadioCluster, UiItemKind::kCheckbox)) {
@@ -9458,14 +8851,14 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 								}
 								cluster_size_y += padding_bottom;
 								lp.SetFixedSizeY(cluster_size_y);
-								InsertCtrlLayout(pDlg, pLoParent, p_clu, lp);
+								InsertCtrlLayout(pW, pLoParent, p_clu, lp);
 								done = true;
 							}
 						}
 						else if(vk == UiItemKind::kListbox) {
 							SmartListBox * p_lb = static_cast<SmartListBox *>(p_view);
 							// @v12.5.3 {
-							TView * p_lbl = pDlg->GetCtrlLabel(p_lb);
+							TView * p_lbl = pW->GetCtrlLabel(p_lb);
 							if(p_lbl) {
 								SUiLayoutParam glp(DIREC_VERT); // Общий лейаут для всей группы
 								SUiLayoutParam lp_label;
@@ -9486,22 +8879,22 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 									lp.Margin.b.x += 20.0f; 
 								//
 								SUiLayout * p_lo_grp = pLoParent->InsertItem(0, &glp);
-								InsertCtrlLayout(pDlg, p_lo_grp, p_lbl, lp_label);
-								InsertCtrlLayout(pDlg, p_lo_grp, p_view, lp);
+								InsertCtrlLayout(pW, p_lo_grp, p_lbl, lp_label);
+								InsertCtrlLayout(pW, p_lo_grp, p_view, lp);
 							}
 							else 
 							// } @v12.5.3
 							{
 								if(!p_lb->IsMultiColumn() && !p_lb->IsTreeList()) // Припуск для скролл-бара не нужен для мультиколоночного списка и для treeview
 									lp.Margin.b.x += 20.0f; 
-								p_lo = InsertCtrlLayout(pDlg, pLoParent, p_view, lp);
+								p_lo = InsertCtrlLayout(pW, pLoParent, p_view, lp);
 							}
 							done = true;
 						}
 						else if(vk == UiItemKind::kTreeListbox) {
 							SmartListBox * p_lb = static_cast<SmartListBox *>(p_view);
 							// @v12.5.3 {
-							TView * p_lbl = pDlg->GetCtrlLabel(p_lb);
+							TView * p_lbl = pW->GetCtrlLabel(p_lb);
 							if(p_lbl) {
 								SUiLayoutParam glp(DIREC_VERT); // Общий лейаут для всей группы
 								SUiLayoutParam lp_label;
@@ -9522,18 +8915,18 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 									lp.Margin.b.x += 20.0f; 
 								//
 								SUiLayout * p_lo_grp = pLoParent->InsertItem(0, &glp);
-								InsertCtrlLayout(pDlg, p_lo_grp, p_lbl, lp_label);
-								InsertCtrlLayout(pDlg, p_lo_grp, p_lb, lp);
+								InsertCtrlLayout(pW, p_lo_grp, p_lbl, lp_label);
+								InsertCtrlLayout(pW, p_lo_grp, p_lb, lp);
 							}
 							else 
 							// } @v12.5.3
 							{
-								p_lo = InsertCtrlLayout(pDlg, pLoParent, p_lb, lp);
+								p_lo = InsertCtrlLayout(pW, pLoParent, p_lb, lp);
 							}
 							done = true;
 						}
 						else if(vk == UiItemKind::kImageView) {
-							p_lo = InsertCtrlLayout(pDlg, pLoParent, p_view, lp);
+							p_lo = InsertCtrlLayout(pW, pLoParent, p_view, lp);
 							done = true;
 						}
 						else if(vk == UiItemKind::kCombobox) {
@@ -9545,7 +8938,7 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 									TView * p_supplemental_view = 0;
 									SPoint2F sb_sz; // Размер supplemental-button
 									if(supplement.Kind && supplement.Ident) {
-										p_supplemental_view = pDlg->getCtrlView(supplement.Ident);
+										p_supplemental_view = pW->getCtrlView(supplement.Ident);
 										if(TView::IsSubSign(p_supplemental_view, TV_SUBSIGN_BUTTON)) {
 											float supplemental_button_width = 20.0f;
 											switch(supplement.Kind) {
@@ -9560,7 +8953,7 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 										}
 									}
 									// } @v12.4.1 
-									TView * p_lbl = pDlg->GetCtrlLabel(p_il);
+									TView * p_lbl = pW->GetCtrlLabel(p_il);
 									if(p_lbl) {
 										SUiLayoutParam glp(DIREC_VERT); // Общий лейаут для всей группы
 										SUiLayoutParam lp_ib(DIREC_HORZ); // Лейаут для группы {поле ввода; кнопка[; supplement_button]}
@@ -9585,16 +8978,16 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 										glp.SetFixedSizeY(smax(SlConst::UiFixedInputY, SlConst::UiFixedButtonY) + SlConst::UiFixedLabelY);
 
 										SUiLayout * p_lo_cb_grp = pLoParent->InsertItem(0, &glp);
-										InsertCtrlLayout(pDlg, p_lo_cb_grp, p_lbl, lp_label);
+										InsertCtrlLayout(pW, p_lo_cb_grp, p_lbl, lp_label);
 										SUiLayout * p_lo_ib_grp = p_lo_cb_grp->InsertItem(0, &lp_ib);
-										InsertCtrlLayout(pDlg, p_lo_ib_grp, p_il, lp_il);
-										InsertCtrlLayout(pDlg, p_lo_ib_grp, p_cb, lp_button);
+										InsertCtrlLayout(pW, p_lo_ib_grp, p_il, lp_il);
+										InsertCtrlLayout(pW, p_lo_ib_grp, p_cb, lp_button);
 										// @v12.4.1 {
 										if(p_supplemental_view) {
 											lp_supplement_button.SetFixedSizeX(sb_sz.x);
 											lp_supplement_button.SetFixedSizeY(sb_sz.y);
 											lp_supplement_button.ShrinkFactor = 0.0f;
-											InsertCtrlLayout(pDlg, p_lo_ib_grp, p_supplemental_view, lp_supplement_button);
+											InsertCtrlLayout(pW, p_lo_ib_grp, p_supplemental_view, lp_supplement_button);
 										}
 										// } @v12.4.1 
 										done = true;
@@ -9624,16 +9017,16 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 										glp.SetFixedSizeY(smax(SlConst::UiFixedInputY, SlConst::UiFixedButtonY)/*+ SlConst::UiFixedLabelY*/);
 
 										//SUiLayout * p_lo_cb_grp = pLoParent->InsertItem(0, &glp);
-										//InsertCtrlLayout(pDlg, p_lo_cb_grp, p_lbl, lp_label);
+										//InsertCtrlLayout(pW, p_lo_cb_grp, p_lbl, lp_label);
 										SUiLayout * p_lo_ib_grp = pLoParent->InsertItem(0, &/*lp_ib*/glp);
-										InsertCtrlLayout(pDlg, p_lo_ib_grp, p_il, lp_il);
-										InsertCtrlLayout(pDlg, p_lo_ib_grp, p_cb, lp_button);
+										InsertCtrlLayout(pW, p_lo_ib_grp, p_il, lp_il);
+										InsertCtrlLayout(pW, p_lo_ib_grp, p_cb, lp_button);
 										// @v12.4.1 {
 										if(p_supplemental_view) {
 											lp_supplement_button.SetFixedSizeX(sb_sz.x);
 											lp_supplement_button.SetFixedSizeY(sb_sz.y);
 											lp_supplement_button.ShrinkFactor = 0.0f;
-											InsertCtrlLayout(pDlg, p_lo_ib_grp, p_supplemental_view, lp_supplement_button);
+											InsertCtrlLayout(pW, p_lo_ib_grp, p_supplemental_view, lp_supplement_button);
 										}
 										// } @v12.4.1 
 										done = true;
@@ -9643,20 +9036,20 @@ void PPDialogConstructor::InsertControlLayouts(TDialog * pDlg, DlContext & rCtx,
 							}
 						}
 						else if(vk == UiItemKind::kInput) {
-							done = MakeComplexLayout_InputLine(pDlg, p_view, lp, rCtx, p_scope, pLoParent);
+							done = MakeComplexLayout_InputLine(pW, p_view, lp, rCtx, p_scope, pLoParent);
 						}
 						if(!done) {
-							p_lo = InsertCtrlLayout(pDlg, pLoParent, p_view, lp);
+							p_lo = InsertCtrlLayout(pW, pLoParent, p_view, lp);
 						}
 					}
 					else {
 						if(vk == UiItemKind::kGenericView) {
-							p_lo = InsertCtrlLayout(pDlg, pLoParent, static_cast<TView *>(0), lp);
+							p_lo = InsertCtrlLayout(pW, pLoParent, static_cast<TView *>(0), lp);
 						}
 					}
 					//
 					if(oneof2(container_direc, DIREC_HORZ, DIREC_VERT)) {
-						InsertControlLayouts(pDlg, rCtx, *p_scope, p_lo); // @recursion
+						InsertControlLayouts(pW, rCtx, *p_scope, p_lo); // @recursion
 					}
 				}
 			}

@@ -1007,23 +1007,12 @@ int TDialog::SetClusterItemText(uint ctlID, int itemNo /* 0.. */, const char * p
 	return p_clu ? p_clu->SetText(itemNo, pText) : 0;
 }
 
-int TDialog::SetDefaultButton(uint ctlID, bool setDefault)
-{
-	TButton * p_ctl = static_cast<TButton *>(getCtrlView(ctlID));
-	if(p_ctl) {
-		p_ctl->MakeDefault(setDefault, true);
-		return 1;
-	}
-	else
-		return 0;
-}
-
 int TDialog::SetCtrlBitmap(uint ctlID, uint bmID)
 {
 	int    ok = 0;
 	HBITMAP h_bm = APPL->FetchBitmap(bmID);
 	if(h_bm) {
-		::SendDlgItemMessage(H(), ctlID, STM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_bm));
+		::SendDlgItemMessageW(H(), ctlID, STM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_bm));
 		ok = 1;
 	}
 	return ok;

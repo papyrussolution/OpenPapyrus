@@ -491,8 +491,8 @@ int main(int argc, char * argv[])
 							(temp_buf = app_path).SetLastSlash().Cat("build.gradle");
 							SFile f_bg(temp_buf, SFile::mReadWrite|mDenyWrite);
 							if(f_bg.IsValid()) {
-								long   temp_file_n = 0;
-								MakeTempFileName(app_path, "build_gradle", 0, &temp_file_n, temp_buf);
+								//long   temp_file_n = 0;
+								MakeTempFileName(app_path, "build_gradle", 0, /*&temp_file_n,*/temp_buf);
 								SFile f_temp(temp_buf, SFile::mWrite);
 								if(!f_temp.IsValid()) {
 									; // @todo @err

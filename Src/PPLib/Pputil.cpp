@@ -1837,11 +1837,11 @@ int ShrinkSubstDate(SubstGrpDate sgd, LDATE orgDt, LDATE * pDestDt)
 		else if(sgd == sgdYear)
 			encodedate(1, 1, y, &dt);
 		else if(sgd == sgdWeek) {
-			int dow = dayofweek(&orgDt, 1);
+			int dow = dayofweek(orgDt, 1);
 			dt = (dow > 1) ? plusdate(orgDt, -(dow-1)) : orgDt;
 		}
 		else if(sgd == sgdWeekDay)
-			dt.v = dayofweek(&orgDt, 1);
+			dt.v = dayofweek(orgDt, 1);
 		else
 			ok = -1;
 	}
@@ -1911,7 +1911,7 @@ int ExpandSubstDate(SubstGrpDate sgd, LDATE dt, DateRange * pPeriod)
 			RVALUEPTR(period, pPeriod);
 		}
 		else if(sgd == sgdWeek) {
-			int dow = dayofweek(&dt, 1);
+			int dow = dayofweek(dt, 1);
 			period.low = (dow > 1) ? plusdate(dt, -(dow-1)) : dt;
 			period.upp = (dow < 7) ? plusdate(dt, 7-dow) : dt;
 		}

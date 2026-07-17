@@ -2068,8 +2068,8 @@ int STimeChunkBrowser::CalcChunkRect(const Area * pArea, SRectArray & rRectList)
 								if(p_chunk->Chunk.Intersect(day_chunk, &day_sect)) {
 									assert(day_sect.Start.d == dt);
 									assert(day_sect.Finish.d == dt);
-									srect.a.y = upp_edge + (int)(vpix_per_sec * ::DiffTime(day_sect.Start.t, start_tm, 3));
-									srect.b.y = upp_edge + (int)(vpix_per_sec * ::DiffTime(day_sect.Finish.t, start_tm, 3));
+									srect.a.y = upp_edge + (int)(vpix_per_sec * DiffTime_(day_sect.Start.t, start_tm, SUOM_SECOND));
+									srect.b.y = upp_edge + (int)(vpix_per_sec * DiffTime_(day_sect.Finish.t, start_tm, SUOM_SECOND));
 									srect.a.x = left_edge + pArea->PixQuant * day_n + x_gap;
 									srect.b.x = left_edge + pArea->PixQuant * (day_n+1) - x_gap;
 									srect.C = *p_chunk;
@@ -2454,7 +2454,7 @@ int STimeChunkBrowser::CopyToClipboard()
 				const  LDATE dt = plusdate(St.Bounds.Start.d, quant);
 				if(dt <= St.Bounds.Finish.d) {
 					if(IsQuantVisible(quant)) {
-						GetDayOfWeekText(dowtRuFull, dayofweek(&dt, 1), dow_buf);
+						GetDayOfWeekText(dowtRuFull, dayofweek(dt, 1), dow_buf);
 						temp_buf.Z().Cat(dt, DATF_DMY).Space().Cat(dow_buf);
 
 						sw.PutFormat("FC0L", 1, column, row);
@@ -2613,7 +2613,7 @@ void STimeChunkBrowser::Paint()
 					canv.LineVert(x, y, a2.Full.b.y);
 					canv.PopObject();
 
-					GetDayOfWeekText(4, dayofweek(&dt, 1), dow_buf);
+					GetDayOfWeekText(4, dayofweek(dt, 1), dow_buf);
 					temp_buf.Z().Cat(dt, DATF_DMY).Space().Cat(dow_buf);
 					TRect tr(x - a2.PixQuant + 2, y + 2, x - 2, y + P.HdrLevelHeight - 2);
 					canv.DrawText_(tr, temp_buf, DT_CENTER|DT_END_ELLIPSIS);
@@ -2761,7 +2761,7 @@ void STimeChunkBrowser::Paint()
 							canv.LineVert(x, y, y-5);
 							if(i != 0) {
 								if(unit >= SlConst::SecsPerDay) {
-									GetDayOfWeekText(4, dayofweek(&dtm.d, 1), dow_buf);
+									GetDayOfWeekText(4, dayofweek(dtm.d, 1), dow_buf);
 									temp_buf.Z().Cat(dtm.d, DATF_DMY).Space().Cat(dow_buf);
 								}
 								else
@@ -2828,7 +2828,7 @@ void STimeChunkBrowser::Paint()
 						LDATE dt;
 						dt.v = ra.Val;
 						canv.LineVert(x, y, y-5);
-						GetDayOfWeekText(4, dayofweek(&dt, 1), dow_buf);
+						GetDayOfWeekText(4, dayofweek(dt, 1), dow_buf);
 						temp_buf.Z().Cat(dt, DATF_DMY).Space().Cat(dow_buf);
 						TRect tr(x+2, y - P.HdrLevelHeight*5/6, left_edge + SecToPix(s+unit), y);
 						canv.DrawText_(tr, temp_buf, DT_LEFT | DT_END_ELLIPSIS);
@@ -2844,7 +2844,7 @@ void STimeChunkBrowser::Paint()
 				//
 				if(i != 0 && first_x > (left_edge+4) && prev_s < 0) {
 					if(unit >= SlConst::SecsPerDay) {
-						GetDayOfWeekText(4, dayofweek(&prev_dtm.d, 1), dow_buf);
+						GetDayOfWeekText(4, dayofweek(prev_dtm.d, 1), dow_buf);
 						temp_buf.Z().Cat(prev_dtm.d, DATF_DMY).Space().Cat(dow_buf);
 					}
 					else

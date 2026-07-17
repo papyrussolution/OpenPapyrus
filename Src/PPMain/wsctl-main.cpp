@@ -1389,7 +1389,7 @@ WsCtl_ImGuiSceneBlock::QuotKindEntry::QuotKindEntry() : ID(0), Rank(0), DaysOfWe
 }
 		
 bool WsCtl_ImGuiSceneBlock::QuotKindEntry::HasWeekDayRestriction() const { return (DaysOfWeek && ((DaysOfWeek & 0x7f) != 0x7f)); }
-bool WsCtl_ImGuiSceneBlock::QuotKindEntry::CheckWeekDay(LDATE dt) const { return (!DaysOfWeek || !dt || (DaysOfWeek & (1 << (dayofweek(&dt, 1)-1)))); }
+bool WsCtl_ImGuiSceneBlock::QuotKindEntry::CheckWeekDay(LDATE dt) const { return (!DaysOfWeek || !dt || (DaysOfWeek & (1 << (dayofweek(dt, 1)-1)))); }
 
 WsCtl_ImGuiSceneBlock::QuotEntry::QuotEntry() : QkID(0), Value(0.0)
 {

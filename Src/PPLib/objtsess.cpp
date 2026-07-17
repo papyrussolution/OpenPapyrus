@@ -1557,7 +1557,7 @@ int PPObjTSession::CompleteSession(PPID sessID, int use_ta)
 								const  long timing = sub_ses_rec.PlannedTiming;
 								LDATETIME start;
 								start.Set(sub_ses_rec.StDt, sub_ses_rec.StTm);
-								LDATETIME finish = plusdatetime(start, timing, 3);
+								LDATETIME finish = plusdatetime(start, timing, SUOM_SECOND);
 								if(!start.d)
 									finish.d = ZERODATE;
 								sub_ses_rec.FinDt = finish.d;
@@ -2413,8 +2413,8 @@ int PPObjTSession::MakeSessionsByRepeating(const PPIDArray * pSrcSessList, const
 							TSessionTbl::Key4 k4;
 							MEMSZERO(k4);
 							k4.PrcID = src_sess_pack.Rec.PrcID;
-							const LDATETIME _kdtm  = plusdatetime(_st_dtm, -30, 3); // минус 30 секунд
-							const LDATETIME _kfdtm = plusdatetime(_st_dtm, +30, 3); // минус 30 секунд
+							const  LDATETIME _kdtm  = plusdatetime(_st_dtm, -30, SUOM_SECOND); // минус 30 секунд
+							const  LDATETIME _kfdtm = plusdatetime(_st_dtm, +30, SUOM_SECOND); // минус 30 секунд
 							k4.StDt = _kdtm.d;
 							k4.StTm = _kdtm.t;
 
@@ -2449,7 +2449,7 @@ int PPObjTSession::MakeSessionsByRepeating(const PPIDArray * pSrcSessList, const
 								if(checkdate(src_sess_pack.Rec.StDt) && checkdate(src_sess_pack.Rec.FinDt)) {
 									long _ds = diffdatetimesec(src_sess_pack.Rec.FinDt, src_sess_pack.Rec.FinTm, src_sess_pack.Rec.StDt, src_sess_pack.Rec.StTm);
 									if(_ds > 0) {
-										const LDATETIME _fin_dtm = plusdatetime(_st_dtm, _ds, 3);
+										const LDATETIME _fin_dtm = plusdatetime(_st_dtm, _ds, SUOM_SECOND);
 										new_sess_pack.Rec.FinDt = _fin_dtm.d;
 										new_sess_pack.Rec.FinTm = _fin_dtm.t;
 									}

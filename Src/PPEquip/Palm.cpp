@@ -4018,7 +4018,7 @@ int PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 					// Расчет выполняем на cfg.SellAnlzTerm недель до последнего воскресенья включительно
 					//
 					ta_filt.Period.upp = LConfig.OperDate;
-					int dow = dayofweek(&ta_filt.Period.upp, 1);
+					int    dow = dayofweek(ta_filt.Period.upp, 1);
 					if(dow < 7)
 						ta_filt.Period.upp = plusdate(ta_filt.Period.upp, -dow);
 					ta_filt.Period.low = plusdate(ta_filt.Period.upp, -7*sp_cfg.SellAnlzTerm+1);

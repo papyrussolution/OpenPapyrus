@@ -7741,7 +7741,7 @@ int PPObjBill::LockFRR(LDATE dt, int * pFRRL_Tag, int use_ta)
 	const  int16 frrl_days = CConfig.FRRL_Days;
 	if(frrl_days) {
 		const LDATE _cd = LConfig.OperDate;
-		if(diffdate(&_cd, &dt, 0) >= frrl_days)
+		if(diffdate(_cd, dt) >= frrl_days)
 			ok = atobj->P_Tbl->LockingFRR(1, pFRRL_Tag, use_ta);
 	}
 	return ok;

@@ -1788,6 +1788,42 @@ int  SString::GetIdxBySub(const char * pSubStr, int div)
 	return idx;
 }
 
+SString & FASTCALL SString::TrimUtf8(size_t n) // @v12.6.11
+{
+	const  size_t _len = Len();
+	if(n < _len) { // Это условие - с запасом ибо utf8-символ больше или равен 1. То есть, если количество байт в строке меньше или равно n, то резать точно ничего не надо.
+		if(n == 0) {
+			Z();
+		}
+		else {
+			size_t processed_size = 0;
+			size_t _count = 0;
+			bool   is_legal_utf8 = true;
+			// берем utf8-символы один за другим из P_Buf и считаем их
+			while(processed_size < _len) {
+				const  uint cp_len = is_legal_utf8 ? SUnicode::GetUtf8Len(PTR8C(P_Buf)+processed_size) : 1;
+				if(cp_len) {
+					processed_size += cp_len;
+					_count++;
+				}
+				else {
+					// Если встретили недопустимый utf8-символ, то дальше считаем, что все символы по одному байту
+					processed_size++;
+					_count++;
+					is_legal_utf8 = false;
+				}
+				//
+				if(_count >= n) {
+					P_Buf[processed_size] = 0;
+					L = processed_size+1;
+					break;
+				}
+			}
+		}
+	}
+	return *this;
+}
+
 size_t SString::LenUtf8() const // @v12.6.5
 {
 	size_t result = 0;
@@ -2944,13 +2980,12 @@ SString & SString::TrimToDiv(size_t n, const char * pDivList)
 	if(n < Len()) {
 		if(pDivList) {
 			size_t p = n;
-			if(p)
-				do {
-					if(sstrchr(pDivList, P_Buf[--p])) {
-						n = p;
-						break;
-					}
-				} while(p);
+			if(p) do {
+				if(sstrchr(pDivList, P_Buf[--p])) {
+					n = p;
+					break;
+				}
+			} while(p);
 		}
 		P_Buf[n] = 0;
 		L = n+1;
@@ -8508,10 +8543,8 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 		const char the_first_chr = pToken[0];
 		if(toklen >= 5)
 			rIb.F |= ImplementBlock::fPhoneSet;
-		// @v11.6.0 {
 		if(toklen >= 8)
 			rIb.F |= ImplementBlock::fClRut;
-		// } @v11.6.0 
 		for(i = 0; i < toklen; i++) {
             const uchar c = pToken[i];
 			const uint16 utf8_extra = SUtfConst::TrailingBytesForUTF8[c];
@@ -8630,7 +8663,6 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						else if(oneof3(c, '+', '(', ')') && ccnt > 1)
 							rIb.F &= ~ImplementBlock::fPhoneSet;
 					}
-					// @v11.6.0 {
 					if(rIb.F & ImplementBlock::fClRut) {
 						if(!(h & SNTOKSEQ_ASCII))
 							rIb.F &= ~ImplementBlock::fClRut;
@@ -8641,7 +8673,6 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						}
 						// @todo Надо еще проверить на отсутствие дубликатов 'k'-'K'; 'K'-'k'
 					}
-					// } @v11.6.0 
 					// @v12.3.0 {
 					if(h & SNTOKSEQ_PLIDENT && !(is_asciialpha || is_dec_c || c == '_')) { // Первый символ не может быть цифрой, но это мы уже проверили выше 
 						h &= ~SNTOKSEQ_PLIDENT;
@@ -8785,7 +8816,6 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					}
 				}
 			}
-			// @v11.3.12 @construction {
 			{
 				const uint32 tf = SNTOKSEQ_LATHYPHENORUSCORE;
 				if(h & tf) {
@@ -8803,7 +8833,6 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					}
 				}
 			}
-			// } @v11.3.12 
 			{
 				const uint32 tf = SNTOKSEQ_NUMERIC;
 				if(h & tf) {
@@ -9193,7 +9222,6 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					}
 				}
 			}
-			// @v11.6.0 {
 			if(rIb.F & ImplementBlock::fClRut) {
 				if(rIb.DecCount >= 7 && rIb.DecCount <= 13) {
 					const char control = toupper(pToken[toklen-1]);
@@ -9235,9 +9263,8 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					}
 				}
 			}
-			// } @v11.6.0 
 			if(h & SNTOKSEQ_ASCII) {
-				{ // @v12.3.3 @construction
+				{ // @v12.3.3
 					if(sstreq(pToken, "===")) {
 						rResultList.AddTok(SNTOK_BASE64_WP, 0.3f, 0/*flags*/);
 						rResultList.AddTok(SNTOK_BASE64_URL_WP, 0.3f, 0/*flags*/);
@@ -9324,6 +9351,12 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 								is_chzn_cigitem = false;
 							_offs++;
 						}
+						// @v12.6.11 {
+						// Если после 01GTIN идет "21" то это - не сигареты, а, скорее всего, суррогатный код чзн содержащий GTIN(01) и SERIAL(21)
+						if(is_chzn_cigitem && (pToken[16] == '2' && pToken[17] == '1')) {
+							is_chzn_cigitem = false;
+						}
+						// } @v12.6.11 
 						if(is_chzn_cigitem) {
 							if(memcmp(pToken+21, "AAAA", 4) == 0) { // @v11.9.0
 								rResultList.AddTok(SNTOK_CHZN_ALTCIGITEM, (toklen == 29) ? 0.8f : 0.4f, 0/*flags*/);

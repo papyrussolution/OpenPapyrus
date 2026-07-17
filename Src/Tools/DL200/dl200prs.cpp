@@ -666,8 +666,8 @@ DL2_CI * DL2_Resolver::Helper_Resolve(const DL2_Column * pCol, const DL2_CI * pI
 		if(r > 0) {
 			DateRange period = CurPeriod;
 			if(dl2ac.PrdOfs) {
-				plusperiod(&period.low, dl2ac.PrdOfs, dl2ac.NumPrdOfs, 0);
-				plusperiod(&period.upp, dl2ac.PrdOfs, dl2ac.NumPrdOfs, 0);
+				plusperiod(&period.low, dl2ac.PrdOfs, dl2ac.NumPrdOfs);
+				plusperiod(&period.upp, dl2ac.PrdOfs, dl2ac.NumPrdOfs);
 			}
 			PPID   acc_id = 0;
 			long   f = (DL2_Acc::fDebit | DL2_Acc::fCredit);

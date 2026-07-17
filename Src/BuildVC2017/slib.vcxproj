@@ -2137,6 +2137,7 @@
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Sync</ExceptionHandling>
       <ExceptionHandling Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">Sync</ExceptionHandling>
     </ClCompile>
+    <ClCompile Include="..\SLib\slib-ued.cpp" />
     <ClCompile Include="..\SLib\slrecmgr.cpp" />
     <ClCompile Include="..\SLib\sltabs.cpp" />
     <ClCompile Include="..\SLib\smemchr.cpp" />

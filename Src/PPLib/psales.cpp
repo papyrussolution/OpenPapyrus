@@ -338,7 +338,7 @@ int PredictSalesCore::IsHoliday(const ObjIdListFilt * pLocList, LDATE dt)
 		const  int all_locs = BIN(pLocList->IsEmpty());
 		int    d, m, y;
 		int16  day, dayofyear, loc_idx = 0;
-		int    dw = dayofweek(&dt, 1);
+		int    dw = dayofweek(dt, 1);
 		const PPIDArray & r_loc_list = pLocList->Get();
 		decodedate(&d, &m, &y, &dt);
 		ShrinkDate(encodedate(d, m, 1996), &dayofyear);
@@ -410,7 +410,7 @@ int PredictSalesCore::IsHolidayByLocIdx(int16 locIdx, LDATE dt) const
 			if(SearchHoliday(hte))
 				r = 1;
 			else {
-				int16 dw = -(int16)dayofweek(&dt, 1);
+				int16 dw = -(int16)dayofweek(dt, 1);
 				hte.Day = dw;
 				if(SearchHoliday(hte))
 					r = 1;

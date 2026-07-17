@@ -3161,18 +3161,14 @@ int PPViewVatBook::Export()
 			sender_ident.Z().CatCharN('0', 12);
 		}
 		if(Filt.Kind == PPVTB_BUY) {
-			// @v11.3.2 p_ledger_title = "КнигаПокуп";
-			// @v11.3.2 p_ledger_line_title = "КнПокСтр";
-			ledger_title = g.GetToken_Ansi(PPHSC_RU_PURCHASELEDGER); // @v11.3.2
-			ledger_line_title = g.GetToken_Ansi(PPHSC_RU_PURCHASELEDGERLN); // @v11.3.2
+			ledger_title = g.GetToken_Ansi(PPHSC_RU_PURCHASELEDGER);
+			ledger_line_title = g.GetToken_Ansi(PPHSC_RU_PURCHASELEDGERLN);
 			id_file.Cat("NO_NDS").DotCat("8").CatChar('_').Cat(rcvr_ident).CatChar('_').Cat(sender_ident).
 				CatChar('_').Cat(_cdate, DATF_YMD|DATF_CENTURY|DATF_NODIV).CatChar('_').Cat(_uniq_suffix);
 		}
 		else if(Filt.Kind == PPVTB_SELL) {
-			// @v11.3.2 p_ledger_title = "КнигаПрод";
-			// @v11.3.2 p_ledger_line_title = "КнПродСтр";
-			ledger_title = g.GetToken_Ansi(PPHSC_RU_SALESLEDGER); // @v11.3.2
-			ledger_line_title = g.GetToken_Ansi(PPHSC_RU_SALESLEDGERLN); // @v11.3.2
+			ledger_title = g.GetToken_Ansi(PPHSC_RU_SALESLEDGER);
+			ledger_line_title = g.GetToken_Ansi(PPHSC_RU_SALESLEDGERLN);
 			id_file.Cat("NO_NDS").DotCat("9").CatChar('_').Cat(rcvr_ident).CatChar('_').Cat(sender_ident).
 				CatChar('_').Cat(_cdate, DATF_YMD|DATF_CENTURY|DATF_NODIV).CatChar('_').Cat(_uniq_suffix);
 		}
@@ -3212,8 +3208,7 @@ int PPViewVatBook::Export()
 					else if(Filt.Kind == PPVTB_SELL) {
 						n_doc.PutAttrib(g.GetToken_Ansi(PPHSC_RU_INDEX), "0000090");
 					}
-					// @v11.3.2 n_doc.PutAttrib("НомКорр", "0");
-					n_doc.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CORRECTIONNO_), "0"); // @v11.3.2
+					n_doc.PutAttrib(g.GetToken_Ansi(PPHSC_RU_CORRECTIONNO_), "0");
 					{
 						constexpr uint vat_rate_count = 6; // @v12.5.3 5-->6
 						SXml::WNode n_book(g.P_X, ledger_title);

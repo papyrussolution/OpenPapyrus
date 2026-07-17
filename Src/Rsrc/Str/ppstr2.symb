@@ -1,18 +1,18 @@
 
 [hash]
-base=ppstr2.txt,erOb/vdHzqOU57E5lfTLCj2SXTgFcvCRnyZHw2fLEP8=,ppstr2.bin,d1DiE+4rngPfqrT/KpaKE9BvaRfMAjXFsmIHT6rQau4=
+base=ppstr2.txt,xWhofyjjZFJuDzpFanutanuUs58N54GWWnkj0TuPUgU=,ppstr2.bin,NEZ9eLCFCwVWhlK2RV6c1RNq9+6P7JRcqhEmrzEdF5w=
 lang-de=ppstr2-de.txt,vBHXz7GFmSlWHN5nhQWFT6WBP/qX1NctpzLNyBKBRUs=,ppstr2-de.bin,IgP0oJq+StX6/pHGw3DlOEbNMrxZZeYYfFLh/tUQQD4=
 lang-en=ppstr2-en.txt,+28p3hMfvSudDV3CqfJDOjTZKho2umy1K4C92tm3UyY=,ppstr2-en.bin,JDl8q1nkd4ILSPASoUHHH8s6KZM7kP5OUXwUOH/Kvug=
 lang-es=ppstr2-es.txt,bvkiJX8i+13kNCalRFfPxci9gmGnLr6J9xhKF+0NtLo=,ppstr2-es.bin,hebe73IxmbxJ+qOeg1vD9+iWczPBOsihVl0WLPu2McE=
 lang-nl=ppstr2-nl.txt,Qu0aihpaC9sB5/9X+XW+O/SEjNj1xI04rRvezRthdLQ=,ppstr2-nl.bin,b7LDKYhsEWl1AxDnuhKaxFsW5LwqMpWA7P8pk/Z8tqk=
 lang-pt=ppstr2-pt.txt,UCn636ls+9Wei7NF5wM/r/9urjXBchGWUIAnmqVDlGY=,ppstr2-pt.bin,pYieVsWs9JRwpEzswpHbuzr+/cRhm+Z4UUAdy5rZ3Do=
-chdr=ppstr2.h,+Sc+Ie5uWZz6wPN3u0RLt5W9J6YPWoJySHTfJwKSCec=
-java=ppstr2.java,bS712jyCcUQSwJsb4rVaAE+FfzrDwtP1OEveDB98J1I=
+chdr=ppstr2.h,ymrKeSjK0pzZjBmFrzYVK/O1/mnXAeRYV5Kq8owXbV4=
+java=ppstr2.java,wWUBUwkTmJ2mTeomvcUuCZlF+PyGFJA1VggA1HiWbt8=
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147499165
-LastAutoCodeList=1,12475;102,10179;103,10074;110,10000;111,13061;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10314;120,10010;1001,10000;121,10000;122,10000;123,10661;124,10896;125,10128;126,10000
+LastSignatureCode=2147499171
+LastAutoCodeList=1,12476;102,10179;103,10074;110,10000;111,13061;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10314;120,10010;1001,10000;121,10000;122,10000;123,10661;124,10896;125,10128;126,10000
 
 [SignatureList]
 testsign1=2147495071
@@ -2706,6 +2706,7 @@ rregt_dto_id=2147485712
 rregt_taxsystem=2147495338
 rregt_enalogid=2147495339
 rregt_driverlicense=2147499160
+rregt_ogrnip=2147499171
 ropcntr_workbook=2147485714
 txsk_general=2147485715
 txsk_simplified=2147485716
@@ -3935,6 +3936,9 @@ bill_code=2147495828
 bill_freightcost=2147486784
 bill_freight_dlvrdate=2147494257
 bill_freight_dlvrcity=2147494319
+bill_freight_tmloading=2147499166
+bill_freight_tmldarrv=2147499167
+bill_freight_tmlddprt=2147499168
 bill_crate=2147495829
 bill_cur=2147495830
 bill_dlvraddr=2147495831
@@ -11286,6 +11290,8 @@ prcssrgoodssaldoparam_calcperiod=2147498873
 prcssrgoodssaldoparam_fullcalc=2147493588
 prcssrgoodssaldoparam_fromlastcal=2147493589
 prcssrgoodssaldoparam_lastcalcdate=2147493590
+prcssrchznmarkinfocollector=2147499169
+prcssrchznmarkinfocollector_limitstoredays=2147499170
 calcprice=2147493591
 calcprice_flags=2147498874
 calcprice_fcostwovat=2147498875
@@ -13893,6 +13899,7 @@ PPERR_GSITEMGOODSUNRESOLVED=78008
 PPERR_SYNCPOSNODEREGPORTUNDEF=78009
 PPERR_ETRNEXP_FREIGHTNEEDED=78010
 PPERR_ETRNEXP_TRANSPORTNEEDED=78011
+PPERR_SECSEGHASCHLDRN_UNABLEDEL=78012
 PPCFM_TEXT_89=6694673
 PPCFM_TEXT_90=6694674
 PPCFM_DELUSRGRP=6694675

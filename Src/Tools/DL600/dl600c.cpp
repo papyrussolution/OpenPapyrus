@@ -11,9 +11,10 @@
 // Строка отладки для интерфейсов: ../rsrc/dl600/ppifc.dl6
 // Строка отладки для структуры БД: /dict:..\..\BASE\INIT_DL6 /oracle ..\rsrc\dl600\ppdbs.dl6
 //   /dict:..\..\base\init_dl6 /data:..\..\base\init_dl6 /oracle ..\rsrc\dl600\ppdbs.dl6
+//   /dict:D:\Papyrus\base\init_dl6 /data:D:\Papyrus\base\init_dl6 /oracle /mysql /sqlite D:\Papyrus\Src\Rsrc\dl600\ppdbs.dl6
 // Строка отладки для экспортных структур: ..\rsrc\dl600\ppexp.dl6
 // Строка отладки для диалогов: ..\rsrc\dl600\ppdlg.dl6 /d
-
+// Строка отладки для uiview: d:\papyrus\src\Rsrc\dl600\uiview.dl6
 //
 //
 // На интерфейсы генерируется:
@@ -697,7 +698,7 @@ int DlContext::AddTypedef(const CtmToken & rSymb, DLSYMBID typeID, uint tdFlags)
 //
 //
 //
-int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, DLSYMBID typeID, const CtmPropertySheet & rS, const CtmUiSupplement & rSupplement) // @v11.0.4
+int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, DLSYMBID typeID, const CtmPropertySheet & rS, const CtmUiSupplement & rSupplement)
 {
 	EXCEPTVAR(LastError);
 	int    ok = 1;
@@ -3501,8 +3502,8 @@ int DlContext::ResolveFunc(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr)
 	}
 	{
 		LongArray fpl[3]; // func pos list
-		const DlScope * p_org_scope = GetScope(scopeID);
-		const DlScope * p_scope = p_org_scope;
+		const  DlScope * p_org_scope = GetScope(scopeID);
+		const  DlScope * p_scope = p_org_scope;
 		while(ok < 0 && p_scope) {
 			uint   pos = 0;
 			uint   prev_scope_kind = p_scope->GetKind();
@@ -3541,7 +3542,7 @@ int DlContext::ResolveFunc(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr)
 			}
 			if(s_[0] >= 0 || s_[1] >= 0 || s_[2] >= 0) {
 				rf.ScopeID = p_scope->ID;
-				for(i = 0; ok < 0 && i < 3; i++)
+				for(i = 0; ok < 0 && i < 3; i++) {
 					if(s_[i] >= 0) {
 						THROW_V(ambig[i] == 0, PPERR_DL6_FUNCAMBIG);
 						rf.Pos = func_pos_list.at(s_[i]);
@@ -3564,6 +3565,7 @@ int DlContext::ResolveFunc(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr)
 						pExpr->SetResolvedFunc(rf);
 						ok = 1;
 					}
+				}
 			}
 			else {
 				if(p_scope->GetKind() == DlScope::kExpData) {
@@ -3574,16 +3576,17 @@ int DlContext::ResolveFunc(DLSYMBID scopeID, int exactScope, CtmExpr * pExpr)
 					//
 					uint   pos = 0;
 					DlScope * p_child = 0;
-					for(uint i = 0; ok < 0 && p_scope->EnumChilds(&i, &p_child);)
+					for(uint i = 0; ok < 0 && p_scope->EnumChilds(&i, &p_child);) {
 						if(p_child->GetKind() == DlScope::kExpDataHdr) {
 							ok = ResolveFunc(p_child->ID, 1, pExpr); // @recursion
 							if(!ok && LastError == PPERR_DL6_NOFUNCBYNAME)
 								ok = -1;
 						}
+					}
 				}
 				if(ok < 0) {
 					THROW_V(!exactScope, PPERR_DL6_NOFUNCBYNAME);
-					p_scope = NZOR(p_scope->GetBase(), p_scope->GetOwner());
+					p_scope = NZOR(p_scope->GetBase(), p_scope->GetOwnerC());
 					//p_scope = p_scope->GetOwner();
 				}
 			}
@@ -3905,6 +3908,7 @@ DLSYMBID DlContext::Helper_EnterViewScope(uint scopeKind, const char * pSymb)
 		const uint scope_kind = scopeKind;
 		// @fixme AddStructType(symb_id) в случае view не нужно (или нужно?)
 		DlScope * p_cur_scope = GetCurScope();
+		DlScope * p_top_view_scope = 0;
 		assert(p_cur_scope); // Не может такого быть, что нет текущей области: значит мы вызывали функцию откуда-то не от туда.
 		if(p_cur_scope) {
 			DLSYMBID symb_id = 0;
@@ -3915,7 +3919,7 @@ DLSYMBID DlContext::Helper_EnterViewScope(uint scopeKind, const char * pSymb)
 				uuid.Generate();
 				uuid.ToStr(S_GUID::fmtPlain, name_); // automatic generated ident
 				const int ssr = SearchSymb(name_, '^', &symb_id);
-				assert(!ssr); // Если ssr != то нам удалось найти дубликат GUID'а: можно ползти на кладбище - в этом чертовом мире делать больше нечего
+				assert(!ssr); // Если ssr != 0 то нам удалось найти дубликат GUID'а: можно ползти на кладбище - в этом чертовом мире делать больше нечего
 				if(!ssr) {
 					symb_id = CreateSymb(name_, '^', 0);
 					THROW(symb_id);
@@ -3934,12 +3938,11 @@ DLSYMBID DlContext::Helper_EnterViewScope(uint scopeKind, const char * pSymb)
 				}
 				// } @v12.3.3 
 				name_ = pSymb;
-				const DlScope * p_top_view_scope = 0;
-				const DlScope * p_par = p_cur_scope;
+				const  DlScope * p_par = p_cur_scope;
 				if(p_par->GetKind() == scope_kind) {
 					do {
-						p_top_view_scope = p_par;
-						p_par = p_par->GetOwner();
+						p_top_view_scope = const_cast<DlScope *>(p_par); // @badcast
+						p_par = p_par->GetOwnerC();
 					} while(p_par && p_par->GetKind() == scope_kind);
 				}
 				if(p_top_view_scope) {
@@ -3983,19 +3986,30 @@ DLSYMBID DlContext::Helper_EnterViewScope(uint scopeKind, const char * pSymb)
 				}
 			}
 			id = EnterScope(scope_kind, name_, symb_id, 0);  // view {
-			// @v12.3.3 {
-			if(preproc_symb_id) {
-				if(id) {
-					DlScope * p_cur_scope_inner = GetCurScope();	
-					if(p_cur_scope_inner) {
+			{
+				DlScope * p_cur_scope_inner = id ? GetCurScope() : 0;
+				if(p_cur_scope_inner) {
+					// @v12.3.3 {
+					if(preproc_symb_id) {
 						assert(p_cur_scope_inner->ID == id);
 						CtmExprConst c;
 						AddConst(static_cast<uint32>(preproc_symb_id), &c);
 						p_cur_scope_inner->AddConst(DlScope::cucmSymbolIdent, c, 1);
 					}
+					// } @v12.3.3 
+					// @v12.6.11 {
+					else if(!isempty(pSymb)) {
+						uint   supposed_ident = 0;
+						if(p_top_view_scope && p_top_view_scope->AddUnresolvedSymb(pSymb, &supposed_ident) > 0 &&  supposed_ident) {
+							assert(p_cur_scope_inner->ID == id);
+							CtmExprConst c;
+							AddConst(static_cast<uint32>(supposed_ident), &c);
+							p_cur_scope_inner->AddConst(DlScope::cucmSymbolIdent, c, 1);
+						}
+					}
+					// } @v12.6.11 
 				}
 			}
-			// } @v12.3.3 
 		}
 	}
 	CATCH
@@ -4009,13 +4023,34 @@ DLSYMBID DlContext::EnterViewScope(const char * pSymb) { return Helper_EnterView
 
 int DlContext::LeaveScope()
 {
+	int    ok = 1;
 	DLSYMBID scope_id = CurScopeID;
-	if(!Sc.LeaveScope(scope_id, &CurScopeID)) {
-		(AddedMsgString = 0).Cat(scope_id);
-		return Error(PPERR_DL6_SCOPEIDNFOUND, 0, erfExit);
+	DlScope * p_scope = Sc.LeaveScope(scope_id, &CurScopeID);
+	if(!p_scope) {
+		AddedMsgString.Z().Cat(scope_id);
+		ok = Error(PPERR_DL6_SCOPEIDNFOUND, 0, erfExit);
 	}
-	else
-		return 1;
+	else {
+		// @v12.6.11 {
+		#ifdef DL600C // {;
+		const StringSet * p_ss = p_scope->GetUnresolvedSymbSet();
+		if(p_ss) {
+			SString temp_buf;
+			SString msg_buf;
+			if(p_scope->GetName().NotEmpty()) {
+				msg_buf.Cat(p_scope->GetName()).CatDiv('-', 1);
+			}
+			msg_buf.Cat("Unresolved symbols").CatDiv(':', 2);
+			for(uint ssp = 0; p_ss->get(&ssp, temp_buf);) {
+				msg_buf.Cat(temp_buf).Space();
+			}
+			msg_buf.CR();
+			printf(msg_buf.cptr());
+		}
+		#endif
+		// } @v12.6.11 
+	}
+	return ok;
 }
 
 int DlContext::PushScope()
@@ -4071,10 +4106,10 @@ int DlContext::Write_Func(Generator_CPP & gen, const DlFunc & rFunc, int format,
 	THROW(SearchTypeID(rFunc.TypID, 0, &ret_te));
 	rFunc.GetName(0, temp_buf);
 	/*
-		ffH_GravityIface,   // @v10.8.6 Прототип интерфейса Gravity в H-файле
-		ffH_GravityImp,     // @v10.8.6 Прототип реализации интерфейса Gravity в H-файле
-		ffCPP_GravityIface, // @v10.8.6 Реализация интефейса Gravity в CPP-файле
-		ffCPP_GravityImp,   // @v10.8.6 Реализация Gravity в CPP-файле
+		ffH_GravityIface,   // Прототип интерфейса Gravity в H-файле
+		ffH_GravityImp,     // Прототип реализации интерфейса Gravity в H-файле
+		ffCPP_GravityIface, // Реализация интефейса Gravity в CPP-файле
+		ffCPP_GravityImp,   // Реализация Gravity в CPP-файле
 	*/
 	if(format == ffH_GravityIface) {
 		arg_buf.Z().Cat("_Callee_").Cat(temp_buf);
@@ -5193,7 +5228,7 @@ int DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope, lon
 				// code... {
 				gen.IndentInc();
 				DlScope * p_rec = 0;
-				for(j = 0; p_ds->EnumChilds(&j, &p_rec);)
+				for(j = 0; p_ds->EnumChilds(&j, &p_rec);) {
 					if(p_rec->IsKind(DlScope::kExpDataHdr)) {
 						gen.Wr_Indent();
 						if(p_rec->Name.Cmp("hdr", 0) == 0) {
@@ -5218,6 +5253,7 @@ int DlContext::Write_C_ImplFile(Generator_CPP & gen, const DlScope & rScope, lon
 							gen.WriteLine(fld_buf.CR());
 						}
 					}
+				}
 				gen.IndentDec();
 				// } ...code
 				gen.Wr_CloseBrace(0, 0);
@@ -5734,7 +5770,7 @@ int DlContext::Compile(const char * pInFileName, const char * pDictPath, const c
 		Init(file_name);
 	}
 #ifdef DL600C_RELEASE_DEBUG
-	//yydebug = 1; // @v11.0.4
+	//yydebug = 1;
 	SFile  f_debug;
 	{
 		SFsPath::ReplaceExt(file_name = pInFileName, "debug", 1);
@@ -5857,6 +5893,8 @@ int DlContext::Compile(const char * pInFileName, const char * pDictPath, const c
 			}
 #endif // } 0 @v12.5.7 
 			if(Sc.GetFirstChildByKind(DlScope::kDbTable, 1)) {
+				gen.Wr_Define("SLIB_INCLUDE_CPPSTDLIBS", 0); // @v12.6.11
+				gen.Wr_Define("_HAS_EXCEPTIONS", "0"); // @v12.6.11
 				gen.Wr_Include("db.h", 0);
 				gen.Wr_Include("dl600.h", 0);
 				gen.WriteBlancLine();

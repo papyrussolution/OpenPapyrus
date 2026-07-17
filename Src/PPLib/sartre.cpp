@@ -1,5 +1,5 @@
 // SARTR.CPP
-// Copyright (c) A.Sobolev 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -1092,11 +1092,11 @@ SrCProp & FASTCALL SrCProp::operator = (double val)
 	return *this;
 }
 
-SrCProp & FASTCALL SrCProp::operator = (const SUniTime & rUtVal)
+/* @v12.6.11 SrCProp & FASTCALL SrCProp::operator = (const SUniTime & rUtVal)
 {
 	Value.Write(&rUtVal, sizeof(rUtVal));
 	return *this;
-}
+}*/
 
 int FASTCALL SrCProp::Get(int64 & rIntVal) const
 {
@@ -1110,11 +1110,11 @@ int FASTCALL SrCProp::Get(double & rRealVal) const
 	return BIN(s == sizeof(rRealVal));
 }
 
-int FASTCALL SrCProp::Get(SUniTime & rUtVal) const
+/* @v12.6.11 int FASTCALL SrCProp::Get(SUniTime & rUtVal) const
 {
 	size_t s = Value.ReadStatic(&rUtVal, sizeof(rUtVal));
 	return BIN(s == sizeof(rUtVal));
-}
+}*/
 //
 //
 //

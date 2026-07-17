@@ -754,16 +754,16 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzCmpFiltDialog)
 					if(Data.Period.low != ZERODATE && Data.Period.upp != ZERODATE) {
 						long days = diffdate(Data.Period.upp, Data.Period.low);
 						days++;
-						plusperiod(&(Data.CmpPeriod.low = Data.Period.low), PRD_DAY, -days, 0);
-						plusperiod(&(Data.CmpPeriod.upp = Data.Period.upp), PRD_DAY, -days, 0);
+						plusperiod(&(Data.CmpPeriod.low = Data.Period.low), PRD_DAY, -days);
+						plusperiod(&(Data.CmpPeriod.upp = Data.Period.upp), PRD_DAY, -days);
 					}
 				}
 				else {
 					int period = (TVKEY == kbF6) ? PRD_MONTH : PRD_ANNUAL;
 					if(Data.Period.low != ZERODATE)
-						plusperiod(&(Data.CmpPeriod.low = Data.Period.low), period, -1, 0);
+						plusperiod(&(Data.CmpPeriod.low = Data.Period.low), period, -1);
 					if(Data.Period.upp != ZERODATE)
-						plusperiod(&(Data.CmpPeriod.upp = Data.Period.upp), period, -1, 0);
+						plusperiod(&(Data.CmpPeriod.upp = Data.Period.upp), period, -1);
 				}
 				SetPeriodInput(this, CTL_GOODSOPRE_PERIOD, Data.CmpPeriod);
 				clearEvent(event);

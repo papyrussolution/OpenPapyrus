@@ -609,15 +609,14 @@ IMPL_DBE_PROC(_upper_s)
 IMPL_DBE_PROC(_day_d) {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES(static_cast<long>(d));}
 IMPL_DBE_PROC(_mon_d) {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES(static_cast<long>(m));}
 IMPL_DBE_PROC(_year_d) {int d,m,y; decodedate(&d, &m, &y, &DPAR(0)); RES(static_cast<long>(y));}
-IMPL_DBE_PROC(_weekday_d) { RES(static_cast<long>(dayofweek(&DPAR(0), 1))); }
+IMPL_DBE_PROC(_weekday_d) { RES(static_cast<long>(dayofweek(DPAR(0), 1))); }
 IMPL_DBE_PROC(_add_di) 
 { 
-	LDATE dt = DPAR(0);
-	plusdate(&dt, IPAR(1), 0); 
+	LDATE  dt = plusdate(DPAR(0), IPAR(1)); 
 	RES(dt);
 	//result->copy(params[0]); 
 }
-IMPL_DBE_PROC(_sub_dd) { RES(diffdate(&DPAR(0), &DPAR(1), 0)); }
+IMPL_DBE_PROC(_sub_dd) { RES(diffdate(DPAR(0), DPAR(1))); }
 
 IMPL_DBE_PROC(_count_v)
 {

@@ -139,7 +139,9 @@ file:
 table ExtCodeRef {
 	string Code[156];
 	long   Kind;         // 0 - undef, 1 - ops, 2 - aggregation
-	raw    Reserve[28];
+	uint64 UedModTm;     // @v12.6.10 Время последней модификации (UED_META_TIME_MSEC)
+	long   GuaID;        // @v12.6.11 ->Ref(PPOBJ_GLOBALUSERACC)
+	raw    Reserve[16];  // @v12.6.10 [28]-->[20] // @v12.6.11 [20]-->[16]
 	blob   VT[2048];
 index:
 	Code, Kind (unique mod); // #0
