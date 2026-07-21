@@ -2630,7 +2630,7 @@ private:
 				case PPGLS_VETIS:
 					break;
 				case PPGLS_CHZN:
-					// @v12.3.12 @construction {
+					// @v12.3.12 {
 					{
 						class ChZnLocPmPaneDialog : public TDialog {
 						public:
@@ -2733,13 +2733,13 @@ private:
 					break;
 			}
 		}
-		//@erik @v10.7.13{
+		//@erik {
 		else if(event.isCbSelected(CTLSEL_GLOBUSERACC_SVC)) {
 			getCtrlData(CTLSEL_GLOBUSERACC_SVC, &Data.Rec.ServiceIdent);
 			disableCtrl(CTL_GS_SETTING, !Data.Rec.ServiceIdent);
 			SetupGlobalService(); // @v12.2.0
 		}
-		// } @erik @v10.7.13
+		// } @erik
 		else
 			return;
 		clearEvent(event);

@@ -7926,7 +7926,7 @@ int DocNalogRu_Generator::WriteWareInfoAddendum(const PPBillImpExpParam & rParam
 			if(!correction) {
 				if(!no_marks_because_notch) { // @v12.5.10 @condition
 					PPLotExtCodeContainer::MarkSet ext_codes_set;
-					const bool is_there_extcodes = (rBp.XcL.Get(itemIdx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount());
+					const  bool is_there_extcodes = (rBp.XcL.Get(itemIdx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount());
 					if(is_there_extcodes) {
 						// @v12.5.12 SXml::WNode n_marks(P_X, GetToken_Ansi(PPHSC_RU_WAREIDENTBLOCK));
 						// @v12.5.12 WriteMarkListOnInvoiceItem(n_marks, rParam, chzn_prod_type, chzn_int_qty, ext_codes_set);
@@ -7977,7 +7977,7 @@ int DocNalogRu_Generator::WriteWareInfoAddendum(const PPBillImpExpParam & rParam
 				}
 			}
 			if(!no_marks_because_notch) { // @v12.5.10 @condition
-				const bool is_there_extcodes_after = (rBp.XcL.Get(itemIdx+1, 0, ext_codes_set_after) > 0 && ext_codes_set_after.GetCount());
+				const  bool is_there_extcodes_after = (rBp.XcL.Get(itemIdx+1, 0, ext_codes_set_after) > 0 && ext_codes_set_after.GetCount());
 				if(is_there_extcodes_before || is_there_extcodes_after) {
 					WriteMarkListOnInvoiceItem3(P_X, wmlictxCorrectionBefore, rParam, chzn_prod_type, chzn_int_qty_before, ext_codes_set_before); // @v12.6.1 
 					WriteMarkListOnInvoiceItem3(P_X, wmlictxCorrectionAfter, rParam, chzn_prod_type, chzn_int_qty, ext_codes_set_after); // @v12.6.1 
@@ -9911,7 +9911,7 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 								bool   no_marks = true;
 								if(!no_marks_because_notch) {
 									ext_codes_set.Z();
-									const bool is_there_extcodes = (R_Bp.XcL.Get(ti_idx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount());
+									const  bool is_there_extcodes = (R_Bp.XcL.Get(ti_idx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount());
 									if(is_there_extcodes) {
 										StringSet ss_local;
 										ext_codes_set.GetByBoxID(0, ss_local);

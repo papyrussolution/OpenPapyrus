@@ -2323,9 +2323,9 @@ int PPObjBill::AddDraftBySample(PPID * pBillID, PPID sampleBillID, const SelAddB
 						row_idx_list.Z();
 						THROW(pack.InsertRow(&new_ti, &row_idx_list));
 						if(is_src_draft && row_idx_list.getCount() == 1) {
-							const uint ti_pos = row_idx_list.get(0);
-							ObjTagList row_tag_list;
+							const  uint ti_pos = row_idx_list.get(0);
 							const  PPID _tag_id_list[] = { PPTAG_LOT_SN, PPTAG_LOT_CLB, PPTAG_LOT_FSRARINFA, PPTAG_LOT_FSRARINFB, PPTAG_LOT_FSRARLOTGOODSCODE };
+							ObjTagList row_tag_list;
 							for(uint tagidx = 0; tagidx < SIZEOFARRAY(_tag_id_list); tagidx++) {
 								const  PPID row_tag_id = _tag_id_list[tagidx];
 								if(sample_pack.LTagL.GetTagStr(i-1, row_tag_id, temp_buf) > 0)
@@ -5635,7 +5635,7 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 				ReceiptTbl::Rec ord_lot_rec;
 				BillTbl::Rec ord_bill_rec;
 				SString edi_channel;
-				PPID   isales_support_discount_qk = -1; // @v11.1.3 Опорная котировка для расчета скидки по заказам iSales
+				PPID   isales_support_discount_qk = -1; // Опорная котировка для расчета скидки по заказам iSales
 				// @v11.6.0 {
 				pPack->BTagL.GetItemStr(PPTAG_BILL_EDICHANNEL, edi_channel);
 				const bool is_coke_draft = (pPack->OpTypeID == PPOPT_DRAFTEXPEND && edi_channel.IsEqiAscii("COKE"));
@@ -5660,8 +5660,7 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 										const  double ord_price = fabs(ord_item.Price) * ord_qtty;
 										const  double ord_dis   = ord_item.Discount * ord_qtty;
 										const  double ord_pct_dis = (ord_price > 0.0 && ord_dis > 0.0) ? R4(ord_dis / ord_price) : 0.0;
-										// @v11.1.3 }
-										const int is_isales_order = 1;
+										const  int is_isales_order = 1;
 										double isales_support_quot = 0.0;
 										if(is_isales_order && ord_pct_dis > 0.0) {
 											if(isales_support_discount_qk < 0) {
@@ -5676,7 +5675,6 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 													skip = true;
 											}
 										}
-										// } @v11.1.3
 										if(!skip && ord_pct_dis > 0.0)
 											quot = R5(quot * (1.0 - ord_pct_dis));
 									}
@@ -5773,11 +5771,15 @@ private:
 	};
 	class BillExtCache : public ObjCacheHash {
 	public:
-		struct Data : public ObjCacheEntry { // size=8+16
+		struct Data : public ObjCacheEntry {
 			PPID   AgentID;
 			PPID   PayerID;
+			LDATE  InvoiceDate;        // @v12.6.12
+			char   InvoiceCode[24];    // @v12.6.12
+			LDATE  PaymBillDate;       // @v12.6.12
+			char   PaymBillCode[24];   // @v12.6.12
 		};
-		BillExtCache() : ObjCacheHash(PPOBJ_BILLEXT, sizeof(Data), 128*1024, 4, ObjCache::fUseUndefList)
+		BillExtCache() : ObjCacheHash(PPOBJ_BILLEXT, sizeof(Data), SKILOBYTE(512), 12, ObjCache::fUseUndefList) // @v12.6.12 size SKILOBYTE(128)-->SKILOBYTE(512), maxTries 4-->12
 		{
 		}
 	private:
@@ -5792,11 +5794,19 @@ private:
 					if(p_bobj->P_Tbl->GetExtraData(id, &ext_rec) > 0) {
 						p_cache_rec->AgentID = ext_rec.AgentID;
 						p_cache_rec->PayerID = ext_rec.PayerID;
+						p_cache_rec->InvoiceDate = ext_rec.InvoiceDate;
+						p_cache_rec->PaymBillDate = ext_rec.PaymBillDate;
+						STRNSCPY(p_cache_rec->InvoiceCode, ext_rec.InvoiceCode);
+						STRNSCPY(p_cache_rec->PaymBillCode, ext_rec.PaymBillCode);
 						ok = 1;
 					}
 					else {
 						p_cache_rec->AgentID = 0;
 						p_cache_rec->PayerID = 0;
+						p_cache_rec->InvoiceDate.Z();
+						p_cache_rec->PaymBillDate.Z();
+						p_cache_rec->InvoiceCode[0] = 0;
+						p_cache_rec->PaymBillCode[0] = 0;
 						ok = -100;
 					}
 				}
@@ -5812,7 +5822,11 @@ private:
 				#define FLD(f) p_data_rec->f = p_cache_rec->f
 				FLD(PayerID);
 				FLD(AgentID);
+				FLD(InvoiceDate);
+				FLD(PaymBillDate);
 				#undef FLD
+				STRNSCPY(p_data_rec->InvoiceCode, p_cache_rec->InvoiceCode);
+				STRNSCPY(p_data_rec->PaymBillCode, p_cache_rec->PaymBillCode);
 			}
 		}
 	};
@@ -7091,8 +7105,6 @@ int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 	}
 	else {
 		if(oneof3(pPack->OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSMODIF, PPOPT_GOODSORDER) || is_intrexpnd || force) {
-			// @v11.7.3 PPTransferItem * p_ti;
-			// @v11.7.3 for(uint i = 0; pPack->EnumTItems(&i, &p_ti);) {
 			for(uint i = 0; i < pPack->GetTCount(); i++) {
 				const PPTransferItem & r_ti = pPack->ConstTI(i);
 				const int row_idx = (int)(i);
@@ -7124,7 +7136,6 @@ int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 						}
 					}
 				}
-				// @v11.7.3 {
 				if(local_ltagl.GetCount()) {
 					const ObjTagList * p_local_tag_list = local_ltagl.Get(row_idx);
 					if(p_local_tag_list) {
@@ -7144,7 +7155,6 @@ int PPObjBill::LoadClbList(PPBillPacket * pPack, int force)
 							pPack->LTagL.Set(row_idx, &ex_tag_list);
 					}
 				}
-				// } @v11.7.3 
 			}
 		}
 	}
@@ -9567,17 +9577,17 @@ int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, cons
 					//
 					// Попытка установить соответствие между строками документа и лотами теневого документа
 					//
-					int    corr_item_founded = 0;
+					bool   corr_item_found = false;
 					uint   j;
 					//
 					// На первой итерации пытаемся установить соответствие с учетом количества
 					//
-					for(j = 0; !corr_item_founded && pPack->SearchGoods(labs(p_ti->GoodsID), &j); j++) {
+					for(j = 0; !corr_item_found && pPack->SearchGoods(labs(p_ti->GoodsID), &j); j++) {
 						PPTransferItem & r_loc_ti = pPack->TI(j);
 						if(r_loc_ti.Flags & PPTFR_ONORDER && r_loc_ti.OrdLotID == 0) {
 							if(fabs(r_loc_ti.Quantity_) == fabs(p_ti->Quantity_)) {
 								r_loc_ti.OrdLotID = p_ti->LotID;
-								corr_item_founded = 1;
+								corr_item_found = true;
 							}
 						}
 					}
@@ -9589,7 +9599,7 @@ int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, cons
 						PPTransferItem & r_loc_ti = pPack->TI(j);
 						if(r_loc_ti.Flags & PPTFR_ONORDER && r_loc_ti.OrdLotID == 0) {
 							r_loc_ti.OrdLotID = p_ti->LotID;
-							corr_item_founded = 1;
+							corr_item_found = true;
 						}
 					}
 					//

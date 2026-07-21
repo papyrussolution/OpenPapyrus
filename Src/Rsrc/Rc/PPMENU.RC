@@ -244,11 +244,11 @@
 			MENUITEM "@cmd_ediprovider",				cmEdiProvider
 			MENUITEM "@cmd_namedobjassoc",				cmNamedObjAssoc
 			MENUITEM "@cmd_eventtoken",					cmEventToken
-			MENUITEM "@cmd_eventsubscription",          cmEventSubscription // @v10.8.9
+			MENUITEM "@cmd_eventsubscription",          cmEventSubscription
 			MENUITEM "@cmd_globaluseracc",				cmGlobalUserAcc
 			MENUITEM "@cmd_uhttstore",					cmUhttStore
 			MENUITEM "@cmd_workbook",                   cmWorkbook
-			MENUITEM "@cmd_objtagallobj",				cmObjTagAllObj // @v8.5.3
+			MENUITEM "@cmd_objtagallobj",				cmObjTagAllObj
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_makecrptfiles",				cmMakeCRptFiles
 			MENUITEM "@cmd_verifyallcrpt",				cmVerifyAllCRpt
@@ -260,8 +260,8 @@
 		POPUP "@cmdpu_industryrefs" {
 			MENUITEM "@cmd_transport",					cmTransport
 			MENUITEM "@cmd_rawmaterials",               cmRawMaterials // @v12.0.10
-			MENUITEM "@cmd_timeseries",                 cmTimeSeries // @v10.2.3
-			MENUITEM "@cmd_tssmodel",                   cmTssModel   // @v10.7.4
+			MENUITEM "@cmd_timeseries",                 cmTimeSeries
+			MENUITEM "@cmd_tssmodel",                   cmTssModel
 		}
 		MENUITEM SEPARATOR
 		MENUITEM "@cmd_opentextfile",						cmOpenTextFile
@@ -270,7 +270,7 @@
 		MENUITEM "@cmd_quit",								cmQuit
 	}
 	POPUP "@cmdpu_operations" {
-		MENUITEM "@documentnew",                            cmAddBill // @v10.9.0
+		MENUITEM "@documentnew",                            cmAddBill
 		MENUITEM "@cmd_accturnlist",						cmAccTurnList
 		MENUITEM "@cmd_accturnbilllist",					cmAccturnBillList
 		MENUITEM "@cmd_curreval",							cmCurReval
@@ -587,6 +587,7 @@
 			MENUITEM "@cmd_dump",                           cmDumpData
 			MENUITEM "@cmd_gathercliactivitystatistics",    cmGatherClientActivityStat // @v12.2.2
 			MENUITEM "@cmd_indexphones",                    cmIndexPhones // @v12.4.10 ранее этот пункт был только в SYSTEM
+			MENUITEM "@cmd_chznmarkinfocollector",          cmChZnMarkInfoCollector // @v12.6.12
 			POPUP "@cmdpu_testing" {
 				MENUITEM "@cmd_generategoodsbills",			cmGenerateGoodsBills
 				MENUITEM "@cmd_generateclibnkimport",		cmGenerateCliBnkImport

@@ -193,8 +193,8 @@
 #define cmPriceListCfg                 293 // Конфигурация прайс-листа
 #define cmImportGoodsGrp               301 // Импорт справочника групп товаров
 #define cmImportGoods                  302 // Импорт справочника товаров
-#define cmImportPerson                 303 // Импорт справочника персоналий (старая версия)
-#define cmImportQuot                   304 // Импорт котировок (старая версия)
+// @v12.6.12 #define cmImportPerson                 303 // Импорт справочника персоналий (старая версия)
+// @v12.6.12 #define cmImportQuot                   304 // Импорт котировок (старая версия)
 #define cmChainDatabase                305 // Стяжка базы данных
 #define cmConvert3512                  306 // Конвертация (Register)
 #define cmBillCfg                      307 // Конфигурация документов
@@ -284,7 +284,7 @@
 #define cmGoods2LocAssoc               393 // Список ассоциаций товар-склад
 #define cmDraftCreateRules             394 // Правила создания драфтов
 #define cmImportCountry                395 // Импорт гостударств
-#define cmImportSCard                  396 // Импорт дисконтных карт (старый вариант до v7.3.12)
+// @v12.6.12 #define cmImportSCard                  396 // Импорт дисконтных карт (старый вариант до v7.3.12)
 #define cmDefaultSupplAgt              397 // Соглашение с поставщиками по умолчанию
 #define cmImportSuppl                  398 // Импорт поставщиков
 #define cmTSessWrOffOrder              399 // Порядок списания технологических сессий
@@ -394,7 +394,7 @@
 #define cmDBMaintenance                501 // Обслуживание базы данных
 #define cmDBExit                       502 // Выход из системы
 #define cmGoodsExpImpParams            503 // Конфигурация импорта/экспорта товаров
-#define cmImportGoodsOld               504 // Импорт товаров (по устаревшей технологии)
+// @v12.6.12 #define cmImportGoodsOld               504 // Импорт товаров (по устаревшей технологии)
 #define cmImportTodoFromVCal           505 // Импорт задач из vCalendar/iCalendar
 #define cmVerifyAllCRpt                506 // Верификация всех отчетов
 //#define cmEditImpExpCfgs               507 // Конфигурации импорта/экспорта
@@ -573,6 +573,7 @@
 #define cmExecSessionOnTechRoute       679 // @v12.6.0 Специализированная команда для запуска исполнения фазы технологического маршрута на конкретном процессоре по партии,
 	// выбранной с помощью серийного номера.
 #define cmLaunchApp                    680 // @v12.6.5 Запуск приложения или открытие каталога
+#define cmChZnMarkInfoCollector        681 // @v12.6.12 Коллектор информации о марках чзн, зафиксированных в базе данных 
 //
 // Далее, команды проекта Centrigo
 //

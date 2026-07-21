@@ -1252,6 +1252,7 @@ struct SNaturalTokenStat;
 class  UiDescription; // @v11.9.2
 struct xmlParserCtxt; // @v12.3.3
 class  TDialog; // @v12.3.6
+class  TWindow; // @v12.6.12
 //
 // Formats for date binary representation
 //
@@ -18611,7 +18612,7 @@ typedef int (*QueryPathFunc)(const char * pSignature, SString & rBuf);
 //   <0 - не удалось обнаружить описание диалога по идентификатору pIdent
 //    0 - error
 // 
-typedef int (*InitializeDialogFunc)(TDialog * pThis, const void * pIdent, void * extraPtr); // @v12.3.6
+typedef int (*InitializeDialogFunc)(TWindow * pThis, void * hParentWindow, const void * pIdent, void * extraPtr); // @v12.3.6
 
 typedef int (*LoadObjectTextFunc)(const SObjTextRefIdent & rIdent, SString & rBuf, void * extraPtr); // @v12.5.6
 typedef int (*StoreObjectTextFunc)(const SObjTextRefIdent & rIdent, const void * pTextUtf8, size_t textLen, void * extraPtr); // @v12.5.6

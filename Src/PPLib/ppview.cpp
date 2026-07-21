@@ -2233,12 +2233,10 @@ int PPView::CreateBrowser_OnStart(CreateBrowserBlock & rBlk, bool modeless) // @
 	{
 		SString title;
 		SString sub_title;
-		//if(ImplementFlags & implBrowseArray) {
 		if(datasourcetype == datasourcetypeArray) {
 			THROW(rBlk.P_Array = CreateBrowserArray(&rBlk.BrwId, &sub_title));
 			THROW_MEM(rBlk.P_Brw = new PPViewBrowser(rBlk.BrwId, rBlk.P_Array, this, modeless));
 		}
-		//else {
 		else if(datasourcetype == datasourcetypeDBQuery) {
 			THROW(rBlk.P_Q = CreateBrowserQuery(&rBlk.BrwId, &sub_title));
 			if(P_Ct) {
@@ -2293,29 +2291,21 @@ int PPView::BrowseInLayout(TWindow * pParent, const char * pParentLayoutSymb, co
 		{
 			pParent->InsertCtlWithCorrespondingNativeItem(blk.P_Brw, destinationId, 0, /*extraPtr*/0);
 			{
-				/*
-				SUiLayoutParam alb_;
-				alb_.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-				alb_.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-				alb_.SetMargin(8.0f);
-				*/
-				{
-					SUiLayout * p_result = 0;
-					p_result = p_lo->InsertItem(blk.P_Brw, &rLoP);
-					if(p_result) {
-						p_result->SetCallbacks(0, TView::SetupLayoutItemFrameProc, blk.P_Brw);
-						blk.P_Brw->Launch_(pParent);
-						if(blk.P_Brw->IsConsistent()) {
-							OnExecBrowser(blk.P_Brw);
-							// @v12.5.11 {
-							{
-								pParent->EvaluateLayout(pParent->getClientRect());
-								pParent->invalidateAll(true);
-								::UpdateWindow(pParent->H());
-							}
-							::PostMessageW(blk.P_Brw->H(), WM_SETFOCUS, 0, 0);
-							// } @v12.5.11 
+				SUiLayout * p_result = 0;
+				p_result = p_lo->InsertItem(blk.P_Brw, &rLoP);
+				if(p_result) {
+					p_result->SetCallbacks(0, TView::SetupLayoutItemFrameProc, blk.P_Brw);
+					blk.P_Brw->Launch_(pParent);
+					if(blk.P_Brw->IsConsistent()) {
+						OnExecBrowser(blk.P_Brw);
+						// @v12.5.11 {
+						{
+							pParent->EvaluateLayout(pParent->getClientRect());
+							pParent->invalidateAll(true);
+							::UpdateWindow(pParent->H());
 						}
+						::PostMessageW(blk.P_Brw->H(), WM_SETFOCUS, 0, 0);
+						// } @v12.5.11 
 					}
 				}
 			}

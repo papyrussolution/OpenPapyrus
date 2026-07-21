@@ -5238,6 +5238,8 @@ PPTXT_CHZNPMSVRADDRRESET_NOTDONE       "Адрес сервера разреши
 PPTXT_CHZN_LOG_DEBUGAUTH_SUCCESS       "Тестовая авторизация на сервере @{brand_chzn} прошла успешно" // @v12.6.7
 //PPSecretSegment::sectypXXX
 PPTXT_SECSEGTYPES                      "1,Папка;2,Общий;3,Пароль;4,Секрет авторизации;5,Открытый регистр;6,Банковская карта;7,SSH;8,Электронная подпись" // @v12.6.10
+PPTXT_ENUMERATION_BILL                 "Перебор документов"
+PPTXT_CHZNMARKINFO_EXTRACTING          "Извлечение информации о марках @{brand_chzn}"
 //
 // LastText
 
@@ -9637,6 +9639,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_constructionfacadewindow             "Конструирование фасадного окна" // @v12.5.3
 @cmd_techroute                            "@{view_techroute}" // @v12.6.0
 @cmd_execsessionontechroute               "Запуск исполнения фазы технологического маршрута" // @v12.6.0
+@cmd_chznmarkinfocollector                "Сбор информации о марках @{brand_chzn}" // @v12.6.12
 
 @cmdpu_admin           			          "Админ"
 @cmdpu_salesanalyze    			          "Анализ продаж"
@@ -19488,12 +19491,15 @@ PPHSC_RU_VATB_SLLIAMT_VAT20   "СтоимПродСФ20" // @v12.5.7
 PPHSC_RU_VATB_SLLIAMT_VAT22   "СтоимПродСФ22" // @v12.5.7
 PPHSC_RU_VATB_SLLIAMT_VAT05   "СтоимПродСФ5"  // @v12.5.7
 PPHSC_RU_VATB_SLLIAMT_VAT07   "СтоимПродСФ7"  // @v12.5.7
-
 PPHSC_RU_VATB_ITEMN           "НомерПор"     // @v12.5.7
 PPHSC_RU_VATB_CINVCN          "НомКСчФПрод"  // @v12.5.7
 PPHSC_RU_VATB_CINVCD          "ДатаКСчФПрод" // @v12.5.7
 PPHSC_RU_VATB_INVCN           "НомСчФПрод"   // @v12.5.7
 PPHSC_RU_VATB_INVCD           "ДатаСчФПрод"  // @v12.5.7
+PPHSC_RU_VATB_OPKINDCODE      "КодВидОпер"   // @v12.6.12
+PPHSC_RU_VATB_PAYMCONFIRM     "ДокПдтвОпл"   // @v12.6.12
+PPHSC_RU_VATB_PAYMCONFIRM_N   "НомДокПдтвОпл"   // @v12.6.12
+PPHSC_RU_VATB_PAYMCONFIRM_D   "ДатаДокПдтвОпл"  // @v12.6.12
 PPHSC_RU_VATB_BUYIVATDEDUCT   "СумНДСВыч"    // @v12.5.7
 PPHSC_RU_VATB_SLLIAMT_SVAT10  "СумНДССФ10"   // @v12.5.7
 PPHSC_RU_VATB_SLLIAMT_SVAT18  "СумНДССФ18"   // @v12.5.7

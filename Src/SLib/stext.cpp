@@ -1503,15 +1503,15 @@ int FASTCALL ToUpper866(int alpha)
 
 char * FASTCALL stristr866(const char * s1, const char * s2)
 {
-	for(size_t p = 0, i = sstrlen(s1), len = sstrlen(s2); (i-p) >= len; p++)
+	for(size_t p = 0, i = sstrlen(s1), len = sstrlen(s2); (i-p) >= len; p++) {
 		if(strnicmp866(s1+p, s2, len) == 0)
 			return const_cast<char *>(s1+p); // @badcast
+	}
 	return 0;
 }
 
 int FASTCALL stricmp866(const char * s1, const char * s2)
 {
-	// @v11.3.2 @fix Добавлена специальная обработка пустых строк: (s1 == 0 && s2 != 0 && s2[0] == 0)=>(s1==s2); 
 	const size_t len1 = sstrlen(s1);
 	const size_t len2 = sstrlen(s2);
 	if(len1 != 0 && len2 != 0) { 
@@ -1534,7 +1534,6 @@ int FASTCALL stricmp866(const char * s1, const char * s2)
 
 int FASTCALL stricmp1251(const char * s1, const char * s2)
 {
-	// @v11.3.2 @fix Добавлена специальная обработка пустых строк: (s1 == 0 && s2 != 0 && s2[0] == 0)=>(s1==s2); 
 	const size_t len1 = sstrlen(s1);
 	const size_t len2 = sstrlen(s2);
 	if(len1 != 0 && len2 != 0) { 
@@ -1678,10 +1677,12 @@ int FASTCALL _koi8_to_866(int c)
 		"\x8F\x9F\x90\x91\x92\x93\x86\x82\x9C\x9B\x87\x98\x9D\x99\x97\x9A";
 	if(c < 128)
 		return koi8tab[static_cast<size_t>(c)];
-	else
-		for(size_t i = 0; i < 256; i++)
+	else {
+		for(size_t i = 0; i < 256; i++) {
 			if(koi8tab[i] == c)
 				return koi8tab[i];
+		}
+	}
 	return c;
 }
 //
@@ -1714,14 +1715,10 @@ char * FASTCALL stpcpy(char * to, const char * from)
 //
 //
 //
-uint FASTCALL iseol(const char * pStr, SEOLFormat eolf)
-{
-	return isempty(pStr) ? 0 : implement_iseol(pStr, eolf);
-}
+uint FASTCALL iseol(const char * pStr, SEOLFormat eolf) { return isempty(pStr) ? 0 : implement_iseol(pStr, eolf); }
 
 size_t FASTCALL sstrnlen(const char * pStr, size_t maxLen)
 {
-	// @v11.7.0 memchr-->smemchr
 	if(pStr) {
 		const char * p_end = static_cast<const char *>(smemchr(pStr, 0, maxLen)); 
 		return p_end ? (size_t)(p_end - pStr) : maxLen;
@@ -1853,15 +1850,8 @@ FORCEINLINE const wchar_t * FASTCALL implement_sstrrchr_direct(const wchar_t * p
 	return p_result;
 }
 
-const wchar_t * FASTCALL sstrrchr(const wchar_t * pStr, wchar_t c)
-{
-	return implement_sstrrchr_reverse(pStr, c);
-}
-
-wchar_t * FASTCALL sstrrchr(wchar_t * pStr, wchar_t c)
-{
-	return const_cast<wchar_t *>(implement_sstrrchr_reverse(pStr, c));
-}
+const wchar_t * FASTCALL sstrrchr(const wchar_t * pStr, wchar_t c) { return implement_sstrrchr_reverse(pStr, c); }
+wchar_t * FASTCALL sstrrchr(wchar_t * pStr, wchar_t c) { return const_cast<wchar_t *>(implement_sstrrchr_reverse(pStr, c)); }
 
 char * FASTCALL sstrdup(const char * pStr)
 {
@@ -1946,7 +1936,7 @@ bool FASTCALL sstreq(const uchar * pS1, const uchar * pS2)
 
 bool FASTCALL sstreq(const uchar * pS1, const char * pS2)
 {
-	if(pS1 != reinterpret_cast<const uchar *>(pS2))
+	if(pS1 != reinterpret_cast<const uchar *>(pS2)) {
 		if(pS1) {
 			if(!pS2)
 				return pS1[0] ? false : true;
@@ -1955,6 +1945,7 @@ bool FASTCALL sstreq(const uchar * pS1, const char * pS2)
 		}
 		else
 			return pS2[0] ? false : true;
+	}
 	else
 		return true;
 }
@@ -2023,7 +2014,7 @@ bool STDCALL sstrneq(const char * pS1, const char * pS2, uint len)
 								pS2++;
 							}
 						}
-						return false;
+						return true; // @v12.6.12 @fix false-->true
 					}
 					break;
 			}

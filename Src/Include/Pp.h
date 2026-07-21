@@ -11439,16 +11439,16 @@ struct PPBillExt { // @persistent @store(PropertyTbl)
 	int16  Ft_CheckPrintStatus; // @erik статус печати чека( <0 - не печатанные чеки, >0 - печатанные чеки, 0 - все равно)
 	int16  EdiRecadvStatus;     // @transient Статус RECADV по каналу EDI
 	int16  EdiRecadvConfStatus; // @transient Статус подтверждения на RECADV по каналу EDI
-	int16  OrderFulfillmentStatus; // @v11.1.8 @transient Статус выполнения заказа (-1) unused (0) ignored, (1) полностью не исполнен, (2) - полностью исполнен, (3) - исполнен частично
-	int16  Reserve;            // @v11.1.8 @alignment
-	PPID   CliPsnCategoryID;   // @v11.1.9 @transient Категория персоналий-контрагентов
+	int16  OrderFulfillmentStatus; // @transient Статус выполнения заказа (-1) unused (0) ignored, (1) полностью не исполнен, (2) - полностью исполнен, (3) - исполнен частично
+	int16  Reserve;            // @alignment
+	PPID   CliPsnCategoryID;   // @transient Категория персоналий-контрагентов
 	PPID   CreatorID;          // @transient Критерий фильтрации по пользователю, создавшему документ
 	PPID   ExtPriceQuotKindID; // Вид котировки, используемый для печати дополнительной цены в накладных
 	PPID   SCardID;            // @transient Персональная карта, к которой привязан документ. Проекция поля BillTbl::Rec::SCardID
 	DateRange DuePeriod;       // @transient Период даты исполнения документа. Проекция BillFilt::DuePeriod
 	PPID   AgtBillID;          // @transient. Проекция BillTbl::Rec::AgtBillID
 	PPID   CcID;               // Ид чека, сформированного по этому документу для печати
-	PPID   GoodsGroupID;       // @v11.0.11 @transient Проекция BillFilt::GoodsGroupID. Ид товарной группы, товары принадлежащие которой должны содержаться в документах.
+	PPID   GoodsGroupID;       // @transient Проекция BillFilt::GoodsGroupID. Ид товарной группы, товары принадлежащие которой должны содержаться в документах.
 	PPID   TradePlanLocID;     // @v12.1.12 Склад, возможно группирующий, по которому строится и анализируется торговый план.
 		// Поле введено из-за того, что склад, к которому привязан документ не может быть группирующим.
 };
@@ -31738,7 +31738,7 @@ public:
 	//   если это равенство не выполняется возвращает 0 и PPErrCode = PPERR_INVQUOTLIST.
 	//
 	int    PutQuotList(PPID goodsID, const PPQuotArray * pList, bool updByTime, int use_ta);
-	int    ImportOld(int use_ta); // Импорт по устаревшей технологии
+	// @v12.6.12 int    ImportOld(int use_ta); // Импорт по устаревшей технологии
 	int    Import(const char * pCfgName, int analyze, int use_ta); // Импорт по новой технологии
 	// @v12.5.1 int    ImportQuotOld(int use_ta);
 	int    ImportQuot(const char * pCfgName, int use_ta);
@@ -49776,7 +49776,7 @@ public:
 		kFace           = 5, // Параметры лика, которые могут быть переданы серверу для ассоциации с нашим клиентским аккаунтом
 		kDocIncoming    = 6, // Входящие документы
 		kDocOutcoming   = 7, // Исходящие документы
-		kCounter        = 8, // @v11.2.10 Специальная единственная запись для хранения текущего счетчика (документов и т.д.)
+		kCounter        = 8, // Специальная единственная запись для хранения текущего счетчика (документов и т.д.)
 		kNotification_before90v = 9, // @obsolete since @v11.7.5 (Stylo-Q v90) @v11.5.9  Документ извещения. Главным образом, предполагаются извещения от сервисов к клиентам. Но, вероятно,
 			// будут возможны и извещения в обратном направлении (клиент о чем-то информирует сервис).
 	};
@@ -49834,9 +49834,9 @@ public:
 			// разрешена посредством дополнительных механизмов (escrow счета, полный возврат с отменой платежей и т.д.)
 		styloqdocstFINISHED_SUCC         = 15, // Финальное состояние документа: завершен как учтенный и отработанный.
 		styloqdocstFINISHED_FAIL         = 16, // Финальное состояние документа: завершен как отмененный.
-		styloqdocstCANCELLEDDRAFT        = 17, // @v11.4.1 Драфт отмененый эмитентом. Переход в это состояние возможен только после styloqdocstDRAFT || styloqdocstUNDEF.
-		styloqdocstINCOMINGMOD           = 18, // @v11.4.9 Входящий (по отношению к клиенту) документ, над которым осуществлена частичная модификация
-		styloqdocstINCOMINGMODACCEPTED   = 19, // @v11.4.9 Входящий (по отношению к клиенту) документ, над которым осуществлена частичная модификация, которая, в свою очередь, акцептирована сервисом.
+		styloqdocstCANCELLEDDRAFT        = 17, // Драфт отмененый эмитентом. Переход в это состояние возможен только после styloqdocstDRAFT || styloqdocstUNDEF.
+		styloqdocstINCOMINGMOD           = 18, // Входящий (по отношению к клиенту) документ, над которым осуществлена частичная модификация
+		styloqdocstINCOMINGMODACCEPTED   = 19, // Входящий (по отношению к клиенту) документ, над которым осуществлена частичная модификация, которая, в свою очередь, акцептирована сервисом.
 		styloqdocstPARTIALLYEXECUTED     = 20, // @v11.6.8 частично исполнен акцептором
 	};
 	//
@@ -49846,12 +49846,12 @@ public:
 		doctypUndef           = 0,
 		doctypCommandList     = 1,
 		doctypOrderPrereq     = 2, // Предопределенный формат данных, подготовленных для формирования заказа на клиентской стороне
-		doctypReport          = 3, // @v11.2.10 Отчеты в формате DL600 export
-		doctypGeneric         = 4, // @v11.2.11 Общий тип для документов, чьи характеристики определяются видом операции (что-то вроде Bill в Papyrus'е)
-		doctypIndexingContent = 5, // @v11.3.4 Документ, содержащий данные для индексации медиатором
-		doctypIndoorSvcPrereq = 6, // @v11.4.5 Предопределенный формат данных, подготовленных для формирования данных для обслуживания внутри помещения сервиса (INDOOR)
-		doctypIncomingList    = 7, // @v11.4.8 
-		doctypDebtList        = 8, // @v11.5.4 Реестр долговых документов по контрагентам. Специфичный документ: на клиентской стороне хранится единый реестр по всем
+		doctypReport          = 3, // Отчеты в формате DL600 export
+		doctypGeneric         = 4, // Общий тип для документов, чьи характеристики определяются видом операции (что-то вроде Bill в Papyrus'е)
+		doctypIndexingContent = 5, // Документ, содержащий данные для индексации медиатором
+		doctypIndoorSvcPrereq = 6, // Предопределенный формат данных, подготовленных для формирования данных для обслуживания внутри помещения сервиса (INDOOR)
+		doctypIncomingList    = 7, // 
+		doctypDebtList        = 8, // Реестр долговых документов по контрагентам. Специфичный документ: на клиентской стороне хранится единый реестр по всем
 			// контрагентам. При этом запрос сервису отправляется по одному контрагенту, а ответ (корректный) встраивается в общий реестр.
 		doctypCurrentState    = 9, // @v11.7.0 Внутренний документ, сохраняющий состояние и, возможно, какие-то конфигурационные параметры.
 			// Применим только для клиентской базы данных.
@@ -64217,7 +64217,7 @@ int    PPOpenDir(SString & rPath, const char * pTitle, HWND owner);
 //   модулю SLIB методом SlSession::SetExtraProcBlock() дабы класс TDialog мог воспользоваться техникой
 //   описания диалогом DL600.
 //
-int    PPInitializeDialogFunc(TDialog * pThis, const void * pIdent, void * extraPtr); // @v12.3.6
+int    PPInitializeDialogFunc(TWindow * pThis, void * hParentWindow, const void * pIdent, void * extraPtr); // @v12.3.6
 SUiLayout * PPLoadDl600Layout(const void * pIdent, void * extraPtr); // @v12.5.7 @construction
 //
 //
@@ -65133,7 +65133,8 @@ int    DoSupplInterchange(SupplInterchangeFilt * pFilt);
 int    DoMarketplaceInterchange();
 int    DoAptekaRuInterchange(); // @v12.2.1
 int    DoSourceCodeMaintaining(const PrcssrSourceCodeMaintainingFilt * pFilt); // @v12.2.10
-int    GatherClientActivityStatistics(); // @v12.2.2 @construction
+int    GatherClientActivityStatistics(); // @v12.2.2
+int    DoChZnMarkInfoCollector(); // @v12.6.12
 int    EditPriceListImpExpParams();
 int    EditDebtLimList(PPClientAgreement & rCliAgt);
 int    EditCheckInPersonItem(const PPCheckInPersonConfig * pCfg, PPCheckInPersonItem * pData);

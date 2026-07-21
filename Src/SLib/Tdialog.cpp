@@ -227,7 +227,7 @@ static void loadLocalMenu(TVRez & rez, TDialog * dlg)
 
 int (* getUserControl)(TVRez*, TDialog*) = 0;
 
-TDialog::BuildEmptyWindowParam::BuildEmptyWindowParam() : FontSize(0)
+TDialog::BuildEmptyWindowParam::BuildEmptyWindowParam() : FontSize(0), HwParent(0)
 {
 }
 
@@ -477,11 +477,22 @@ int TDialog::BuildEmptyWindow(const BuildEmptyWindowParam * pParam) // @v12.2.5
 		// FONT 8, "MS Shell Dlg", 0, 0, 0x0
 		const  char * p_font_face = "MS Shell Dlg";
 		uint16 font_size = 10;
+		HWND   h_parent = 0;
+		bool   is_child_window = false;
 		if(pParam) {
 			if(pParam->FontFace.NotEmpty())
 				p_font_face = pParam->FontFace;
 			if(pParam->FontSize > 0)
 				font_size = static_cast<uint16>(pParam->FontSize);
+			// @v12.6.12 {
+			if(pParam->HwParent && ::IsWindow(pParam->HwParent)) {
+				h_parent = pParam->HwParent;
+				is_child_window = true;
+			}
+			// } @v12.6.12 
+		}
+		if(!h_parent) {
+			h_parent = APPL->H_TopOfStack;
 		}
 		SStringU font_face_u;//(L"MS Shell Dlg");
 		font_face_u.CopyFromUtf8(p_font_face, sstrlen(p_font_face));
@@ -495,8 +506,13 @@ int TDialog::BuildEmptyWindow(const BuildEmptyWindowParam * pParam) // @v12.2.5
 		DLGTEMPLATE * p_dlgt = static_cast<DLGTEMPLATE *>(SAlloc::M(buf_size));
 		if(p_dlgt) {
 			size_t p = 0;
-			p_dlgt->style = (DS_MODALFRAME|DS_FIXEDSYS|WS_POPUP|WS_CAPTION|WS_SYSMENU);
-			p_dlgt->style |= WS_THICKFRAME/*==WS_SIZEBOX*/;
+			p_dlgt->style = (DS_FIXEDSYS);
+			if(is_child_window) {
+				p_dlgt->style |= WS_CHILD;
+			}
+			else {
+				p_dlgt->style |= (WS_POPUP|WS_CAPTION|WS_SYSMENU|DS_MODALFRAME|WS_THICKFRAME);
+			}
 			if(set_font) {
 				p_dlgt->style |= DS_SETFONT;
 			}
@@ -521,7 +537,7 @@ int TDialog::BuildEmptyWindow(const BuildEmptyWindowParam * pParam) // @v12.2.5
 				p += ((font_face_u.Len()+1) * sizeof(wchar_t));
 			}
 			assert(p == buf_size);
-			HW = CreateDialogIndirectParamW(APPL->GetInst(), p_dlgt, APPL->H_TopOfStack, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
+			HW = CreateDialogIndirectParamW(APPL->GetInst(), p_dlgt, h_parent, TDialog::DialogProc, reinterpret_cast<LPARAM>(this));
 			SAlloc::F(p_dlgt);
 			if(HW) {
 				const bool preserve_wbc = LOGIC(WbCapability & wbcStorableUserParams);
@@ -541,7 +557,7 @@ int TDialog::BuildEmptyWindow(const BuildEmptyWindowParam * pParam) // @v12.2.5
 	return ok;
 }
 
-void TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr, ConstructorOption co)
+void TDialog::Helper_Constructor(uint resID, void * hParent, DialogPreProcFunc dlgPreFunc, void * extraPtr, ConstructorOption co)
 {
 	SubSign = TV_SUBSIGN_DIALOG;
 	P_PrevData = 0;
@@ -565,7 +581,7 @@ void TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void 
 			SLS.GetExtraProcBlock(&epb);
 			if(epb.F_InitDialog) {
 				SString ident_buf;
-				outer_initialize_result = epb.F_InitDialog(this, ident_buf.Cat(resID).cptr(), 0);
+				outer_initialize_result = epb.F_InitDialog(this, hParent, ident_buf.Cat(resID).cptr(), 0);
 			}
 		}
 		if(outer_initialize_result > 0) { 
@@ -593,31 +609,30 @@ void TDialog::Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void 
 	}
 }
 
-/* @v12.2.4 TDialog::TDialog(const TRect & rRect, const char * pTitle) : TWindow(rRect)
-{ 
-	setTitle(pTitle);
-	Helper_Constructor(0, 0, 0, coNothing); 
-}*/
-
 TDialog::TDialog(const char * pTitle, long wbCapability, ConstructorOption co) : TWindow(wbCapability) // @v12.2.4
 {
 	setTitle(pTitle);
-	Helper_Constructor(0, 0, 0, /*coNothing*/co); 
+	Helper_Constructor(0, 0/*hParent*/, 0, 0, /*coNothing*/co); 
 }
 
 TDialog::TDialog(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr) : TWindow(TRect())
 { 
-	Helper_Constructor(resID, dlgPreFunc, extraPtr, coNothing); 
+	Helper_Constructor(resID, 0/*hParent*/, dlgPreFunc, extraPtr, coNothing); 
 }
 
 TDialog::TDialog(uint resID) : TWindow(TRect()) 
 { 
-	Helper_Constructor(resID, 0, 0, coNothing); 
+	Helper_Constructor(resID, 0/*hParent*/, 0, 0, coNothing); 
+}
+
+TDialog::TDialog(uint resID, void * hParent) : TWindow(TRect()) // @v12.6.12 Вариант с явно заданным родительским окном //
+{
+	Helper_Constructor(resID, hParent, 0, 0, coNothing); 
 }
 
 TDialog::TDialog(uint resID, ConstructorOption co) : TWindow(TRect()) 
 { 
-	Helper_Constructor(resID, 0, 0, co); 
+	Helper_Constructor(resID, 0/*hParent*/, 0, 0, co); 
 }
 
 void TDialog::ToCascade() { DlgFlags |= fCascade; }
@@ -790,99 +805,115 @@ IMPL_HANDLE_EVENT(TDialog)
 		event.message.infoLong = retval;
 	}
 	else {
-		TWindow::handleEvent(event);
-		switch(event.what) {
-			case TEvent::evCommand:
-				switch(event.message.command) {
-					case cmOK:
-						{
-							TView * p_temp = P_Last;
-							if(p_temp) {
-								const TView * p_term = P_Last;
-								do {
-									p_temp = p_temp->P_Next;
-									if(p_temp && p_temp->IsConsistent())
-										TView::messageCommand(p_temp, cmNotifyCommit, this);
-									else
-										break;
-								} while(p_temp != p_term);
-							}
-						}
-						// @fallthrough
-					case cmCancel:
-					case cmYes:
-					case cmNo:
-					case cmaAll:
-						if(IsInState(sfModal)) {
-							EndModalCmd = event.message.command;
-							clearEvent(event);
-						}
-						else if(event.message.command == cmCancel) {
-							close();
-							return; // Окно разрушено - делать в этой процедуре больше нечего!
-						}
-						break;
-					case cmaCalculate:
-						{
-							SlExtraProcBlock epb;
-							SLS.GetExtraProcBlock(&epb);
-							if(epb.F_CallCalc)
-								epb.F_CallCalc(H(), 0);
-						}
-						clearEvent(event);
-						break;
-					/* @v6.6.2 case cmGetHelpContext:
-						{
-							uint * p = (uint *)event.message.infoPtr;
-							ASSIGN_PTR(p, (Id+2000)); //_DLG_OFFSET   ppdefs.h
-							clearEvent(event);
-						}
-						break;*/
-					case cmResize:
-						if(event.message.infoPtr) {
-							if(!(DlgFlags & fMouseResizing))
-								GetWindowRect(H(), &ResizedRect);
-							ToResizeRect = *static_cast<RECT *>(event.message.infoPtr);
-							DlgFlags |= fMouseResizing;
-							clearEvent(event);
-						}
-						else if(DlgFlags & fMouseResizing) {
-							// Если изменяется левая и/или верхняя координата, надо скорректировать ResizedRect
-							ResizedRect.right  += ToResizeRect.left - ResizedRect.left;
-							ResizedRect.left    = ToResizeRect.left;
-							ResizedRect.bottom += ToResizeRect.top - ResizedRect.top;
-							ResizedRect.top     = ToResizeRect.top;
-							ResizeDlgToRect(&ToResizeRect);
-							MEMSZERO(ResizedRect);
-							MEMSZERO(ToResizeRect);
-							DlgFlags &= ~fMouseResizing;
-							clearEvent(event);
-						}
-						break;
-					case cmSize: // @v12.2.5
-						{
-							//SizeEvent * p_se = static_cast<SizeEvent *>(TVINFOPTR);
-							const TRect cr = getClientRect();
-							if(P_Lfc && !P_Lfc->GetParent()) {
-								P_Lfc->GetLayoutBlock().SetFixedSize(cr);
-								P_Lfc->Evaluate(0);
-							}
-							// @v12.2.6 {
-							if(WbCapability & wbcStorableUserParams) {
-								ReckonUserPosition(getRect());
-							}
-							// } @v12.2.6 
-							invalidateAll(true);
-							::UpdateWindow(H());
-							// Don't call clearEvent(event) there!
-						}
-						break;
-				}
-				break;
+		// @v12.6.12 {
+		// Событие cmSetBounds обрабатываем до TWindow::handleEvent ибо после оного событие будет очищено
+		if(event.isCmd(cmSetBounds)) {
+			const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
+			::SetWindowPos(H(), 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOREDRAW|SWP_NOCOPYBITS);
+			clearEvent(event);
 		}
-		for(uint i = 0; event.what && i < GrpCount; i++) {
-			if(PP_Groups[i] && !PP_Groups[i]->IsPassive()) // @v12.0.7 (&& !PP_Groups[i]->IsPassive())
-				PP_Groups[i]->handleEvent(this, event);
+		else {
+		// } @v12.6.12
+			TWindow::handleEvent(event);
+			switch(event.what) {
+				case TEvent::evCommand:
+					switch(event.message.command) {
+						case cmOK:
+							{
+								TView * p_temp = P_Last;
+								if(p_temp) {
+									const TView * p_term = P_Last;
+									do {
+										p_temp = p_temp->P_Next;
+										if(p_temp && p_temp->IsConsistent())
+											TView::messageCommand(p_temp, cmNotifyCommit, this);
+										else
+											break;
+									} while(p_temp != p_term);
+								}
+							}
+							// @fallthrough
+						case cmCancel:
+						case cmYes:
+						case cmNo:
+						case cmaAll:
+							if(IsInState(sfModal)) {
+								EndModalCmd = event.message.command;
+								clearEvent(event);
+							}
+							else if(event.message.command == cmCancel) {
+								close();
+								return; // Окно разрушено - делать в этой процедуре больше нечего!
+							}
+							break;
+						case cmKeyboardLayout: // @v12.6.12
+							ToggleKeyboardLayout();
+							break;
+						case cmKbStateCapsLock: // @v12.6.12
+							ToggleCapsLock();
+							break;
+						case cmaCalculate:
+							{
+								SlExtraProcBlock epb;
+								SLS.GetExtraProcBlock(&epb);
+								if(epb.F_CallCalc)
+									epb.F_CallCalc(H(), 0);
+							}
+							clearEvent(event);
+							break;
+						/* @v6.6.2 case cmGetHelpContext:
+							{
+								uint * p = (uint *)event.message.infoPtr;
+								ASSIGN_PTR(p, (Id+2000)); //_DLG_OFFSET   ppdefs.h
+								clearEvent(event);
+							}
+							break;*/
+						case cmResize:
+							if(event.message.infoPtr) {
+								if(!(DlgFlags & fMouseResizing))
+									GetWindowRect(H(), &ResizedRect);
+								ToResizeRect = *static_cast<RECT *>(event.message.infoPtr);
+								DlgFlags |= fMouseResizing;
+								clearEvent(event);
+							}
+							else if(DlgFlags & fMouseResizing) {
+								// Если изменяется левая и/или верхняя координата, надо скорректировать ResizedRect
+								ResizedRect.right  += ToResizeRect.left - ResizedRect.left;
+								ResizedRect.left    = ToResizeRect.left;
+								ResizedRect.bottom += ToResizeRect.top - ResizedRect.top;
+								ResizedRect.top     = ToResizeRect.top;
+								ResizeDlgToRect(&ToResizeRect);
+								MEMSZERO(ResizedRect);
+								MEMSZERO(ToResizeRect);
+								DlgFlags &= ~fMouseResizing;
+								clearEvent(event);
+							}
+							break;
+						case cmSize: // @v12.2.5
+							{
+								//SizeEvent * p_se = static_cast<SizeEvent *>(TVINFOPTR);
+								const TRect cr = getClientRect();
+								if(P_Lfc && !P_Lfc->GetParent()) {
+									P_Lfc->GetLayoutBlock().SetFixedSize(cr);
+									P_Lfc->Evaluate(0);
+								}
+								// @v12.2.6 {
+								if(WbCapability & wbcStorableUserParams) {
+									ReckonUserPosition(getRect());
+								}
+								// } @v12.2.6 
+								invalidateAll(true);
+								::UpdateWindow(H());
+								// Don't call clearEvent(event) there!
+							}
+							break;
+					}
+					break;
+			}
+			for(uint i = 0; event.what && i < GrpCount; i++) {
+				if(PP_Groups[i] && !PP_Groups[i]->IsPassive()) // @v12.0.7 (&& !PP_Groups[i]->IsPassive())
+					PP_Groups[i]->handleEvent(this, event);
+			}
 		}
 	}
 }
@@ -1671,6 +1702,39 @@ void TDialog::SetupKeyboardLayoutIndicator(TButton * pButton)
 		int    r2 = ::GetLocaleInfoA(input_lang, LOCALE_SISO3166CTRYNAME, county_code, SIZEOFARRAY(county_code));
 		pButton->SetText(lang_code);
 	}
+}
+
+void TDialog::ToggleKeyboardLayout() // @v12.6.12
+{
+	HKL    kll[32];
+	const  int kbl_count = ::GetKeyboardLayoutList(SIZEOFARRAY(kll), kll);
+	if(kbl_count > 1) {
+		HKL    current_input_locale = ::GetKeyboardLayout(0);
+		for(int i = 0; i < kbl_count; i++) {
+			if(kll[i] == current_input_locale) {
+				int    next_idx = (i < (kbl_count-1)) ? i+1 : 0;
+				HKL    prev_hkl = ActivateKeyboardLayout(kll[next_idx], 0);
+				break;
+			}
+		}
+	}
+}
+
+void TDialog::ToggleCapsLock() // @v12.6.12
+{
+	INPUT inputs[2] = {};
+	// 1. Эмуляция нажатия клавиши (Key Down)
+	inputs[0].type = INPUT_KEYBOARD;
+	inputs[0].ki.wVk = VK_CAPITAL;
+	// inputs[0].ki.dwFlags = 0; // По умолчанию 0, что означает нажатие
+
+	// 2. Эмуляция отпускания клавиши (Key Up)
+	inputs[1].type = INPUT_KEYBOARD;
+	inputs[1].ki.wVk = VK_CAPITAL;
+	inputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
+
+	// Отправляем 2 события
+	::SendInput(2, inputs, sizeof(INPUT));
 }
 
 void TDialog::SetupKeyboardStateCapsLockIndicator(TButton * pButton)

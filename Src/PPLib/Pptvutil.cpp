@@ -7764,17 +7764,17 @@ IMPL_DIALOG_GETDTS(ExtStrContainerListDialog)
 //
 class PPDialogConstructor {
 public:
-	PPDialogConstructor(TDialog * pDlg, DlContext & rCtx, const char * pSymb) : Status(0)
+	PPDialogConstructor(TWindow * pW, HWND hParent, DlContext & rCtx, const char * pSymb) : Status(0)
 	{
-		Build(pDlg, rCtx, pSymb);
+		Build(pW, hParent, rCtx, pSymb);
 	}
-	PPDialogConstructor(TDialog * pDlg, DlContext & rCtx, uint symbId) : Status(0)
+	PPDialogConstructor(TWindow * pW, HWND hParent, DlContext & rCtx, uint symbId) : Status(0)
 	{
-		Build(pDlg, rCtx, symbId);
+		Build(pW, hParent, rCtx, symbId);
 	}
-	PPDialogConstructor(TDialog * pDlg, DlContext & rCtx, const DlScope * pScope) : Status(0)
+	PPDialogConstructor(TWindow * pW, HWND hParent, DlContext & rCtx, const DlScope * pScope) : Status(0)
 	{
-		Build(pDlg, rCtx, pScope);
+		Build(pW, hParent, rCtx, pScope);
 	}
 	bool   operator !() const { return LOGIC(Status & stError); }
 private:
@@ -7795,9 +7795,9 @@ private:
 		uint   FirstItemId; //		
 	};
 	//void   Build(TDialog * pDlg, DlContext & rCtx, const DlScope * pScope);
-	void   Build(TWindow * pW, DlContext & rCtx, const DlScope * pScope);
-	void   Build(TDialog * pDlg, DlContext & rCtx, const char * pSymb);
-	void   Build(TDialog * pDlg, DlContext & rCtx, uint viewId);
+	void   Build(TWindow * pW, HWND hParent, DlContext & rCtx, const DlScope * pScope);
+	void   Build(TWindow * pW, HWND hParent, DlContext & rCtx, const char * pSymb);
+	void   Build(TWindow * pW, HWND hParent, DlContext & rCtx, uint viewId);
 	void   InsertControlLabel(TWindow * pW, DlContext & rCtx, const DlScope * pMainScope, TView * pMainCtrlView, uint & rLastDynId);
 	void   InsertControlItems(TWindow * pW, DlContext & rCtx, const DlScope & rParentScope, uint & rLastDynId, FIBlock & rFiBlk, int stage);
 	void   InsertControlLayouts(TWindow * pW, DlContext & rCtx, const DlScope & rParentScope, SUiLayout * pLoParent);
@@ -7813,12 +7813,12 @@ private:
 	uint   Status;
 };
 
-void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const char * pSymb)
+void PPDialogConstructor::Build(TWindow * pW, HWND hParent, DlContext & rCtx, const char * pSymb)
 {
-	if(pDlg && !isempty(pSymb)) {
+	if(pW && !isempty(pSymb)) {
 		const DlScope * p_scope = rCtx.GetScopeByName_Const(DlScope::kUiView, pSymb);
 		if(p_scope) {
-			Build(pDlg, rCtx, p_scope);
+			Build(pW, hParent, rCtx, p_scope);
 		}
 		else {
 			Status |= (stError | stScopeNotFound);
@@ -7829,12 +7829,12 @@ void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, const char * p
 	
 }
 
-void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, uint viewId)
+void PPDialogConstructor::Build(TWindow * pW, HWND hParent, DlContext & rCtx, uint viewId)
 {
-	if(pDlg && viewId) {
+	if(pW && viewId) {
 		const DlScope * p_scope = rCtx.GetDialogScopeBySymbolIdent_Const(viewId);
 		if(p_scope) {
-			Build(pDlg, rCtx, p_scope);
+			Build(pW, hParent, rCtx, p_scope);
 		}
 		else {
 			Status |= (stError | stScopeNotFound);
@@ -7844,10 +7844,10 @@ void PPDialogConstructor::Build(TDialog * pDlg, DlContext & rCtx, uint viewId)
 		Status |= stError;
 }
 
-void PPDialogConstructor::Build(/*TDialog * pDlg*/TWindow * pW, DlContext & rCtx, const DlScope * pScope)
+void PPDialogConstructor::Build(TWindow * pW, HWND hParent, DlContext & rCtx, const DlScope * pScope)
 {
 	if(pW && pScope && pScope->IsKind(DlScope::kUiView)) {
-		const UiDescription * p_uid = SLS.GetUiDescription();
+		const  UiDescription * p_uid = SLS.GetUiDescription();
 		TDialog::BuildEmptyWindowParam bew_param;
 		char   c_buf[1024];
 		SString temp_buf;
@@ -7912,6 +7912,7 @@ void PPDialogConstructor::Build(/*TDialog * pDlg*/TWindow * pW, DlContext & rCtx
 			// } @v12.3.7 
 			if(temp_buf.NotEmpty()) {
 			}
+			bew_param.HwParent = hParent; // @v12.6.12 @todo
 		}
 		{
 			// @todo Здесь надо правильно отработать случай, когда pW не является диалогом (TDialog)
@@ -9059,8 +9060,8 @@ void PPDialogConstructor::InsertControlLayouts(TWindow * pW, DlContext & rCtx, c
 //
 //
 //
-//typedef int (*InitializeDialogFunc)(TDialog * pThis, const void * pIdent, void * extraPtr); // @v12.3.6
-int PPInitializeDialogFunc(TDialog * pThis, const void * pIdent, void * extraPtr) // @v12.3.6
+//typedef int (*InitializeDialogFunc)(TWindow * pThis, void * hParentWindow, const void * pIdent, void * extraPtr); // @v12.3.6
+int PPInitializeDialogFunc(TWindow * pThis, void * hParentWindow, const void * pIdent, void * extraPtr) // @v12.3.6
 {
 	int    ok = -1;
 	const size_t ident_len = sstrnlen(static_cast<const char *>(pIdent), 128);
@@ -9095,7 +9096,7 @@ int PPInitializeDialogFunc(TDialog * pThis, const void * pIdent, void * extraPtr
 		}
 		if(p_scope) {
 			assert(p_ctx);
-			PPDialogConstructor ctr(pThis, *p_ctx, p_scope);
+			PPDialogConstructor ctr(pThis, reinterpret_cast<HWND>(hParentWindow), *p_ctx, p_scope);
 			ok = 1;
 		}
 	}
@@ -9174,73 +9175,3 @@ SUiLayout * PPLoadDl600Layout(const void * pIdent, void * extraPtr) // @v12.5.7 
 	}
 	return p_result;
 }
-
-#if 0 // @v12.3.10 {
-int Test_ExecuteDialogByDl600Description() // @construction
-{
-	class TDialogDL6_Construction : public TDialog {
-	public:
-		TDialogDL6_Construction(DlContext & rCtx, const char * pSymb) : TDialog(0, TWindow::wbcDrawBuffer|TWindow::wbcStorableUserParams, TDialog::coEmpty)
-		{
-			PPDialogConstructor ctr(this, rCtx, pSymb);
-		}
-	};
-	int    ok = 0;
-	const char * p_bin_file_name = "ppdlgs-local.bin"; //"ppdlg2.bin";
-	TDialogDL6_Construction * dlg = 0;
-	SString temp_buf;
-	SString file_name;
-	PPGetFilePath(PPPATH_BIN, p_bin_file_name, file_name);
-	if(fileExists(file_name)) {
-		DlContext ctx;
-		if(ctx.Init(file_name)) {
-			// "DLG_ADDRESS" "DLG_BILLFLT" "DLG_PERSON" "DLG_PASSWORD"
-			const char * p_dlg_symb = "DLG_LO_EXPERIMENTAL";//"DLG_GGVIEW";
-			const DlScope * p_scope = ctx.GetDialogScopeBySymbolIdent_Const(DLG_GGVIEW);
-			dlg = new TDialogDL6_Construction(ctx, p_dlg_symb);
-			//
-			int16 nr_in = 113;
-			int16 nr_out = 0;
-			double capacity = 16.123456789;
-			SString text_in("abc");
-			SString text_out;
-			dlg->setCtrlString(CTL_LOCATION_NAME, text_in);
-			dlg->setCtrlData(CTL_LOCATION_NUMROWS, &nr_in);
-			dlg->setCtrlData(CTL_LOCATION_CAPACITY, &capacity);
-			
-			if(ExecView(dlg) == cmOK) {
-				dlg->getCtrlString(CTL_LOCATION_NAME, text_out);
-				dlg->getCtrlData(CTL_LOCATION_NUMROWS, &nr_out);
-			}
-			ZDELETE(dlg);
-			ok = -1;
-		}
-#if 0 // {
-		if(Sc.GetFirstChildByKind(DlScope::kUiView, 1)) {
-			SFsPath ps;
-			ps.Split(InFileName);
-			ps.Nam.CatChar('-').Cat("out");
-			ps.Ext = "txt";
-			ps.Merge(temp_buf);
-			SFile f_view_out(temp_buf, SFile::mWrite);
-			for(uint fscidx = 0; fscidx < file_sc_list.getCount(); fscidx++) {
-				const long file_scope_id = file_sc_list.get(fscidx);
-				const DlScope * p_file_scope = GetScope(file_scope_id, 0);
-				if(p_file_scope) {
-					scope_id_list.freeAll();
-					p_file_scope->GetChildList(DlScope::kUiView, /*1*/0/*recursive*/, &scope_id_list);
-					for(i = 0; i < scope_id_list.getCount(); i++) {
-						const DlScope * p_scope = GetScope(scope_id_list.at(i), 0);
-						line_buf.Z();
-						if(Write_UiView(p_scope, 0, line_buf) > 0) {
-							f_view_out.WriteLine(line_buf.CR());
-						}
-					}
-				}
-			}
-		}
-#endif // } 0
-	}
-	return ok;
-}
-#endif // } 0 @v12.3.10

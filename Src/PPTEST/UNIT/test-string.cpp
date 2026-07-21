@@ -271,6 +271,23 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			SLCHECK_Z(stricmp1251(SString("Король и Королева").Transf(CTRANSF_UTF8_TO_OUTER), SString("король и королева").Transf(CTRANSF_UTF8_TO_OUTER)));
 			SLCHECK_Z(stricmp1251(SString("Король и Королёва").Transf(CTRANSF_UTF8_TO_OUTER), SString("король и королЁва").Transf(CTRANSF_UTF8_TO_OUTER)));
 		}
+		{ // @v12.6.12
+			SLCHECK_NZ(sstrneq("abcdefg01234", "abcdefg", 7));
+			SLCHECK_NZ(sstrneq("abcdefg", "abcdefg01234", 7));
+			SLCHECK_NZ(sstrneq("abcdefg01234"+1, "abcdefg"+1, 6));
+			SLCHECK_NZ(sstrneq("abcdefg"+1, "abcdefg01234"+1, 6));
+			SLCHECK_NZ(sstrneq("abcdefg", "abcdefg", 7));
+
+			SLCHECK_Z(sstrneq("abcdefX01234", "abcdefg", 7));
+			SLCHECK_Z(sstrneq("abcdefg", "abcdefX01234", 7));
+			SLCHECK_Z(sstrneq("abcdefX01234"+1, "abcdefg"+1, 6));
+			SLCHECK_Z(sstrneq("abcdefg"+1, "abcdefX01234"+1, 6));
+			SLCHECK_Z(sstrneq("abcdefg", "abcdefX", 7));
+			SLCHECK_Z(sstrneq("abcdefX", "abcdefg", 7));
+
+			SLCHECK_NZ(sstrneq("123", "abc", 0));
+			SLCHECK_Z(sstrneq("123", "abc", 1));
+		}
 		{
 			SFile out(MakeOutputFilePath("SString_NumberToLat.txt"), SFile::mWrite);
 			for(uint i = 0; i < 1000; i++) {

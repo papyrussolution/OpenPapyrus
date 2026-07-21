@@ -1013,6 +1013,7 @@ DRAFTBEER HORECA @v11.9.4
 	public:
 		ChZnMarkDialog() : TDialog(DLG_CHZNMARK)
 		{
+			SetupKeyboardStateControls();
 		}
 	private:
 		SString CodeBuf;
@@ -7958,13 +7959,33 @@ public:
 		uint8  Reserve[64];      // @anchor
 		ObjIdListFilt LocList;   // Список складов, по которым следует перебирать документы
 	};
+	struct Stat {
+		Stat() : MarkCount(0), MarkInDbCount(0), MarkToQueryCount(0), QueryCount(0)
+		{
+		}
+		Stat & Z()
+		{
+			MarkCount = 0;
+			MarkInDbCount = 0;
+			MarkToQueryCount = 0;
+			QueryCount = 0;
+			return *this;
+		}
+		uint   MarkCount;
+		uint   MarkInDbCount;
+		uint   MarkToQueryCount;
+		uint   QueryCount;
+	};
 	PrcssrChZnMarkInfoCollector();
+	~PrcssrChZnMarkInfoCollector();
 	int	   InitParam(Param *);
 	int	   EditParam(Param *);
 	int	   Init(const Param *);
 	int	   Run();
 private:
+	ExtCodeRefCore * P_EcrT;
 	Param  P;
+	Stat   St;
 };
 
 PrcssrChZnMarkInfoCollector::Param::Param() : Flags(0), GuaID(0), OpID(0), LimitStoreDays(0)
@@ -7974,8 +7995,13 @@ PrcssrChZnMarkInfoCollector::Param::Param() : Flags(0), GuaID(0), OpID(0), Limit
 	Period.Z();
 }
 
-PrcssrChZnMarkInfoCollector::PrcssrChZnMarkInfoCollector()
+PrcssrChZnMarkInfoCollector::PrcssrChZnMarkInfoCollector() : P_EcrT(0)
 {
+}
+
+PrcssrChZnMarkInfoCollector::~PrcssrChZnMarkInfoCollector()
+{
+	delete P_EcrT;
 }
 
 int	PrcssrChZnMarkInfoCollector::InitParam(Param * pParam)
@@ -8034,26 +8060,130 @@ int	PrcssrChZnMarkInfoCollector::Init(const Param * pParam)
 int	PrcssrChZnMarkInfoCollector::Run()
 {
 	int    ok = -1;
+	PPObjBill * p_bobj(BillObj);
+	SString temp_buf;
+	SString msg_buf;
 	BillFilt filt;
 	PPViewBill view;
 	BillViewItem view_item;
-	if(!P.Period.IsZero()) {
-		filt.Period = P.Period;
+	PPLogger logger;
+	St.Z();
+	//THROW(P_LotXcT->GetContainer(pPack->Rec.ID, pPack->XcL));
+	PPWait(1);
+	if(p_bobj && p_bobj->P_LotXcT) {
+		PPLotExtCodeContainer xcl;
+		PPLotExtCodeContainer::Item2 xcl_item;
+		GtinStruc gts;
+		SString egai_mark_buf;
+		StringSet ss_global;
+		StringSet ss_part;
+		if(!P.Period.IsZero()) {
+			filt.Period = P.Period;
+		}
+		else {
+			filt.Period.low = plusdate(getcurdate_(), -60);
+		}
+		filt.LocList = P.LocList;
+		if(P.OpID) {
+			filt.OpID = P.OpID;
+		}
+		else {
+			;
+		}
+		//
+		ChZnInterface ifc;
+		ChZnInterface::InitBlock ib;
+		ib.ProtocolId = ChZnInterface::InitBlock::protidTrueAPI;
+		THROW(ifc.SetupInitBlock(P.GuaID, 0, ib));
+		THROW(ifc.Connect(ib) > 0);
+		//
+		THROW(view.Init_(&filt));
+		PPLoadText(PPTXT_ENUMERATION_BILL, msg_buf);
+		PPWaitMsg(msg_buf);
+		for(view.InitIteration(PPViewBill::OrdByDefault); view.NextIteration(&view_item) > 0;) {
+			p_bobj->P_LotXcT->GetContainer(view_item.ID, xcl);
+			if(xcl.GetCount()) {
+				for(uint i = 0; i < xcl.GetCount(); i++) {
+					if(xcl.GetByIdx(i, xcl_item)) {
+						const  bool iemr = PrcssrAlcReport::IsEgaisMark(xcl_item.Num, &egai_mark_buf);
+						const  int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(xcl_item.Num, gts, 0));
+						if(oneof2(ipczcr, PPChZnPrcssr::chznciPallet, PPChZnPrcssr::chznciReal)) {
+							ss_global.add(xcl_item.Num);
+							St.MarkCount++;
+						}
+					}
+				}
+			}
+			PPWaitPercent(view.GetCounter(), msg_buf);
+		}
+		if(ss_global.IsCountGreaterThan(0)) {
+			SETIFZ(P_EcrT, new ExtCodeRefCore());
+			if(P_EcrT) {
+				PPChZnPrcssr::CodeInfoCollection cic;
+				ss_global.sortAndUndup();
+				const  uint ss_global_count = ss_global.getCount();
+				const  uint max_items_per_query = 500; // Не более 1000!
+				uint   part_count = 0;
+				uint   ss_global_iter_no = 0;
+				//
+				//
+				PPLoadText(PPTXT_CHZNMARKINFO_EXTRACTING, msg_buf);
+				for(uint ssp = 0; ss_global.get(&ssp, temp_buf);) {
+					if(P_EcrT->GetInfo(temp_buf, cic) > 0) {
+						St.MarkInDbCount++;
+					}
+					else {
+						ss_part.add(temp_buf);
+						part_count++;
+						if(part_count >= max_items_per_query) {
+							St.MarkToQueryCount += part_count;
+							St.QueryCount++;
+							if(ifc.GetMarkInfo(ib, ss_part, cic) > 0) {
+								if(!P_EcrT->PutInfo(cic, 1)) {
+									logger.LogLastError();
+								}
+							}
+							part_count = 0;
+							ss_part.Z();
+						}
+					}
+					ss_global_iter_no++;
+					PPWaitPercent(ss_global_iter_no, ss_global_count, msg_buf);
+				}
+				if(part_count) {
+					if(ifc.GetMarkInfo(ib, ss_part, cic) > 0) {
+						if(!P_EcrT->PutInfo(cic, 1)) {
+							logger.LogLastError();
+						}
+					}
+				}
+			}
+		}
 	}
-	else {
-		filt.Period.low = plusdate(getcurdate_(), -60);
+	CATCH
+		logger.LogLastError();
+		ok = 0;
+	ENDCATCH
+	{
+		temp_buf.Z().CatEq("MarkCount", St.MarkCount).Space().CatEq("MarkInDbCount", St.MarkInDbCount).Space().
+			CatEq("MarkToQueryCount", St.MarkToQueryCount).Space().CatEq("QueryCount", St.QueryCount);
+		logger.Log(temp_buf);
 	}
-	filt.LocList = P.LocList;
-	if(P.OpID) {
-		filt.OpID = P.OpID;
+	PPWait(0);
+	return ok;
+}
+
+int DoChZnMarkInfoCollector()
+{
+	int    ok = -1;
+	PrcssrChZnMarkInfoCollector prcssr;
+	PrcssrChZnMarkInfoCollector::Param param;
+	prcssr.InitParam(&param);
+	if(prcssr.EditParam(&param) > 0) {
+		if(prcssr.Init(&param) && prcssr.Run())
+			ok = 1;
+		else
+			ok = PPErrorZ();
 	}
-	else {
-		;
-	}
-	THROW(view.Init_(&filt));
-	for(view.InitIteration(PPViewBill::OrdByDefault); view.NextIteration(&view_item) > 0;) {
-		// @todo 
-	}
-	CATCHZOK
 	return ok;
 }

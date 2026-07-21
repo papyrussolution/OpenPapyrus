@@ -2901,6 +2901,43 @@ private:
 	PPSecretSegmentPool SecPool; // @v12.6.9
 };
 
+//
+// Descr: [Важно: это - модель. Продуктивный вариант предполагает вставку окна в общую панель centrigo].
+//   Диалог просмотра и редактирования секретов.
+//
+class CentrigoSecretsDialog : public TDialog, public PPListDialogBaseInterface {
+public:
+	CentrigoSecretsDialog(void * hParentWindow, PPSecretSegmentPool & rSecPool, const SString & rFilePath);
+private:
+	struct TextFieldDescr {
+		uint   CtlId;
+		uint32 * P_DataIdx;
+	};
+	
+	DECL_HANDLE_EVENT;
+	virtual SmartListBox * GetListBoxCtl() const;
+	virtual int  setupList();
+	virtual int  addItem(long * pPos, long * pID);
+	virtual int  editItem(long pos, long id);
+	virtual int  delItem(long pos, long id);
+	bool   MakeNewSegName(SString & rBuf) const;
+	bool   MakeNewFolderName(SString & rBuf) const;
+	bool   GetCurrentInput();
+	void   ClearInputBlock();
+	void   SetupParentList(uint currentIdent);
+	void   SetupSegmentType(uint type);
+	void   SetupSelectedSegment(uint segIdent);
+	int    Helper_MakeStrAssocList(uint32 parentId, StrAssocArray * pList);
+	StrAssocArray * MakeStrAssocList();
+
+	PPSecretSegmentPool & R_SecPool;
+	const  SString FilePath;
+	//uint   CurrentSegIdx; // [1..], 0 - undef
+	uint   CurrentSegIdent; 
+	uint   CtlList;
+	SmartListBox * P_Box;
+};
+
 int TFacadeWindow::MakeNavList(CentrigoNavBlock & rBlk)
 {
 	int    ok = 1;
@@ -3067,6 +3104,53 @@ int TFacadeWindow::DoTasks(const PrjTaskFilt * pFilt)
 	return ok;
 }
 
+int TFacadeWindow::DoSecrets()
+{
+	int    ok = -1;
+	SString file_path;
+	CentrigoSecretsDialog * dlg = 0;
+	if(LoadSecrets(&file_path, true/*interactive*/)) {
+		dlg = new CentrigoSecretsDialog(H(), SecPool, file_path);
+		//ExecView(dlg);
+		//
+		///*
+		{
+			RemoveWorkingPanel();
+			{
+				SUiLayout * p_lo = P_Lfc->FindBySymb("Facade_Center");
+				if(p_lo) {
+					if(dlg) {
+						InsertCtlWithCorrespondingNativeItem(dlg, ViewId_Primary, 0, 0);
+						{
+							SUiLayoutParam alb_;
+							alb_.GrowFactor = 1.0;
+							alb_.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+							{
+								SUiLayout * p_result = 0;
+								p_result = p_lo->InsertItem(dlg, &alb_);
+								if(p_result) {
+									p_result->SetCallbacks(0, TView::SetupLayoutItemFrameProc, dlg);
+									::ShowWindow(dlg->H(), SW_SHOWNORMAL);
+									//dlg->Launch_(this);
+									{
+										EvaluateLayout(getClientRect());
+										invalidateAll(true);
+										::UpdateWindow(H());
+									}
+									::PostMessageW(dlg->H(), WM_SETFOCUS, 0, 0);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		//*/
+	}
+	// (диалог не модальный!) delete dlg;
+	return ok;
+}
+
 int TFacadeWindow::DoNote(SObjID & rOid)
 {
 	int    ok = -1;
@@ -3099,18 +3183,12 @@ int TFacadeWindow::DoNote(SObjID & rOid)
 		{
 			SUiLayout * p_lo = P_Lfc->FindBySymb("Facade_Center");
 			if(p_lo) {
-				// @construction
 				SObjTextRefIdent tri(rOid, PPTRPROP_MEMO);
 				STextBrowser * p_tb = new STextBrowser(tri, /*pLexerSymb*/0, /*toolbarId*/-1);
 				if(p_tb) {
 					STextBrowser::Config cfg;
 					p_tb->GetConfig(cfg);
-					//fAutoBackupText  = 0x0001,
-					//fAutoBackupState = 0x0002,
-					//fAutoSaveText    = 0x0004,
-					//fAutoSaveState   = 0x0008,
 					cfg.Flags |= (STextBrowser::Config::fAutoSaveText|STextBrowser::Config::fAutoSaveState);
-					//cfg.Flags |= (STextBrowser::Config::fAutoBackupText|STextBrowser::Config::fAutoBackupState);
 					p_tb->SetConfig(cfg);
 					p_tb->SetIdlePeriod(3);
 					p_brw = p_tb;
@@ -3154,13 +3232,11 @@ int TFacadeWindow::InsertWorkWindow(int ppviewId, const PPBaseFilt * pFilt)
 		if(p_lo) {
 			PPView * p_view = 0;
 			RemoveWorkingPanel();
-			if(PPView::Execute(ppviewId, pFilt, PPView::exefModeless|PPView::exefDontLaunchWindow, &p_view, 0)) { // @v12.5.4
+			if(PPView::Execute(ppviewId, pFilt, PPView::exefModeless|PPView::exefDontLaunchWindow, &p_view, 0)) {
 				SUiLayoutParam alb_;
 				alb_.GrowFactor = 1.0;
 				alb_.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-				//alb_.SetMargin(8.0f);
-				//p_view->Browse(true/*modeless*/);
-				p_view->BrowseInLayout(this, "Facade_Center", alb_, /*10002*/ViewId_Primary); // @v12.5.4
+				p_view->BrowseInLayout(this, "Facade_Center", alb_, /*10002*/ViewId_Primary);
 				ok = 1;
 			}
 		}
@@ -3925,14 +4001,6 @@ IMPL_HANDLE_EVENT(TFacadeWindow)
 		}
 	}
 }
-
-int Launch_TFacadeWindow()
-{
-	int    ok = -1;
-	TFacadeWindow * p_win = new TFacadeWindow();
-	InsertView(p_win);
-	return ok;
-}
 //
 //
 //
@@ -4564,11 +4632,9 @@ PPSecretSegment * PPSecretSegmentPool::SearchSegmentByName(const char * pKey, ui
 		SString temp_buf;
 		for(uint i = 0; !p_result && i < getCount(); i++) {
 			PPSecretSegment * p_item = at(i);
-			if(p_item && GetText(p_item->NameP, temp_buf)) {
-				if(temp_buf.IsEqiUtf8(pKey)) {
-					p_result = p_item;
-					pos = i;
-				}
+			if(p_item && GetText(p_item->NameP, temp_buf) && temp_buf.IsEqiUtf8(pKey)) {
+				p_result = p_item;
+				pos = i;
 			}
 		}
 	}
@@ -4928,488 +4994,479 @@ int TFacadeWindow::LoadSecrets(SString * pFilePath, bool interactive)
 int TFacadeWindow::CloseSecrets()
 {
 	int    ok = -1;
-
 	return ok;
 }
-//
-// Descr: [Важно: это - модель. Продуктивный вариант предполагает вставку окна в общую панель centrigo].
-//   Диалог просмотра и редактирования секретов.
-//
-class CentrigoSecretsDialog : public TDialog, public PPListDialogBaseInterface {
-public:
-	CentrigoSecretsDialog(PPSecretSegmentPool & rSecPool, const SString & rFilePath) : TDialog(DLG_SECRETPOOL), R_SecPool(rSecPool), CurrentSegIdent(0),
-		FilePath(rFilePath)
+
+CentrigoSecretsDialog::CentrigoSecretsDialog(void * hParentWindow, PPSecretSegmentPool & rSecPool, const SString & rFilePath) : 
+	TDialog(DLG_SECRETPOOL, hParentWindow), R_SecPool(rSecPool), CurrentSegIdent(0), FilePath(rFilePath)
+{
+	P_Box = static_cast<SmartListBox *>(getCtrlView(CTL_SECRETPOOL_LIST));
+	if(!SetupStrListBox(P_Box))
+		PPError();
+	updateList(-1);
 	{
-		P_Box = static_cast<SmartListBox *>(getCtrlView(CTL_SECRETPOOL_LIST));
-		if(!SetupStrListBox(P_Box))
-			PPError();
-		updateList(-1);
-		{
-			//SetupStringCombo(this, CTLSEL_SECRETPOOL_TYPE, PPTXT_SECSEGTYPES, 0);
-			//int STDCALL SetupStringComboWithAllowedList(TDialog * dlg, uint ctlID, const char * pStrSignature, const LongArray * pAllowedList, long initID) // @v12.6.11
-		}
-		{
-			const uint input_ctl_fld_id_list[] = {
-				CTL_SECRETPOOL_NAME, CTL_SECRETPOOL_DESCR, CTL_SECRETPOOL_TOPEN, CTL_SECRETPOOL_THIDDEN,
-				CTL_SECRETPOOL_TEXPIRY, CTL_SECRETPOOL_TEXT1, CTL_SECRETPOOL_TEXT2, CTL_SECRETPOOL_TEXT3
-			};
-			for(uint i = 0; i < SIZEOFARRAY(input_ctl_fld_id_list); i++) {
-				TView * p_view = getCtrlView(input_ctl_fld_id_list[i]);
-				if(TView::IsSubSign(p_view, TV_SUBSIGN_INPUTLINE)) {
-					p_view->ViewOptions |= ofUtf8;
-				}
+		//SetupStringCombo(this, CTLSEL_SECRETPOOL_TYPE, PPTXT_SECSEGTYPES, 0);
+		//int STDCALL SetupStringComboWithAllowedList(TDialog * dlg, uint ctlID, const char * pStrSignature, const LongArray * pAllowedList, long initID) // @v12.6.11
+	}
+	{
+		const uint input_ctl_fld_id_list[] = {
+			CTL_SECRETPOOL_NAME, CTL_SECRETPOOL_DESCR, CTL_SECRETPOOL_TOPEN, CTL_SECRETPOOL_THIDDEN,
+			CTL_SECRETPOOL_TEXPIRY, CTL_SECRETPOOL_TEXT1, CTL_SECRETPOOL_TEXT2, CTL_SECRETPOOL_TEXT3
+		};
+		for(uint i = 0; i < SIZEOFARRAY(input_ctl_fld_id_list); i++) {
+			TView * p_view = getCtrlView(input_ctl_fld_id_list[i]);
+			if(TView::IsSubSign(p_view, TV_SUBSIGN_INPUTLINE)) {
+				p_view->ViewOptions |= ofUtf8;
 			}
 		}
 	}
-private:
-	bool   MakeNewSegName(SString & rBuf) const
-	{
-		long   _counter = 1;
-		SString name_template("New secret");
-		rBuf.Z().Cat(name_template);
-		while(R_SecPool.SearchSegmentByName(rBuf, 0)) {
-			rBuf.Z().Cat(name_template).Space().CatChar('#').CatLongZ(++_counter, 3);
-		}
-		return true;
+}
+
+bool CentrigoSecretsDialog::MakeNewSegName(SString & rBuf) const
+{
+	long   _counter = 1;
+	SString name_template("New secret");
+	rBuf.Z().Cat(name_template);
+	while(R_SecPool.SearchSegmentByName(rBuf, 0)) {
+		rBuf.Z().Cat(name_template).Space().CatChar('#').CatLongZ(++_counter, 3);
 	}
-	bool   MakeNewFolderName(SString & rBuf) const
-	{
-		long   _counter = 1;
-		SString name_template("New folder");
-		rBuf.Z().Cat(name_template);
-		while(R_SecPool.SearchSegmentByName(rBuf, 0)) {
-			rBuf.Z().Cat(name_template).Space().CatChar('#').CatLongZ(++_counter, 3);
-		}
-		return true;
+	return true;
+}
+
+bool CentrigoSecretsDialog::MakeNewFolderName(SString & rBuf) const
+{
+	long   _counter = 1;
+	SString name_template("New folder");
+	rBuf.Z().Cat(name_template);
+	while(R_SecPool.SearchSegmentByName(rBuf, 0)) {
+		rBuf.Z().Cat(name_template).Space().CatChar('#').CatLongZ(++_counter, 3);
 	}
-	virtual int  addItem(long * pPos, long * pID)
-	{
-		int    ok = 0;
-		uint   new_seg_pos = 0;
-		PPSecretSegment * p_new_seg = R_SecPool.CreateNewSegment(&new_seg_pos);
-		if(p_new_seg) {
-			SString name_buf;
-			MakeNewSegName(name_buf);
-			R_SecPool.PutText(name_buf, &p_new_seg->NameP);
-			p_new_seg->SecType = PPSecretSegment::sectypGeneric;
+	return true;
+}
+
+/*virtual*/int CentrigoSecretsDialog::addItem(long * pPos, long * pID)
+{
+	int    ok = 0;
+	uint   new_seg_pos = 0;
+	PPSecretSegment * p_new_seg = R_SecPool.CreateNewSegment(&new_seg_pos);
+	if(p_new_seg) {
+		SString name_buf;
+		MakeNewSegName(name_buf);
+		R_SecPool.PutText(name_buf, &p_new_seg->NameP);
+		p_new_seg->SecType = PPSecretSegment::sectypGeneric;
+		{
+			if(FilePath.NotEmpty()) {
+				if(!R_SecPool.SaveStorage(FilePath))
+					PPError();
+			}
+		}
+		ASSIGN_PTR(pPos, static_cast<long>(new_seg_pos));
+		ASSIGN_PTR(pID, static_cast<long>(p_new_seg->InternalID));
+		ok = 1;
+	}
+	return ok;
+}
+
+/*virtual*/int CentrigoSecretsDialog::editItem(long pos, long id)
+{
+	int    ok = -1;
+	return ok;
+}
+
+/*virtual*/int CentrigoSecretsDialog::delItem(long pos, long id)
+{
+	int    ok = -1;
+	uint   item_idx = 0;
+	const  PPSecretSegment * p_item = R_SecPool.SearchSegmentByID(id, &item_idx);
+	if(p_item) {
+		SString temp_buf;
+		if(R_SecPool.HasChildrenByID(id)) {
+			//PPERR_SECSEGHASCHLDRN_UNABLEDEL     "Невозможно удалить '%s'. Существуют дочерние элементы"
+			R_SecPool.GetText(p_item->NameP, temp_buf);
+			ok = PPSetError(PPERR_SECSEGHASCHLDRN_UNABLEDEL, temp_buf);
+		}
+		else {
+			R_SecPool.atFree(item_idx);
 			{
+				if(FilePath.NotEmpty()) {
+					if(!R_SecPool.SaveStorage(FilePath))
+						ok = 0;
+				}
+			}
+			if(ok < 0)
+				ok = 1;
+		}
+	}
+	if(!ok)
+		PPError();
+	return ok;
+}
+
+void CentrigoSecretsDialog::ClearInputBlock()
+{
+}
+
+void CentrigoSecretsDialog::SetupParentList(uint currentIdent)
+{
+	StrAssocArray list;
+	const  PPSecretSegment * p_current_item = R_SecPool.SearchSegmentByID(currentIdent, 0);
+	R_SecPool.MakeFolderList(currentIdent, list);
+	SetupStrAssocTreeCombo(this, CTLSEL_SECRETPOOL_PARENT, list, p_current_item ? p_current_item->ParentID : 0, 0/*flags*/, 0/*ownerDrawListBox*/);
+}
+	
+void CentrigoSecretsDialog::SetupSegmentType(uint type)
+{
+	bool   enable_type_selection = true;
+	switch(type) {
+		case PPSecretSegment::sectypUndef:
+			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
+			showCtrl(CTL_SECRETPOOL_TOPEN, true);
+			showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+			showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+			showCtrl(CTL_SECRETPOOL_TEXT1, false);
+			showCtrl(CTL_SECRETPOOL_TEXT2, false);
+			showCtrl(CTL_SECRETPOOL_TEXT3, false);
+			break;
+		case PPSecretSegment::sectypFolder:
+			showCtrl(CTL_SECRETPOOL_EXPIRY, false);
+			showCtrl(CTL_SECRETPOOL_TOPEN, false);
+			showCtrl(CTL_SECRETPOOL_THIDDEN, false);
+			showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+			showCtrl(CTL_SECRETPOOL_TEXT1, false);
+			showCtrl(CTL_SECRETPOOL_TEXT2, false);
+			showCtrl(CTL_SECRETPOOL_TEXT3, false);
+			enable_type_selection = false;
+			break;
+		case PPSecretSegment::sectypGeneric:
+			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
+			showCtrl(CTL_SECRETPOOL_TOPEN, true);
+			showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+			showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+			showCtrl(CTL_SECRETPOOL_TEXT1, false);
+			showCtrl(CTL_SECRETPOOL_TEXT2, false);
+			showCtrl(CTL_SECRETPOOL_TEXT3, false);
+			break;
+		case PPSecretSegment::sectypPassword:
+			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
+			showCtrl(CTL_SECRETPOOL_TOPEN, false);
+			showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+			showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+			showCtrl(CTL_SECRETPOOL_TEXT1, false);
+			showCtrl(CTL_SECRETPOOL_TEXT2, false);
+			showCtrl(CTL_SECRETPOOL_TEXT3, false);
+			break;
+		case PPSecretSegment::sectypAuthSecret:
+			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
+			showCtrl(CTL_SECRETPOOL_TOPEN, true);
+			showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+			showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+			showCtrl(CTL_SECRETPOOL_TEXT1, false);
+			showCtrl(CTL_SECRETPOOL_TEXT2, false);
+			showCtrl(CTL_SECRETPOOL_TEXT3, false);
+			break;
+		case PPSecretSegment::sectypOpenKey:
+			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
+			showCtrl(CTL_SECRETPOOL_TOPEN, true);
+			showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+			showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+			showCtrl(CTL_SECRETPOOL_TEXT1, false);
+			showCtrl(CTL_SECRETPOOL_TEXT2, false);
+			showCtrl(CTL_SECRETPOOL_TEXT3, false);
+			break;
+		case PPSecretSegment::sectypBankCard:
+			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
+			showCtrl(CTL_SECRETPOOL_TOPEN, true);
+			showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+			showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+			showCtrl(CTL_SECRETPOOL_TEXT1, false);
+			showCtrl(CTL_SECRETPOOL_TEXT2, false);
+			showCtrl(CTL_SECRETPOOL_TEXT3, false);
+			break;
+		case PPSecretSegment::sectypSSH:
+			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
+			showCtrl(CTL_SECRETPOOL_TOPEN, true);
+			showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+			showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+			showCtrl(CTL_SECRETPOOL_TEXT1, false);
+			showCtrl(CTL_SECRETPOOL_TEXT2, false);
+			showCtrl(CTL_SECRETPOOL_TEXT3, false);
+			break;
+		case PPSecretSegment::sectypESignature:
+			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
+			showCtrl(CTL_SECRETPOOL_TOPEN, true);
+			showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+			showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+			showCtrl(CTL_SECRETPOOL_TEXT1, false);
+			showCtrl(CTL_SECRETPOOL_TEXT2, false);
+			showCtrl(CTL_SECRETPOOL_TEXT3, false);
+			break;
+	}
+}
+
+void CentrigoSecretsDialog::SetupSelectedSegment(uint segIdent)
+{
+	SString temp_buf;
+	//if(segIdx < R_SecPool.getCount()) 
+	{
+		//const  PPSecretSegment * p_item = R_SecPool.at(segIdx);
+		uint   seg_pos = 0;
+		const  PPSecretSegment * p_item = R_SecPool.SearchSegmentByID(segIdent, &seg_pos);
+		if(p_item) {
+			//CurrentSegIdx = segIdx+1;
+			CurrentSegIdent = segIdent;
+			setCtrlLong(CTL_SECRETPOOL_ID, p_item->InternalID);
+			setCtrlLong(CTLSEL_SECRETPOOL_TYPE, p_item->SecType);
+			{
+				LongArray allowed_type_list;
+				if(p_item->SecType == PPSecretSegment::sectypFolder) {
+					allowed_type_list.add(PPSecretSegment::sectypFolder);
+					disableCtrl(CTLSEL_SECRETPOOL_TYPE, true);
+				}
+				else {
+					allowed_type_list.addzlist(PPSecretSegment::sectypGeneric, PPSecretSegment::sectypPassword, PPSecretSegment::sectypAuthSecret,
+						PPSecretSegment::sectypOpenKey, PPSecretSegment::sectypBankCard, PPSecretSegment::sectypSSH, PPSecretSegment::sectypESignature, 0L);
+					disableCtrl(CTLSEL_SECRETPOOL_TYPE, false);
+				}
+				SetupStringComboWithAllowedList(this, CTLSEL_SECRETPOOL_TYPE, PPTXT_SECSEGTYPES, &allowed_type_list, p_item->SecType);
+			}
+			SetupParentList(segIdent);
+			{
+				SUniTime_Internal ut;
+				UED::_GetRaw_Time(p_item->UedEnterTm, ut);
+				setCtrlString(CTL_SECRETPOOL_CRTM, ut.ToStr(DATF_ISO8601CENT, TIMF_HMS, temp_buf));
+			}
+			{
+				SUniTime_Internal ut;
+				UED::_GetRaw_Time(p_item->CE.UedBeforeTm, ut);
+				LDATE  dt = ZERODATE;
+				ut.GetDate(&dt);
+				setCtrlDate(CTL_SECRETPOOL_EXPIRY, dt);
+			}
+			// input CTL_SECRETPOOL_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[128];
+			// input CTL_SECRETPOOL_ID [width: 60 height: 21 margin: 4 tabstop readonly fmtf: (nozero) label: "@id"] uint64;
+			// combobox CTLSEL_SECRETPOOL_TYPE [width: bycontainer height: 21 margin: 4 tabstop label: "@type" cblinesymb: CTL_SECRETPOOL_TYPE];
+			// combobox CTLSEL_SECRETPOOL_PARENT [width: bycontainer height: 21 margin: 4 tabstop label: "Parent" cblinesymb: CTL_SECRETPOOL_PARENT];
+			// input CTL_SECRETPOOL_CRTM [width: 80 height: 21 margin: 4 tabstop readonly label: "Creation Time"] string[64];
+			// input CTL_SECRETPOOL_EXPIRY [width: 80 height: 21 margin: 4 tabstop label: "Expiry"] date;
+			// input CTL_SECRETPOOL_TOPEN [width: bycontainer height: 21 margin: 4 tabstop label: "Open Text"] string[128];
+			// input CTL_SECRETPOOL_THIDDEN [width: bycontainer height: 21 margin: 4 tabstop label: "Hidden Text"] string[128];
+			// input CTL_SECRETPOOL_TEXPIRY [growfactor: 1 height: 21 margin: 4 tabstop label: "Expiry Text"] string[128];
+			// input CTL_SECRETPOOL_TEXT1 [growfactor: 1 height: 21 margin: 4 tabstop label: "Ext 1"] string[128];
+			// input CTL_SECRETPOOL_TEXT2 [growfactor: 1 height: 21 margin: 4 tabstop label: "Ext 2"] string[128];
+			// input CTL_SECRETPOOL_TEXT3 [growfactor: 1 height: 21 margin: 4 tabstop label: "Ext 3"] string[128];
+			// input CTL_SECRETPOOL_DESCR [width: bycontainer growfactor: 1 margin: 4 tabstop multiline wantreturn label: "@memo"] string[252];
+			{
+				const TextFieldDescr tctl_tab[] = {
+					{ CTL_SECRETPOOL_NAME, const_cast<uint32 *>(&p_item->NameP) },
+					{ CTL_SECRETPOOL_TOPEN, const_cast<uint32 *>(&p_item->CE.STextOpenP) },
+					{ CTL_SECRETPOOL_THIDDEN, const_cast<uint32 *>(&p_item->CE.STextHiddenP) },
+					{ CTL_SECRETPOOL_TEXPIRY, const_cast<uint32 *>(&p_item->CE.STextExpiryP) },
+					{ CTL_SECRETPOOL_TEXT1, const_cast<uint32 *>(&p_item->CE.STextExt1P) },
+					{ CTL_SECRETPOOL_TEXT2, const_cast<uint32 *>(&p_item->CE.STextExt2P) },
+					{ CTL_SECRETPOOL_TEXT3, const_cast<uint32 *>(&p_item->CE.STextExt3P) },
+					{ CTL_SECRETPOOL_DESCR, const_cast<uint32 *>(&p_item->DescrP) },
+				};
+				for(uint i = 0; i < SIZEOFARRAY(tctl_tab); i++) {
+					const TextFieldDescr & r_entry = tctl_tab[i];
+					R_SecPool.GetText(*r_entry.P_DataIdx, temp_buf);
+					setCtrlString(r_entry.CtlId, temp_buf);
+				}
+			}
+			SetupSegmentType(p_item->SecType);
+		}
+	}
+}
+
+bool CentrigoSecretsDialog::GetCurrentInput()
+{
+	bool   ok = false;
+	SString temp_buf;
+	if(CurrentSegIdent) {
+		PPSecretSegment * p_item = const_cast<PPSecretSegment *>(R_SecPool.SearchSegmentByID(CurrentSegIdent, 0)); // @badcast
+		if(p_item) {
+			const  PPSecretSegment preserve_segment(*p_item);
+			p_item->SecType = getCtrlLong(CTLSEL_SECRETPOOL_TYPE);
+			p_item->ParentID = getCtrlLong(CTLSEL_SECRETPOOL_PARENT);
+			{
+				LDATE  dt = getCtrlDate(CTL_SECRETPOOL_EXPIRY);
+				SUniTime_Internal ut;
+				ut.SetDate(dt);
+				p_item->CE.UedBeforeTm = UED::_SetRaw_Time(UED_META_DATE_DAY, ut);
+			}
+			{
+				TextFieldDescr tctl_tab[] = {
+					{ CTL_SECRETPOOL_NAME, &p_item->NameP },
+					{ CTL_SECRETPOOL_TOPEN, &p_item->CE.STextOpenP },
+					{ CTL_SECRETPOOL_THIDDEN, &p_item->CE.STextHiddenP },
+					{ CTL_SECRETPOOL_TEXPIRY, &p_item->CE.STextExpiryP },
+					{ CTL_SECRETPOOL_TEXT1, &p_item->CE.STextExt1P },
+					{ CTL_SECRETPOOL_TEXT2, &p_item->CE.STextExt2P },
+					{ CTL_SECRETPOOL_TEXT3, &p_item->CE.STextExt3P },
+					{ CTL_SECRETPOOL_DESCR, &p_item->DescrP },
+				};
+				for(uint i = 0; i < SIZEOFARRAY(tctl_tab); i++) {
+					TextFieldDescr & r_entry = tctl_tab[i];
+					getCtrlString(r_entry.CtlId, temp_buf);
+					R_SecPool.PutText(temp_buf, r_entry.P_DataIdx);
+				}
+			}
+			//
+			if(!p_item->IsEq(preserve_segment)) {
 				if(FilePath.NotEmpty()) {
 					if(!R_SecPool.SaveStorage(FilePath))
 						PPError();
 				}
-			}
-			ASSIGN_PTR(pPos, static_cast<long>(new_seg_pos));
-			ASSIGN_PTR(pID, static_cast<long>(p_new_seg->InternalID));
-			ok = 1;
-		}
-		return ok;
-	}
-	virtual int  editItem(long pos, long id)
-	{
-		int    ok = -1;
-		return ok;
-	}
-	virtual int  delItem(long pos, long id)
-	{
-		int    ok = -1;
-		uint   item_idx = 0;
-		const  PPSecretSegment * p_item = R_SecPool.SearchSegmentByID(id, &item_idx);
-		if(p_item) {
-			SString temp_buf;
-			if(R_SecPool.HasChildrenByID(id)) {
-				//PPERR_SECSEGHASCHLDRN_UNABLEDEL     "Невозможно удалить '%s'. Существуют дочерние элементы"
-				R_SecPool.GetText(p_item->NameP, temp_buf);
-				ok = PPSetError(PPERR_SECSEGHASCHLDRN_UNABLEDEL, temp_buf);
-			}
-			else {
-				R_SecPool.atFree(item_idx);
-				{
-					if(FilePath.NotEmpty()) {
-						if(!R_SecPool.SaveStorage(FilePath))
-							ok = 0;
-					}
+				SString preserve_name;
+				R_SecPool.GetText(preserve_segment.NameP, preserve_name);
+				if(temp_buf != preserve_name || p_item->ParentID != preserve_segment.ParentID) {
+					updateList(-1); // -1 принципиально, поскольку функция возможно была вызвана в ответ на изменение фокус списка.
 				}
-				if(ok < 0)
-					ok = 1;
 			}
-		}
-		if(!ok)
-			PPError();
-		return ok;
-	}
-	void    ClearInputBlock()
-	{
-	}
-	void    SetupParentList(uint currentIdent)
-	{
-		StrAssocArray list;
-		const  PPSecretSegment * p_current_item = R_SecPool.SearchSegmentByID(currentIdent, 0);
-		R_SecPool.MakeFolderList(currentIdent, list);
-		SetupStrAssocTreeCombo(this, CTLSEL_SECRETPOOL_PARENT, list, p_current_item ? p_current_item->ParentID : 0, 0/*flags*/, 0/*ownerDrawListBox*/);
-	}
-	void    SetupSegmentType(uint type)
-	{
-		bool   enable_type_selection = true;
-		switch(type) {
-			case PPSecretSegment::sectypUndef:
-				showCtrl(CTL_SECRETPOOL_EXPIRY, true);
-				showCtrl(CTL_SECRETPOOL_TOPEN, true);
-				showCtrl(CTL_SECRETPOOL_THIDDEN, true);
-				showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
-				showCtrl(CTL_SECRETPOOL_TEXT1, false);
-				showCtrl(CTL_SECRETPOOL_TEXT2, false);
-				showCtrl(CTL_SECRETPOOL_TEXT3, false);
-				break;
-			case PPSecretSegment::sectypFolder:
-				showCtrl(CTL_SECRETPOOL_EXPIRY, false);
-				showCtrl(CTL_SECRETPOOL_TOPEN, false);
-				showCtrl(CTL_SECRETPOOL_THIDDEN, false);
-				showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
-				showCtrl(CTL_SECRETPOOL_TEXT1, false);
-				showCtrl(CTL_SECRETPOOL_TEXT2, false);
-				showCtrl(CTL_SECRETPOOL_TEXT3, false);
-				enable_type_selection = false;
-				break;
-			case PPSecretSegment::sectypGeneric:
-				showCtrl(CTL_SECRETPOOL_EXPIRY, true);
-				showCtrl(CTL_SECRETPOOL_TOPEN, true);
-				showCtrl(CTL_SECRETPOOL_THIDDEN, true);
-				showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
-				showCtrl(CTL_SECRETPOOL_TEXT1, false);
-				showCtrl(CTL_SECRETPOOL_TEXT2, false);
-				showCtrl(CTL_SECRETPOOL_TEXT3, false);
-				break;
-			case PPSecretSegment::sectypPassword:
-				showCtrl(CTL_SECRETPOOL_EXPIRY, true);
-				showCtrl(CTL_SECRETPOOL_TOPEN, false);
-				showCtrl(CTL_SECRETPOOL_THIDDEN, true);
-				showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
-				showCtrl(CTL_SECRETPOOL_TEXT1, false);
-				showCtrl(CTL_SECRETPOOL_TEXT2, false);
-				showCtrl(CTL_SECRETPOOL_TEXT3, false);
-				break;
-			case PPSecretSegment::sectypAuthSecret:
-				showCtrl(CTL_SECRETPOOL_EXPIRY, true);
-				showCtrl(CTL_SECRETPOOL_TOPEN, true);
-				showCtrl(CTL_SECRETPOOL_THIDDEN, true);
-				showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
-				showCtrl(CTL_SECRETPOOL_TEXT1, false);
-				showCtrl(CTL_SECRETPOOL_TEXT2, false);
-				showCtrl(CTL_SECRETPOOL_TEXT3, false);
-				break;
-			case PPSecretSegment::sectypOpenKey:
-				showCtrl(CTL_SECRETPOOL_EXPIRY, true);
-				showCtrl(CTL_SECRETPOOL_TOPEN, true);
-				showCtrl(CTL_SECRETPOOL_THIDDEN, true);
-				showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
-				showCtrl(CTL_SECRETPOOL_TEXT1, false);
-				showCtrl(CTL_SECRETPOOL_TEXT2, false);
-				showCtrl(CTL_SECRETPOOL_TEXT3, false);
-				break;
-			case PPSecretSegment::sectypBankCard:
-				showCtrl(CTL_SECRETPOOL_EXPIRY, true);
-				showCtrl(CTL_SECRETPOOL_TOPEN, true);
-				showCtrl(CTL_SECRETPOOL_THIDDEN, true);
-				showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
-				showCtrl(CTL_SECRETPOOL_TEXT1, false);
-				showCtrl(CTL_SECRETPOOL_TEXT2, false);
-				showCtrl(CTL_SECRETPOOL_TEXT3, false);
-				break;
-			case PPSecretSegment::sectypSSH:
-				showCtrl(CTL_SECRETPOOL_EXPIRY, true);
-				showCtrl(CTL_SECRETPOOL_TOPEN, true);
-				showCtrl(CTL_SECRETPOOL_THIDDEN, true);
-				showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
-				showCtrl(CTL_SECRETPOOL_TEXT1, false);
-				showCtrl(CTL_SECRETPOOL_TEXT2, false);
-				showCtrl(CTL_SECRETPOOL_TEXT3, false);
-				break;
-			case PPSecretSegment::sectypESignature:
-				showCtrl(CTL_SECRETPOOL_EXPIRY, true);
-				showCtrl(CTL_SECRETPOOL_TOPEN, true);
-				showCtrl(CTL_SECRETPOOL_THIDDEN, true);
-				showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
-				showCtrl(CTL_SECRETPOOL_TEXT1, false);
-				showCtrl(CTL_SECRETPOOL_TEXT2, false);
-				showCtrl(CTL_SECRETPOOL_TEXT3, false);
-				break;
+			ok = true;
 		}
 	}
-	struct TextFieldDescr {
-		uint   CtlId;
-		uint32 * P_DataIdx;
-	};
-	void    SetupSelectedSegment(uint segIdent)
-	{
-		SString temp_buf;
-		//if(segIdx < R_SecPool.getCount()) 
-		{
-			//const  PPSecretSegment * p_item = R_SecPool.at(segIdx);
-			uint   seg_pos = 0;
-			const  PPSecretSegment * p_item = R_SecPool.SearchSegmentByID(segIdent, &seg_pos);
-			if(p_item) {
-				//CurrentSegIdx = segIdx+1;
-				CurrentSegIdent = segIdent;
-				setCtrlLong(CTL_SECRETPOOL_ID, p_item->InternalID);
-				setCtrlLong(CTLSEL_SECRETPOOL_TYPE, p_item->SecType);
-				{
-					LongArray allowed_type_list;
-					if(p_item->SecType == PPSecretSegment::sectypFolder) {
-						allowed_type_list.add(PPSecretSegment::sectypFolder);
-						disableCtrl(CTLSEL_SECRETPOOL_TYPE, true);
-					}
-					else {
-						allowed_type_list.addzlist(PPSecretSegment::sectypGeneric, PPSecretSegment::sectypPassword, PPSecretSegment::sectypAuthSecret,
-							PPSecretSegment::sectypOpenKey, PPSecretSegment::sectypBankCard, PPSecretSegment::sectypSSH, PPSecretSegment::sectypESignature, 0L);
-						disableCtrl(CTLSEL_SECRETPOOL_TYPE, false);
-					}
-					SetupStringComboWithAllowedList(this, CTLSEL_SECRETPOOL_TYPE, PPTXT_SECSEGTYPES, &allowed_type_list, p_item->SecType);
-				}
-				SetupParentList(segIdent);
-				{
-					SUniTime_Internal ut;
-					UED::_GetRaw_Time(p_item->UedEnterTm, ut);
-					setCtrlString(CTL_SECRETPOOL_CRTM, ut.ToStr(DATF_ISO8601CENT, TIMF_HMS, temp_buf));
-				}
-				{
-					SUniTime_Internal ut;
-					UED::_GetRaw_Time(p_item->CE.UedBeforeTm, ut);
-					LDATE  dt = ZERODATE;
-					ut.GetDate(&dt);
-					setCtrlDate(CTL_SECRETPOOL_EXPIRY, dt);
-				}
-				// input CTL_SECRETPOOL_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[128];
-				// input CTL_SECRETPOOL_ID [width: 60 height: 21 margin: 4 tabstop readonly fmtf: (nozero) label: "@id"] uint64;
-				// combobox CTLSEL_SECRETPOOL_TYPE [width: bycontainer height: 21 margin: 4 tabstop label: "@type" cblinesymb: CTL_SECRETPOOL_TYPE];
-				// combobox CTLSEL_SECRETPOOL_PARENT [width: bycontainer height: 21 margin: 4 tabstop label: "Parent" cblinesymb: CTL_SECRETPOOL_PARENT];
-				// input CTL_SECRETPOOL_CRTM [width: 80 height: 21 margin: 4 tabstop readonly label: "Creation Time"] string[64];
-				// input CTL_SECRETPOOL_EXPIRY [width: 80 height: 21 margin: 4 tabstop label: "Expiry"] date;
-				// input CTL_SECRETPOOL_TOPEN [width: bycontainer height: 21 margin: 4 tabstop label: "Open Text"] string[128];
-				// input CTL_SECRETPOOL_THIDDEN [width: bycontainer height: 21 margin: 4 tabstop label: "Hidden Text"] string[128];
-				// input CTL_SECRETPOOL_TEXPIRY [growfactor: 1 height: 21 margin: 4 tabstop label: "Expiry Text"] string[128];
-				// input CTL_SECRETPOOL_TEXT1 [growfactor: 1 height: 21 margin: 4 tabstop label: "Ext 1"] string[128];
-				// input CTL_SECRETPOOL_TEXT2 [growfactor: 1 height: 21 margin: 4 tabstop label: "Ext 2"] string[128];
-				// input CTL_SECRETPOOL_TEXT3 [growfactor: 1 height: 21 margin: 4 tabstop label: "Ext 3"] string[128];
-				// input CTL_SECRETPOOL_DESCR [width: bycontainer growfactor: 1 margin: 4 tabstop multiline wantreturn label: "@memo"] string[252];
-				{
-					const TextFieldDescr tctl_tab[] = {
-						{ CTL_SECRETPOOL_NAME, const_cast<uint32 *>(&p_item->NameP) },
-						{ CTL_SECRETPOOL_TOPEN, const_cast<uint32 *>(&p_item->CE.STextOpenP) },
-						{ CTL_SECRETPOOL_THIDDEN, const_cast<uint32 *>(&p_item->CE.STextHiddenP) },
-						{ CTL_SECRETPOOL_TEXPIRY, const_cast<uint32 *>(&p_item->CE.STextExpiryP) },
-						{ CTL_SECRETPOOL_TEXT1, const_cast<uint32 *>(&p_item->CE.STextExt1P) },
-						{ CTL_SECRETPOOL_TEXT2, const_cast<uint32 *>(&p_item->CE.STextExt2P) },
-						{ CTL_SECRETPOOL_TEXT3, const_cast<uint32 *>(&p_item->CE.STextExt3P) },
-						{ CTL_SECRETPOOL_DESCR, const_cast<uint32 *>(&p_item->DescrP) },
-					};
-					for(uint i = 0; i < SIZEOFARRAY(tctl_tab); i++) {
-						const TextFieldDescr & r_entry = tctl_tab[i];
-						R_SecPool.GetText(*r_entry.P_DataIdx, temp_buf);
-						setCtrlString(r_entry.CtlId, temp_buf);
-					}
-				}
-				SetupSegmentType(p_item->SecType);
-			}
-		}
-	}
-	bool   GetCurrentInput()
-	{
-		bool   ok = false;
-		SString temp_buf;
-		if(CurrentSegIdent) {
-			PPSecretSegment * p_item = const_cast<PPSecretSegment *>(R_SecPool.SearchSegmentByID(CurrentSegIdent, 0)); // @badcast
-			if(p_item) {
-				const  PPSecretSegment preserve_segment(*p_item);
-				p_item->SecType = getCtrlLong(CTLSEL_SECRETPOOL_TYPE);
-				p_item->ParentID = getCtrlLong(CTLSEL_SECRETPOOL_PARENT);
-				{
-					LDATE  dt = getCtrlDate(CTL_SECRETPOOL_EXPIRY);
-					SUniTime_Internal ut;
-					ut.SetDate(dt);
-					p_item->CE.UedBeforeTm = UED::_SetRaw_Time(UED_META_DATE_DAY, ut);
-				}
-				{
-					TextFieldDescr tctl_tab[] = {
-						{ CTL_SECRETPOOL_NAME, &p_item->NameP },
-						{ CTL_SECRETPOOL_TOPEN, &p_item->CE.STextOpenP },
-						{ CTL_SECRETPOOL_THIDDEN, &p_item->CE.STextHiddenP },
-						{ CTL_SECRETPOOL_TEXPIRY, &p_item->CE.STextExpiryP },
-						{ CTL_SECRETPOOL_TEXT1, &p_item->CE.STextExt1P },
-						{ CTL_SECRETPOOL_TEXT2, &p_item->CE.STextExt2P },
-						{ CTL_SECRETPOOL_TEXT3, &p_item->CE.STextExt3P },
-						{ CTL_SECRETPOOL_DESCR, &p_item->DescrP },
-					};
-					for(uint i = 0; i < SIZEOFARRAY(tctl_tab); i++) {
-						TextFieldDescr & r_entry = tctl_tab[i];
-						getCtrlString(r_entry.CtlId, temp_buf);
-						R_SecPool.PutText(temp_buf, r_entry.P_DataIdx);
-					}
-				}
-				//
-				if(!p_item->IsEq(preserve_segment)) {
-					if(FilePath.NotEmpty()) {
-						if(!R_SecPool.SaveStorage(FilePath))
-							PPError();
-					}
-					SString preserve_name;
-					R_SecPool.GetText(preserve_segment.NameP, preserve_name);
-					if(temp_buf != preserve_name || p_item->ParentID != preserve_segment.ParentID) {
-						updateList(-1); // -1 принципиально, поскольку функция возможно была вызвана в ответ на изменение фокус списка.
-					}
-				}
-				ok = true;
-			}
-		}
-		return ok;
-	}
-	DECL_HANDLE_EVENT
-	{
-		SmartListBox * p_box = P_Box;
-		long   p;
-		long   i;
-		TDialog::handleEvent(event);
-		if(TVCOMMAND) {
-			switch(TVCMD) {
-				case cmLBItemFocused:
-					if(event.isCtlEvent(CTL_SECRETPOOL_LIST)) {
-						long   pos = 0;
-						long   id;
-						if(getCurItem(&pos, &id)) {
-							if(pos >= 0 && pos < R_SecPool.getCountI()) {
-								if(CurrentSegIdent && CurrentSegIdent != id) {
-									GetCurrentInput();	
-								}
-								SetupSelectedSegment(id);
+	return ok;
+}
+
+IMPL_HANDLE_EVENT(CentrigoSecretsDialog)
+{
+	SmartListBox * p_box = P_Box;
+	long   p;
+	long   i;
+	TDialog::handleEvent(event);
+	if(TVCOMMAND) {
+		switch(TVCMD) {
+			case cmLBItemFocused:
+				if(event.isCtlEvent(CTL_SECRETPOOL_LIST)) {
+					long   pos = 0;
+					long   id;
+					if(getCurItem(&pos, &id)) {
+						if(pos >= 0 && pos < R_SecPool.getCountI()) {
+							if(CurrentSegIdent && CurrentSegIdent != id) {
+								GetCurrentInput();	
 							}
+							SetupSelectedSegment(id);
 						}
 					}
-					clearEvent(event);
-					break;
-				case cmCBSelected:
-					if(event.isCtlEvent(CTLSEL_SECRETPOOL_TYPE)) {
-						uint   sec_type = static_cast<uint>(getCtrlLong(CTLSEL_SECRETPOOL_TYPE));
-						SetupSegmentType(sec_type);
-					}
-					clearEvent(event);
-					break;
-				case cmaInsert:
-					if(p_box) {
-						p = i = 0;
-						int    r = addItem(&p, &i);
-						if(r > 0)
-							updateList(p);
-					}
-					clearEvent(event);
-					break;
-				case cmInsertFolder:
-					if(p_box) {
-						p = i = 0;
-						int    r = 0;
-						{
-							uint   new_seg_pos = 0;
-							PPSecretSegment * p_new_seg = R_SecPool.CreateNewSegment(&new_seg_pos);
-							if(p_new_seg) {
-								SString name_buf;
-								MakeNewFolderName(name_buf);
-								R_SecPool.PutText(name_buf, &p_new_seg->NameP);
-								p_new_seg->SecType = PPSecretSegment::sectypFolder;
-								{
-									if(FilePath.NotEmpty()) {
-										if(!R_SecPool.SaveStorage(FilePath))
-											PPError();
-									}
-								}
-								p = static_cast<long>(new_seg_pos);
-								i = static_cast<long>(p_new_seg->InternalID);
-								r = 1;
-							}
-						}
-						if(r > 0)
-							updateList(p);						
-					}
-					clearEvent(event);
-					break;
-				case cmaDelete:
-					if(getCurItem(&p, &i) && delItem(p, i) > 0) {
-						updateList(-1);
-					}
-					clearEvent(event);
-					break;
-				case cmaEdit:
-					if(getCurItem(&p, &i) && editItem(p, i) > 0) {
-						const bool is_tree_list = (p_box && p_box->IsTreeList());
-						const long id = is_tree_list ? i : p;
-						if(is_tree_list)
-							updateListById(id);
-						else
-							updateList(id);
-					}
-					clearEvent(event);
-					break;
-			}
-		}
-	}
-	virtual SmartListBox * GetListBoxCtl() const { return P_Box; }
-	virtual int  setupList()
-	{
-		int    ok = 1;
-		if(P_Box) {
-			StrAssocArray * p_list = MakeStrAssocList();
-			if(p_list) {
-				ListBoxDef * p_def = new StdTreeListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData, MKSTYPE(S_ZSTRING, 128));
-				P_Box->setDef(p_def);
-			}
-		}
-		return ok;
-	}
-	int    Helper_MakeStrAssocList(uint32 parentId, StrAssocArray * pList)
-	{
-		int    ok = -1;
-		if(pList) {
-			SString temp_buf;
-			for(uint i = 0; i < R_SecPool.getCount(); i++) {
-				const  PPSecretSegment * p_item = R_SecPool.at(i);
-				if(p_item && p_item->ParentID == parentId) {
-					if(R_SecPool.GetText(p_item->NameP, temp_buf)) {
-						;
-					}
-					else {
-						temp_buf.Z().CatChar('#').CatLongZ(p_item->InternalID, 6);
-					}
-					pList->Add(p_item->InternalID, p_item->ParentID, temp_buf);
-					ok = 1;
-					if(p_item->InternalID) {
-						Helper_MakeStrAssocList(p_item->InternalID, pList); // @recursion
-					}
 				}
-			}
+				clearEvent(event);
+				break;
+			case cmCBSelected:
+				if(event.isCtlEvent(CTLSEL_SECRETPOOL_TYPE)) {
+					uint   sec_type = static_cast<uint>(getCtrlLong(CTLSEL_SECRETPOOL_TYPE));
+					SetupSegmentType(sec_type);
+				}
+				clearEvent(event);
+				break;
+			case cmaInsert:
+				if(p_box) {
+					p = i = 0;
+					int    r = addItem(&p, &i);
+					if(r > 0)
+						updateList(p);
+				}
+				clearEvent(event);
+				break;
+			case cmInsertFolder:
+				if(p_box) {
+					p = i = 0;
+					int    r = 0;
+					{
+						uint   new_seg_pos = 0;
+						PPSecretSegment * p_new_seg = R_SecPool.CreateNewSegment(&new_seg_pos);
+						if(p_new_seg) {
+							SString name_buf;
+							MakeNewFolderName(name_buf);
+							R_SecPool.PutText(name_buf, &p_new_seg->NameP);
+							p_new_seg->SecType = PPSecretSegment::sectypFolder;
+							{
+								if(FilePath.NotEmpty()) {
+									if(!R_SecPool.SaveStorage(FilePath))
+										PPError();
+								}
+							}
+							p = static_cast<long>(new_seg_pos);
+							i = static_cast<long>(p_new_seg->InternalID);
+							r = 1;
+						}
+					}
+					if(r > 0)
+						updateList(p);						
+				}
+				clearEvent(event);
+				break;
+			case cmaDelete:
+				if(getCurItem(&p, &i) && delItem(p, i) > 0) {
+					updateList(-1);
+				}
+				clearEvent(event);
+				break;
+			case cmaEdit:
+				if(getCurItem(&p, &i) && editItem(p, i) > 0) {
+					const bool is_tree_list = (p_box && p_box->IsTreeList());
+					const long id = is_tree_list ? i : p;
+					if(is_tree_list)
+						updateListById(id);
+					else
+						updateList(id);
+				}
+				clearEvent(event);
+				break;
 		}
-		return ok;
 	}
-	StrAssocArray * MakeStrAssocList()
-	{
-		StrAssocArray * p_result = new StrAssocArray;
-		Helper_MakeStrAssocList(0, p_result);
-		return p_result;
+}
+
+/*virtual*/SmartListBox * CentrigoSecretsDialog::GetListBoxCtl() const { return P_Box; }
+
+/*virtual*/int CentrigoSecretsDialog::setupList()
+{
+	int    ok = 1;
+	if(P_Box) {
+		StrAssocArray * p_list = MakeStrAssocList();
+		if(p_list) {
+			ListBoxDef * p_def = new StdTreeListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData, MKSTYPE(S_ZSTRING, 128));
+			P_Box->setDef(p_def);
+		}
 	}
+	return ok;
+}
 
-	PPSecretSegmentPool & R_SecPool;
-	const  SString FilePath;
-	//uint   CurrentSegIdx; // [1..], 0 - undef
-	uint   CurrentSegIdent; 
-	uint   CtlList;
-	SmartListBox * P_Box;
-};
-
-int TFacadeWindow::DoSecrets()
+int CentrigoSecretsDialog::Helper_MakeStrAssocList(uint32 parentId, StrAssocArray * pList)
 {
 	int    ok = -1;
-	SString file_path;
-	CentrigoSecretsDialog * dlg = 0;
-	if(LoadSecrets(&file_path, true/*interactive*/)) {
-		dlg = new CentrigoSecretsDialog(SecPool, file_path);
-		ExecView(dlg);
+	if(pList) {
+		SString temp_buf;
+		for(uint i = 0; i < R_SecPool.getCount(); i++) {
+			const  PPSecretSegment * p_item = R_SecPool.at(i);
+			if(p_item && p_item->ParentID == parentId) {
+				if(R_SecPool.GetText(p_item->NameP, temp_buf)) {
+					;
+				}
+				else {
+					temp_buf.Z().CatChar('#').CatLongZ(p_item->InternalID, 6);
+				}
+				pList->Add(p_item->InternalID, p_item->ParentID, temp_buf);
+				ok = 1;
+				if(p_item->InternalID) {
+					Helper_MakeStrAssocList(p_item->InternalID, pList); // @recursion
+				}
+			}
+		}
 	}
-	delete dlg;
+	return ok;
+}
+
+StrAssocArray * CentrigoSecretsDialog::MakeStrAssocList()
+{
+	StrAssocArray * p_result = new StrAssocArray;
+	Helper_MakeStrAssocList(0, p_result);
+	return p_result;
+}
+
+int Launch_TFacadeWindow()
+{
+	int    ok = -1;
+	TFacadeWindow * p_win = new TFacadeWindow();
+	InsertView(p_win);
 	return ok;
 }

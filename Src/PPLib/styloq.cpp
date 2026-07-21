@@ -2620,12 +2620,28 @@ int PPObjStyloQBindery::EditConfig(PPID id)
 			uint32  tag_id = SSecretTagPool::tagConfig;
 			StyloQConfig cfg_pack;
 			SBinaryChunk bin_chunk;
+			// @v12.6.12 {
+			bool   am_i_mediator = false;
+			StyloQCore::StoragePacket own_svc_pack;
+			const  int gowper = P_Tbl->GetOwnPeerEntry(&own_svc_pack);
+			if(gowper > 0 && own_svc_pack.Rec.Kind == StyloQCore::kNativeService) {
+				SBinaryChunk own_bin_chunk;
+				StyloQConfig own_cfg_pack;
+				if(own_svc_pack.Pool.Get(SSecretTagPool::tagConfig, &own_bin_chunk)) {
+					if(own_cfg_pack.FromJson(own_bin_chunk.ToRawStr(temp_buf))) {
+						if(own_cfg_pack.GetFeatures() & StyloQConfig::featrfMediator)
+							am_i_mediator = true;
+					}
+				}
+			}
+			// } @v12.6.12 
 			if(pack.Pool.Get(tag_id, &bin_chunk)) {
 				if(cfg_pack.FromJson(bin_chunk.ToRawStr(temp_buf)))
 					ex_item_got = true;
 			}
 			if(EditStyloQConfig(cfg_pack) > 0) {
-				if(_kind == StyloQCore::kNativeService) {
+				// @v12.6.12 Если наша база данных является медиатором и пользователь - master, то разрешаем менять клиентские конфигурации
+				if(_kind == StyloQCore::kNativeService || (PPMaster && am_i_mediator && _kind == StyloQCore::kForeignService)) {
 					THROW(cfg_pack.ToJson(temp_buf));
 					bin_chunk.Put(temp_buf, temp_buf.Len());
 					pack.Pool.Put(tag_id, bin_chunk);
@@ -6526,10 +6542,8 @@ int PPStyloQInterchange::QueryConfigIfNeeded(RoundTripBlock & rB)
 					THROW_SL(cfg.ToJson(temp_buf));
 					cfg_bytes.Z().Cat(temp_buf.cptr(), temp_buf.Len());
 					svc_pack.Pool.Put(SSecretTagPool::tagConfig, cfg_bytes); // !
-					// @v11.2.12 {
 					if(cfg.GetFeatures() & cfg.featrfMediator)
 						svc_pack.Rec.Flags |= StyloQCore::styloqfMediator;
-					// } @v11.2.12 
 					do_update_svc_pack = true;
 				}
 			}
@@ -12366,7 +12380,7 @@ void RunStyloQMqbServer()
 						}
 					}
 				}
-				ZDELETE(p_ldb); // @v11.4.3 @fix
+				ZDELETE(p_ldb);
 			}
 		}
 		if(ll.getCount()) {
@@ -12465,11 +12479,9 @@ int PPStyloQInterchange::RunStyloQLocalMqbServer(RunServerParam & rP, const DbLo
 									while(p_mqb_cli->ConsumeMessage(mqb_envelop, 200) > 0) {
 										p_mqb_cli->Ack(mqb_envelop.DeliveryTag, 0);
 										if(tpack.Read(mqb_envelop.Msg, 0)) {
-											// @v11.3.3 {
 											if(!SetupCorrelationIdent(mqb_envelop, tpack)) {
 												;//local_error = true;
 											}
-											// } @v11.3.3
 											StyloQServerSession * p_new_sess = new StyloQServerSession(LB, P, tpack);
 											CALLPTRMEMB(p_new_sess, Start(false));
 										}
@@ -13848,7 +13860,6 @@ struct Settlement { // @construction
 //
 
 #if 0 // {
-
 //
 // Descr
 //
@@ -13864,5 +13875,4 @@ index:
 	SvcID, Kind (unique);
 	OrgCmdUuid, Kind (unique);
 }
-
 #endif // } 0

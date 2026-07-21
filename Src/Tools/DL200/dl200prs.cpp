@@ -1502,12 +1502,14 @@ int PrcssrDL200::Run()
 
 int ProcessDL200()
 {
+	int   ok = 1;
 	PrcssrDL200 prcssr;
 	PrcssrDL200::Param param;
 	prcssr.InitParam(&param);
 	while(prcssr.EditParam(&param) > 0) {
-		if(!prcssr.Init(&param) || !prcssr.Run())
+		if(!prcssr.Init(&param) || !prcssr.Run()) {
 			PPError();
+		}
 	}
-	return 1;
+	return ok;
 }

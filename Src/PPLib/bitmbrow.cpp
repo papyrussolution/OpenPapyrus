@@ -1222,7 +1222,7 @@ SArray * BillItemBrowser::MakeList()
 				SETFLAG(item.Flags, BillGoodsBrwItem::fCodeWarn, !has_egais_code);
 			}
 			{
-				const long  ecs_count = (r_pack.XcL.Get(item.Pos+1, 0, ecs) > 0) ? ecs.GetCount() : 0;
+				const  long ecs_count = (r_pack.XcL.Get(item.Pos+1, 0, ecs) > 0) ? ecs.GetCount() : 0;
 				Total.MarkCount += ecs_count;
 			}
 			THROW_SL(p_packed_list->insert(&item));
@@ -1809,11 +1809,11 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					}
 					else {
 						PPLotExtCodeContainer::MarkSet ecs;
-						const long  ecs_count = (R_Pack.XcL.Get(p_item->Pos+1, 0, ecs) > 0) ? ecs.GetCount() : 0;
+						const  long ecs_count = (R_Pack.XcL.Get(p_item->Pos+1, 0, ecs) > 0) ? ecs.GetCount() : 0;
 						pBlk->Set(ecs_count);
 					}
 					break;
-				case 36: // @v11.5.11 Процент наценки ((price-cost)/cost) @v11.5.11
+				case 36: // Процент наценки ((price-cost)/cost)
 					if(State & stAccsCost) {
 						double margin = 0.0;
 						if(is_total)
@@ -3474,14 +3474,14 @@ private:
 										_found = true;
 									}
 									else {
-										const int vcr_2 = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
+										const  int vcr_2 = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
 										if(vcr_2 && box_code.NotEmpty() && Data.Search(box_code, &row_idx, &inner_idx)) {
 											_found = true;
 										}
 									}
 								}
 								if(_found) {
-									const int vcr = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
+									const  int vcr = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
 									if(!vcr) {
 										if(err == 2) // марка не найдена
 											brush_id = TProgram::tbiInvalInpBrush;
@@ -3975,7 +3975,6 @@ int BillItemBrowser::SpecialGeneration() // @v12.1.12
 					}
 				}
 				else if(action == actionAttachEgaisMarksToRestItems) {
-					//P_BObj
 					PPIDArray ref_b_lot_list;
 					SString ref_b;
 					StringSet ss_ext_codes;

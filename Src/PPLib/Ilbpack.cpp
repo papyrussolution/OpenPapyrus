@@ -1345,7 +1345,9 @@ int ILBillPacket::SearchRByBill(int rbb, uint * pPos) const
 
 int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 {
-	int    ok = 1, rbybill, r;
+	int    ok = 1;
+	int    rbybill;
+	int    r;
 	const  int free_amt = (flags & ILBPF_LOADAMTNOTLOTS) ? 0 : 1;
 	PPID   cvt_to_opid = 0;
 	PPOprKind cvt_op_rec;
@@ -1399,9 +1401,6 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 		}
 		{
 			THROW(bpack.CreateBlank_WithoutCode(cvtToOpID, Rec.LinkBillID, dest_loc_id, 0));
-			// @v11.1.12 char   bill_code[64];
-			// @v11.1.12 STRNSCPY(bill_code, Rec.Code);
-			// @v11.1.12 STRNSCPY(bpack.Rec.Code, BillCore::GetCode(bill_code));
 			STRNSCPY(bpack.Rec.Code, Rec.Code); // @v11.1.12 
 		}
 		bpack.Rec.ID = Rec.ID;
@@ -1410,19 +1409,16 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 		bpack.Rec.DueDate    = Rec.DueDate;
 		bpack.Rec.StatusID   = Rec.StatusID;
 		bpack.Rec.UserID     = Rec.UserID;
-		// @v11.1.12 bpack.Rec.MainOrgID  = Rec.MainOrgID;
 		bpack.Rec.CurID      = Rec.CurID;
 		bpack.Rec.CRate      = Rec.CRate;
 		bpack.Rec.SCardID    = Rec.SCardID;
 		if(dest_ar_id)
 			bpack.Rec.Object = dest_ar_id;
 		SETFLAG(bpack.Rec.Flags, BILLF_FIXEDAMOUNTS, Rec.Flags & BILLF_FIXEDAMOUNTS);
-		// @v11.1.12 STRNSCPY(bpack.Rec.Memo, Rec.Memo);
-		bpack.SMemo = SMemo; // @v11.1.12
+		bpack.SMemo = SMemo;
 		bpack.Amounts        = Amounts;
 		bpack.Rec.Amount     = Rec.Amount;
-		// @v11.2.4 *static_cast<PPBill *>(this) = *static_cast<const PPBill *>(&bpack);
-		static_cast<PPBill *>(this)->Copy(bpack); // @v11.2.4
+		static_cast<PPBill *>(this)->Copy(bpack);
 	}
 	LocObj = PPObjLocation::WarehouseToObj(Rec.LocID);
 	if(op_type_id == PPOPT_ACCTURN) {

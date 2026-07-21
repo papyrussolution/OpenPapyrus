@@ -3096,14 +3096,11 @@ int PPViewVatBook::Export()
 	SString left;
 	SString out_file_name;
 	SString id_file;
-	SString ledger_title; // @v11.3.2
-	SString ledger_line_title; // @v11.3.2
+	SString ledger_title;
+	SString ledger_line_title;
 	DocNalogRu_Generator g;
-	//xmlTextWriter * p_writer = 0;
 	const LDATE _cdate = getcurdate_();
 	const long  _uniq_suffix = 1;
-	// @v11.3.2 const char * p_ledger_title = 0;
-	// @v11.3.2 const char * p_ledger_line_title = 0;
 	PPID   main_org_id = GetMainOrgID();
 	{
 		SString sender_ident;
@@ -3271,7 +3268,7 @@ int PPViewVatBook::Export()
 							"СумНДССФ10"
 							"СтоимПродСФ0"
 							"СтоимПродОсв"
-							"КодВидОпер"
+							//"КодВидОпер"
 							"ДатаУчТов"
 						*/
 						if(Filt.Kind == PPVTB_BUY) {
@@ -3280,12 +3277,16 @@ int PPViewVatBook::Export()
 						else if(Filt.Kind == PPVTB_SELL) {
 							for(i = 0; i < vat_rate_count; i++) {
 								if(PPObjVATBook::IsVatRate(i, 18.0)) {
-									n_book.PutAttrib("СтПродБезНДС18", temp_buf.Z().Cat(sum_vatn[i]/*-sum_svatn[i]*/, SFMT_MONEY)); // Сумма продаж по ставке НДС 18% (без налога)
-									n_book.PutAttrib("СумНДСВсКПр18",  temp_buf.Z().Cat(sum_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 18%
+									if(sum_vatn[i] != 0.0 || sum_svatn[i] != 0.0) { // @v12.6.12 @condition
+										n_book.PutAttrib("СтПродБезНДС18", temp_buf.Z().Cat(sum_vatn[i]/*-sum_svatn[i]*/, SFMT_MONEY)); // Сумма продаж по ставке НДС 18% (без налога)
+										n_book.PutAttrib("СумНДСВсКПр18",  temp_buf.Z().Cat(sum_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 18%
+									}
 								}
 								else if(PPObjVATBook::IsVatRate(i, 20.0)) {
-									n_book.PutAttrib("СтПродБезНДС20", temp_buf.Z().Cat(sum_vatn[i]/*-sum_svatn[i]*/, SFMT_MONEY)); // Сумма продаж по ставке НДС 20% (без налога)
-									n_book.PutAttrib("СумНДСВсКПр20",  temp_buf.Z().Cat(sum_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 20%
+									if(sum_vatn[i] != 0.0 || sum_svatn[i] != 0.0) { // @v12.6.12 @condition
+										n_book.PutAttrib("СтПродБезНДС20", temp_buf.Z().Cat(sum_vatn[i]/*-sum_svatn[i]*/, SFMT_MONEY)); // Сумма продаж по ставке НДС 20% (без налога)
+										n_book.PutAttrib("СумНДСВсКПр20",  temp_buf.Z().Cat(sum_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 20%
+									}
 								}
 								else if(PPObjVATBook::IsVatRate(i, 22.0)) { // @v12.6.8
 									n_book.PutAttrib("СтПродБезНДС22", temp_buf.Z().Cat(sum_vatn[i]/*-sum_svatn[i]*/, SFMT_MONEY)); // Сумма продаж по ставке НДС 22% (без налога)
@@ -3310,7 +3311,6 @@ int PPViewVatBook::Export()
 						for(InitIteration(); NextIteration(&item) > 0;) {
 							SXml::WNode n_item(g.P_X, ledger_line_title);
 							line_no++;
-
 							const double _vat0 = item.VAT0;
 							const double _vatn[vat_rate_count] = { item.VAT1, item.VAT2, item.VAT3,  item.VAT4, item.VAT5, item.VAT6 }; // @v12.5.3 item.VAT6
 							const double _svatn[vat_rate_count] = { item.SVAT1, item.SVAT2, item.SVAT3,  item.SVAT4, item.SVAT5, item.SVAT6 }; // @v12.5.3 item.SVAT6
@@ -3348,8 +3348,10 @@ int PPViewVatBook::Export()
 											}
 										}
 										else if(PPObjVATBook::IsVatRate(i, 20.0)) {
-											n_item.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VATB_SLLIAMT_VAT20)/*"СтоимПродСФ20"*/, temp_buf.Z().Cat(_vatn[i], SFMT_MONEY)); // Сумма продаж по ставке НДС 20%
-											n_item.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VATB_SLLIAMT_SVAT20)/*"СумНДССФ20"*/, temp_buf.Z().Cat(_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 20%
+											if(_vatn[i] != 0.0 || _svatn[i] != 0.0) { // @v12.6.12 @condition
+												n_item.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VATB_SLLIAMT_VAT20)/*"СтоимПродСФ20"*/, temp_buf.Z().Cat(_vatn[i], SFMT_MONEY)); // Сумма продаж по ставке НДС 20%
+												n_item.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VATB_SLLIAMT_SVAT20)/*"СумНДССФ20"*/, temp_buf.Z().Cat(_svatn[i], SFMT_MONEY)); // Сумма НДС по ставке 20%
+											}
 										}
 										else if(PPObjVATBook::IsVatRate(i, 22.0)) { // @v12.5.3
 											n_item.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VATB_SLLIAMT_VAT22)/*"СтоимПродСФ22"*/, temp_buf.Z().Cat(_vatn[i], SFMT_MONEY)); // Сумма продаж по ставке НДС 22%
@@ -3375,7 +3377,7 @@ int PPViewVatBook::Export()
 								}
                             	{
                             		GetNalogRuOpIdent(item, temp_buf);
-									SXml::WNode n(g.P_X, "КодВидОпер", temp_buf);
+									SXml::WNode n(g.P_X, g.GetToken_Ansi(PPHSC_RU_VATB_OPKINDCODE)/*"КодВидОпер"*/, temp_buf);
                             	}
                            		if(Filt.Kind == PPVTB_BUY) {
 									{
@@ -3389,6 +3391,19 @@ int PPViewVatBook::Export()
 									}
                             	}
                             	else if(Filt.Kind == PPVTB_SELL) {
+									// @v12.6.12 {
+									PPBillExt billext;
+									if(item.LinkBillID && P_BObj->FetchExt(item.LinkBillID, &billext) > 0) {
+										if(checkdate(billext.PaymBillDate) && !isempty(billext.PaymBillCode)) {
+											SXml::WNode n(g.P_X, g.GetToken_Ansi(PPHSC_RU_VATB_PAYMCONFIRM));
+											n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VATB_PAYMCONFIRM_N), (temp_buf = billext.PaymBillCode).Transf(CTRANSF_INNER_TO_OUTER));
+											n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VATB_PAYMCONFIRM_D), temp_buf.Z().Cat(billext.PaymBillDate, DATF_GERMANCENT));
+											//PPHSC_RU_VATB_PAYMCONFIRM     "ДокПдтвОпл"   // @v12.6.12
+											//PPHSC_RU_VATB_PAYMCONFIRM_N   "НомДокПдтвОпл"   // @v12.6.12
+											//PPHSC_RU_VATB_PAYMCONFIRM_D   "ДатаДокПдтвОпл"  // @v12.6.12
+										}
+									}
+									// } @v12.6.12 
 									if(item.ArID) {
 										//SXml::WNode n(g.P_X, "СвПокуп");
 										//WriteNalogRuPersonBlock(PsnObj, ObjectToPerson(item.Object), g.P_Xw);

@@ -236,6 +236,7 @@ int PPObjWorld::ImportCountry(int use_ta)
 //
 //
 //
+#if 0 // @v12.6.12 (replaced with PPSCardImporter) {
 int PPObjSCard::Import(int use_ta)
 {
 	int    ok = 1;
@@ -379,6 +380,7 @@ int PPObjSCard::Import(int use_ta)
 	PPWaitStop();
 	return ok;
 }
+#endif // } 0 @v12.6.12
 //
 //
 //
@@ -945,6 +947,7 @@ int GoodsImportBillIdent::Get(DbfRecord * pRec)
 	return ok;
 }
 
+#if 0 // @v12.6.12 {
 int PPObjGoods::ImportOld(int use_ta)
 {
 	int    ok = 1;
@@ -1413,6 +1416,7 @@ int PPObjGoods::ImportOld(int use_ta)
 	PPWaitStop();
 	return ok;
 }
+#endif // } 0 @v12.6.12
 
 int PPObjPerson::Import(int specKind, int use_ta)
 {
@@ -1652,19 +1656,14 @@ int Import(PPID objType, long extraParam)
 	}
 	else if(objType == PPOBJ_GOODS) {
 		PPObjGoods g_obj;
-		if(extraParam == 1) {
-			THROW(g_obj.ImportOld(1));
-		}
-		else {
+		/* @v12.6.12 if(extraParam == 1) { THROW(g_obj.ImportOld(1)); } else*/ 
+		{
 			THROW(g_obj.Import(0, 0, 1));
 		}
 	}
 	else if(objType == PPOBJ_QUOT) {
 		PPObjGoods g_obj;
-		/* @v12.5.1 if(extraParam == 1) {
-			THROW(g_obj.ImportQuotOld(1));
-		}
-		else*/ 
+		/* @v12.5.1 if(extraParam == 1) { THROW(g_obj.ImportQuotOld(1)); } else*/ 
 		{
 			THROW(g_obj.ImportQuot(0, 1));
 		}
@@ -1674,17 +1673,18 @@ int Import(PPID objType, long extraParam)
 		if(extraParam == PPPRK_SUPPL) {
 			THROW(p_obj.Import(extraParam, 1));
 		}
-		else
+		else {
 			THROW(p_obj.Import(0, 1));
+		}
 	}
 	else if(objType == PPOBJ_COUNTRY) {
 		PPObjWorld w_obj;
 		THROW(w_obj.ImportCountry(1));
 	}
-	else if(objType == PPOBJ_SCARD) {
+	/* @v12.6.12 else if(objType == PPOBJ_SCARD) {
 		PPObjSCard sc_obj;
 		THROW(sc_obj.Import(1));
-	}
+	}*/
 	else
 		ok = -1;
 	CATCHZOKPPERR

@@ -4585,7 +4585,7 @@ struct EgaisWayBillRowTags { // @flat
 	char    InformB[24];
 	char    Serial[24];
 	char    OrgLineIdent[64]; // 
-	char    GoodsCategory[8]; // @v11.3.5 Код категории алкогольной продукции
+	char    GoodsCategory[8]; // Код категории алкогольной продукции
 	PPID    ManufID;
 };
 
@@ -5010,8 +5010,8 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 		p_bp->SortTI(); // Обязательно отсортировать строки по RByBill (могут прийти в перепутанном порядке)
 		if(ext_code_set_list.getCount()) {
 			for(uint ecsidx = 0; ecsidx < ext_code_set_list.getCount(); ecsidx++) {
-				const ExtCodeSetEntry * p_ecs_entry = ext_code_set_list.at(ecsidx);
-				uint tipos = 0;
+				const  ExtCodeSetEntry * p_ecs_entry = ext_code_set_list.at(ecsidx);
+				uint   tipos = 0;
 				if(p_ecs_entry && p_ecs_entry->Set.GetCount() && p_bp->SearchTI(p_ecs_entry->RByBill, &tipos))
 					p_bp->XcL.Set_2(tipos+1, &p_ecs_entry->Set);
 			}
@@ -5022,7 +5022,7 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
 			//
 			LongArray rbb_list;
 			for(uint i = 0; ok > 0 && i < p_bp->GetTCount(); i++) {
-				const PPTransferItem & r_ti = p_bp->ConstTI(i);
+				const  PPTransferItem & r_ti = p_bp->ConstTI(i);
 				if(r_ti.RByBill && rbb_list.lsearch(r_ti.RByBill)) {
 					rr = rrRByBillDup;
 					ok = -1;

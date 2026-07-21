@@ -1472,6 +1472,7 @@ int ExtCodeRefCore::GetInfo(const char * pCode, PPChZnPrcssr::CodeInfoCollection
 	rResult.freeAll();
 	int    ok = -1;
 	bool   found = false;
+	uint   search_iter_count = 0; // statistics
 	ExtCodeRefTbl::Key0 k0;
 	MEMSZERO(k0);
 	STRNSCPY(k0.Code, pCode);
@@ -1499,11 +1500,18 @@ int ExtCodeRefCore::GetInfo(const char * pCode, PPChZnPrcssr::CodeInfoCollection
 				SString iter_serial;
 				SString iter_partno;
 				prefix.Z().Cat("01").Cat(pattern_gtin);
+				if(pattern_serial.NotEmpty()) {
+					(temp_buf = prefix).Cat("21").Cat(pattern_serial);
+					if(sstrneq(pCode, temp_buf, temp_buf.Len())) {
+						prefix = temp_buf;
+					}
+				}
 				MEMSZERO(k0);
 				STRNSCPY(k0.Code, prefix);
 				k0.Kind = kCodeInfo;
 				if(search(0, &k0, spGe)) {
 					do {
+						search_iter_count++;
 						temp_buf = data.Code;
 						if(temp_buf.HasPrefix(prefix) && data.Kind == kCodeInfo) {
 							const  int iczcr2 = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0));
@@ -1520,7 +1528,6 @@ int ExtCodeRefCore::GetInfo(const char * pCode, PPChZnPrcssr::CodeInfoCollection
 				}
 			}
 		}
-		
 	}
 	if(found) {
 		SBuffer temp_sbuf;

@@ -2094,6 +2094,8 @@
 	#define CTL_LOGIN_LOGO               (8 + WINDOWS_ID_BIAS)
 	#define CTL_LOGIN_ST_INFO            (9 + WINDOWS_ID_BIAS)
 	#define CTL_LOGIN_QR                 (10 + WINDOWS_ID_BIAS)
+	#define CTL_LOGIN_CMD_UTIL           (11 + WINDOWS_ID_BIAS)
+	#define CTLRIG_LOGIN_PASSWORD        (12 + WINDOWS_ID_BIAS)
 #define DLG_CFGOPTIONS              2
 #define DLG_MAINCFG                 4
 	#define CTL_CFGOPTIONS_ACCESS        (1 + WINDOWS_ID_BIAS)
@@ -9398,6 +9400,7 @@
 	#define CTL_GLOBUSERACC_FLAGS         (11 + WINDOWS_ID_BIAS)
 	#define CTL_GS_SETTING                (13 + WINDOWS_ID_BIAS)
 	#define CTL_GLOBUSERACC_LOGO          (14 + WINDOWS_ID_BIAS) // @v12.2.0
+	#define CTL_GLOBUSERACC_CMD_GUAEXTLIST (15 + WINDOWS_ID_BIAS) // @v12.6.12
 #define DLG_NEWACCT              1055 //
 	#define cmPassword                    110
 	#define CTL_NEWACCT_USER              (1 + WINDOWS_ID_BIAS)

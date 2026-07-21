@@ -747,16 +747,16 @@ int PPApp::processCommand(uint cmd)
 		case cmRecover_v12304:        _CorrectProblem_v12304();          break; // @v12.4.10
 		case cmRemoveBadReckons:      RemoveBadReckons();                break;
 		case cmImportGoodsGrp:        Import(PPOBJ_GOODSGROUP);          break;
-		case cmImportGoodsOld:        Import(PPOBJ_GOODS, 1);            break;
+		// @v12.6.12 case cmImportGoodsOld:        Import(PPOBJ_GOODS, 1);            break;
 		case cmImportGoods:           Import(PPOBJ_GOODS);               break;
 		// @v12.5.1 начиная с этого релиза cmImportQuot2 и cmImportQuot ведут себя одинаково (старый вариант импорта упразднен)
-		case cmImportQuot:            Import(PPOBJ_QUOT, 1);             break;
+		// @v12.6.12 case cmImportQuot:            Import(PPOBJ_QUOT, 1);             break;
 		case cmImportQuot2:           Import(PPOBJ_QUOT);                break; 
-		case cmImportPerson:          Import(PPOBJ_PERSON, 0);           break;
+		// @v12.6.12 case cmImportPerson:          Import(PPOBJ_PERSON, 0);           break;
 		case cmImportPerson2:         PPObjPerson().Import();            break;
 		case cmImportSuppl:           Import(PPOBJ_PERSON, PPPRK_SUPPL); break;
 		case cmImportCountry:         Import(PPOBJ_COUNTRY);             break;
-		case cmImportSCard:           Import(PPOBJ_SCARD);               break;
+		// @v12.6.12 case cmImportSCard:           Import(PPOBJ_SCARD);               break;
 		case cmImportSCard2:          ImportSCard();                     break;
 		case cmImportBanks:           ImportBanks();                     break;
 		case cmImportKLADR:           ImportKLADR();                     break;
@@ -904,7 +904,8 @@ int PPApp::processCommand(uint cmd)
 		case cmConvertVersionToHtml:    PPVer2Html(); break; // @internal
 		case cmSourceCodeProcessing:    /*@todo*/ break; // @v12.2.10 @internal
 		case cmConstructionFacadeWindow: Launch_TFacadeWindow(); break; // @v12.5.3 @construction
-		case cmExecSessionOnTechRoute: PPObjTSession::ExecSessionOnTechRoute(0); break; // @v12.6.0 @construction
+		case cmExecSessionOnTechRoute: PPObjTSession::ExecSessionOnTechRoute(0); break; // @v12.6.0
+		case cmChZnMarkInfoCollector:  DoChZnMarkInfoCollector(); break; // @v12.6.12 @construction
 		// @underconstruction case cmGenerateGoodsBills:   GenerateGoodsBills(); break;
 		// @v12.4.1 case cmConvert4405:          Convert4405();                   break;
 		// @v12.4.1 case cmConvert4707:          Convert4707();                   break;
@@ -996,8 +997,9 @@ struct PPLoginDialogParam {
 		fSysAccLogin       = 0x0002,
 		fRetryLogin        = 0x0004,
 		fProtect           = 0x0008,
-		fBlindMode         = 0x0010, // @v11.3.12
-		fDisableStqQrLogin = 0x0020  // @v11.6.9 проекция параметра PPINIPARAM_DISABLESTQQRLOGIN
+		fBlindMode         = 0x0010,
+		fDisableStqQrLogin = 0x0020, // @v11.6.9 проекция параметра PPINIPARAM_DISABLESTQQRLOGIN
+		fUseDbSelection    = 0x0040, // @v12.6.12
 	};
 	long   Flags;             // IN
 	PPID   OnetimePassResult; // OUT
@@ -1011,7 +1013,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 {
 	class LoginDialog : public TDialog {
 	public:
-		LoginDialog(int rezID, /*int sysAccLogin, PPDbEntrySet2 * pDbes*/PPLoginDialogParam & rParam) : TDialog(rezID), R_P(rParam)/*SystemAccountLogin(sysAccLogin), P_Dbes(pDbes)*/,
+		LoginDialog(int rezID, PPLoginDialogParam & rParam) : TDialog(rezID), R_P(rParam),
 			DoCheckOnetimePass(false), IdleTimer(100), OnetimePassResult(0)
 		{
 			HelpCtx = HELP_DLG_LOGIN;
@@ -1022,12 +1024,16 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 			PPLoadString("version", temp_buf);
 			temp_buf.Space().CatDotTriplet(mj, mn, rv).Space().CatChar('(').Cat(vi.GetAssemblyN()).CatChar(')');
 			setStaticText(CTL_LOGIN_ST_INFO, temp_buf);
-			// @v11.3.12 {
 			if(rParam.Flags & PPLoginDialogParam::fBlindMode) {
 				showCtrl(CTLSEL_LOGIN_DB, false);
 				selectCtrl(CTL_LOGIN_NAME);
 			}
-			// } @v11.3.12
+			else if(!(rParam.Flags & PPLoginDialogParam::fUseDbSelection)) {
+				disableCtrl(CTLSEL_LOGIN_DB, true);
+				selectCtrl(CTL_LOGIN_NAME);
+			}
+			SetupKeyboardStateControls();
+			setCtrlReadOnly(CTL_LOGIN_DATE, true); // @v12.6.12
 		}
 		int    CheckSystemAccount(int getDBEntryFromDlg)
 		{
@@ -1052,7 +1058,7 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 			}
 			return ok;
 		}
-		void SetStyloQDbSymbSet(/*const StringSet & rSs*/const StyloQCore::SvcDbSymbMap & rMap)
+		void SetStyloQDbSymbSet(const StyloQCore::SvcDbSymbMap & rMap)
 		{
 			StqSvcDbMap = rMap;
 		}
@@ -1135,8 +1141,6 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 					return; // После endModal не следует обращаться к this
 				}
 				else {
-					// @v11.1.8 @experimental {
-					//if(SsStyloQDbSymb.getCount()) {
 					if(!(R_P.Flags & PPLoginDialogParam::fDisableStqQrLogin) && StqSvcDbMap.getCount()) { // @v11.6.9 (!(R_P.Flags & PPLoginDialogParam::fDisableStqQrLogin) &&)
 						TImageView * p_iv = static_cast<TImageView *>(getCtrlView(CTL_LOGIN_QR));
 						if(TView::IsSubSign(p_iv, TV_SUBSIGN_IMAGEVIEW)) {
@@ -1192,36 +1196,35 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 							}
 						}
 					}
-					// } @v11.1.8 @experimental
 				}
 			}
 			else
 				return;
 			clearEvent(event);
 		}
-		//int    SystemAccountLogin;
-		bool   DoCheckOnetimePass; // @v11.1.8 @experimental
-		PPID   OnetimePassResult;  // @v11.1.8 @experimental
-		StyloQCore::SvcDbSymbMap StqSvcDbMap; // @v11.1.12
-		SCycleTimer IdleTimer;     // @v11.1.8 @experimental
-		//PPDbEntrySet2 * P_Dbes;
+		bool   DoCheckOnetimePass;
+		PPID   OnetimePassResult;
+		StyloQCore::SvcDbSymbMap StqSvcDbMap;
+		SCycleTimer IdleTimer;
 		PPLoginDialogParam & R_P;
 	};
 	int    ok = -1;
 	int    r;
 	int    valid_data = 0;
-	int    usedbsel  = 0;
+	bool   usedbsel  = false;
 	int    nologinprompt = 0;
 	PPID   dbid = 0;
 	if(rParam.Dbes.GetCount()) {
 		if(rParam.Dbes.GetCount() > 1) {
 			dbid = rParam.Dbes.GetSelection();
-			usedbsel = dbid ? 0 : 1;
+			usedbsel = dbid ? false : true;
+			SETFLAG(rParam.Flags, PPLoginDialogParam::fUseDbSelection, usedbsel); // @v12.6.12
 		}
-		else
+		else {
 			dbid = rParam.Dbes.SetSelection(dbid = 1L);
+		}
 	}
-	const  uint rez_id = (rParam.Flags & rParam.fProtect) ? DLG_PROTECT : (usedbsel ? DLG_LOGIND : DLG_LOGIN);
+	const  uint rez_id = (rParam.Flags & rParam.fProtect) ? DLG_PROTECT : DLG_LOGIND/*(usedbsel ? DLG_LOGIND : DLG_LOGIN)*/;
 	LDATE  curdate = getcurdate_();
 	if(!(rParam.Flags & rParam.fForcePrompt) && !usedbsel && rParam.UserName.NotEmpty()) {
 		PPIniFile ini_file;
@@ -1235,13 +1238,10 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 		bool   skip_edit_dlg = false;
 		SString title_buf;
 		SString temp_buf;
-		LoginDialog * dlg = new LoginDialog(rez_id, /*BIN(rParam.Flags & rParam.fSysAccLogin), &rParam.Dbes*/rParam);
+		LoginDialog * dlg = new LoginDialog(rez_id, rParam);
 		if(CheckDialogPtrErr(&dlg)) {
-			// @v11.1.8 { @experimental
-			//StringSet styloq_dbsymb_list;
 			StyloQCore::SvcDbSymbMap stq_svcdb_map;
 			stq_svcdb_map.Read(0, 0);
-			// } @experimental @v11.1.8
 			if(!(rParam.Flags & rParam.fProtect)) {
 				PPLoadText(PPTXT_GREETING, title_buf);
 				PPVersionInfo vi = DS.GetVersionInfo();
@@ -1256,21 +1256,24 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 			dlg->setCtrlString(CTL_LOGIN_NAME, rParam.UserName);
 			dlg->setCtrlString(CTL_LOGIN_PASSWORD, rParam.Passw);
 			dlg->setCtrlData(CTL_LOGIN_DATE, &rParam.OperDate);
-			dlg->SetStyloQDbSymbSet(stq_svcdb_map); // @v11.1.9 @experimental // @v11.1.12
-			if(usedbsel)
+			dlg->SetStyloQDbSymbSet(stq_svcdb_map);
+			if(/*usedbsel*/true) {
 				SetupDBEntryComboBox(dlg, CTLSEL_LOGIN_DB, &rParam.Dbes, 0);
-			if(rParam.UserName.NotEmpty() && !usedbsel)
+			}
+			if(rParam.UserName.NotEmpty() && !usedbsel) {
 				dlg->selectCtrl(CTL_LOGIN_PASSWORD);
+			}
 			skip_edit_dlg = (skip_edit_dlg && dlg->CheckSystemAccount(0));
 			while(!valid_data && (skip_edit_dlg || (r = ExecView(dlg)) == cmOK || r == cmUtil)) {
-				PPStyloQInterchange::StopStyloQServer(); // @v11.1.9 @experimental
-				if(usedbsel)
+				PPStyloQInterchange::StopStyloQServer();
+				if(/*usedbsel*/true) {
 					rParam.Dbes.SetSelection(dlg->getCtrlLong(CTLSEL_LOGIN_DB));
+				}
 				if(r == cmUtil) {
 					DBMaintenance(&rParam.Dbes, 0);
 				}
 				else {
-					rParam.OnetimePassResult = dlg->GetOnetimePassResult(); // @v11.1.9
+					rParam.OnetimePassResult = dlg->GetOnetimePassResult();
 					dlg->getCtrlString(CTL_LOGIN_NAME,   rParam.UserName);
 					dlg->getCtrlString(CTL_LOGIN_PASSWORD, rParam.Passw);
 					dlg->getCtrlData(CTL_LOGIN_DATE, &rParam.OperDate);
@@ -1844,8 +1847,8 @@ void PPApp::login(int processCmdLine)
 				int    iv = 0;
 				ini_file.GetInt(PPINISECT_SYSTEM, PPINIPARAM_SYSAUTH, &iv);
 				SETFLAG(login_param.Flags, login_param.fSysAccLogin, iv > 0); //sys_acc_login
-				ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_BLINDLOGINMODE, &(iv = 0)); // @v11.3.12
-				SETFLAG(login_param.Flags, login_param.fBlindMode, iv > 0); // @v11.3.12
+				ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_BLINDLOGINMODE, &(iv = 0));
+				SETFLAG(login_param.Flags, login_param.fBlindMode, iv > 0);
 				ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DISABLESTQQRLOGIN, &(iv = 0)); // @v11.6.9
 				SETFLAG(login_param.Flags, login_param.fDisableStqQrLogin, iv > 0); // @v11.6.9
 			}

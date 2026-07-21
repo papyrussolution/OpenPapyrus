@@ -3812,10 +3812,10 @@ public:
 	static  INT_PTR CALLBACK DialogProc(HWND, UINT, WPARAM, LPARAM);
 	static  void centerDlg(HWND);
 	int     SetCtrlToolTip(uint ctrlID, const char * pToolTipText);
-	// @v12.2.4 TDialog(const TRect & rRect, const char * pTitle);
 	TDialog(const char * pTitle, long wbCapability, ConstructorOption co/*= coNothing*/); // @v12.2.4
 	TDialog(uint resID, DialogPreProcFunc, void * extraPtr);
 	explicit TDialog(uint resID);
+	TDialog(uint resID, void * hParent); // @v12.6.12 Вариант с явно заданным родительским окном //
 	TDialog(uint resID, ConstructorOption co); // special constructor.
 	~TDialog();
 	virtual int    TransmitData(int dir, void * pData);
@@ -3866,6 +3866,8 @@ public:
 	void   SetCtrlState(uint ctlID, uint state, bool enable);
 	void   SetupKeyboardStateControls(); // @v12.6.9
 	void   SetupKeyboardLayoutIndicator(TButton * pButton);
+	void   ToggleKeyboardLayout(); // @v12.6.12
+	void   ToggleCapsLock(); // @v12.6.12
 	void   SetupKeyboardStateCapsLockIndicator(TButton * pButton);
 
 	TView * P_Frame;
@@ -3918,6 +3920,7 @@ protected:
 		BuildEmptyWindowParam();
 		SString FontFace;
 		int   FontSize;
+		HWND  HwParent; // @v12.6.12
 	};
 
 	int    BuildEmptyWindow(const BuildEmptyWindowParam * pParam); // @v12.2.5
@@ -3927,7 +3930,7 @@ protected:
 	long   DlgFlags;
 	void * P_PrevData;
 private:
-	void   Helper_Constructor(uint resID, DialogPreProcFunc dlgPreFunc, void * extraPtr, ConstructorOption co); // @<<TDialog::TDialog
+	void   Helper_Constructor(uint resID, void * hParent, DialogPreProcFunc dlgPreFunc, void * extraPtr, ConstructorOption co); // @<<TDialog::TDialog
 	void   RemoveUnusedControls();
 	void   SetupCalDate_Internal(uint calCtlID, uint inputCtlID);
 	void   SetupCalPeriod_Internal(uint calCtlID, uint inputCtlID);

@@ -2512,11 +2512,14 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 				UiToolBox_.CreateBrush_(TProgram::tbiButtonBrush, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "button_bg", SColor(0xDC, 0xD9, 0xD1)), 0);
 			}
 			UiToolBox_.CreateBrush_(TProgram::tbiButtonBrush+TProgram::tbisSelect, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "button_sel_bg", SColor(0xBA, 0xBA, 0xC9)), 0);
-			UiToolBox_.CreatePen_(TProgram::tbiButtonPen, SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_border", UiToolBox_.GetColor(TProgram::tbiIconRegColor)));
-			UiToolBox_.CreatePen_(TProgram::tbiButtonPen+TProgram::tbisDefault, SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_def_border", SClrGreen));
-			UiToolBox_.CreatePen_(TProgram::tbiButtonPen+TProgram::tbisFocus,   SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_focus_border", SClrOrange));
-			UiToolBox_.CreatePen_(TProgram::tbiButtonPen+TProgram::tbisSelect,  SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_sel_border", SClrOrange));
-			UiToolBox_.CreatePen_(TProgram::tbiButtonPen+TProgram::tbisDisable, SPaintObj::psSolid, 1, UiDescription::GetColorR(p_uid, p_cs, "button_disabled_border", SColor(SClrWhite)));
+			{
+				const  float button_pen_width = 1.0f;
+				UiToolBox_.CreatePen_(TProgram::tbiButtonPen, SPaintObj::psSolid, button_pen_width, UiDescription::GetColorR(p_uid, p_cs, "button_border", UiToolBox_.GetColor(TProgram::tbiIconRegColor)));
+				UiToolBox_.CreatePen_(TProgram::tbiButtonPen+TProgram::tbisDefault, SPaintObj::psSolid, button_pen_width, UiDescription::GetColorR(p_uid, p_cs, "button_def_border", SClrGreen));
+				UiToolBox_.CreatePen_(TProgram::tbiButtonPen+TProgram::tbisFocus,   SPaintObj::psSolid, button_pen_width, UiDescription::GetColorR(p_uid, p_cs, "button_focus_border", SClrOrange));
+				UiToolBox_.CreatePen_(TProgram::tbiButtonPen+TProgram::tbisSelect,  SPaintObj::psSolid, button_pen_width, UiDescription::GetColorR(p_uid, p_cs, "button_sel_border", SClrOrange));
+				UiToolBox_.CreatePen_(TProgram::tbiButtonPen+TProgram::tbisDisable, SPaintObj::psSolid, button_pen_width, UiDescription::GetColorR(p_uid, p_cs, "button_disabled_border", SColor(SClrWhite)));
+			}
 			// @v12.5.3 {
 			{
 				UiToolBox_.CreateColor(TProgram::tbiDialogBkgColor, UiDescription::GetColorR(p_uid, p_cs, "dialog_bg", SColor(0xF0, 0xF0, 0xF0))); 

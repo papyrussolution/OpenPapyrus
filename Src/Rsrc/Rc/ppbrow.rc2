@@ -7145,10 +7145,10 @@ cmd ImportGoodsGrp        { "@{cmd_importgoodsgrp}"                        none 
 cmd ImportGoods           { "@{cmd_importgoods}"                           none                  none cmImportGoods }
 cmd ImportCountry         { "@{cmd_importcountry}"                         none                  none cmImportCountry }
 cmd ImportQuot            { "@{cmd_importquot2}"                           none                  none cmImportQuot2 } // @v12.5.1 cmImportQuot-->cmImportQuot2
-cmd ImportPerson          { "@{cmd_importperson2}"                         none                  none cmImportPerson }
+cmd ImportPerson          { "@{cmd_importperson2}"                         none                  none cmImportPerson2 } // @v12.6.12 cmImportPerson-->cmImportPerson2
 cmd ImportSuppl           { "@{cmd_importsuppl}"                           none                  none cmImportSuppl }
 cmd ImportBanks           { "@{cmd_importbanks}"                           none                  none cmImportBanks }
-cmd ImportSCard           { "@{cmd_importscard}"                           none                  none cmImportSCard }
+cmd ImportSCard           { "@{cmd_importscard}"                           none                  none cmImportSCard2 } // @v12.6.12 cmImportSCard-->cmImportSCard2
 cmd CliBnkImport          { "@{cmd_clibnkimport}"                          ICON_IMPORTCLIBNK     none cmCliBnkImport }
 cmd ImportSpecSeries      { "@{cmd_importspecseries}"                      none                  none cmImportSpecSeries }
 cmd MakeCRptFiles         { "@{cmd_makecrptfiles}"                         none                  none cmMakeCRptFiles }
