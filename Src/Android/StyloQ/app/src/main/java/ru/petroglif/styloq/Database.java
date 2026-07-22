@@ -583,9 +583,10 @@ public class Database {
 	{
 		boolean r = false;
 		final int count = TableNames.length;
-		for(int i = 0; r == false && i < count; i++)
+		for(int i = 0; r == false && i < count; i++) {
 			if(tableName.equalsIgnoreCase(TableNames[i]))
 				r = true;
+		}
 		return r;
 	}
 	public Table CreateTable(String tableName)

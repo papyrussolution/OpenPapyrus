@@ -2740,13 +2740,11 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 					SString & r_memos = SLS.AcquireRvlStr();
 					if(P_BObj->FetchExtMemo(p_hdr->ID, r_memos) > 0)
 						ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrDarkgreen));
-					// @v11.2.3 {
 					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0 && bill_rec.Flags2 & BILLF2_FORCEDRECEIPT) { // @v11.2.12 @fix Fetch
 						if(pStyle->SetRightFigCircleColor(GetColorRef(SClrHotpink)) > 0) {
 							ok = 1;
 						}
 					}
-					// } @v11.2.3 
 				}
 				else if(r_col.OrgOffs == 6) { // Contragent
 					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0 && bill_rec.Object) {

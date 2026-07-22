@@ -57979,6 +57979,7 @@ public:
 			fIsTracking  = 0x0002, // Признак прослеживаемости кода
 			fIsWithdraw  = 0x0004, // 
 			fVarQtty     = 0x0008, // Признак переменного веса
+			fEmpty       = 0x0010, // Специальный внутренний признак, означающий что для марки ReqCisP нет данных
 		};
 		int    ErrCode;         //
 		uint   ErrMessageP;     // utf8

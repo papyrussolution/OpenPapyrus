@@ -3380,8 +3380,19 @@ int PPViewVatBook::Export()
 									SXml::WNode n(g.P_X, g.GetToken_Ansi(PPHSC_RU_VATB_OPKINDCODE)/*" од¬идќпер"*/, temp_buf);
                             	}
                            		if(Filt.Kind == PPVTB_BUY) {
+									PPBillExt billext;
+									if(item.LinkBillID && P_BObj->FetchExt(item.LinkBillID, &billext) > 0) {
+										if(checkdate(billext.PaymBillDate) && !isempty(billext.PaymBillCode)) {
+											//PPHSC_RU_VATB_ADVRECKN        "—в„аст—ч‘"       // @v12.7.0 (книга покупок) —ведени€ о счете-фактуре при отгрузке в счет ранее полученной оплаты (частичной оплаты)
+											//PPHSC_RU_VATB_ADVRECKN_N      "Ќом„аст—ч‘"      // @v12.7.0 (книга покупок) Ќомер счета-фактуры при отгрузке в счет ранее полученной оплаты (частичной оплаты) 
+											//PPHSC_RU_VATB_ADVRECKN_D      "ƒата„аст—ч‘"     // @v12.7.0 (книга покупок) ƒата счета-фактуры при отгрузке в счет ранее полученной оплаты (частичной оплаты) 
+											SXml::WNode n(g.P_X, g.GetToken_Ansi(PPHSC_RU_VATB_ADVRECKN));
+											n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VATB_ADVRECKN_N), (temp_buf = billext.PaymBillCode).Transf(CTRANSF_INNER_TO_OUTER));
+											n.PutAttrib(g.GetToken_Ansi(PPHSC_RU_VATB_ADVRECKN_D), temp_buf.Z().Cat(billext.PaymBillDate, DATF_GERMANCENT));
+										}
+									}
 									{
-										SXml::WNode n(g.P_X, "ƒата”ч“ов", temp_buf.Z().Cat(item.Dt, DATF_GERMANCENT));
+										SXml::WNode n(g.P_X, g.GetToken_Ansi(PPHSC_RU_VATB_GOODSACCPTDT)/*"ƒата”ч“ов"*/, temp_buf.Z().Cat(item.Dt, DATF_GERMANCENT));
 									}
 									{
 										//SXml::WNode n(g.P_X, "—вѕрод");

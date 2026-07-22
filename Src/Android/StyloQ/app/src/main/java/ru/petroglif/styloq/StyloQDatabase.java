@@ -558,6 +558,35 @@ public class StyloQDatabase extends Database {
 		}
 		return result;
 	}
+	class DeleteObsoleteItemsParam {
+		int    Incoming_DaysAgo;
+		int    Outecoming_DaysAgo;
+	}
+	public boolean DeleteObsoleteItems(DeleteObsoleteItemsParam param) throws StyloQException // @v12.7.0 @construction
+	{
+		boolean ok = false;
+		if(param != null && (param.Incoming_DaysAgo > 0 || param.Outecoming_DaysAgo > 0)) {
+			Database.Table tbl = CreateTable("SecTable");
+			if(tbl != null) {
+				SLib.LDATE now_date = SLib.GetCurDate();
+				Transaction tra = new Transaction(this, true);
+				try {
+					if(param.Incoming_DaysAgo > 0) {
+						SLib.LDATE lo_date = SLib.LDATE.Plus(now_date, -param.Incoming_DaysAgo);
+					}
+					if(param.Outecoming_DaysAgo > 0) {
+						SLib.LDATE lo_date = SLib.LDATE.Plus(now_date, -param.Outecoming_DaysAgo);
+					}
+				} catch(SQLException exn) {
+					ok = false;
+					tra.Abort();
+					throw new StyloQException(ppstr2.PPERR_JEXN_SQL, exn.getMessage());
+				}
+				ok = tra.Commit();
+			}
+		}
+		return ok;
+	}
 	public boolean DeleteForeignSvc(long id) throws StyloQException
 	{
 		boolean ok = false;
@@ -2090,8 +2119,8 @@ public class StyloQDatabase extends Database {
 			"Expiration INTEGER(8)," +
 			"DocType INTEGER(4)," +
 			"TimeStamp INTEGER(8)," +
-			"Flags INTEGER(4)," +  // @v11.2.10
-			"Counter INTEGER(8)," + // @v11.2.10
+			"Flags INTEGER(4)," +
+			"Counter INTEGER(8)," +
 			"VT BLOB);" +
 			"CREATE UNIQUE INDEX idxSecKey0 ON " + TBL_NAME + " (ID);" +
 			"CREATE UNIQUE INDEX idxSecKey1 ON " + TBL_NAME + " (Kind, BI, TimeStamp);" +
@@ -2105,8 +2134,8 @@ public class StyloQDatabase extends Database {
 			public long   Expiration; // epoch time, seconds
 			public int    DocType; // Тип документа (for oneof2(Kind, 6, 7))
 			public long   TimeStamp;
-			public int    Flags;   // @v11.2.10
-			public long   Counter; // @v11.2.10 Для записей вида kCounter
+			public int    Flags;   // @flags
+			public long   Counter; // Для записей вида kCounter
 			public byte [] VT;
 			public Rec() throws StyloQException
 			{
