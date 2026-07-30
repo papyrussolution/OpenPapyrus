@@ -187,7 +187,9 @@ DG_POSN.DLG  // @uiview DLG_DIAGPOSNODE
 PP_SRCC.DLG  // @uiview DLG_PRCRSRCC
 PASSWORD.DLG // @uiview DLG_PASSWORD
 F_PRC.DLG    // @uiview DLG_PRCFILT
+B_EXT.DLG    // @uiview DLG_BILLEXT
 LOGIND.DLG   // @uiview DLG_LOGIND
+f_acanlz.dlg // @uiview DLG_ACCANLZ
 LOGIN.DLG    // @obsolete (since @v12.6.12 используется только DLG_LOGIND)
 BILLAMT.DLG  // @unused
 ABCANLZ.DLG  // DLG_ABCANLZ
@@ -238,7 +240,6 @@ B_CHARGE.DLG
 b_ctrans.dlg
 B_DINITM.DLG
 B_DINV.DLG
-B_EXT.DLG
 B_EXTMOD.DLG
 b_intrex.dlg
 B_INTRRC.DLG
@@ -438,7 +439,6 @@ exprreg.dlg
 EXTFLDCF.DLG
 EXTFLDS.DLG
 EXTTDEBT.DLG
-f_acanlz.dlg
 F_ACANZ2.DLG
 F_ADDBIL.DLG
 F_AFINV.DLG

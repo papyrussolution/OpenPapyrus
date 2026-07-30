@@ -11743,7 +11743,7 @@ int SCardInfoDialog::SetupCard(PPID scardID, SCardSpecialTreatment::IdentifyRepl
 			enableCommand(cmPasteImage, enbl_pic);
 			enableCommand(cmEditPerson, enbl_psn);
 		}
-		showButton(cmActivate, (LocalState & stNeedActivation));
+		showButton(cmActivate, LOGIC(LocalState & stNeedActivation));
 		showButton(cmVerify, sc_phone.NotEmpty() && !(sc_pack.Rec.Flags & SCRDF_OWNERVERIFIED));
 		SetButtonText(cmCreateSCard, PPLoadStringS("but_edit", temp_buf).Transf(CTRANSF_INNER_TO_OUTER));
 		OwnerList.Clear();
@@ -11761,7 +11761,7 @@ int SCardInfoDialog::SetupCard(PPID scardID, SCardSpecialTreatment::IdentifyRepl
 		Stirb.Z();
 	{
 		const  PPID charge_goods_id = (SCardID && (LocalState & stAsSelector)) ? ScObj.GetChargeGoodsID(SCardID) : 0;
-		showButton(cmCharge, charge_goods_id);
+		showButton(cmCharge, LOGIC(charge_goods_id));
 	}
 	setCtrlReal(CTL_SCARDVIEW_SALDO, (uhtt_error == 0) ? uhtt_saldo : local_saldo);
 	setCtrlString(CTL_SCARDVIEW_OWNER, psn_name);
@@ -11921,8 +11921,8 @@ void SCardInfoDialog::SetupMovCrd()
 			rest += amt;
 	}
 	setCtrlReal(CTL_SCARDVIEW_SALDO, rest);
-	enableCommand(cmCommit, OwnerList.getCount());
-	showButton(cmCommit, OwnerList.getCount());
+	enableCommand(cmCommit, LOGIC(OwnerList.getCount()));
+	showButton(cmCommit, LOGIC(OwnerList.getCount()));
 	updateList(-1);
 }
 

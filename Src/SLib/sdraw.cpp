@@ -2479,6 +2479,95 @@ int SImageBuffer::LoadBmp(HDC hDc, HBITMAP hBmp, uint subImgSqIdx, uint subImgSq
 	CATCHZOK
 	return ok;
 }
+
+#if 0 // {
+//#include <windows.h>
+//#include <winspool.h>
+//#include <iostream>
+
+// Предполагается, что этот код имеет доступ к заголовку SImageBuffer
+bool PrintSImageBuffer(const SImageBuffer& img, const wchar_t* printerName = nullptr) 
+{
+	uint w = img.GetWidth();
+	uint h = img.GetHeight();
+	if(w == 0 || h == 0 || img.GetData() == nullptr) {
+		std::wcerr << L"Ошибка: Изображение пустое.\n";
+		return false;
+	}
+	// 1. Получаем HDC принтера
+	HDC hdcPrinter = nullptr;
+	if(printerName) {
+		hdcPrinter = CreateDC(L"WINSPOOL", printerName, nullptr, nullptr);
+	} 
+	else {
+		PRINTDLG pd = { sizeof(PRINTDLG) };
+		pd.Flags = PD_RETURNDC | PD_NOPAGENUMS | PD_NOSELECTION;
+		if(!PrintDlg(&pd)) 
+			return false; // Отмена пользователем
+		hdcPrinter = pd.hDC;
+	}
+	if(!hdcPrinter) {
+		std::wcerr << L"Не удалось получить контекст принтера.\n";
+		return false;
+	}
+	// 2. Инициализация документа
+	DOCINFO di = { sizeof(DOCINFO) };
+	di.lpszDocName = L"SImageBuffer Print Job";
+	if(StartDoc(hdcPrinter, &di) <= 0) {
+		DeleteDC(hdcPrinter);
+		return false;
+	}
+	if(StartPage(hdcPrinter) <= 0) {
+		EndDoc(hdcPrinter);
+		DeleteDC(hdcPrinter);
+		return false;
+	}
+	// 3. Расчет масштаба для вписывания в страницу (с сохранением пропорций)
+	int pageW = GetDeviceCaps(hdcPrinter, HORZRES);
+	int pageH = GetDeviceCaps(hdcPrinter, VERTRES);
+	float scaleX = (float)pageW / w;
+	float scaleY = (float)pageH / h;
+	float scale = (scaleX < scaleY) ? scaleX : scaleY;
+	int drawW = static_cast<int>(w * scale);
+	int drawH = static_cast<int>(h * scale);
+	int offsetX = (pageW - drawW) / 2;
+	int offsetY = (pageH - drawH) / 2;
+	// 4. Формируем BITMAPINFOHEADER для прямого скармливания данных принтеру
+	BITMAPINFOHEADER bih = { 0 };
+	bih.biSize = sizeof(BITMAPINFOHEADER);
+	bih.biWidth = static_cast<LONG>(w);
+	// КЛЮЧЕВОЙ МОМЕНТ: Отрицательная высота указывает GDI, что данные 
+	// в буфере расположены СВЕРХУ ВНИЗ (Top-Down DIB), что полностью 
+	// соответствует вашему циклу for(uint y = 0; y < _h; y++)
+	bih.biHeight = -static_cast<LONG>(h); 
+	bih.biPlanes = 1;
+	bih.biBitCount = 32; // Мы знаем, что конвертация идет в s32ARGB
+	bih.biCompression = BI_RGB;
+	// 5. Настройка качества рендеринга
+	SetStretchBltMode(hdcPrinter, HALFTONE);
+	SetBrushOrgEx(hdcPrinter, 0, 0, nullptr); // Сброс.origin кисти после HALFTONE
+	// 6. Прямая отрисовка из вашего буфера
+	// Примечание: Мы используем img.GetData() напрямую. 
+	// Убедитесь, что GetFormat().GetStride(w) кратен 4 байтам (для 32-бит это всегда так).
+	int result = StretchDIBits(hdcPrinter,
+		offsetX, offsetY, drawW, drawH,          // Куда рисуем (на странице)
+		0, 0, w, h,                              // Что берем (исходные размеры)
+		img.GetData(),                           // Указатель на ваши пиксели
+		reinterpret_cast<const BITMAPINFO*>(&bih), DIB_RGB_COLORS, SRCCOPY);
+	// 7. Завершение
+	EndPage(hdcPrinter);
+	EndDoc(hdcPrinter);
+	DeleteDC(hdcPrinter);
+	return (result != GDI_ERROR);
+}
+#endif // } 0
+
+int SImageBuffer::DrawOnPrinter(HDC hDc) const // @v12.7.0 @construction
+{
+	int    ok = 0;
+	//
+	return ok;
+}
 //
 //
 //

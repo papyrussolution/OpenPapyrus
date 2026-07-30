@@ -787,6 +787,15 @@ SBinaryChunk & SBinaryChunk::Z()
 	return *this;
 }
 
+void SBinaryChunk::DestroySecure() // @v12.7.0
+{
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
+	if(P_Buf && Size) {
+		SMem::Obfuscate(P_Buf, Size);
+	}
+	L = 0;
+}
+
 size_t SBinaryChunk::Len() const 
 { 
 	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
@@ -1023,6 +1032,15 @@ SBinarySet & SBinarySet::Z()
 {
 	DataLen = 0;
 	return *this;
+}
+
+void SBinarySet::DestroySecure() // @v12.7.0
+{
+	if(P_Buf && Size) {
+		SMem::Obfuscate(P_Buf, Size);
+	}
+	SBaseBuffer::Destroy();
+	DataLen = 0;
 }
 
 int SBinarySet::Ensure(size_t ensSize)

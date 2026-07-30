@@ -1773,7 +1773,7 @@ int PPSelectObject(PPID objType, PPID * pObjID, uint titleID, void * extraPtr)
 		const  int width = (p_uid && p_uid->VList.Get(UiValueList::vStandaloneListWidth, v) > 0 && v > 0) ? v : 216;
 		const  int height = (p_uid && p_uid->VList.Get(UiValueList::vStandaloneListHeight, v) > 0 && v > 0) ? v : 144;
 		// } @v11.9.4 
-		p_lw->changeBounds(TRect(0, 0, width, height));
+		p_lw->ChangeBounds(TRect(0, 0, width, height));
 		// @v12.5.3 (@unused) p_lw->ViewOptions |= (ofCenterX | ofCenterY);
 		if(ExecView(p_lw) == cmOK) {
 			p_lw->getResult(&id);

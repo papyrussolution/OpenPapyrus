@@ -2150,7 +2150,7 @@ int PPViewGoods::RemoveAll()
 			const char * p_title_meta = 0;
 			int    disable_grp_combo = 0;
 			if(Data.Action == GoodsMoveParam::aChgMinStock) {
-				showButton(cmLocList, 1);
+				showButton(cmLocList, true);
 				//disableCtrl(CTLSEL_REMOVEALL_GRP, false);
 				p_title_meta = "warehouse";
 				PPLoadString("minrest", rule_label_buf);
@@ -2161,7 +2161,7 @@ int PPViewGoods::RemoveAll()
 			else {
 				PPLoadString("rule", rule_label_buf);
 				addGroup(ctlgroupLoc, 0);
-				showButton(cmLocList, 0);
+				showButton(cmLocList, false);
 				switch(Data.Action) {
 					case GoodsMoveParam::aMoveToGroup:
 						p_title_meta = "goodsgroup";

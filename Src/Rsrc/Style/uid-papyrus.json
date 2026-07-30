@@ -161,7 +161,9 @@
 			"autocomplete_bg": "#yellow",
 			"autocomplete_freetext_bg": "#antiquewhite",
 			"autocomplete_focus_bg": "#20AC90",
-			"autocomplete_odd_bg": "#DCEDD5"
+			"autocomplete_odd_bg": "#DCEDD5",
+			"extinfo_bg": "#EEE4E1",
+			"extinfobad_bg": "#E6BEAE"
 		}
 	],
 	"layout_list": [

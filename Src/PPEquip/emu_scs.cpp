@@ -91,7 +91,7 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 	THROW_INVARG(pPrnLines);
 	if(PrinterPort.Len()) {
 		SFsPath ps(PrinterPort);
-		if(ps.Drv.NotEmpty() && ps.Dir.NotEmpty() && ps.Nam.NotEmpty() && ps.Ext.NotEmpty()) { // @v11.1.1
+		if(ps.Drv.NotEmpty() && ps.Dir.NotEmpty() && ps.Nam.NotEmpty() && ps.Ext.NotEmpty()) {
 			SFile f_out(PrinterPort, SFile::mAppend);
 			for(uint i = 0; i < pPrnLines->getCount(); i++) {
 				PrnLineStruc * p_prn_line = pPrnLines->at(i);
@@ -105,16 +105,17 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 			SString name;
 			HANDLE h_port = INVALID_HANDLE_VALUE;
 			HANDLE printer = INVALID_HANDLE_VALUE;
-			THROW(OpenPrinter(const_cast<TCHAR *>(SUcSwitch(PrinterPort)), &printer, NULL)); // @unicodeproblem
+			THROW(::OpenPrinterW(const_cast<wchar_t *>(SUcSwitchW(PrinterPort)), &printer, NULL));
 			if(printer != INVALID_HANDLE_VALUE) {
 				DWORD info_size = 0;
-				GetPrinter(printer, 2, NULL, info_size, &info_size);
+				::GetPrinterW(printer, 2, NULL, info_size, &info_size);
 				if(info_size) {
 					PRINTER_INFO_2 * p_prn_info = static_cast<PRINTER_INFO_2 *>(SAlloc::M(info_size));
 					if(p_prn_info) {
 						memzero(p_prn_info, info_size);
-						if(GetPrinter(printer, 2, PTR8(p_prn_info), info_size, &info_size))
-							GetPort(SUcSwitch(p_prn_info->pPortName), &port_no); // @unicodeproblem
+						if(::GetPrinterW(printer, 2, PTR8(p_prn_info), info_size, &info_size)) {
+							GetPort(SUcSwitch(p_prn_info->pPortName), &port_no);
+						}
 						SAlloc::F(p_prn_info);
 					}
 				}
@@ -126,21 +127,21 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 				CloseHandle(h_port);
 				h_port = INVALID_HANDLE_VALUE;
 			}
-			h_port = ::CreateFile(SUcSwitch(name), GENERIC_READ|GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
+			h_port = ::CreateFileW(SUcSwitchW(name), GENERIC_READ|GENERIC_WRITE, 0, 0, OPEN_EXISTING, 0, 0); // @unicodeproblem
 			// Ставим кодовую таблицу CP-866
 			{
 				const char cmd[] = { AXIOHM_CMD_SETCHARTBL_BYTE1, AXIOHM_CMD_SETCHARTBL_BYTE2, AXIOHM_CMD_CODETABL_CP866_ID };
-				THROW(WriteFile(h_port, cmd, sizeof(cmd), &sz, 0));
+				THROW(::WriteFile(h_port, cmd, sizeof(cmd), &sz, 0));
 			}
 			// Установим меньшее расстояние между строками (специально для евреев)
 			{
 				const char cmd[] = { AXIOHM_CMD_LINESPACE_BYTE1, AXIOHM_CMD_LINESPACE_BYTE2, 1 };
-				THROW(WriteFile(h_port, cmd, sizeof(cmd), &sz, 0));
+				THROW(::WriteFile(h_port, cmd, sizeof(cmd), &sz, 0));
 			}
 			for(uint i = 0; i < pPrnLines->getCount(); i++) {
 				PrnLineStruc * p_prn_line = pPrnLines->at(i);
 				p_prn_line->PrnBuf.CatChar(AXIOHM_CMD_PRINTANDFEEDLINE).Transf(CTRANSF_OUTER_TO_INNER);
-				THROW(WriteFile(h_port, p_prn_line->PrnBuf, p_prn_line->PrnBuf.Len(), &sz, 0));
+				THROW(::WriteFile(h_port, p_prn_line->PrnBuf, p_prn_line->PrnBuf.Len(), &sz, 0));
 				sz = 0;
 			}
 			// В конце шлем команду отрезки чека
@@ -153,24 +154,26 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 			ok = 1;
 		}
 		else {
-			PrinterDC = ::CreateDC(_T("WINSPOOL\0"), SUcSwitch(PrinterPort), 0, 0);
+			PrinterDC = ::CreateDCW(L"WINSPOOL\0", SUcSwitchW(PrinterPort), 0, 0);
 			if(PrinterDC) {
 				const char * p_font_face = "Courier";
-				DOCINFO di;
+				DOCINFOW di;
 				COLORREF old_color = SetTextColor(PrinterDC, GetColorRef(SClrBlack));
 				//
 				// Set printer font
 				//
 				SetBkMode(PrinterDC, TRANSPARENT);
 				INITWINAPISTRUCT(di);
-				di.lpszDocName = _T("Check");
-				THROW(StartDoc(PrinterDC, &di) != SP_ERROR);
+				di.lpszDocName = L"Check";
+				THROW(StartDocW(PrinterDC, &di) != SP_ERROR);
 				{
 					const  int w = GetDeviceCaps(PrinterDC, HORZRES);
 					const  int h = GetDeviceCaps(PrinterDC, VERTRES);
 					HFONT  font = 0;
 					HFONT  old_font = 0;
 					RECT   rc;
+					SStringU text_buf_u;
+					SStringU temp_buf_u;
 					rc.top    = 2;
 					rc.left   = 2;
 					rc.right  = w - 4;
@@ -185,32 +188,38 @@ int SCS_SYNCSYM::SendToPrinter(PrnLinesArray * pPrnLines)
 							SImage img;
 							img.Load(p_prn_line->Param.PictPath);
 							coord.top  = rc.top;
-							SETIFZ(coord.right,  (long)img.GetWidth());
-							SETIFZ(coord.bottom, (long)img.GetHeight());
-							SETIFZ(coord.left, rc.left);
+							SETIFZQ(coord.right,  (long)img.GetWidth());
+							SETIFZQ(coord.bottom, (long)img.GetHeight());
+							SETIFZQ(coord.left, rc.left);
 							img.Draw(PrinterDC, &coord, 0, 1);
 							height = coord.bottom;
 						}
 						else {
-							Gdiplus::REAL font_height = (p_prn_line->Param.FontSize) ? (Gdiplus::REAL)p_prn_line->Param.FontSize : (Gdiplus::REAL)8.0;
-							WCHAR  font_name[64];
-							memzero(font_name, sizeof(font_name));
-							if(p_prn_line->Param.FontName.NotEmpty())
-								MultiByteToWideChar(1251, 0, p_prn_line->Param.FontName, p_prn_line->Param.FontName.Len(), font_name, SIZEOFARRAY(font_name));
-							else
-								MultiByteToWideChar(1251, 0, p_font_face, sstrlen(p_font_face), font_name, SIZEOFARRAY(font_name));
+							Gdiplus::REAL font_height = (p_prn_line->Param.FontSize) ? (Gdiplus::REAL)p_prn_line->Param.FontSize : 8.0f;
+							//WCHAR  font_name[64];
+							//memzero(font_name, sizeof(font_name));
+							temp_buf_u.Z();
+							if(p_prn_line->Param.FontName.NotEmpty()) {
+								temp_buf_u.CopyFromMb_OUTER(p_prn_line->Param.FontName, p_prn_line->Param.FontName.Len());
+								//MultiByteToWideChar(1251, 0, p_prn_line->Param.FontName, p_prn_line->Param.FontName.Len(), font_name, SIZEOFARRAY(font_name));
+							}
+							else {
+								temp_buf_u.CopyFromMb_OUTER(p_font_face, sstrlen(p_font_face));
+								//MultiByteToWideChar(1251, 0, p_font_face, sstrlen(p_font_face), font_name, SIZEOFARRAY(font_name));
+							}
 							{
 								PointF start_coord;
-								Font ffont(font_name, font_height);
+								Font ffont(/*font_name*/temp_buf_u, font_height);
 								SolidBrush black_brush(Color(255, 0, 0, 0));
-								WCHAR  out_buf[512];
+								//WCHAR  out_buf[512];
 								StringFormat format;
 								format.SetAlignment(StringAlignmentNear);
 								start_coord.X = (Gdiplus::REAL)rc.left;
 								start_coord.Y = (Gdiplus::REAL)rc.top;
-								memzero(out_buf, sizeof(out_buf));
-								MultiByteToWideChar(1251, 0, p_prn_line->PrnBuf, sstrlen(p_prn_line->PrnBuf), out_buf, SIZEOFARRAY(out_buf));
-								graphics.DrawString(out_buf, sstrlen(p_prn_line->PrnBuf), &ffont, start_coord, &format, &black_brush);
+								//memzero(out_buf, sizeof(out_buf));
+								text_buf_u.CopyFromMb_OUTER(p_prn_line->PrnBuf, sstrlen(p_prn_line->PrnBuf));
+								//MultiByteToWideChar(1251, 0, p_prn_line->PrnBuf, sstrlen(p_prn_line->PrnBuf), out_buf, SIZEOFARRAY(out_buf));
+								graphics.DrawString(text_buf_u, text_buf_u.Len(), &ffont, start_coord, &format, &black_brush);
 							}
 							height = (long)font_height + 4;
 						}

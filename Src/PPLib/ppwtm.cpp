@@ -3491,7 +3491,7 @@ int TWhatmanBrowser::WMHCreate()
 			}
 		};
 		FrameWindow * p_frame_win = new FrameWindow;
-		p_frame_win->changeBounds(TRect(10, 10, 900, 900));
+		p_frame_win->ChangeBounds(TRect(10, 10, 900, 900));
 		p_frame_win->Create(APPL->H_MainWnd, TWindowBase::coPopup);
 		THROW(PPWhatmanWindow::Helper_MakeFrameWindow(p_frame_win, pWtmFileName, pWtaFileName));
 		::ShowWindow(p_frame_win->H(), SW_SHOWNORMAL);

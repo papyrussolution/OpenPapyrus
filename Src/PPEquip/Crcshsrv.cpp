@@ -819,6 +819,9 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 										case GTCHZNPT_VEGETABLEOIL: p_mark_type = "OIL"; break; // @v12.4.8
 										case GTCHZNPT_MOTOROIL: p_mark_type = "ENGINE_OIL"; break; // @v12.6.0
 										case GTCHZNPT_CHEMISTRY: p_mark_type = "COSMETICS_AND_HOUSEHOLD_CHEMICALS"; break; // @v12.6.7
+										case GTCHZNPT_GROCERY:    p_mark_type = "GROCERIES"; break; // @v12.7.0
+										case GTCHZNPT_CANNEDFOOD: p_mark_type = "CANNED_FOOD"; break; // @v12.7.0
+										case GTCHZNPT_TOYS:       p_mark_type = "CHILDREN"; break; // @v12.7.0 
 									}
 									if(p_mark_type)
 										p_writer->PutElement("mark-type", p_mark_type);

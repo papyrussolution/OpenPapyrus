@@ -732,7 +732,7 @@ long FASTCALL diffdate(LDATE d, LDATE s)
 int STDCALL _checkdate(int day, int mon, int year, int minAllowedYear)
 {
 	int    err = SLERR_SUCCESS;
-	if(!(year & REL_DATE_MASK) && (year != ANY_DATE_VALUE) && ((minAllowedYear && year < /*1801*/minAllowedYear) || year > 2199))
+	if(!(year & REL_DATE_MASK) && (year != ANY_DATE_VALUE) && ((minAllowedYear && year < /*1801*/minAllowedYear) || year > 3000)) // @v12.7.0 2199-->3000
 		err = SLERR_INVYEAR;
 	else if(!(mon & REL_DATE_MASK) && (mon != ANY_DATE_VALUE) && (mon < 1 || mon > 12))
 		err = SLERR_INVMONTH;
@@ -2643,6 +2643,11 @@ bool SUniDate_Internal::SetDate(LDATE dt)
 	bool   ok = false;
 	if(dt) {
 		int    d, m, y;
+		// @v12.7.0 {
+		if(dt == MAXDATE) {
+			dt = MAXDATEVALID;
+		}
+		// } @v12.7.0 
 		_decodedate(&d, &m, &y, &dt, DF_BTRIEVE);
 		if(_checkdate(d, m, y, 0)) {
 			Y = y;
@@ -2756,6 +2761,21 @@ SUniTime_Internal::SUniTime_Internal(LDATE dt, LTIME tm) : SUniDate_Internal(dt)
 SUniTime_Internal::SUniTime_Internal(const SYSTEMTIME & rS) : SUniDate_Internal(rS.wYear, rS.wMonth, rS.wDay), 
 	Hr(rS.wHour), Mn(rS.wMinute), Sc(rS.wSecond), MSc(rS.wMilliseconds), Weekday(rS.wDayOfWeek), TimeZoneSc(Undef_TimeZone)
 {
+}
+
+SUniTime_Internal::SUniTime_Internal(const FILETIME & rS) : SUniDate_Internal(), Hr(0), Mn(0), Sc(0), MSc(0), Weekday(0), TimeZoneSc(Undef_TimeZone)
+{
+	SYSTEMTIME st;
+	if(::FileTimeToSystemTime(&rS, &st)) {
+		Y = st.wYear;
+		M = st.wMonth;
+		D = st.wDay;
+		Hr = st.wHour;
+		Mn = st.wMinute;
+		Sc = st.wSecond;
+		MSc = st.wMilliseconds;
+		Weekday = st.wDayOfWeek;
+	}
 }
 #endif
 

@@ -1305,7 +1305,7 @@ int PPViewGtaJournal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			if(event.isCmd(cmSysJActionList)) {
 				ListToListData l2l_data(PPOBJ_GTACTION, reinterpret_cast<void *>(-1), &Data.ActionIDList);
 				l2l_data.TitleStrID = 0; // PPTXT_XXX;
-				if(ListToListDialog(&l2l_data) > 0)
+				if(ListToListDialog(&l2l_data) > 0) {
 					if(Data.ActionIDList.isList()) {
 						SetComboBoxListText(this, CTLSEL_GTAJFILT_ACTION);
 						disableCtrl(CTLSEL_GTAJFILT_ACTION, true);
@@ -1314,6 +1314,7 @@ int PPViewGtaJournal::EditBaseFilt(PPBaseFilt * pBaseFilt)
 						setCtrlLong(CTLSEL_GTAJFILT_ACTION, Data.ActionIDList.getSingle());
 						disableCtrl(CTLSEL_GTAJFILT_ACTION, false);
 					}
+				}
 			}
 			else if(event.isCbSelected(CTLSEL_GTAJFILT_ACTION))
 				Data.ActionIDList.setSingleNZ(getCtrlLong(CTLSEL_GTAJFILT_ACTION));

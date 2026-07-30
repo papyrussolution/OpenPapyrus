@@ -28,6 +28,12 @@ AmtList::AmtList() : TSVector <AmtEntry> ()
 {
 }
 
+AmtList & AmtList::Z()
+{
+	TSVector <AmtEntry>::clear();
+	return *this;
+}
+
 AmtList & FASTCALL AmtList::operator = (const AmtList & s)
 {
 	SVector::copy(s);
@@ -40,10 +46,19 @@ bool FASTCALL AmtList::HasVatSum(const TaxAmountIDs * pTai) const
 {
 	bool   yes = false;
 	if(pTai) {
-		AmtEntry * p_ae;
-		for(uint i = 0; !yes && enumItems(&i, (void **)&p_ae);)
-			if(p_ae->AmtTypeID && p_ae->Amt != 0.0 && oneof3(p_ae->AmtTypeID, pTai->VatAmtID[0], pTai->VatAmtID[1], pTai->VatAmtID[2]))
+		//AmtEntry * p_ae;
+		//for(uint i = 0; !yes && enumItems(&i, (void **)&p_ae);) {
+		// @v12.7.0 @fix Не учитывались налоговые типы pTai->VatAmtID[3] и pTai->VatAmtID[4]
+		const  PPID at1 = pTai->VatAmtID[0];
+		const  PPID at2 = pTai->VatAmtID[1];
+		const  PPID at3 = pTai->VatAmtID[2];
+		const  PPID at4 = pTai->VatAmtID[3];
+		const  PPID at5 = pTai->VatAmtID[4];
+		for(uint i = 0; i < getCount(); i++) {
+			const  AmtEntry & r_entry = at(i);
+			if(r_entry.AmtTypeID && r_entry.Amt != 0.0 && oneof5(r_entry.AmtTypeID, at1, at2, at3, at4, at5))
 				yes = true;
+		}
 	}
 	return yes;
 }

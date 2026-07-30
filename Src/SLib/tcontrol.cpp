@@ -552,6 +552,10 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 			return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
 		// } @v12.3.7 
 		// @v12.5.3 {
+		case WM_MOUSEMOVE:
+			if(p_view)
+				p_view->RegisterMouseTracking(1, 50); 
+			break;
 		case WM_MOUSEHOVER:
 			if(p_view)
 				p_view->setState(sfHover, true);
@@ -559,10 +563,6 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		case WM_MOUSELEAVE:
 			if(p_view)
 				p_view->setState(sfHover, false);
-			break;
-		case WM_MOUSEMOVE:
-			if(p_view)
-				p_view->RegisterMouseTracking(1, 50); 
 			break;
 		// } @v12.5.3 
 		/*
@@ -696,8 +696,14 @@ IMPL_HANDLE_EVENT(TButton)
 					}
 					break;
 				case cmSearchButton:
-					if(Command && event.message.infoPtr == reinterpret_cast<void *>(Command))
+					if(Command && event.message.infoPtr == reinterpret_cast<void *>(Command)) {
 						clearEvent(event);
+					}
+					break;
+				case cmSearchSupplementButton: // @v12.7.0
+					if(SupplementLinkCtrlId && event.message.infoInt == SupplementLinkCtrlId) {
+						clearEvent(event);
+					}
 					break;
 				case cmInputLangChange: // @v12.6.9
 					if(Command == cmKeyboardLayout) {

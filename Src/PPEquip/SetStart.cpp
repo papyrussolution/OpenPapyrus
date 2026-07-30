@@ -556,6 +556,12 @@ int ACS_SETSTART::ExportData(int updOnly)
 									case GTCHZNPT_NONALCBEER: _mark_type = 25; break; // @v12.2.6 (значение - из документации фронтол)
 									case GTCHZNPT_PETFOOD: _mark_type = 7/*@?*/; break; // @v12.3.9
 									case GTCHZNPT_VEGETABLEOIL: _mark_type = 30/*@?*/; break; // @v12.4.8 (значение - из документации фронтол)
+									case GTCHZNPT_NCP:        _mark_type = 16/*@?*/; break; // @v12.7.0
+									case GTCHZNPT_MOTOROIL:   _mark_type = 34/*@?*/; break; // @v12.7.0
+									case GTCHZNPT_CHEMISTRY:  _mark_type = 37/*@?*/; break; // @v12.7.0
+									case GTCHZNPT_GROCERY:    _mark_type = 33/*@?*/; break; // @v12.7.0
+									case GTCHZNPT_CANNEDFOOD: _mark_type = 32/*@?*/; break; // @v12.7.0
+									case GTCHZNPT_TOYS:       _mark_type = 36/*@?*/; break; // @v12.7.0
 									default:
 										if(!_mark_type && gds_info.ChZnProdType) // (!_mark_type): значение может быть выставлено выше в блоке if(goods_iter.GetAlcoGoodsExtension(gds_info.ID, 0, agi) > 0) {}
 											_mark_type = 7; // 7–иная маркированная продукция
@@ -645,7 +651,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 							f_str.Cat(default_scheme_id).Semicol();               // #1 - код схемы внутренней авт.скидки
 							f_str.Cat(scs_id).Semicol();                          // #2 - код скидки
 							f_str.Semicol();                                      // #3 - unused
-							(temp_buf = ser_rec.Name); // .Transf(CTRANSF_INNER_TO_OUTER); // @v10.7.0 @fix вся строка конвертируется в при выводе в файл
+							(temp_buf = ser_rec.Name); //
 							f_str.Cat(temp_buf).Semicol();                        // #4 - наименование скидки (код карты)
 							f_str.Cat(0L).Semicol();                              // #5 - тип скидки (0 - percent, 1 - absolute)
 							f_str.Cat(fdiv100i(scs_pack.Rec.PDis)).Semicol();     // #6 - значение скидки
@@ -975,18 +981,23 @@ long ACS_SETSTART::ModifDup(long cashNo, long chkNo)
 
 int ACS_SETSTART::GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList)
 {
-	int    ok = 1, field_no = 0;
-	SString path, buf;
+	int    ok = 1;
+	int    field_no = 0;
+	SString path;
+	SString buf;
 	_FrontolZRepArray zrep_list;
 	uint   pos = 0;
-	long   op_type = 0, nsmena = 0, cash_no = 0;
+	long   op_type = 0;
+	long   nsmena = 0;
+	long   cash_no = 0;
 	LAssocArray zrep_ary; // Пара {номер_файла; номер_смены}
 	SString imp_file_name(pPath);
 	SFile  imp_file(imp_file_name, SFile::mRead); // PathRpt-->imp_file_name
 	PPSetAddedMsgString(imp_file_name);
 	THROW_SL(imp_file.IsValid());
-	for(pos = 0; pos < 3; pos++)
+	for(pos = 0; pos < 3; pos++) {
 		imp_file.ReadLine(buf);
+	}
 	//
 	// #loop01
 	// Собираем список Z-отчетов в массив zrep_ary.

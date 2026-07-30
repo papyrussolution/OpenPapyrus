@@ -5693,12 +5693,13 @@ int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBi
 									}
 								}
 								if(oneof2(b_e.BillParam.PredefFormat, piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR)) {
+									// @v12.7.0 Суффикс MARK в header_symb больше не актуален (хотя уверенности нет)
 									if(is_exp_correction) {
-										DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, pack_has_marks ? "ON_NKORSCHFDOPPRMARK" : "ON_NKORSCHFDOPPR", nominal_file_name);
+										DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, (/*pack_has_marks ? "ON_NKORSCHFDOPPRMARK" :*/"ON_NKORSCHFDOPPR"), nominal_file_name);
 										r = _blk.Do_CorrInvoice(result_file_name_);
 									}
 									else {
-										DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, (pack_has_marks ? "ON_NSCHFDOPPRMARK" : "ON_NSCHFDOPPR"), nominal_file_name);
+										DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, (/*pack_has_marks ? "ON_NSCHFDOPPRMARK" :*/"ON_NSCHFDOPPR"), nominal_file_name);
 										r = _blk.Do_Invoice2(result_file_name_);
 									}
 								}

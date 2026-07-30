@@ -458,11 +458,11 @@ int STDCALL SetupGeoLocButton(TDialog * pDlg, uint inputCtlId, uint btnCmd) // @
 			ok = 1;
 		}
 		if(ok > 0) {
-			pDlg->showButton(btnCmd, 1);
+			pDlg->showButton(btnCmd, true);
 			pDlg->setButtonBitmap(btnCmd, PPDV_LOGOGOOGLEMAPS01);
 		}
 		else
-			pDlg->showButton(btnCmd, 0);
+			pDlg->showButton(btnCmd, false);
 	}
 	return ok;
 }
@@ -486,11 +486,11 @@ int STDCALL SetupPhoneButton(TDialog * pDlg, uint inputCtlId, uint btnCmd)
 			}
 		}
 		if(ok > 0) {
-			pDlg->showButton(btnCmd, 1);
+			pDlg->showButton(btnCmd, true);
 			pDlg->setButtonBitmap(btnCmd, IDB_PHONEFORWARDED);
 		}
 		else
-			pDlg->showButton(btnCmd, 0);
+			pDlg->showButton(btnCmd, false);
 	}
 	return ok;
 }
@@ -895,6 +895,7 @@ int PasswordDialog2(uint dlgID, char * pBuf, size_t pwSize, PasswordDialogParam 
 	char   b2[256];
 	TDialog * dlg = new TDialog(NZOR(dlgID, DLG_PASSWORD));
 	if(CheckDialogPtrErr(&dlg)) {
+		const  bool enable_storage = (rParam.StorePasswordIdent.NotEmpty() && rParam.StorePasswordIdent.IsAscii());
 		dlg->SetupKeyboardStateControls();
 		dlg->setCtrlString(CTL_PASSWORD_INFO, rParam.Hint);
 		b1[0] = 0;
@@ -905,6 +906,7 @@ int PasswordDialog2(uint dlgID, char * pBuf, size_t pwSize, PasswordDialogParam 
 		else {
 			dlg->setCtrlData(CTL_PASSWORD_SECOND, b1);
 		}
+		dlg->showCtrl(CTL_PASSWORD_STOREPASSWORD, enable_storage); // @v12.7.0
 		while(!valid_data && ExecView(dlg) == cmOK) {
 			bool   is_local_error = false;
 			dlg->getCtrlData(CTL_PASSWORD_FIRST,  b1);
@@ -931,7 +933,13 @@ int PasswordDialog2(uint dlgID, char * pBuf, size_t pwSize, PasswordDialogParam 
 					else {
 						Reference::Encrypt(Reference::crymRef2, b1, pBuf, pwSize);
 					}
-					ok = 1;
+					bool   do_store_password = false;
+					if(enable_storage) {
+						uint16 v = dlg->getCtrlUInt16(CTL_PASSWORD_STOREPASSWORD);
+						if(v == 1)
+							do_store_password = true;
+					}
+					ok = do_store_password ? 101 : 1;
 				}
 			}
 		}
@@ -1344,7 +1352,15 @@ int Lst2LstObjDialog::setupRightList()
 				THROW_SL(p_ary->Add(id, name_buf));
 			}
 			p_ary->SortByText();
-			THROW_MEM(p_def = new StrAssocListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify));
+			//
+			uint   lbd_options = lbtDisposeData|lbtDblClkNotify;
+			// @v12.7.0 {
+			if(Data.Flags & ListToListData::fUtf8) {
+				lbd_options |= lbtTextUtf8;
+			}
+			// } @v12.7.0 
+			//
+			THROW_MEM(p_def = new StrAssocListBoxDef(p_ary, lbd_options));
 			p_lb->setDef(p_def);
 			p_lb->P_Def->go(pos);
 			p_lb->Draw_();
@@ -1366,10 +1382,16 @@ int Lst2LstObjDialog::setupLeftList()
 	ListBoxDef * p_def = 0;
 	if(Data.P_SrcList) {
 		StrAssocArray * p_data = new StrAssocArray(*Data.P_SrcList);
+		uint   lbd_options = lbtDblClkNotify|lbtFocNotify|lbtDisposeData;
+		// @v12.7.0 {
+		if(Data.Flags & ListToListData::fUtf8) {
+			lbd_options |= lbtTextUtf8;
+		}
+		// } @v12.7.0 
 		if(Data.Flags & ListToListData::fIsTreeList)
-			p_def = new StdTreeListBoxDef(p_data, lbtDblClkNotify|lbtFocNotify|lbtDisposeData, 0);
+			p_def = new StdTreeListBoxDef(p_data, lbd_options, 0);
 		else
-			p_def = new StrAssocListBoxDef(p_data, lbtDblClkNotify|lbtFocNotify|lbtDisposeData);
+			p_def = new StrAssocListBoxDef(p_data, lbd_options);
 	}
 	else if(P_Object) {
 		p_def = P_Object->Selector(0, 0, Data.ExtraPtr);
@@ -1823,7 +1845,7 @@ int STDCALL SetupStrAssocTreeCombo(TWindow * dlg, uint ctlID, const StrAssocArra
 	ListWindow * p_lw = 0;
 	ComboBox   * p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
 	if(p_cb) {
-		const uint options = ownerDrawListBox ? (lbtOwnerDraw|lbtDisposeData|lbtDblClkNotify) : (lbtDisposeData|lbtDblClkNotify);
+		const  uint options = ownerDrawListBox ? (lbtOwnerDraw|lbtDisposeData|lbtDblClkNotify) : (lbtDisposeData|lbtDblClkNotify);
 		StrAssocArray * p_list = new StrAssocArray(rList);
 		THROW_MEM(p_list);
 		THROW_MEM(p_lw = new ListWindow(new StdTreeListBoxDef(p_list, options, MKSTYPE(S_ZSTRING, 128)), 0));
@@ -7850,6 +7872,7 @@ void PPDialogConstructor::Build(TWindow * pW, HWND hParent, DlContext & rCtx, co
 		const  UiDescription * p_uid = SLS.GetUiDescription();
 		TDialog::BuildEmptyWindowParam bew_param;
 		char   c_buf[1024];
+		bool   is_child_window = false;
 		SString temp_buf;
 		SUiLayoutParam __alb;
 		const SUiLayoutParam * p_alb = rCtx.GetLayoutBlock(pScope, DlScope::cuifLayoutBlock, &__alb) ? &__alb : 0;
@@ -7912,12 +7935,14 @@ void PPDialogConstructor::Build(TWindow * pW, HWND hParent, DlContext & rCtx, co
 			// } @v12.3.7 
 			if(temp_buf.NotEmpty()) {
 			}
-			bew_param.HwParent = hParent; // @v12.6.12 @todo
+			bew_param.HwParent = hParent; // @v12.6.12
 		}
 		{
 			// @todo Здесь надо правильно отработать случай, когда pW не является диалогом (TDialog)
 			if(pW->IsSubSign(TV_SUBSIGN_DIALOG)) {
-				static_cast<TDialog *>(pW)->BuildEmptyWindow(&bew_param);
+				const  int bewr = static_cast<TDialog *>(pW)->BuildEmptyWindow(&bew_param);
+				if(bewr == 2)
+					is_child_window = true;
 			}
 		}
 		//
@@ -7984,8 +8009,10 @@ void PPDialogConstructor::Build(TWindow * pW, HWND hParent, DlContext & rCtx, co
 			EnumChildWindows(h_wnd, pW->SetupCtrlTextProc, 0);				
 		}
 		pW->EvaluateLayout(pW->getClientRect());
-		pW->WbCapability |= TWindow::wbcStorableUserParams;
-		pW->SetStorableUserParamsSymb(pScope->Name);
+		if(!is_child_window) {
+			pW->WbCapability |= TWindow::wbcStorableUserParams;
+			pW->SetStorableUserParamsSymb(pScope->Name);
+		}
 	}
 }
 

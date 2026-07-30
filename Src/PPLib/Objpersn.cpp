@@ -4391,8 +4391,8 @@ public:
 	{
 		SetupCalDate(CTLCAL_PERSON_DOB, CTL_PERSON_DOB);
 		SetupCalDate(CTLCAL_PERSON_SCEXPIRY, CTL_PERSON_SCEXPIRY);
-		showButton(cmCreateSCard, 0);
-		enableCommand(cmCreateSCard, 0);
+		showButton(cmCreateSCard, false);
+		enableCommand(cmCreateSCard, false);
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -4770,7 +4770,7 @@ void ShortPersonDialog::ShowSCardCtrls(bool doShow)
 int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 {
 	int    ok = 1;
-	int    enable_auto_create = 0;
+	bool   enable_auto_create = false;
 	PPID   scs_id = 0;
 	if(fromCtrl) {
 		scs_id = getCtrlLong(CTLSEL_PERSON_SCARDSER);
@@ -4791,13 +4791,13 @@ int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 					PPIDArray sc_list;
 					ScObj.P_Tbl->GetListByPerson(Data.Rec.ID, scs_id, &sc_list);
 					for(uint i = 0; i < sc_list.getCount(); i++) {
-						PPID sc_id = sc_list.get(i);
+						const  PPID sc_id = sc_list.get(i);
 						if(ScObj.Search(sc_id, &sc_rec) > 0) {
 							SCardID = sc_id;
 							setCtrlData(CTL_PERSON_SCARD, sc_rec.Code);
 							disableCtrl(CTL_PERSON_SCARD, true);
-							showButton(cmCreateSCard, 1);
-							enableCommand(cmCreateSCard, 1);
+							showButton(cmCreateSCard, true);
+							enableCommand(cmCreateSCard, true);
 							break;
 						}
 						else
@@ -4821,9 +4821,9 @@ int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 				setCtrlLong(CTLSEL_PERSON_SCAG, 0);
 			if(!SCardID) {
 				disableCtrl(CTL_PERSON_SCARD, false);
-				showButton(cmCreateSCard, 0);
-				enableCommand(cmCreateSCard, 0);
-				enable_auto_create = 1;
+				showButton(cmCreateSCard, false);
+				enableCommand(cmCreateSCard, false);
+				enable_auto_create = true;
 				if(scs_pack.Rec.Flags & SCRDSF_NEWSCINHF) {
 					sc_rec.Flags |= SCRDF_INHERITED;
 					ScObj.SetInheritance(&scs_pack, &sc_rec);

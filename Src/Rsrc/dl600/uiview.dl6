@@ -5379,7 +5379,12 @@ dialog DLG_LOTXCLIST [vertical title: "@lotxcodelist" size: (1120, 425) minsize:
 dialog DLG_LOTXCCKLIST [vertical title: "@lotxcodechecklist" size: (1120, 440) minsize: (1100, 400) padding: 4] {
 	statictext CTL_LOTXCCKLIST_INFO [width: bycontainer height: 24 margin: 4 staticedge];
 	listbox CTL_LOTXCCKLIST_LIST [tabstop ownerdraw: fixed width: bycontainer growfactor: 1 margin: 4];
-	checkbox CTL_LOTXCCKLIST_FLAGS [title: "@lotxcodechecklist_showunchecked" tabstop width: bycontainer(50) height: 21 margin: 4];
+	view [horizontal width: bycontainer height: 25] {
+		checkbox CTL_LOTXCCKLIST_FLAGS [title: "@lotxcodechecklist_showunchecked" tabstop growfactor: 1 height: 21 margin: 4];
+		checkbox CTL_LOTXCCKLIST_SHOWINFO [title: "@lotxcodechecklist_showinfo" tabstop growfactor: 1 height: 21 margin: 4];
+		view [horizontal growfactor: 2 height: bycontainer] { // @stub
+		}
+	}
 	view [horizontal width: bycontainer height: 30] {
 		view [horizontal width: 200 height: bycontainer gravity: left justifycontent: start] {
 			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
@@ -6081,7 +6086,8 @@ dialog DLG_PRCRSRCC [vertical title: "@prcssrsourcecodemaintaining" size: (455, 
 		checkbox [title: "@prcssrsourcecodemaintaining_fverifysourcecodebypatterns"];
 		checkbox [title: "@prcssrsourcecodemaintaining_fautotranslatestrings"];
 	}
-	combobox CTLSEL_PRCRSRCC_TOLANG [tabstop width: bycontainer height: 21 margin: 4 label: "@prcssrsourcecodemaintaining_attolang" cblinesymb: CTL_PRCRSRCC_TOLANG]; // @v12.6.6
+	combobox CTLSEL_PRCRSRCC_TOLANG [tabstop width: bycontainer height: 21 margin: 4 label: "@prcssrsourcecodemaintaining_attolang" cblinesymb: CTL_PRCRSRCC_TOLANG]
+		supplement listbutton(STDCTL_LANGLISTBUTTON cmLangList); // @v12.6.6
 	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
@@ -6185,7 +6191,119 @@ dialog DLG_PRC [vertical title: "@processor" size: (755, 500) minsize: (755, 500
 	}
 }
 
-// @20260709 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+dialog DLG_LOGIND [vertical title: "" size: (455, 330) minsize: (455, 330) padding: 4] {
+	view [horizontal width: bycontainer growfactor: 1] {
+		view [vertical growfactor: 1 height: bycontainer justifycontent: spacebetween] {
+			imageview CTL_LOGIN_LOGO [width: bycontainer growfactor: 1 margin: 4 imagesymb: PPDV_LOGOPAPYRUS];
+			imageview CTL_LOGIN_QR [width: bycontainer growfactor: 1 margin: 4];
+		}
+		view [vertical growfactor: 2 height: bycontainer justifycontent: spacebetween] {
+			combobox CTLSEL_LOGIN_DB [width: bycontainer height: 21 margin: 4 tabstop label: "@database" cblinesymb: CTL_LOGIN_DB];
+			input CTL_LOGIN_NAME [width: bycontainer(80) height: 21 margin: 4 tabstop label: "@name"] string[48];
+			view [horizontal width: bycontainer height: 35] {
+				input CTL_LOGIN_PASSWORD [growfactor: 1 height: 21 margin: 4 tabstop password label: "@password"] string[20] supplement passwordrig (CTLRIG_LOGIN_PASSWORD);
+				view [horizontal width: 60 height: bycontainer] {
+					button STDCTL_KEYBOARDLAYOUT [title: "" size: (25, 21) margin: (4, 17, 4, 4) command: cmKeyboardLayout];
+					button STDCTL_KBSTATECAPSLOCK [title: "" size: (25, 21) margin: (4, 17, 4, 4) command: cmKbStateCapsLock];
+				}
+			}
+			input CTL_LOGIN_DATE [width: bycontainer(30) height: 21 margin: 4 tabstop readonly fmtf: (dmy) label: "@today"] date;
+			view [horizontal width: bycontainer height: 30 justifycontent: spacebetween] {
+				button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (100, 21) margin: 4 command: cmOK];
+				button CTL_LOGIN_CMD_UTIL [title: "@{but_service}..." tabstop size: (100, 21) margin: 4 command: cmUtil];
+			}
+		}
+	}
+	statictext CTL_LOGIN_ST_INFO [width: bycontainer height: 24 margin: 4 staticedge];
+}
+
+dialog DLG_BILLEXT [vertical title: "@bill_extension" size: (430, 530) minsize: (430, 530) padding: 4 justifycontent: spacebetween] { // @v12.7.0
+	combobox CTLSEL_BILLEXT_PAYER [width: bycontainer height: 21 margin: 4 tabstop label: "@bill_payer" cblinesymb: CTL_BILLEXT_PAYER];
+	combobox CTLSEL_BILLEXT_AGENT [width: bycontainer height: 21 margin: 4 tabstop label: "@bill_agent" cblinesymb: CTL_BILLEXT_AGENT];
+	combobox CTLSEL_BILLEXT_AGREEMENT [width: bycontainer height: 21 margin: 4 tabstop label: "@bill_agreementbill" cblinesymb: CTL_BILLEXT_AGREEMENT];
+	framebox [horizontal width: bycontainer height: 65 padding: (4, 13, 4, 4) title: "@pb_invoice"] {
+		input CTL_BILLEXT_INVCCODE [growfactor: 2 height: 21 margin: 4 tabstop label: "@number"] string[24];
+		input CTL_BILLEXT_INVCDATE [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy) label: "@date"] date supplement datecalbutton(CTLCAL_BILLEXT_INVCDATE);
+	}
+	framebox [horizontal width: bycontainer height: 65 padding: (4, 13, 4, 4) title: "@bill_paymbill"] {
+		input CTL_BILLEXT_PAYMBCODE [growfactor: 2 height: 21 margin: 4 tabstop label: "@number"] string[24];
+		input CTL_BILLEXT_PAYMBDATE [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy) label: "@date"] date supplement datecalbutton(CTLCAL_BILLEXT_PAYMBDATE);
+	}
+	framebox [horizontal width: bycontainer height: 65 padding: (4, 13, 4, 4) title: "@bill_outerdocument"] {
+		input CTL_BILLEXT_OUTERCODE [growfactor: 2 height: 21 margin: 4 tabstop label: "@number"] string[64];
+		input CTL_BILLEXT_OUTERDATE [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy) label: "@date"] date supplement datecalbutton(CTLCAL_BILLEXT_OUTERDATE);
+	}
+	combobox CTLSEL_BILLEXT_EXTPQUOT [width: bycontainer(70) height: 21 margin: 4 tabstop label: "@bill_extpricequotkind" cblinesymb: CTL_BILLEXT_EXTPQUOT];
+	view [horizontal width: bycontainer height: 35 justifycontent: spacebetween] {
+		input CTL_BILLEXT_SCARDN [growfactor: 2 height: 21 margin: 4 tabstop label: "@cardno"] string[24];
+		checkbox CTL_BILLEXT_SHIPPED [title: "@shipped" tabstop growfactor: 1 height: 21 margin: (4, 17, 4, 4)];
+	}
+	view [horizontal width: bycontainer height: 32 margin_right: 12] {
+		view [horizontal growfactor: 1 height: bycontainer] {
+			button STDCTL_TAGSBUTTON [title: "@but_tags" tabstop size: (90, 21) margin: 4 command: cmTags];
+		}
+		view [horizontal growfactor: 2 height: bycontainer justifycontent: end alignitems: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_ACCANLZ [vertical title: "@accanlz" size: (600, 450) minsize: (600, 450) padding: 4 justifycontent: spacebetween] { // @v12.7.0
+	view [horizontal width: bycontainer height: 35 justifycontent: spacebetween] {
+		input CTL_ACCANLZ_PERIOD [size: (160, 21) margin: 4 tabstop label: "@accanlz_period"] string[30] supplement daterangecalbutton(CTLCAL_ACCANLZ_PERIOD);
+		statictext CTL_ACCANLZ_LABEL [size: (16, 16) margin: (4, 17, 4, 4) staticedge];
+	}
+	framebox [vertical width: bycontainer height: 150 margin: 4 padding: 4] {
+		view [horizontal width: bycontainer growfactor: 1.7] {
+			input CTL_ACCANLZ_ACC [size: (65, 21) margin: (4, 4, 1, 4) tabstop label: "@accanlz_acc_acc"] string[10];
+			combobox CTLSEL_ACCANLZ_ACCNAME [growfactor: 3 height: 21 margin: (1, 17, 4, 4) tabstop cblinesymb: CTL_ACCANLZ_ACCNAME];
+			view [vertical growfactor: 1 height: bycontainer] {
+				combobox CTLSEL_ACCANLZ_CUR [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@accanlz_cur" cblinesymb: CTL_ACCANLZ_CUR];
+				checkbox CTL_ACCANLZ_ALLCUR [title: "@accanlz_fallcurrencies" tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4)];
+			}
+		}
+		view [horizontal width: bycontainer growfactor: 1] {
+			input CTL_ACCANLZ_ART [size: (65, 21) margin: (4, 4, 1, 4) tabstop label: "@accanlz_acc_ar"] string[10];
+			combobox CTLSEL_ACCANLZ_ARTNAME [growfactor: 3 height: 21 margin: (1, 17, 4, 4) tabstop cblinesymb: CTL_ACCANLZ_ARTNAME];
+			view [vertical growfactor: 1 height: bycontainer] { // @stub
+			}
+		}
+		combobox CTLSEL_ACCANLZ_RELSUBST [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@accanlz_substreltype" cblinesymb: CTL_ACCANLZ_RELSUBST];
+	}
+	view [horizontal width: bycontainer growfactor: 1] {
+		view [vertical growfactor: 1 height: bycontainer] {
+			checkcluster CTL_ACCANLZ_TRNOVR [width: bycontainer margin: 4 padding: 4] {
+				checkbox [title: "@accanlz_ftrnovrbysheet"];
+				checkbox [title: "@accanlz_fspprztrnovr"];
+			}
+			checkbox CTL_ACCANLZ_EXCLINNRT [title: "@accanlz_fexclinnertrnovr" tabstop width: bycontainer height: 21 margin: (12, 4, 4, 4)];
+			radiocluster CTL_ACCANLZ_ACCGRP [title: "@accanlz_aco" width: bycontainer margin: 4 padding: (4, 13, 4, 4)] {
+				radiobutton [title: "@accanlz_aco_no"];
+				radiobutton [title: "@accanlz_aco_acc"];
+				radiobutton [title: "@accanlz_aco_subacc"];
+			}
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			combobox CTLSEL_ACCANLZ_SUBST [width: bycontainer height: 21 margin: 4 tabstop label: "@accanlz_coraco" cblinesymb: CTL_ACCANLZ_SUBST];
+			framebox [horizontal width: bycontainer height: 50 margin: 4 padding: 4] {
+				combobox CTLSEL_ACCANLZ_CYCLE [growfactor: 1 height: 21 margin: 4 tabstop label: "@accanlz_cycl_cycle" cblinesymb: CTL_ACCANLZ_CYCLE];
+				input CTL_ACCANLZ_NUMCYCLES [growfactor: 1 height: 21 margin: 4 tabstop label: "@accanlz_cycl_numcycles"] int16;
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 32 margin_right: 12] {
+		view [horizontal growfactor: 1 height: bycontainer] {
+			button STDCTL_MORE [title: "@but_addendum" tabstop size: (160, 21) margin: 4 command: cmaMore];
+		}
+		view [horizontal growfactor: 2 height: bycontainer justifycontent: end alignitems: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+// @20260727 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 
 // @construction
@@ -6446,6 +6564,7 @@ dialog DLG_SECRETPOOLPASSWORD [vertical title: "@setpassword" size: (355, 250) m
 		}
 		imageview CTL_PASSWORD_IMG [size: (68, 68) margin: (4, 12, 4, 4) imagesymb: PPDV_KEY01];
 	}
+	checkbox CTL_PASSWORD_STOREPASSWORD [tabstop width: bycontainer(60) height: 21 margin: 4 title: "@setpassword_storepassword"];
 	view [horizontal width: bycontainer height: 30] {
 		view [horizontal growfactor: 1 height: bycontainer justifycontent: start] {
 			button STDCTL_KEYBOARDLAYOUT [title: "" size: (25, 21) margin: 4 command: cmKeyboardLayout];
@@ -6458,7 +6577,7 @@ dialog DLG_SECRETPOOLPASSWORD [vertical title: "@setpassword" size: (355, 250) m
 	}
 }
 
-dialog DLG_SECRETPOOL [horizontal title: "Secret Pool" size: (700, 600) minsize: (600, 600) padding: 4] { // @construction
+dialog DLG_SECRETPOOL [horizontal title: "@secretpool" size: (700, 600) minsize: (600, 600) padding: 4] { // @construction
 	view [vertical growfactor: 1 height: bycontainer] {
 		view [horizontal width: bycontainer height: 30] {
 			//button STDCTL_EDITBUTTON [/*title: "@but_edit"*/defaultitem size: (30, 21) margin: 4 command: cmaEdit];
@@ -6466,26 +6585,32 @@ dialog DLG_SECRETPOOL [horizontal title: "Secret Pool" size: (700, 600) minsize:
 			button STDCTL_DELBUTTON [/*title: "@but_delete"*/size: (30, 21) margin: 4 command: cmaDelete];
 			button STDCTL_INSFOLDERBUTTON [size: (30, 21) margin: 4 command: cmInsertFolder imagesymb: PPDV_FOLDER_ADD01];
 		}
-		treelistbox CTL_SECRETPOOL_LIST [tabstop width: bycontainer growfactor: 1];
+		treelistbox CTL_SECRETPOOL_LIST [tabstop width: bycontainer growfactor: 1 margin: 4];
 	}
-	view [vertical growfactor: 3 height: bycontainer] {
+	view [vertical growfactor: 3 height: bycontainer margin_top: 30] {
 		view [horizontal width: bycontainer height: 45] {
 			input CTL_SECRETPOOL_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[128];
 			input CTL_SECRETPOOL_ID [width: 60 height: 21 margin: 4 tabstop readonly fmtf: (nozero) label: "@id"] uint32;
 		}
 		view [horizontal width: bycontainer height: 45] {
 			combobox CTLSEL_SECRETPOOL_TYPE [growfactor: 1 height: 21 margin: 4 tabstop label: "@type" cblinesymb: CTL_SECRETPOOL_TYPE];
-			combobox CTLSEL_SECRETPOOL_PARENT [growfactor: 1 height: 21 margin: 4 tabstop label: "Parent" cblinesymb: CTL_SECRETPOOL_PARENT];
+			combobox CTLSEL_SECRETPOOL_PARENT [growfactor: 1 height: 21 margin: 4 tabstop label: "@parentitem" cblinesymb: CTL_SECRETPOOL_PARENT];
 		}
-		view [horizontal width: bycontainer height: 45] {
-			input CTL_SECRETPOOL_CRTM [width: 140 height: 21 margin: 4 tabstop readonly label: "Creation Time"] string[64];
-			input CTL_SECRETPOOL_EXPIRY [width: 100 height: 21 margin: 4 tabstop label: "Expiry date"] date supplement datecalbutton(CTLCAL_SECRETPOOL_EXPIRY);
+		view [horizontal width: bycontainer height: 30] {
+			view [horizontal growfactor: 1 height: bycontainer] {
+				input CTL_SECRETPOOL_CRTM [design: B width: 140 height: 21 margin: 4 tabstop readonly label: "@creationtime"] string[64];
+			}
+			view [horizontal growfactor: 1.5 height: bycontainer] {
+				input CTL_SECRETPOOL_EXPIRY [design: B width: 100 height: 21 margin: 4 tabstop label: "@validityexpirationdate"] date supplement datecalbutton(CTLCAL_SECRETPOOL_EXPIRY);
+			}
+			view [horizontal growfactor: 2 height: bycontainer] { // @stub
+			}
 		}
 		framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
-			input CTL_SECRETPOOL_TOPEN [width: bycontainer height: 21 margin: 4 tabstop label: "Open Text"] string[128];
-			input CTL_SECRETPOOL_THIDDEN [width: bycontainer height: 21 margin: 4 tabstop label: "Hidden Text"] string[128];
+			input CTL_SECRETPOOL_TOPEN [width: bycontainer height: 21 margin: 4 tabstop label: "@secretpool_textopen"] string[128];
+			input CTL_SECRETPOOL_THIDDEN [width: bycontainer height: 21 margin: 4 tabstop label: "@secretpool_texthidden"] string[128];
 			view [horizontal width: bycontainer height: 45] {
-				input CTL_SECRETPOOL_TEXPIRY [growfactor: 1 height: 21 margin: 4 tabstop label: "Expiry Text"] string[128];
+				input CTL_SECRETPOOL_TEXPIRY [growfactor: 1 height: 21 margin: 4 tabstop label: "@secretpool_textexpiry"] string[128];
 				input CTL_SECRETPOOL_TEXT1 [growfactor: 1 height: 21 margin: 4 tabstop label: "Ext 1"] string[128];
 			}
 			view [horizontal width: bycontainer height: 45] {
@@ -6509,30 +6634,4 @@ dialog DLG_PRCRCHZNMCLLTR [vertical title: "@prcssrchznmarkinfocollector" size: 
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
-}
-
-dialog DLG_LOGIND [vertical title: "" size: (455, 330) minsize: (455, 330) padding: 4] {
-	view [horizontal width: bycontainer growfactor: 1] {
-		view [vertical growfactor: 1 height: bycontainer justifycontent: spacebetween] {
-			imageview CTL_LOGIN_LOGO [width: bycontainer growfactor: 1 margin: 4 imagesymb: PPDV_LOGOPAPYRUS];
-			imageview CTL_LOGIN_QR [width: bycontainer growfactor: 1 margin: 4];
-		}
-		view [vertical growfactor: 2 height: bycontainer justifycontent: spacebetween] {
-			combobox CTLSEL_LOGIN_DB [width: bycontainer height: 21 margin: 4 tabstop label: "@database" cblinesymb: CTL_LOGIN_DB];
-			input CTL_LOGIN_NAME [width: bycontainer(80) height: 21 margin: 4 tabstop label: "@name"] string[48];
-			view [horizontal width: bycontainer height: 35] {
-				input CTL_LOGIN_PASSWORD [growfactor: 1 height: 21 margin: 4 tabstop password label: "@password"] string[20] supplement passwordrig (CTLRIG_LOGIN_PASSWORD);
-				view [horizontal width: 60 height: bycontainer] {
-					button STDCTL_KEYBOARDLAYOUT [title: "" size: (25, 21) margin: (4, 17, 4, 4) command: cmKeyboardLayout];
-					button STDCTL_KBSTATECAPSLOCK [title: "" size: (25, 21) margin: (4, 17, 4, 4) command: cmKbStateCapsLock];
-				}
-			}
-			input CTL_LOGIN_DATE [width: bycontainer(30) height: 21 margin: 4 tabstop readonly fmtf: (dmy) label: "@today"] date;
-			view [horizontal width: bycontainer height: 30 justifycontent: spacebetween] {
-				button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (100, 21) margin: 4 command: cmOK];
-				button CTL_LOGIN_CMD_UTIL [title: "@{but_service}..." tabstop size: (100, 21) margin: 4 command: cmUtil];
-			}
-		}
-	}
-	statictext CTL_LOGIN_ST_INFO [width: bycontainer height: 24 margin: 4 staticedge];
 }

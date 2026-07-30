@@ -448,9 +448,12 @@ void operator delete [] (void * ptr)
 	free(ptr);
 }
 
-void FASTCALL SObfuscateBuffer(void * pBuf, size_t bufSize)
-{
-	SLS.GetTLA().Rg.ObfuscateBuffer(pBuf, bufSize);
+void FASTCALL SObfuscateBuffer(void * pBuf, size_t bufSize) { SLS.GetTLA().Rg.ObfuscateBuffer(pBuf, bufSize); }
+
+/*static*/void * FASTCALL SMem::Obfuscate(void * p, size_t size) 
+{ 
+	SLS.GetTLA().Rg.ObfuscateBuffer(p, size); 
+	return p;
 }
 //
 //

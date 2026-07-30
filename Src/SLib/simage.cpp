@@ -1,5 +1,5 @@
 // SIMAGE.CPP
-// Copytight (c) A.Sobolev ..2023, 2024
+// Copytight (c) A.Sobolev ..2023, 2024, 2026
 //
 #include <slib-internal.h>
 #pragma hdrstop

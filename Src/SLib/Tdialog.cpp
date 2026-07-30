@@ -264,7 +264,7 @@ TDialog::BuildEmptyWindowParam::BuildEmptyWindowParam() : FontSize(0), HwParent(
 			// @v11.2.0 CALLPTRMEMB(dlg->P_SymbList, Add(-1000, symb));
 			dlg->SetCtlSymb(-1000, symb); // @v11.2.0 
 		}
-		dlg->changeBounds(r);
+		dlg->ChangeBounds(r);
 		strip(buf);
 		if(!(flags & ldfDL600_Cvt) && buf[0] == '@' && SLS.LoadString_(buf+1, temp_buf) > 0)
 			dlg->setTitle(temp_buf);
@@ -506,9 +506,12 @@ int TDialog::BuildEmptyWindow(const BuildEmptyWindowParam * pParam) // @v12.2.5
 		DLGTEMPLATE * p_dlgt = static_cast<DLGTEMPLATE *>(SAlloc::M(buf_size));
 		if(p_dlgt) {
 			size_t p = 0;
+			p_dlgt->dwExtendedStyle = 0;
+			p_dlgt->cdit = 0;
 			p_dlgt->style = (DS_FIXEDSYS);
 			if(is_child_window) {
-				p_dlgt->style |= WS_CHILD;
+				p_dlgt->style |= (WS_CHILD|DS_CONTROL);
+				p_dlgt->dwExtendedStyle |= WS_EX_CONTROLPARENT;
 			}
 			else {
 				p_dlgt->style |= (WS_POPUP|WS_CAPTION|WS_SYSMENU|DS_MODALFRAME|WS_THICKFRAME);
@@ -516,8 +519,6 @@ int TDialog::BuildEmptyWindow(const BuildEmptyWindowParam * pParam) // @v12.2.5
 			if(set_font) {
 				p_dlgt->style |= DS_SETFONT;
 			}
-			p_dlgt->dwExtendedStyle = 0;
-			p_dlgt->cdit = 0;
 			p_dlgt->x = ViewOrigin.x;
 			p_dlgt->y = ViewOrigin.y;
 			p_dlgt->cx = (ViewSize.x > 0) ? ViewSize.x : 60;
@@ -550,7 +551,7 @@ int TDialog::BuildEmptyWindow(const BuildEmptyWindowParam * pParam) // @v12.2.5
 				GetWindowRect(HW, &wr); 
 				*/
 				// } @debug 
-				ok = 1;
+				ok = is_child_window ? 2 : 1;
 			}
 		}
 	}
@@ -1218,8 +1219,7 @@ void TDialog::RecalcCtrlCoords(long firstCoord, long secondCoord, long * pFirstC
 			*pSecondCtrlCoord = secondCoord;
 		}
 		else if(recalcParam == 3) {
-			// @v10.9.0 double mult = ((double)(secondCoord - firstCoord - ctrlSize)) / (*pFirstCtrlCoord + *pSecondCtrlCoord);
-			const double mult = fdivi(secondCoord - firstCoord - ctrlSize, *pFirstCtrlCoord + *pSecondCtrlCoord); // @v10.9.0 
+			const double mult = fdivi(secondCoord - firstCoord - ctrlSize, *pFirstCtrlCoord + *pSecondCtrlCoord);
 			*pFirstCtrlCoord  = firstCoord + R0i(*pFirstCtrlCoord * mult);
 			*pSecondCtrlCoord = *pFirstCtrlCoord + ctrlSize;
 		}
@@ -1343,8 +1343,7 @@ int TDialog::Helper_ToRecalcCtrlSet(const RECT * pNewDlgRect, const ResizeParamE
 			}
 		}
 		if(is_found) {
-			// @v10.9.0 mult = (double)(new_s_bound - new_f_bound - (old_s_bound - old_f_bound - size_to_resize)) / size_to_resize;
-			mult = fdivi(new_s_bound - new_f_bound - (old_s_bound - old_f_bound - size_to_resize), size_to_resize); // @v10.9.0
+			mult = fdivi(new_s_bound - new_f_bound - (old_s_bound - old_f_bound - size_to_resize), size_to_resize);
 			if(first_ctrl_id) {
 				pCoordAry->lsearch(&first_ctrl_id, &(p = 0), CMPF_LONG);
 				new_coord = pCoordAry->at(p);

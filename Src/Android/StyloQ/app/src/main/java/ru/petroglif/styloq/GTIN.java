@@ -817,6 +817,9 @@ public class GTIN {
 		dedicatedcase_01_21_240,       // @v12.5.12 "^01(\\d{14})21(.{16})240(.{8})$" 012460081800728621069162482170081024014501203
 		dedicatedcase_02_13_21,        // @v12.5.12 "^02(\\d{14})13(\\d{6})21(.{10})$" весовой товар
 		dedicatedcase_mdlp_02,         // @v12.5.12 "^01(\\d{14})17(\\d{6})10(.{1,20}?)11(\\d{6})21(.{13})91(.{4})92(.{44})$"
+		dedicatedcase_mdlp_03,         // @v12.6.1  "^01(\\d{14})21(.{1,13}?)10(.{1,20}?)91(.{4})92(.{44})$"
+		dedicatedcase_motoroil_01,     // @v12.6.2  "^01(\\d{14})21(.+?)91(.+?)92(.+)$"
+		dedicatedcase_sunfruit_01,     // @v12.7.0  "^01(\\d{14})10(.{4,20}?)21(.{4,20})$"
 	};
 	public static GTIN ParseChZnCode(String code, int flags)
 	{
@@ -1090,6 +1093,72 @@ public class GTIN {
 				}
 			}
 			// } @v12.5.12
+			// @v12.7.0 {
+			if(dedicated_case == DedicatedCase.undef) {
+				//dedicatedcase_mdlp_03,         // @v12.6.1  "^01(\\d{14})21(.{1,13}?)10(.{1,20}?)91(.{4})92(.{44})$"
+				final String re_text = "^01(\\d{14})21(.{4,13}?)10(.{1,20}?)91(.{4})92(.+)$";
+				Pattern re_pattern = Pattern.compile(re_text);
+				if(re_pattern != null) {
+					Matcher re_matcher = re_pattern.matcher(code);
+					if(re_matcher.matches()) {
+						String _2 = re_matcher.group(2);
+						String _3 = re_matcher.group(3);
+						String _4 = re_matcher.group(4);
+						String _5 = re_matcher.group(5);
+						result.AddOnlyToken(fldGTIN14);
+						result.AddOnlyToken(fldSerial);
+						result.SetSpecialFixedToken(fldSerial, SLib.GetLen(_2));
+						result.AddOnlyToken(fldPart);
+						result.SetSpecialFixedToken(fldPart, SLib.GetLen(_3));
+						result.AddOnlyToken(fldUSPS);
+						result.SetSpecialFixedToken(fldUSPS, SLib.GetLen(_4));
+						result.AddOnlyToken(fldInner1);
+						result.SetSpecialFixedToken(fldInner1, SLib.GetLen(_5));
+						dedicated_case = DedicatedCase.dedicatedcase_mdlp_03;
+					}
+				}
+			}
+			if(dedicated_case == DedicatedCase.undef) {
+				//dedicatedcase_motoroil_01,     // @v12.6.2  "^01(\\d{14})21(.+?)91(.+?)92(.+)$"
+				final String re_text = "^01(\\\\d{14})21(.{4,13}?)91(.{4})92(.+)$";
+				Pattern re_pattern = Pattern.compile(re_text);
+				if(re_pattern != null) {
+					Matcher re_matcher = re_pattern.matcher(code);
+					if(re_matcher.matches()) {
+						String _2 = re_matcher.group(2);
+						String _3 = re_matcher.group(3);
+						String _4 = re_matcher.group(4);
+						result.AddOnlyToken(fldGTIN14);
+						result.AddOnlyToken(fldSerial);
+						result.SetSpecialFixedToken(fldSerial, SLib.GetLen(_2));
+						result.AddOnlyToken(fldUSPS);
+						result.SetSpecialFixedToken(fldUSPS, SLib.GetLen(_3));
+						result.AddOnlyToken(fldInner1);
+						result.SetSpecialFixedToken(fldInner1, SLib.GetLen(_4));
+						dedicated_case = DedicatedCase.dedicatedcase_motoroil_01;
+					}
+				}
+			}
+			if(dedicated_case == DedicatedCase.undef) {
+				//dedicatedcase_sunfruit_01,     // @v12.7.0  "^01(\\d{14})10(.{4,20}?)21(.{4,20})$"
+				final String re_text = "^01(\\d{14})10(.{4,20}?)21(.{4,20})$";
+				Pattern re_pattern = Pattern.compile(re_text);
+				if(re_pattern != null) {
+					Matcher re_matcher = re_pattern.matcher(code);
+					if(re_matcher.matches()) {
+						String _2 = re_matcher.group(2);
+						String _3 = re_matcher.group(3);
+						result.AddOnlyToken(fldGTIN14);
+						result.AddOnlyToken(fldPart);
+						result.SetSpecialFixedToken(fldPart, SLib.GetLen(_2));
+						result.AddOnlyToken(fldSerial);
+						result.SetSpecialFixedToken(fldSerial, SLib.GetLen(_3));
+						//
+						dedicated_case = DedicatedCase.dedicatedcase_sunfruit_01;
+					}
+				}
+			}
+			// } @v12.7.0
 			if(result.ChZnParseResult == 0) {
 				if(dedicated_case == DedicatedCase.undef) {
 					result.ChZnParseResult = 0;

@@ -1328,10 +1328,12 @@ private:
 	SStrGroup * P_OuterSg; // Внешняя группа строк
 };
 
-class PPSecretSegmentPool : public TSCollection <PPSecretSegment> {
+class PPSecretSegmentPool : private SSignaturePrefix64, public TSCollection <PPSecretSegment> {
 public:
 	PPSecretSegmentPool();
 	~PPSecretSegmentPool();
+	PPSecretSegmentPool & Z();
+	bool   IsConsistent() const;
 	bool   IsInWork() const;
 	//
 	// Descr: Функция проверяет равенство экземпляра *this с экземпляром rS.
@@ -10157,7 +10159,7 @@ private:
 //
 // Descr: Вспомогательная структура для обработки сумм документа
 //
-struct AmtEntry { // @persistent
+struct AmtEntry { // @persistent @flat
 	AmtEntry();
 	explicit AmtEntry(PPID amtTypeID);
 	AmtEntry(PPID amtTypeID, PPID curID);
@@ -10173,6 +10175,7 @@ class AmtList : public TSVector <AmtEntry> { // @persistent
 public:
 	AmtList();
 	AmtList & FASTCALL operator = (const AmtList &);
+	AmtList & Z();
 	bool   Search(PPID amtTypeID, PPID curID, uint * pPos) const;
 	bool   FASTCALL HasAmtTypeID(PPID amtTypeID) const;
 	bool   FASTCALL HasVatSum(const TaxAmountIDs * pTai) const;
@@ -25005,7 +25008,10 @@ private:
 #define GTCHZNPT_VEGETABLEOIL       UED::GetRawValue32(UED_RUCHZNPRODTYPE_VEGETABLEOIL)/*20*/ // @v12.4.8 Растительное масло
 #define GTCHZNPT_NCP                UED::GetRawValue32(UED_RUCHZNPRODTYPE_NCP)/*21*/ // @v12.5.6 Никотиносодержащая продукция //
 #define GTCHZNPT_MOTOROIL           UED::GetRawValue32(UED_RUCHZNPRODTYPE_MOTOROIL)/*22*/ // @v12.5.11 Моторное масло //
-#define GTCHZNPT_CHEMISTRY          UED::GetRawValue32(UED_RUCHZNPRODTYPE_CHEMISTRY)/*23*/ // @v12.6.7 Косметика, бытовая химия и товары личной гигиены //
+#define GTCHZNPT_CHEMISTRY          UED::GetRawValue32(UED_RUCHZNPRODTYPE_CHEMISTRY)/*23*/  // @v12.6.7 Косметика, бытовая химия и товары личной гигиены //
+#define GTCHZNPT_GROCERY            UED::GetRawValue32(UED_RUCHZNPRODTYPE_GROCERY)/*24*/    // @v12.7.0 Бакалея
+#define GTCHZNPT_CANNEDFOOD         UED::GetRawValue32(UED_RUCHZNPRODTYPE_CANNEDFOOD)/*25*/ // @v12.7.0 Консервированные продукты питания //
+#define GTCHZNPT_TOYS               UED::GetRawValue32(UED_RUCHZNPRODTYPE_TOYS)/*26*/       // @v12.7.0 Детские игрушки  
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -45221,10 +45227,10 @@ public:
 		aafgByAco1        = ACO_1,
 		aafgByAco2        = ACO_2,
 		aafgByAco3        = ACO_3,
-		aafgByOp  = 101,     // Группировка по операции
-		aafgByLoc = 102,     // Группировка по складу
-		aafgByExtObj      = 103,     // Группировка по дополнительному объекту документа
-		aafgByAgent       = 104,     // Группировка по агенту документа
+		aafgByOp          = 101,    // Группировка по операции
+		aafgByLoc         = 102,    // Группировка по складу
+		aafgByExtObj      = 103,    // Группировка по дополнительному объекту документа
+		aafgByAgent       = 104,    // Группировка по агенту документа
 		aafgFirstRelation = 10000
 	};
 	enum {
@@ -45273,11 +45279,12 @@ public:
 		fExclInnerTrnovr = 0x0200  // Исключать обороты, сделанные между подсчетами выбранного счета
 	};
 	AccAnlzFilt();
-	AccAnlzFilt & FASTCALL operator = (const AccAnlzFilt & s);
+	AccAnlzFilt(const AccAnlzFilt & rS); // @v12.7.0
+	AccAnlzFilt & FASTCALL operator = (const AccAnlzFilt & rS);
 	char * GetAccText(char * pBuf, size_t bufLen) const;
 
 	char   ReserveStart[8]; // @anchor
-	PPID   DlvrLocID;      // @v10.5.0 Адрес доставки документов, по которым осуществляется фильтрация проводок
+	PPID   DlvrLocID;      // Адрес доставки документов, по которым осуществляется фильтрация проводок
 	PPID   Object2ID_;     // Дополнительный объект по документу
 	PPID   SubstRelTypeID; // Подстановка статьи по персональному отношению
 	PPID   AgentID;        // ->Article.ID Агент по документу
@@ -45337,7 +45344,7 @@ struct AccAnlzTotal {
 		double COutRest;
 	};
 	AccAnlzTotal();
-	void   Init();
+	AccAnlzTotal & Z();
 	int    GetCurList(PPIDArray *) const;
 	int    GetCut(PPID curID, AccAnlzTotal::Cut *) const;
 	void   AddTrnovr(int dbt, PPID curID, double amt);
@@ -45370,8 +45377,7 @@ public:
 		OrdByCorrAcc_Date   // for simple analyze only
 	};
 	enum {
-		fIterNegRest = 0x0001 // В итераторе менять
-		// знак входящего и исходящего сальдо
+		fIterNegRest = 0x0001 // В итераторе менять знак входящего и исходящего сальдо
 	};
 	struct BrwHdr {
 		LDATE  Dt;
@@ -45420,9 +45426,15 @@ private:
 	int    FetchBill(PPID billID, BillEntry * pEntry);
 
 	AccAnlzFilt Filt;
-	int    IsGenAcc;                // @*Init_()
-	int    IsRegister;              // @*Init_()
-	int    IsGenAr;                 // @*Init_()
+	// @v12.7.0 int    IsGenAcc;                // @*Init_()
+	// @v12.7.0 int    IsRegister;              // @*Init_()
+	// @v12.7.0 int    IsGenAr;                 // @*Init_()
+	enum {
+		stIsGenAcc   = 0x0001,
+		stIsRegister = 0x0002,
+		stIsGenAr    = 0x0008
+	};
+	uint   State;                   // @v12.7.0 @*Init_()
 	PPID   EffDlvrLocID;            // Проекция Filt.DlvrLocID (так как этот критерий применим ни при любых условиях, возможно EffDlvrLocID != Filt.DlvrLocID)
 	ObjRestrictArray ExtGenAccList; // @*Init_()
 	PPCycleArray CycleList;         // @*Init_()
@@ -55846,7 +55858,8 @@ struct ListToListUIData {
 	ListToListUIData();
 	enum {
 		fCanInsertNewItem = 0x0001,
-		fIsTreeList       = 0x0002
+		fIsTreeList       = 0x0002,
+		fUtf8             = 0x0004, // @v12.7.0 Текст в списках в кодировке utf8
 	};
 	uint   LeftCtlId;
 	uint   RightCtlId;
@@ -58005,12 +58018,16 @@ public:
 		uint   BrandNameP;
 		StringSet Children;     // Для упаковки: вложенные марки
 		ued_t  UedRecModifTm;   // @transient(не обрабатывается при сериализации) Время внесения записи в базу данных Papyrus
+		uint64 ExtraValue;      // @transient(не обрабатывается при сериализации) Дополнительное значение, 
+			// ассоциируемое с элементом для внешнего связывания в рамках одного программного процесса.
 	};
 
 	class CodeInfoCollection : public TSCollection <CodeInfo>, public SStrGroup {
 	public:
 		CodeInfoCollection();
+		CodeInfoCollection & Z();
 		bool   SearchCode(const char * pPattern, uint * pIdx) const;
+		bool   SearchExtraValue(uint64 key, uint * pIdx) const;
 		int    MoveEntryTo(uint entryIdx/*[0..]*/, CodeInfoCollection & rDest) const;
 		int    EntryToStr(uint entryIdx, long flags, SString & rBuf) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -64615,8 +64632,8 @@ public:
 	PrcssrSourceCodeMaintainingFilt();
 	PrcssrSourceCodeMaintainingFilt & FASTCALL operator = (const PrcssrSourceCodeMaintainingFilt & rS);
 
-    uint8  ReserveStart[124]; // @anchor // @v12.6.6 [128]-->[124]
-	uint32 AtToLangUedId32;   // @v12.6.6 Ид языка на который надо осуществить автоперевод (fAutotranslateStrings). 
+    uint8  ReserveStart[128]; // @anchor // @v12.6.6 [128]-->[124] // @v12.7.0 [128]-->[124]
+	// @v12.7.0 uint32 AtToLangUedId32;   // @v12.6.6 Ид языка на который надо осуществить автоперевод (fAutotranslateStrings). 
 		// Идентификатор является raw-часть UED-идентификатора языка.
 	enum {
 		fParseWinRcForNativeText           = 0x0001,
@@ -64625,7 +64642,9 @@ public:
 		fAutotranslateStrings              = 0x0008, // @v12.6.6  
 	};
 	long   Flags;
-	long   Reserve;          // @anchor	
+	long   Reserve; // @anchor	
+	ObjIdListFilt LangList; // @v12.7.0 Ид языков на которые надо осуществить автоперевод (fAutotranslateStrings).
+		// Идентификаторы являются raw-частью UED-идентификаторов языка.
 };
 
 class PrcssrSourceCodeMaintaining {
@@ -64850,6 +64869,7 @@ struct PasswordDialogParam { // @v12.6.9
 	};
 	uint   Flags;
 	uint   MinLen;
+	SString StorePasswordIdent; // @v12.7.0 Символьный идентификатор, по которому пароль может быть сохранен в системном безопасном хранилище
 	SString Hint; // 
 };
 //

@@ -1,18 +1,18 @@
 
 [hash]
-base=ppstr2.txt,1DzhaCuRioM2QptzDHXsYOo5fJWEOZl835b2fjoF3pU=,ppstr2.bin,ddgaRPZ/iODS0d7C2hN6V8+JyNhghJ8mUIk+I+eanvo=
+base=ppstr2.txt,EXgEbRvm+qQcgFKfD+u1C3de2E4UqLj8h8JW7TcPFCU=,ppstr2.bin,IYeI5F97K25+S6B3MxUInrNTnlXPKJcdVHcoj3KHV9E=
 lang-de=ppstr2-de.txt,vBHXz7GFmSlWHN5nhQWFT6WBP/qX1NctpzLNyBKBRUs=,ppstr2-de.bin,IgP0oJq+StX6/pHGw3DlOEbNMrxZZeYYfFLh/tUQQD4=
 lang-en=ppstr2-en.txt,+28p3hMfvSudDV3CqfJDOjTZKho2umy1K4C92tm3UyY=,ppstr2-en.bin,JDl8q1nkd4ILSPASoUHHH8s6KZM7kP5OUXwUOH/Kvug=
 lang-es=ppstr2-es.txt,bvkiJX8i+13kNCalRFfPxci9gmGnLr6J9xhKF+0NtLo=,ppstr2-es.bin,hebe73IxmbxJ+qOeg1vD9+iWczPBOsihVl0WLPu2McE=
 lang-nl=ppstr2-nl.txt,Qu0aihpaC9sB5/9X+XW+O/SEjNj1xI04rRvezRthdLQ=,ppstr2-nl.bin,b7LDKYhsEWl1AxDnuhKaxFsW5LwqMpWA7P8pk/Z8tqk=
 lang-pt=ppstr2-pt.txt,UCn636ls+9Wei7NF5wM/r/9urjXBchGWUIAnmqVDlGY=,ppstr2-pt.bin,pYieVsWs9JRwpEzswpHbuzr+/cRhm+Z4UUAdy5rZ3Do=
-chdr=ppstr2.h,shuByQp1/Gj7KthNzrQJrdv9L2+9AcuLGuO4k3ZR0yM=
-java=ppstr2.java,aYYcTA1C28xXu/mpd9wKcR/sl07jHrDskd9QNo9MQ/A=
+chdr=ppstr2.h,q40aNk/kjU/APlY7M6uO3mscgQY6rM9agIqwP256cIQ=
+java=ppstr2.java,X8Cj5BFuYPDF/pAsRCo6RdAmOFHAPr3kj6B9wZrgZBs=
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147499172
-LastAutoCodeList=1,12476;102,10179;103,10074;110,10000;111,13063;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10314;120,10010;1001,10000;121,10000;122,10000;123,10661;124,10904;125,10128;126,10000
+LastSignatureCode=2147499179
+LastAutoCodeList=1,12477;102,10179;103,10074;110,10000;111,13063;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10314;120,10010;1001,10000;121,10000;122,10000;123,10661;124,10908;125,10128;126,10000
 
 [SignatureList]
 testsign1=2147495071
@@ -683,6 +683,7 @@ restcalcdate=2147484195
 receiptdate=2147484196
 expirationdate=2147484197
 expirationdate_amp=2147493984
+validityexpirationdate=2147499175
 recordstartdate=2147493991
 recordexpirationdate=2147493992
 lotexpirationdate=2147484198
@@ -6251,6 +6252,7 @@ lottag_list=2147496753
 lotxcodelist=2147488878
 lotxcodechecklist=2147488879
 lotxcodechecklist_showunchecked=2147488880
+lotxcodechecklist_showinfo=2147499173
 lotxcodelist_cbcopy=2147488881
 lotxcodelist_cbcopyall=2147488882
 lotxcodelist_cbcopygtin=2147488883
@@ -9621,6 +9623,7 @@ elinkarray_list=2147492001
 setpassword=2147498171
 setpassword_input1=2147492003
 setpassword_input2=2147492004
+setpassword_storepassword=2147499174
 setdbchain=2147492005
 setdbchain_info=2147492006
 resetdbchain=2147492007
@@ -11576,6 +11579,10 @@ brwwin_lcevaluatecolsizes=2147499092
 tecrouteasgmt=2147499157
 tecrouteasgmt_finalware=2147499147
 tecrouteasgmt_route=2147499148
+secretpool=2147499176
+secretpool_textopen=2147499177
+secretpool_texthidden=2147499178
+secretpool_textexpiry=2147499179
 centrigo_cmd_notes=2147499105
 centrigo_cmd_contacts=2147499122
 centrigo_cmd_todo=2147499106
@@ -13901,6 +13908,7 @@ PPERR_SYNCPOSNODEREGPORTUNDEF=78009
 PPERR_ETRNEXP_FREIGHTNEEDED=78010
 PPERR_ETRNEXP_TRANSPORTNEEDED=78011
 PPERR_SECSEGHASCHLDRN_UNABLEDEL=78012
+PPERR_NONEMPTYPASSWORDNEEDED=78013
 PPCFM_TEXT_89=6694673
 PPCFM_TEXT_90=6694674
 PPCFM_DELUSRGRP=6694675
@@ -17346,6 +17354,10 @@ PPHSC_RU_VATB_ADVRECKN=8137365
 PPHSC_RU_VATB_ADVRECKN_N=8137366
 PPHSC_RU_VATB_ADVRECKN_D=8137367
 PPHSC_RU_VATB_GOODSACCPTDT=8137368
+PPHSC_RU_TRN_D=8137369
+PPHSC_RU_TRN_N=8137370
+PPHSC_RU_TRN_CONTOFOP=8137371
+PPHSC_RU_PAYLOAD_PCKG_DEFAULT=8137372
 PPHSC_AGPLUS_WAREHOUSE_PL=8202065
 PPHSC_AGPLUS_DLVRLOC_PL=8202066
 PPHSC_AGPLUS_CONTRACTOR_PL=8202067

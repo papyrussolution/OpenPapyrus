@@ -978,7 +978,7 @@ static void __stdcall WhatmanItem_SetupLayoutItemFrameProc(SUiLayout * pItem, co
 			b.b.x = static_cast<int16>(rbb.b.x+base_lu.x);
 			b.b.y = static_cast<int16>(rbb.b.y+base_lu.y);
 			p_wo->SetBounds(b);
-			//p_item->changeBounds(b);
+			//p_item->ChangeBounds(b);
 			//p_view->setBounds(b);
 		}
 	}	

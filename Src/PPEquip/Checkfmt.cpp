@@ -689,19 +689,19 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 							rResult.Cat(temp_buf);
 						}
 					}
-					else if(Src == srcCCheck) { // @v11.0.4 
+					else if(Src == srcCCheck) {
 						p_ccp->GetExtStrData(CCheckPacket::extssBuyerName, temp_buf);
 						rResult.Cat(temp_buf);
 					}
 					break;
 				// } erik v10.4.11
-				case symbBuyerINN: // @v11.0.4 BUYERINN
+				case symbBuyerINN: // BUYERINN
 					if(Src == srcCCheck) {
 						p_ccp->GetExtStrData(CCheckPacket::extssBuyerINN, temp_buf);
 						rResult.Cat(temp_buf); // @v11.6.2 @fix
 					}
 					break;
-				case symbBuyerName: // @v11.0.4 BUYERNAME       
+				case symbBuyerName: // BUYERNAME       
 					if(Src == srcCCheck) {
 						p_ccp->GetExtStrData(CCheckPacket::extssBuyerName, temp_buf);
 						rResult.Cat(temp_buf); // @v11.6.2 @fix

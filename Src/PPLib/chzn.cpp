@@ -536,6 +536,7 @@ DRAFTBEER HORECA @v11.9.4
 				dedicatedcase_mdlp_02          = 10, // @v12.5.12 "^01(\\d{14})17(\\d{6})10(.{1,20}?)11(\\d{6})21(.{13})91(.{4})92(.{44})$"
 				dedicatedcase_mdlp_03          = 11, // @v12.6.1  "^01(\\d{14})21(.{1,13}?)10(.{1,20}?)91(.{4})92(.{44})$"
 				dedicatedcase_motoroil_01      = 12, // @v12.6.2  "^01(\\d{14})21(.+?)91(.+?)92(.+)$"
+				dedicatedcase_sunfruit_01      = 13, // @v12.7.0  "^01(\\d{14})10(.{4,20}?)21(.{4,20})$"
 			};
 			// const char * re_tobacco = "^(\\d{14})(.{7})(.{4})(.{4})?$";
 			// const char * re_rigid_mark = "^01(\\d{14})21(.{16})240(.{8})$";
@@ -788,6 +789,23 @@ DRAFTBEER HORECA @v11.9.4
 						rS.AddOnlyToken(GtinStruc::fldSerial);
 						rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(3));
 						dedicated_case = dedicatedcase_02_13_21;
+					}
+				}
+			}
+			if(!dedicated_case) { // @v12.7.10
+				//dedicatedcase_sunfruit_01      = 13, // @v12.7.0  "^01(\\d{14})10(.{4,20}?)21(.{4,20})$"
+				const char * p_re_01_10_21 = "^01(\\d{14})10(.{4,20}?)21(.{4,20})$";
+				SRegExp2 re(p_re_01_10_21, cpANSI, SRegExp2::syntaxDefault, 0);
+				if(re.IsValid()) {
+					SRegExp2::FindResult reresult;
+					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+						assert(reresult.getCount() == 3+1);
+						rS.AddOnlyToken(GtinStruc::fldGTIN14);
+						rS.AddOnlyToken(GtinStruc::fldPart);
+						rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(2));
+						rS.AddOnlyToken(GtinStruc::fldSerial);
+						rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(3));
+						dedicated_case = dedicatedcase_sunfruit_01;
 					}
 				}
 			}
@@ -3238,6 +3256,9 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 							case GTCHZNPT_NCP: p_chzn_prodtype_symb = "ncp"; break; // @v12.5.6
 							case GTCHZNPT_MOTOROIL: p_chzn_prodtype_symb = "autofluids"; break; // @v12.5.11
 							case GTCHZNPT_CHEMISTRY: p_chzn_prodtype_symb = "chemistry"; break; // @v12.6.7
+							case GTCHZNPT_GROCERY:    p_chzn_prodtype_symb = "grocery"; break; // @v12.7.0
+							case GTCHZNPT_CANNEDFOOD: p_chzn_prodtype_symb = "conserve"; break; // @v12.7.0
+							case GTCHZNPT_TOYS:       p_chzn_prodtype_symb = "toys"; break; // @v12.7.0
 						}
 						if(!isempty(p_chzn_prodtype_symb)) {
 							temp_buf.Z().CatEq("pg", p_chzn_prodtype_symb);
@@ -5035,7 +5056,7 @@ int PPChZnPrcssr::CodeStatusCollection::SetupResultEntry(int rowN, const CodeSta
 }
 
 PPChZnPrcssr::CodeInfo::CodeInfo() : ErrCode(0), ErrMessageP(0), Flags(0), PackType(0), GeneralPackType(0), ReqCisP(0), CisP(0), 
-	OwnerNameP(0), ManufNameP(0), ProducerNameP(0), ProductNameP(0), BrandNameP(0)
+	OwnerNameP(0), ManufNameP(0), ProducerNameP(0), ProductNameP(0), BrandNameP(0), ExtraValue(0ULL)
 {
 }
 
@@ -5069,13 +5090,37 @@ int PPChZnPrcssr::CodeInfo::Serialize(int dir, SBuffer & rBuf, SSerializeContext
 	THROW_SL(pSCtx->Serialize(dir, ProductNameP, rBuf));
 	THROW_SL(pSCtx->Serialize(dir, BrandNameP, rBuf));
 	THROW_SL(Children.Serialize(dir, rBuf, pSCtx));
-	// UedRecModifTm, ErrCode, ErrMsg не сериализовать!
+	// UedRecModifTm, ErrCode, ErrMsg, ExtraValue не сериализовать!
 	CATCHZOK
 	return ok;
 }
 
 PPChZnPrcssr::CodeInfoCollection::CodeInfoCollection()
 {
+}
+
+PPChZnPrcssr::CodeInfoCollection & PPChZnPrcssr::CodeInfoCollection::Z()
+{
+	SStrGroup::ClearS();
+	freeAll();
+	return *this;
+}
+
+bool PPChZnPrcssr::CodeInfoCollection::SearchExtraValue(uint64 key, uint * pIdx) const
+{
+	bool   ok = false;
+	uint   result_idx = 0;
+	if(key) {
+		for(uint i = 0; !ok && i < getCount(); i++) {
+			const  CodeInfo * p_entry = at(i);
+			if(p_entry && p_entry->ExtraValue == key) {
+				ok = true;
+				result_idx = i;
+			}
+		}
+	}
+	ASSIGN_PTR(pIdx, result_idx);
+	return ok;
 }
 
 bool PPChZnPrcssr::CodeInfoCollection::SearchCode(const char * pPattern, uint * pIdx) const
@@ -5280,6 +5325,7 @@ int PPChZnPrcssr::CodeInfoCollection::MoveEntryTo(uint entryIdx/*[0..]*/, CodeIn
 					rDest.AddS(temp_buf, &p_new_entry->BrandNameP);
 					p_new_entry->Children = p_entry->Children;
 					p_new_entry->UedRecModifTm = p_entry->UedRecModifTm;
+					p_new_entry->ExtraValue = p_entry->ExtraValue; // @v12.7.0
 					ok = 1;
 				}
 				else
@@ -7189,7 +7235,7 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 						info_buf.Z();
 						for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
 							const PPBarcode::Entry * p_bc_entry = bc_list.at(bcidx);
-							if(p_bc_entry && p_bc_entry->BcStd == BARCSTD_DATAMATRIX) {
+							if(p_bc_entry && oneof2(p_bc_entry->BcStd, BARCSTD_DATAMATRIX, BARCSTD_CODE128)) { // @v12.7.0 BARCSTD_CODE128 (sometimes упаковки)
 								// @v12.5.12 {
 								(info_buf = p_bc_entry->Code).ReplaceStr("\x1D", "<GS>", 0);
 								setCtrlString(CTL_CHKCHZNMARK_INPUT, info_buf); 

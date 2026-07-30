@@ -277,8 +277,8 @@ void PrcTechCtrlGroup::setupCreateGoodsButton(TDialog * pDlg)
 				}
 			}
 		}
-		pDlg->showButton(CmdCreateGoods, BIN(AutoGoodsGrpID));
-		pDlg->enableCommand(CmdCreateGoods, BIN(AutoGoodsGrpID));
+		pDlg->showButton(CmdCreateGoods, LOGIC(AutoGoodsGrpID));
+		pDlg->enableCommand(CmdCreateGoods, LOGIC(AutoGoodsGrpID));
 	}
 }
 

@@ -500,7 +500,6 @@ int ACS_FRONTOL::ExportData(int updOnly)
 						// Формирование массива скидок по котировкам
 						//
 						{
-							// @v10.8.2 AtolGoodsDiscountEntry ent;
 							for(i = 0; i < retail_quot_list.getCount(); i++) {
 								const  PPID qk_id = retail_quot_list.get(i);
 								if(qk_id) {
@@ -648,7 +647,6 @@ int ACS_FRONTOL::ExportData(int updOnly)
 									11–товары легкой промышленности;
 									12 –альтернативная табачная продукция
 								*/
-								// @v11.0.9 {
 								int mark_type = 0;
 								switch(gds_info.ChZnProdType) {
 									case GTCHZNPT_FUR: mark_type = 2; break;
@@ -659,7 +657,7 @@ int ACS_FRONTOL::ExportData(int updOnly)
 									case GTCHZNPT_CARTIRE: mark_type = 10; break;
 									case GTCHZNPT_TEXTILE: mark_type = 11; break;
 									case GTCHZNPT_ALTTOBACCO: mark_type = 12; break; // @v11.9.0 // @v11.9.2 4-->12
-									case GTCHZNPT_MILK: mark_type = 13; break; // @v11.3.5
+									case GTCHZNPT_MILK: mark_type = 13; break;
 									case GTCHZNPT_WATER: mark_type = 15; break; // @v11.5.6
 									case GTCHZNPT_BEER: mark_type = 17; break; // @v12.0.3
 									case GTCHZNPT_DRAFTBEER_AWR: mark_type = 18; break; // @v12.0.5
@@ -671,12 +669,17 @@ int ACS_FRONTOL::ExportData(int updOnly)
 									case GTCHZNPT_NONALCBEER: mark_type = 25; break; // @v12.2.6 
 									case GTCHZNPT_PETFOOD: mark_type = 7/*@?*/; break; // @v12.3.9
 									case GTCHZNPT_VEGETABLEOIL: mark_type = 30/*@?*/; break; // @v12.4.8
+									case GTCHZNPT_NCP:        mark_type = 16/*@?*/; break; // @v12.7.0
+									case GTCHZNPT_MOTOROIL:   mark_type = 34/*@?*/; break; // @v12.7.0
+									case GTCHZNPT_CHEMISTRY:  mark_type = 37/*@?*/; break; // @v12.7.0
+									case GTCHZNPT_GROCERY:    mark_type = 33/*@?*/; break; // @v12.7.0
+									case GTCHZNPT_CANNEDFOOD: mark_type = 32/*@?*/; break; // @v12.7.0
+									case GTCHZNPT_TOYS:       mark_type = 36/*@?*/; break; // @v12.7.0
 									default:
 										if(gds_info.ChZnProdType)
 											mark_type = 7; // 7–иная маркированная продукция
 										break;
 								}
-								// } @v11.0.9 
 								if(mark_type)
 									tail.Cat(mark_type); // #55 Признак алкогольной продукции
 								tail.Semicol();
@@ -906,9 +909,9 @@ int ACS_FRONTOL::ExportData(int updOnly)
 	PPWaitStop();
 	PPWaitStart();
 	(email_subj = SUBJECTFRONTOL).Cat("001"); // Пока только для кассы с номером 1
-	THROW(PPGetFileName(PPFILNAM_ATOL_IMP_TXT,  temp_buf)); // @v10.8.4 
+	THROW(PPGetFileName(PPFILNAM_ATOL_IMP_TXT,  temp_buf));
 	THROW(DistributeFile_(path_goods, temp_buf/*pEndFileName*/, dfactCopy, 0, email_subj));
-	THROW(PPGetFileName(PPFILNAM_ATOL_IMP_FLAG, temp_buf)); // @v10.8.4 
+	THROW(PPGetFileName(PPFILNAM_ATOL_IMP_FLAG, temp_buf));
 	THROW(DistributeFile_(path_flag, temp_buf/*pEndFileName*/, dfactCopy, 0, 0));
 	if(StatID)
 		P_Dls->FinishLoading(StatID, 1, 1);
@@ -1187,7 +1190,7 @@ int ACS_FRONTOL::GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList)
 	long   nsmena = 0;
 	long   cash_no = 0;
 	LAssocArray zrep_ary; // Пара {номер_файла; номер_смены}
-	SString fld_buf_alt[2]; // @v10.8.3 Буферы для альтернативных вариантов значения (такое возможно)
+	SString fld_buf_alt[2]; // Буферы для альтернативных вариантов значения (такое возможно)
 	SString imp_file_name(pPath);
 	SFile  imp_file(imp_file_name, SFile::mRead); // PathRpt-->imp_file_name
 	PPSetAddedMsgString(imp_file_name);
@@ -1221,9 +1224,7 @@ int ACS_FRONTOL::GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList)
 				ss.get(&pos, buf);       // #7 
 				ss.get(&pos, buf);       // #8 // Поля 6-8 пропускаем
 				ss.get(&pos, buf);       // #9 
-				fld_buf_alt[0] = buf; // #9 Номер смены alt[0] // @v10.8.3 
-				// @v10.8.3 nsmena = buf.ToLong(); // #9 Номер смены
-				// @v10.8.3 {
+				fld_buf_alt[0] = buf; // #9 Номер смены alt[0]
 				ss.get(&pos, buf);       // #10
 				ss.get(&pos, buf);       // #11
 				ss.get(&pos, buf);       // #12
@@ -1236,7 +1237,6 @@ int ACS_FRONTOL::GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList)
 					nsmena = fld_buf_alt[1].ToLong();
 				else
 					nsmena = 0;
-				// } @v10.8.3
 				if(CS.SearchByNumber(&sess_id, NodeID, cash_no, nsmena, dtm) > 0) {
 					if(CS.data.Temporary)
 						THROW(CS.ResetTempSessTag(sess_id, 0));
@@ -1247,9 +1247,6 @@ int ACS_FRONTOL::GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList)
 				//zrep_ary.Add(cash_no, nsmena, &(pos = 0));
 				{
 					const _FrontolZRepEntry z_entry(cash_no, nsmena, sess_id);
-					// @v10.8.2 z_entry.PosN = cash_no;
-					// @v10.8.2 z_entry.ZRepN = nsmena;
-					// @v10.8.2 z_entry.SessID = sess_id;
 					zrep_list.insert(&z_entry);
 				}
 			}
@@ -1278,7 +1275,7 @@ int ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 	SString barcode;
 	SString goods_name;
 	SString arcode;
-	SString fld_buf_alt[2]; // @v10.8.3 Буферы для альтернативных вариантов значения (такое возможно)
+	SString fld_buf_alt[2]; // Буферы для альтернативных вариантов значения (такое возможно)
 	StringSet ss(';', 0);
 	IterCounter   cntr;
 	PPObjSCard sc_obj;
@@ -1381,10 +1378,8 @@ int ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 					const  uint preserve_pos = pos;
 					ss.get(&pos, buf);   // #08 skip
 					ss.get(&pos, buf);   // #09 Номер смены
-					fld_buf_alt[0] = buf; // alt[0] // @v10.8.3 
-					// @v10.8.3 nsmena = buf.ToLong();
+					fld_buf_alt[0] = buf; // alt[0]
 					{
-						// @v10.8.3 {
 						ss.get(&pos, buf);   // #10
 						ss.get(&pos, buf);   // #11
 						ss.get(&pos, buf);   // #12
@@ -1397,7 +1392,6 @@ int ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 							nsmena = fld_buf_alt[1].ToLong();
 						else
 							nsmena = 0;
-						// } @v10.8.3
 					}
 					pos = preserve_pos;
 					uint zrep_pos = 0;
@@ -1644,13 +1638,13 @@ int ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 int ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
 {
 	int    ok = 1, notify_timeout = NZOR(ImpExpTimeout, 5000);
-	const  int is_xpos = IsXPos(Acn); // @v10.8.2
+	const  int is_xpos = IsXPos(Acn);
 	SString imp_path(pImpPath);
 	SString exp_path;
 	SString path_rpt;
 	SString path_flag;
 	LDATE  first_date = ChkRepPeriod.low, last_date = ChkRepPeriod.upp;
-	SETIFZ(last_date, plusdate(getcurdate_(), 2)); // @v10.8.10 LConfig.OperDate-->getcurdate_()
+	SETIFZ(last_date, plusdate(getcurdate_(), 2));
 	first_date = plusdate(first_date, -1);
 	last_date  = plusdate(last_date, 1);
 	THROW(CreateTables());
@@ -1670,21 +1664,15 @@ int ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
 			SFsPath::ReplacePath(path_flag, exp_path, 1);
 			THROW_PP(ok = WaitForExists(path_flag, 1, notify_timeout), PPERR_ATOL_IMPCHECKS);
 			if(ok > 0) {
-				// @v10.8.2 int     y, m, d;
-				// @v10.8.2 SString date_mask = "%02d.%02d.%04d";
 				SString tmp_buf;
 				SFile::Remove(path_rpt);
 				SString tmp_name = path_flag;
 				SFsPath::ReplaceExt(tmp_name, "tmp", 1);
 				SFile  query_file(tmp_name, SFile::mWrite);
-				SString buf(is_xpos ? "$$$TRANSACTIONSBYDATERANGE" : "$$$TRANSACTIONSBYDATETIMERANGE"); // @v10.8.2 (is_xpos ? "$$$TRANSACTIONSBYDATERANGE")
+				SString buf(is_xpos ? "$$$TRANSACTIONSBYDATERANGE" : "$$$TRANSACTIONSBYDATETIMERANGE");
 				query_file.WriteLine(buf.CR());
-				// @v10.8.2 decodedate(&d, &m, &y, &first_date);
-				// @v10.8.2 buf.Z().Printf(date_mask, d, m, y).Semicol();
-				buf.Z().Cat(first_date, DATF_GERMANCENT).Semicol(); // @v10.8.2
-				// @v10.8.2 decodedate(&d, &m, &y, &last_date);
-				// @v10.8.2 buf.Cat(tmp_buf.Printf(date_mask, d, m, y)).CR(); 
-				buf.Cat(last_date, DATF_GERMANCENT).CR(); // @v10.8.2
+				buf.Z().Cat(first_date, DATF_GERMANCENT).Semicol();
+				buf.Cat(last_date, DATF_GERMANCENT).CR();
 				query_file.WriteLine(buf);
 				query_file.Close();
 				//

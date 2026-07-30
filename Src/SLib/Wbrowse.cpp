@@ -291,8 +291,9 @@ int TBaseBrowserWindow::Launch_(TWindow * pParent)
 	DWORD  ex_style = 0/*WS_EX_CONTROLPARENT*//*WS_EX_COMPOSITED*/; // @v12.5.4 WS_EX_CONTROLPARENT
 	DWORD  style = WS_CHILD|WS_CLIPSIBLINGS|WS_TABSTOP;
 	// @v12.5.6 { 
-	if(BbState & bbsCtlParent)
+	if(BbState & bbsCtlParent) {
 		ex_style |= WS_EX_CONTROLPARENT;
+	}
 	// } @v12.5.6 
 	if(!(BbState & bbsWoScrollbars))
 		style |= (WS_HSCROLL | WS_VSCROLL);
@@ -738,7 +739,7 @@ int BrowserWindow::LoadResource(uint rezID, void * pData, int dataKind, uint uOp
 				}
 			}
 			if(!IsWindow(HW)) { // @v12.5.4 Координаты _bounds заданы в древних text-mode-единицах, потому не надо их менять если окно уже существует
-				changeBounds(_bounds);
+				ChangeBounds(_bounds);
 			}
 			P_Def = p_def;
 			if(freeze)

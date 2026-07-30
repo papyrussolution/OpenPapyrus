@@ -100,8 +100,9 @@ int Balance::_Turn(PPID bal, LDATE date, AccTurnParam * param, uint flags)
 				if(lcflags & CFGFLG_CHECKTURNREST) {
 					THROW_PP(new_rest >= param->Low, PPERR_FWBALLOWBOUND);
 					THROW_PP(new_rest <= param->Upp, PPERR_FWBALUPPBOUND);
-					if(rollback)
+					if(rollback) {
 						THROW_PP((_Rest(param->Side) + abs_amt) >= 0, PPERR_BALROLLBACKBOUND);
+					}
 				}
 				THROW_DB(rereadForUpdate(1, &k1));
 				_SetRest(param->Side, _Rest(param->Side) + abs_amt);
@@ -117,39 +118,54 @@ int Balance::_Turn(PPID bal, LDATE date, AccTurnParam * param, uint flags)
 
 int Balance::GetRest(PPID accID, LDATE dt, double * pDbt, double * pCrd)
 {
-	PPID acc_id = accID;
-	int  r = Search(&acc_id, &dt, spLe);
+	double dbt = 0.0;
+	double crd = 0.0;
+	PPID   acc_id = accID;
+	int    r = Search(&acc_id, &dt, spLe);
 	if(r > 0 && accID == acc_id) {
-		*pDbt = _Rest(PPDEBIT);
-		*pCrd = _Rest(PPCREDIT);
+		dbt = _Rest(PPDEBIT);
+		crd = _Rest(PPCREDIT);
 	}
-	else
-		*pDbt = *pCrd = 0;
+	ASSIGN_PTR(pDbt, dbt);
+	ASSIGN_PTR(pCrd, crd);
 	return BIN(r);
 }
 
-int Balance::GetTurnover(PPID bal, LDATE beg, LDATE end, double * dbt, double * crd)
+int Balance::GetTurnover(PPID bal, LDATE beg, LDATE end, double * pDbt, double * pCrd)
 {
 	int    ok = 1;
-	double d, c;
-	THROW(GetRest(bal, end, &d, &c));
-	THROW(GetRest(bal, plusdate(beg, -1), dbt, crd));
-	*dbt -= d;
-	*crd -= c;
+	//double d, c;
+	double dbt = 0.0;
+	double crd = 0.0;
+	double dbt_end = 0.0;
+	double crd_end = 0.0;
+	THROW(GetRest(bal, end, &dbt_end, &crd_end));
+	THROW(GetRest(bal, plusdate(beg, -1), &dbt, &crd));
+	dbt -= dbt_end;
+	crd -= crd_end;
+	//*pDbt -= d;
+	//*pCrd -= c;
 	CATCHZOK
+	ASSIGN_PTR(pDbt, dbt);
+	ASSIGN_PTR(pCrd, crd);
 	return ok;
 }
 
 int Balance::GetBalance(PPID bal, LDATE beg, LDATE end, double row[])
 {
+	int    ok = 1;
 	double d;
 	double c;
 	SETIFZ(end, MAXDATEVALID);
-	if(!GetRest(bal, end, &row[2], &row[3]))
-		return 0;
-	if(!GetRest(bal, beg ? plusdate(beg, -1) : ZERODATE, &d, &c))
-		return 0;
-	row[0] = row[2] - d;
-	row[1] = row[3] - c;
-	return 1;
+	if(!GetRest(bal, end, &row[2], &row[3])) {
+		ok = 0;
+	}
+	else if(!GetRest(bal, beg ? plusdate(beg, -1) : ZERODATE, &d, &c)) {
+		ok = 0;
+	}
+	else {
+		row[0] = row[2] - d;
+		row[1] = row[3] - c;
+	}
+	return ok;
 }

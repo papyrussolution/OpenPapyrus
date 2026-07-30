@@ -15,16 +15,16 @@ const char * SLBColumnDelim = "/^";
 
 IMPL_CMPFUNC(_PcharNoCase, i1, i2)
 {
-	const char * p = static_cast<const char *>(i1);
-	const char * c = static_cast<const char *>(i2);
+	const  char * p = static_cast<const char *>(i1);
+	const  char * c = static_cast<const char *>(i2);
 	while(*p && !isprint(static_cast<uchar>(*p)) && !IsLetter866(*p))
 		p++;
 	if(*c == '*')
 		return stristr866(p, c+1) ? 0 : 1;
 	else {
-		const size_t p_len = sstrlen(p);
-		const size_t c_len = sstrlen(c);
-		const int    r = strnicmp866(p, c, MIN(p_len, c_len));
+		const  size_t p_len = sstrlen(p);
+		const  size_t c_len = sstrlen(c);
+		const  int r = strnicmp866(p, c, MIN(p_len, c_len));
 		return (r == 0 && p_len < c_len) ? -1 : r;
 	}
 }
@@ -149,6 +149,30 @@ INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 				return 0;
 				*/
 			case WM_RBUTTONDOWN: ::SendMessageW(GetParent(hWnd), uMsg, MAKEWPARAM(LOWORD(wParam), 1), lParam); return 0;
+			// @v12.7.0 @construction {
+			case WM_MOUSEMOVE:
+				if(p_view) {
+					p_view->RegisterMouseTracking(1, 1000); 
+				}
+				break;
+			case WM_MOUSEHOVER:
+				if(p_view) {
+					MouseEvent me;
+					p_view->MakeMouseEvent_Base(uMsg, wParam, lParam, me);
+					// @todo (отослать владельцу сообщение) TView::messageBroadcast(p_view, cmMouseHover, &tp);
+					if(TView::messageCommand(p_view, cmMouse, &me)) 
+						return 0;
+				}
+				break;
+			case WM_MOUSELEAVE:	
+				if(p_view) {
+					MouseEvent me;
+					p_view->MakeMouseEvent_Base(uMsg, wParam, lParam, me);
+					if(TView::messageCommand(p_view, cmMouse, &me))
+						return 0;
+				}
+				break;
+			// } @v12.7.0 @construction
 			case WM_ERASEBKGND:
 				if(p_view->HasState(SmartListBox::stOwnerDraw)) {
 					TDrawItemData di;
@@ -172,7 +196,7 @@ INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 			default:
 				break;
 		}
-		return p_view ? CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam) : 1;
+		return p_view ? CallWindowProcW(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam) : 1;
 	}
 	else
 		return TRUE;
@@ -315,14 +339,16 @@ int SmartListBox::AddColumn(int pos, const char * pTitle, uint width, uint forma
 
 int SmartListBox::RemoveColumn(int pos)
 {
-	uint   _p = Columns.getCount();
-	if(pos < 0 || pos >= (int)_p) {
-		if(_p)
+	int    _p = Columns.getCountI();
+	if(pos < 0 || pos >= _p) {
+		if(_p) {
 			_p--;
+		}
 	}
-	else
-		_p = (uint)pos;
-	if(_p < Columns.getCount()) {
+	else {
+		_p = pos;
+	}
+	if(_p < Columns.getCountI()) {
 		ListView_DeleteColumn(getHandle(), _p);
 		Columns.atFree(_p);
 		return 1;
@@ -581,13 +607,11 @@ void SmartListBox::onInitDialog(int useScrollBar)
 {
 	const  HWND h_lb = getHandle();
 	DLGPROC dlg_proc = 0;
-	// @v11.2.4 {
 	if(Parent) {
 		const long exstyle = TView::SGetWindowExStyle(Parent);
 		if(exstyle & WS_EX_COMPOSITED)
 			TView::SetWindowProp(Parent, GWL_EXSTYLE, reinterpret_cast<void *>(exstyle & ~WS_EX_COMPOSITED));
 	}
-	// } @v11.2.4 
 	if(State & stTreeList) {
 		dlg_proc = TreeListBoxDialogProc;
 	}
@@ -944,9 +968,9 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		case WM_RBUTTONDOWN:
 			{
 				if(!IsMultiColumn()) {
-					const long hw_clarea_lw_index = SendDlgItemMessage(Parent, Id, LB_ITEMFROMPOINT, 0, lParam);
+					const  long hw_clarea_lw_index = ::SendDlgItemMessageW(Parent, Id, LB_ITEMFROMPOINT, 0, lParam);
 					if(HIWORD(hw_clarea_lw_index) == 0 && LOWORD(hw_clarea_lw_index) >= 0) {
-						const long prev_top_item = Top;
+						const  long prev_top_item = Top;
 						P_Def->go(LOWORD(hw_clarea_lw_index) + P_Def->_topItem());
 						if(Top != prev_top_item)
 							Draw_();
@@ -1506,9 +1530,9 @@ UiSearchTextBlock::~UiSearchTextBlock()
 			else if(HIWORD(wParam) == EN_SETFOCUS) {
 				UiSearchTextBlock * p_slb = static_cast<UiSearchTextBlock *>(TView::GetWindowUserData(hwndDlg));
 				if(!p_slb->IsWsVisible()) {
-					SendDlgItemMessage(hwndDlg, p_slb->InputCtlId, WM_KEYDOWN, VK_END, 1);
-					SendDlgItemMessage(hwndDlg, p_slb->InputCtlId, WM_KEYUP,   VK_END, 1);
-					SendDlgItemMessage(hwndDlg, p_slb->InputCtlId, EM_SETSEL,  0xffff, 0xffff);
+					::SendDlgItemMessageW(hwndDlg, p_slb->InputCtlId, WM_KEYDOWN, VK_END, 1);
+					::SendDlgItemMessageW(hwndDlg, p_slb->InputCtlId, WM_KEYUP,   VK_END, 1);
+					::SendDlgItemMessageW(hwndDlg, p_slb->InputCtlId, EM_SETSEL,  0xffff, 0xffff);
 #if 0 // @construction {
 					if(p_slb && p_slb->FirstLetter) {
 						uint   n = 0;
@@ -1660,17 +1684,34 @@ IMPL_HANDLE_EVENT(SmartListBox)
 {
 	if(event.isCmd(cmDraw)) {
 		Implement_Draw();
-		clearEvent(event); // @v11.2.4
+		clearEvent(event);
 	}
 	else {
-		TView::handleEvent(event); // @v11.2.4
+		TView::handleEvent(event);
 		// @v12.2.2 {
 		switch(event.what) {
 			case TEvent::evCommand:
 				switch(TVCMD) {
+					case cmMouse: // @v12.7.0
+						{
+							MouseEvent * p_blk = static_cast<MouseEvent *>(TVINFOPTR);
+							if(p_blk) {
+								if(p_blk->Type == MouseEvent::tHover) {
+									if(P_Def->Options & lbtHoverNotify) {
+										if(P_Owner) {
+											const  long lw_index = ::SendMessageW(getHandle(), LB_ITEMFROMPOINT, 0, p_blk->Coord.towparam());
+											//MessageCommandToOwner(cmLBItemMouseHover);
+											TView::messageCommand(P_Owner, cmLBItemMouseHover, this, lw_index);
+										}
+									}
+								}
+							}
+							clearEvent(event);
+						}
+						break;
 					case cmSetBounds:
 						{
-							const TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
+							const  TRect * p_rc = static_cast<const TRect *>(TVINFOPTR);
 							HWND h = getHandle();
 							if(p_rc && h) {
 								::SetWindowPos(h, 0, p_rc->a.x, p_rc->a.y, p_rc->width(), p_rc->height(), SWP_NOZORDER|SWP_NOCOPYBITS);

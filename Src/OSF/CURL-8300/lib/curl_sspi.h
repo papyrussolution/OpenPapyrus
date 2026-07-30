@@ -46,12 +46,10 @@ CURLcode Curl_sspi_global_init(void);
 void Curl_sspi_global_cleanup(void);
 
 /* This is used to populate the domain in a SSPI identity structure */
-CURLcode Curl_override_sspi_http_realm(const char * chlg,
-    SEC_WINNT_AUTH_IDENTITY * identity);
+CURLcode Curl_override_sspi_http_realm(const char * chlg, SEC_WINNT_AUTH_IDENTITY * identity);
 
 /* This is used to generate an SSPI identity structure */
-CURLcode Curl_create_sspi_identity(const char * userp, const char * passwdp,
-    SEC_WINNT_AUTH_IDENTITY * identity);
+CURLcode Curl_create_sspi_identity(const char * userp, const char * passwdp, SEC_WINNT_AUTH_IDENTITY * identity);
 
 /* This is used to free an SSPI identity structure */
 void Curl_sspi_free_identity(SEC_WINNT_AUTH_IDENTITY * identity);
@@ -348,5 +346,4 @@ extern PSecurityFunctionTable s_pSecFn;
 #define KERB_WRAP_NO_ENCRYPT 0x80000001
 
 #endif /* USE_WINDOWS_SSPI */
-
 #endif /* HEADER_CURL_SSPI_H */

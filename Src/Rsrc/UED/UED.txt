@@ -711,7 +711,7 @@
 	0000004fff778899 "lightslategrey"
 	0000004fffb0c4de "lightsteelblue"
 	0000004fffffffe0 "lightyellow"
-	0000004fffffffd5 "lightyellow_npp"  // @v11.1.12 lightyellow according to notepad++
+	0000004fffffffd5 "lightyellow_npp"  // lightyellow according to notepad++
 	0000004fff00ff00 "lime"
 	0000004fff32cd32 "limegreen"
 	0000004ffffaf0e6 "linen"
@@ -735,7 +735,7 @@
 	0000004fff808000 "olive" // ok оливковый
 	0000004fff6b8e23 "olivedrab"
 	0000004fffffa500 "orange"
-	0000004fffff8000 "orange_npp" // @v11.1.12 orange according to notepad++
+	0000004fffff8000 "orange_npp" // orange according to notepad++
 	0000004fffff4500 "orangered"
 	0000004fffda70d6 "orchid"
 	0000004fffeee8aa "palegoldenrod"
@@ -749,7 +749,7 @@
 	0000004fffdda0dd "plum"
 	0000004fffb0e0e6 "powderblue"
 	0000004fff800080 "purple"
-	0000004fff8000ff "purple_npp" // @v11.1.12 purple according to notepad++
+	0000004fff8000ff "purple_npp" // purple according to notepad++
 	0000004fffff0000 "red"
 	0000004fffbc8f8f "rosybrown"
 	0000004fff4169e1 "royalblue"
@@ -778,7 +778,7 @@
 	0000004ffff5f5f5 "whitesmoke"
 	0000004fffffff00 "yellow"
 	0000004fff9acd32 "yellowgreen"
-	0000004fffe0e0e0 "verylitegrey" //  @v11.1.12 according to notepad++
+	0000004fffe0e0e0 "verylitegrey" // according to notepad++
 //
 0000000100000050 "icao"              // ICAO-код (4 символа; значение включенное)
 0000000100000051 "iata"              // IATA-код (3 символа; значение включенное) 
@@ -1026,6 +1026,9 @@
 	0000008500000015 "ncp"            // Никотиносодержащая продукция  
 	0000008500000016 "motoroil"       // Моторное масло
 	0000008500000017 "chemistry"      // Косметика, бытовая химия и товары личной гигиены //
+	0000008500000018 "grocery"        // Бакалея
+	0000008500000019 "cannedfood"     // Консервированные продукты питания //
+	000000850000001A "toys"           // Детские игрушки  
 
 0000000100000101 "nlwcls" // Natural language word class
 	// nlwcls

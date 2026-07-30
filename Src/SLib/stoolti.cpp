@@ -270,7 +270,13 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 			::SetParent(HWnd, hwnd_parent);
 		}
 		Brush = ::CreateSolidBrush(Color);
-		Text.ReplaceChar('\003', ' ').Strip().Transf(CTRANSF_INNER_TO_OUTER);
+		Text.ReplaceChar('\003', ' ').Strip();
+		if(Flags & SMessageWindow::fUtf8) {
+			Text.Transf(CTRANSF_UTF8_TO_OUTER);
+		}
+		else {
+			Text.Transf(CTRANSF_INNER_TO_OUTER);
+		}
 		Move();
 		::ShowWindow(HWnd, SW_SHOWNORMAL);
 		::UpdateWindow(HWnd);

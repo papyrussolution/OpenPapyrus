@@ -1638,7 +1638,9 @@ int PPObjBill::PosPrintByBill(PPID billID)
 								PPGoodsTaxEntry gtx;
 								if(GObj.GTxObj.Fetch(prepay_goods_rec.TaxGrpID, pack.Rec.Dt, pack.Rec.OpID, &gtx) > 0) {
 									fc.VatRate = gtx.GetVatRate();
-									if(fc.VatRate == 20.0)
+									if(fc.VatRate == 22.0) // @v12.7.0
+										fc.AmtVat20 = _amount;
+									else if(fc.VatRate == 20.0)
 										fc.AmtVat20 = _amount;
 									else if(fc.VatRate == 18.0)
 										fc.AmtVat18 = _amount;
@@ -1651,7 +1653,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 									else if(fc.VatRate == 0.0)
 										fc.AmtVat00 = _amount;
 									else // @default
-										fc.AmtVat20 = _amount;
+										fc.AmtVat22 = _amount; // @v12.7.0 fc.AmtVat20-->fc.AmtVat22
 								}
 							}
 							ok = p_cm->SyncPrintFiscalCorrection(&fc);

@@ -328,22 +328,22 @@ void QuotFiltDialog::SetupCtrls()
 	long   combo_ext = 0;
 	const  int  prev_cls = Data.QkCls;
 	if(!Spc.MtxID) {
-		DisableClusterItem(CTL_QUOTFLT_TYPE, 2);
+		DisableClusterItem(CTL_QUOTFLT_TYPE, 2, true);
 		if(Data.QkCls == PPQuot::clsMtx)
 			Data.QkCls = PPQuot::clsGeneral;
 	}
 	if(!Spc.MtxRestrID) {
-		DisableClusterItem(CTL_QUOTFLT_TYPE, 3);
+		DisableClusterItem(CTL_QUOTFLT_TYPE, 3, true);
 		if(Data.QkCls == PPQuot::clsMtxRestr)
 			Data.QkCls = PPQuot::clsGeneral;
 	}
 	if(!Spc.PredictCoeffID) {
-		DisableClusterItem(CTL_QUOTFLT_TYPE, 4);
+		DisableClusterItem(CTL_QUOTFLT_TYPE, 4, true);
 		if(Data.QkCls == PPQuot::clsPredictCoeff)
 			Data.QkCls = PPQuot::clsGeneral;
 	}
 	if(!Spc.SupplDealID && !Spc.SupplDevUpID && !Spc.SupplDevDnID) {
-		DisableClusterItem(CTL_QUOTFLT_TYPE, 1);
+		DisableClusterItem(CTL_QUOTFLT_TYPE, 1, true);
 		if(Data.QkCls == PPQuot::clsSupplDeal)
 			Data.QkCls = PPQuot::clsGeneral;
 	}

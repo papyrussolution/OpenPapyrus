@@ -8,7 +8,8 @@
 //
 #include <slib-internal.h>
 #pragma hdrstop
-#include <sspi.h>
+// (@movedto slib.h) #include <sspi.h>
+// (@movedto slib.h) #include <wincred.h>
 // @v12.5.3 (@movedto slib.h) #include <lm.h>
 
 // Older versions of WinError.h does not have SEC_I_COMPLETE_NEEDED #define.
@@ -105,8 +106,7 @@ int _SysCrProcTable::Load()
 //SLERR_WINSEC_COMPLAUTHTOKNSUPP 205 // "CompleteAuthToken not supported"
 //SLERR_WINSEC_ACCPTSECCTX       206 // "AcceptSecurityContext failed with %s"
 
-static int GenClientContext(_SysCrProcTable & rVt, PAUTH_SEQ pAS, PSEC_WINNT_AUTH_IDENTITY pAuthIdentity,
-	PVOID pIn, DWORD cbIn, PVOID pOut, PDWORD pcbOut, PBOOL pfDone)
+static int GenClientContext(_SysCrProcTable & rVt, PAUTH_SEQ pAS, PSEC_WINNT_AUTH_IDENTITY pAuthIdentity, PVOID pIn, DWORD cbIn, PVOID pOut, PDWORD pcbOut, PBOOL pfDone)
 {
 	/*++
 	Routine Description:
@@ -172,8 +172,7 @@ static int GenClientContext(_SysCrProcTable & rVt, PAUTH_SEQ pAS, PSEC_WINNT_AUT
 	return ok;
 }
 
-static int GenServerContext(_SysCrProcTable & rVt, PAUTH_SEQ pAS, PVOID pIn,
-	DWORD cbIn, PVOID pOut, PDWORD pcbOut, PBOOL pfDone)
+static int GenServerContext(_SysCrProcTable & rVt, PAUTH_SEQ pAS, PVOID pIn, DWORD cbIn, PVOID pOut, PDWORD pcbOut, PBOOL pfDone)
 {
 	/*++
 	Routine Description:
@@ -237,7 +236,7 @@ static int GenServerContext(_SysCrProcTable & rVt, PAUTH_SEQ pAS, PVOID pIn,
 	return ok;
 }
 
-static BOOL WINAPI SSPLogonUser(LPTSTR szDomain, LPTSTR szUser, LPTSTR szPassword)
+static BOOL WINAPI SSPLogonUser(wchar_t * szDomain, wchar_t * szUser, wchar_t * szPassword)
 {
 	int    ok = 1;
 	AUTH_SEQ asServer = {0};
@@ -314,14 +313,115 @@ static BOOL WINAPI SSPLogonUser(LPTSTR szDomain, LPTSTR szUser, LPTSTR szPasswor
 
 int SCheckSystemCredentials(const char * pDomain, const char * pUserName, const char * pPw)
 {
-	TCHAR  domain[128];
-	TCHAR  user[128];
-	TCHAR  pw[128];
-	STRNSCPY(domain, SUcSwitch(pDomain));
-	STRNSCPY(user, SUcSwitch(pUserName));
-	STRNSCPY(pw, SUcSwitch(pPw));
+	wchar_t domain[128];
+	wchar_t user[128];
+	wchar_t pw[128];
+	STRNSCPY(domain, SUcSwitchW(pDomain));
+	STRNSCPY(user, SUcSwitchW(pUserName));
+	STRNSCPY(pw, SUcSwitchW(pPw));
 	return BIN(SSPLogonUser(domain, user, pw));
 }
+
+#if 1 // @v12.7.0 @construction {
+
+SSystemCredential::SSystemCredential() : Persist(persistUndef)
+{
+}
+
+// Сохранить мастер-пароль в Credential Manager
+bool SSystemCredentialWrite(const SSystemCredential & rParam, const void * pData, size_t dataLen)
+{
+	bool   ok = false;
+	if(rParam.TargetNameUtf8.IsEmpty() || !rParam.TargetNameUtf8.IsLegalUtf8()) {
+		SLS.SetError(SLERR_INVPARAM);
+	}
+	else {
+		SStringU & r_target = SLS.AcquireRvlStrU();
+		CREDENTIALW cred;
+		MEMSZERO(cred);
+		cred.Type = CRED_TYPE_GENERIC;
+		r_target.CopyFromUtf8(rParam.TargetNameUtf8);
+		cred.TargetName = const_cast<wchar_t *>(r_target.ucptr());
+		//cred.UserName = L""; // Можно указать имя пользователя, если нужно
+		cred.CredentialBlob = reinterpret_cast<BYTE *>(const_cast<void *>(pData));
+		cred.CredentialBlobSize = static_cast<DWORD>(dataLen);
+		{
+			switch(rParam.Persist) {
+				case SSystemCredential::persistSession: cred.Persist = CRED_PERSIST_SESSION; break;
+				case SSystemCredential::persistMachine: cred.Persist = CRED_PERSIST_LOCAL_MACHINE; break;
+				case SSystemCredential::persistEnterprise: cred.Persist = CRED_PERSIST_ENTERPRISE; break;
+				default: cred.Persist = CRED_PERSIST_LOCAL_MACHINE; break;
+			}
+		}
+		if(CredWriteW(&cred, 0)) {
+			ok = true;
+		}
+		else {
+			SLS.SetOsError(0, "SSystemCredentialWrite");
+		}
+	}
+	return ok;
+}
+
+int SSystemCredentialDelete(const SSystemCredential & rParam)
+{
+	int    ok = -1;
+	if(rParam.TargetNameUtf8.IsEmpty() || !rParam.TargetNameUtf8.IsLegalUtf8()) {
+		ok = SLS.SetError(SLERR_INVPARAM);
+	}
+	else {
+		SStringU & r_target = SLS.AcquireRvlStrU();
+		r_target.CopyFromUtf8(rParam.TargetNameUtf8);
+		if(::CredDeleteW(r_target.ucptr(), CRED_TYPE_GENERIC, 0)) {
+			ok = 1;
+		}
+		else {
+			ok = SLS.SetOsError(0, "SSystemCredentialDelete");
+		}
+	}
+	return ok;
+}
+
+// Получить мастер-пароль из Credential Manager
+int SSystemCredentialRead(SSystemCredential & rParam, SBinaryChunk & rData) 
+{
+	rData.Z();
+	int    ok = -1;
+	if(rParam.TargetNameUtf8.IsEmpty() || !rParam.TargetNameUtf8.IsLegalUtf8()) {
+		ok = SLS.SetError(SLERR_INVPARAM);
+	}
+	else {
+		SStringU & r_target = SLS.AcquireRvlStrU();
+		r_target.CopyFromUtf8(rParam.TargetNameUtf8);
+		CREDENTIALW * p_cred = nullptr;
+		if(::CredReadW(r_target.ucptr(), CRED_TYPE_GENERIC, 0, &p_cred)) {
+			SUniTime_Internal ut(p_cred->LastWritten);
+			rParam.UedModTime = UED::_GetRaw_Time(UED_META_TIME_MSEC, ut);
+			rData.Put(p_cred->CredentialBlob, p_cred->CredentialBlobSize);
+			::CredFree(p_cred);
+			ok = 1;
+		}
+		else {
+			ok = SLS.SetOsError(0, "SSystemCredentialRead");
+		}
+	}
+	return ok;
+}
+
+// Пример использования:
+/*void ConfigureAutoLogin() 
+{
+	SaveMasterPassword(L"Centrigo", L"Ваш_мастер_пароль");
+}
+
+void GetAutoLoginPassword() 
+{
+	std::wstring password = LoadMasterPassword(L"Centrigo");
+	if(!password.empty()) {
+		// Использовать пароль для разблокировки хранилища
+	}
+}*/
+#endif // } 0 @v12.7.0 @construction
 //
 //
 //

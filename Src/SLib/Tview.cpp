@@ -36,6 +36,22 @@
 	return p_ret;
 }
 
+/*static*/void * STDCALL TView::messageCommand(TView * pReceiver, uint command, void * pInfoPtr, int infoInt) // @v12.7.0
+{
+	void * p_ret = 0;
+	if(pReceiver && pReceiver->IsConsistent()) {
+		TEvent event;
+		event.what = TEvent::evCommand;
+		event.message.command = command;
+		event.message.infoPtr = pInfoPtr;
+		event.message.infoLong = infoInt;
+		pReceiver->handleEvent(event);
+		if(event.what == TEvent::evNothing)
+			p_ret = event.message.infoPtr;
+	}
+	return p_ret;
+}
+
 /*static*/void * FASTCALL TView::messageBroadcast(TView * pReceiver, uint command)
 {
 	void * p_ret = 0;
@@ -43,6 +59,22 @@
 		TEvent event;
 		event.what = TEvent::evBroadcast;
 		event.message.command = command;
+		pReceiver->handleEvent(event);
+		if(event.what == TEvent::evNothing)
+			p_ret = event.message.infoPtr;
+	}
+	return p_ret;
+}
+
+/*static*/void * STDCALL TView::messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr, int infoInt) // @v12.7.0
+{
+	void * p_ret = 0;
+	if(pReceiver && pReceiver->IsConsistent()) {
+		TEvent event;
+		event.what = TEvent::evBroadcast;
+		event.message.command = command;
+		event.message.infoPtr = pInfoPtr;
+		event.message.infoLong = infoInt;
 		pReceiver->handleEvent(event);
 		if(event.what == TEvent::evNothing)
 			p_ret = event.message.infoPtr;
@@ -492,8 +524,9 @@ static BOOL CALLBACK SetupWindowCtrlTextProc(HWND hwnd, LPARAM lParam)
 {
 	if(pItem) {
 		TView * p = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
-		if(p)
-			p->changeBounds(TRect(pItem->GetFrameAdjustedToParent()));
+		if(p) {
+			p->ChangeBounds(TRect(pItem->GetFrameAdjustedToParent()));
+		}
 	}
 }
 
@@ -710,8 +743,9 @@ static HMENU _CtlIdForCreateWindow(uint ctlId) { return reinterpret_cast<HMENU>(
 							}*/
 							::SendMessageW(hw, WM_SETTEXT, 0, reinterpret_cast<LPARAM>(SUcSwitch(p_cv->GetText())));
 							SetupWindowCtrlTextProc(hw, 0);
-							if(!is_owner_draw_style)
+							if(!is_owner_draw_style) {
 								setup_font_blk.Set(hw);
+							}
 						}
 					}
 					break;
@@ -1131,11 +1165,17 @@ void TView::setState(uint aState, bool enable)
 			if(P_Owner) {
 				switch(aState) {
 					case sfVisible:
+						// @v12.7.0 {
+						if(Id) {
+							TView * p_v = static_cast<TView *>(TView::messageBroadcast(P_Owner, cmSearchSupplementButton, this, static_cast<int>(Id)));
+							CALLPTRMEMB(p_v, setState(aState, enable));
+						}
+						// } @v12.7.0 
 						{
 							TView * p_label = static_cast<TView *>(TView::messageBroadcast(P_Owner, cmSearchLabel, this));
 							CALLPTRMEMB(p_label, setState(aState, enable));
-							Show(enable);
 						}
+						Show(enable);
 						break;
 					case sfSelected:
 					case sfFocused:
@@ -1169,12 +1209,20 @@ bool TView::IsCommandValid(ushort command) // @v12.2.6
 	return !ev.isCommandValidationFailed();
 }
 
-void TView::changeBounds(const TRect & rBounds)
+void TView::ChangeBounds(const TRect & rBounds)
 {
 	TRect  new_bounds(rBounds); // non-const копи€ нужна дл€ передачи в TView::messageCommand
 	ViewOrigin = new_bounds.a;
 	ViewSize = new_bounds.b - new_bounds.a;
 	{
+		// @v12.7.0 {
+		if(!(Sf & sfLockChangeBounds)) {
+			Sf |= sfLockChangeBounds;
+			TView::messageCommand(this, cmSetBounds, &new_bounds);
+			Sf &= ~sfLockChangeBounds;
+		}
+		// } @v12.7.0 
+		/* @v12.7.0 
 		static int _lock = 0; // Ѕлокировка от рекурсии
 		ENTER_CRITICAL_SECTION
 		if(!_lock) {
@@ -1183,6 +1231,7 @@ void TView::changeBounds(const TRect & rBounds)
 			_lock = 0;
 		}
 		LEAVE_CRITICAL_SECTION
+		*/
 	}
 }
 

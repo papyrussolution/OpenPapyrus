@@ -308,6 +308,7 @@ SLTEST_R(SQLite)
 		//const TestTa01Tbl::Rec * p_first_pattern_rec = record_list.at(0);
 		TestTa01Tbl::Key0 k0;
 		TestTa01Tbl::Rec * p_rec_buf = static_cast<TestTa01Tbl::Rec *>(p_tbl->getDataBuf());
+		//bool   mht_check = MemHeapTracer::Check(); // @v12.7.0
 		{
 			// Найти каждую из записей
 			MEMSZERO(k0);
@@ -332,8 +333,9 @@ SLTEST_R(SQLite)
 						uneq_clob_rec_count++;
 					}
 				}
+				//mht_check = MemHeapTracer::Check(); // @v12.7.0
 				srch_count++;
-			} while(srch_count < rec_list_count && p_tbl->search(0, &k0, spNext));
+			} while(srch_count < rec_list_count && p_tbl->search(0, &k0, spNext)); // На этой точке в x32-режиме не некоторых записях (не стабильно) приложение умирает из-за проблем с heap
 			SLCHECK_Z(uneq_rec_count);
 		}
 		{

@@ -2485,6 +2485,8 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 			UiToolBox_.CreateColor(TProgram::tbiIconPassiveColor, UiDescription::GetColorR(p_uid, p_cs, "icon_passive", SColor(0xFF, 0xF1, 0xD0)));
 			UiToolBox_.CreatePen_(TProgram::tbiBlackPen,         SPaintObj::psSolid, 1.0f, SClrBlack);
 			UiToolBox_.CreatePen_(TProgram::tbiWhitePen,         SPaintObj::psSolid, 1.0f, SClrWhite);
+			UiToolBox_.CreateBrush_(TProgram::tbiExtInfoBrush,    SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "extinfo_bg", SColor(0xEE, 0xE4, 0xE1)), 0); // @v12.7.0 #EEE4E1
+			UiToolBox_.CreateBrush_(TProgram::tbiExtInfoBadBrush, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "extinfobad_bg", SColor(0xE6, 0xBE, 0xAE)), 0); // @v12.7.0 #E6BEAE
 			UiToolBox_.CreateBrush_(TProgram::tbiInvalInpBrush,  SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "invalidinput_bg", SClrCrimson), 0);
 			UiToolBox_.CreateBrush_(TProgram::tbiInvalInp2Brush, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "invalidinput2_bg", SColor(0xff, 0x99, 0x00))/*https://www.colorhexa.com/ff9900*/, 0);
 			UiToolBox_.CreateBrush_(TProgram::tbiInvalInp3Brush, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "invalidinput3_bg", SColor(0xff, 0x33, 0xcc))/*https://www.colorhexa.com/ff33cc*/, 0);
@@ -2534,7 +2536,15 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 			{
 				SFontDescr fd_default("Verdana", 11, 0); // ! Не использовать "MS Sans Serif" 
 				const SFontDescr * p_fd = p_uid ? p_uid->GetFontDescrC("ControlFont") : 0;
-				UiToolBox_.CreateFont_(TProgram::tbiControlFont, p_fd ? *p_fd : fd_default);
+				if(p_fd) {
+					SFontDescr fd_(*p_fd);
+					if(fd_.Weight == 0.0f)
+						fd_.Weight = 1.0f;
+					UiToolBox_.CreateFont_(TProgram::tbiControlFont, p_fd ? *p_fd : fd_default);
+				}
+				else {
+					UiToolBox_.CreateFont_(TProgram::tbiControlFont, fd_default);
+				}
 			}
 			{ // @v12.5.5
 				SFontDescr fd_default("Verdana", 16, 0); // ! Не использовать "MS Sans Serif" 

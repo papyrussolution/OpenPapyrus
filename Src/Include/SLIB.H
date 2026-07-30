@@ -155,6 +155,8 @@
 		#include <psapi.h>    // @v12.5.3
 		#include <Lm.h>       // @v12.5.3
 		#include <ipexport.h> // @v12.5.4
+		#include <sspi.h>     // @v12.7.0 
+		#include <wincred.h>  // @v12.7.0
 	#endif
 	// } @v11.7.0 
 	#define _Windows
@@ -1646,6 +1648,39 @@ public:
 };
 
 const SCtrGenerate SCtrGenerate_;
+//
+// Descr: Специальный класс, используемый в качестве сигнатуры порожденного класса.
+//   Отдельный класс нужен из-за того, что если класс, которому нужна сигнатура, порожден
+//   от других классов, то явно указанная в виде простого члена сигнатура не будет находится в самом начале 
+//   бинарного представления (указатель на VTBL не считаем).
+//
+class SSignaturePrefix32 { // @v12.7.0
+protected:
+	explicit SSignaturePrefix32(uint32 s) : Signature(s)
+	{
+	}
+	~SSignaturePrefix32()
+	{
+		Signature = 0;
+	}
+	bool   CheckSignature(uint32 s) const { return (Signature == s); }
+private:
+	uint32     Signature;
+};
+
+class SSignaturePrefix64 { // @v12.7.0
+protected:
+	explicit SSignaturePrefix64(uint64 s) : Signature(s)
+	{
+	}
+	~SSignaturePrefix64()
+	{
+		Signature = 0;
+	}
+	bool   CheckSignature(uint64 s) const { return (Signature == s); }
+private:
+	uint64     Signature;
+};
 //
 // Descr: Определение базового типа для онтологической модели UED.
 // Note: Вообще-то, это определение должно быть в ued.h но из-за того, что тот файл тянет за собой слишком много лишнего,
@@ -3284,6 +3319,7 @@ struct SUniTime_Internal : public SUniDate_Internal { // @internal
 	SUniTime_Internal(LDATE dt, LTIME tm);
 #if defined(__WIN32__)
 	explicit SUniTime_Internal(const SYSTEMTIME & rS);
+	explicit SUniTime_Internal(const FILETIME & rS);
 #endif
 	SUniTime_Internal(SCtrGenerate); // for-testing-only
 	SUniTime_Internal & Z();
@@ -3807,7 +3843,7 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	//   Если разница между val и границей диапазона меньше eps, то функция считает условие
 	//   выполненным.
 	//
-	bool   CheckValEps(double val, double eps) const;
+	bool   CheckValEps(double val, double eps/*common value is 1E-7*/) const;
 	double Clip(double v) const;
 	RealRange & SetVal(double);
 	RealRange & Set(double, double);
@@ -5160,7 +5196,8 @@ public:
 	// Descr: Разрушает внутренний буфер экземпляра и обнуляет текущую длину данных (DataLen).
 	//   Параметр Delim (разделитель элементов) не меняет.
 	//
-	void   destroy();
+	void   Destroy();
+	void   DestroySecure(); // @v12.7.0
 	//
 	// Descr: Обнуляет текущую длину данных экземпляра, не освобождая буфер и не меняя разделитель.
 	// Note: Следует использовать при необходимости повторного использования объекта
@@ -5346,8 +5383,7 @@ struct SFsPath {
 		npfSlash    = 0x0002, // Все обратные слэши заменяются на прямые (иначе - все обратные)
 		npfOEM      = 0x0004, // Входящая строка pPath - в OEM-кодировке
 		npfKeepCase = 0x0008, // Не меняет регистр символов
-		npfCompensateDotDot = 0x0010  // @v11.2.4 Компенсировать ".." в середине пути если это возможно
-			// Например: d:/abc/123/.. может быть заменено на d:/abc
+		npfCompensateDotDot = 0x0010  // Компенсировать ".." в середине пути если это возможно. Например: d:/abc/123/.. может быть заменено на d:/abc
 	};
 	//
 	// Descr: Унифицирует текстовое представление пути pPath. Результат переносится в rNormalizedPath
@@ -6663,7 +6699,7 @@ public:
 	static FORCEINLINE void * Zero(void * p, size_t size) { return memzero(p, size); }
 	static void * Ff(void * p, size_t size);
 
-	static void * Obfuscate(void * p, size_t size);
+	static void * FASTCALL Obfuscate(void * p, size_t size);
 	//
 	// Для типа ulong - дополнительные перегрузки функций с тем, чтобы везде в кодах ulong трактовался как uint32.
 	//
@@ -6823,6 +6859,7 @@ public:
 	bool   FASTCALL operator == (const SBinaryChunk & rS) const;
 	bool   FASTCALL operator != (const SBinaryChunk & rS) const;
 	SBinaryChunk & Z();
+	void   DestroySecure(); // @v12.7.0
 	bool   operator !() const { return Len() == 0; }
 	size_t GetAllocatedSize() const { return SBaseBuffer::Size; } // @v11.8.9
 	size_t Len() const;
@@ -9341,6 +9378,7 @@ public:
 	// Descr: То же, что и ClearS, но с освобождением памяти.
 	//
 	void   DestroyS();
+	void   DestroySecureS(); // @v12.7.0
 	SStrGroup & FASTCALL CopyS(const SStrGroup & rS);
 	int    AddS(const char * pStr, uint * pPos);
 	int    AddS(const char * pStr, ulong * pPos);
@@ -10725,6 +10763,7 @@ public:
 	//
 	bool   FASTCALL IsEq(const SBinarySet & rS) const;
 	bool   IsValid() const;
+	void   DestroySecure(); // @v12.7.0
 	int    Ensure(size_t size);
 	//
 	// Descr: Реализует сериализацию объекта в буфер rBuf.
@@ -17179,6 +17218,24 @@ private:
 };
 
 int    SCheckSystemCredentials(const char * pDomain, const char * pUserName, const char * pPw);
+
+struct SSystemCredential {
+	enum {
+		persistUndef = 0,
+		persistSession = 1,
+		persistMachine = 2,
+		persistEnterprise = 3,
+	};
+	SSystemCredential();
+	int    Persist;
+	ued_t  UedModTime;
+	SString TargetNameUtf8;
+
+};
+
+bool   SSystemCredentialWrite(const SSystemCredential & rParam, const void * pData, size_t dataLen);
+int    SSystemCredentialRead(SSystemCredential & rParam, SBinaryChunk & rData);
+int    SSystemCredentialDelete(const SSystemCredential & rParam);
 //
 // Descr: Возвращает ЛОКАЛЬНОЕ время с сервера pServerName.
 // Returns:
@@ -19225,6 +19282,7 @@ public:
 	//
 	void * TransformToIcon() const;
 	void * TransformToBitmap() const;
+	int    DrawOnPrinter(HDC hDc) const; // @v12.7.0 @construction
 private:
 	int    LoadJpeg(SFile & rF, int fileFmt);
 	int    LoadPng(SFile & rF);

@@ -3393,7 +3393,7 @@ int PPObjBill::SelectLot2(SelectLotParam & rParam)
 	if(CheckDialogPtr(&dlg)) {
 		PPTransferItem::FreightPackage data;
 		RVALUEPTR(data, pData);
-        SetupPPObjCombo(dlg, CTLSEL_FPACKAGE_FPT, PPOBJ_FREIGHTPACKAGETYPE, data.FreightPackageTypeID, 0);
+        SetupPPObjCombo(dlg, CTLSEL_FPACKAGE_FPT, PPOBJ_FREIGHTPACKAGETYPE, data.FreightPackageTypeID, OLW_CANINSERT);
 		// @v12.6.9 {
 		{
 			const SrUedContainer_Rt * p_uedc = DS.GetUedContainer();

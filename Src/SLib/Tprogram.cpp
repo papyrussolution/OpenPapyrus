@@ -1327,15 +1327,42 @@ int TProgram::MsgLoop(TWindow * pV, int & rExitSignal)
 	}
 	return 0;
 }
+//
+// Эта функция не знает ни о каких конкретных диалогах.
+// Она просто ищет ближайшее окно-контейнер (с флагом WS_EX_CONTROLPARENT).
+//
+static bool FASTCALL PreTranslateDialogMessage(const MSG & rMsg) // @v12.7.0 @construction
+{
+	if(oneof2(rMsg.message, WM_KEYDOWN, WM_SYSKEYDOWN)) { // Интересуют только клавиатурные сообщения //
+		HWND   hw = rMsg.hwnd; // Начинаем поиск от окна, которому адресовано сообщение
+		while(hw) {
+			// Проверяем, является ли это окно контейнером для контролов (этот стиль вы уже установили для своего child-диалога)
+			const  LONG_PTR ex_style = ::GetWindowLongPtrW(hw, GWL_EXSTYLE);
+			if(ex_style & WS_EX_CONTROLPARENT) {
+				// Если да, пытаемся обработать сообщение как диалоговое
+				if(::IsDialogMessageW(hw, const_cast<MSG *>(&rMsg))) {
+					return true; // Сообщение обработано (Tab сработал)
+				}
+				else {
+					break; // Если IsDialogMessage вернул false, значит это не Tab/стрелки, и дальше по родителям искать нет смысла.
+				}
+			}
+			hw = ::GetParent(hw); // Поднимаемся выше по цепочке родителей
+		}
+	}
+	return false;
+}
 
 void TProgram::run()
 {
 	MSG    msg;
-	H_Accel = LoadAccelerators(hInstance, MAKEINTRESOURCE(101));
-	while(GetMessage(&msg, 0, 0, 0)) {
-		if(!TranslateAccelerator(msg.hwnd, H_Accel, &msg)) {
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+	H_Accel = ::LoadAcceleratorsW(hInstance, MAKEINTRESOURCE(101));
+	while(::GetMessageW(&msg, 0, 0, 0)) {
+		if(!::TranslateAcceleratorW(msg.hwnd, H_Accel, &msg)) {
+			if(!PreTranslateDialogMessage(msg)) { // @v12.7.0 @condition @experimental
+				TranslateMessage(&msg);
+				::DispatchMessageW(&msg);
+			}
 		}
 	}
 }
@@ -1364,10 +1391,10 @@ TView * TProgram::validView(TView * p)
 /*static*/void TProgram::IdlePaint()
 {
 	MSG msg;
-	while(PeekMessage(&msg, NULL, WM_PAINT, WM_PAINT, PM_REMOVE)) { // @v9.9.5 (WM_PAINT, WM_PAINT)
+	while(::PeekMessageW(&msg, NULL, WM_PAINT, WM_PAINT, PM_REMOVE)) { // @v9.9.5 (WM_PAINT, WM_PAINT)
 		if(msg.message == WM_PAINT) {
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
+			::TranslateMessage(&msg);
+			::DispatchMessageW(&msg);
 		}
 	}
 }
@@ -1649,7 +1676,8 @@ static COLORREF _GetAssetColor(int _asset)
 		return RGB(0xff, 0xff, 0xff);
 }
 
-int DrawCluster(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
+#if 0 // @unused {
+int DrawCluster(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 {
 	int    ok = -1;
 	int    draw_checkbox = 0;
@@ -1740,7 +1768,9 @@ int DrawCluster(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	ZDeleteWinGdiObject(&pen);
 	return ok;
 }
+#endif // } 0 @unused
 
+#if 0 // @unused {
 int DrawButton(HWND hwnd, DRAWITEMSTRUCT * pDi)
 {
 	int    ok = -1;
@@ -1869,6 +1899,7 @@ int DrawButton(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	ZDeleteWinGdiObject(&pen);
 	return ok;
 }
+#endif // } 0 @unused
 
 int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 {
@@ -2063,8 +2094,6 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	const  TRect rect_elem_i(pDi->rcItem);
 	const  FRect rect_elem(pDi->rcItem);
 	RECT   out_r = pDi->rcItem;
-	//COLORREF brush_color = RGB(0xDC, 0xD9, 0xD1);
-	//COLORREF pen_color = _GetAssetColor(_assetCtrlBorderColor);
 	HBITMAP hbmp = 0;
 	SString text_buf;
 	TView::SGetWindowText(pDi->hwndItem, text_buf);
@@ -2077,10 +2106,6 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 			out_r.top  += (style & BS_BITMAP) ? 1 : 2;
 			out_r.left += (style & BS_BITMAP) ? 1 : 2;
 		}
-		/*
-		if(style & BS_BITMAP)
-			hbmp = (HBITMAP)::SendMessageW(pDi->hwndItem, BM_GETIMAGE, IMAGE_BITMAP, 0);
-		else */
 		if(p_user_data) {
 			TView * p_view = static_cast<TView *>(p_user_data);
 			TButton * p_btn_ = 0; // static_cast<TButton *>(p_user_data);
@@ -2377,7 +2402,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 							out_r.left += (LONG)pic_bounds.Width();
 						}
 						else {
-							const float min_side = MIN(rect_elem.Width(), rect_elem.Height());
+							const float min_side = smin(rect_elem.Width(), rect_elem.Height());
 							pic_bounds.a.SetZero();
 							pic_bounds.b.Set(min_side, min_side);
 							pic_bounds.Grow(/*-2.5f, -2.5f*/-3.5f, -3.5f);

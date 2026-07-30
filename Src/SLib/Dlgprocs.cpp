@@ -54,6 +54,68 @@ static uint16 FASTCALL __MapVk(uint32 vk, uint stateP)
 	return 0;
 }
 
+bool TView::MakeMouseEvent_Base(uint msg, WPARAM wParam, LPARAM lParam, MouseEvent & rMe)
+{
+	bool   result = true;
+	MEMSZERO(rMe);
+	rMe.Coord.setwparam(static_cast<uint32>(lParam));
+	switch(msg) {
+		case WM_LBUTTONDOWN:
+			rMe.Type = MouseEvent::tLDown;
+			//::SetCapture(HW);
+			break;
+		case WM_LBUTTONUP:
+			rMe.Type = MouseEvent::tLUp;
+			//::ReleaseCapture();
+			break;
+		case WM_LBUTTONDBLCLK: rMe.Type = MouseEvent::tLDblClk; break;
+		case WM_RBUTTONDOWN:   rMe.Type = MouseEvent::tRDown; break;
+		case WM_RBUTTONUP:     rMe.Type = MouseEvent::tRUp; break;
+		case WM_RBUTTONDBLCLK: rMe.Type = MouseEvent::tRDblClk; break;
+		case WM_MBUTTONDOWN:   rMe.Type = MouseEvent::tMDown; break;
+		case WM_MBUTTONUP:     rMe.Type = MouseEvent::tMUp; break;
+		case WM_MBUTTONDBLCLK: rMe.Type = MouseEvent::tMDblClk; break;
+		case WM_MOUSEMOVE:
+			/*if(getClientRect().contains(rMe.Coord)) {
+				RegisterMouseTracking_(false);
+			}*/
+			rMe.Type = MouseEvent::tMove;
+			break;
+		case WM_MOUSEHOVER:
+			//WbState &= ~wbsMouseTrackRegistered;
+			rMe.Type = MouseEvent::tHover;
+			break;
+		case WM_MOUSELEAVE:
+			//WbState &= ~wbsMouseTrackRegistered;
+			rMe.Type = MouseEvent::tLeave;
+			break;
+		case WM_MOUSEWHEEL:
+			rMe.Type = MouseEvent::tWeel;
+			rMe.WeelDelta = static_cast<signed short>(HIWORD(wParam));
+			break;
+		default:
+			result = false;
+			break;
+	}
+	if(result) {
+		if(wParam & MK_CONTROL)
+			rMe.Flags |= MouseEvent::fControl;
+		if(wParam & MK_LBUTTON)
+			rMe.Flags |= MouseEvent::fLeft;
+		if(wParam & MK_MBUTTON)
+			rMe.Flags |= MouseEvent::fMiddle;
+		if(wParam & MK_RBUTTON)
+			rMe.Flags |= MouseEvent::fRight;
+		if(wParam & MK_SHIFT)
+			rMe.Flags |= MouseEvent::fShift;
+		if(wParam & MK_XBUTTON1)
+			rMe.Flags |= MouseEvent::fX1;
+		if(wParam & MK_XBUTTON2)
+			rMe.Flags |= MouseEvent::fX2;
+	}
+	return result;
+}
+
 int TView::HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType)
 {
 	bool   debug_mark = false;
@@ -142,31 +204,38 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 	switch(uMsg) {
 		case WM_INITDIALOG:
 			if(lParam) {
+				CreateBlock cr_blk;
+				MEMSZERO(cr_blk);
 				TView::SetWindowUserData(hwndDlg, reinterpret_cast<void *>(lParam));
 				p_dlg = reinterpret_cast<TDialog *>(lParam);
 				p_dlg->HW = hwndDlg;
 				const bool export_mode = p_dlg->CheckFlag(TDialog::fExport);
 				::GetClientRect(hwndDlg, &cli_rect);
 				{
-					CreateBlock cr_blk;
-					MEMSZERO(cr_blk);
 					cr_blk.Coord = cli_rect;
 					cr_blk.Param = p_dlg;
 					cr_blk.H_Process = 0;
-					cr_blk.Style = 0;
-					cr_blk.ExStyle = 0;
+					cr_blk.Style = TView::SGetWindowStyle(hwndDlg);
+					cr_blk.ExStyle = TView::SGetWindowExStyle(hwndDlg);
 					cr_blk.H_Parent = 0;
 					cr_blk.H_Menu = 0;
 					cr_blk.P_WndCls = 0;
 					cr_blk.P_Title = 0;
 					TView::messageCommand(p_dlg, cmInit, &cr_blk);
 				}
-				if(!export_mode)
+				// @v12.7.0 {
+				if(cr_blk.Style & WS_CHILD) {
+					p_dlg->DlgFlags |= fChildWindow;
+				}
+				// } @v12.7.0 
+				if(!export_mode) {
 					SetupCtrlTextProc(p_dlg->H(), 0);
+				}
 				p_dlg->RemoveUnusedControls();
 				p_dlg->InitControls(hwndDlg, wParam, lParam);
-				if(!export_mode)
+				if(!export_mode) {
 					EnumChildWindows(hwndDlg, SetupCtrlTextProc, 0);
+				}
 				::GetClientRect(hwndDlg, &cli_rect); // @debug
 			}
 			return 1;
@@ -319,6 +388,7 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 			}
 			::SendMessageW(hwndDlg, WM_USER_KEYDOWN, wParam, lParam);
 			return -2;
+		// (это сообщение до диалоговой процедуры не доходит) case WM_KEYDOWN: break;
 		case WM_KEYUP:
 			PassMsgToCtrl(hwndDlg, uMsg, wParam, lParam);
 			return 0;

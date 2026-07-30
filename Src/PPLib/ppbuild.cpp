@@ -927,10 +927,12 @@ int DoSourceCodeMaintaining(const PrcssrSourceCodeMaintainingFilt * pFilt)
 	return ok;
 }
 
-IMPLEMENT_PPFILT_FACTORY(PrcssrSourceCodeMaintaining); PrcssrSourceCodeMaintainingFilt::PrcssrSourceCodeMaintainingFilt() : PPBaseFilt(PPFILT_PRCSSRSOURCECODEMAINTAINING, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(PrcssrSourceCodeMaintaining); PrcssrSourceCodeMaintainingFilt::PrcssrSourceCodeMaintainingFilt() : 
+	PPBaseFilt(PPFILT_PRCSSRSOURCECODEMAINTAINING, 0, 1) // @v12.7.0 ver 0-->1
 {
 	SetFlatChunk(offsetof(PrcssrSourceCodeMaintainingFilt, ReserveStart),
 		offsetof(PrcssrSourceCodeMaintainingFilt, Reserve) - offsetof(PrcssrSourceCodeMaintainingFilt, ReserveStart) + sizeof(Reserve));
+	SetBranchObjIdListFilt(offsetof(PrcssrSourceCodeMaintainingFilt, LangList)); // @v12.7.0
 	Init(1, 0);
 }
 
@@ -955,9 +957,11 @@ int PrcssrSourceCodeMaintaining::EditParam(PPBaseFilt * pBaseFilt)
 {
 	class SrcCMParamDialog : public TDialog {
 		DECL_DIALOG_DATA(PrcssrSourceCodeMaintainingFilt);
+		StrAssocArray LangNameList;
 	public:
 		SrcCMParamDialog() : TDialog(DLG_PRCRSRCC)
 		{
+			MakeLangNameList();
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -975,7 +979,7 @@ int PrcssrSourceCodeMaintaining::EditParam(PPBaseFilt * pBaseFilt)
 		{
 			int    ok = 1;
 			GetClusterData(CTL_PRCRSRCC_FLAGS, &Data.Flags);
-			Data.AtToLangUedId32 = static_cast<uint32>(getCtrlLong(CTLSEL_PRCRSRCC_TOLANG));
+			// @v12.7.0 Data.AtToLangUedId32 = static_cast<uint32>(getCtrlLong(CTLSEL_PRCRSRCC_TOLANG));
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
@@ -983,7 +987,25 @@ int PrcssrSourceCodeMaintaining::EditParam(PPBaseFilt * pBaseFilt)
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
-			if(event.isClusterClk(CTL_PRCRSRCC_FLAGS)) {
+			if(event.isCmd(cmLangList)) {
+				PPIDArray lang_id_list;
+				Data.LangList.Get(lang_id_list);
+				ListToListData l2l_data(&LangNameList, 0L, &lang_id_list);
+				l2l_data.Flags |= ListToListData::fUtf8;
+				l2l_data.TitleStrID = 0;
+				if(ListToListDialog(&l2l_data) > 0) {
+					Data.LangList.Set(&lang_id_list);
+					if(lang_id_list.isList()) {
+						SetComboBoxListText(this, CTLSEL_PRCRSRCC_TOLANG);
+						disableCtrl(CTLSEL_PRCRSRCC_TOLANG, true);
+					}
+					else {
+						setCtrlLong(CTLSEL_PRCRSRCC_TOLANG, lang_id_list.getSingle());
+						disableCtrl(CTLSEL_PRCRSRCC_TOLANG, false);
+					}
+				}
+			}
+			else if(event.isClusterClk(CTL_PRCRSRCC_FLAGS)) {
 				SetupCtrls();
 			}
 			else
@@ -998,32 +1020,45 @@ int PrcssrSourceCodeMaintaining::EditParam(PPBaseFilt * pBaseFilt)
 				SetupLangCombo();
 			}
 		}
+		void   MakeLangNameList()
+		{
+			const uint64 lang_ued_list[] = {
+				UED_LINGUA_EN,
+				UED_LINGUA_DE,
+				UED_LINGUA_NL,
+				UED_LINGUA_ES,
+				UED_LINGUA_PT,
+			};
+			LangNameList.Z();
+			SString temp_buf;
+			const SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
+			if(p_uedc) {
+				for(uint i = 0; i < SIZEOFARRAY(lang_ued_list); i++) {
+					const uint64 lang_ued = lang_ued_list[i];
+					if(lang_ued && p_uedc->GetText(lang_ued, UED_LINGUALOCUS_RU, temp_buf)) {
+						LangNameList.AddFast(UED::GetRawValue32(lang_ued), temp_buf);
+					}
+				}
+			}
+		}
 		void   SetupLangCombo()
 		{
 			TView * p_view = getCtrlView(CTLSEL_PRCRSRCC_TOLANG);
 			if(TView::IsSubSign(p_view, TV_SUBSIGN_COMBOBOX)) {
 				ComboBox * p_cb = static_cast<ComboBox *>(p_view);
 				if(!p_cb->GetSettledTag()) {
-					const uint64 lang_ued_list[] = {
-						UED_LINGUA_EN,
-						UED_LINGUA_DE,
-						UED_LINGUA_NL,
-						UED_LINGUA_ES,
-						UED_LINGUA_PT,
-					};
-					SString temp_buf;
-					StrAssocArray lang_list;
-					const SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
-					if(p_uedc) {
-						for(uint i = 0; i < SIZEOFARRAY(lang_ued_list); i++) {
-							const uint64 lang_ued = lang_ued_list[i];
-							if(lang_ued && p_uedc->GetText(lang_ued, UED_LINGUALOCUS_RU, temp_buf)) {
-								lang_list.AddFast(UED::GetRawValue32(lang_ued), temp_buf);
-							}
-						}
-						SetupStrAssocCombo(this, CTLSEL_PRCRSRCC_TOLANG, lang_list, Data.AtToLangUedId32, lbtTextUtf8);
-					}
+					SetupStrAssocCombo(this, CTLSEL_PRCRSRCC_TOLANG, LangNameList, 0, lbtTextUtf8);
 					p_cb->SetSettledTag(true);
+				}
+				{
+					if(Data.LangList.GetCount() > 1) {
+						SetComboBoxListText(this, CTLSEL_PRCRSRCC_TOLANG);
+						disableCtrl(CTLSEL_PRCRSRCC_TOLANG, true);
+					}
+					else {
+						setCtrlLong(CTLSEL_PRCRSRCC_TOLANG, Data.LangList.GetSingle());
+						disableCtrl(CTLSEL_PRCRSRCC_TOLANG, false);
+					}
 				}
 			}
 		}
@@ -1111,7 +1146,7 @@ int PrcssrSourceCodeMaintaining::Run()
 				PPError();
 		}
 		if(P.Flags & PrcssrSourceCodeMaintainingFilt::fAutotranslateStrings) { // @v12.6.6
-			if(P.AtToLangUedId32) {
+			if(P.LangList.GetCount()) {
 				SString src_file_path;
 				SString auto_transl_lang;
 				(src_file_path = SrcPath).SetLastSlash().Cat("rsrc").SetLastSlash().Cat("str").SetLastSlash().Cat("ppstr2.txt");
@@ -1119,12 +1154,17 @@ int PrcssrSourceCodeMaintaining::Run()
 					; // @todo
 				}
 				const SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
-				if(p_uedc && p_uedc->GetSymb(UED::ApplyMetaToRawValue32(UED_META_LINGUA, P.AtToLangUedId32), auto_transl_lang)) {
-					auto_transl_lang.Strip();
-					long   flags = StringStore2::cfTranslateOnly;
-					{
-						StringStore2 s;
-						s.Compile(src_file_path, flags, auto_transl_lang);
+				if(p_uedc) {
+					for(uint lidx = 0; lidx < P.LangList.GetCount(); lidx++) {
+						const  uint32 lang_ued_id32 = static_cast<uint32>(P.LangList.Get(lidx));
+						if(p_uedc->GetSymb(UED::ApplyMetaToRawValue32(UED_META_LINGUA, lang_ued_id32), auto_transl_lang)) {
+							auto_transl_lang.Strip();
+							long   flags = StringStore2::cfTranslateOnly;
+							{
+								StringStore2 s;
+								s.Compile(src_file_path, flags, auto_transl_lang);
+							}
+						}
 					}
 				}
 			}

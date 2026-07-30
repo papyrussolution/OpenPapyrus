@@ -2115,7 +2115,7 @@ void SCalendarPicker::CreateLayout(LDATE selectedDate)
 			if(pItem) {
 				TView * p = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
 				if(p) {
-					p->changeBounds(TRect(pItem->GetFrameAdjustedToParent()));
+					p->ChangeBounds(TRect(pItem->GetFrameAdjustedToParent()));
 				}	
 			}
 		}

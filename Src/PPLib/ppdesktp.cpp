@@ -2908,6 +2908,7 @@ private:
 class CentrigoSecretsDialog : public TDialog, public PPListDialogBaseInterface {
 public:
 	CentrigoSecretsDialog(void * hParentWindow, PPSecretSegmentPool & rSecPool, const SString & rFilePath);
+	~CentrigoSecretsDialog();
 private:
 	struct TextFieldDescr {
 		uint   CtlId;
@@ -3109,7 +3110,7 @@ int TFacadeWindow::DoSecrets()
 	int    ok = -1;
 	SString file_path;
 	CentrigoSecretsDialog * dlg = 0;
-	if(LoadSecrets(&file_path, true/*interactive*/)) {
+	if(LoadSecrets(&file_path, true/*interactive*/) > 0) {
 		dlg = new CentrigoSecretsDialog(H(), SecPool, file_path);
 		//ExecView(dlg);
 		//
@@ -3695,9 +3696,12 @@ int TFacadeWindow::DrawNavTreeItem(void * pCustomDrawDescriptor)
 		case WM_KEYDOWN:
 			if(wParam == VK_TAB) {
 				p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
-				if(p_view && GetKeyState(VK_CONTROL) & 0x8000 && !p_view->IsInState(sfModal)) {
-					SetFocus(GetNextBrowser(hWnd, (GetKeyState(VK_SHIFT) & 0x8000) ? 0 : 1));
-					return 0;
+				if(p_view) {
+					//TView * p_primary_view = p_view->getCtrlView(ViewId_Primary);
+					if(GetKeyState(VK_CONTROL) & 0x8000 && !p_view->IsInState(sfModal)) {
+						SetFocus(GetNextBrowser(hWnd, (GetKeyState(VK_SHIFT) & 0x8000) ? 0 : 1));
+						return 0;
+					}
 				}
 			}
 			return 0;
@@ -4049,7 +4053,10 @@ PPSecretSegment::PPSecretSegment(SStrGroup * pOuterSg) : P_OwnSg(0), P_OuterSg(p
 	
 PPSecretSegment::~PPSecretSegment()
 {
-	delete P_OwnSg;
+	if(P_OwnSg) {
+		P_OwnSg->DestroySecureS(); // @v12.7.0
+		delete P_OwnSg;
+	}
 }
 
 bool PPSecretSegment::IsEmpty() const 
@@ -4441,19 +4448,30 @@ bool PPSecretSegment::FromJsonObj(const SJson * pJs)
 	return !IsEmpty();
 }
 
-PPSecretSegmentPool::PPSecretSegmentPool() : P_Vault(0)
+static constexpr uint64 PPSecretSegmentPool_Signature = 0xA0C7E0A913D9C152ULL;
+
+PPSecretSegmentPool::PPSecretSegmentPool() : SSignaturePrefix64(PPSecretSegmentPool_Signature), P_Vault(0)
 {
 }
 
 PPSecretSegmentPool::~PPSecretSegmentPool()
 {
-	delete P_Vault;
+	ZDELETE(P_Vault);
 }
 
-bool PPSecretSegmentPool::IsInWork() const
+bool PPSecretSegmentPool::IsConsistent() const { return (this && this->SSignaturePrefix64::CheckSignature(PPSecretSegmentPool_Signature)); }
+
+PPSecretSegmentPool & PPSecretSegmentPool::Z()
 {
-	return (P_Vault && P_Vault->GetKeyRef());
+	if(IsConsistent()) {
+		ZDELETE(P_Vault);
+		freeAll();
+		Sg.DestroySecureS();
+	}
+	return *this;
 }
+
+bool PPSecretSegmentPool::IsInWork() const { return (P_Vault && P_Vault->GetKeyRef()); }
 
 bool FASTCALL PPSecretSegmentPool::IsEq(const PPSecretSegmentPool & rS) const
 {
@@ -4483,8 +4501,6 @@ bool PPSecretSegmentPool::GetText(uint textP, SString & rBuf) const
 {
 	return Sg.GetS(textP, rBuf);
 }
-
-static const uint64 SecretSegmentPool_Signature = 0xA0C7E0A913D9C152ULL;
 
 int PPSecretSegmentPool::DescryptSegments(const char * pMasterPassword, size_t masterPasswordLen)
 {
@@ -4550,7 +4566,7 @@ int PPSecretSegmentPool::LoadStorage(const char * pFileName, const char * pMaste
 			uint64 signature = 0;
 			uint64 data_size = 0;
 			THROW_SL(f.Read(&signature, sizeof(signature)));
-			THROW(signature == SecretSegmentPool_Signature); // @todo @err
+			THROW(signature == PPSecretSegmentPool_Signature); // @todo @err
 			THROW_SL(f.Read(&data_size, sizeof(data_size)));
 			if(data_size) {
 				STempBuffer temp_buf(SMEGABYTE(1));
@@ -4648,7 +4664,7 @@ int PPSecretSegmentPool::IsThereStorage(const char * pFileName)
 	if(fileExists(pFileName)) {
 		SFile f(pFileName, SFile::mRead|SFile::mBinary|SFile::mNoStd);
 		uint64 signature = 0;
-		if(f.IsValid() && f.Read(&signature, sizeof(signature)) && signature == SecretSegmentPool_Signature) {
+		if(f.IsValid() && f.Read(&signature, sizeof(signature)) && signature == PPSecretSegmentPool_Signature) {
 			ok = 1;
 		}
 	}
@@ -4736,7 +4752,7 @@ int PPSecretSegmentPool::CreateStorage(const char * pFileName, const char * pMas
 			SSerializeContext sctx;
 			SBuffer sbuf;
 			THROW_SL(P_Vault->Serialize(+1, sbuf, &sctx));
-			THROW_SL(f.Write(&SecretSegmentPool_Signature, sizeof(SecretSegmentPool_Signature)));
+			THROW_SL(f.Write(&PPSecretSegmentPool_Signature, sizeof(PPSecretSegmentPool_Signature)));
 			const  uint64 data_size = sbuf.GetAvailableSize();
 			THROW_SL(f.Write(&data_size, sizeof(data_size)));
 			THROW_SL(f.Write(sbuf.GetBufC(), static_cast<size_t>(data_size)));
@@ -4789,7 +4805,7 @@ int PPSecretSegmentPool::SaveStorage(const char * pFileName)
 				SSerializeContext sctx;
 				SBuffer sbuf;
 				THROW_SL(P_Vault->Serialize(+1, sbuf, &sctx));
-				THROW_SL(f.Write(&SecretSegmentPool_Signature, sizeof(SecretSegmentPool_Signature)));
+				THROW_SL(f.Write(&PPSecretSegmentPool_Signature, sizeof(PPSecretSegmentPool_Signature)));
 				const  uint64 data_size = sbuf.GetAvailableSize();
 				THROW_SL(f.Write(&data_size, sizeof(data_size)));
 				THROW_SL(f.Write(sbuf.GetBufC(), static_cast<size_t>(data_size)));
@@ -4948,6 +4964,8 @@ int TFacadeWindow::GetSecretsFilePath(SString & rBuf)
 	return ok;
 }
 
+static const char * P_PasswordStorageCredentialSymbol = "sobolev.centrigo.sm.01";
+
 int TFacadeWindow::LoadSecrets(SString * pFilePath, bool interactive)
 {
 	int    ok = -1;
@@ -4956,16 +4974,55 @@ int TFacadeWindow::LoadSecrets(SString * pFilePath, bool interactive)
 		char    _password[128];
 		_password[0] = 0;
 		if(fileExists(file_path)) {
+			bool   done = false;
 			PasswordDialogParam param;
 			param.MinLen = 0;
 			param.Flags |= (PasswordDialogParam::fWithoutEncrypt|PasswordDialogParam::fNoConfirmation);
-			if(PasswordDialog2(DLG_SECRETPOOLPASSWORD, _password, sizeof(_password), param) > 0) {
-				if(!isempty(_password)) {
-					if(SecPool.LoadStorage(file_path, _password, sstrlen(_password))) {
+			param.StorePasswordIdent = P_PasswordStorageCredentialSymbol;
+			{
+				SSystemCredential scp;
+				scp.Persist = SSystemCredential::persistMachine;
+				scp.TargetNameUtf8 = P_PasswordStorageCredentialSymbol;
+				SBinaryChunk bc;
+				const  int r = SSystemCredentialRead(scp, bc);
+				if(r > 0) {
+					SUniTime_Internal ut;
+					SUniTime_Internal now_ut;
+					bool   is_expired = false;
+					if(UED::_GetRaw_Time(scp.UedModTime, ut) && now_ut.SetCurrent()) {
+						int   diff_days = 0;
+						int   diff_result = 0;
+						if(now_ut.Difference(ut, SUOM_SECOND, &diff_days, &diff_result)) {
+							if(abs(diff_days) > 7) {
+								is_expired = true;
+							}
+						}
+					}
+					if(!is_expired && SecPool.LoadStorage(file_path, static_cast<const char *>(bc.PtrC()), bc.Len())) {
+						done = true;
+						ok = 1;
+					}
+				}
+				bc.DestroySecure();
+			}
+			if(!done) {
+				const   int pwdr = PasswordDialog2(DLG_SECRETPOOLPASSWORD, _password, sizeof(_password), param);
+				if(pwdr > 0) {
+					if(isempty(_password)) {
+						PPError(PPERR_NONEMPTYPASSWORDNEEDED);
+						ok = 0;
+					}
+					else if(SecPool.LoadStorage(file_path, _password, sstrlen(_password))) {
+						if(pwdr == 101) {
+							SSystemCredential scp;
+							scp.Persist = SSystemCredential::persistMachine;
+							scp.TargetNameUtf8 = P_PasswordStorageCredentialSymbol;
+							bool r = SSystemCredentialWrite(scp, _password, sstrlen(_password));
+						}
 						ok = 1;
 					}
 					else {
-						ok = PPError();
+						ok = PPErrorZ();
 					}
 				}
 			}
@@ -4976,13 +5033,15 @@ int TFacadeWindow::LoadSecrets(SString * pFilePath, bool interactive)
 			param.MinLen = 0;
 			param.Flags |= PasswordDialogParam::fWithoutEncrypt;
 			if(PasswordDialog2(DLG_SECRETPOOLPASSWORD, _password, sizeof(_password), param) > 0) {
-				if(!isempty(_password)) {
-					if(SecPool.CreateStorage(file_path, _password, sstrlen(_password))) {
-						ok = 2;
-					}
-					else {
-						ok = PPError();
-					}
+				if(isempty(_password)) {
+					PPError(PPERR_NONEMPTYPASSWORDNEEDED);
+					ok = 0;
+				}
+				else if(SecPool.CreateStorage(file_path, _password, sstrlen(_password))) {
+					ok = 2;
+				}
+				else {
+					ok = PPErrorZ();
 				}
 			}
 		}
@@ -5019,6 +5078,21 @@ CentrigoSecretsDialog::CentrigoSecretsDialog(void * hParentWindow, PPSecretSegme
 				p_view->ViewOptions |= ofUtf8;
 			}
 		}
+	}
+}
+
+CentrigoSecretsDialog::~CentrigoSecretsDialog()
+{
+	bool    debug_mark = false;
+	if(R_SecPool.IsConsistent()) {
+		/*if(FilePath.NotEmpty()) {
+			if(!R_SecPool.SaveStorage(FilePath))
+				PPError();
+		}*/
+		R_SecPool.Z();
+	}
+	else {
+		debug_mark = true;
 	}
 }
 

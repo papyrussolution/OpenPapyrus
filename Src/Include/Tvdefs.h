@@ -182,69 +182,69 @@
 //
 //  Standard command codes
 //
-#define cmValid               0
-#define cmNone                0
-#define cmQuit                1
-#define cmError               2
-#define cmMenu                3
-#define cmClose               4
-#define cmZoom                5
-#define cmResize              6
-#define cmNext                7
-#define cmPrev                8
-#define cmHelp                9
+#define cmValid                    0
+#define cmNone                     0
+#define cmQuit                     1
+#define cmError                    2
+#define cmMenu                     3
+#define cmClose                    4
+#define cmZoom                     5
+#define cmResize                   6
+#define cmNext                     7
+#define cmPrev                     8
+#define cmHelp                     9
 //
 //  TDialog standard commands
 //
-#define cmOK                 10
-#define cmCancel             11
-#define cmYes                12
-#define cmNo                 13
-#define cmDefault            14
-#define cmInit               15 // Initialization command
-#define cmUtil               16
-#define cmRightClick         17 // (Win32 only) Right mouse button clicked on window
-#define cmCommitInput        18 // Commiting input data in TInputLine. event.what = evBroadcast, event.mesage.infoView = &TInputLine
-#define cmInputUpdated       19 // TInputLine updated by user event.what = evCommand, event.message.infoView = &TInputLine
+#define cmOK                      10
+#define cmCancel                  11
+#define cmYes                     12
+#define cmNo                      13
+#define cmDefault                 14
+#define cmInit                    15 // Initialization command
+#define cmUtil                    16
+#define cmRightClick              17 // (Win32 only) Right mouse button clicked on window
+#define cmCommitInput             18 // Commiting input data in TInputLine. event.what = evBroadcast, event.mesage.infoView = &TInputLine
+#define cmInputUpdated            19 // TInputLine updated by user event.what = evCommand, event.message.infoView = &TInputLine
 //
 //  Application command codes
 //
-#define cmCut                20
-#define cmCopy               21
-#define cmPaste              22
-#define cmUndo               23
-#define cmClear              24
-#define cmTile               25
-#define cmCascade            26
+#define cmCut                     20
+#define cmCopy                    21
+#define cmPaste                   22
+#define cmUndo                    23
+#define cmClear                   24
+#define cmTile                    25
+#define cmCascade                 26
 //
 // Action commands (Application level)
 //
-#define cmaDefaultAction     27
-#define cmaInsert            28
-#define cmaAltInsert         29
-#define cmaDelete            30
-#define cmaEdit              31
-#define cmaSearch            32
+#define cmaDefaultAction          27
+#define cmaInsert                 28
+#define cmaAltInsert              29
+#define cmaDelete                 30
+#define cmaEdit                   31
+#define cmaSearch                 32
 // #define cmaAltSearch         33 // Используется в pplistdialog, как передать элемент списка по email
-#define cmaSendByMail        33 // Используется в pplistdialog, как передать элемент списка по email
-#define cmaSort              34
-#define cmaTransfer          35
-#define cmaCalculate         36
-#define cmaAltCalculate      37
-#define cmaSelect            38
-#define cmaAltSelect         39
-#define cmaMore              40
-#define cmaLevelDown         41
-#define cmaLevelUp           42
-#define cmaSkip              43
-#define cmaAll               44
-#define cmaBack              45
-#define cmaDesktop           46
-#define cmaRename            47
+#define cmaSendByMail             33 // Используется в pplistdialog, как передать элемент списка по email
+#define cmaSort                   34
+#define cmaTransfer               35
+#define cmaCalculate              36
+#define cmaAltCalculate           37
+#define cmaSelect                 38
+#define cmaAltSelect              39
+#define cmaMore                   40
+#define cmaLevelDown              41
+#define cmaLevelUp                42
+#define cmaSkip                   43
+#define cmaAll                    44
+#define cmaBack                   45
+#define cmaDesktop                46
+#define cmaRename                 47
 //
 // Standard messages
 //
-#define cmIdle                   48 // (evBroadcast) посылается функцией TProgram::idle
+#define cmIdle                    48 // (evBroadcast) посылается функцией TProgram::idle
 //
 // Descr: посылается функцией TViewGroup::setCurrent в последнюю очередь
 //   после завершения всех обработок, а также объектом TDialog в ответ на
@@ -252,95 +252,97 @@
 // Parameters:
 //   Указатель на TView, потерявший фокус
 //
-#define cmChangedFocus           49
-#define cmReceivedFocus          50
-#define cmReleasedFocus          51
-#define cmCommandSetChanged      52
+#define cmChangedFocus            49
+#define cmReceivedFocus           50
+#define cmReleasedFocus           51
+#define cmCommandSetChanged       52
 //
 // TScrollBar messages
 //
-#define cmScrollBarChanged       53
-#define cmScrollBarClicked       54
+#define cmScrollBarChanged        53
+#define cmScrollBarClicked        54
 //
 // TWindow select messages
 //
-#define cmSelectWindowNum        55
+#define cmSelectWindowNum         55
 //
 //  Added command codes
 //
-#define cmRequestID              56
-#define cmSearchLabel            57
-#define cmSearchVirtButton       58 // evBroadcast
-#define cmInputUpdatedByBtn      59 // Изменился текст в строке ввода, посредством нажатия какой-либо клавиши
-#define cmInputDblClk            60 // На поле ввода пользователь дважды щелкнул левой кнопкой мыши
-#define cmDrawItem               61 // evCommand Сообщение посылается экземпляру TDialog в ответ на системное сообщение WM_DRAWITEM.
+#define cmRequestID               56
+#define cmSearchLabel             57
+#define cmSearchVirtButton        58 // evBroadcast
+#define cmInputUpdatedByBtn       59 // Изменился текст в строке ввода, посредством нажатия какой-либо клавиши
+#define cmInputDblClk             60 // На поле ввода пользователь дважды щелкнул левой кнопкой мыши
+#define cmDrawItem                61 // evCommand Сообщение посылается экземпляру TDialog в ответ на системное сообщение WM_DRAWITEM.
 	// С дополнительным параметром посылается указатель на структуру TDrawItemData
-#define cmWinKeyDown             62 // передается сообщение, альтернативное TVKEYDOWN, но с WIN кодами кнопок
-#define cmCtlColor               63 // evCommand Сообщение посылается экземпляру TDialog в ответ на системное
+#define cmWinKeyDown              62 // передается сообщение, альтернативное TVKEYDOWN, но с WIN кодами кнопок
+#define cmCtlColor                63 // evCommand Сообщение посылается экземпляру TDialog в ответ на системное
 	// сообщение WM_CTLCOLORSTATIC, WM_CTLCOLOREDIT, WM_CTLCOLORSCROLLBAR. С дополнительным параметром посылается указатель на
 	// структуру TDrawCtrlData
-#define cmSearchButton           64 // evBroadcast Сообщение посылается диалогу для поиска кнопки, генерирующей команду
+#define cmSearchButton            64 // evBroadcast Сообщение посылается диалогу для поиска кнопки, генерирующей команду
 	// event.message.infoWord. Кнопка, которая генерирует такую команду должна вызвать clearEvent в ответ на сообщение.
-#define cmLocalMenu              65 // evCommand Показать прикладное локальное меню управляющего элемента
-#define cmSetupTooltip           66 // evCommand Посылается окну, для того, чтобы оно смогло инициализировать подсказки (tooltip) //
-#define cmSetupResizeParams      67 // evCommand Посылается окну, для того, чтобы оно установило параметры изменения размеров для управляющих элементов
-#define cmMouseHover             68 // evBroadcast Посылается окну, когда курсор мыши задерживается на определенное время.
+#define cmLocalMenu               65 // evCommand Показать прикладное локальное меню управляющего элемента
+#define cmSetupTooltip            66 // evCommand Посылается окну, для того, чтобы оно смогло инициализировать подсказки (tooltip) //
+#define cmSetupResizeParams       67 // evCommand Посылается окну, для того, чтобы оно установило параметры изменения размеров для управляющих элементов
+#define cmMouseHover              68 // evBroadcast Посылается окну, когда курсор мыши задерживается на определенное время.
 	// В infoPtr содержатся координаты курсора мыши (SPoint2S).
-#define cmTimeChange             69 // evCommand Посылается классу TProgram, когда какое-либо приложение изменило системное время //
+#define cmTimeChange              69 // evCommand Посылается классу TProgram, когда какое-либо приложение изменило системное время //
 //
 // ComboBox messages
 //
-#define cmCBSelected             70
-#define cmWSSelected             71 // (evCommand) Вызывается при установке данных после выбора пользователем строки в WordSelector.
+#define cmCBSelected              70
+#define cmWSSelected              71 // (evCommand) Вызывается при установке данных после выбора пользователем строки в WordSelector.
 	// Дополнительный аргумент - указатель на TView в котором произошло событие (обычно TInputLine).
-#define cmValidateCommand        72 // @v12.2.6 (evCommand) Команда, используемая вместо устаревшего виртуального метода TView::valid().
+#define cmValidateCommand         72 // @v12.2.6 (evCommand) Команда, используемая вместо устаревшего виртуального метода TView::valid().
 	// В параметре команды message.infoLong посылается идентификатор той команды, которую необходимо верифицировать.
 	// Если экземпляр объекта TView или порожденного от него считает, что команда валидна, то НЕ ОЧИЩАЕТ событие методом clearEvent(event).
 	// Если, наоборот, считает, что команда не валидна, то ОЧИЩАЕТ событие методом clearEvent(event).
-#define cmGrabDefault            73
-#define cmReleaseDefault         74
-#define cmChildFocusReceived     75 // @v12.6.0 Уведомление, отправляемое окном своему родителю и уведомляющее о том, что окно получило фокус. 
-#define cmInputLangChange        76 // @v12.6.9 evBroadcast Посылается если пользователь изменил раскладку клавиатуры в основном потоке программы
-#define cmKeyboardStateChange    77 // @v12.6.9 evBroadcast Посылается если пользователь нажал клавишу блокировки статуса клавиатуры (caps-lock, scroll-lock, num-lock)
-#define cmInsertFolder           78 // @v12.6.11 evCommand Команда создания папки (нечто, олицетворяющее верхний уровень иерархии)
+#define cmGrabDefault             73
+#define cmReleaseDefault          74
+#define cmChildFocusReceived      75 // @v12.6.0 Уведомление, отправляемое окном своему родителю и уведомляющее о том, что окно получило фокус. 
+#define cmInputLangChange         76 // @v12.6.9 evBroadcast Посылается если пользователь изменил раскладку клавиатуры в основном потоке программы
+#define cmKeyboardStateChange     77 // @v12.6.9 evBroadcast Посылается если пользователь нажал клавишу блокировки статуса клавиатуры (caps-lock, scroll-lock, num-lock)
+#define cmInsertFolder            78 // @v12.6.11 evCommand Команда создания папки (нечто, олицетворяющее верхний уровень иерархии)
 //
 //  TListViewer messages
 //
-#define cmLBItemSelected         79
-#define cmLBItemUnselected   	 80
-#define cmLBItemFocused      	 81
-#define cmLBDblClk           	 82
-#define cmLBEmpty            	 83
-#define cmClusterClk         	 84 // evCommand TCluster message
-#define cmLBLoadDef          	 85 //
-#define cmGetHelpContext     	 86 //
-#define cmBrwsSrchPreprocess 	 87 // evCommand Browser message
-#define cmSetFont            	 88 // Посылается экземпляру TWindowBase при установке шрифта. В infoPtr передается указатель на структуру SetFontEvent
-#define cmSize               	 89 // Посылается экземпляру TWindowBase после изменения размера окна. В infoPtr передается указатель на структуру SizeEvent
-#define cmPaint              	 90 // Посылается экземпляру TWindowBase в ответ на одно из следующих сообщений Windows: WM_PAINT, WM_NCPAINT, WM_ERASEBKGND.
-#define cmMouse                  91 // Посылается экземпляру TWindowBase в ответ на одно из
+#define cmLBItemSelected          79
+#define cmLBItemUnselected   	  80
+#define cmLBItemFocused      	  81
+#define cmLBDblClk           	  82
+#define cmLBEmpty            	  83
+#define cmClusterClk         	  84 // evCommand TCluster message
+#define cmLBLoadDef          	  85 //
+#define cmGetHelpContext     	  86 //
+#define cmBrwsSrchPreprocess 	  87 // evCommand Browser message
+#define cmSetFont            	  88 // Посылается экземпляру TWindowBase при установке шрифта. В infoPtr передается указатель на структуру SetFontEvent
+#define cmSize               	  89 // Посылается экземпляру TWindowBase после изменения размера окна. В infoPtr передается указатель на структуру SizeEvent
+#define cmPaint              	  90 // Посылается экземпляру TWindowBase в ответ на одно из следующих сообщений Windows: WM_PAINT, WM_NCPAINT, WM_ERASEBKGND.
+#define cmMouse                   91 // Посылается экземпляру TWindowBase в ответ на одно из
 	// следующих сообщений Windows:
 	// WM_LBUTTONDOWN, WM_LBUTTONUP, WM_LBUTTONDBLCLK, WM_RBUTTONDOWN, WM_RBUTTONUP, WM_RBUTTONDBLCLK,
 	// WM_MBUTTONDOWN, WM_MBUTTONUP, WM_MBUTTONDBLCLK, WM_MOUSEMOVE, WM_MOUSEWHEEL, WM_MOUSEHOVER
-#define cmScroll                 92 // Посылается экземпляру TWindowBase в ответ на одно из следующих сообщений Windows: WM_HSCROLL, WM_VSCROLL
-#define cmMove                   93 // Посылается экземпляру TWindowBase в ответ сообщение WM_MOVE
-#define cmSetBounds              94 // Императивное сообщение. Посылается экземпляру TView для того, чтобы он
+#define cmScroll                  92 // Посылается экземпляру TWindowBase в ответ на одно из следующих сообщений Windows: WM_HSCROLL, WM_VSCROLL
+#define cmMove                    93 // Посылается экземпляру TWindowBase в ответ сообщение WM_MOVE
+#define cmSetBounds               94 // Императивное сообщение. Посылается экземпляру TView для того, чтобы он
 	// изменил свои координаты и (или) размер. TEvent.message.infoPtr указывает на TRect.
-#define cmDragndropObj           95 // Посылается окном, получившим в распоряжение курсор
+#define cmDragndropObj            95 // Посылается окном, получившим в распоряжение курсор
 	// с перетаскиваемым объектом. Вместе с сообщение посылается структура DragndropEvent
-#define cmEndModal               96 // @construction @v6.9.9 evCommand Посылается для остановки режима модальности окна.
+#define cmEndModal                96 // @construction @v6.9.9 evCommand Посылается для остановки режима модальности окна.
 	// Используется для замещения виртуальной функции TView::endModal.
 	// TEvent::message::infoWord содержит команду, по которой осуществляется завершение режима.
-#define cmExecute                97 // evCommand Команда, замещающая вызов виртуальной функции PPView::execute
+#define cmExecute                 97 // evCommand Команда, замещающая вызов виртуальной функции PPView::execute
 	// TEvent::message::infoLong возвращает код команды, которой завершился модульный цикл
-#define cmImageDblClk            98 // На StaticText пользователь дважды щелкнул левой кнопкой мыши
-#define cmModalPostCreate        99 // Посылается экземпляру TView после "физического" создания окна
+#define cmImageDblClk             98 // На StaticText пользователь дважды щелкнул левой кнопкой мыши
+#define cmModalPostCreate         99 // Посылается экземпляру TView после "физического" создания окна
 	// (рекурсивно из функции обработки событий базового экземпляра, создающей "физического" окно)
-#define cmSetItemSelected       100 // Сообщение посылается для того, чтобы класс отреагировал на факт выбора пользователем визуального элемента
-#define cmIsItemSelected        101 // Сообщение посылается для получения информации является ли заданный элемент выбранным
-#define cmNotifyCommit          102 // Сообщение посылается всем управляющим элементам группы в ответ на команду cmOK
-#define cmNotifyForeignFocus    103 // @v11.1.12 Сообщение посылается окну для извещения о том, что в другом окне изменился фокус данных (не путать с фокусом мыши)
+#define cmSetItemSelected        100 // Сообщение посылается для того, чтобы класс отреагировал на факт выбора пользователем визуального элемента
+#define cmIsItemSelected         101 // Сообщение посылается для получения информации является ли заданный элемент выбранным
+#define cmNotifyCommit           102 // Сообщение посылается всем управляющим элементам группы в ответ на команду cmOK
+#define cmNotifyForeignFocus     103 // Сообщение посылается окну для извещения о том, что в другом окне изменился фокус данных (не путать с фокусом мыши)
 	// С командой передается блок типа ForeignFocusEvent (slui.h)
+#define cmLBItemMouseHover       104 // @v12.7.0 Сообщение посылается окну-владельцу списка и информирует о том, что над списком "завис" курсор мыши.
+#define cmSearchSupplementButton 105 // @v12.7.0 evBroadcast посылается всем дочерним окнам для поиска кнопки, являющейся supplement-элементом для элемента с заданным идентификатором
 
 #define cmCBActivate        300
 //
@@ -509,6 +511,7 @@
 #define lbtOwnerDraw       0x00004000 //
 #define lbtExtMenu         0x00008000 // Расширенное меню редактирование. Содержит пункт отправить по email
 #define lbtTextUtf8        0x00010000 // @v12.5.6 флаг ListBoxDef. Объект возвращает строки в кодировке utf8
+#define lbtHoverNotify     0x00020000 // @v12.7.0 Список должен извещать родительское окно о событии mouse-hover
 //
 // ComboBox flags
 //

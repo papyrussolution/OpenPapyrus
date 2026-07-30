@@ -37,6 +37,7 @@ int PPViewBalance::Init_(const PPBaseFilt * pBaseFilt)
 	THROW(Helper_InitBaseFilt(pBaseFilt));
 	Filt.Period.Actualize(ZERODATE);
 	THROW(AdjustPeriodToRights(Filt.Period, false));
+	const   LDATE end_date = checkdate(Filt.Period.upp) ? Filt.Period.upp : MAXDATEVALID; // @v12.7.0
 	List.freeAll();
 	MEMSZERO(Total);
 	{
@@ -54,8 +55,7 @@ int PPViewBalance::Init_(const PPBaseFilt * pBaseFilt)
 			ac = acc_rec.A.Ac;
 		}
 		for(SEnum en = AccObj.Enum(0); en.Next(&acc_rec) > 0;) {
-			if((!ac || acc_rec.A.Ac == ac) && (uint)acc_rec.Type == Filt.AccType &&
-				((Filt.Flags & BALFORM_ALLCUR) || Filt.CurID == acc_rec.CurID) &&
+			if((!ac || acc_rec.A.Ac == ac) && (uint)acc_rec.Type == Filt.AccType && ((Filt.Flags & BALFORM_ALLCUR) || Filt.CurID == acc_rec.CurID) &&
 				(!(Filt.Flags & BALFORM_ACO1GROUPING) || acc_rec.A.Sb == 0)) {
 				item.ID    = acc_rec.ID;
 				item.Ac    = acc_rec.A.Ac;
@@ -85,11 +85,11 @@ int PPViewBalance::Init_(const PPBaseFilt * pBaseFilt)
 			entry.CurID = p_aci->CurID;
 
 			P_ATC->GetBalRest(Filt.Period.low, p_aci->ID, &entry.InDbtRest, &entry.InCrdRest, brf | BALRESTF_INCOMING);
-			P_ATC->GetBalRest(Filt.Period.upp, p_aci->ID, &entry.OutDbtRest, &entry.OutCrdRest, brf);
+			P_ATC->GetBalRest(end_date, p_aci->ID, &entry.OutDbtRest, &entry.OutCrdRest, brf);
 			if(Filt.Flags & BALFORM_SPREAD) {
 				brf &= ~BALRESTF_SPREAD;
 				double d, c;
-				P_ATC->GetBalRest(Filt.Period.upp, p_aci->ID, &entry.DbtTrnovr, &entry.CrdTrnovr, brf);
+				P_ATC->GetBalRest(end_date, p_aci->ID, &entry.DbtTrnovr, &entry.CrdTrnovr, brf);
 				P_ATC->GetBalRest(Filt.Period.low, p_aci->ID, &d, &c, brf | BALRESTF_INCOMING);
 				entry.DbtTrnovr -= d;
 				entry.CrdTrnovr -= c;

@@ -1980,6 +1980,7 @@
 #define STDCTL_KEYBOARDLAYOUT     177 // @v12.6.9 кнопка отображения текущего варианта раскладки клавиатуры // 
 #define STDCTL_KBSTATECAPSLOCK    178 // @v12.6.9 кнопка отображения признака состояния клавиатуры CAPSLOCK // 
 #define STDCTL_INSFOLDERBUTTON    179 // @v12.6.11 кнопка создания папки (элемента иерархии верхнего уровня)
+#define STDCTL_LANGLISTBUTTON     180 // @v12.7.0 Кнопка выбора списка натуральных языков
 
 #define cmPPAccSelected          1101 // Сообщение, посылаемое группой
 	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr
@@ -2082,6 +2083,7 @@
 #define cmCcExtList              1198 // @v11.8.8
 #define cmCcLnExtList            1199 // @v12.4.1
 #define cmToDo                   1200 // @v12.4.7 Кнопка 'Задача' в документах или еще где-нибудь. Введена ради документов.
+#define cmLangList               1201 // @v12.7.0 Кнопка выбора списка натуральных языков 
 //
 #define DLG_LOGIN                   1
 	#define CTL_LOGIN_NAME               (1 + WINDOWS_ID_BIAS)
@@ -2286,6 +2288,7 @@
 	#define CTL_PASSWORD_IMG             (3 + WINDOWS_ID_BIAS)
 	#define CTLRIG_PASSWORD_FIRST        (4 + WINDOWS_ID_BIAS) // @v12.6.9 оснастка поля пароля (show password)
 	#define CTL_PASSWORD_INFO            (5 + WINDOWS_ID_BIAS) // @v12.6.9 Поле с текстом для информации пользователю 
+	#define CTL_PASSWORD_STOREPASSWORD   (6 + WINDOWS_ID_BIAS) // @v12.7.0 checkbox "Сохранить пароль"
 #define DLG_USRGRP                 40 // Группа пользователей
 	#define cmCfgPath                 101
 	#define cmCfgConfig               102
@@ -11324,7 +11327,8 @@
 #define DLG_LOTXCCKLIST           1354
 	#define CTL_LOTXCCKLIST_LIST      (1 + WINDOWS_ID_BIAS)
 	#define CTL_LOTXCCKLIST_INFO      (2 + WINDOWS_ID_BIAS)
-	#define CTL_LOTXCCKLIST_FLAGS     (3 + WINDOWS_ID_BIAS)
+	#define CTL_LOTXCCKLIST_FLAGS     (3 + WINDOWS_ID_BIAS) // checkbox
+	#define CTL_LOTXCCKLIST_SHOWINFO  (4 + WINDOWS_ID_BIAS) // @v12.7.0 checkbox
 #define DLG_TIMSERCFG             1355
 	#define CTL_TIMSERCFG_FLAGS       (1 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSERCFG_MAXSTAKE    (2 + WINDOWS_ID_BIAS)

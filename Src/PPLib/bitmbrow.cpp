@@ -86,7 +86,7 @@ public:
 				QuotInfoPos < 0 && CodePos < 0 && LinkQttyPos < 0 && OrdQttyPos < 0 && ShippedQttyPos < 0 && VetisCertPos < 0 &&
 				PrefSupplPos < 0 && PrefSupplCPricePos < 0);
 		}
-		long   GoodsPos; // @v11.5.8
+		long   GoodsPos; // Позиция колонки с наименованием товара
 		long   QttyPos;
 		long   CostPos;
 		long   PricePos;
@@ -462,7 +462,7 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 			for(uint i = 0; i < p_def->getCount(); i++) {
 				const BroColumn & r_col = p_def->at(i);
 				switch(r_col.Offs) {
-					case  1: rBlk.GoodsPos = static_cast<long>(i);  break; // @v11.5.8
+					case  1: rBlk.GoodsPos = static_cast<long>(i);  break;
 					case  2: rBlk.QttyPos = static_cast<long>(i);  break;
 					case  3: rBlk.CostPos = static_cast<long>(i);  break;
 					case  4: rBlk.PricePos = static_cast<long>(i); break;
@@ -520,7 +520,7 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 			}
 			if(p_brw->GetColPos(posblk) > 0) {
 				if(pos >= 0 && pos < static_cast<int>(r_pack.GetTCount())) {
-					if(col == posblk.GoodsPos) { // @v11.5.8
+					if(col == posblk.GoodsPos) {
 						const PPTransferItem & r_ti = r_pack.ConstTI(pos);
 						const TagFilt & r_tag_filt = p_brw->GObj.GetConfig().TagIndFilt;
 						if(!r_tag_filt.IsEmpty()) {
@@ -792,7 +792,6 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket & r
 	}
 	SString temp_buf;
 	BrowserDef * p_def = getDef();
-	// @v11.5.12 {
 	const  bool use_argoods_code = LOGIC(CConfig.Flags & CCFLG_USEARGOODSCODE);
 	const  UserInterfaceSettings uis = APPL->GetUiSettings();
 	if(uis.BillItemTableFlags & UserInterfaceSettings::bitfShowMargin)
@@ -895,7 +894,6 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket & r
 		}
 		// } @v12.0.8 
 	}
-	// } @v11.5.12 
 	uint   i;
 	uint   pos;
 	temp_buf.Z();
@@ -2272,7 +2270,7 @@ void BillItemBrowser::addItem_(int fromOrder, TIDlgInitData * pInitData, int sig
 				PPBillPacket order_bpack;
 				THROW(P_BObj->ExtractPacket(OrderBillID, &order_bpack));
 				THROW_MEM(brw = new BillItemBrowser(BROWSER_ORDGOODSITEM_W2, P_BObj, order_bpack, &R_Pack, -1, 1, 0/*editMode*/));
-				brw->changeBounds(TRect(0, 0, 80, 10)); // Здесь важны не точные размеры, а ориентация на верхнюю часть экрана с одновременным ограничением высоты (чтоб не закрывать this).
+				brw->ChangeBounds(TRect(0, 0, 80, 10)); // Здесь важны не точные размеры, а ориентация на верхнюю часть экрана с одновременным ограничением высоты (чтоб не закрывать this).
 				brw->State |= BillItemBrowser::stOrderSelector;
 				while(ExecView(brw) == cmOK) {
 					int    r = brw->AsSelector;
@@ -2306,7 +2304,7 @@ void BillItemBrowser::addItem_(int fromOrder, TIDlgInitData * pInitData, int sig
 	else if(State & stUseLinkSelection && P_LinkPack) {
 		const uint res_id = (LConfig.Flags & CFGFLG_SHOWPHQTTY) ? BROWSER_GOODSITEMPH_W2 : BROWSER_GOODSITEM_W2;
 		THROW_MEM(brw = new BillItemBrowser(res_id, P_BObj, *P_LinkPack, 0, -1, 1, /*editMode*/0));
-		brw->changeBounds(TRect(0, 0, 80, 10));
+		brw->ChangeBounds(TRect(0, 0, 80, 10));
 		while(ExecView(brw) == cmOK) {
 			int    r = brw->AsSelector;
 			brw->AsSelector = 1;
@@ -2406,7 +2404,7 @@ void BillItemBrowser::addItem_(int fromOrder, TIDlgInitData * pInitData, int sig
 									else {
 										assert(ord_lt_count && sample_bpack.P_LocTrfrList); // Блок с вычислением is_there_suited_ord_items выше гарантирует это
 										THROW_MEM(brw = new BillItemBrowser(BROWSER_GOODSITEM_BAILMENT, P_BObj, sample_bpack, &R_Pack, -1, 1, 0/*editMode*/));
-										brw->changeBounds(TRect(0, 0, 80, 10)); // Здесь важны не точные размеры, а ориентация на верхнюю часть экрана с одновременным ограничением высоты (чтоб не закрывать this).
+										brw->ChangeBounds(TRect(0, 0, 80, 10)); // Здесь важны не точные размеры, а ориентация на верхнюю часть экрана с одновременным ограничением высоты (чтоб не закрывать this).
 										brw->State |= BillItemBrowser::stOrderSelector;
 										while(ExecView(brw) == cmOK) {
 											const int r = brw->AsSelector;
@@ -3200,7 +3198,6 @@ protected:
 	const  int RowIdx;
 	PPBillPacket * P_Pack;
 	LotExtCodeCore * P_LotXcT;
-	PPChZnPrcssr::CodeInfoCollection OuterCodeInfoList; // @v12.7.0
 };
 
 class ValidateLotXCodeListDialog : public LotXCodeListDialog_Base {
@@ -3217,10 +3214,13 @@ private:
 	int    FontId;
 	int    CStyleId;
 	enum {
-		vfShowUncheckedItems = 0x0001
+		vfShowUncheckedItems = 0x0001,
+		vfShowInfo           = 0x0002  // @v12.7.0
 	};
 	long   ViewFlags;
+	uint   PopupInfoIdx; 
 	ExtCodeRefCore * P_EcrT;
+	PPChZnPrcssr::CodeInfoCollection CodeInfoList;
 };
 
 class LotXCodeListDialog : public LotXCodeListDialog_Base {
@@ -3307,8 +3307,9 @@ int LotXCodeListDialog_Base::PasteFromClipboardAll(int validation) // @erik
 							P_Pack->XcL.Get(local_row_idx, 0, ms);
 							ms.GetByBoxID(local_item.Id, local_ss);
 							if(local_ss.getCount()) {
-								for(uint lssp = 0; local_ss.get(&lssp, temp_buf);)
+								for(uint lssp = 0; local_ss.get(&lssp, temp_buf);) {
 									set.AddNum(0, temp_buf, 1);
+								}
 								done = true;
 							}
 						}
@@ -3465,8 +3466,14 @@ int LotXCodeListDialog_Base::GetItem(long pos, int * pRowIdx, uint * pInnerIdx)
 //
 //
 ValidateLotXCodeListDialog::ValidateLotXCodeListDialog(PPBillPacket * pPack) : LotXCodeListDialog_Base(DLG_LOTXCCKLIST, CTL_LOTXCCKLIST_LIST, pPack, -1, fOmitSearchByFirstChar|fOwnerDraw),
-	FontId(0), CStyleId(0), ViewFlags(0), P_EcrT(0)
+	FontId(0), CStyleId(0), ViewFlags(0), P_EcrT(0), PopupInfoIdx(0)
 {
+	{
+		SmartListBox * p_lb = GetListBoxCtl();
+		if(p_lb && p_lb->P_Def) {
+			p_lb->P_Def->SetOption(lbtHoverNotify);
+		}
+	}
 	{
 		const  long exstyle = TView::SGetWindowExStyle(H());
 		TView::SetWindowProp(H(), GWL_EXSTYLE, reinterpret_cast<void *>(exstyle|WS_EX_COMPOSITED));
@@ -3474,6 +3481,8 @@ ValidateLotXCodeListDialog::ValidateLotXCodeListDialog(PPBillPacket * pPack) : L
 	selectCtrl(CTL_LOTXCCKLIST_LIST);
 	AddClusterAssoc(CTL_LOTXCCKLIST_FLAGS, 0, vfShowUncheckedItems);
 	SetClusterData(CTL_LOTXCCKLIST_FLAGS, 0);
+	AddClusterAssoc(CTL_LOTXCCKLIST_SHOWINFO, 0, vfShowInfo);
+	SetClusterData(CTL_LOTXCCKLIST_SHOWINFO, 0);
 }
 	
 ValidateLotXCodeListDialog::~ValidateLotXCodeListDialog()
@@ -3483,6 +3492,7 @@ ValidateLotXCodeListDialog::~ValidateLotXCodeListDialog()
 
 IMPL_HANDLE_EVENT(ValidateLotXCodeListDialog)
 {
+	bool   debug_mark = false;
 	if(TVKEYDOWN) {
 		uchar  c = TVCHR;
 		if(isasciialnum(c)) {
@@ -3501,8 +3511,80 @@ IMPL_HANDLE_EVENT(ValidateLotXCodeListDialog)
 	if(event.isClusterClk(CTL_LOTXCCKLIST_FLAGS)) {
 		const long preserve_view_flags = ViewFlags;
 		GetClusterData(CTL_LOTXCCKLIST_FLAGS, &ViewFlags);
+		if(ViewFlags & vfShowUncheckedItems) {
+			ViewFlags &= ~vfShowInfo;
+			SetClusterData(CTL_LOTXCCKLIST_SHOWINFO, ViewFlags);
+		}
+		//DisableClusterItem(CTL_LOTXCCKLIST_SHOWINFO, 0, LOGIC(ViewFlags & vfShowUncheckedItems));
 		if(ViewFlags != preserve_view_flags) {
 			updateList(-1);
+		}
+	}
+	else if(event.isClusterClk(CTL_LOTXCCKLIST_SHOWINFO)) {
+		const long preserve_view_flags = ViewFlags;
+		GetClusterData(CTL_LOTXCCKLIST_SHOWINFO, &ViewFlags);
+		if(ViewFlags & vfShowInfo) {
+			ViewFlags &= ~vfShowUncheckedItems;
+			SetClusterData(CTL_LOTXCCKLIST_FLAGS, ViewFlags);
+			//
+			bool    do_init = false;
+			if(!P_EcrT) {
+				P_EcrT = new ExtCodeRefCore();
+				do_init = true;
+			}
+			else if(!CodeInfoList.getCount()) {
+				do_init = true;
+			}
+			if(do_init) {
+				CodeInfoList.Z();
+				PPChZnPrcssr::CodeInfoCollection code_info_result;
+				const  uint oc = P_Pack->XcL.GetCount();
+				PPLotExtCodeContainer::Item2 oi;
+				for(uint i = 0; i < oc; i++) {
+					if(P_Pack->XcL.GetByIdx(i, oi)) {
+						if(ViewFlags & vfShowInfo) {
+							//THROW(addStringToList(list_pos_idx, oi.Num));
+							P_EcrT->GetInfo(oi.Num, code_info_result);
+							if(code_info_result.getCount()) {
+								for(uint j = 0; j < code_info_result.getCount(); j++) {
+									PPChZnPrcssr::CodeInfo * p_item = code_info_result.at(j);
+									if(p_item) {
+										p_item->ExtraValue = (i+1);
+										code_info_result.MoveEntryTo(j, CodeInfoList);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		//DisableClusterItem(CTL_LOTXCCKLIST_FLAGS, 0, LOGIC(ViewFlags & vfShowInfo));
+		if(ViewFlags != preserve_view_flags) {
+			updateList(-1);
+		}
+	}
+	else if(event.isCmd(cmLBItemMouseHover)) { // @v12.7.0
+		if(ViewFlags & vfShowInfo) { 
+			const  int item_idx = event.message.infoInt;
+			PPLotExtCodeContainer::Item2 oi;
+			if(P_Pack->XcL.GetByIdx(item_idx, oi)) {
+				uint   cilidx = 0;
+				//if(CodeInfoList.SearchCode(code_buf, &cilidx)) {
+				if(CodeInfoList.SearchExtraValue(item_idx+1, &cilidx)) {
+					const  PPChZnPrcssr::CodeInfo * p_info_item = CodeInfoList.at(cilidx);
+					if(p_info_item) {
+						SString info_buf;
+						CodeInfoList.EntryToStr(cilidx, 0, info_buf);
+						//
+						SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления //
+						PPTooltipMessage(info_buf, 0, H(), 20000, GetColorRef(SClrSnow),
+							SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|
+							SMessageWindow::fUtf8|SMessageWindow::fTextAlignLeft|SMessageWindow::fShowOnCursor);
+						PopupInfoIdx = item_idx+1;
+					}
+				}
+			}
 		}
 	}
 	else if(event.isCmd(cmImport)) {
@@ -3527,18 +3609,21 @@ IMPL_HANDLE_EVENT(ValidateLotXCodeListDialog)
 						p_draw_item->ItemAction = 0; // Мы перерисовали фон
 					}
 					else {
+						enum {
+							infostateUndef = 0,
+							infostateFound,
+						};
 						SString code_buf;
 						SString box_code;
 						p_lbx->getText(static_cast<long>(p_draw_item->ItemData), code_buf);
 						int    err = 0;
+						int    info_state = infostateUndef; // @v12.7.0 infostateXXX
 						int    row_idx = -1;
 						int    brush_id = 0; //TProgram::tbiListBkgBrush;
 						if(code_buf.NotEmpty()) {
 							uint  inner_idx = 0;
 							bool  _found = false;
-							if(!(ViewFlags & vfShowUncheckedItems))
-								_found = true;
-							else {
+							if(ViewFlags & vfShowUncheckedItems) {
 								if(Data.SearchAdaptive(code_buf, &row_idx, &inner_idx)) { // @v12.6.4 Search-->SearchAdaptive
 									_found = true;
 								}
@@ -3549,15 +3634,39 @@ IMPL_HANDLE_EVENT(ValidateLotXCodeListDialog)
 									}
 								}
 							}
+							else if(ViewFlags & vfShowInfo) { // @v12.7.0
+								_found = true;
+								uint   cilidx = 0;
+								//if(CodeInfoList.SearchCode(code_buf, &cilidx)) {
+								if(CodeInfoList.SearchExtraValue(p_draw_item->ItemData+1, &cilidx)) {
+									const  PPChZnPrcssr::CodeInfo * p_info_item = CodeInfoList.at(cilidx);
+									if(p_info_item) {
+										info_state = infostateFound;
+									}
+								}
+								// @todo
+							}
+							else
+								_found = true;
 							if(_found) {
-								const  int vcr = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
-								if(!vcr) {
-									if(err == 2) // марка не найдена
-										brush_id = TProgram::tbiInvalInpBrush;
-									else if(err == 3) // не та коробка
-										brush_id = TProgram::tbiInvalInp2Brush;
-									else
-										brush_id = TProgram::tbiInvalInp3Brush;
+								if(ViewFlags & vfShowInfo) {
+									if(info_state == infostateFound) {
+										brush_id = TProgram::tbiExtInfoBrush;
+									}
+									else {
+										//TProgram::tbiExtInfoBadBrush
+									}
+								}
+								else {
+									const  int vcr = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
+									if(!vcr) {
+										if(err == 2) // марка не найдена
+											brush_id = TProgram::tbiInvalInpBrush;
+										else if(err == 3) // не та коробка
+											brush_id = TProgram::tbiInvalInp2Brush;
+										else
+											brush_id = TProgram::tbiInvalInp3Brush;
+									}
 								}
 							}
 							else
@@ -3603,8 +3712,9 @@ IMPL_HANDLE_EVENT(ValidateLotXCodeListDialog)
 					}
 				}
 			}
-			else
+			else {
 				p_draw_item->ItemAction = 0; // Список не активен - строку не рисуем
+			}
 		}
 	}
 	else if(event.isCmd(cmCopyToClipboardAll)) { // @v11.8.1
@@ -3671,32 +3781,34 @@ IMPL_HANDLE_EVENT(ValidateLotXCodeListDialog)
 	StringSet ss;
 	PPLotExtCodeContainer::MarkSet ms;
 	PPLotExtCodeContainer::MarkSet::Entry msentry;
-	LongArray idx_list;
-	Data.Get(RowIdx, &idx_list, ms);
-	long list_pos_idx = 0;
-	for(uint boxidx = 0; boxidx < ms.GetCount(); boxidx++) {
-		if(ms.GetByIdx(boxidx, msentry)) {
-			if(msentry.Flags & PPLotExtCodeContainer::fBox) {
-				box_count++;
-				temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Code);
-				++list_pos_idx;
-				THROW(addStringToList(list_pos_idx, temp_buf));
-				ms.GetByBoxID(msentry.Id, ss);
-				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-					temp_buf.Insert(0, " ");
+	long   list_pos_idx = 0;
+	if(!(ViewFlags & vfShowInfo)) {
+		LongArray idx_list;
+		Data.Get(RowIdx, &idx_list, ms);
+		for(uint boxidx = 0; boxidx < ms.GetCount(); boxidx++) {
+			if(ms.GetByIdx(boxidx, msentry)) {
+				if(msentry.Flags & PPLotExtCodeContainer::fBox) {
+					box_count++;
+					temp_buf.Z().Cat("box").CatDiv(':', 2).Cat(msentry.Code);
 					++list_pos_idx;
 					THROW(addStringToList(list_pos_idx, temp_buf));
+					ms.GetByBoxID(msentry.Id, ss);
+					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+						temp_buf.Insert(0, " ");
+						++list_pos_idx;
+						THROW(addStringToList(list_pos_idx, temp_buf));
+					}
 				}
+				else
+					mark_count++;
 			}
-			else
-				mark_count++;
 		}
-	}
-	{
-		ms.GetByBoxID(0, ss);
-		for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-			++list_pos_idx;
-			THROW(addStringToList(list_pos_idx, temp_buf));
+		{
+			ms.GetByBoxID(0, ss);
+			for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+				++list_pos_idx;
+				THROW(addStringToList(list_pos_idx, temp_buf));
+			}
 		}
 	}
 	{
@@ -3708,7 +3820,11 @@ IMPL_HANDLE_EVENT(ValidateLotXCodeListDialog)
 					org_box_count++;
 				else
 					org_mark_count++;
-				if(ViewFlags & vfShowUncheckedItems) {
+				if(ViewFlags & vfShowInfo) {
+					++list_pos_idx;
+					THROW(addStringToList(list_pos_idx, oi.Num));
+				}
+				else if(ViewFlags & vfShowUncheckedItems) {
 					int   row_idx = 0;
 					uint  inner_idx = 0;
 					if(!Data.SearchAdaptive(oi.Num, &row_idx, &inner_idx)) { // @v12.6.4 Search-->SearchAdaptive
@@ -5093,15 +5209,15 @@ void CompleteBrowser::update(int pos)
 		CompleteArray compl_list;
 		Data.freeAll();
 		int    r = P_BObj->GetComplete(Data.LotID, PPObjBill::gcfGatherSources, &Data);
-		SArray * a = MakeList();
-		if(a) {
-            p_def->setArray(a, 0, 1);
-			setRange(a->getCount());
+		SArray * p_list = MakeList();
+		if(p_list) {
+            p_def->setArray(p_list, 0, 1);
+			setRange(p_list->getCount());
 			if(pos == pos_cur && c >= 0)
 				go(c);
 			else if(pos == pos_bottom)
-				go(a->getCount() - 2);
-			else if(pos >= 0 && pos < static_cast<int>(a->getCount()))
+				go(p_list->getCount() - 2);
+			else if(pos >= 0 && pos < p_list->getCountI())
 				go(pos);
 		}
 	}
@@ -5123,7 +5239,7 @@ IMPL_HANDLE_EVENT(CompleteBrowser)
 			PPID   bill_id = Data.at(pos).BillID;
 			BillTbl::Rec bill_rec;
 			if(P_BObj->Search(bill_id, &bill_rec) > 0) {
-				int    r = P_BObj->Edit(&bill_id, 0);
+				const  int r = P_BObj->Edit(&bill_id, 0);
 				if(!r)
 					PPError();
 				else if(r == cmOK)
@@ -5208,9 +5324,8 @@ SArray * CompleteBrowser::MakeList()
 		entry.Price = p_item->Price;
 		entry.Flags = p_item->Flags;
 		if(P_BObj->Search(p_item->BillID, &bill_rec) > 0) {
-			// @v11.1.12 STRNSCPY(entry.Memo, bill_rec.Memo);
-			P_BObj->P_Tbl->GetItemMemo(p_item->BillID, temp_buf); // @v11.1.12
-			STRNSCPY(entry.Memo, temp_buf); // @v11.1.12
+			P_BObj->P_Tbl->GetItemMemo(p_item->BillID, temp_buf);
+			STRNSCPY(entry.Memo, temp_buf);
 		}
 		THROW_SL(p_list->insert(&entry));
 	}
@@ -5281,7 +5396,7 @@ int PPALDD_Complete::InitData(PPFilt & rFilt, long rsrv)
 	return DlRtm::InitData(rFilt, rsrv);
 }
 
-int PPALDD_Complete::InitIteration(PPIterID iterId, int /*sortId*/, long /*rsrv*/)
+int PPALDD_Complete::InitIteration(PPIterID iterId, int/*sortId*/, long/*rsrv*/)
 {
 	CompleteBrowser * p_cb = static_cast<CompleteBrowser *>(NZOR(Extra[1].Ptr, Extra[0].Ptr));
 	IterProlog(iterId, 1);

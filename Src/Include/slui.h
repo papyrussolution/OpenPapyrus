@@ -228,6 +228,9 @@ struct MouseEvent {
 		fX2        = 0x0040,
 		fDrag      = 0x0080
 	};
+	MouseEvent() : Type(0), Flags(0), WeelDelta(0)
+	{
+	}
 	int    Type;
 	int    Flags;
 	int    WeelDelta;
@@ -2447,6 +2450,7 @@ private:
 #define sfBorderless          0x00080000 // @v11.6.7 @construction примененяется к окнам: окно без служебной области (бордюра).
 #define sfTabStop             0x00100000 // @v12.3.5 
 #define sfHover               0x00200000 // @v12.5.3 Над view-элементом завис курсор мыши 
+#define sfLockChangeBounds    0x00400000 // @v12.7.0 Флаг блокирует рекурсивный вызов TView::ChangeBounds для одного и того же экземпляра TView //
 //
 // TView Option masks
 //
@@ -2465,8 +2469,10 @@ class TView {
 public:
 	static void * FASTCALL messageCommand(TView * pReceiver, uint command);
 	static void * STDCALL  messageCommand(TView * pReceiver, uint command, void * pInfoPtr);
+	static void * STDCALL  messageCommand(TView * pReceiver, uint command, void * pInfoPtr, int infoInt); // @v12.7.0
 	static void * FASTCALL messageBroadcast(TView * pReceiver, uint command);
 	static void * STDCALL  messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr);
+	static void * STDCALL  messageBroadcast(TView * pReceiver, uint command, void * pInfoPtr, int infoInt); // @v12.7.0
 	static void * FASTCALL messageKeyDown(TView * pReceiver, uint keyCode);
 	static HFONT setFont(HWND hWnd, const char * pFontName, int height);
 	//
@@ -2542,7 +2548,7 @@ public:
 	void   setCommands(const TCommandSet & commands);
 	void   setBounds(const TRect & rBounds);
 	void   setBounds(const FRect & rBounds); // @v12.3.2
-	void   changeBounds(const TRect & rBounds);
+	void   ChangeBounds(const TRect & rBounds);
 	bool   IsCommandValid(ushort command); // @v12.2.6
 	uint   getHelpCtx();
 	TView & SetId(uint id);
@@ -2608,6 +2614,7 @@ public:
 	uint16 GetId_Unsafe() const { return Id; }
 	void   SetEndModalCmd(int cmd) { EndModalCmd = cmd; } // @v12.5.5
 	int    HandleKeyboardEvent(WPARAM wParam, int isPpyCodeType = 0); // @internal @v12.5.7 protected-->public
+	bool   MakeMouseEvent_Base(uint msg, WPARAM wParam, LPARAM lParam, MouseEvent & rMe); // @v12.7.0
 private:
 	friend class TWindow; // Для установки Sign в конструкторе
 	uint32 Sign;    // Подпись экземпляра класса. Используется для идентификации инвалидных экземпляров.
@@ -3100,7 +3107,7 @@ protected:
 	SPaintToolBox Tb;
 private:
 	static LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
-	void   MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEvent & rMe);
+	bool   MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEvent & rMe);
 	void   FASTCALL RegisterMouseTracking_(bool force);
 
 	const  SString ClsName;     // Window class name
@@ -3803,6 +3810,7 @@ public:
 		fExport         = 0x0080, // Экземпляр диалога создан для экспорта
 		fImportedDl600  = 0x0100, // @v12.6.7 Диалог импортирован из описания DL600 
 		fKeybStateCtrls = 0x0200, // @v12.6.9 В диалоге присутствуют управляющие элементы, отображающие состояние клавиатуры
+		fChildWindow    = 0x0400, // @v12.7.0 Диалог является child-окном, интрегрированным в другое окно 
 	};
 	enum ConstructorOption {
 		coNothing = 0,
@@ -3853,9 +3861,9 @@ public:
 	int    STDCALL GetClusterData(uint ctlID, uint *); // @v12.3.11
 	int    STDCALL GetClusterData(uint ctlID, int16 *);
 	long   STDCALL GetClusterData(uint ctlID);
-	void   DisableClusterItem(uint ctlID, int itemNo/*0..*/, bool toDisable = true);
-	void   DisableClusterItems(uint ctlID, const LongArray & rItemIdxList/*0..*/, bool toDisable = true);
-	int    SetClusterItemText(uint ctlID, int itemNo /* 0.. */, const char * pText);
+	void   DisableClusterItem(uint ctlID, int itemNo/*0..*/, bool toDisable/*=true*/);
+	void   DisableClusterItems(uint ctlID, const LongArray & rItemIdxList/*0..*/, bool toDisable/*= true*/);
+	int    SetClusterItemText(uint ctlID, int itemNo/*0..*/, const char * pText);
 	bool   GetClusterItemByAssoc(uint ctlID, long val, int * pPos) const;
 	uint   GetClusterItemsCount(uint ctlID) const;
 	int    SetCtrlBitmap(uint ctlID, uint bmID);
@@ -4341,7 +4349,8 @@ private:
 class TStaticText : public TView {
 public:
 	enum {
-		spcfStaticEdge = 0x0001 // Элемент обрамлен явно выраженной рамкой
+		spcfStaticEdge       = 0x0001, // Элемент обрамлен явно выраженной рамкой
+		spcfRightAlignedText = 0x0002, // @v12.7.0 Текст выравнивается по правому краю (иначе - по левому) 
 	};
 	TStaticText(const TRect & rBounds, uint spcFlags, const char * pText);
 	const SString & GetRawText() const { return Text; }
@@ -4700,8 +4709,6 @@ private:
 	int    IsBnClicked;
 	int    LinkToList;  // Данный блок будет прилинкован непосредственно к списку, в некоторых случаях нужно для корректного отображения и фокусировки.
 	int    FirstLetter; // Первый символ, по которому был вызван диалог, следует отправить в окно ввода посредством эмуляции нажатия клавиши.
-	//WordSel_ExtraBlock * P_WordSelBlk; // not owner
-	//WordSelector * P_WordSel; //
 	WNDPROC PrevInputCtlProc;
 	SString Text;
 };
@@ -5480,6 +5487,8 @@ public:
 		tbiListFgPen        = 91, // @v12.5.7 "list_fg"       Перо текста для регулярных элементов списка
 		tbiListFocFgPen     = 92, // @v12.5.7 "list_focus_fg" Перо текста для focuses элементов списка
 		tbiListSelFgPen     = 93, // @v12.5.7 "list_sel_fg"   Перо текста для selected элементов списка
+		tbiExtInfoBrush     = 94, // @v12.7.0 Цвет, индицирующий факт того, что для элемента существует расширенная информация //
+		tbiExtInfoBadBrush  = 95, // @v12.7.0 Цвет, индицирующий факт того, что для элемента существует расширенная информация и она негативная //
 		//
 		tbiControlFont      = 110, // Шрифт для отрисовки стандартных управляющих элементов 
 		tbiAccentInputFont  = 111, // @v12.5.5 Шрифт для отрисовки увеличенного поля ввода и сопутствующих элементов 
@@ -5611,6 +5620,7 @@ public:
 		fLargeText         = 0x00004000, // Крупный текст (default * 2)
 		fMaxImgSize        = 0x00008000, // Максимальный размер окна для подробного отображения картинки
 		fShowOnRUCorner    = 0x00010000, // Отображать окно в правом верхнем углу
+		fUtf8              = 0x00020000, // @v12.7.0 Текст передается в кодировке utf8
 	};
 	//
 	// Descr: Разрушает все окна сообщений, которые имеют родительское окно parent.

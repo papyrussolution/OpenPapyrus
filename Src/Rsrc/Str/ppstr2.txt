@@ -205,6 +205,7 @@ PPERR_GLOBALUSERACCNEEDED          "Необходимо выбрать глоб
 PPERR_LOCTRFR_BAILMENT_PSNNEEDED   "Необходимо выбрать персоналию-владельца адреса ответственного хранения"
 PPERR_LOCTRFR_BAILMENT_LOCNEEDED   "Необходимо выбрать адрес ответственного хранения"
 PPERR_SEARCHPATTERNNEEDED          "Необходимо указать строку для поиска"
+PPERR_NONEMPTYPASSWORDNEEDED       "Необходимо ввести пароль"
 // } -NEEDED messages
 PPERR_BALNOTEXISTS                 "Указанный балансовый счет (%s) не существует"
 PPERR_INVALIDVATAX                 "НДС должен находиться в пределах 0..50%"
@@ -6819,6 +6820,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @receiptdate                         "Дата поступления"
 @expirationdate                      "Срок годности"
 @expirationdate_amp                  "Дата истечения срока годности"
+@validityexpirationdate              "Дата истечения срока действия" // @v12.7.0 (вместо 'годности' в @expirationdate_amp мне здесь нужно 'действия', потому так)
 @recordstartdate                     "Дата начала действия записи"
 @recordexpirationdate                "Дата окончания действия записи"
 @lotexpirationdate                   "Срок годности лота"
@@ -12655,6 +12657,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lotxcodelist                             "Специальные коды лота"
 @lotxcodechecklist                        "Проверка специальных кодов лота"
 @lotxcodechecklist_showunchecked          "Показать непроверенные коды"
+@lotxcodechecklist_showinfo               "Показать информацию о кодах" // @v12.7.0
 @lotxcodelist_cbcopy                      "@{cbcopy}"
 @lotxcodelist_cbcopyall                   "@{cbcopyall}"
 @lotxcodelist_cbcopygtin                  "Скопировать GTIN в буфер"
@@ -16252,6 +16255,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @setpassword                              "@{password}"
 @setpassword_input1                       "Введите пароль здесь"
 @setpassword_input2                       "А здесь повторите"
+@setpassword_storepassword                "Сохранить пароль"
 
 @setdbchain                               "Стяжка базы данных"
 @setdbchain_info                          "Установка стяжки увеличивает защищенность базы данных от взлома. \
@@ -18481,6 +18485,11 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @tecrouteasgmt             "Прохождение технологического маршрута"
 @tecrouteasgmt_finalware   "Конечный продукт"
 @tecrouteasgmt_route       "@{techroute}"
+
+@secretpool              "Секреты"
+@secretpool_textopen     "Открытый текст"
+@secretpool_texthidden   "Скрытый текст"
+@secretpool_textexpiry   "Срок действия (текст)"
 //
 // Рабочие команды centrigo
 //
@@ -18488,7 +18497,9 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @centrigo_cmd_contacts   "@{contact_pl}"
 @centrigo_cmd_todo       "Задачи"
 @centrigo_cmd_wallet     "Кошелек"
-@centrigo_cmd_secrets    "Секреты"
+@centrigo_cmd_secrets    "@{secretpool}"
+
+
 
 [121]
 1   "Вход"
@@ -19029,7 +19040,7 @@ PPHSC_RU_PROGNAME              "НаимПрог"
 PPHSC_RU_PRIMFORM              "Первичная"
 PPHSC_RU_CORRFORM              "Корректирующая"
 PPHSC_RU_CORRECTIONNO          "НомерКорр"
-PPHSC_RU_CORRECTIONNO_         "НомКорр" // @v11.3.2
+PPHSC_RU_CORRECTIONNO_         "НомКорр"
 PPHSC_RU_FORMNO                "НомФорм"
 PPHSC_RU_REPPERIODTAG          "ПризПериодОтч"
 PPHSC_RU_REPPERIODYEAR         "ГодПериодОтч"
@@ -19088,6 +19099,7 @@ PPHSC_RU_PAYLOAD_APPEL         "НаимГруз"   // @v12.6.9
 PPHSC_RU_PAYLOAD_COND          "СостГруз"   // @v12.6.9 
 PPHSC_RU_PAYLOAD_COND_EXCEL    "Отличное"   // @v12.6.9 
 PPHSC_RU_PAYLOAD_PCKG          "СпУпак"     // @v12.6.9  
+PPHSC_RU_PAYLOAD_PCKG_DEFAULT  "Коробка"    // @v12.7.0
 PPHSC_RU_PAYLOAD_TARE          "ВидТар"     // @v12.6.9 
 PPHSC_RU_PAYLOAD_PCKGQTY       "КолМестГр"  // @v12.6.9 
 PPHSC_RU_PAYLOAD_STREGKIND     "УчГосСист"  // @v12.6.9 
@@ -19325,12 +19337,12 @@ PPHSC_RU_PERIOD_D1             "Д1"
 PPHSC_RU_PERIOD_D2             "Д2"
 PPHSC_RU_PERIOD_D3             "Д3"
 PPHSC_RU_SELLING               "Реализация"
-PPHSC_RU_CONFSHIPMDOC          "ДокПодтвОтгр" // @v11.1.6
+PPHSC_RU_CONFSHIPMDOC          "ДокПодтвОтгр"
 PPHSC_RU_CONFSHIPMDOC2         "ДокПодтвОтгрНом" // @v12.2.12 nalog.ru ver 5.03
-PPHSC_RU_CONFSHIPMDOCNAME      "НаимДокОтгр"  // @v11.1.6
-PPHSC_RU_CONFSHIPMDOCNAM_BILL  "Накладная"    // @v11.1.7
-PPHSC_RU_CONFSHIPMDOCNO        "НомДокОтгр"   // @v11.1.6
-PPHSC_RU_CONFSHIPMDOCDATE      "ДатаДокОтгр"  // @v11.1.6
+PPHSC_RU_CONFSHIPMDOCNAME      "НаимДокОтгр"
+PPHSC_RU_CONFSHIPMDOCNAM_BILL  "Накладная"
+PPHSC_RU_CONFSHIPMDOCNO        "НомДокОтгр"
+PPHSC_RU_CONFSHIPMDOCDATE      "ДатаДокОтгр"
 PPHSC_RU_REQDOCNAME            "РеквНаимДок"    // @v12.2.12 nalog.ru ver 5.03 Наименование документа
 PPHSC_RU_REQDOCNO              "РеквНомерДок"   // @v12.2.12 nalog.ru ver 5.03 Номер документа
 PPHSC_RU_REQDOCDATE            "РеквДатаДок"    // @v12.2.12 nalog.ru ver 5.03 Дата документа
@@ -19339,13 +19351,17 @@ PPHSC_RU_REQDOCID              "РеквИдДок"      // @v12.2.12 nalog.ru v
 PPHSC_RU_REQDOCSYS             "РИдСистХранД"   // @v12.2.12 nalog.ru ver 5.03 Идентифицирующая информация об информационной системе, в которой осуществляется хранение документа, необходимая для запроса информации из информационной системы
 PPHSC_RU_REQDOCURL             "РеквУРЛСистДок" // @v12.2.12 nalog.ru ver 5.03 Сведения в формате URL об информационной системе, которая предоставляет техническую возможность получения информации о документе
 PPHSC_RU_REQDOCADDENDUM        "РеквДопСведДок" // @v12.2.12 nalog.ru ver 5.03 Дополнительные сведения
-PPHSC_RU_PURCHASELEDGER        "КнигаПокуп"   // @v11.3.2
-PPHSC_RU_PURCHASELEDGERLN      "КнПокСтр"     // @v11.3.2
-PPHSC_RU_SALESLEDGER           "КнигаПрод"    // @v11.3.2
-PPHSC_RU_SALESLEDGERLN         "КнПродСтр"    // @v11.3.2
+PPHSC_RU_PURCHASELEDGER        "КнигаПокуп"
+PPHSC_RU_PURCHASELEDGERLN      "КнПокСтр"
+PPHSC_RU_SALESLEDGER           "КнигаПрод"
+PPHSC_RU_SALESLEDGERLN         "КнПродСтр"
 PPHSC_RU_TRANSACTIONCONTENT1   "СодФХЖ1"
 PPHSC_RU_TRANSACTIONCONTENT2   "СодФХЖ2"
 PPHSC_RU_TRANSACTIONCONTENT_TRNT1 "СодИнфГО"  // @v12.6.9
+PPHSC_RU_TRN_D                 "ДатаТрН"  // @v12.7.0
+PPHSC_RU_TRN_N                 "НомерТрН" // @v12.7.0
+//PPHSC_RU_CONTOFOP СодОпер
+PPHSC_RU_TRN_CONTOFOP          "Лицом, осуществляющим погрузку груза, при указанных обстоятельствах передан водителю груз с указанными характеристиками" // @v12.7.0
 PPHSC_RU_EXTRA1                "ИнфПолФХЖ1"
 PPHSC_RU_EXTRA2                "ИнфПолФХЖ2"
 PPHSC_RU_EXTRA0                "ИнфПол"       // @v12.6.9
@@ -19392,15 +19408,15 @@ PPHSC_RU_BASISFORWARETRANSFER  "ОснПер"
 PPHSC_RU_NAMEOFBASISFORWARETRANSFER     "НаимОсн"
 PPHSC_RU_NUMBOFBASISFORWARETRANSFER     "НомОсн"
 PPHSC_RU_DATEOFBASISFORWARETRANSFER     "ДатаОсн"
-PPHSC_RU_ADDENDUMOFBASISFORWARETRANSFER "ДопСвОсн" // @v11.0.2
+PPHSC_RU_ADDENDUMOFBASISFORWARETRANSFER "ДопСвОсн"
 PPHSC_RU_NODOCOFBASISFORWARETRANSFER    "Без документа-основания"
 PPHSC_RU_TURNOVERVOLUME        "ОбъемОборота"
 PPHSC_RU_TURNOVER              "Оборот"
 PPHSC_RU_SEQUENCE              "ПN"      // порядковый номер
 PPHSC_RU_PE0                   "П0"      // дальше идет 10-значный номер с набивкой нулями слева
 PPHSC_RU_PE1                   "П1"      // дальше идет 10-значный номер с набивкой нулями слева
-PPHSC_RU_EGAIS_SALE            "Продажа" // @v11.0.11 Тип операции кассового чека, передаваемого в ЕГАИС
-PPHSC_RU_EGAIS_RETOFSALE       "Возврат" // @v11.0.11 Тип операции кассового чека, передаваемого в ЕГАИС
+PPHSC_RU_EGAIS_SALE            "Продажа" // Тип операции кассового чека, передаваемого в ЕГАИС
+PPHSC_RU_EGAIS_RETOFSALE       "Возврат" // Тип операции кассового чека, передаваемого в ЕГАИС
 PPHSC_RU_EGAIS_FORM2_CAPS      "ФОРМА2"  // @v12.1.8 Строка используемая в качестве параметра запроса к егаис
 PPHSC_RU_EGAIS_CAFE_CAPS       "ОБЩЕПИТ" // @v12.1.8 "Строка используемая в качестве параметра запроса к егаис
 PPHSC_RU_CORRACCDT             "КоррСчДебет"    // @v11.7.6

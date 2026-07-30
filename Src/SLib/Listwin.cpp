@@ -393,7 +393,7 @@ int WordSel_ExtraBlock::GetData(long * pId, SString & rBuf)
 
 WordSelector::WordSelector(WordSel_ExtraBlock * pBlk) : WsState(0), P_Blk(pBlk)
 {
-	uint    lbdef_options = lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtOwnerDraw;
+	uint   lbdef_options = lbtDisposeData|lbtDblClkNotify|lbtSelNotify|lbtOwnerDraw;
 	// @v12.5.10 {
 	if(P_Blk && P_Blk->Flags & WordSel_ExtraBlock::fUtf8)
 		lbdef_options |= lbtTextUtf8;

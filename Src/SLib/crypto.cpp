@@ -157,6 +157,7 @@ SVaultPool::~SVaultPool()
 {
 	SlCrypto::ResetEncapsultedKey(P_KeyRef);
 	P_KeyRef = 0;
+	SBinarySet::DestroySecure(); // @v12.7.0
 }
 
 const struct SVaultPool_ConstBlock {
@@ -197,7 +198,8 @@ bool SVaultPool::RemoveNonSystemItems()
 {
 	bool   ok = true;
 	LongArray id_list;
-	for(uint _pos = 0, _id = 0; Enum(&_pos, &_id, 0);) {
+	uint32 _id = 0;
+	for(size_t _pos = 0; Enum(&_pos, &_id, 0);) {
 		id_list.add(static_cast<long>(_id));
 	}
 	id_list.sortAndUndup();

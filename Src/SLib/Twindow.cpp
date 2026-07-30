@@ -1252,7 +1252,7 @@ void TWindow::DeleteChildLayout(TView * pV) // @v12.6.2
 {
 	TView * p_view = static_cast<TView *>(SUiLayout::GetManagedPtr(pItem));
 	if(p_view)
-		p_view->changeBounds(TRect(rR));
+		p_view->ChangeBounds(TRect(rR));
 }
 
 void TWindow::SetStorableUserParamsSymb(const char * pSymb) // @v12.2.6
@@ -1668,61 +1668,31 @@ void FASTCALL TWindowBase::RegisterMouseTracking_(bool force)
 	}
 }
 
-void TWindowBase::MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEvent & rMe)
+bool TWindowBase::MakeMouseEvent(uint msg, WPARAM wParam, LPARAM lParam, MouseEvent & rMe)
 {
-	MEMSZERO(rMe);
-	rMe.Coord.setwparam(static_cast<uint32>(lParam));
-	switch(msg) {
-		case WM_LBUTTONDOWN:
-			rMe.Type = MouseEvent::tLDown;
-			::SetCapture(HW);
-			break;
-		case WM_LBUTTONUP:
-			rMe.Type = MouseEvent::tLUp;
-			::ReleaseCapture();
-			break;
-		case WM_LBUTTONDBLCLK: rMe.Type = MouseEvent::tLDblClk; break;
-		case WM_RBUTTONDOWN:   rMe.Type = MouseEvent::tRDown; break;
-		case WM_RBUTTONUP:     rMe.Type = MouseEvent::tRUp; break;
-		case WM_RBUTTONDBLCLK: rMe.Type = MouseEvent::tRDblClk; break;
-		case WM_MBUTTONDOWN:   rMe.Type = MouseEvent::tMDown; break;
-		case WM_MBUTTONUP:     rMe.Type = MouseEvent::tMUp; break;
-		case WM_MBUTTONDBLCLK: rMe.Type = MouseEvent::tMDblClk; break;
-		case WM_MOUSEHOVER:
-			WbState &= ~wbsMouseTrackRegistered;
-			rMe.Type = MouseEvent::tHover;
-			break;
-		case WM_MOUSELEAVE:
-			WbState &= ~wbsMouseTrackRegistered;
-			rMe.Type = MouseEvent::tLeave;
-			break;
-		case WM_MOUSEMOVE:
-			if(getClientRect().contains(rMe.Coord)) {
-				RegisterMouseTracking_(false);
-			}
-			rMe.Type = MouseEvent::tMove;
-			break;
-		case WM_MOUSEWHEEL:
-			rMe.Type = MouseEvent::tWeel;
-			rMe.WeelDelta = static_cast<signed short>(HIWORD(wParam)); // @v11.2.4 static_cast<signed short>()
-			break;
-		default:
-			return;
+	bool   result = MakeMouseEvent_Base(msg, wParam, lParam, rMe);
+	if(result) {
+		switch(msg) {
+			case WM_LBUTTONDOWN:
+				::SetCapture(HW);
+				break;
+			case WM_LBUTTONUP:
+				::ReleaseCapture();
+				break;
+			case WM_MOUSEMOVE:
+				if(getClientRect().contains(rMe.Coord)) {
+					RegisterMouseTracking_(false);
+				}
+				break;
+			case WM_MOUSEHOVER:
+				WbState &= ~wbsMouseTrackRegistered;
+				break;
+			case WM_MOUSELEAVE:
+				WbState &= ~wbsMouseTrackRegistered;
+				break;
+		}
 	}
-	if(wParam & MK_CONTROL)
-		rMe.Flags |= MouseEvent::fControl;
-	if(wParam & MK_LBUTTON)
-		rMe.Flags |= MouseEvent::fLeft;
-	if(wParam & MK_MBUTTON)
-		rMe.Flags |= MouseEvent::fMiddle;
-	if(wParam & MK_RBUTTON)
-		rMe.Flags |= MouseEvent::fRight;
-	if(wParam & MK_SHIFT)
-		rMe.Flags |= MouseEvent::fShift;
-	if(wParam & MK_XBUTTON1)
-		rMe.Flags |= MouseEvent::fX1;
-	if(wParam & MK_XBUTTON2)
-		rMe.Flags |= MouseEvent::fX2;
+	return result;
 }
 
 SetFontEvent::SetFontEvent(void * pFontHandle, int doRedraw) : FontHandle(pFontHandle), DoRedraw(doRedraw)

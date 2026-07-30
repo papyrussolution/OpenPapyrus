@@ -1490,7 +1490,7 @@ int ExtCodeRefCore::GetInfo(const char * pCode, PPChZnPrcssr::CodeInfoCollection
 		if(iczcr == PPChZnPrcssr::chznciPallet) {
 			;
 		}
-		else {
+		else if(iczcr == PPChZnPrcssr::chznciReal) {
 			gts.GetToken(GtinStruc::fldGTIN14, &pattern_gtin);
 			gts.GetToken(GtinStruc::fldSerial, &pattern_serial);
 			gts.GetToken(GtinStruc::fldPart, &pattern_partno);

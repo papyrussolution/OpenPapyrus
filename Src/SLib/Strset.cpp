@@ -332,7 +332,7 @@ int StringSet::setBuf(const void * b, size_t len)
 	return ok;
 }
 
-void StringSet::destroy()
+void StringSet::Destroy()
 {
 	ZFREE(P_Buf);
 	ZDELETE(P_SaIdx); // @v11.8.3
@@ -340,17 +340,22 @@ void StringSet::destroy()
 	DataLen = 0;
 }
 
-/* @v11.8.3 
-void StringSet::clear()
+void StringSet::DestroySecure() // @v12.7.0
 {
-	DataLen = 0;
+	if(P_Buf && Size) {
+		//SMem::Obfuscate(P_Buf, Size);
+		memzero(P_Buf, Size);
+	}
+	ZFREE(P_Buf);
 	ZDELETE(P_SaIdx); // @v11.8.3
-}*/
+	Size = 0;
+	DataLen = 0;
+}
 
 StringSet & StringSet::Z()
 {
 	DataLen = 0;
-	ZDELETE(P_SaIdx); // @v11.8.3
+	ZDELETE(P_SaIdx);
 	return *this;
 }
 
@@ -891,7 +896,13 @@ void SStrGroup::ClearS()
 
 void SStrGroup::DestroyS()
 {
-	Pool.destroy();
+	Pool.Destroy();
+	Pool.add("$"); // zero index - is empty string
+}
+
+void SStrGroup::DestroySecureS() // @v12.7.0
+{
+	Pool.DestroySecure();
 	Pool.add("$"); // zero index - is empty string
 }
 

@@ -106,18 +106,17 @@ DocNalogRu_Base::FileInfo & DocNalogRu_Base::FileInfo::Z()
 	return *this;
 }
 
-static const char * P_NalogRu_HeaderSymbList[] = {
-	"ORDER", // @v12.0.1
-	"ON_ORDER", 
-	"ON_CONFORDER",
-	"DP_REZRUISP",
-	"ON_SFAKT",
-	"ON_NSCHFDOPPR",
-	"ON_NSCHFDOPPRMARK",
-};
-
 bool DocNalogRu_Base::FileInfo::ParseFileName(const char * pFileName, bool nonStrict)
 {
+	static const char * P_NalogRu_HeaderSymbList[] = {
+		"ORDER", // @v12.0.1
+		"ON_ORDER", 
+		"ON_CONFORDER",
+		"DP_REZRUISP",
+		"ON_SFAKT",
+		"ON_NSCHFDOPPR",
+		"ON_NSCHFDOPPRMARK",
+	};
 	Z();
 	bool   ok = false;
 	if(!isempty(pFileName)) {
@@ -587,7 +586,6 @@ int DocNalogRu_Reader::ReadSingleXmlFile(const char * pFileName, FileInfo & rHea
 										else if(SXml::IsName(p_n4, GetToken_Utf8(PPHSC_RU_EXTRA2))) {
 											if(ReadExtraValue(p_n4, extra_key, extra_val) > 0) {
 												if(extra_key.IsEqiUtf8(GetToken_Utf8(PPHSC_RU_EXTRA_BARCODE))) {
-													// @v11.4.2 {
 													extra_val.Strip().Transf(CTRANSF_UTF8_TO_INNER);
 													/*  од под вопросом: в целом, он правильнее, чем безусловное присваивание (p_item->GTIN = extra_val)
 													однако то уже работает давно, а это может привести к проблемам.
@@ -601,7 +599,6 @@ int DocNalogRu_Reader::ReadSingleXmlFile(const char * pFileName, FileInfo & rHea
 															}
 														}
 													}*/
-													// @v11.4.2 {
 													p_item->GTIN = extra_val; // @v11.4.2 see comment above
 												}
 											}
@@ -5618,7 +5615,6 @@ int PPBillImporter::Run()
 										}
 									}
 								}
-								// @v11.5.3 {
 								if(!goods_id) {
 									if(p_item->NonEAN_Code.NotEmpty()) {
 										if(seller_ar_id) {
@@ -5635,7 +5631,6 @@ int PPBillImporter::Run()
 										}
 									}
 								}
-								// } @v11.5.3 
 								if(!goods_id) {
 									if(p_item->GoodsName.NotEmpty() && GObj.SearchByName(p_item->GoodsName, &goods_id, &goods_rec) > 0) {
 										assert(goods_id == goods_rec.ID);
@@ -7323,7 +7318,7 @@ void DocNalogRu_Generator::WriteMarkListOnInvoiceItem3(xmlTextWriter * pX, int c
 					}
 				}
 				// @v12.3.4 {
-				if(!is_mark_accepted && chznProdType == GTCHZNPT_WATER) {
+				if(!is_mark_accepted && oneof2(chznProdType, GTCHZNPT_WATER, GTCHZNPT_CHEMISTRY)) { // @v12.7.0 GTCHZNPT_CHEMISTRY
 					if(PPChZnPrcssr::InterpretChZnCodeResult(pczcr) > 0) {
 						gts.GetToken(GtinStruc::fldGTIN14, &chzn_gtin14_buf);
 						gts.GetToken(GtinStruc::fldSerial, &chzn_serial_buf);
@@ -9118,7 +9113,7 @@ DocNalogRu_WriteBillBlock::DocNalogRu_WriteBillBlock(const PPBillImpExpParam & r
 		//
 		SVerT output_format_ver;
 		// @v12.3.9 {
-		if(rParam.PredefFormat == piefNalogR_ON_NKORSCHFDOPPR || rBp.IsExpCorrection()) { // @v12.6.2 (|| rBp.IsExpCorrection())
+		if(oneof2(rParam.PredefFormat, piefNalogR_ON_NKORSCHFDOPPR, piefNalogR_Etrn_T1) || rBp.IsExpCorrection()) { // @v12.6.2 (|| rBp.IsExpCorrection())
 			output_format_ver.Set(5, 1, 0);
 		}
 		else { // } @v12.3.9 
@@ -9802,6 +9797,14 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 			DocNalogRu_Generator::Document d(G, docinfo);
 			{
 				SXml::WNode n(G.P_X, G.GetToken_Ansi(PPHSC_RU_TRANSACTIONCONTENT_TRNT1));
+				{
+					//PPHSC_RU_TRN_D                 "ƒата“рЌ"  // @v12.7.0
+					//PPHSC_RU_TRN_N                 "Ќомер“рЌ" // @v12.7.0
+					//PPHSC_RU_CONTOFOP —одќпер
+					n.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRN_D), temp_buf.Z().Cat(R_Bp.Rec.Dt, DATF_GERMANCENT));
+					n.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRN_N), G.EncText(temp_buf.Z().Cat(R_Bp.Rec.Code)));
+					n.PutAttrib(G.GetToken_Ansi(PPHSC_RU_CONTOFOP), G.GetToken_Ansi(PPHSC_RU_TRN_CONTOFOP));
+				}
 				//PPHSC_RU_CONSIGNORINFO3        "—в√ќ"     // @v12.6.9
 				//PPHSC_RU_CONSIGNEEINFO3        "—в√ѕ"     // @v12.6.9
 				//PPHSC_RU_TRANSPORTERINFO       "—вѕер"    // @v12.6.9
@@ -9882,16 +9885,17 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 										temp_buf = fpt_rec.Name;
 									}
 									else {
-										temp_buf = ""; // @todo default package name
+										temp_buf = G.GetToken_Ansi(PPHSC_RU_PAYLOAD_PCKG_DEFAULT);
 									}
 									n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_PAYLOAD_PCKG), G.EncText(temp_buf));
 								}
 								{
-									if(fp.UedEceTradeTareType && p_uedc && p_uedc->GetText(fp.UedEceTradeTareType, UED_LINGUALOCUS_RU, temp_buf)) {
+									//p_uedc->GetText(fp.UedEceTradeTareType, UED_LINGUALOCUS_RU, temp_buf)
+									if(fp.UedEceTradeTareType && p_uedc && p_uedc->GetSymb(fp.UedEceTradeTareType, temp_buf)) {
 										temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 									}
 									else {
-										temp_buf = ""; // @todo default tare name
+										temp_buf = "NA"; // Ќет сведений
 									}
 									n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_PAYLOAD_TARE), G.EncText(temp_buf));
 								}
@@ -9965,8 +9969,8 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 						uint   reg_pos = 0;
 						RegisterTbl::Rec reg_rec;
 						if(psn_pack.Regs.GetRegister(PPREGT_DRIVERLICENSE, R_Bp.Rec.Dt, &reg_pos, &reg_rec) > 0) {
-							n2.PutAttribSkipEmpty(G.GetToken_Ansi(PPHSC_RU_DRVLIC_NUM), reg_rec.Num);
-							n2.PutAttribSkipEmpty(G.GetToken_Ansi(PPHSC_RU_DRVLIC_SERIAL), reg_rec.Serial);
+							n2.PutAttribSkipEmpty(G.GetToken_Ansi(PPHSC_RU_DRVLIC_NUM), G.EncText(temp_buf = reg_rec.Num));
+							n2.PutAttribSkipEmpty(G.GetToken_Ansi(PPHSC_RU_DRVLIC_SERIAL), G.EncText(temp_buf = reg_rec.Serial));
 							if(checkdate(reg_rec.Dt)) {
 								n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_DRVLIC_DATE), temp_buf.Z().Cat(reg_rec.Dt, DATF_GERMANCENT));
 							}
