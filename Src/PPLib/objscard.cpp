@@ -864,10 +864,10 @@ int PPObjSCardSeries::AssignImages(ListBoxDef * pDef)
 		if(p_def->getIdList(list) > 0) {
 			PPSCardSeries2 scs_rec;
 			for(uint i = 0; i < list.getCount(); i++) {
-				PPID id = list.at(i);
+				const  PPID id = list.at(i);
 				if(Fetch(id, &scs_rec) > 0) {
-					long img_id = 0;
-					int scs_type = scs_rec.GetType();
+					long   img_id = 0;
+					const  int scs_type = scs_rec.GetType();
 					switch(scs_type) {
 						case scstRsrvPool: break;
 						case scstGroup: img_id = PPDV_FOLDER01; break;

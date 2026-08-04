@@ -1251,8 +1251,9 @@ static int EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintPara
 {
 	int    ok = -1;
 	PPID   printer_id = prnID;
-	if(!printer_id)
+	if(!printer_id) {
 		ok = ListBoxSelDialog::Run(PPOBJ_BCODEPRINTER, &printer_id, 0);
+	}
 	if(ok > 0 && printer_id) {
 		PPWaitStart();
 		ok = BarcodeLabelPrinter::UpLoad(printer_id, "FONTS", silent);
@@ -1290,11 +1291,12 @@ static int EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintPara
 	GetComDvcSymb(comdvcsCom, 1, 0, bclpp.Port);
 	bclpp.PrinterID = NZOR(prnID, bcpobj.GetSingle());
 	bclpp.LocID = pRgi->LocID;
-	if(bclpp.PrinterID)
+	if(bclpp.PrinterID) {
 		if(bcpobj.GetPacket(bclpp.PrinterID, &rec) > 0)
 			bclpp.Port = rec.PortEx;
 		else
 			bclpp.PrinterID = 0;
+	}
 	bclpp.NumCopies = 1;
 	if(pRgi->LabelCount > 0 && pRgi->LabelCount < 1000)
 		bclpp.NumCopies = pRgi->LabelCount;
@@ -1319,16 +1321,18 @@ static int EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintPara
 		THROW(p_prn = BarcodeLabelPrinter::CreateInstance(rec/*.PrinterType*/));
 		label.SetBarcodeWidth(rec.BcNarrowPt, rec.BcWidePt);
 		THROW(p_prn->StartLabel(label.GetParam(), bclpp.NumCopies));
-		for(i = 0; i < label.GetEntryCount(); i++)
+		for(i = 0; i < label.GetEntryCount(); i++) {
 			THROW(p_prn->PutDataEntry(label.GetEntry(i)));
+		}
 		THROW(p_prn->EndLabel());
 		// @vmiller {
 		SString str = bclpp.Port;
 		if(str.HasPrefixIAscii("usb"))
 			THROW(p_prn->PrintLabelUsb(rec.PrinterType))
-		else
+		else {
 		// } @vmiller
 			THROW(p_prn->PrintLabel(bclpp.Port, &rec.Cpp));
+		}
 	}
 	else
 		ok = -1;
@@ -1351,11 +1355,12 @@ static int EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintPara
 	GetComDvcSymb(comdvcsCom, 1, 0, bclpp.Port);
 	bclpp.PrinterID = NZOR(prnID, bcpobj.GetSingle());
 	bclpp.LocID = pRgi->LocID;
-	if(bclpp.PrinterID)
+	if(bclpp.PrinterID) {
 		if(bcpobj.GetPacket(bclpp.PrinterID, &rec) > 0)
 			bclpp.Port = rec.PortEx;
 		else
 			bclpp.PrinterID = 0;
+	}
 	bclpp.NumCopies = 1;
 	if(pRgi->LabelCount > 0 && pRgi->LabelCount < 1000)
 		bclpp.NumCopies = pRgi->LabelCount;

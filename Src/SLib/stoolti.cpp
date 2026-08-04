@@ -168,26 +168,64 @@ static BOOL CALLBACK CloseTooltipWnd2(HWND hwnd, LPARAM lParam)
 int SMessageWindow::SetFont(HWND hCtl)
 {
 	if(hCtl) {
-		LOGFONT log_font;
+		const  UiDescription * p_uid = SLS.GetUiDescription();
+		LOGFONTW log_font;
 		MEMSZERO(log_font);
+		// @v12.7.1 {
+		if(Flags & SMessageWindow::fLargeText) {
+			const  SFontDescr * p_fd = p_uid ? p_uid->GetFontDescrC("PopUpMsgWin_Large") : 0;
+			if(p_fd && p_fd->MakeLogFont(&log_font)) {
+				log_font.lfHeight = abs(log_font.lfHeight);
+			}
+			else {
+				log_font.lfCharSet = RUSSIAN_CHARSET;
+				STRNSCPY(log_font.lfFaceName, L"MS Shell Dlg");
+				log_font.lfHeight = 26;
+				log_font.lfWeight = FW_HEAVY;
+			}
+		}
+		else {
+			const  SFontDescr * p_fd = p_uid ? p_uid->GetFontDescrC("PopUpMsgWin_Normal") : 0;
+			if(p_fd && p_fd->MakeLogFont(&log_font)) {
+				log_font.lfHeight = abs(log_font.lfHeight);
+			}
+			else {
+				log_font.lfCharSet = RUSSIAN_CHARSET;
+				STRNSCPY(log_font.lfFaceName, L"MS Shell Dlg");
+				log_font.lfHeight = 13;
+				log_font.lfWeight = FW_MEDIUM;
+			}
+		}
+		// } @v12.7.1 
+		/* @v12.7.1
 		log_font.lfCharSet = RUSSIAN_CHARSET;
-		STRNSCPY(log_font.lfFaceName, _T("MS Shell Dlg"));
+		STRNSCPY(log_font.lfFaceName, L"MS Shell Dlg");
 		log_font.lfHeight = (Flags & SMessageWindow::fLargeText) ? 26 : 13;
 		log_font.lfWeight = (Flags & SMessageWindow::fLargeText) ? FW_HEAVY : FW_MEDIUM;
+		*/
 		ZDeleteWinGdiObject(&Font);
-		Font = CreateFontIndirect(&log_font);
-		if(Font)
+		Font = ::CreateFontIndirectW(&log_font);
+		if(Font) {
 			::SendMessageW(hCtl, WM_SETFONT, reinterpret_cast<WPARAM>(Font), TRUE);
+		}
 	}
 	return 1;
 }
+/*
+	popupmsgwin_transparency        [75] // 0..100 прозрачность всплывающего окна сообщений
+	popupmsgwin_deftimerms          [60000] // время, в течении которого всплывающее окно сообщений висит на экране (в миллисекундах)
+	popupmsgwin_maxwidthtoparentrel [2] // Максимальное отношение ширины окна к ширине родительского окна
+	popupmsgwin_maxwraplines        [10] // Максимальное количество выводимых строк, на которое разбивается длинная строка
 
+	papyrus_style/popupmsgwin_bg defcolor RGB(0xFF, 0xF7, 0x94)
+*/ 
 int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, long cmd, long timer, COLORREF color, long flags, long extra)
 {
 	int    ok = 0;
 	int    font_init = 0;
 	HWND   h_focus = ::GetFocus();
 	HWND   hwnd_parent = NZOR(parent, APPL->H_MainWnd);
+	const  UiDescription * p_uid = SLS.GetUiDescription();
 	/* @construction if(parent)
 		hwnd_parent = parent;
 	else if(APPL->H_TopOfStack)
@@ -231,10 +269,15 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 		}
 		if(h_ctl) {
 			if(Flags & SMessageWindow::fTextAlignLeft) {
+				//
+				// @v12.7.1 Как я (или кто-то другой) мог сделать такое (закомментированное) уродство?
+				// 
+				long   style = TView::SGetWindowStyle(h_ctl);
+				::SetWindowLongW(h_ctl, GWL_STYLE, ((style|SS_LEFT)&~SS_CENTER)); // @v12.7.1 
+				/* @v12.7.1 
 				RECT   ctl_rect;
 				RECT   img_rect;
 				RECT   parent_rect;
-				long   style = TView::SGetWindowStyle(h_ctl);
 				::GetWindowRect(h_ctl, &ctl_rect);
 				if(h_img)
 					::GetWindowRect(h_img, &img_rect);
@@ -251,25 +294,41 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 					ctl_rect.left, ctl_rect.top, ctl_rect.right, ctl_rect.bottom, HWnd, 0, TProgram::GetInst(), 0);
 				if(h_ctl) {
 					SetFont(h_ctl);
-					::SetWindowLongW(h_ctl, GWL_ID, 1201/*CTL_TOOLTIP_TEXT*/);
+					::SetWindowLongW(h_ctl, GWL_ID, 1201); // CTL_TOOLTIP_TEXT==1201
 					font_init = 1;
 				}
+				*/
 			}
 		}
 		if(!font_init)
 			SetFont(h_ctl);
-		SETIFZ(Color, RGB(0xFF, 0xF7, 0x94));
-		if(!(Flags & SMessageWindow::fOpaque))
-			SetWindowTransparent(HWnd, 75);
+		if(!(Flags & SMessageWindow::fOpaque)) {
+			int   transp = 75; // default value = 75
+			// @v12.7.1 {
+			if(p_uid) {
+				int    uid_transp = 0;
+				if(p_uid->VList.Get(UiValueList::vPopUpMsgWinTransparency, uid_transp) && checkirange(uid_transp, 0, 100)) {
+					transp = uid_transp;
+				}
+			}
+			// } @v12.7.1 
+			SetWindowTransparent(HWnd, transp);
+		}
 		if(Flags & SMessageWindow::fChildWindow) {
-			long   win_flags = TView::SGetWindowStyle(HWnd);
-			win_flags &= ~WS_POPUP;
-			win_flags |= WS_CHILD;
-			::SetWindowLong(HWnd, GWL_STYLE, win_flags);
-			::SetWindowLong(HWnd, GWL_EXSTYLE, (LONG)0);
+			const  long win_flags = TView::SGetWindowStyle(HWnd);
+			::SetWindowLongW(HWnd, GWL_STYLE, ((win_flags|WS_CHILD)&~WS_POPUP));
+			::SetWindowLongW(HWnd, GWL_EXSTYLE, 0L);
 			::SetParent(HWnd, hwnd_parent);
 		}
-		Brush = ::CreateSolidBrush(Color);
+		{
+			if(!Color) {
+				SColor def_bg_color(RGB(0xFF, 0xF7, 0x94));	
+				const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+				SColor sc = UiDescription::GetColorR(p_uid, p_cs, "popupmsgwin_bg", def_bg_color);
+				Color = static_cast<COLORREF>(sc);
+			}
+			Brush = ::CreateSolidBrush(Color);
+		}
 		Text.ReplaceChar('\003', ' ').Strip();
 		if(Flags & SMessageWindow::fUtf8) {
 			Text.Transf(CTRANSF_UTF8_TO_OUTER);
@@ -280,7 +339,21 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 		Move();
 		::ShowWindow(HWnd, SW_SHOWNORMAL);
 		::UpdateWindow(HWnd);
-		::SetTimer(HWnd, MSGWND_CLOSETIMER, ((timer > 0) ? timer : 60000), static_cast<TIMERPROC>(0));
+		{
+			uint   elapse = checkirange(timer, 100L, 3600L*1000L) ? static_cast<uint>(timer) : 0;
+			if(!elapse) {
+				elapse = 60000U;
+				// @v12.7.1 {
+				if(p_uid) {
+					int    uid_timer = 0;
+					if(p_uid->VList.Get(UiValueList::vPopUpMsgWinDefTimerMs, uid_timer) && checkirange(uid_timer, 100, 3600*1000)) {
+						elapse = static_cast<uint>(uid_timer);
+					}
+				}
+				// } @v12.7.1
+			}
+			::SetTimer(HWnd, MSGWND_CLOSETIMER, elapse, static_cast<TIMERPROC>(0));
+		}
 		// SetCapture(HWnd);
 		ok = 1;
 	}
@@ -307,6 +380,7 @@ void SMessageWindow::Destroy()
 void SMessageWindow::Move()
 {
 	if(HWnd) {
+		const  UiDescription * p_uid = SLS.GetUiDescription();
 		RECT   toolt_rect;
 		RECT   parent_rect;
 		RECT   img_rect;
@@ -322,7 +396,18 @@ void SMessageWindow::Move()
 			toolt_h = 100;
 			toolt_w = 100;
 			if(Flags & SMessageWindow::fSizeByText) {
-				const  int  max_w = (parent_rect.right - parent_rect.left) / 4; // @v12.3.10 (/5)-->(/4)
+				double max_width_to_parent_rel = 2.0; // default=2.0 // @v12.3.10 (/5)-->(/4) // @v12.7.1 (/4)-->(/2)
+				// @v12.7.1 {
+				if(p_uid) {
+					double uid_max_width_to_parent_rel = 0.0;
+					if(p_uid->VList.Get(UiValueList::vPopUpMsgWinMaxWidthToParentRel, uid_max_width_to_parent_rel)) {
+						if(uid_max_width_to_parent_rel > 0.0 && uid_max_width_to_parent_rel < 100.0) {
+							max_width_to_parent_rel = uid_max_width_to_parent_rel;
+						}
+					}
+				}
+				// } @v12.7.1
+				const  int  max_w = static_cast<int>((parent_rect.right - parent_rect.left) / max_width_to_parent_rel); 
 				int    w = 0;
 				int    h = 0;
 				HDC    hdc = GetDC(h_ctl);
@@ -331,8 +416,18 @@ void SMessageWindow::Move()
 				SString buf2;
 				StringSet ss('\n', Text);
 				Text.Z();
-				if(Font)
+				if(Font) {
 					SelectObject(hdc, Font);
+				}
+				int   max_wrap_lines = 10; // // максимум строчек для 1-ой подстроки // default=10
+				// @v12.7.1 {
+				if(p_uid) {
+					int    uid_max_wrap_lines = 0;
+					if(p_uid->VList.Get(UiValueList::vPopUpMsgWinMaxWrapLines, uid_max_wrap_lines) && checkirange(uid_max_wrap_lines, 1, 1000)) {
+						max_wrap_lines = uid_max_wrap_lines;
+					}
+				}
+				// } @v12.7.1
 				for(uint i = 0; ss.get(&i, buf);) {
 					SIZE size;
 					if(buf.Len() == 0)
@@ -340,7 +435,7 @@ void SMessageWindow::Move()
 					::GetTextExtentPoint32W(hdc, SUcSwitchW(buf), buf.LenI(), &size);
 					w = MAX(w, size.cx);
 					if(w > max_w) {
-						SplitBuf(hdc, buf, max_w, 10); // максимум 10 строчек для 1-ой подстроки
+						SplitBuf(hdc, buf, max_w, max_wrap_lines); 
 						StringSet ss2('\n', buf);
 						uint   j = 0;
 						uint   k = 0;
@@ -378,14 +473,15 @@ void SMessageWindow::Move()
 				::MoveWindow(h_ctl, ctl_rect.left, ctl_rect.top, ctl_rect.right, ctl_rect.bottom, FALSE);
 			}
 		}
-		else if(h_ctl == 0)
+		else if(h_ctl == 0) {
 			toolt_h = img_rect.bottom - img_rect.top + 20;
+		}
 		if(Flags & SMessageWindow::fShowOnCenter) {
 			toolt_rect.top  = parent_rect.top  + (parent_rect.bottom - parent_rect.top)  / 2 - toolt_h / 2;
 			toolt_rect.left = parent_rect.left + (parent_rect.right  - parent_rect.left) / 2 - toolt_w / 2;
 		}
 		else if(Flags & SMessageWindow::fShowOnCursor) {
-			int    delta = GetSystemMetrics(SM_CXVSCROLL) + GetSystemMetrics(SM_CXBORDER);
+			//int    delta = GetSystemMetrics(SM_CXVSCROLL) + GetSystemMetrics(SM_CXBORDER);
 			POINT  p;
 			GetCursorPos(&p);
 			toolt_rect.top  = p.y - toolt_h + 2;

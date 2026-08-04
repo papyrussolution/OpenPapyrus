@@ -305,13 +305,14 @@ public:
 	int    GetCode(long itemPos, SString & rBuf) const
 	{
 		int    ok = 0;
-		if(GetItemByPos(itemPos))
+		if(GetItemByPos(itemPos)) {
 			if(P_Item->Flags & BillGoodsBrwItem::fHasCode) {
 				SStrGroup::GetS(P_Item->CodePos, rBuf);
 				ok = 1;
 			}
 			else
 				ok = -1;
+		}
 		return ok;
 	}
 	int    GetVat(long itemPos, double * pVatRate, double * pVatSum) const
@@ -504,7 +505,7 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 		const  BillGoodsBrwItem * p_item = static_cast<const BillGoodsBrwItem *>(pData);
 		const  long pos = p_item->Pos;
 		const  LongArray & r_price_dev_list = p_brw->GetPriceDevList();
-		const PPBillPacket & r_pack = p_brw->GetPacket();
+		const  PPBillPacket & r_pack = p_brw->GetPacket();
 		if(p_def) {
 			if(col >= 0 && col < p_def->getCountI()) {
 				const BroColumn & r_col = p_def->at(col);
@@ -3221,6 +3222,7 @@ private:
 	uint   PopupInfoIdx; 
 	ExtCodeRefCore * P_EcrT;
 	PPChZnPrcssr::CodeInfoCollection CodeInfoList;
+	SString MainOrgINN; // @v12.7.1 Для сравнения с расширенной информацией о марке
 };
 
 class LotXCodeListDialog : public LotXCodeListDialog_Base {
@@ -3483,6 +3485,13 @@ ValidateLotXCodeListDialog::ValidateLotXCodeListDialog(PPBillPacket * pPack) : L
 	SetClusterData(CTL_LOTXCCKLIST_FLAGS, 0);
 	AddClusterAssoc(CTL_LOTXCCKLIST_SHOWINFO, 0, vfShowInfo);
 	SetClusterData(CTL_LOTXCCKLIST_SHOWINFO, 0);
+	{
+		const  PPID main_org_id = GetMainOrgID();
+		if(main_org_id) {
+			PPObjPerson psn_obj;
+			psn_obj.GetRegNumber(main_org_id, PPREGT_TPID, getcurdate_(), MainOrgINN);
+		}
+	}
 }
 	
 ValidateLotXCodeListDialog::~ValidateLotXCodeListDialog()
@@ -3576,7 +3585,6 @@ IMPL_HANDLE_EVENT(ValidateLotXCodeListDialog)
 					if(p_info_item) {
 						SString info_buf;
 						CodeInfoList.EntryToStr(cilidx, 0, info_buf);
-						//
 						SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления //
 						PPTooltipMessage(info_buf, 0, H(), 20000, GetColorRef(SClrSnow),
 							SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|
@@ -3611,10 +3619,12 @@ IMPL_HANDLE_EVENT(ValidateLotXCodeListDialog)
 					else {
 						enum {
 							infostateUndef = 0,
-							infostateFound,
+							infostateFound,   // найдена расширенная информации о марке
+							infostateExpired, // срок годности кода истек 
+							infostateStrange, // чужой код (инн владельца отличается от инн главной организации)
 						};
 						SString code_buf;
-						SString box_code;
+						SString temp_buf;
 						p_lbx->getText(static_cast<long>(p_draw_item->ItemData), code_buf);
 						int    err = 0;
 						int    info_state = infostateUndef; // @v12.7.0 infostateXXX
@@ -3628,8 +3638,8 @@ IMPL_HANDLE_EVENT(ValidateLotXCodeListDialog)
 									_found = true;
 								}
 								else {
-									const  int vcr_2 = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
-									if(vcr_2 && box_code.NotEmpty() && Data.Search(box_code, &row_idx, &inner_idx)) {
+									const  int vcr_2 = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &temp_buf);
+									if(vcr_2 && temp_buf.NotEmpty() && Data.Search(temp_buf, &row_idx, &inner_idx)) {
 										_found = true;
 									}
 								}
@@ -3641,7 +3651,26 @@ IMPL_HANDLE_EVENT(ValidateLotXCodeListDialog)
 								if(CodeInfoList.SearchExtraValue(p_draw_item->ItemData+1, &cilidx)) {
 									const  PPChZnPrcssr::CodeInfo * p_info_item = CodeInfoList.at(cilidx);
 									if(p_info_item) {
-										info_state = infostateFound;
+										{
+											SUniTime_Internal ut; 
+											SUniTime_Internal now_ut;
+											if(UED::_GetRaw_Time(p_info_item->UedExpiryTm, ut)) {
+												now_ut.SetCurrent();
+												if(ut.Cmp(now_ut) > 0) {
+													info_state = infostateExpired;
+												}
+											}
+										}
+										if(!info_state) {
+											if(MainOrgINN.NotEmpty()) {
+												if(UED::GetRaw_Ru_INN(p_info_item->UedOwnerINN, temp_buf, 0)) {
+													if(temp_buf != MainOrgINN) {
+														info_state = infostateStrange;
+													}
+												}
+											}
+										}
+										SETIFZQ(info_state, infostateFound);
 									}
 								}
 								// @todo
@@ -3653,12 +3682,12 @@ IMPL_HANDLE_EVENT(ValidateLotXCodeListDialog)
 									if(info_state == infostateFound) {
 										brush_id = TProgram::tbiExtInfoBrush;
 									}
-									else {
-										//TProgram::tbiExtInfoBadBrush
+									else if(oneof2(info_state, infostateExpired, infostateStrange)) {
+										brush_id = TProgram::tbiExtInfoBadBrush;
 									}
 								}
 								else {
-									const  int vcr = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &box_code);
+									const  int vcr = P_Pack->XcL.ValidateCode(code_buf, 0, &err, &row_idx, &temp_buf);
 									if(!vcr) {
 										if(err == 2) // марка не найдена
 											brush_id = TProgram::tbiInvalInpBrush;
@@ -3690,7 +3719,7 @@ IMPL_HANDLE_EVENT(ValidateLotXCodeListDialog)
 						}
 						if(code_buf.NotEmpty()) {
 							if(FontId <= 0) {
-								HFONT  hf = reinterpret_cast<HFONT>(::SendMessage(p_draw_item->H_Item, WM_GETFONT, 0, 0));
+								HFONT  hf = reinterpret_cast<HFONT>(::SendMessageW(p_draw_item->H_Item, WM_GETFONT, 0, 0));
 								FontId = p_tb->CreateFont_(0, hf, 12);
 							}
 							if(FontId) {
@@ -5448,8 +5477,7 @@ LotXCodeListDialog::LotXCodeListDialog(/*const*/PPBillPacket * pPack, int rowIdx
 {
 	ContextMenuID = CTRLMENU_LOTXCODELIST;
 	selectCtrl(CTL_LOTXCLIST_LIST);
-	enableCommand(cmCopyGtinToGoods, false); // @v12.6.5
-	showButton(cmCopyGtinToGoods, false); // @v12.6.5
+	showButtonAndEnableCommand(cmCopyGtinToGoods, false); // @v12.6.5
 }
 	
 LotXCodeListDialog::~LotXCodeListDialog()
@@ -5626,14 +5654,10 @@ void LotXCodeListDialog::ProcessCommonEanOnSingleMark(const SString & rMarkCode,
 		setStaticText(CTL_LOTXCLIST_INFO, temp_buf);
 	}
 	CATCHZOK
-	showButton(cmCopyGtinToGoods, CommonEan.NotEmpty()); // @v12.6.5
-	enableCommand(cmCopyGtinToGoods, CommonEan.NotEmpty()); // @v12.6.5
-	showButton(cmCopyToClipboardAll, list_pos_idx > 0); // @v12.6.6
-	enableCommand(cmCopyToClipboardAll, list_pos_idx > 0); // @v12.6.6
-	showButton(cmCopyToClipboardSpc, list_pos_idx > 0); // @v12.6.6
-	enableCommand(cmCopyToClipboardSpc, list_pos_idx > 0); // @v12.6.6
-	showButton(cmCopyToClipboard, list_pos_idx > 0); // @v12.6.6
-	enableCommand(cmCopyToClipboard, list_pos_idx > 0); // @v12.6.6
+	showButtonAndEnableCommand(cmCopyGtinToGoods, CommonEan.NotEmpty()); // @v12.6.5
+	showButtonAndEnableCommand(cmCopyToClipboardAll, list_pos_idx > 0); // @v12.6.6
+	showButtonAndEnableCommand(cmCopyToClipboardSpc, list_pos_idx > 0); // @v12.6.6
+	showButtonAndEnableCommand(cmCopyToClipboard, list_pos_idx > 0); // @v12.6.6
 	return ok;
 }
 	

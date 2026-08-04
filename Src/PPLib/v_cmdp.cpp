@@ -59,7 +59,7 @@ int EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, /*int isDekstopC
 			if(Data.GetID() && CmdDescr.LoadResource(Data.CmdID) > 0)
 				enableCommand(cmCmdParam, !(CmdDescr.Flags & PPCommandDescr::fNoParam));
 			else
-				enableCommand(cmCmdParam, 0);
+				enableCommand(cmCmdParam, false);
 			{
 				FileBrowseCtrlGroup * p_fbg = static_cast<FileBrowseCtrlGroup *>(getGroup(ctlgroupFbg));
 				if(p_fbg) {
@@ -131,7 +131,7 @@ int EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, /*int isDekstopC
 						enableCommand(cmCmdParam, !(CmdDescr.Flags & PPCommandDescr::fNoParam));
 				}
 				else
-					enableCommand(cmCmdParam, 0);
+					enableCommand(cmCmdParam, false);
 			}
 			else if(event.isCmd(cmCmdParam)) {
 				const size_t sav_offs = Data.Param.GetRdOffs();

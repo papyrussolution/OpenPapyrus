@@ -54,6 +54,7 @@ int  TestAutotranslateText(); // @v12.6.1
 // @v12.5.12 void Test_MySQL_ReadBLOB(); // @v12.5.7
 int  TestPhoneNumberMetadata(); // @v12.6.2
 int  TestAutotranslateCache(); // @v12.6.2
+void Test_DrawImageOnPrinter(); // @v12.7.1
 //
 // 
 // 
@@ -2044,6 +2045,7 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
+	Test_DrawImageOnPrinter(); // @v12.7.1
 	//TestCRC();
 	//TestAutotranslateText(); // @v12.6.1
 	//TestAutotranslateCache(); // @v12.6.2

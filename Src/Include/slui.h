@@ -858,9 +858,7 @@ public:
 			fPaginate        = 0x0001, // Рассчитывать раскладку по страницам.
 			fStopOnFirstUnfittedItem = 0x0002  // Остановить расчет на первом невместившемся элементе
 		};
-		Param() : Flags(0), FirstItemIndex(0)/*, ForceWidth(0.0f), ForceHeight(0.0f)*/
-		{
-		}
+		Param();
 		uint   Flags;
 		uint   FirstItemIndex; // Индекс элемента [0..], с которого начинать расчет
 		SPoint2F ForceSize;
@@ -1309,7 +1307,7 @@ public:
 	};
 
 	SFontDescr();
-	SFontDescr(const char * pFace, int size, int flags);
+	SFontDescr(const char * pFace, int size, float weight, int flags);
 	SFontDescr & Z();
 	bool   IsDefined() const { return (Face.NotEmpty() && Size != 0); } // @v12.3.10
 	bool   FASTCALL operator == (const SFontDescr & rS) const { return IsEq(rS); }
@@ -1358,6 +1356,10 @@ public:
 		vButtonDoubleWidth,
 		vFontSmoothingType, // @v12.2.1 0=none; 1=standard; 2=cleartype
 		vFontSmoothingContrast, // @v12.2.1 [1000..2200] default=1400 SPI_SETFONTSMOOTHINGCONTRAST
+		vPopUpMsgWinTransparency,        // @v12.7.1 popupmsgwin_transparency        [75] // 0..100 прозрачность всплывающего окна сообщений
+		vPopUpMsgWinDefTimerMs,          // @v12.7.1 popupmsgwin_deftimerms          [60000] // время, в течении которого всплывающее окно сообщений висит на экране (в миллисекундах)
+		vPopUpMsgWinMaxWidthToParentRel, // @v12.7.1 popupmsgwin_maxwidthtoparentrel [2] // Максимальное отношение ширины окна к ширине родительского окна
+		vPopUpMsgWinMaxWrapLines,        // @v12.7.1 popupmsgwin_maxwraplines        [10] // Максимальное количество выводимых строк, на которое разбивается длинная строка
 	};
 	union ValueUnion {
 		ValueUnion();
@@ -1919,7 +1921,10 @@ public:
 	int    CreateColor(int ident, SColor c);
 	int    CreatePen_(int ident, int style, float width, SColor c);
 	int    CreateBrush_(int ident, int style, SColor c, int32 hatch, int patternId = 0);
-	int    CreateFont_(int ident, const char * pFace, int height, int flags);
+	//
+	// ARG(weight IN): 0 - не важно, 1 - нормальный, >=2 - максимально толстый
+	//
+	int    CreateFont_(int ident, const char * pFace, int height, float weight, int flags); // @v12.7.1 arg(weight)
 	int    CreateFont_(int ident, const SFontDescr & rFd); // @v12.2.6
 	//
 	// Descr: Создает экземпляр шрифта по образцу системного хандлера hFont.
@@ -2916,6 +2921,12 @@ public:
 	void   FASTCALL drawCtrl(ushort ctlID);
 	void   showCtrl(ushort ctl, bool s/*1 - show, 0 - hide*/);
 	void   showButton(uint cmd, bool s/*1 - show, 0 - hide*/);
+	//
+	// Descr: Функция делает тоже самое, что и пара вызовов:
+	//   showButton(cmd, s);
+	//   enableCommand(cmd, s);
+	//
+	void   showButtonAndEnableCommand(uint cmd, bool s/*1 - show, 0 - hide*/); // @v12.7.1
 	int    SetButtonText(uint cmd, const char * pText);
 	int    setButtonBitmap(uint cmd, uint bmpID);
 	void   FASTCALL setTitle(const char *);
@@ -2988,6 +2999,8 @@ public:
 	// Descr: Удаляет элемент лейаута, связанный с дочерним элементом pV
 	//
 	void   DeleteChildLayout(TView * pV); // @v12.6.2
+	int    SetChildLayoutExcludedStatus(int layoutId); // @v12.7.1
+	int    ResetChildLayoutExcludedStatus(int layoutId); // @v12.7.1
 	//
 	// ARG(extraPtr IN): Дополнительные параметры, зависящие от типа управляющего элемента.
 	//
@@ -3052,8 +3065,10 @@ protected:
 	long   WbCapability;  // @v12.2.4 (moved from TWindowBase)
 private:
 	void   STDCALL Helper_SetTitle(const char *, int setOrgTitle);
+	int    Helper_SetChildLayoutExcludedStatus(int topProcessedLayoutId, SUiLayout * pLo); // @v12.7.1
+	int    Helper_ResetChildLayoutExcludedStatus(int topProcessedLayoutId, SUiLayout * pLo); // @v12.7.1
 
-	class LocalMenuPool {
+	class LocalMenuPool : private SStrGroup { // @v12.7.1 (SStrGroup inheritance)
 	public:
 		explicit LocalMenuPool(TWindow * pWin);
 		int    AddItem(uint ctrlId, uint buttonId, long keyCode, const char * pText);
@@ -3065,10 +3080,10 @@ private:
 			uint   CtrlId;
 			uint   ButtonId;
 			long   KeyCode;
-			uint   StrPos;
+			uint   TextP;   // @v12.7.1 StrPos-->TextP
 		};
 		SVector List;
-		StringSet StrPool;
+		// @v12.7.1 StringSet StrPool;
 		TWindow * P_Win; // @notowned
 	};
 	SString Title;
@@ -3080,6 +3095,20 @@ private:
 	StrAssocArray * P_SymbList; // Специальный контейнер для хранения соответствий идентификаторов элементов и их символов.
 	SVector * P_FontsAry;
 	StorableUserParams * P_StUsrP; // @v12.2.6 Сохраняемые пользовательские параметры окна. Применяются если (WbCapability & wbcStorableUserParams).
+	//
+	// Descr: Следующая структура и содержащая такие структуры коллекция нужны для того, что бы реализовать аккуратное
+	//   скрытие/восстановление групп элементов, входящих в заданный дочерний лейаут окна. Так как при сокрытии лейаута
+	//   придется скрывать и входящие в него управляющие элементы, то мы утратим признак hidden элементов, которые были уже скрыты.
+	//   Так вот, PreserveHiddenCtrlItems будет содержать идентификаторы контролов, которые были скрыты до того, как была вызвана 
+	//   функция SetChildLayoutExcludedStatus(int layoutId). Соответсвенно, функцией ResetChildLayoutExcludedStatus(int layoutId)
+	//   мы не будем открывать контролы, идентификаторы которых перечислены в HiddenCtlIdList
+	//   (уффф! надеюсь, понятно объяснил).
+	//
+	struct PreserveHiddenCtrlItems { // @v12.7.1
+		int   LayoutId; // @firstmember
+		LongArray HiddenCtlIdList;
+	};
+	TSCollection <PreserveHiddenCtrlItems> * P_PHC_List; // @v12.7.1
 };
 //
 //

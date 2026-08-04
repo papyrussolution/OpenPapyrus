@@ -1981,6 +1981,7 @@
 #define STDCTL_KBSTATECAPSLOCK    178 // @v12.6.9 кнопка отображения признака состояния клавиатуры CAPSLOCK // 
 #define STDCTL_INSFOLDERBUTTON    179 // @v12.6.11 кнопка создания папки (элемента иерархии верхнего уровня)
 #define STDCTL_LANGLISTBUTTON     180 // @v12.7.0 Кнопка выбора списка натуральных языков
+#define STDCTL_GOODSSTRUC         181 // @v12.7.1 Кнопка просмотра товарной структуры
 
 #define cmPPAccSelected          1101 // Сообщение, посылаемое группой
 	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr
@@ -2602,6 +2603,14 @@
 	#define CTL_GOODS_ST_INFO           (42 + WINDOWS_ID_BIAS)
 	#define CTL_GOODS_RANK              (43 + WINDOWS_ID_BIAS)
 	#define CTL_GOODS_GRPFLAGS          (44 + WINDOWS_ID_BIAS)
+	#define CTL_GOODS_CMD_GOODSEXT      (45 + WINDOWS_ID_BIAS)
+	#define CTL_GOODS_CMD_STAT          (46 + WINDOWS_ID_BIAS)
+	#define CTL_GOODS_CMD_ARCODELIST    (47 + WINDOWS_ID_BIAS)
+	#define CTL_GOODS_CMD_EDITOBJASSOC  (48 + WINDOWS_ID_BIAS)
+	#define CTL_GOODS_CMD_VIEWQUOTS     (49 + WINDOWS_ID_BIAS)
+	#define CTL_GOODS_CMD_GOODSMATRIX   (50 + WINDOWS_ID_BIAS)
+	#define CTL_GOODS_CMD_SUPPLCOST     (51 + WINDOWS_ID_BIAS) 
+	#define CTL_GOODS_CMD_VALUEADDEDDATA (52 + WINDOWS_ID_BIAS)
 #define DLG_LOCATION               73 // Location (Warehouse)
 #define DLG_LOCATION2              75 // @v2.2.4 Location
 #define DLG_ADDRESS                76 // @v2.2.4 Address (Location)
@@ -3297,6 +3306,11 @@
 	#define CTL_CASHN_PASSIVE           (45 + WINDOWS_ID_BIAS)
 	#define CTL_CASHN_ST_CRBILL         (46 + WINDOWS_ID_BIAS)
 	#define CTL_CASHN_DRVVER            (47 + WINDOWS_ID_BIAS)
+	#define CTL_CASHN_CMD_DIVGRPASSC    (48 + WINDOWS_ID_BIAS)
+	#define CTL_CASHN_CMD_ROUNDING      (49 + WINDOWS_ID_BIAS)
+	#define CTL_CASHN_CMD_EXTDEVICES    (50 + WINDOWS_ID_BIAS) 
+	#define CTL_CASHN_CMD_EDITCASHPARAM (51 + WINDOWS_ID_BIAS) 
+	#define CTL_CASHN_CMD_APNCORRLIST   (52 + WINDOWS_ID_BIAS)  
 #define DLG_CALCPRICE             144 // Спец. калькулятор (расчет наценки)
 	#define CTL_CALCPRICE_COST           (1 + WINDOWS_ID_BIAS)
 	#define CTL_CALCPRICE_PERCENT        (2 + WINDOWS_ID_BIAS)
@@ -7669,6 +7683,9 @@
 	#define CTL_UICFG_SPCINPDRV          (9 + WINDOWS_ID_BIAS)
 	#define CTL_UICFG_MULTBILLPRINT      (10 + WINDOWS_ID_BIAS)
 	#define CTL_UICFG_FLAGS2             (11 + WINDOWS_ID_BIAS) // @v12.4.9
+	#define CTL_UICFG_CMD_SELBROWSERFONT (12 + WINDOWS_ID_BIAS) // @v12.7.1 
+	#define CTL_UICFG_CMD_SELLISTFONT    (13 + WINDOWS_ID_BIAS) // @v12.7.1
+	#define CTL_UICFG_CMD_UICFGBITF      (14 + WINDOWS_ID_BIAS) // @v12.7.1
 #define DLG_SMPLLEDG              727
 	#define CTL_SMPLLEDG_DT               (1 + WINDOWS_ID_BIAS)
 	#define CTL_SMPLLEDG_CODE             (2 + WINDOWS_ID_BIAS)
@@ -12185,6 +12202,7 @@
 	#define CTL_SECRETPOOL_TEXT1                (21 + WINDOWS_ID_BIAS)
 	#define CTL_SECRETPOOL_TEXT2                (22 + WINDOWS_ID_BIAS)
 	#define CTL_SECRETPOOL_TEXT3                (23 + WINDOWS_ID_BIAS)
+	#define CTL_SECRETPOOL_FRAME_TEXT           (24 + WINDOWS_ID_BIAS) // Ид фрейма с содержанием, зависящим от типа секрета
 #define DLG_SECRETPOOLPASSWORD   1599 // @v12.6.9 @centrigo Диалог ввода пароля для создания хранилища или входа в него
 #define DLG_PRCRCHZNMCLLTR       1600 // @v12.6.11 Параметры процессора PrcssrChZnMarkInfoCollector
 	#define CTL_PRCRCHZNMCLLTR_PERIOD           (1 + WINDOWS_ID_BIAS)

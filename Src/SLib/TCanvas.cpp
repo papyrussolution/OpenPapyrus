@@ -13,15 +13,15 @@
 //
 typedef BOOL (STDAPICALLTYPE * ProcDllSetLayeredWindowAttributes)(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags);
 
-int SetWindowTransparent(HWND hWnd, int transparent /*0..100*/)
+int SetWindowTransparent(HWND hWnd, int transparent/*0..100*/)
 {
 	int    ok = 0;
 	const  long  exstyle = TView::SGetWindowExStyle(hWnd);
 	SDynLibrary lib("user32.dll");
 	ProcDllSetLayeredWindowAttributes proc = reinterpret_cast<ProcDllSetLayeredWindowAttributes>(lib.GetProcAddr("SetLayeredWindowAttributes"));
 	if(proc) {
-		TView::SetWindowProp(hWnd, GWL_EXSTYLE, reinterpret_cast<void *>(exstyle | WS_EX_LAYERED));
-   		proc(hWnd, 0 , (255 * transparent) / 100, LWA_ALPHA);
+		TView::SetWindowProp(hWnd, GWL_EXSTYLE, reinterpret_cast<void *>(exstyle|WS_EX_LAYERED));
+   		proc(hWnd, 0, (255 * transparent) / 100, LWA_ALPHA);
 		ok = 1;
 	}
 	return ok;
@@ -1301,10 +1301,13 @@ int FASTCALL TCanvas2::Draw(const SDrawGroup * pDraw)
 {
 	int    ok = 1;
 	DrawingProcFrame __frame(this, pDraw);
-	if(pDraw)
-		for(uint i = 0; ok && i < pDraw->GetCount(); i++)
-			if(!Draw(pDraw->Get(i))) // @recursion
+	if(pDraw) {
+		for(uint i = 0; ok && i < pDraw->GetCount(); i++) {
+			if(!Draw(pDraw->Get(i))) { // @recursion
 				ok = 0;
+			}
+		}
+	}
 	return ok;
 }
 
@@ -2048,8 +2051,8 @@ SFontDescr::SFontDescr() : Size(0), Flags(0), Weight(0.0f), CharSet(DEFAULT_CHAR
 	memzero(Reserve, sizeof(Reserve));
 }
 
-SFontDescr::SFontDescr(const char * pFace, int size, int flags) : Size(static_cast<int16>(size)), 
-	Face(pFace), Flags(flags & (fItalic|fUnderline|fStrikeOut|fBold|fAntialias)), Weight(0.0f), CharSet(DEFAULT_CHARSET)
+SFontDescr::SFontDescr(const char * pFace, int size, float weight, int flags) : Size(static_cast<int16>(size)), 
+	Face(pFace), Flags(flags & (fItalic|fUnderline|fStrikeOut|fBold|fAntialias)), Weight(weight), CharSet(DEFAULT_CHARSET)
 {
 	memzero(Reserve, sizeof(Reserve));
 }
@@ -2137,8 +2140,9 @@ SJson * SFontDescr::ToJsonObj() const
 		if(Size != 0) {
 			p_result->InsertNumber("size", temp_buf.Z().Cat(Size));
 		}
-		if(Weight > 0.0f && Weight <= 2.0f)
+		if(Weight > 0.0f && Weight <= 2.0f) {
 			p_result->InsertString("weight", temp_buf.Z().Cat(Weight, MKSFMTD(0, 6, NMBF_NOTRAILZ)));
+		}
 		if(Flags) {
 			temp_buf.Z();
 			if(Flags & fItalic)
@@ -2366,7 +2370,7 @@ LOGFONTW * FASTCALL SFontDescr::MakeLogFont(LOGFONTW * pLf) const
 	return pLf;
 }
 
-SPaintObj::Font::Font() : SPaintObj::Base(), SFontDescr(0, 0, 0), LineAdv(0.0f)
+SPaintObj::Font::Font() : SPaintObj::Base(), SFontDescr(0, 0, 0.0f, 0), LineAdv(0.0f)
 {
 }
 
@@ -2736,7 +2740,7 @@ int STextLayout::Preprocess(SDrawContext & rCtx, SPaintToolBox & rTb)
 					cstyle_id = r_style.StyleIdent;
 			}
 			if(!cstyle_id) {
-				int    font_id = rTb.CreateFont_(0, "Arial", SDrawContext::CalcScreenFontSizePt(10), 0);
+				int    font_id = rTb.CreateFont_(0, "Arial", SDrawContext::CalcScreenFontSizePt(10), 0.0f, 0);
 				int    pen_id = rTb.CreateColor(0, SColor(SClrBlack));
 				cstyle_id = rTb.CreateCStyle(0, font_id, pen_id, 0);
 				DefCStyleIdent = cstyle_id;
@@ -4439,8 +4443,8 @@ int SPaintToolBox::CreateFont_(int ident, HFONT hFont, int overrideHeight) // @v
 	int   result = 0;
 	if(hFont) {
 		LOGFONT f;
-		if(::GetObject(hFont, sizeof(f), &f)) {
-			SFontDescr fd(0, 0, 0);
+		if(::GetObjectW(hFont, sizeof(f), &f)) {
+			SFontDescr fd;
 			if(overrideHeight > 0)
 				f.lfHeight = overrideHeight;
 			fd.SetLogFont(&f);
@@ -4477,9 +4481,9 @@ int SPaintToolBox::CreateFont_(int ident, const SFontDescr & rFd) // @v12.2.6
 	return ident;
 }
 
-int SPaintToolBox::CreateFont_(int ident, const char * pFace, int height, int flags)
+int SPaintToolBox::CreateFont_(int ident, const char * pFace, int height, float weight, int flags)
 {
-	SFontDescr fd(pFace, height, flags);
+	SFontDescr fd(pFace, height, weight, flags);
 	return CreateFont_(ident, fd);
 }
 

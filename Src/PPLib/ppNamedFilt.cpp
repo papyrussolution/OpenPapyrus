@@ -669,18 +669,17 @@ IMPL_HANDLE_EVENT(FiltItemDialog)
 				setCtrlString(CTL_FILTITEM_NAME, name = CmdTextList.Get(pos).Txt);
 			}
 			Data.Param.Z(); // Поменялся PPView, фильтр устарел
-			enableCommand(cmCmdParam, 1);
+			enableCommand(cmCmdParam, true);
 		}
 		else
-			enableCommand(cmCmdParam, 0);
+			enableCommand(cmCmdParam, false);
 	}
 	// Событие: нажатие кнопки "Фильтр.."
 	else if(event.isCmd(cmCmdParam)) {
 		ChangeBaseFilter();
 	}
 	else if(event.isCmd(cmOutFields)) {
-		// @v11.1.10 ViewMobColumnList();
-		PPNamedFilt::EditRestrictedViewDefinitionList(Data.VD); // @v11.1.10
+		PPNamedFilt::EditRestrictedViewDefinitionList(Data.VD);
 	}
 	else if(event.isCmd(cmGuaList)) {
 		PPIDArray id_list;

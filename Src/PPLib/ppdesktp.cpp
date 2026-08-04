@@ -608,7 +608,7 @@ int PPDesktop::Init__(const S_GUID & rDesktopUuid)
 {
 	Destroy(1);
 	int    ok = 1;
-	DbProvider * p_dict = CurDict;
+	DbProvider * p_dict(CurDict);
 	const  PPCommandItem * p_item = 0;
 	PPCommandMngr * p_mgr = 0;
 	SLS.InitGdiplus();
@@ -4018,6 +4018,7 @@ static SIntToSymbTabEntry SecSegTypeList[] = {
 	{ PPSecretSegment::sectypBankCard, "bankcard" },
 	{ PPSecretSegment::sectypSSH, "ssh" },
 	{ PPSecretSegment::sectypESignature, "esignature" },
+	{ PPSecretSegment::sectypPlainText, "plaintext" },
 };
 
 PPSecretSegment::CoreEntry::CoreEntry()
@@ -5190,18 +5191,63 @@ void CentrigoSecretsDialog::SetupParentList(uint currentIdent)
 	
 void CentrigoSecretsDialog::SetupSegmentType(uint type)
 {
+	/*
+		struct SecretFieldLabels {
+			const char* OpenLabel;
+			const char* HiddenLabel;
+			const char* ExpiryLabel;
+			const char* Ext1Label;
+			const char* Ext2Label;
+			const char* Ext3Label;
+		};
+
+		static SecretFieldLabels GetFieldLabels(uint32 secType) 
+		{
+			switch (secType) {
+				case sectypGeneric:
+					return {"Открытая часть", "Скрытая часть", "Срок действия", "Дополнительно 1", "Дополнительно 2", "Дополнительно 3"};
+				case sectypPassword:
+					return {"Подсказка", "Пароль", "", "", "", ""};
+				case sectypAuthSecret:
+					return {"Логин / E-mail", "Пароль", "Срок действия пароля", "2FA / Секретный вопрос", "", ""};
+				case sectypOpenKey:
+					return {"Значение / Номер", "", "Срок действия документа", "", "", ""};
+				case sectypBankCard:
+					return {"Номер карты", "PIN-код", "Срок действия карты", "CVV/CVC-код", "", ""};
+				case sectypSSH:
+					return {"Публичный ключ", "Приватный ключ", "", "Парольная фраза (Passphrase)", "", ""};
+				case sectypESignature:
+					return {"Сертификат", "Закрытый ключ", "Срок действия сертификата", "Пароль к контейнеру", "", ""};
+				default:
+					return {"Открытая часть", "Скрытая часть", "Срок действия", "Дополнительно 1", "Дополнительно 2", "Дополнительно 3"};
+			}
+		}
+	*/ 
 	bool   enable_type_selection = true;
+		/*
+@secretpool_textopen     "Открытый текст"
+@secretpool_texthidden   "Скрытый текст"
+@secretpool_textexpiry   "Срок действия (текст)"
+@secretpool_bcard_n      "Номер карты"
+@secretpool_bcard_pin    "PIN-код"
+@secretpool_bcard_cvv    "CVV/CVC-код"
+@secretpool_bcard_expiry "Срок действия карты"
+		*/ 
 	switch(type) {
 		case PPSecretSegment::sectypUndef:
+			ResetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
 			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
 			showCtrl(CTL_SECRETPOOL_TOPEN, true);
+			setLabelText(CTL_SECRETPOOL_TOPEN, "@secretpool_textopen");
 			showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+			setLabelText(CTL_SECRETPOOL_THIDDEN, "@secretpool_texthidden");
 			showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
 			showCtrl(CTL_SECRETPOOL_TEXT1, false);
 			showCtrl(CTL_SECRETPOOL_TEXT2, false);
 			showCtrl(CTL_SECRETPOOL_TEXT3, false);
 			break;
 		case PPSecretSegment::sectypFolder:
+			SetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
 			showCtrl(CTL_SECRETPOOL_EXPIRY, false);
 			showCtrl(CTL_SECRETPOOL_TOPEN, false);
 			showCtrl(CTL_SECRETPOOL_THIDDEN, false);
@@ -5212,63 +5258,96 @@ void CentrigoSecretsDialog::SetupSegmentType(uint type)
 			enable_type_selection = false;
 			break;
 		case PPSecretSegment::sectypGeneric:
+			ResetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
 			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
 			showCtrl(CTL_SECRETPOOL_TOPEN, true);
+			setLabelText(CTL_SECRETPOOL_TOPEN, "@secretpool_textopen");
 			showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+			setLabelText(CTL_SECRETPOOL_THIDDEN, "@secretpool_texthidden");
 			showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
 			showCtrl(CTL_SECRETPOOL_TEXT1, false);
 			showCtrl(CTL_SECRETPOOL_TEXT2, false);
 			showCtrl(CTL_SECRETPOOL_TEXT3, false);
 			break;
 		case PPSecretSegment::sectypPassword:
+			ResetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
 			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
 			showCtrl(CTL_SECRETPOOL_TOPEN, false);
 			showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+			setLabelText(CTL_SECRETPOOL_THIDDEN, "@secretpool_texthidden");
 			showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
 			showCtrl(CTL_SECRETPOOL_TEXT1, false);
 			showCtrl(CTL_SECRETPOOL_TEXT2, false);
 			showCtrl(CTL_SECRETPOOL_TEXT3, false);
 			break;
 		case PPSecretSegment::sectypAuthSecret:
+			ResetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
 			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
 			showCtrl(CTL_SECRETPOOL_TOPEN, true);
+			setLabelText(CTL_SECRETPOOL_TOPEN, "@secretpool_textopen");
 			showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+			setLabelText(CTL_SECRETPOOL_THIDDEN, "@secretpool_texthidden");
 			showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
 			showCtrl(CTL_SECRETPOOL_TEXT1, false);
 			showCtrl(CTL_SECRETPOOL_TEXT2, false);
 			showCtrl(CTL_SECRETPOOL_TEXT3, false);
 			break;
 		case PPSecretSegment::sectypOpenKey:
+			ResetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
 			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
 			showCtrl(CTL_SECRETPOOL_TOPEN, true);
+			setLabelText(CTL_SECRETPOOL_TOPEN, "@secretpool_textopen");
 			showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+			setLabelText(CTL_SECRETPOOL_THIDDEN, "@secretpool_texthidden");
 			showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
 			showCtrl(CTL_SECRETPOOL_TEXT1, false);
 			showCtrl(CTL_SECRETPOOL_TEXT2, false);
 			showCtrl(CTL_SECRETPOOL_TEXT3, false);
 			break;
 		case PPSecretSegment::sectypBankCard:
-			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
+			ResetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
+			showCtrl(CTL_SECRETPOOL_EXPIRY, false);
 			showCtrl(CTL_SECRETPOOL_TOPEN, true);
+			setLabelText(CTL_SECRETPOOL_TOPEN, "@secretpool_bcard_n");
 			showCtrl(CTL_SECRETPOOL_THIDDEN, true);
-			showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
-			showCtrl(CTL_SECRETPOOL_TEXT1, false);
+			setLabelText(CTL_SECRETPOOL_THIDDEN, "@secretpool_bcard_pin");
+			showCtrl(CTL_SECRETPOOL_TEXPIRY, true);
+			setLabelText(CTL_SECRETPOOL_TEXPIRY, "@secretpool_bcard_expiry");
+			showCtrl(CTL_SECRETPOOL_TEXT1, true);
+			setLabelText(CTL_SECRETPOOL_TEXT1, "@secretpool_bcard_cvv");
 			showCtrl(CTL_SECRETPOOL_TEXT2, false);
 			showCtrl(CTL_SECRETPOOL_TEXT3, false);
 			break;
 		case PPSecretSegment::sectypSSH:
+			ResetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
 			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
 			showCtrl(CTL_SECRETPOOL_TOPEN, true);
+			setLabelText(CTL_SECRETPOOL_TOPEN, "@secretpool_ssh_pubkey");
 			showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+			setLabelText(CTL_SECRETPOOL_THIDDEN, "@secretpool_ssh_privkey");
+			showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
+			showCtrl(CTL_SECRETPOOL_TEXT1, true);
+			setLabelText(CTL_SECRETPOOL_TEXT1, "@secretpool_ssh_passphrase");
+			showCtrl(CTL_SECRETPOOL_TEXT2, false);
+			showCtrl(CTL_SECRETPOOL_TEXT3, false);
+			break;
+		case PPSecretSegment::sectypESignature:
+			ResetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
+			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
+			showCtrl(CTL_SECRETPOOL_TOPEN, true);
+			setLabelText(CTL_SECRETPOOL_TOPEN, "@secretpool_textopen");
+			showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+			setLabelText(CTL_SECRETPOOL_THIDDEN, "@secretpool_texthidden");
 			showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
 			showCtrl(CTL_SECRETPOOL_TEXT1, false);
 			showCtrl(CTL_SECRETPOOL_TEXT2, false);
 			showCtrl(CTL_SECRETPOOL_TEXT3, false);
 			break;
-		case PPSecretSegment::sectypESignature:
-			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
-			showCtrl(CTL_SECRETPOOL_TOPEN, true);
-			showCtrl(CTL_SECRETPOOL_THIDDEN, true);
+		case PPSecretSegment::sectypPlainText:
+			SetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
+			showCtrl(CTL_SECRETPOOL_EXPIRY, false);
+			showCtrl(CTL_SECRETPOOL_TOPEN, false);
+			showCtrl(CTL_SECRETPOOL_THIDDEN, false);
 			showCtrl(CTL_SECRETPOOL_TEXPIRY, false);
 			showCtrl(CTL_SECRETPOOL_TEXT1, false);
 			showCtrl(CTL_SECRETPOOL_TEXT2, false);
@@ -5298,7 +5377,8 @@ void CentrigoSecretsDialog::SetupSelectedSegment(uint segIdent)
 				}
 				else {
 					allowed_type_list.addzlist(PPSecretSegment::sectypGeneric, PPSecretSegment::sectypPassword, PPSecretSegment::sectypAuthSecret,
-						PPSecretSegment::sectypOpenKey, PPSecretSegment::sectypBankCard, PPSecretSegment::sectypSSH, PPSecretSegment::sectypESignature, 0L);
+						PPSecretSegment::sectypOpenKey, PPSecretSegment::sectypBankCard, PPSecretSegment::sectypSSH, 
+						PPSecretSegment::sectypESignature, PPSecretSegment::sectypPlainText, 0L);
 					disableCtrl(CTLSEL_SECRETPOOL_TYPE, false);
 				}
 				SetupStringComboWithAllowedList(this, CTLSEL_SECRETPOOL_TYPE, PPTXT_SECSEGTYPES, &allowed_type_list, p_item->SecType);
@@ -5499,6 +5579,45 @@ IMPL_HANDLE_EVENT(CentrigoSecretsDialog)
 		StrAssocArray * p_list = MakeStrAssocList();
 		if(p_list) {
 			ListBoxDef * p_def = new StdTreeListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData, MKSTYPE(S_ZSTRING, 128));
+			{
+				if(p_def && p_def->IsValid()) {
+					LongArray list;
+					p_def->ClearImageAssocList();
+					if(p_def->getIdList(list) > 0) {
+						Goods2Tbl::Rec gg_rec;
+						for(uint i = 0; i < list.getCount(); i++) {
+							const  PPID id = list.at(i);
+							long   img_id = 0;
+							uint   item_idx = 0;
+							const  PPSecretSegment * p_item = R_SecPool.SearchSegmentByID(id, &item_idx);
+							if(p_item) {
+								if(p_item->SecType == PPSecretSegment::sectypFolder) {
+									img_id = PPDV_FOLDER01;
+								}
+								else if(p_item->SecType == PPSecretSegment::sectypGeneric) {
+									img_id = PPDV_BOX01;
+								}
+								else if(p_item->SecType == PPSecretSegment::sectypSSH) {
+									img_id = PPDV_FTP01;
+								}
+								else if(p_item->SecType == PPSecretSegment::sectypBankCard) {
+									img_id = PPDV_CARD02;	
+								}
+								else {
+									img_id = PPDV_KEY01;
+								}
+								/*if(rec.Flags & PPInternetAccount::fFtpAccount)
+									img_id = PPDV_FTP01;
+								else 
+									img_id = PPDV_MAIL01;
+								*/
+							}
+							if(img_id)
+								p_def->AddVecImageAssoc(id, img_id);
+						}
+					}
+				}
+			}
 			P_Box->setDef(p_def);
 		}
 	}

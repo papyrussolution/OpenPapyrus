@@ -383,7 +383,7 @@ int EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData * pInitData
 		}
 	}
 	if(!rt_to_modif)
-		dlg->enableCommand(cmOK, 0);
+		dlg->enableCommand(cmOK, false);
 	while(!valid_data && (skip_dlg || (r = ExecView(dlg)) == cmOK)) {
 		double extra_qtty = 0.0;
 		valid_data = dlg->getDTS(p_item, &extra_qtty);

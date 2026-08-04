@@ -260,9 +260,7 @@ TDialog::BuildEmptyWindowParam::BuildEmptyWindowParam() : FontSize(0), HwParent(
 		pRez->getString(buf);
 		pRez->getString(symb, 0);
 		if(flags & ldfDL600_Cvt && symb.NotEmptyS()) {
-			// @v11.2.0 SETIFZ(dlg->P_SymbList, new StrAssocArray);
-			// @v11.2.0 CALLPTRMEMB(dlg->P_SymbList, Add(-1000, symb));
-			dlg->SetCtlSymb(-1000, symb); // @v11.2.0 
+			dlg->SetCtlSymb(-1000, symb);
 		}
 		dlg->ChangeBounds(r);
 		strip(buf);

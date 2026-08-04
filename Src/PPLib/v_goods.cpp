@@ -2995,8 +2995,9 @@ struct GoodsRecoverParam {
 		fCorrect              = 0x0001, // Исправлять ошибки
 		fCheckAlcoAttribs     = 0x0002, // Проверять алкогольные атрибуты
 		fBarcode              = 0x0004, // Проверять валидность штрихкодов. Если fCorrect, то добавлять или исправлять контрольную цифру
-		fCreateTechIfPossible = 0x0008, // @v11.3.2 Если для товара может быть создана технология (по существующей автотехнологии и по параметрам группы, то создавать)
-		fArCodeOutrInrFault   = 0x0010  // @v11.6.3 Специфическая проблема ошибки в кодировке кодов по статьям, возникшая из-за старого дефекта в функции импорта документов
+		fCreateTechIfPossible = 0x0008, // Если для товара может быть создана технология (по существующей автотехнологии и по параметрам группы, то создавать)
+		fArCodeOutrInrFault   = 0x0010, // @v11.6.3 Специфическая проблема ошибки в кодировке кодов по статьям, возникшая из-за старого дефекта в функции импорта документов
+		fDupArCode            = 0x0020, // @v12.7.1 Искать коды по статьям с одной и той же статьей (возможно, нулевой) для одного товара.
 	};
 	SString LogFileName;  // Имя файла журнала, в который заносится информация об ошибках
 	long   Flags;
@@ -3012,7 +3013,7 @@ static int EditGoodsRecoverParam(GoodsRecoverParam * pData)
 		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 0, GoodsRecoverParam::fCorrect);
 		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 1, GoodsRecoverParam::fCheckAlcoAttribs);
 		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 2, GoodsRecoverParam::fBarcode);
-		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 3, GoodsRecoverParam::fCreateTechIfPossible); // @v11.3.2
+		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 3, GoodsRecoverParam::fCreateTechIfPossible);
 		dlg->AddClusterAssoc(CTL_RCVRGOODS_FLAGS, 4, GoodsRecoverParam::fArCodeOutrInrFault); // @v11.6.3
 		dlg->SetClusterData(CTL_RCVRGOODS_FLAGS, pData->Flags);
 		if(ExecView(dlg) == cmOK) {

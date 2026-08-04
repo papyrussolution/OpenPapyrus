@@ -360,7 +360,7 @@ int WhatmanObjectUiCtrl::CreateTextLayout(SPaintToolBox & rTb, STextLayout & rTl
 				}
 			}
 			temp_buf.SetIfEmpty("MS Sans Serif(8)");
-			SFontDescr fd(0, 0, 0);
+			SFontDescr fd;
 			fd.FromStr(temp_buf);
 			TidFont = rTb.CreateFont_(0, fd);
 		}

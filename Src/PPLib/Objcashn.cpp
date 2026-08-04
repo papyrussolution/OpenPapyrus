@@ -2044,8 +2044,7 @@ void SyncCashNodeCfgDialog::SetupCtrls()
 		PPGetWord(PPWORD_DEVNUM, 0, buf);
 		setLabelText(CTL_CASHN_PORT, buf);
 	}
-	enableCommand(cmEditCashParam, (Data.ID && Data.CashType == PPCMT_ATOLDRV));
-	showButton(cmEditCashParam, (Data.ID && Data.CashType == PPCMT_ATOLDRV));
+	showButtonAndEnableCommand(cmEditCashParam, (Data.ID && Data.CashType == PPCMT_ATOLDRV));
 }
 
 IMPL_HANDLE_EVENT(SyncCashNodeCfgDialog)
@@ -2566,7 +2565,7 @@ int PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 		dlg->AddClusterAssoc(CTL_CASHN_FLAGS,  9, CASHFX_CREATEOBJSONIMP);
 		dlg->AddClusterAssoc(CTL_CASHN_FLAGS, 10, CASHFX_SEPARATERCPPRN);
 		dlg->AddClusterAssoc(CTL_CASHN_FLAGS, 11, CASHFX_IGNLOOKBACKPRICES);
-		dlg->AddClusterAssoc(CTL_CASHN_FLAGS, 12, CASHFX_IGNCONDQUOTS); // @v10.0.03
+		dlg->AddClusterAssoc(CTL_CASHN_FLAGS, 12, CASHFX_IGNCONDQUOTS);
 		dlg->SetClusterData(CTL_CASHN_FLAGS, temp_flags);
 	}
 	dlg->enableCommand(cmDivGrpAssc, BIN(pACN->Flags & CASHF_EXPDIVN));
@@ -2658,7 +2657,7 @@ int PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 								SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_CREATEOBJSONIMP, temp_flags);
 								SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_SEPARATERCPPRN,  temp_flags);
 								SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_IGNLOOKBACKPRICES, temp_flags);
-								SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_IGNCONDQUOTS, temp_flags); // @v10.0.03
+								SETFLAGBYSAMPLE(pACN->ExtFlags, CASHFX_IGNCONDQUOTS, temp_flags);
 								dlg->GetClusterData(CTL_CASHN_PASSIVE, &pACN->ExtFlags);
 								ok = valid_data = 1;
 							}

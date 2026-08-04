@@ -1329,7 +1329,7 @@ public:
 		if(extraPtr) {
 			const LocationFilt * p_filt = static_cast<const LocationFilt *>(extraPtr);
 			if(p_filt->LocType == LOCTYP_WAREPLACE) {
-				enableCommand(cmWareplaceList, 0);
+				enableCommand(cmWareplaceList, false);
 				PPLoadText(PPTXT_TITLE_WAREPLACEVIEW, fmt_buf);
 				GetLocationName(p_filt->Parent, par_name);
 				setTitle(title_.Printf(fmt_buf, par_name.cptr()));

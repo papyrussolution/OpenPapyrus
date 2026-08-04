@@ -1307,6 +1307,8 @@ public:
 		sectypSSH        = 7, // {public_key; private_key; passphrase}
 			// TextOpen(public_key); TextHidden(private_key), TextExt1(passphrase)
 		sectypESignature = 8, // Данные электронной подписи
+		sectypPlainText  = 9, // Просто большой текст с набором всяких секретных штучек. Это - на случай, если кто-то захочет мигрировать со своим
+			// файлом секретов.
 	};
 	uint32 InternalID;   // @anchor Внутренний идентификатор (если сегмент находится в SVaultPool, то InternalID совпадает с номинальным идентификатором сегмента контейнере)
 	uint32 ParentID;     // Внутренний идентификатор родительского сегмента (если 0, то topmost)
@@ -21968,7 +21970,7 @@ public:
 	SString ImpFiles;
 	SString LogNumList;
 	SString AddedMsgSign;    // Описание формы загрузки доп полей товара в кассовый модуль
-	TSCollection <PosIdentEntry> ApnCorrList;
+	TSCollection <PosIdentEntry> ApnCorrList; // Корреспондирующие кассовые узлы
 };
 
 class PPSyncCashNode : public PPGenCashNode {
@@ -53072,7 +53074,7 @@ private:
 		int    AlcRuCatDim;  // Размерность класса алкогольных товаров, отвечающая за категорию продукции
 		PPGdsClsPacket GcPack;
 	};
-	int    ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int asRefOnly, const ResolveGoodsParam & rP, PPID * pNativeID);
+	int    ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, bool asRefOnly, const ResolveGoodsParam & rP, PPID * pNativeID);
 	const  SString & FASTCALL EncText(const char * pS);
 	const  SString & FASTCALL CorrectAndEncText(const char * pS);
 	uint   PeekRefPos() const;
@@ -57772,6 +57774,7 @@ public:
 			_afDebug_Auth        = 0x0010, // @v12.6.7 Отладочная авторизация //
 			_afQueryAggrMarkList = 0x0020, // @v12.6.7 TrueAPI получение списка агрегированных марок //
 			_afQueryMarkInfo     = 0x0040, // @v12.6.9 TrueAPI получение информации о марках // 
+			_afQueryMarkOps      = 0x0080, // @v12.7.1 TrueAPI получение информации о движении марки // 
 		};
 		long   DocType;
 		long   Flags;
@@ -57963,7 +57966,7 @@ public:
 		S_GUID LocalModuleDbVer;    // @v12.3.12 Версия базы «чёрного списка», на которой выполнялась проверка КИ
 	};
 	//
-	// Descr: Типы упковки
+	// Descr: Типы упаковки
 	//
 	enum {
 		ptUnit   = 1,
@@ -58031,6 +58034,18 @@ public:
 		int    MoveEntryTo(uint entryIdx/*[0..]*/, CodeInfoCollection & rDest) const;
 		int    EntryToStr(uint entryIdx, long flags, SString & rBuf) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	};
+
+	struct CodeOp {
+		int    ErrCode;         //
+		uint   ErrMessageP;     // utf8		
+		uint   CisP;
+		uint   PackType;        // ptXXX 
+		uint   GeneralPackType; // ptXXX 
+		ued_t  UedOwnerINN;     // ИНН владельца //
+	};
+
+	class CodeOpsCollection {
 	};
 	//
 	// Descr: Интерфейс с ТС-ПИОТ (не спрашивайте: пидоры в кремле не успокоятся пока не загонят нас всех под землю)

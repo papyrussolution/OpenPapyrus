@@ -162,7 +162,7 @@ int EditQCertDialog(QualityCertTbl::Rec * aRec, int viewOnly)
 	v = rec.Passive ? 1 : 0;
 	dlg->setCtrlData(CTL_QCERT_PASSIVE, &v);
 	if(viewOnly)
-		dlg->enableCommand(cmOK, 0);
+		dlg->enableCommand(cmOK, false);
 	while(!valid_data && (r = ExecView(dlg)) == cmOK && !viewOnly) {
 		dlg->getCtrlData(CTL_QCERT_CODE,        rec.Code);
 		dlg->getCtrlData(CTL_QCERT_BCODE,       rec.BlankCode);

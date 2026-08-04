@@ -152,14 +152,13 @@ INT_PTR CALLBACK ListBoxDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 			// @v12.7.0 @construction {
 			case WM_MOUSEMOVE:
 				if(p_view) {
-					p_view->RegisterMouseTracking(1, 1000); 
+					p_view->RegisterMouseTracking(1, 500);
 				}
 				break;
 			case WM_MOUSEHOVER:
 				if(p_view) {
 					MouseEvent me;
 					p_view->MakeMouseEvent_Base(uMsg, wParam, lParam, me);
-					// @todo (отослать владельцу сообщение) TView::messageBroadcast(p_view, cmMouseHover, &tp);
 					if(TView::messageCommand(p_view, cmMouse, &me)) 
 						return 0;
 				}
@@ -1695,13 +1694,14 @@ IMPL_HANDLE_EVENT(SmartListBox)
 					case cmMouse: // @v12.7.0
 						{
 							MouseEvent * p_blk = static_cast<MouseEvent *>(TVINFOPTR);
-							if(p_blk) {
+							if(p_blk && P_Def) {
 								if(p_blk->Type == MouseEvent::tHover) {
 									if(P_Def->Options & lbtHoverNotify) {
 										if(P_Owner) {
 											const  long lw_index = ::SendMessageW(getHandle(), LB_ITEMFROMPOINT, 0, p_blk->Coord.towparam());
-											//MessageCommandToOwner(cmLBItemMouseHover);
-											TView::messageCommand(P_Owner, cmLBItemMouseHover, this, lw_index);
+											const  uint cc = Columns.getCount();
+											const  long first_item = cc ? 0 : P_Def->_topItem();
+											TView::messageCommand(P_Owner, cmLBItemMouseHover, this, lw_index + first_item);
 										}
 									}
 								}
@@ -1835,10 +1835,12 @@ void SmartListBox::Implement_Draw()
 			cell_buf.Space().Z();
 			const  HWND h_lb = getHandle();
 			const  uint cc = Columns.getCount();
-			if(cc)
+			if(cc) {
 				ListView_DeleteAllItems(h_lb);
-			else
+			}
+			else {
 				::SendMessageW(h_lb, LB_RESETCONTENT, 0, 0);
+			}
 			{
 				if(HIML) {
 					ImageList_Destroy(static_cast<HIMAGELIST>(HIML));

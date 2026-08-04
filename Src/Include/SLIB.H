@@ -545,7 +545,7 @@ typedef int32               TYPEID;
 #define RVALUEPTR(val,ptr)    ((ptr)?((val = *(ptr)), true) : false)
 #define DEREFPTROR(ptr,alt)   ((ptr)?(*(ptr)):(alt))
 #define DEREFPTRORZ(ptr)      DEREFPTROR(ptr,0)
-#define CENUMINCR(et, v)      (v) = static_cast<et>(static_cast<int>(v)+1) // @v11.3.8 Макрос для обхода ошибки c++ при инкременте enum-value, унаследованного из c-кода
+#define CENUMINCR(et, v)      (v) = static_cast<et>(static_cast<int>(v)+1) // Макрос для обхода ошибки c++ при инкременте enum-value, унаследованного из c-кода
 #define PTR8(p)               (reinterpret_cast<uint8 *>(p))
 #define PTR16(p)              (reinterpret_cast<uint16*>(p))
 #define PTR32(p)              (reinterpret_cast<uint32 *>(p))
@@ -1080,7 +1080,6 @@ typedef int32               TYPEID;
 //
 #define INVALID_DATA_SIZE 0
 //
-// @v11.0.4
 // Type cast results
 //
 #define STCASTF_NORMAL             0 // Нормальное преобразование
@@ -5732,7 +5731,7 @@ SString & FASTCALL FormatInt(int value, SString & rBuf);
 SString & FASTCALL FormatUInt(uint value, SString & rBuf);
 SString & FASTCALL FormatInt64(int64 value, SString & rBuf);
 SString & FASTCALL FormatUInt64(uint64 value, SString & rBuf);
-int    SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount);
+int    SplitBuf(HDC hdc, SString & aBuf, uint maxStrSize, uint maxStrsCount);
 //
 // Функции для классификации и конвертации символов
 //
@@ -18913,8 +18912,8 @@ public:
 	//   Функция сама по себе реентерабельная, однако объект по указателю PPSession::P_Uid не блокируется,
 	//   что потенциально может быть причиной сбоя! 
 	//
-	bool    LoadUiDescription(const char * pFileName); // @v11.9.3
-	const UiDescription * GetUiDescription() const { return P_Uid; } // @v11.9.3
+	bool   LoadUiDescription(const char * pFileName); // @v11.9.3
+	const  UiDescription * GetUiDescription() const { return P_Uid; } // @v11.9.3
 	//
 	//
 	//
@@ -19283,6 +19282,7 @@ public:
 	void * TransformToIcon() const;
 	void * TransformToBitmap() const;
 	int    DrawOnPrinter(HDC hDc) const; // @v12.7.0 @construction
+	int    DrawOnPrinter(const char * pPrinterPort) const; // @v12.7.0 @construction
 private:
 	int    LoadJpeg(SFile & rF, int fileFmt);
 	int    LoadPng(SFile & rF);

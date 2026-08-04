@@ -10342,22 +10342,20 @@ static int EditVetisVetDocument(VetisVetDocument & rData, PPID mainOrgID, PPID l
 					PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, temp_buf);
 					text_buf.CatChar('#').Cat(bill_rec.ID).Space().Cat(temp_buf).Space().CatEq("#row", R_Data.NativeBillRow);
 					setCtrlString(CTL_VETVDOC_LINKBILL, text_buf);
-					// @v11.1.8 {
 					if(!(R_Data.Flags & VetisVetDocument::fFromMainOrg)) {
-						enableCommand(cmUnmatch, 1); 
+						enableCommand(cmUnmatch, true); 
 					}
-					// } @v11.1.8 
 				}
 				else {
 					text_buf.CatChar('#').Cat(bill_rec.ID).Space().Cat("not found").Space().CatEq("#row", R_Data.NativeBillRow);
-					enableCommand(cmLinkedBill, 0);
-					enableCommand(cmUnmatch, 0); // @v11.1.8
+					enableCommand(cmLinkedBill, false);
+					enableCommand(cmUnmatch, false);
 				}
 			
 			}
 			else {
-				enableCommand(cmLinkedBill, 0);
-				enableCommand(cmUnmatch, 0); // @v11.1.8
+				enableCommand(cmLinkedBill, false);
+				enableCommand(cmUnmatch, false);
 			}
 		}
 	private:
@@ -10375,7 +10373,7 @@ static int EditVetisVetDocument(VetisVetDocument & rData, PPID mainOrgID, PPID l
 				}
 				clearEvent(event);
 			}
-			else if(event.isCmd(cmUnmatch)) { // @v11.1.8
+			else if(event.isCmd(cmUnmatch)) {
 				if(R_Data.NativeBillID && !(R_Data.Flags & VetisVetDocument::fFromMainOrg)) {
 					R_Data.NativeBillID = 0;					
 					SetupNativeBill();

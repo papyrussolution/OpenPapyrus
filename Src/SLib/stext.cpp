@@ -2495,22 +2495,23 @@ int replacestr(char * str, const char * rstr, size_t * pPos, size_t * pLen, uint
 
 #pragma warn .par
 
-int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
+int SplitBuf(HDC hdc, SString & aBuf, uint maxStrSize, uint maxStrsCount)
 {
 	if(hdc && maxStrSize > 0 && maxStrsCount > 0 && aBuf.Len()) {
 		const  char * p_dots = "...";
 		char   ret_buf[1024];
 		int    src_pos = 0, dest_pos = 0;
 		int    dots_pos = -1;
-		size_t dots_size = 0;
+		uint   dots_size = 0;
 		SIZE   size;
 		memzero(ret_buf, sizeof(ret_buf));
-		GetTextExtentPoint32(hdc, _T("."), 1, &size);
+		GetTextExtentPoint32W(hdc, L".", 1, &size);
 		dots_size = size.cx * 3;
-		for(size_t strs_count = 0; strs_count < maxStrsCount; strs_count++) {
+		for(uint strs_count = 0; strs_count < maxStrsCount; strs_count++) {
 			int    is_last_str = BIN(strs_count >= maxStrsCount - 1);
-			int    src_spc_pos = 0, dest_spc_pos = 0;
-			size_t word_size = 0;
+			int    src_spc_pos = 0;
+			int    dest_spc_pos = 0;
+			uint   word_size = 0;
 			for(; word_size < maxStrSize && aBuf.C(src_pos);) {
 				if(aBuf.C(src_pos) == ' ') {
 					src_spc_pos = src_pos;
@@ -2518,7 +2519,7 @@ int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 				}
 				if(is_last_str)
 					dots_pos = word_size + (dots_size <= maxStrSize) ? dest_pos : dots_pos;
-				GetTextExtentPoint32(hdc, SUcSwitch(&aBuf[src_pos]), 1, &size); // @unicodeproblem
+				GetTextExtentPoint32W(hdc, SUcSwitchW(&aBuf[src_pos]), 1, &size);
 				word_size += size.cx;
 				if(word_size <= maxStrSize) {
 					ret_buf[dest_pos] = aBuf.C(src_pos);
@@ -2535,11 +2536,10 @@ int SplitBuf(HDC hdc, SString & aBuf, size_t maxStrSize, size_t maxStrsCount)
 						dest_pos = dots_pos + sstrleni(p_dots) - 1;
 					}
 				}
-				else
-					if(c != ' ' && src_spc_pos) {
-						src_pos  = src_spc_pos + 1;
-						dest_pos = dest_spc_pos;
-					}
+				else if(c != ' ' && src_spc_pos) {
+					src_pos  = src_spc_pos + 1;
+					dest_pos = dest_spc_pos;
+				}
 			}
 			if(!is_last_str)
 				ret_buf[dest_pos++] = '\n';

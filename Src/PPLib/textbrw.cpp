@@ -2685,7 +2685,7 @@ int STextBrowser::WMHCreate()
 	CallFunc(SCI_SETSELBACK, 1, RGB(117,217,117));
 	// @v12.5.3 {
 	{
-		SFontDescr fd_default("Courier New", 10, 0);
+		SFontDescr fd_default("Courier New", 10, 0.0f, 0);
 		const SFontDescr * p_fd = p_uid ? p_uid->GetFontDescrC("EditorFont") : &fd_default;
 		CallFunc(SCI_STYLESETFONT, STYLE_DEFAULT, (LPARAM)p_fd->Face.cptr());
 		CallFunc(SCI_STYLESETSIZE, STYLE_DEFAULT, (LPARAM)p_fd->Size);

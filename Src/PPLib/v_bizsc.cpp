@@ -934,7 +934,7 @@ int BizScTemplDialog::delItem(long pos, long id)
 		THROW(CheckDialogPtr(&(dlg = new BizScTemplDialog())));
 		dlg->setDTS(&pack);
 		if(!CheckRights(PPR_MOD))
-			dlg->enableCommand(cmOK, 0);
+			dlg->enableCommand(cmOK, false);
 		while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 			THROW(CheckRights(PPR_MOD));
 			if(dlg->getDTS(&pack)) {

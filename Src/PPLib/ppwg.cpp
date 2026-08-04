@@ -541,8 +541,8 @@ int DutySchedDialog::setupObjType()
 		Data.Rec.ObjGroup = 0;
 	if(Data.Rec.ObjType == PPOBJ_PERSON) {
 		SetupPPObjCombo(this, CTLSEL_DUTYSCHED_OBJGRP, PPOBJ_PERSONKIND, Data.Rec.ObjGroup, 0, 0);
-		enableCommand(cmDutySchedStaffCal, Data.Rec.ID);
-		enableCommand(cmFillStaffCal, Data.Rec.ID);
+		enableCommand(cmDutySchedStaffCal, LOGIC(Data.Rec.ID));
+		enableCommand(cmFillStaffCal, LOGIC(Data.Rec.ID));
 	}
 	else {
 		if(Data.Rec.ObjType == PPOBJ_ARTICLE) {
@@ -550,8 +550,8 @@ int DutySchedDialog::setupObjType()
 		}
 		else
 			setCtrlLong(CTLSEL_DUTYSCHED_OBJGRP, 0);
-		enableCommand(cmDutySchedStaffCal, 0);
-		enableCommand(cmFillStaffCal, 0);
+		enableCommand(cmDutySchedStaffCal, false);
+		enableCommand(cmFillStaffCal, false);
 	}
 	disableCtrls(Data.List.getCount(), CTL_DUTYSCHED_OBJTYPE, CTLSEL_DUTYSCHED_OBJGRP, 0);
 	return 1;

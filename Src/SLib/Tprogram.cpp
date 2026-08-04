@@ -2013,8 +2013,8 @@ int TProgram::DrawButton2(HWND hwnd, DRAWITEMSTRUCT * pDi)
 				if(style & BS_MULTILINE) {
 					long   text_h = 0;
 					long   height = 0;
-					TEXTMETRIC tm;
-					::GetTextMetrics(canv, &tm);
+					TEXTMETRICW tm;
+					::GetTextMetricsW(canv, &tm);
 					height = tm.tmHeight + 2;
 					text_h = (out_r.bottom - out_r.top) / height;
 					SplitBuf(canv, text_buf, out_r.right - out_r.left, text_h);
@@ -2893,7 +2893,7 @@ static const char * UserInterfaceParamName  = "UserInterface";
 static const char * UserInterfaceParamName2 = "UserInterface2";
 /*static*/const char * UserInterfaceSettings::SubKey  = "Software\\Papyrus\\UI";
 
-UserInterfaceSettings::UserInterfaceSettings() : TableFont(0, 0, 0), ListFont(0, 0, 0)
+UserInterfaceSettings::UserInterfaceSettings() : TableFont(), ListFont()
 {
 	Init();
 }
@@ -2902,7 +2902,7 @@ void UserInterfaceSettings::Init()
 {
 	SetVersion();
 	Flags = fShowShortcuts;
-	BillItemTableFlags = bitfUseCommCfgForBarcodeSerialOptions; // @v11.5.11
+	BillItemTableFlags = bitfUseCommCfgForBarcodeSerialOptions;
 	WindowViewStyle = wndVKVector;
 	TableViewStyle = 1;
 	ListElemCount = 0;

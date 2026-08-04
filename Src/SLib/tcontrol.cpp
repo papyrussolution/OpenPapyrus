@@ -1587,7 +1587,7 @@ void TInputLine::setState(uint newState, bool enable)
 				}; // @v12.5.2 SUiCtrlSupplement::kTime
 				HWND h_parent = Parent;
 				for(uint i = 0; i < SIZEOFARRAY(supplement_type_list); i++) {
-					const int st = supplement_type_list[i];
+					const  int st = supplement_type_list[i];
 					void * h_ctl = epb.F_UiFindSupplementWindow(st, Parent, Id);
 					if(h_ctl) {
 						if(newState & sfVisible) {

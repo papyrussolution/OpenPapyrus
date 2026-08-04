@@ -935,7 +935,7 @@ void BillFiltDialog::extraFilt()
 		}
 	}
 	else
-		enableCommand(cmaMore, 0);
+		enableCommand(cmaMore, false);
 }
 
 void BillFiltDialog::SetupLocationCombo()

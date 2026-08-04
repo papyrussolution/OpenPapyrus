@@ -7,7 +7,11 @@
 		"desktop_icon_size": 32,
 		"desktop_icon_gap": 8,
 		"font_smoothing_type": "cleartype",
-		"font_smoothing_contrast": 1600
+		"font_smoothing_contrast": 1600,
+		"popupmsgwin_transparency": 75,
+		"popupmsgwin_deftimerms": 60000,
+		"popupmsgwin_maxwidthtoparentrel": 2,
+		"popupmsgwin_maxwraplines": 10
 	},
 	"font_list": [
 		{
@@ -29,6 +33,18 @@
 			"symb": "EditorFont",
 			"face": "Courier New",
 			"size": 12
+		},
+		{
+			"symb": "PopUpMsgWin_Normal",
+			"face": "MS Shell Dlg",
+			"size": 13,
+			"weight": 1.0
+		},
+		{
+			"symb": "PopUpMsgWin_Large",
+			"face": "MS Shell Dlg",
+			"size": 26,
+			"weight": 2.0
 		}
 	],
 	"colorset_list": [
@@ -136,6 +152,7 @@
 			"grid_curline_fg": "#black",
 			"grid_gridhorz": "#C0C0C0",
 			"grid_gridvert": "#909090",
+			"popupmsgwin_bg": "#FFF794",
 			"ccheck_junk_bg": "#orange",
 			"ccheck_junk_fg": "#black",
 			"ccheck_imported_bg": "#palegreen",

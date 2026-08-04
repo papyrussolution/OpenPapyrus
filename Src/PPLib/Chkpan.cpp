@@ -11872,8 +11872,7 @@ int SCardInfoDialog::SetupMode(long mode, int force)
 			Mode = mode;
 			enableCommand(cmaEdit, Mode == modeCheckView);
 			enableCommand(cmSelectByOwner, Mode != modeMovCrd);
-			enableCommand(cmCommit, Mode == modeMovCrd && OwnerList.getCount());
-			showButton(cmCommit, Mode == modeMovCrd && OwnerList.getCount());
+			showButtonAndEnableCommand(cmCommit, Mode == modeMovCrd && OwnerList.getCount());
 			if(P_Box) {
 				SString columns_buf, text, temp_buf;
 				if(Mode == modeCheckView) {
@@ -11921,8 +11920,7 @@ void SCardInfoDialog::SetupMovCrd()
 			rest += amt;
 	}
 	setCtrlReal(CTL_SCARDVIEW_SALDO, rest);
-	enableCommand(cmCommit, LOGIC(OwnerList.getCount()));
-	showButton(cmCommit, LOGIC(OwnerList.getCount()));
+	showButtonAndEnableCommand(cmCommit, LOGIC(OwnerList.getCount()));
 	updateList(-1);
 }
 

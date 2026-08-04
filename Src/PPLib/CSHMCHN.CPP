@@ -1563,24 +1563,24 @@ int ExecCSPanel(const CashNodePaneFilt * pFilt)
 					}
 				}
 				if(is_locked) {
-					dlg->enableCommand(cmCSOpen,     0);
-					dlg->enableCommand(cmCSClose,    0);
-					dlg->enableCommand(cmSCSXReport, 0);
-					dlg->enableCommand(cmSCSZReportCopy, 0);
-					dlg->enableCommand(cmSCSLock,    0);
-					dlg->enableCommand(cmSCSUnlock,  0);
-					dlg->enableCommand(cmSCSIncasso, 0);
+					dlg->enableCommand(cmCSOpen,     false);
+					dlg->enableCommand(cmCSClose,    false);
+					dlg->enableCommand(cmSCSXReport, false);
+					dlg->enableCommand(cmSCSZReportCopy, false);
+					dlg->enableCommand(cmSCSLock,    false);
+					dlg->enableCommand(cmSCSUnlock,  false);
+					dlg->enableCommand(cmSCSIncasso, false);
 				}
 			}
 			else {
 				if(is_locked) {
-					dlg->enableCommand(cmCSOpen,       0);
-					dlg->enableCommand(cmCSClose,      0);
-					dlg->enableCommand(cmACSUpdate,    0);
-					dlg->enableCommand(cmACSGetChecks, 0);
+					dlg->enableCommand(cmCSOpen,       false);
+					dlg->enableCommand(cmCSClose,      false);
+					dlg->enableCommand(cmACSUpdate,    false);
+					dlg->enableCommand(cmACSGetChecks, false);
 				}
 				else if(!cs_obj.CheckRights(CSESSRT_OPEN))
-					dlg->enableCommand(cmCSOpen,       0);
+					dlg->enableCommand(cmCSOpen,       false);
 				dlg->showCtrl(CTL_CSPANEL_GETCHECKS, cn_rec.CashType == PPCMT_CRCSHSRV);
 			}
 			dlg->selectButton(cmCSViewCheckList);
@@ -1736,17 +1736,17 @@ int ExecCSPanel(const CashNodePaneFilt * pFilt)
 			ZDELETE(p_cm);
 			ZDELETE(p_cm_ext);
 			if(is_locked && dlg) {
-				dlg->enableCommand(cmCSOpen,  1);
-				dlg->enableCommand(cmCSClose, 1);
+				dlg->enableCommand(cmCSOpen,  true);
+				dlg->enableCommand(cmCSClose, true);
 				if(sync) {
-					dlg->enableCommand(cmSCSXReport, 1);
-					dlg->enableCommand(cmSCSLock,    1);
-					dlg->enableCommand(cmSCSUnlock,  1);
-					dlg->enableCommand(cmSCSIncasso,  1);
+					dlg->enableCommand(cmSCSXReport, true);
+					dlg->enableCommand(cmSCSLock,    true);
+					dlg->enableCommand(cmSCSUnlock,  true);
+					dlg->enableCommand(cmSCSIncasso,  true);
 				}
 				else {
-					dlg->enableCommand(cmACSUpdate,    1);
-					dlg->enableCommand(cmACSGetChecks, 1);
+					dlg->enableCommand(cmACSUpdate,    true);
+					dlg->enableCommand(cmACSGetChecks, true);
 				}
 			}
 			delete dlg;

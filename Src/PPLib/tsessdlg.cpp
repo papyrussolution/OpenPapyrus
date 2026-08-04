@@ -277,8 +277,7 @@ void PrcTechCtrlGroup::setupCreateGoodsButton(TDialog * pDlg)
 				}
 			}
 		}
-		pDlg->showButton(CmdCreateGoods, LOGIC(AutoGoodsGrpID));
-		pDlg->enableCommand(CmdCreateGoods, LOGIC(AutoGoodsGrpID));
+		pDlg->showButtonAndEnableCommand(CmdCreateGoods, LOGIC(AutoGoodsGrpID));
 	}
 }
 
@@ -1578,15 +1577,13 @@ void TSessionDialog::SetupCCheckButton()
 		allow = true;
 	else if(Data.Rec.Status == TSESST_CLOSED && !(Data.Rec.Flags & TSESF_IDLE) && TSesObj.GetPrc(Data.Rec.PrcID, &prc_rec, 1, 1) > 0)
 		allow = (PPObjCashNode::Select(prc_rec.LocID, 1, 0, 1) > 0);
-	enableCommand(cmCCheck, allow);
-	showButton(cmCCheck, allow);
+	showButtonAndEnableCommand(cmCCheck, allow);
 }
 
 void TSessionDialog::SetupRouteButton() // @v12.6.6 @construction
 {
 	bool   enable_route = SlDebugMode::CT() ? true : false;
-	enableCommand(cmTecRouteAssignment, enable_route);
-	showButton(cmTecRouteAssignment, enable_route);
+	showButtonAndEnableCommand(cmTecRouteAssignment, enable_route);
 }
 
 void TSessionDialog::SetupCipAndRepButton()
@@ -1598,10 +1595,8 @@ void TSessionDialog::SetupCipAndRepButton()
 		allow_cip = LOGIC(prc_rec.Flags & PRCF_ALLOWCIP);
 		allow_rep = LOGIC(prc_rec.Flags & PRCF_ALLOWREPEATING);
 	}
-	enableCommand(cmChkInP, allow_cip);
-	enableCommand(cmRepeating, allow_rep);
-	showButton(cmChkInP, allow_cip);
-	showButton(cmRepeating, allow_rep);
+	showButtonAndEnableCommand(cmChkInP, allow_cip);
+	showButtonAndEnableCommand(cmRepeating, allow_rep);
 }
 
 int TSessionDialog::setDTS(const TSessionPacket * pData)
@@ -2438,10 +2433,8 @@ int PPObjTSession::Edit_ExecSessionOnTechRoute(const ExecSessionOnTechRouteFilt 
 			}
 			{
 				const  bool is_busy = LOGIC(State & stBusy);
-				enableCommand(cmOK, !is_busy);
-				showButton(cmOK, !is_busy);
-				enableCommand(cmCloseCurrentTSess, is_busy);
-				showButton(cmCloseCurrentTSess, is_busy);
+				showButtonAndEnableCommand(cmOK, !is_busy);
+				showButtonAndEnableCommand(cmCloseCurrentTSess, is_busy);
 				setStaticText(CTL_TSESS_ST_STATE, info_buf);
 				disableCtrl(CTLSEL_TSESS_TECH, is_busy);
 				disableCtrl(CTLSEL_TSESS_OBJ, is_busy);

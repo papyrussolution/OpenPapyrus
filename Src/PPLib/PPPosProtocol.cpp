@@ -244,7 +244,7 @@ int ACS_PAPYRUS_APN::ImportSession(int sessN)
 											}
 											THROW(ccr = AddTempCheck(&cc_id, p_cb->Code, cc_flags, local_pos_no, p_ccb->Code, cashier_id, sc_id, cc_dtm, cc_amount, cc_discount));
 											if(ccr > 0) {
-												RAssocArray _paym_list; // @v11.0.5 Список типов оплат с соответствующими суммами.
+												RAssocArray _paym_list; // Список типов оплат с соответствующими суммами.
 													// Единственное (пока) назначение: идентифицировать факт полной оплаты по банку дабы выставить флаг CCHKF_BANKING
 												for(uint cl_refi = 0; cl_refi < rc; cl_refi++) {
 													const PPPosProtocol::ObjBlockRef & r_cl_ref = p_ib->RefList.at(cl_refi);
@@ -260,12 +260,12 @@ int ACS_PAPYRUS_APN::ImportSession(int sessN)
 															PPID   goods_id = 0;
 															if(p_clb->GoodsBlkP) {
 																int    g_type = 0;
-																const PPPosProtocol::GoodsBlock * p_gb = static_cast<const PPPosProtocol::GoodsBlock *>(p_ib->GetItem(p_clb->GoodsBlkP, &g_type));
+																const  PPPosProtocol::GoodsBlock * p_gb = static_cast<const PPPosProtocol::GoodsBlock *>(p_ib->GetItem(p_clb->GoodsBlkP, &g_type));
 																assert(g_type == PPPosProtocol::obGoods);
 																if(p_gb->NativeID)
 																	goods_id = p_gb->NativeID;
 																else {
-																	THROW(Pp.ResolveGoodsBlock(*p_gb, p_clb->GoodsBlkP, 1, rgp, &goods_id));
+																	THROW(Pp.ResolveGoodsBlock(*p_gb, p_clb->GoodsBlkP, true/*asRefOnly*/, rgp, &goods_id));
 																}
 															}
 															SetupTempCcLineRec(0, cc_id, p_cb->Code, cc_dtm.d, div_n, goods_id);
@@ -305,16 +305,14 @@ int ACS_PAPYRUS_APN::ImportSession(int sessN)
 																	}
 																}
 															}
-															_paym_list.Add(p_cpb->PaymType, p_cpb->Amount, 1/*additive*/, 0/*binary*/); // @v11.0.5
+															_paym_list.Add(p_cpb->PaymType, p_cpb->Amount, 1/*additive*/, 0/*binary*/);
 															THROW(AddTempCheckPaym(cc_id, p_cpb->PaymType, p_cpb->Amount, paym_sc_id));
 														}
 													}
 												}
-												// @v11.0.5 {
 												if(_paym_list.getCount() == 1 && _paym_list.at(0).Key == CCAMTTYP_BANK) {
 													THROW(UpdateTempCheckFlags(cc_id, CCHKF_BANKING));
 												}
-												// } @v11.0.5 
 											}
 										}
 									}
@@ -802,7 +800,7 @@ int PPPosProtocol::TransportFileOut(const SString & rOutFileName, PPID srcPosNod
 					if(cn_rec.Flags & CASHF_ASYNC) {
 						PPAsyncCashNode acn_pack;
 						if(CnObj.GetAsync(srcPosNodeID, &acn_pack) > 0) {
-							(temp_buf = acn_pack.ExpPaths).Strip().Transf(CTRANSF_INNER_TO_OUTER);
+							(temp_buf = acn_pack.ExpPaths).Strip().Transf(CTRANSF_INNER_TO_UTF8); // @v12.7.1 CTRANSF_INNER_TO_OUTER-->CTRANSF_INNER_TO_UTF8
 							if(temp_buf.NotEmpty()) {
 								ss_paths.setBuf(temp_buf);
 								path_done = 1;
@@ -813,7 +811,7 @@ int PPPosProtocol::TransportFileOut(const SString & rOutFileName, PPID srcPosNod
 						PPSyncCashNode scn_pack;
 						if(CnObj.GetSync(srcPosNodeID, &scn_pack) > 0) {
 							if(scn_pack.GetPropString(ACN_EXTSTR_FLD_IMPFILES, temp_buf) > 0 && temp_buf.NotEmptyS()) {
-								temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v11.0.0
+								temp_buf.Transf(CTRANSF_INNER_TO_UTF8); // @v12.7.1 CTRANSF_INNER_TO_OUTER-->CTRANSF_INNER_TO_UTF8
 								ss_paths.setBuf(temp_buf);
 								path_done = 1;
 							}
@@ -1753,15 +1751,12 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 		if(rInfo.P_CodeList && rInfo.P_CodeList->getCount()) {
 			for(uint i = 0; i < rInfo.P_CodeList->getCount(); i++) {
 				const BarcodeTbl::Rec & r_bc_rec = rInfo.P_CodeList->at(i);
-				// @v11.0.0 w_s.PutInner("code", CorrectAndEncText(r_bc_rec.Code));
-				// @v11.0.0 {
 				SXml::WNode w_c(rB.P_Xw, "code");
 				if(IsInnerBarcodeType(r_bc_rec.BarcodeType, BARCODE_TYPE_PREFERRED))
 					w_c.PutAttrib("preferred", "true");
 				if(IsInnerBarcodeType(r_bc_rec.BarcodeType, BARCODE_TYPE_MARKED))
 					w_c.PutAttrib("marked", "true");
 				w_c.SetValue(CorrectAndEncText(r_bc_rec.Code));
-				// } @v11.0.0 
 			}
 		}
 		if(rInfo.ParentID) {
@@ -2099,7 +2094,6 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 	*/
 	int    ok = 1;
 	uint   ref_pos = 0;
-	// @v11.0.0 {
 	{
  		RdB.AttrList.Z();
 		if(ppAttrList) {
@@ -2116,7 +2110,6 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 			}
 		}
 	}
-	// } @v11.0.0 
 	(RdB.TempBuf = pName).ToLower();
 	int    tok = 0;
 	if(RdB.P_ShT) {
@@ -2360,15 +2353,13 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 							{
 								GoodsCode * p_item = static_cast<GoodsCode *>(RdB.GetItemWithTest(goods_code_ref_pos, obGoodsCode));
 								p_item->GoodsBlkP = ref_pos; // Код ссылается на позицию товара, которому принадлежит
-								// @v11.0.0 {
-								int32 code_type = 0;
+								int32  code_type = 0;
 								SString & r_temp_buf = SLS.AcquireRvlStr();
 								if(RdB.AttrList.GetText(PPHS_MARKED, r_temp_buf) && r_temp_buf.IsEqiAscii("true"))
 									SetInnerBarcodeType(&code_type, BARCODE_TYPE_MARKED);
 								if(RdB.AttrList.GetText(PPHS_PREFERRED, r_temp_buf) && r_temp_buf.IsEqiAscii("true"))
 									SetInnerBarcodeType(&code_type, BARCODE_TYPE_PREFERRED);
 								p_item->BarcodeType = code_type;
-								// } @v11.0.0 
 							}
 						}
 					}
@@ -3516,7 +3507,7 @@ void PPPosProtocol::ResolveGoodsParam::SetupGoodsPack(const PPPosProtocol::ReadB
 	}
 }
 
-int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int asRefOnly, const ResolveGoodsParam & rP, PPID * pNativeID)
+int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, bool asRefOnly, const ResolveGoodsParam & rP, PPID * pNativeID)
 {
 	int    ok = 1;
 	Reference * p_ref(PPRef);
@@ -3710,13 +3701,13 @@ int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int a
 			}
 		}
 		for(uint j = 0; j < RdB.GoodsCodeList.getCount(); j++) {
-			const GoodsCode & r_c = RdB.GoodsCodeList.at(j);
+			const  GoodsCode & r_c = RdB.GoodsCodeList.at(j);
 			if(r_c.GoodsBlkP == refPos) {
 				RdB.GetS(r_c.CodeP, temp_buf);
 				if(temp_buf.NotEmptyS()) {
 					temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 					THROW_PP_S(temp_buf.Len() < sizeof(ex_bc_rec.Code), PPERR_PPPP_GOODSCODELENEXC, temp_buf);
-					THROW(goods_pack.Codes.Add(temp_buf, r_c.BarcodeType, 1.0)); // @v11.0.0 0-->r_c.BarcodeType
+					THROW(goods_pack.Codes.Add(temp_buf, r_c.BarcodeType, 1.0));
 					if(GObj.SearchByBarcode(temp_buf, &ex_bc_rec, &ex_goods_rec, 0 /* no adopt */) > 0) {
 						if(use_ar_code && (goods_by_ar_id && ex_goods_rec.ID != goods_by_ar_id)) {
 							THROW(GObj.P_Tbl->RemoveDupBarcode(goods_by_ar_id, temp_buf, 1));
@@ -3782,7 +3773,24 @@ int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int a
 					THROW(GObj.P_Tbl->RemoveDupBarcode(ex_goods_id, r_bc_rec.Code, 1));
 				}
 				for(uint aci = 0; aci < goods_pack.ArCodes.getCount(); aci++) {
-					THROW_SL(ex_goods_pack.ArCodes.insert(&goods_pack.ArCodes.at(aci)));
+					const  ArGoodsCodeTbl::Rec & r_src_item = goods_pack.ArCodes.at(aci);
+					// @v12.7.1 {
+					// Необходимо удалить из сущесвующего товара все коды со статьями, равными тем, с которыми добавляются коды с хоста.
+					// Этот блок введен в ответ на проблему, возникшию из-за того, что на хосте были объединены товары в результате
+					// в кассовой БД появились товары с двумя собственными кодами (ArID==0) и чеки на хост передавались со старым идентификатором.
+					// В общем, путаница возникала.
+					//
+					{
+						uint   di = ex_goods_pack.ArCodes.getCount();
+						if(di) do {
+							const  ArGoodsCodeTbl::Rec & r_d_item = ex_goods_pack.ArCodes.at(--di);
+							if(r_d_item.ArID == r_src_item.ArID) {
+								ex_goods_pack.ArCodes.atFree(di);
+							}
+						} while(di);
+					}
+					// } @v12.7.1 
+					THROW_SL(ex_goods_pack.ArCodes.insert(&r_src_item));
 				}
 				if(goods_pack.Rec.ParentID && GgObj.Search(goods_pack.Rec.ParentID, &parent_rec) > 0 &&
 					parent_rec.Kind == PPGDSK_GROUP && !(parent_rec.Flags & (GF_ALTGROUP|GF_FOLDER))) {
@@ -4292,25 +4300,25 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 					if(r_blk.AlcoProof > 0) {
 						is_there_alc = 1;
 					}
-					if(r_blk.SpecialFlags & (r_blk.spcfLookBackPrices|r_blk.spcfUnlim|r_blk.spcfMarked)) { // @v11.3.1 r_blk.spcfMarked
+					if(r_blk.SpecialFlags & (r_blk.spcfLookBackPrices|r_blk.spcfUnlim|r_blk.spcfMarked)) {
 						long gt_flags = 0;
 						if(r_blk.SpecialFlags & r_blk.spcfLookBackPrices)
 							gt_flags |= GTF_LOOKBACKPRICES;
 						if(r_blk.SpecialFlags & r_blk.spcfUnlim)
 							gt_flags |= GTF_UNLIMITED;
-						if(r_blk.SpecialFlags & r_blk.spcfMarked) // @v11.3.1
+						if(r_blk.SpecialFlags & r_blk.spcfMarked)
 							gt_flags |= GTF_GMARKED;
 						bool is_gt_found = false;
 						for(uint j = 0; !is_gt_found && j < gt_list.getCount(); j++) {
 							const SurrGoodsTypeEntry * p_entry = static_cast<const SurrGoodsTypeEntry *>(gt_list.at(j));
-							if(p_entry->Flags == gt_flags && p_entry->ChZnProdType == r_blk.ChZnProdType) { // @v11.3.1 (p_entry->ChZnProdType == r_blk.ChZnProdType)
+							if(p_entry->Flags == gt_flags && p_entry->ChZnProdType == r_blk.ChZnProdType) {
 								r_blk.GoodsTypeID = j+1;
 								is_gt_found = true;
 							}
 						}
 						if(!is_gt_found) {
 							SurrGoodsTypeEntry new_entry(gt_flags);
-							new_entry.ChZnProdType = r_blk.ChZnProdType; // @v11.3.1
+							new_entry.ChZnProdType = r_blk.ChZnProdType;
 							gt_list.insert(&new_entry);
 							r_blk.GoodsTypeID = gt_list.getCount();
 						}
@@ -4427,7 +4435,7 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 					PPID   native_id = 0;
 					uint   ref_pos = 0;
 					THROW_PP(RdB.SearchRef(obGoods, i, &ref_pos), PPERR_PPPP_INNERREFNF_G);
-					THROW(ResolveGoodsBlock(r_blk, ref_pos, 0, rgp/*def_parent_id, def_unit_id, src_ar_id, loc_id*/, &native_id));
+					THROW(ResolveGoodsBlock(r_blk, ref_pos, false/*asRefOnly*/, rgp/*def_parent_id, def_unit_id, src_ar_id, loc_id*/, &native_id));
 					r_blk.NativeID = native_id;
 					PPWaitPercent(i+1, __count, wait_msg_buf);
 				}
@@ -5085,7 +5093,8 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 				THROW(Helper_GetPosNodeInfo_ForInputProcessing(&cn_rec, pos_node_isymb_list, pos_node_uuid_list));
 				if(cn_rec.Flags & CASHF_ASYNC && CnObj.GetAsync(rPib.PosNodeID, &acn_pack) > 0) {
 					if(acn_pack.ImpFiles.NotEmptyS()) {
-						acn_pack.ImpFiles.Transf(CTRANSF_INNER_TO_OUTER); // @v11.3.4
+						// @v12.7.1 acn_pack.ImpFiles.Transf(CTRANSF_INNER_TO_OUTER);
+						acn_pack.ImpFiles.Transf(CTRANSF_INNER_TO_UTF8); // @v12.7.1 
 						StringSet ss_row_paths(';', acn_pack.ImpFiles);
 						for(uint ssrp_pos = 0; ss_row_paths.get(&ssrp_pos, temp_buf);) {
 							PreprocessInputSource(rPib.PosNodeID, temp_buf, ss_paths, remote_url_assoc);
@@ -5118,7 +5127,6 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 			(done_plus_xml_suffix = p_done_suffix).DotCat("ppyp");
 			uint   prev_ssp_pos = 0;
 			for(uint ssp_pos = prev_ssp_pos; ss_paths.get(&ssp_pos, in_path); prev_ssp_pos = ssp_pos) {
-				// @v10.0.07 @01 ReadPosProtocolFileProcessedList(in_path, processed_file_list);
 				if(SFile::IsDir(in_path)) {
 					(temp_buf = in_path).SetLastSlash().Cat(p_base_name).CatChar('*').DotCat("ppyp");
 					for(SDirec sd(temp_buf, 0); sd.Next(&de) > 0;) {
@@ -5143,11 +5151,9 @@ int PPPosProtocol::ProcessInput(PPPosProtocol::ProcessInputBlock & rPib)
 		}
 		if(fep.GetCount()) {
 			fep.Sort(SFileEntryPool::scByWrTime/*|SFileEntryPool::scDesc*/);
-			// @v10.0.07 was moved from @01 in order to minimize probablity of reading {
 			for(uint ssp_pos = 0; ss_paths.get(&ssp_pos, in_path);) {
 				ReadPosProtocolFileProcessedList(in_path, processed_file_list);
 			}
-			// } @v10.0.07
 			//
 			S_GUID this_db_uuid;
 			SString this_db_symb;

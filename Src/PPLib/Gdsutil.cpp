@@ -2131,7 +2131,7 @@ public:
 			if(GObj.Fetch(GoodsID, &goods_rec) > 0) {
 				setCtrlData(CTL_GQUOT_GOODS, goods_rec.Name);
 				if(goods_rec.Kind == PPGDSK_GROUP) {
-					enableCommand(cmaMore, 0);
+					enableCommand(cmaMore, false);
 					setLabelText(CTL_GQUOT_GOODS, PPLoadStringS("group", temp_buf));
 				}
 				if(!(goods_rec.Flags & GF_PRICEWOTAXES))

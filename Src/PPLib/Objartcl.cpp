@@ -660,7 +660,7 @@ public:
 		setCtrlData(CTL_ARTICLE_NAME, P_Data->Rec.Name);
 		setCtrlReadOnly(CTL_ARTICLE_NAME, LOGIC(P_Data->Options & ArticleDlgData::fDisableName));
 		if(!P_Data->Rec.ObjID || !P_Data->Rec.AccSheetID || !AccSheetFounded)
-			enableCommand(cmaMore, 0);
+			enableCommand(cmaMore, false);
 		enableCommand(cmAgreement, AgtFlags & (ACSHF_USESUPPLAGT|ACSHF_USECLIAGT));
 		enableCommand(cmClearAgreement, (AgtFlags & (ACSHF_USESUPPLAGT|ACSHF_USECLIAGT)) && arobj.CheckRights(ARTRT_CLIAGT));
 		updateList(-1);
@@ -854,8 +854,8 @@ int PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 			setCtrlData(CTL_ARTICLE_ACCESS, &Rec.AccessLevel);
 			setCtrlUInt16(CTL_ARTICLE_CLOSED, BIN(Rec.Closed));
 			setCtrlData(CTL_ARTICLE_NAME,   Rec.Name);
-			enableCommand(cmAgreement, 0);
-			enableCommand(cmaMore,  1);
+			enableCommand(cmAgreement, false);
+			enableCommand(cmaMore,  true);
 			CATCHZOK
 			return ok;
 		}

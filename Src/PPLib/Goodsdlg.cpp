@@ -437,7 +437,7 @@ int GoodsFiltCtrlGroup::IsGroupSelectionDisabled() const
 		if(DisableGroupSelection) {
 			pDlg->disableCtrl(CtlselGoodsGrp, true);
 			if(Cm)
-				pDlg->enableCommand(Cm, 0);
+				pDlg->enableCommand(Cm, false);
 		}
 		SetupCtrls(pDlg);
 		ok = 1;
@@ -1425,7 +1425,7 @@ int GoodsDialog::setDTS(const PPGoodsPacket * pPack)
 		//
 		disableCtrl(CTLSEL_GOODS_TAX,  pPack->Rec.ID && !GObj.CheckRights(GOODSRT_UPDTAXGRP));
 		disableCtrl(CTLSEL_GOODS_TYPE, pPack->Rec.ID && !GObj.CheckRights(GOODSRT_UPDGTYPE));
-		setupInhTaxGrpName();
+		// @v12.7.1 (moved down after setting CTLSEL_GOODS_GROUP) setupInhTaxGrpName();
 		if(gpk == gpkndGoods) {
 			SString own_ar_code;
 			Data.GetArCode(0, own_ar_code);
@@ -1449,6 +1449,7 @@ int GoodsDialog::setDTS(const PPGoodsPacket * pPack)
 		selgrp_bias = GGRTYP_SEL_FOLDER;
 	}
 	SetupPPObjCombo(this, CTLSEL_GOODS_GROUP, PPOBJ_GOODSGROUP, Data.Rec.ParentID, f, reinterpret_cast<void *>(prev_grp_level + selgrp_bias));
+	setupInhTaxGrpName(); // @v12.7.1 (moved down after setting CTLSEL_GOODS_GROUP) 
 	if(Data.Rec.ID) {
 		disableCtrl(CTL_GOODS_GENERIC, !PPMaster);
 		//disableCtrl(CTLSEL_GOODS_CLS, Data.Rec.GdsClsID && !PPMaster);

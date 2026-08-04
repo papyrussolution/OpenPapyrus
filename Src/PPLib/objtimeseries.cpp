@@ -5590,7 +5590,7 @@ int PrcssrTsStrategyAnalyze::MakeArVectors(const STimeSeries & rTs, const LongAr
 	SString msg_buf;
 	RealArray temp_real_list;
 	RealArray value_list;
-	DateTimeArray time_list; // @v11.1.11
+	DateTimeArray time_list;
 	rTrendListSet.freeAll();
 
 	const size_t thread_limit = 32;
@@ -5601,10 +5601,10 @@ int PrcssrTsStrategyAnalyze::MakeArVectors(const STimeSeries & rTs, const LongAr
 
 	uint   vec_idx = 0;
 	rTs.GetValueVecIndex("close", &vec_idx);
-	const int gtr = rTs.GetTimeArray(0, tsc, time_list); // @v11.1.11
+	const int gtr = rTs.GetTimeArray(0, tsc, time_list);
 	const int gvr = rTs.GetRealArray(vec_idx, 0, tsc, value_list);
 	THROW(gtr && gvr);
-	assert(time_list.getCount() == value_list.getCount()); // @v11.1.11
+	assert(time_list.getCount() == value_list.getCount());
 	memzero(thread_result_list, sizeof(thread_result_list));
 	memzero(thread_inpfrmsz_list, sizeof(thread_inpfrmsz_list));
 	for(uint ifsidx = 0; ifsidx < rFrameSizeList.getCount(); ifsidx++) {

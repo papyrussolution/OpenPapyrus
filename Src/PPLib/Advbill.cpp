@@ -267,12 +267,12 @@ void AdvBillItemDialog::setupLinkBill()
 	BillTbl::Rec bill_rec;
 	if(Data.AdvBillID && BillObj->Search(Data.AdvBillID, &bill_rec) > 0) {
 		PPObjBill::MakeCodeString(&bill_rec, 1, info_buf);
-		enableCommand(cmAdvBillItemRemoveLink, 1);
+		enableCommand(cmAdvBillItemRemoveLink, true);
 		if(getCtrlReal(CTL_ADVBITEM_AMOUNT) == 0.0)
 			setCtrlReal(CTL_ADVBITEM_AMOUNT, bill_rec.Amount);
 	}
 	else
-		enableCommand(cmAdvBillItemRemoveLink, 0);
+		enableCommand(cmAdvBillItemRemoveLink, false);
 	setStaticText(CTL_ADVBITEM_LINKINFO, info_buf);
 }
 

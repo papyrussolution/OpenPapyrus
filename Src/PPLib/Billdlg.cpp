@@ -1215,7 +1215,7 @@ int EditGoodsBill(PPBillPacket * pPack, long egbFlags)
 			dlg->Flags |= BillDialog::fModified;
 		if(egbFlags & PPObjBill::efEdit/*options >= 1*/) {
 			if(!p_bobj->CheckRights(PPR_MOD) || !r_rt.CheckBillDate(pPack->Rec) || !p_bobj->CheckRightsWithOp(pPack->Rec.OpID, PPR_MOD)) {
-				dlg->enableCommand(cmOK, 0);
+				dlg->enableCommand(cmOK, false);
 				//options = 3;
 				egbFlags |= PPObjBill::efNoUpdNotif;
 			}

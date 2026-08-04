@@ -340,29 +340,29 @@ int PPObjEventSubscription::EditDialog(PPEventSubscriptionPacket * pPack)
 			switch(Data.Rec.EventType) {
 				case PPEVENTTYPE_OBJCREATED:
 					disableCtrl(CTLSEL_EVNTSUBSCR_OBJ, false);
-					enableCommand(cmFilter, 1);
+					enableCommand(cmFilter, true);
 					break;
 				case PPEVENTTYPE_OUTER:
 					disableCtrl(CTLSEL_EVNTSUBSCR_OBJ, true);
-					enableCommand(cmFilter, 0);
+					enableCommand(cmFilter, false);
 					break;
 				case PPEVENTTYPE_SPCBILLCHANGE:
 					Data.Rec.ObjType = PPOBJ_BILL;
 					setCtrlLong(CTLSEL_EVNTSUBSCR_OBJ, Data.Rec.ObjType);
 					disableCtrl(CTLSEL_EVNTSUBSCR_OBJ, true);
-					enableCommand(cmFilter, 1);
+					enableCommand(cmFilter, true);
 					break;
 				case PPEVENTTYPE_SYSJOURNAL:
 					Data.Rec.ObjType = 0;
 					setCtrlLong(CTLSEL_EVNTSUBSCR_OBJ, Data.Rec.ObjType);
 					disableCtrl(CTLSEL_EVNTSUBSCR_OBJ, true);
-					enableCommand(cmFilter, 1);
+					enableCommand(cmFilter, true);
 					break;
 				case PPEVENTTYPE_LOTEXPIRATION:
 					Data.Rec.ObjType = 0;
 					setCtrlLong(CTLSEL_EVNTSUBSCR_OBJ, Data.Rec.ObjType);
 					disableCtrl(CTLSEL_EVNTSUBSCR_OBJ, true);
-					enableCommand(cmFilter, 1);
+					enableCommand(cmFilter, true);
 					break;
 			}
 		}

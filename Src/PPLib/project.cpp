@@ -3197,10 +3197,10 @@ IMPL_HANDLE_EVENT(RestoreLostPrjTPersonDlg)
 		else if(oneof3(TVCMD, cmResolveCreator, cmResolveEmployer, cmResolveClient)) {
 			LostPrjTPersonItem * p_item = GetCurItem();
 			if(p_item) {
-				PPID psn_id = 0;
-				const int creator  = BIN(TVCMD == cmResolveCreator);
-				const int employer = BIN(TVCMD == cmResolveEmployer);
-				const int client   = BIN(TVCMD == cmResolveClient);
+				PPID   psn_id = 0;
+				const  int creator  = BIN(TVCMD == cmResolveCreator);
+				const  int employer = BIN(TVCMD == cmResolveEmployer);
+				const  int client   = BIN(TVCMD == cmResolveClient);
 				if(ListBoxSelDialog::Run(PPOBJ_PERSON, &psn_id, reinterpret_cast<void *>((creator || employer) ? PPPRK_EMPL : PPPRK_CLIENT)) > 0) {
 					if(creator)
 						p_item->ResolveCreatorID = psn_id;
@@ -3223,10 +3223,10 @@ IMPL_HANDLE_EVENT(RestoreLostPrjTPersonDlg)
 				enableCommand(cmViewTasksByClient,   p_item->ClientID   && !p_item->ResolveClientID);
 			}
 			else {
-				enableCommand(cmResolveCreator,      0);
-				enableCommand(cmViewTasksByCreator,  0);
-				enableCommand(cmViewTasksByEmployer, 0);
-				enableCommand(cmResolveClient,       0);
+				enableCommand(cmResolveCreator,      false);
+				enableCommand(cmViewTasksByCreator,  false);
+				enableCommand(cmViewTasksByEmployer, false);
+				enableCommand(cmResolveClient,       false);
 			}
 		}
 		else

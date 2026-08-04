@@ -909,8 +909,7 @@ public:
 		SetupTimePicker(this, CTL_CHKINP_CITM, CTLTM_CHKINP_CITM);
 		setCtrlReadOnly(CTL_CHKINP_PRICE, true);
 		setCtrlReadOnly(CTL_CHKINP_AMOUNT, true);
-		showButton(cmCCheck, LOGIC(Cfg.GoodsID));
-		enableCommand(cmCCheck, LOGIC(Cfg.GoodsID));
+		showButtonAndEnableCommand(cmCCheck, LOGIC(Cfg.GoodsID));
 	}
 	DECL_DIALOG_SETDTS()
 	{

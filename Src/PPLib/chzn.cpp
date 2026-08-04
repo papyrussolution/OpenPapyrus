@@ -22,7 +22,8 @@ public:
 		qDocumentSend,
 		qGetTicket,
 		qGetAggrCodeList, // @v12.6.7
-		qGetCodeInfo,     // @v12.6.9  
+		qGetCodeInfo,     // @v12.6.9
+		qGetCodeOps,      // @v12.7.1 Метод получения истории движения КИ
 	};
 	ChZnInterface();
 	~ChZnInterface();
@@ -257,6 +258,7 @@ public:
 	//
 	int    GetAggrMarkList(const InitBlock & rIb, const StringSet & rBoxCodeList, PPLotExtCodeContainer::MarkSet & rResult); // @v12.6.7 //_afQueryAggrMarkList
 	int    GetMarkInfo(const InitBlock & rIb, const StringSet & rCodeList, PPChZnPrcssr::CodeInfoCollection & rResult); // @v12.6.9
+	int    GetMarkOps(const InitBlock & rIb, const char * pCode); // @v12.7.1
 	int    ReadJsonReplyForSingleItem(const char * pReply, const char * pTarget, SString & rResult);
 	int    TransmitDocument2(const InitBlock & rIb, const ChZnInterface::Packet & rPack, SString & rReply);
 	int    GetDocumentTicket(const InitBlock & rIb, const char * pDocIdent, SString & rTicket);
@@ -2634,7 +2636,12 @@ SString & ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum, const
 		case qGetCodeInfo: // @v12.6.9
 			if(rIb.ProtocolId == InitBlock::protidTrueAPI) {
 				rResult.Cat("cises/info");
-			}			
+			}
+			break;
+		case qGetCodeOps: // @v12.7.1
+			if(rIb.ProtocolId == InitBlock::protidTrueAPI) {
+				rResult.Cat("cises/history");
+			}
 			break;
 	}
 	return rResult;
@@ -3778,6 +3785,74 @@ int _ParseMarkInfoJsonResult(const SJson * pJs, PPChZnPrcssr::CodeInfoCollection
 	return ok;
 }
 
+int ChZnInterface::GetMarkOps(const InitBlock & rIb, const char * pCode) // @v12.7.1
+{
+	int    ok = -1;
+	SJson * p_json_result = 0;
+	if(!isempty(pCode)) {
+		if(rIb.ProtocolId == InitBlock::protidTrueAPI) {
+			SString temp_buf;
+			SString reply_buf;
+			SString url_buf;
+			SString hdr_buf;
+			SBuffer ack_buf;
+			//
+			GtinStruc gts;
+			SString _01buf;
+			SString _21buf;
+			SString _10buf;
+			SString code_buf;
+			const  int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(pCode, gts, 0));
+			if(ipczcr > 0) {
+				if(ipczcr == PPChZnPrcssr::chznciPallet) {
+					code_buf = temp_buf;
+				}
+				else {
+					gts.GetToken(GtinStruc::fldGTIN14, &_01buf);
+					gts.GetToken(GtinStruc::fldSerial, &_21buf);
+					gts.GetToken(GtinStruc::fldPart, &_10buf);
+					code_buf.Z();
+					if(_01buf.NotEmpty()) {
+						if(_21buf.NotEmpty()) {
+							code_buf.Cat("01").Cat(_01buf).Cat("21").Cat(_21buf);
+						}
+						else if(_10buf.NotEmpty()) {
+							code_buf.Cat("01").Cat(_01buf).Cat("10").Cat(_10buf);
+						}
+					}
+				}
+				if(code_buf.NotEmpty()) {
+					MakeTargetUrl_(qGetCodeOps, 0, rIb, url_buf);
+					url_buf.CatChar('?').CatEq("cis", code_buf);
+					InetUrl url(url_buf);
+					StrStrAssocArray hdr_flds;
+					{
+						MakeHeaderFields(rIb.Token, mhffAuthBearer, &hdr_flds, hdr_buf);
+						ScURL c;
+						SFile wr_stream(ack_buf.Z(), SFile::mWrite);
+						//Lth.Log("req", 0, req_buf);
+						THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose|ScURL::mfTcpKeepAlive, &hdr_flds, 0/*body*/, &wr_stream));
+						{
+							SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
+							if(p_ack_buf) {
+								reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
+								Lth.Log("rep", 0, reply_buf);
+								p_json_result = SJson::Parse(reply_buf);
+								/*if(_ParseMarkInfoJsonResult(p_json_result, rResult)) {
+									ok = 1;
+								}*/
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_json_result;
+	return ok;
+}
+
 int ChZnInterface::GetMarkInfo(const InitBlock & rIb, const StringSet & rCodeList, PPChZnPrcssr::CodeInfoCollection & rResult) // @v12.6.9
 {
 	int    ok = -1;
@@ -4356,7 +4431,8 @@ int PPChZnPrcssr::EditQueryParam(PPChZnPrcssr::QueryParam * pData)
 			AddClusterAssoc(CTL_CHZNIX_WHAT, 2, PPChZnPrcssr::QueryParam::_afQueryDocListIn); // @v11.8.2
 			AddClusterAssoc(CTL_CHZNIX_WHAT, 3, PPChZnPrcssr::QueryParam::_afQueryAggrMarkList); // @v12.6.7
 			AddClusterAssoc(CTL_CHZNIX_WHAT, 4, PPChZnPrcssr::QueryParam::_afQueryMarkInfo); // @v12.6.9
-			AddClusterAssoc(CTL_CHZNIX_WHAT, 5, PPChZnPrcssr::QueryParam::_afDebug_Auth); // @v12.6.7
+			AddClusterAssoc(CTL_CHZNIX_WHAT, 5, PPChZnPrcssr::QueryParam::_afQueryMarkOps); // @v12.7.1
+			AddClusterAssoc(CTL_CHZNIX_WHAT, 6, PPChZnPrcssr::QueryParam::_afDebug_Auth); // @v12.6.7
 			SetClusterData(CTL_CHZNIX_WHAT, Data.DocType);
 			setCtrlString(CTL_CHZNIX_PARAM, Data.ParamString);
 			SetupArCombo(this, CTLSEL_CHZNIX_SUPPL, Data.ArID, 0, GetSupplAccSheet(), 0);
@@ -4393,8 +4469,8 @@ int PPChZnPrcssr::InteractiveQuery()
 	QueryParam _param;
 	_param.LocID = LConfig.Location;
 	while(EditQueryParam(&_param) > 0) {
-		if(oneof6(_param.DocType, QueryParam::_afQueryTicket, QueryParam::_afQueryKizInfo, QueryParam::_afQueryDocListIn, 
-			QueryParam::_afDebug_Auth, QueryParam::_afQueryAggrMarkList, QueryParam::_afQueryMarkInfo)) {
+		if(oneof7(_param.DocType, QueryParam::_afQueryTicket, QueryParam::_afQueryKizInfo, QueryParam::_afQueryDocListIn, 
+			QueryParam::_afDebug_Auth, QueryParam::_afQueryAggrMarkList, QueryParam::_afQueryMarkInfo, QueryParam::_afQueryMarkOps)) {
 			ChZnInterface ifc;
 			ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(P_Ib);
 			p_ib->ProtocolId = ChZnInterface::InitBlock::protidMdlp;
@@ -4424,6 +4500,13 @@ int PPChZnPrcssr::InteractiveQuery()
 							TSCollection <ChZnInterface::Document> doc_list; 
 							if(!ifc.GetDocumentList(*p_ib, &filt, doc_list)) {
 								LogLastError();
+							}
+						}
+						break;
+					case QueryParam::_afQueryMarkOps: // @v12.7.1
+						if(_param.ParamString.NotEmpty()) {
+							if(ifc.GetMarkOps(*p_ib, _param.ParamString)) {
+								;
 							}
 						}
 						break;

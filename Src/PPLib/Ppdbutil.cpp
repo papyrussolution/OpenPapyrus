@@ -2075,10 +2075,10 @@ class BackupDialog : public TDialog {
 public:
 	BackupDialog(uint rezID, BackupDlgData * data, PPBackup * ppb) : TDialog(rezID), CtrlX(0), Data(*data), AsBackup(BIN(data->Cmd == cmBuBackup)), PPB(ppb)
 	{
-		enableCommand(cmBuBackup,  1);
-		enableCommand(cmBuRestore, 1);
-		enableCommand(cmBuRemove,  1);
-		enableCommand(cmBuCheck,   1);
+		enableCommand(cmBuBackup,  true);
+		enableCommand(cmBuRestore, true);
+		enableCommand(cmBuRemove,  true);
+		enableCommand(cmBuCheck,   true);
 		Data.Cmd = 0;
 		P_List = static_cast<SmartListBox *>(getCtrlView(CTL_BU_BACKUP_LIST));
 		SetupStrListBox(this, CTL_BU_BACKUP_LIST);

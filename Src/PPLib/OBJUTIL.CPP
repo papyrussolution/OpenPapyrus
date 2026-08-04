@@ -871,7 +871,7 @@ int PPObject::EditPrereq(PPID * pID, TDialog * pDlg, bool * pIsNew)
 			ok = 0;
 	}
 	if(ok && pDlg && !is_new && !CheckRights(PPR_MOD)) {
-		pDlg->enableCommand(cmOK, 0);
+		pDlg->enableCommand(cmOK, false);
 	}
 	ASSIGN_PTR(pIsNew, is_new);
 	return ok;

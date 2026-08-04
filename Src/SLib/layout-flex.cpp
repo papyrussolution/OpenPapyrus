@@ -2981,6 +2981,10 @@ void SUiLayout::Setup(uint flags)
 	}
 }
 
+SUiLayout::Param::Param() : Flags(0), FirstItemIndex(0)/*, ForceWidth(0.0f), ForceHeight(0.0f)*/
+{
+}
+
 int SUiLayout::Evaluate(const Param * pP)
 {
 	int    ok = -1;

@@ -1559,14 +1559,12 @@ PsnEventDialog::PsnEventDialog(Param * pParam, PPObjPersonEvent * pPeObj) : PPLi
 {
 	setTitle(P.DlgTitle);
 	SetupCalDate(CTLCAL_PSNEVNT_DATE, CTL_PSNEVNT_DATE);
-	SetupTimePicker(this, CTL_PSNEVNT_TIME, CTLTM_PSNEVNT_TIME); // @v11.2.6
+	SetupTimePicker(this, CTL_PSNEVNT_TIME, CTLTM_PSNEVNT_TIME);
 	addGroup(ctlgroupIBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_PSNEVNT_IMAGE, cmAddImage, cmDelImage, P_PeObj->CheckRights(PSNRT_UPDIMAGE)));
 	{
 		long psn_grp_flags = PersonCtrlGroup::fCanInsert/*|PersonCtrlGroup::fLoadDefOnOpen*/;
-		// @v11.1.10 {
 		if(P.AsTemplate)
 			psn_grp_flags |= PersonCtrlGroup::fUseByContextValue;
-		// } @v11.1.10 
 		addGroup(ctlgroupPersonPrmr, new PersonCtrlGroup(CTLSEL_PSNEVNT_PRMR, CTL_PSNEVNT_PRMRSCARD, 0, psn_grp_flags));
 		addGroup(ctlgroupPersonScnd, new PersonCtrlGroup(CTLSEL_PSNEVNT_SCND, CTL_PSNEVNT_SCNDSCARD, 0, psn_grp_flags));
 	}

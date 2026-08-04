@@ -2450,7 +2450,7 @@ public:
 		IsThereCasDetectionList = LOGIC(PsnObj.GetConfig().ClientActivityDetectionList.getCount());
 		SetupCalDate(CTLCAL_PSNFLT_CASDT, CTL_PSNFLT_CASDT); // @v12.2.2
 		SetupCalPeriod(CTLCAL_PSNFLT_NEWCLIPERIOD, CTL_PSNFLT_NEWCLIPERIOD);
-		enableCommand(cmAdvOptions, 1);
+		enableCommand(cmAdvOptions, true);
 	}
 	DECL_DIALOG_SETDTS()
 	{

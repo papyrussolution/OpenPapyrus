@@ -4391,8 +4391,7 @@ public:
 	{
 		SetupCalDate(CTLCAL_PERSON_DOB, CTL_PERSON_DOB);
 		SetupCalDate(CTLCAL_PERSON_SCEXPIRY, CTL_PERSON_SCEXPIRY);
-		showButton(cmCreateSCard, false);
-		enableCommand(cmCreateSCard, false);
+		showButtonAndEnableCommand(cmCreateSCard, false);
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -4614,8 +4613,7 @@ IMPL_HANDLE_EVENT(ShortPersonDialog)
 			setCtrlString(CTL_PERSON_SCARD, temp_buf.Z());
 			SetupSCardSeries(1, 1);
 			disableCtrl(CTL_PERSON_SCARD, false);
-			showButton(cmCreateSCard, false);
-			enableCommand(cmCreateSCard, false);
+			showButtonAndEnableCommand(cmCreateSCard, false);
 		}
 	}
 	else if(event.isClusterClk(CTL_PERSON_SCARDAUTO)) {
@@ -4763,8 +4761,7 @@ void ShortPersonDialog::ShowSCardCtrls(bool doShow)
 	for(uint i = 0; i < SIZEOFARRAY(ctl_list); i++) {
 		showCtrl(ctl_list[i], doShow);
 	}
-	showButton(cmFullSCardDialog, doShow);
-	enableCommand(cmFullSCardDialog, doShow);
+	showButtonAndEnableCommand(cmFullSCardDialog, doShow);
 }
 
 int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
@@ -4796,8 +4793,7 @@ int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 							SCardID = sc_id;
 							setCtrlData(CTL_PERSON_SCARD, sc_rec.Code);
 							disableCtrl(CTL_PERSON_SCARD, true);
-							showButton(cmCreateSCard, true);
-							enableCommand(cmCreateSCard, true);
+							showButtonAndEnableCommand(cmCreateSCard, true);
 							break;
 						}
 						else
@@ -4821,8 +4817,7 @@ int ShortPersonDialog::SetupSCardSeries(int fromCtrl, int dontSeekCard)
 				setCtrlLong(CTLSEL_PERSON_SCAG, 0);
 			if(!SCardID) {
 				disableCtrl(CTL_PERSON_SCARD, false);
-				showButton(cmCreateSCard, false);
-				enableCommand(cmCreateSCard, false);
+				showButtonAndEnableCommand(cmCreateSCard, false);
 				enable_auto_create = true;
 				if(scs_pack.Rec.Flags & SCRDSF_NEWSCINHF) {
 					sc_rec.Flags |= SCRDF_INHERITED;
@@ -5043,7 +5038,7 @@ int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 			ShortPersonDialog * p_dlg = static_cast<ShortPersonDialog *>(dlg);
 			p_dlg->enableCommand(cmFullPersonDialog, 1);
 			if(!is_new && !CheckRights(PPR_MOD))
-				p_dlg->enableCommand(cmOK, 0);
+				p_dlg->enableCommand(cmOK, false);
 			if(rBlk.InitPhone.NotEmpty()) {
 				p_dlg->SetupPhoneOnInit(rBlk.InitPhone);
 			}
@@ -5073,7 +5068,7 @@ int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 			}
 			p_dlg->setDTS(&pack);
 			if(!is_new && !CheckRights(PPR_MOD)) {
-				p_dlg->enableCommand(cmOK, 0);
+				p_dlg->enableCommand(cmOK, false);
 			}
 			while(!valid_data && (r = ExecView(p_dlg)) == cmOK) {
 				THROW(is_new || CheckRights(PPR_MOD));

@@ -386,7 +386,7 @@ int PPObjRegister::CheckUniqueNumber(const RegisterTbl::Rec * pRec, const Regist
 int PPObjRegister::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
-	if(msg == DBMSG_OBJDELETE)
+	if(msg == DBMSG_OBJDELETE) {
 		if(_obj == PPOBJ_REGISTERTYPE) {
 			RegisterTbl::Key3 k3;
 			MEMSZERO(k3);
@@ -402,6 +402,12 @@ int PPObjRegister::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			if(q.fetchFirst() > 0)
 				ok = RetRefsExistsErr(Obj, P_Tbl->data.ID);
 		}
+	}
+	else if(msg == DBMSG_OBJREPLACE) { // @v12.7.1 @construction
+		if(_obj == PPOBJ_PERSON) {
+			
+		}
+	}
 	return ok;
 }
 
@@ -957,8 +963,8 @@ int PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 				setStaticText(STDCTL_HEADERSTATICTEXT, P_PsnPack->Rec.Name);
 			}
 			// see the comment to the function int moveItem(long, long, int) below
-			enableCommand(cmUp, 0);
-			enableCommand(cmDown, 0);
+			enableCommand(cmUp, false);
+			enableCommand(cmDown, false);
 			updateList(-1);
 		}
 	private:

@@ -431,7 +431,7 @@ int FASTCALL PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrl
 void FASTCALL DisableOKButton(TDialog * dlg)
 {
 	if(dlg) {
-		dlg->enableCommand(cmOK, 0);
+		dlg->enableCommand(cmOK, false);
 		dlg->SetDefaultButton(STDCTL_CANCELBUTTON, true);
 	}
 }
@@ -6917,7 +6917,7 @@ int ExportDialogs2(const char * pFileName)
 						temp_buf.Z();
 						LOGFONT f;
 						if(::GetObject(h_f, sizeof(f), &f)) {
-							SFontDescr fd(0, 0, 0);
+							SFontDescr fd;
 							fd.SetLogFont(&f);
 							fd.Size = (int16)MulDiv(fd.Size, 72, GetDeviceCaps(SLS.GetTLA().GetFontDC(), LOGPIXELSY));
 							temp_buf.Cat(fd.Face).CatDiv(',', 0).Cat(fd.Size);

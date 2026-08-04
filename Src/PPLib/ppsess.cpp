@@ -2323,6 +2323,11 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 			break;
 	}
 	SLS.InitWSA();
+	// @v12.7.1 {
+#if _WIN32_WINNT >= 0x0600
+	::SetProcessDPIAware();
+#endif
+	// } @v12.7.1 
 	{
 		typedef VOID (WINAPI * DISABLEPROCESSWINDOWSGHOSTING)(VOID);
 		SDynLibrary lib_user32("user32.dll");
@@ -2534,7 +2539,7 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 			UiToolBox_.SetPen(TProgram::tbiButtonPen_F+TProgram::tbisFocus,  SPaintObj::psSolid, 1, SColor(0x15, 0x20, 0xEA));
 			UiToolBox_.SetPen(TProgram::tbiButtonPen_F+TProgram::tbisSelect, SPaintObj::psSolid, 1, SColor(0x15, 0x20, 0xEA));
 			{
-				SFontDescr fd_default("Verdana", 11, 0); // ! Не использовать "MS Sans Serif" 
+				SFontDescr fd_default("Verdana", 11, 0.0f, 0); // ! Не использовать "MS Sans Serif" 
 				const SFontDescr * p_fd = p_uid ? p_uid->GetFontDescrC("ControlFont") : 0;
 				if(p_fd) {
 					SFontDescr fd_(*p_fd);
@@ -2547,7 +2552,7 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 				}
 			}
 			{ // @v12.5.5
-				SFontDescr fd_default("Verdana", 16, 0); // ! Не использовать "MS Sans Serif" 
+				SFontDescr fd_default("Verdana", 16, 0.0f, 0); // ! Не использовать "MS Sans Serif" 
 				const SFontDescr * p_fd = p_uid ? p_uid->GetFontDescrC("AccentInputFont") : 0;
 				UiToolBox_.CreateFont_(TProgram::tbiAccentInputFont, p_fd ? *p_fd : fd_default);
 			}
@@ -2568,14 +2573,11 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 	SetExtFlag(ECF_DBDICTDL600, 1);
 	if(CheckExtFlag(ECF_DBDICTDL600))
 		DbDictionary::SetCreateInstanceProc(DbDict_DL600::CreateInstance);
-	// @v11.1.2 {
 	{
 		StringSet host_list;
 		host_list.add("uhtt.ru");
 		CheckRemoteHosts(host_list); 
 	}
-	// } @v11.1.2
-	// @v11.4.1 {
 #if(_MSC_VER >= 1900)
 	if(!(flags & fNoInstalledInfrastructure)) {
 		using namespace U_ICU_NAMESPACE;
@@ -2587,7 +2589,6 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 		}
 	}
 #endif
-	// } @v11.4.1
 	// (Пока не будем этого делать из-за задержки исполнения) LoadUedContainer(); // @v12.3.9 Вызывает поток для загрузки UED-контейнера
 	if(/*!(flags & fWsCtlApp)*/InternalAppId != internalappWsCtl && !(flags & fNoInstalledInfrastructure)) {
 		// @v11.4.4 {

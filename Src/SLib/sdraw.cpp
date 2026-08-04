@@ -17,6 +17,13 @@
 	#include <../slib/libjpeg/cdjpeg.h>
 	//#include <../slib/libjpeg/jerror.h>
 #endif
+#include <libpng/png.h>
+//#include <..\osf\giflib\gif_lib.h>
+#include <gif_lib.h>
+#if(_MSC_VER >= 1900)
+	#include <../osf/libwebp/src/webp/decode.h>
+	#include <../osf/libwebp/src/webp/encode.h>
+#endif
 
 #define DEFAULT_UCTX_FONTSIZE 10
 //
@@ -2562,10 +2569,99 @@ bool PrintSImageBuffer(const SImageBuffer& img, const wchar_t* printerName = nul
 }
 #endif // } 0
 
-int SImageBuffer::DrawOnPrinter(HDC hDc) const // @v12.7.0 @construction
+void Test_DrawImageOnPrinter()
 {
 	int    ok = 0;
-	//
+	const char * p_prn_port = "Microsoft XPS Document Writer";
+	SString base_path;
+	SString img_fname;
+	SLS.QueryPath("testroot", base_path);
+	(img_fname = base_path).SetLastDSlash().Cat("data/test03.svg");
+	if(fileExists(img_fname)) {
+		SDrawFigure * p_fig = SDrawFigure::CreateFromFile(img_fname, 0);
+		if(p_fig) {
+			SImageBuffer ib;
+			ib.Init(600, 600);
+			if(p_fig->TransformToImage(0, ib)) {
+				ok = ib.DrawOnPrinter(p_prn_port);
+			}
+		}
+	}
+}
+
+int SImageBuffer::DrawOnPrinter(const char * pPrinterPort) const // @v12.7.0 @construction
+{
+	int    ok = 1;
+	HDC    hdc = 0;
+	THROW(!isempty(pPrinterPort));
+	hdc = ::CreateDCW(L"WINSPOOL", SUcSwitchW(pPrinterPort), nullptr, nullptr);
+	THROW(hdc);
+	THROW(DrawOnPrinter(hdc));
+	CATCHZOK
+	::DeleteDC(hdc);
+	return ok;
+}
+
+int SImageBuffer::DrawOnPrinter(HDC hDc) const // @v12.7.0 @construction
+{
+	int    ok = 1;
+	bool   is_doc_started = false;
+	bool   is_page_started = false;
+	const  uint w = GetWidth();
+	const  uint h = GetHeight();
+	THROW(w && h && GetData());
+	THROW(hDc);
+	{
+		DOCINFOW di;
+		INITWINAPISTRUCT(di);
+		di.lpszDocName = L"SImageBuffer Print Job";
+		THROW(::StartDocW(hDc, &di) > 0);
+		is_doc_started = true;
+		THROW(::StartPage(hDc) > 0);
+		is_page_started = true;
+		{
+			// Расчет масштаба для вписывания в страницу (с сохранением пропорций)
+			const  int page_wd = GetDeviceCaps(hDc, HORZRES);
+			const  int page_ht = GetDeviceCaps(hDc, VERTRES);
+			const  float scale_x = static_cast<float>(page_wd) / w;
+			const  float scale_y = static_cast<float>(page_ht) / h;
+			const  float scale = (scale_x < scale_y) ? scale_x : scale_y;
+			const  int draw_wd = static_cast<int>(w * scale);
+			const  int draw_ht = static_cast<int>(h * scale);
+			const  int offs_x = (page_wd - draw_wd) / 2;
+			const  int offs_y = (page_ht - draw_ht) / 2;
+			// Формируем BITMAPINFOHEADER для прямого скармливания данных принтеру
+			BITMAPINFOHEADER bih;
+			MEMSZERO(bih);
+			bih.biSize = sizeof(BITMAPINFOHEADER);
+			bih.biWidth = static_cast<LONG>(w);
+			// КЛЮЧЕВОЙ МОМЕНТ: Отрицательная высота указывает GDI, что данные 
+			// в буфере расположены СВЕРХУ ВНИЗ (Top-Down DIB), что полностью 
+			// соответствует вашему циклу for(uint y = 0; y < _h; y++)
+			bih.biHeight = -static_cast<LONG>(h); 
+			bih.biPlanes = 1;
+			bih.biBitCount = 32; // Мы знаем, что конвертация идет в s32ARGB
+			bih.biCompression = BI_RGB;
+			// Настройка качества рендеринга
+			SetStretchBltMode(hDc, HALFTONE);
+			SetBrushOrgEx(hDc, 0, 0, nullptr); // Сброс.origin кисти после HALFTONE
+			// Прямая отрисовка из вашего буфера
+			// Примечание: Мы используем img.GetData() напрямую. 
+			// Убедитесь, что GetFormat().GetStride(w) кратен 4 байтам (для 32-бит это всегда так).
+			int result = StretchDIBits(hDc, offs_x, offs_y, draw_wd, draw_ht, 
+				0, 0, w, h, GetData(), reinterpret_cast<const BITMAPINFO*>(&bih), DIB_RGB_COLORS, SRCCOPY);
+			THROW(result != GDI_ERROR);
+			//DeleteDC(hDc);
+			//return (result != GDI_ERROR);
+		}
+	}
+	CATCHZOK
+	if(is_page_started) {
+		::EndPage(hDc);
+	}
+	if(is_doc_started) {
+		::EndDoc(hDc);
+	}
 	return ok;
 }
 //
@@ -2700,11 +2796,9 @@ int SImageBuffer::StoreBmp(const StoreParam & rP, SFile & rF) const
 //
 
 #if 0 // {
-
 int SImageBuffer::LoadXpm(const char * pFileName)
 {
 }
-
 #endif // } 0
 
 struct IconHeader {
@@ -3002,8 +3096,6 @@ int SImageBuffer::StoreJpeg(const StoreParam & rP, SFile & rF) const
 //
 //
 //
-#include <libpng/png.h>
-
 struct PngSupport {
 	static void LoadErrFunc(png_structp pPng, const char * pMsg)
 	{
@@ -3203,9 +3295,6 @@ int SImageBuffer::StorePng(const StoreParam & rP, SFile & rF) const
 //
 //
 //
-//#include <..\osf\giflib\gif_lib.h>
-#include <gif_lib.h>
-
 static int GifReadFunc(GifFileType * pF, uint8 * pData, int size)
 {
 	size_t actual_size = 0;
@@ -3315,11 +3404,6 @@ int SImageBuffer::LoadGif(SFile & rF)
 //
 //
 //
-#if(_MSC_VER >= 1900)
-	#include <../osf/libwebp/src/webp/decode.h>
-	#include <../osf/libwebp/src/webp/encode.h>
-#endif
-
 int SImageBuffer::LoadWebp(SFile & rF)
 {
 #if(_MSC_VER >= 1900)

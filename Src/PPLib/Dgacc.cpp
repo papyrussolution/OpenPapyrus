@@ -496,7 +496,7 @@ void CurAmtCtrlGroup::setupCurRate(TDialog * pDlg, int fromBase)
 		pDlg->disableCtrl(CRateCID, true);
 	}
 	if(SelCRateCmd)
-		pDlg->enableCommand(SelCRateCmd, BIN(cur_id));
+		pDlg->enableCommand(SelCRateCmd, LOGIC(cur_id));
 	pDlg->setCtrlReal(BaseAmtCID, base_amount);
 }
 

@@ -93,9 +93,9 @@ int TMenuPopup::Execute(HWND hWnd, long flags, uint * pCmd, uint * pKeyCode)
 //
 //
 //
-TWindow::LocalMenuPool::LocalMenuPool(TWindow * pWin) : List(sizeof(TWindow::LocalMenuPool::Item)), P_Win(pWin)
+TWindow::LocalMenuPool::LocalMenuPool(TWindow * pWin) : SStrGroup(), List(sizeof(TWindow::LocalMenuPool::Item)), P_Win(pWin)
 {
-	StrPool.add("$"); // zero index - is empty string
+	// @v12.7.1 StrPool.add("$"); // zero index - is empty string
 }
 
 int TWindow::LocalMenuPool::AddItem(uint ctrlId, uint buttonId, long keyCode, const char * pText)
@@ -106,8 +106,11 @@ int TWindow::LocalMenuPool::AddItem(uint ctrlId, uint buttonId, long keyCode, co
 	item.CtrlId = ctrlId;
 	item.ButtonId = buttonId;
 	item.KeyCode = keyCode;
+	/* @v12.7.1
 	if(pText)
 		StrPool.add(pText, &item.StrPos);
+	*/
+	AddS(pText, &item.TextP); // @v12.7.1
 	List.insert(&item);
 	return ok;
 }
@@ -150,15 +153,16 @@ int TWindow::LocalMenuPool::ShowMenu(uint buttonId)
 		SString text;
 		TMenuPopup menu;
 		for(uint i = 0; ok > 0 && i < List.getCount(); i++) {
-			const Item * p_item = static_cast<const Item *>(List.at(i));
-			if(p_item->ButtonId == buttonId && p_item->StrPos) {
+			const  Item * p_item = static_cast<const Item *>(List.at(i));
+			if(p_item->ButtonId == buttonId && p_item->TextP) {
 				if(p_item->CtrlId) {
 					TView * p_view = P_Win->getCtrlView(p_item->CtrlId);
 					if(p_view && p_view->IsInState(sfDisabled))
 						ok = -1;
 				}
 				if(ok > 0) {
-					StrPool.get(p_item->StrPos, text);
+					// @v12.7.1 StrPool.get(p_item->StrPos, text);
+					GetS(p_item->TextP, text); // @v12.7.1
 					menu.Add(text, 0, p_item->KeyCode);
 					SETIFZ(sel, p_item->CtrlId);
 				}
@@ -402,7 +406,7 @@ int TWindow::RedirectDrawItemMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 
 TWindow::TWindow(const TRect & rRect) : TViewGroup(rRect), WbCapability(0), P_Lmp(0), HW(0), PrevInStack(0), 
-	P_SymbList(0), P_FontsAry(0), P_Lfc(0), P_StUsrP(0)
+	P_SymbList(0), P_FontsAry(0), P_Lfc(0), P_StUsrP(0), P_PHC_List(0)
 {
 	Sign = SlConst::Signature_TWindow; // @v12.5.7
 	ViewOptions |= ofSelectable;
@@ -411,7 +415,8 @@ TWindow::TWindow(const TRect & rRect) : TViewGroup(rRect), WbCapability(0), P_Lm
 TWindow::TWindow(long wbCapability) : 
 	// Здесь мы применяем искусственно-непустой прямоугольник из-за того, что некоторые функции валидации могут воспринять 
 	// пустой прямоугольник как "сигнал бедствия" и отказаться работать дальше.
-	TViewGroup(TRect::_defr_), WbCapability(wbCapability), P_Lmp(0), HW(0), PrevInStack(0), P_SymbList(0), P_FontsAry(0), P_Lfc(0), P_StUsrP(0)
+	TViewGroup(TRect::_defr_), WbCapability(wbCapability), P_Lmp(0), HW(0), PrevInStack(0), P_SymbList(0), P_FontsAry(0), P_Lfc(0), 
+	P_StUsrP(0), P_PHC_List(0)
 {
 	Sign = SlConst::Signature_TWindow; // @v12.5.7
 }
@@ -440,6 +445,7 @@ TWindow::~TWindow()
 	}
 	// } @v12.2.4
 	delete P_StUsrP; // @v12.2.6
+	delete P_PHC_List; // @v12.7.1
 }
 
 void TWindow::endModal(ushort command)
@@ -580,6 +586,15 @@ void TWindow::showButton(uint cmd, bool s)
 {
 	TButton * p_view = SearchButton(cmd);
 	CALLPTRMEMB(p_view, Show(s));
+}
+
+void TWindow::showButtonAndEnableCommand(uint cmd, bool s/*1 - show, 0 - hide*/) // @v12.7.1
+{
+	TButton * p_view = SearchButton(cmd);
+	if(p_view) {
+		p_view->Show(s);
+	}
+	enableCommand(cmd, s);
 }
 
 int TWindow::SetButtonText(uint cmd, const char * pText)
@@ -933,7 +948,7 @@ void STDCALL TWindow::Helper_SetTitle(const char * pBuf, int setOrgTitle)
 		Title = temp_title;
 		if(setOrgTitle)
 			OrgTitle = Title;
-		SETIFZ(title_wnd, HW);
+		SETIFZQ(title_wnd, HW);
 		temp_title.Transf(CTRANSF_INNER_TO_OUTER);
 		TView::SSetWindowText(HW, temp_title);
 		APPL->UpdateItemInMenu(temp_title, this);
@@ -1135,8 +1150,9 @@ void TWindow::invalidateRegion(const SRegion & rRgn, bool erase)
 
 void FASTCALL TWindow::invalidateAll(bool erase)
 {
-	if(HW) // @v11.2.7
+	if(HW) {
 		::InvalidateRect(HW, 0, erase);
+	}
 }
 
 int TWindow::RegisterMouseTracking(int leaveNotify, int hoverTimeout)
@@ -1246,6 +1262,141 @@ void TWindow::DeleteChildLayout(TView * pV) // @v12.6.2
 	if(P_Lfc && pV) {
 		P_Lfc->DeleteItemByManagedPtr(pV);
 	}
+}
+
+int TWindow::Helper_SetChildLayoutExcludedStatus(int topProcessedLayoutId, SUiLayout * pLo) // @v12.7.1
+{
+	int    ok = -1;
+	if(pLo) {
+		const  void * p_mp = SUiLayout::GetManagedPtr(pLo);
+		if(p_mp) {
+			TView * p_v = const_cast<TView *>(static_cast<const TView *>(p_mp));
+			if(p_v->IsConsistent()) {
+				if(p_v->IsInState(sfVisible)) {
+					p_v->setState(sfVisible, false);
+				}
+				else {
+					if(p_v->GetId()) {
+						uint   _idx = 0;
+						PreserveHiddenCtrlItems * p_phc_item = 0;
+						if(!P_PHC_List) {
+							P_PHC_List = new TSCollection <PreserveHiddenCtrlItems>();
+						}
+						THROW(P_PHC_List);
+						if(P_PHC_List->lsearch(&topProcessedLayoutId, &_idx, CMPF_LONG)) {
+							p_phc_item = P_PHC_List->at(_idx);
+						}
+						else {
+							p_phc_item = P_PHC_List->CreateNewItem();
+							THROW(p_phc_item);
+							p_phc_item->LayoutId = topProcessedLayoutId;
+						}
+						if(p_phc_item) {
+							THROW(p_phc_item->HiddenCtlIdList.add(p_v->GetId()));
+						}
+					}
+				}
+			}
+		}
+		const  uint cc_ = pLo->GetChildrenCount();
+		for(uint i = 0; i < cc_; i++) {
+			SUiLayout * p_lo_child = pLo->GetChild(i);
+			THROW(Helper_SetChildLayoutExcludedStatus(topProcessedLayoutId, p_lo_child)); // @recursion
+		}
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int TWindow::SetChildLayoutExcludedStatus(int layoutId) // @v12.7.1 @construction
+{
+	int    ok = -1;
+	if(layoutId && P_Lfc) {
+		SUiLayout * p_lo = P_Lfc->FindById(layoutId);
+		if(p_lo && !p_lo->IsExcluded()) {
+			p_lo->SetExcludedStatus();
+			if(!Helper_SetChildLayoutExcludedStatus(layoutId, p_lo))
+				ok = 0;
+			else {
+				const TRect cr = getClientRect();
+				if(P_Lfc && !P_Lfc->GetParent()) {
+					P_Lfc->GetLayoutBlock().SetFixedSize(cr);
+					P_Lfc->Evaluate(0);
+				}
+				invalidateAll(true);
+				::UpdateWindow(H());
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
+int TWindow::Helper_ResetChildLayoutExcludedStatus(int topProcessedLayoutId, SUiLayout * pLo) // @v12.7.1
+{
+	int    ok = -1;
+	if(pLo) {
+		const  void * p_mp = SUiLayout::GetManagedPtr(pLo);
+		if(p_mp) {
+			TView * p_v = const_cast<TView *>(static_cast<const TView *>(p_mp));
+			if(p_v->IsConsistent()) {
+				if(!p_v->IsInState(sfVisible)) {
+					bool   do_show = true;
+					if(p_v->GetId()) {
+						uint   _idx = 0;
+						if(P_PHC_List && P_PHC_List->lsearch(&topProcessedLayoutId, &_idx, CMPF_LONG)) {
+							PreserveHiddenCtrlItems * p_phc_item = P_PHC_List->at(_idx);
+							if(p_phc_item && p_phc_item->HiddenCtlIdList.lsearch(p_v->GetId())) {
+								do_show = false;
+							}
+						}
+					}
+					if(do_show)
+						p_v->setState(sfVisible, true);
+				}
+			}
+		}
+		const  uint cc_ = pLo->GetChildrenCount();
+		for(uint i = 0; i < cc_; i++) {
+			SUiLayout * p_lo_child = pLo->GetChild(i);
+			THROW(Helper_ResetChildLayoutExcludedStatus(topProcessedLayoutId, p_lo_child)); // @recursion
+		}
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int TWindow::ResetChildLayoutExcludedStatus(int layoutId) // @v12.7.1 @construction
+{
+	int    ok = -1;
+	if(layoutId && P_Lfc) {
+		SUiLayout * p_lo = P_Lfc->FindById(layoutId);
+		if(p_lo && p_lo->IsExcluded()) {
+			Helper_ResetChildLayoutExcludedStatus(layoutId, p_lo);
+			p_lo->ResetExcludedStatus();
+			{
+				uint   _idx = 0;
+				if(P_PHC_List && P_PHC_List->lsearch(&layoutId, &_idx, CMPF_LONG)) {
+					P_PHC_List->atFree(_idx);
+					if(!P_PHC_List->getCount())
+						ZDELETE(P_PHC_List);
+				}
+			}
+			{
+				const TRect cr = getClientRect();
+				if(P_Lfc && !P_Lfc->GetParent()) {
+					P_Lfc->GetLayoutBlock().SetFixedSize(cr);
+					P_Lfc->Evaluate(0);
+				}
+				invalidateAll(true);
+				::UpdateWindow(H());
+			}
+			ok = 1;
+		}
+	}
+	return ok;
 }
 
 /*static*/void __stdcall TWindow::SetupLayoutItemFrame(SUiLayout * pItem, const SUiLayout::Result & rR)
@@ -1601,13 +1752,9 @@ IMPL_HANDLE_EVENT(TWindowBase)
 			if(IsMDIClientWindow(APPL->H_MainWnd))
 				Create(APPL->H_MainWnd, coMDI);
 			else
-				Create(APPL->H_TopOfStack, coPopup/* @v11.2.0 | coMaxSize*/);
+				Create(APPL->H_TopOfStack, coPopup);
 		}
-		// @v11.2.7 SetWindowPos(HW, HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE|SWP_NOSIZE | SWP_NOACTIVATE); // @v11.2.4
-		// @v11.2.4 ::ShowWindow(HW, SW_SHOW); // @v11.2.4 SW_NORMAL-->SW_SHOW
-		// @v11.2.4 ::UpdateWindow(HW);
 		if(APPL->PushModalWindow(this, HW)) {
-			// @v11.2.4 ::EnableWindow(PrevInStack, 0);
 			APPL->MsgLoop(this, EndModalCmd);
 			last_command = EndModalCmd;
 			EndModalCmd = 0;
