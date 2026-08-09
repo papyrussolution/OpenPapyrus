@@ -1279,8 +1279,9 @@ int AccTurnCore::ReplaceArticle(PPID dest, PPID src)
 					data.CorrAcc = src_rel_id;
 					THROW_DB(updateRec()); // @sfu
 				}
-				else
+				else {
 					THROW_PP(sp == spNext && maybe_zero_crd_acc, PPERR_TURNMIRRORINGFAULT);
+				}
 			}
 			THROW_DB(AccRel.getDirectForUpdate(-1, 0, pos));
 			THROW_DB(AccRel.deleteRec()); // @sfu

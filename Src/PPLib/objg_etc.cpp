@@ -118,7 +118,7 @@ int PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 			SetupPPObjCombo(this, CTLSEL_GDSTYP_CVAT,     PPOBJ_AMOUNTTYPE, Data.AmtCVat,  OLW_CANINSERT, 0);
 			//SetupPPObjCombo(this, CTLSEL_GDSTYP_AWOG,     PPOBJ_ASSTWROFFGRP, Data.WrOffGrpID, OLW_CANINSERT, 0);
 			SetupPPObjCombo(this, CTLSEL_GDSTYP_PRICERESTR, PPOBJ_GOODSVALRESTR, Data.PriceRestrID, OLW_CANINSERT, 0);
-			SetupStringCombo(this, CTLSEL_GDSTYP_CHZNPT, PPTXT_CHZNPRODUCTTYPES, Data.ChZnProdType);
+			SetupStringComboSortByText(this, CTLSEL_GDSTYP_CHZNPT, PPTXT_CHZNPRODUCTTYPES, Data.ChZnProdType); // @v12.7.2 SetupStringCombo-->SetupStringComboSortByText
 			AddClusterAssoc(CTL_GDSTYP_UNLIM, 0, GTF_UNLIMITED);
 			AddClusterAssoc(CTL_GDSTYP_UNLIM, 1, GTF_AUTOCOMPL);
 			AddClusterAssoc(CTL_GDSTYP_UNLIM, 2, GTF_ASSETS);

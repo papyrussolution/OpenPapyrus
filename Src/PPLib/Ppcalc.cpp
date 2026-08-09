@@ -834,10 +834,10 @@ IMPL_INVARIANT_C(PosPaymentBlock)
 	S_ASSERT_P(BonusAmt >= 0.0, pInvP);
 	S_ASSERT_P(BonusAmt <= BonusRest, pInvP);
 	S_ASSERT_P(DeliveryAmt == (NoteAmt - CashAmt), pInvP);
-	S_ASSERT_P(oneof3(EAddr.AddrType, 0, SNTOK_EMAIL, SNTOK_PHONE), pInvP); // @v11.3.6
-	S_ASSERT_P(EAddr.EAddr.IsEmpty() || oneof2(EAddr.AddrType, SNTOK_EMAIL, SNTOK_PHONE), pInvP); // @v11.3.6
-	S_ASSERT_P(EAddr.AddrType == 0 || EAddr.EAddr.NotEmpty(), pInvP); // @v11.3.6
-	S_ASSERT_P(!(Flags & fPaperless) || !EAddr.IsEmpty(), pInvP); // @v11.3.6
+	S_ASSERT_P(oneof3(EAddr.AddrType, 0, SNTOK_EMAIL, SNTOK_PHONE), pInvP);
+	S_ASSERT_P(EAddr.EAddr.IsEmpty() || oneof2(EAddr.AddrType, SNTOK_EMAIL, SNTOK_PHONE), pInvP);
+	S_ASSERT_P(EAddr.AddrType == 0 || EAddr.EAddr.NotEmpty(), pInvP);
+	S_ASSERT_P(!(Flags & fPaperless) || !EAddr.IsEmpty(), pInvP);
 	S_INVARIANT_EPILOG(pInvP);
 }
 
@@ -854,9 +854,8 @@ PosPaymentBlock & PosPaymentBlock::Z()
 	Kind = cpmCash;
 	DeliveryAmt = NoteAmt - CashAmt;
 	DisabledKinds = 0;
-	// @v11.3.6 AltCashReg = -1;
-	Flags = 0; // @v11.3.6
-	SetBuyersEAddr(0, 0); // @v11.3.6
+	Flags = 0;
+	SetBuyersEAddr(0, 0);
 	CcPl.freeAll();
 	BonusMaxPart = 0.0;
 	UsableBonus = 0.0;
@@ -871,7 +870,7 @@ PosPaymentBlock & PosPaymentBlock::Init(const CPosProcessor * pCpp)
 {
 	assert(pCpp);
 	Z();
-	const CPosProcessor::CcTotal cct = pCpp->CalcTotal();
+	const  CcTotal cct = pCpp->CalcTotal();
 	Total = cct.Amount;
 	Discount = cct.Discount;
 	UsableBonus = pCpp->GetUsableBonus();

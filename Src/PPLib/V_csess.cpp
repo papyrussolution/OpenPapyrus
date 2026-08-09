@@ -868,7 +868,7 @@ int PPViewCSess::CalcCheckAmounts(TempCSessChecksTbl::Rec * pRec)
 					CSessTotal  cs_total;
 					CsObj.P_Cc->GetSessTotal(sess_id, CsObj.P_Tbl->GetCcGroupingFlags(sess_rec, sess_id), &cs_total, 0);
 					sa_entry.SessID = sess_id;
-					sa_entry.ChkCount       = cs_total.CheckCount;
+					sa_entry.ChkCount       = cs_total.CcT.Count;
 					sa_entry.WORetAmount    = cs_total.WORetAmount;
 					sa_entry.WORetBnkAmount = cs_total.WORetBnkAmount;
 					sa_entry.BnkDiscount    = cs_total.BnkDiscount;
@@ -2163,9 +2163,9 @@ int PPViewCSess::CalcTotal(CSessTotal * pTotal)
 	memzero(pTotal, sizeof(CSessTotal));
 	for(InitIteration(ordByDefault); NextIteration(&item) > 0;) {
 		pTotal->SessCount++;
-		pTotal->CheckCount     += item.ChkCount;
-		pTotal->Amount         += item.Amount;
-		pTotal->Discount       += item.Discount;
+		pTotal->CcT.Count      += item.ChkCount;
+		pTotal->CcT.Amount     += item.Amount;
+		pTotal->CcT.Discount   += item.Discount;
 		pTotal->WrOffAmount    += item.WrOffAmount;
 		pTotal->AggrRest       += item.AggrRest;
 		pTotal->WrOffCost      += item.WrOffCost;
@@ -2185,13 +2185,13 @@ void PPViewCSess::ViewTotal()
 	CalcTotal(&total);
 	TDialog * dlg = new TDialog((Filt.Flags & CSessFilt::fExtBill) ? DLG_CSESSWRETTOTAL : DLG_CSESSTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
-		double  ret_amt = total.WORetAmount - total.Amount;
+		double  ret_amt = total.WORetAmount - total.CcT.Amount;
 		SetPeriodInput(dlg, CTL_CSESSTOTAL_PERIOD, Filt.Period);
 		dlg->setCtrlData(CTL_CSESSTOTAL_COUNT,    &total.SessCount);
-		dlg->setCtrlData(CTL_CSESSTOTAL_CHKCOUNT, &total.CheckCount);
+		dlg->setCtrlData(CTL_CSESSTOTAL_CHKCOUNT, &total.CcT.Count);
 		dlg->setCtrlData(CTL_CSESSTOTAL_AMTWORET, &total.WORetAmount);
 		dlg->setCtrlData(CTL_CSESSTOTAL_AMTRET,   &ret_amt);
-		dlg->setCtrlData(CTL_CSESSTOTAL_AMOUNT,   &total.Amount);
+		dlg->setCtrlData(CTL_CSESSTOTAL_AMOUNT,   &total.CcT.Amount);
 		if(Filt.Flags & CSessFilt::fExtBill) {
 			dlg->setCtrlData(CTL_CSESSTOTAL_INCOME, &total.Income);
 			dlg->setCtrlData(CTL_CSESSTOTAL_WROFFRCPT, &total.WrOffCost);
@@ -2199,7 +2199,7 @@ void PPViewCSess::ViewTotal()
 		else
 			dlg->disableCtrls(1, CTL_CSESSTOTAL_INCOME, CTL_CSESSTOTAL_WROFFRCPT, 0);
 		dlg->setCtrlData(CTL_CSESSTOTAL_WROFF,     &total.WrOffAmount);
-		dlg->setCtrlData(CTL_CSESSTOTAL_DISCOUNT,  &total.Discount);
+		dlg->setCtrlData(CTL_CSESSTOTAL_DISCOUNT,  &total.CcT.Discount);
 		dlg->setCtrlData(CTL_CSESSTOTAL_EXC,       &total.AggrRest);
 		dlg->setCtrlData(CTL_CSESSTOTAL_BANKING,   &total.BnkAmount);
 		ExecViewAndDestroy(dlg);
@@ -2208,8 +2208,8 @@ void PPViewCSess::ViewTotal()
 
 int PPViewCSess::PosPrint(PPID curID)
 {
-	int   ok = -1;
-	PPID  parent_node_id = 0;
+	int    ok = -1;
+	PPID   parent_node_id = 0;
 	PPCashMachine * p_cm = 0;
 	CSessInfo  cs_info;
 	if(CsObj.Search(curID, &cs_info.Rec) > 0 && cs_info.Rec.CashNodeID) {

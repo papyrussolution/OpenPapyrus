@@ -1,5 +1,5 @@
 // OBJATURN.CPP
-// Copyright (c) A.Sobolev 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2025
+// Copyright (c) A.Sobolev 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -136,14 +136,17 @@ int PPObjAccTurn::SearchAccturnInPacketByCorrAcc(const PPBillPacket * pPack, int
 
 int PPObjAccTurn::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
-	if(msg == DBMSG_OBJDELETE)
+	if(msg == DBMSG_OBJDELETE) {
 		switch(_obj) {
 			case PPOBJ_ACCOUNT2: return ReplyAccDel(_id);
 			case PPOBJ_ARTICLE: return ReplyArticleDel(_id);
 		}
-	else if(msg == DBMSG_OBJREPLACE)
-		if(_obj == PPOBJ_ARTICLE)
+	}
+	else if(msg == DBMSG_OBJREPLACE) {
+		if(_obj == PPOBJ_ARTICLE) {
 			return P_Tbl->ReplaceArticle(_id, reinterpret_cast<long>(extraPtr)) ? DBRPL_OK : DBRPL_ERROR;
+		}
+	}
 	return DBRPL_OK;
 }
 
@@ -186,7 +189,7 @@ int PPObjAccTurn::EditRecoverBalanceParam(RecoverBalanceParam * pParam)
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CBAL_LOG, CTL_CBAL_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 	dlg->SetupCalPeriod(CTLCAL_CBAL_PERIOD, CTL_CBAL_PERIOD);
 	SetPeriodInput(dlg, CTL_CBAL_PERIOD, pParam->Period);
-	ConvertAcctID(acct_id, &acct, &cur_id, 1 /* useCache */);
+	ConvertAcctID(acct_id, &acct, &cur_id, 1/*useCache*/);
 	dlg->setCtrlData(CTL_CBAL_BAL, &acct);
 	dlg->setCtrlString(CTL_CBAL_LOG, pParam->LogFileName);
 	dlg->AddClusterAssoc(CTL_CBAL_FLAGS, 0, RecoverBalanceParam::fCorrect);

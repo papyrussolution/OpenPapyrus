@@ -920,6 +920,8 @@ public:
 	//   Если идентфикатор уже не нулевой, то просто возвращает его значение.
 	//
 	int    SetupUniqueID();
+
+	bool   DoesContain(const SUiLayout * pLo) const;
 	//
 	// Descr: Функция ищет дочерний элемент рекурсивно по всему дереву лейаутов, начиная с this.
 	//   Поиск осуществляется по критерию эквивалентности идентификатора элемента заначению параметра id.
@@ -2994,13 +2996,14 @@ public:
 	//    0 - с окном не ассоциирован объект LAYOUT
 	//
 	SUiLayout * GetLayout();
+	SUiLayout * FindLayoutBySymb(const char * pSymb);
 	void   EvaluateLayout(const TRect & rR);
 	//
 	// Descr: Удаляет элемент лейаута, связанный с дочерним элементом pV
 	//
 	void   DeleteChildLayout(TView * pV); // @v12.6.2
-	int    SetChildLayoutExcludedStatus(int layoutId); // @v12.7.1
-	int    ResetChildLayoutExcludedStatus(int layoutId); // @v12.7.1
+	int    SetChildLayoutExcludedStatus(SUiLayout * pLo); // @v12.7.1
+	int    ResetChildLayoutExcludedStatus(SUiLayout * pLo); // @v12.7.1
 	//
 	// ARG(extraPtr IN): Дополнительные параметры, зависящие от типа управляющего элемента.
 	//
@@ -3065,8 +3068,8 @@ protected:
 	long   WbCapability;  // @v12.2.4 (moved from TWindowBase)
 private:
 	void   STDCALL Helper_SetTitle(const char *, int setOrgTitle);
-	int    Helper_SetChildLayoutExcludedStatus(int topProcessedLayoutId, SUiLayout * pLo); // @v12.7.1
-	int    Helper_ResetChildLayoutExcludedStatus(int topProcessedLayoutId, SUiLayout * pLo); // @v12.7.1
+	int    Helper_SetChildLayoutExcludedStatus(const void * pTopProcessedLayoutId, SUiLayout * pLo); // @v12.7.1
+	int    Helper_ResetChildLayoutExcludedStatus(const void * pTopProcessedLayoutId, SUiLayout * pLo); // @v12.7.1
 
 	class LocalMenuPool : private SStrGroup { // @v12.7.1 (SStrGroup inheritance)
 	public:
@@ -3105,7 +3108,7 @@ private:
 	//   (уффф! надеюсь, понятно объяснил).
 	//
 	struct PreserveHiddenCtrlItems { // @v12.7.1
-		int   LayoutId; // @firstmember
+		const void * P_Lo; // @firstmember
 		LongArray HiddenCtlIdList;
 	};
 	TSCollection <PreserveHiddenCtrlItems> * P_PHC_List; // @v12.7.1

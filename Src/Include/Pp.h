@@ -447,6 +447,7 @@ struct PPGoodsTaxEntry;
 struct PPTransportConfig; // @v12.5.5
 struct ExecSessionOnTechRouteBlock; // @v12.6.1
 class  ExtCodeRefCore;
+class  PPSyncCashNode;
 
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef int32 PPID; // @v11.6.8 long-->int32
@@ -498,9 +499,9 @@ public:
 	static constexpr const char * P_ObjMemo_UtmRejPfx = "UTM Rej"; // Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС УТМ
 	static constexpr const char * P_ObjMemo_EgaisRejPfx = "EGAIS Rej"; // Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС
 	static constexpr const char * P_ObjMemo_ChznRejPfx = "ChZn Rej";   // Префикс примечания документа для индикации сообщения об ошибке поступившего от честного знака
-	static constexpr const char * P_TagValRestrict_Empty = "#EMPTY"; // @v11.3.6
-	static constexpr const char * P_TagValRestrict_Exist = "#EXIST"; // @v11.3.6
-	static constexpr const char * P_TagValRestrict_List = "#LIST"; // @v11.3.6
+	static constexpr const char * P_TagValRestrict_Empty = "#EMPTY";
+	static constexpr const char * P_TagValRestrict_Exist = "#EXIST";
+	static constexpr const char * P_TagValRestrict_List = "#LIST";
 	static constexpr const char * WrKey_PrefSettings = "Software\\Papyrus\\Pref"; // @v11.4.4 (replaced PPRegKeys)
 	static constexpr const char * WrKey_PrefBasketSelSettings = "Software\\Papyrus\\Pref\\BasketSel"; // @v11.4.4 (replaced PPRegKeys)
 	static constexpr const char * WrKey_SysSettings = "Software\\Papyrus\\System"; // @v11.4.4 (replaced PPRegKeys)
@@ -520,8 +521,8 @@ public:
 	static constexpr const char * WrParam_UseDuplexPrinting = "UseDuplexPrinting";
 	static constexpr const char * WrParam_StoreLastSelectedPrinter = "StoreLastSelectedPrinter";
 	static constexpr const char * WrParam_LastSelectedPrinter = "LastSelectedPrinter";
-	static constexpr const char * WrParam_BillMultiplePrintCfg2 = "BillMultiplePrintCfg2"; // @v11.2.0
-	static constexpr const char * WrParam_StyloQLoclMachineUuid = "StyloQLoclMachineUuid"; // @v11.2.3
+	static constexpr const char * WrParam_BillMultiplePrintCfg2 = "BillMultiplePrintCfg2";
+	static constexpr const char * WrParam_StyloQLoclMachineUuid = "StyloQLoclMachineUuid";
 	static constexpr const char * WrParam_WsCtl_MachineUUID = "MachineUUID"; // @v11.7.2 
 	static constexpr const char * WrParam_WsCtl_Config = "Config"; // @v11.7.8
 	static constexpr const char * WrParam_SlTestApp_TestParam = "TestParam"; // @v11.8.2
@@ -5826,14 +5827,14 @@ private:
 #define PPSCMD_SETTIMESERIESSTKENV    10115 //
 #define PPSCMD_TIMESERIESTANOTIFY     10116 //
 #define PPSCMD_GETCOMMONMQSCONFIG     10117 //
-#define PPSCMD_SQ_ACQUAINTANCE        10118 // @v11.0.10 Инициирующее сообщение от клиента сервису для установки контакта. Клиент еще не "знаком" с сервисом.
-#define PPSCMD_SQ_SESSION             10119 // @v11.0.10
-#define PPSCMD_SQ_SRPREGISTER         10120 // @v11.0.10 Регистрация по SRP-протоколу
-#define PPSCMD_SQ_SRPAUTH             10121 // @v11.0.10 Авторизация по SRP-протоколу
-#define PPSCMD_SQ_SRPAUTH_S2          10122 // @v11.0.11 Авторизация по SRP-протоколу (the second phase)
-#define PPSCMD_SQ_SRPAUTH_ACK         10123 // @v11.0.11 Авторизация по SRP-протоколу (завершающее сообщение от клиента серверу об Успешности авторизации)
-#define PPSCMD_SQ_COMMAND             10124 // @v11.0.11 Собственно команда в рамках протокола Stylo-Q
-#define PPSCMD_EXECJOBIMM             10125 // @v11.3.9  Запустить задачу непосредственно по этой команде.
+#define PPSCMD_SQ_ACQUAINTANCE        10118 // Инициирующее сообщение от клиента сервису для установки контакта. Клиент еще не "знаком" с сервисом.
+#define PPSCMD_SQ_SESSION             10119 // 
+#define PPSCMD_SQ_SRPREGISTER         10120 // Регистрация по SRP-протоколу
+#define PPSCMD_SQ_SRPAUTH             10121 // Авторизация по SRP-протоколу
+#define PPSCMD_SQ_SRPAUTH_S2          10122 // Авторизация по SRP-протоколу (the second phase)
+#define PPSCMD_SQ_SRPAUTH_ACK         10123 // Авторизация по SRP-протоколу (завершающее сообщение от клиента серверу об Успешности авторизации)
+#define PPSCMD_SQ_COMMAND             10124 // Собственно команда в рамках протокола Stylo-Q
+#define PPSCMD_EXECJOBIMM             10125 // Запустить задачу непосредственно по этой команде.
 #define PPSCMD_WSCTL_INIT             10126 // @v11.7.1  WSCTL Инициирующий запрос для получения базовых параметров работы управляемой рабочей станции
 #define PPSCMD_WSCTL_GETQUOTLIST      10127 // @v11.7.1  WSCTL Получить список котировок для рабочей станции
 #define PPSCMD_WSCTL_GETACCOUNTSTATE  10128 // @v11.7.1  WSCTL Получить информацию об аккаунте клиента
@@ -10400,6 +10401,16 @@ struct CCheckItem { // @transient
 
 typedef TSVector <CCheckItem> CCheckItemArray;
 //
+// Descr: Простейший суммовой итог по чеку. Часто используется потому вынесен как standalone-структура
+//
+struct CcTotal {
+	CcTotal();
+	CcTotal & Z();
+	uint   Count;
+	double Amount;
+	double Discount;
+};
+//
 // Типы сумм кассовых чеков
 //
 #define CCAMTTYP_AMOUNT      1 // Общая сумма чека
@@ -10425,7 +10436,6 @@ typedef TSVector <CCheckItem> CCheckItemArray;
 // CCAMTTYP_CASH+CCAMTTYP_BANK+CCAMTTYP_CRDCARD=CCAMTTYP_AMOUNT
 // CCAMTTYP_ADDCRDCARD < CCAMTTYP_CRDCARD
 //
-
 //
 // Descr: Сумма по чеку
 //
@@ -10746,7 +10756,8 @@ public:
 		stdfPlus        = 0x0002  // Скидка увеличивает сумму чека
 	};
 	void   SetTotalDiscount__(double dis, long flags);
-	double CalcAmount(double * pAmt, double * pDscnt) const;
+	double CalcAmount_Obsolete(double * pAmt, double * pDscnt) const;
+	double CalcAmount(CcTotal * pResult) const;
 	//
 	// Descr: Расчитывает суммы чека по строкам и устанавливает их в поля Rec.Amount и Rec.Discount.
 	//   Если вызывающая функция нуждается в значениях рассчитанных сумм, то она
@@ -13073,6 +13084,8 @@ private:
 	int    DistributeExtCost();
 	void   Implement_SumAmounts(AmtList & rList, const PPBillPacket * pOrgPack, int * pFirstDiffRowN);
 	int    PreprocessArContext(PPID arID, PPID ar2ID, SetupObjectBlock & rRet); // @v12.5.11
+	int    Helper_ConvertToCheck2_InsertTItems(const ConvertToCCheckParam & rParam, const PPSyncCashNode & rCnRec, 
+		CCheckPacket & rCp, CcTotal & rCcT, TSCollection <SCompoundError> * pErrList) const;
 
 	PPTrfrArray Lots;
 	TiIter * P_Iter;
@@ -15726,9 +15739,10 @@ struct CSessTotal {
 
 	PPID   SessID;         // Для выборки сессий - 0
 	long   SessCount;      // Для итога по выборке сессий
-	long   CheckCount;     // Количество чеков
-	double Amount;         // Сумма по чекам
-	double Discount;       // Скидка по чекам
+	CcTotal CcT;
+	//long   CheckCount;     // Количество чеков
+	//double Amount;         // Сумма по чекам
+	//double Discount;       // Скидка по чекам
 	long   AggrCount;      // Количество агрегирующих строк
 	double AggrAmount;     // Сумма по агрегирующим строкам
 	double AggrRest;       // Сумма излишков по агрегирующим строкам
@@ -30410,7 +30424,7 @@ struct ClsdGoodsFilt {
 	ObjIdListFilt AddObj2List;
 };
 //
-// Фильтр по товарам
+// Descr: Фильтр по товарам
 //
 class GoodsFilt : public PPBaseFilt { // @persistent
 public:
@@ -43845,7 +43859,7 @@ private:
 	//
 	long   GroupCalcThreshold;
 	int    IterIdx;
-	GoodsRestViewItem * P_InnerIterItem; // @v11.0.4 Внутренний собственнй экземпляр элемента текущей итерации. Если необходим, должен быть распределен функцией AllocInnerIterItem()
+	GoodsRestViewItem * P_InnerIterItem; // Внутренний собственнй экземпляр элемента текущей итерации. Если необходим, должен быть распределен функцией AllocInnerIterItem()
 	GoodsGroupIterator * P_GGIter;
 	SString IterGrpName;
 	UintHashTable GoodsIDs;
@@ -43872,7 +43886,7 @@ private:
 	LAssocArray    ExclUncompleteSessQttyList;
 	ObjIdListFilt  LocList;           // @!PPViewGoodsRest::Init_
 		// Проекция Filt.LocList (LocList = PPObjLocation::ResolveWarehouseList(&Filt.LocList.Get()))
-	RetailPriceExtractor * P_Rpe; // @v10.3.2 @transient
+	RetailPriceExtractor * P_Rpe; // @transient
 	//
 	// Descr: Элемент списка пар {товар, склад}, индицирующий факт замещения цены котировкой. 
 	//    Введен для цветового отображения значений, которые были реально замещены с целью отличить
@@ -52029,6 +52043,7 @@ private:
 	virtual int  Detail(const void * pHdr, PPViewBrowser * pBrw);
 	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk); // @v12.4.6
 	int    TryDialog(DlContext * pCtx, uint dlgId); // @v12.4.6
+	int    ExportLayoutToJson(const void * pHdr); // @v12.7.2
 
 	DialogFilt Filt;
 	DlContext Ctx;
@@ -57784,13 +57799,6 @@ public:
 		SString ParamString;
 		SString InfoText; // @transient
 	};
-	/* @v12.6.11 enum {
-		ptUnkn     = GTCHZNPT_UNDEF,
-		ptFur      = GTCHZNPT_FUR,     // 00 02
-		ptTobacco  = GTCHZNPT_TOBACCO, // 00 05
-		ptShoe     = GTCHZNPT_SHOE,    // 15 20
-		ptMedicine = GTCHZNPT_MEDICINE //
-	};*/
 	// @v12.6.9 @unused static int FASTCALL IsChZnCode(const char * pCode);
 	static SString & FASTCALL RemoveSpcCharsFromCode(SString & rCode);
 	//
@@ -57857,6 +57865,10 @@ public:
 	static int ReconstructOriginalChZnCode(const GtinStruc & rS, SString & rBuf);
 	static int Encode1162(int productType, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize);
 	static int InputMark(SString & rMark, SString * pReconstructedOriginal, const char * pExtraInfoText);
+	static bool FASTCALL GetOfficialCategorySymb(int officialId, SString & rSymb);
+	static int  FASTCALL GetOfficialCatogoryId(const char * pOfficialSymb);
+	static uint FASTCALL GetCategoryIdByOfficialSymb(const char * pOfficialSymb);
+
 	explicit PPChZnPrcssr(PPLogger * pOuterLogger);
 	~PPChZnPrcssr();
 	int    EditParam(Param * pParam);
@@ -57982,6 +57994,9 @@ public:
 		ptLevel4 = 104,
 		ptLevel5 = 105
 	};
+
+	static bool FASTCALL GetPackageTypeSymb(int packageType, SString & rSymb);
+	static int  FASTCALL GetPackageTypeId(const char * pSymb);
 	//
 	// Descr: Информация о марке, полученная с сервера чзн. 
 	// Note: При изменении формата обязательно увеличить номер версии PPChZnPrcssr_CodeInfo_Ver и скорректировать функцию CodeInfo::Serialize 
@@ -58037,15 +58052,35 @@ public:
 	};
 
 	struct CodeOp {
+		CodeOp();
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+		enum {
+			optypUndef    = 0, // Не определено
+			optypSelling  = 1, // Продажа
+			optypContract = 2, // Передача по АКС
+		};
 		int    ErrCode;         //
 		uint   ErrMessageP;     // utf8		
-		uint   CisP;
+		uint   CisP;            // Текст марки
+		uint   OpType;          // turnoverType. Тип отгрузки. SELLING — Продажа; CONTRACT — Передача по АКС //
+		uint   DocIdP;          // Идент документа, по которому реализована операция //
 		uint   PackType;        // ptXXX 
 		uint   GeneralPackType; // ptXXX 
+		ued_t  UedChZnProdType; // Тип продукции чзн
 		ued_t  UedOwnerINN;     // ИНН владельца //
+		ued_t  UedManufINN;     // ИНН производителя //
+		ued_t  UedProducerINN;  // ИНН производителя //
+		ued_t  UedTimestamp;    // Метка времени (какого времени?) // 
+		ued_t  UedOpTm;         // Дата создания документа, по которому в последний раз менялся статус КИ 
+		ued_t  UedEmissionTm;   // Дата эмиссии //
+		StringSet Children;     // Для упаковки: вложенные марки
 	};
 
-	class CodeOpsCollection {
+	class CodeOpsCollection : public TSCollection <CodeOp>, public SStrGroup {
+	public:
+		CodeOpsCollection();
+		CodeOpsCollection & Z();
 	};
 	//
 	// Descr: Интерфейс с ТС-ПИОТ (не спрашивайте: пидоры в кремле не успокоятся пока не загонят нас всех под землю)
@@ -58366,7 +58401,7 @@ public:
 	//
 	// Descr: Флаги конструктора CPosProcessor
 	//
-	enum { // @v11.4.5
+	enum {
 		ctrfTouchScreen        = 0x0001, // Использовать сенсорный монитор. Применяется в комбинации со ссылкой на запись такого монитора в кассовом узле.
 		ctrfForceInitGroupList = 0x0002  // Форсировать инициализацию списка товарных групп, ассоциированных с сенсорным монитором (независимо от ctrfTouchScreen)
 	};
@@ -58458,11 +58493,6 @@ public:
 	//   Поле CCheckPacket::Rec::CashID получает идентификатор кассового узла, к которому привязан текущий чек.
 	//
 	int    GetCheckInfo(CCheckPacket * pPack);
-	struct CcTotal {
-		CcTotal();
-		double Amount;
-		double Discount;
-	};
 	CcTotal CalcTotal() const;
 	double GetUsableBonus() const;
 	double GetBonusMaxPart() const;
@@ -60110,7 +60140,7 @@ public:
 	//   В этой схеме отличаются некоторые теги.
 	//
 	// @v12.4.11 (replaced with DocNalogRu_WriteBillBlock::WriteInvoiceItems_) int    WriteInvoiceItems(const PPBillImpExpParam & rParam, const FileInfo & rHi, const PPBillPacket & rBp, bool correction);
-	int    WriteAddress(const PPLocationPacket & rP, int regionCode, int hdrTag /*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/);
+	int    WriteAddress(const PPLocationPacket & rP, int regionCode, int hdrTag/*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/); // (АдресТип || АдресПользТип)
 	//
 	// Descr: Специализированная функция, реализующая запись адреса в формате EDI SBIS
 	//
@@ -62585,6 +62615,9 @@ struct PPDesktopAssocCmd { // @transient
 		cbfError = 0x10000000  // Ошибка разбора строки
 	};
 	struct CodeBlock {
+		CodeBlock();
+		CodeBlock & Z();
+
 		int    Type;
 		long   AddedIntVal;
 		long   Flags;
@@ -64852,6 +64885,7 @@ int    BigTextDialog(uint maxLen, const char * pWindowTitle, const char * pSubTi
 //
 int    STDCALL SetComboBoxListText(TDialog *, uint comboBoxCtlID);
 int    STDCALL SetupStringCombo(TDialog *, uint ctlID, int strID, long initID);
+int    STDCALL SetupStringComboSortByText(TDialog *, uint ctlID, int strID, long initID); // @v12.7.2
 int    STDCALL SetupStringCombo(TDialog *, uint ctlID, const char * pStrSignature, long initID);
 int    STDCALL SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char * pStrSignature, const StrAssocArray * pAddendumList, long initID);
 int    STDCALL SetupStringComboWithAllowedList(TDialog * dlg, uint ctlID, int strID, const LongArray * pAllowedList, long initID); // @v12.6.11

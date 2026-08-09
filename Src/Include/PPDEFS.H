@@ -2375,6 +2375,8 @@
 #define DLG_OBJVIEW                52 // Общий диалог просмотра списка объектов
 	#define CTL_OBJVIEW_LIST             (1 + WINDOWS_ID_BIAS)
 	#define CTL_OBJVIEW_ST_MSG           (2 + WINDOWS_ID_BIAS)
+	#define CTL_OBJVIEW_CMD_UNITEMAXLIKE (3 + WINDOWS_ID_BIAS)
+	#define CTL_OBJVIEW_CMD_ALTINSERT    (4 + WINDOWS_ID_BIAS) 
 	#define CTL_LOCVIEW_CMD_WAREPLACELIST (31 + WINDOWS_ID_BIAS) // @v12.6.7
 	#define CTL_LOCVIEW_CMD_LOCGOODSASSOC (32 + WINDOWS_ID_BIAS) // @v12.6.7
 #define DLG_GEO                    53 // Георафические объекты
@@ -3994,6 +3996,13 @@
 	#define CTL_VATBOOK_TVAT5            (55 + WINDOWS_ID_BIAS) // StaticText
 	#define CTL_VATBOOK_TVAT6            (56 + WINDOWS_ID_BIAS) // StaticText @v12.5.3
 	#define CTL_VATBOOK_CMD_VATBOOKLINK  (91 + WINDOWS_ID_BIAS) // @v12.5.8 
+	#define CTL_VATBUY_ST_04012          (92 + WINDOWS_ID_BIAS) // @v12.7.2  
+	#define CTL_VATBUY_ST_04013          (93 + WINDOWS_ID_BIAS) // @v12.7.2 
+	#define CTL_VATBUY_ST_04014          (94 + WINDOWS_ID_BIAS) // @v12.7.2  
+	#define CTL_VATSELL_ST_04010         (95 + WINDOWS_ID_BIAS) // @v12.7.2  
+	#define CTL_VATSELL_ST_04011         (96 + WINDOWS_ID_BIAS) // @v12.7.2  
+	#define CTL_VATSELL_ST_04012         (97 + WINDOWS_ID_BIAS) // @v12.7.2  
+	#define CTL_VATSELL_ST_04013         (98 + WINDOWS_ID_BIAS) // @v12.7.2   
 #define DLG_VATBFLT               268 // Фильтр по книге продаж/покупок
 #define DLG_VATBWHAT              269 // Выбор книги продаж либо покупок
 	#define CTL_VATBFLT_WHAT             (1 + WINDOWS_ID_BIAS)
@@ -5162,12 +5171,14 @@
 	#define CTL_CFM_RECKONING_ALLBUT     (9 + WINDOWS_ID_BIAS)
 	#define CTLCAL_CFM_RECKONING_DT      (10 + WINDOWS_ID_BIAS) // @alena
 	#define CTL_CFM_RECKONING_INFO       (11 + WINDOWS_ID_BIAS)
+	#define CTL_CFM_RECKONING_ST_04002   (12 + WINDOWS_ID_BIAS)
 #define DLG_BILLTOTAL2            411 // Итоги по выборке документов
 	#define cmCalcVAT                    101
 	#define CTL_BILLTOTAL2_COUNT         (1 + WINDOWS_ID_BIAS)
 	#define CTL_BILLTOTAL2_SUM           (2 + WINDOWS_ID_BIAS)
 	#define CTL_BILLTOTAL2_AMTLIST       (3 + WINDOWS_ID_BIAS)
 	#define CTL_BILLTOTAL2_DEBT          (4 + WINDOWS_ID_BIAS)
+	#define CTL_BILLTOTAL2_CMD_CALCVAT   (5 + WINDOWS_ID_BIAS)
 #define DLG_CURRENCY              412 // Валюта
 	#define CTL_CURRENCY_NAME            (1 + WINDOWS_ID_BIAS)
 	#define CTL_CURRENCY_ID              (2 + WINDOWS_ID_BIAS)
@@ -5361,6 +5372,9 @@
 	#define CTL_VATBOOKTOTAL_TVAT4       (34 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_TVAT5       (35 + WINDOWS_ID_BIAS)
 	#define CTL_VATBOOKTOTAL_TVAT6       (36 + WINDOWS_ID_BIAS) // @v12.5.3
+	#define CTL_VATBOOKTOTAL_ST_04003    (37 + WINDOWS_ID_BIAS) // @v12.7.2 
+	#define CTL_VATBOOKTOTAL_ST_04004    (38 + WINDOWS_ID_BIAS) // @v12.7.2 
+	#define CTL_VATBOOKTOTAL_ST_04005    (39 + WINDOWS_ID_BIAS) // @v12.7.2  
 #define DLG_SELPRNCHK             443 // Выбор при печати кассового чека
 	#define CTL_SELPRNCHK_WHAT           (1 + WINDOWS_ID_BIAS)
 #define DLG_CREVAL                444 // Валютная переоценка
@@ -6185,6 +6199,8 @@
 	#define CTL_SCARD_OUTERID            (32 + WINDOWS_ID_BIAS)
 	#define CTLBUT_SCARD_AUTOCROWNER     (33 + WINDOWS_ID_BIAS) // @v11.6.3 button cmAutoCreateOwner
 	#define CTL_SCARD_DOW                (34 + WINDOWS_ID_BIAS) // @v12.5.1 Дни недели, когда карта действительна
+	#define CTL_SCARD_CMD_VERIFY         (35 + WINDOWS_ID_BIAS) // @v12.7.2
+	#define CTL_SCARD_CMD_NOTIFYOPTIONS  (36 + WINDOWS_ID_BIAS) // @v12.7.2
 #define DLG_SCARDFLT              531 // F_SCARD Фильтр по пластиковым карточкам
 	#define cmExcludeOwnerScFilt         101
 	#define CTL_SCARDFLT_SERIES          (1 + WINDOWS_ID_BIAS)
@@ -7566,6 +7582,7 @@
 	#define CTL_AUSERSLST_FLAGS          (2 + WINDOWS_ID_BIAS)
 	#define CTL_AUSERSLST_USERSCOUNT     (3 + WINDOWS_ID_BIAS)
 	#define CTL_AUSERSLST_UNIQMACS       (4 + WINDOWS_ID_BIAS)
+	#define CTL_AUSERSLST_CMD_UPDATE     (5 + WINDOWS_ID_BIAS) 
 #define DLG_ALBTRCFG2             720
 	#define cmVetisConfig          101
 	#define cmMqcConfig            102
@@ -7903,6 +7920,7 @@
 	#define CTL_GDSASSCINFO_ID           (1 + WINDOWS_ID_BIAS)
 	#define CTL_GDSASSCINFO_LIST         (2 + WINDOWS_ID_BIAS)
 	#define CTL_GDSASSCINFO_GOODS        (3 + WINDOWS_ID_BIAS)
+	#define CTL_GDSASSCINFO_CMD_EDITPLU  (4 + WINDOWS_ID_BIAS)
 #define DLG_GDSFVOPT              814 // F_GVOPT Опции просмотра фильтра по товарам
 	#define CTL_GDSFVOPT_FLAGS     (1 + WINDOWS_ID_BIAS)
 	#define CTL_GDSFVOPT_ACS       (2 + WINDOWS_ID_BIAS)
@@ -10424,12 +10442,14 @@
 	#define CTL_UHTTGRLIST_LIST        (1  + WINDOWS_ID_BIAS)
 	#define CTL_UHTTGRLIST_ST_GOODS    (2  + WINDOWS_ID_BIAS)
 #define DLG_CHKINPLIST            1220
-	#define cmChangeStatusForAll       101 // @v11.0.6
+	#define cmChangeStatusForAll       101
 	#define CTL_CHKINPLIST_LIST        (1  + WINDOWS_ID_BIAS)
 	#define CTL_CHKINPLIST_ST_HEADER   (2  + WINDOWS_ID_BIAS)
 	#define CTL_CHKINPLIST_ST_TOTAL    (3  + WINDOWS_ID_BIAS)
 	#define CTL_CHKINPLIST_CNT         (4  + WINDOWS_ID_BIAS)
 	#define CTLSPN_CHKINPLIST_CNT      (5  + WINDOWS_ID_BIAS)
+	#define CTL_CHKINPLIST_CMD_CHANGESTATUSFORALL (6  + WINDOWS_ID_BIAS)
+	#define CTL_CHKINPLIST_CMD_CCHECK  (7  + WINDOWS_ID_BIAS) 
 #define DLG_CHKINP                1221
 	#define CTL_CHKINP_ST_INFO         (1  + WINDOWS_ID_BIAS)
 	#define CTL_CHKINP_PERSON          (2  + WINDOWS_ID_BIAS)
@@ -10838,9 +10858,10 @@
 	#define CTL_ALCREPCFG_RSAT         (43 + WINDOWS_ID_BIAS) // RtlSaleAllwTime
 	#define CTL_ALCREPCFG_OP_MFG       (44 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ALCREPCFG_OP_MFG    (45 + WINDOWS_ID_BIAS)
-	#define CTL_ALCREPCFG_SPLAGT       (46 + WINDOWS_ID_BIAS) // @v11.0.8
-	#define CTLSEL_ALCREPCFG_SPLAGT    (47 + WINDOWS_ID_BIAS) // @v11.0.8
+	#define CTL_ALCREPCFG_SPLAGT       (46 + WINDOWS_ID_BIAS)
+	#define CTLSEL_ALCREPCFG_SPLAGT    (47 + WINDOWS_ID_BIAS)
 	#define CTL_ALCREPCFG_WOSW_NMR     (48 + WINDOWS_ID_BIAS) // @v11.7.12
+	#define CTL_ALCREPCFG_CMD_CCHECKFILT (49 + WINDOWS_ID_BIAS)
 
 #define DLG_INPUTNUM              1271
 	#define CTL_INPUTNUM_NUM           (1 + WINDOWS_ID_BIAS)
@@ -11396,6 +11417,7 @@
 	#define CTL_WOLAYOUT_FLAGS        (2 + WINDOWS_ID_BIAS)
 	#define CTL_WOLAYOUT_LAY          (3 + WINDOWS_ID_BIAS)
 	#define CTL_WOLAYOUT_ADJ          (4 + WINDOWS_ID_BIAS)
+	#define CTL_WOLAYOUT_CMD_CONTAINER (5 + WINDOWS_ID_BIAS)
 #define DLG_LAYOENTRY             1363 // Параметры члена 2-d раскладки
 	#define CTL_LAYOENTRY_SIZE        (1 + WINDOWS_ID_BIAS)
 	#define CTL_LAYOENTRY_MARG        (2 + WINDOWS_ID_BIAS)

@@ -5,8 +5,6 @@
 #include <pp.h>
 #pragma hdrstop
 
-// @construction
-
 int EditDialogSpec(DlContext * pCtx, uint dlgId);
 //
 //
@@ -144,25 +142,66 @@ int PPViewDialog::TryDialog(DlContext * pCtx, uint dlgId) // @v12.4.6
 
 int PPViewDialog::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	const DialogViewItem * p_item = static_cast<const DialogViewItem *>(pHdr);
+	int    ok = -1;
+	const  DialogViewItem * p_item = static_cast<const DialogViewItem *>(pHdr);
 	//PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	if(p_item && p_item->SymbIdent) {
 		// @v12.4.6 EditDialogSpec(&Ctx, id);
 		TryDialog(&Ctx, p_item->SymbIdent); // @v12.4.6
 	}
-	return -1;
+	return ok;
+}
+
+int PPViewDialog::ExportLayoutToJson(const void * pHdr) // @v12.7.2
+{
+	int    ok = -1;
+	const  DialogViewItem * p_item = static_cast<const DialogViewItem *>(pHdr);
+	if(p_item && p_item->SymbIdent) {
+		TDialog * dlg = 0;
+		if(p_item->SymbIdent) {
+			dlg = new TDialog(p_item->SymbIdent);
+			if(CheckDialogPtrErr(&dlg)) {
+				const  SUiLayout * p_lo = dlg->GetLayout();
+				if(p_lo) {
+					SJson * p_js = p_lo->ToJsonObj();
+					if(p_js) {
+						SString js_text;
+						SString temp_buf;
+						SString file_path;
+						if(p_js->ToStr(temp_buf) && SJson::FormatText(temp_buf, js_text)) {
+							temp_buf.Z().Cat("dialog").CatChar('-').Cat(p_item->Symb).DotCat("json");
+							PPGetFilePath(PPPATH_OUT, temp_buf, file_path);
+							SFile f_out(file_path, SFile::mWrite);
+							if(f_out.IsValid()) {
+								f_out.Write(js_text.cptr(), js_text.Len());
+							}
+						}
+						ZDELETE(p_js);
+					}
+				}
+			}
+			else
+				ok = 0;
+		}
+		delete dlg;
+	}
+	return ok;
 }
 
 int PPViewDialog::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
-	/*
 	if(ok == -2) {
 		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
+			case PPVCMD_DETAIL:
+				Detail(pHdr, pBrw);
+				break;
+			case PPVCMD_LAYOUTTOSJSON:
+				ExportLayoutToJson(pHdr);
+				break;
 		}
 	}
-	*/
 	return ok;
 }
 //
@@ -624,7 +663,7 @@ private:
 					setCtrlString(CTL_WTMTOOL_NAME, uik.Text);
 			}
 		}
-		else if(event.isCmd(cmLayoutEntry)) { // @v10.9.10
+		else if(event.isCmd(cmLayoutEntry)) {
 			LayoutEntryDialogBlock lodb(&Data.Alb);
 			if(lodb.EditEntry(0) > 0) {
 				Data.Alb = lodb;

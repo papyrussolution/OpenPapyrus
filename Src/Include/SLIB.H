@@ -1466,6 +1466,7 @@ public:
 	static constexpr const char * P_WrKey_MsWin_ProfileList = "Software\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList"; // @v12.4.0 HKEY_LOCAL_MACHINE
 	static constexpr const char * P_WrKey_BrwUserSetting = "Software\\Papyrus\\Table2"; // Пользовательские параметры таблиц (BrowserWindow)
 	static constexpr const char * P_WrKey_Prefix_SobolevEngineering = "Software\\SobolevEngineering"; // @v12.3.10 HKEY_CURRENT_USER
+	static constexpr const char * P_WrKey_UiStorableUserParams = "Software\\Papyrus\\UI\\StorableUserParams"; // @v12.7.2 HKEY_CURRENT_USER
 	static constexpr const wchar_t * WinClsName_Desktop    = L"PPYDESKTOPWINDOW"; // @v12.3.8
 	static constexpr const wchar_t * WinClsName_TextEditor = L"STextBrowser"; // @v12.3.8
 	static constexpr const wchar_t * WinClsName_TimeChunkBrowser = L"STimeChunkBrowser"; // @v12.3.8

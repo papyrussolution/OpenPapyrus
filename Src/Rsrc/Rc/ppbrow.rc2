@@ -6504,6 +6504,10 @@ browser DIALOG north(100), 1, 1, "@{view_dialog}", OWNER|GRID, 0
 	"SymbolId",             3, uint32,       0, 25, BCO_USERPROC
 	"@series",              4, zstring(64),  0, 25, BCO_USERPROC
 	"@text",                5, zstring(128), 0, 50, BCO_USERPROC
+	toolbar TB_FIRST_TOOLBAR {
+		EDITITEM      : kbEnter, PPDV_EDITFILE02, "@{edit}\tEnter"
+		LAYOUTTOSJSON : kbF8,    PPDV_NOICON,     "Export layout to JSON\tF8"
+	}
 }
 
 browser SPECSERIES north(100), 1, 1, "@{view_specseries}", OWNER|GRID, 0
@@ -9678,6 +9682,7 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_PASSWORDSHOW01      // @v12.6.9
 	PPDV_CAPSLOCK01          // @v12.6.9
 	PPDV_FOLDER_ADD01        // @v12.6.11
+	PPDV_DOCUMENT_TEXT01     // @v12.7.2
 }
 
 //

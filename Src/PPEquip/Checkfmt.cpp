@@ -759,7 +759,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					else if(Src == srcGoodsBill)
 						rResult.Cat(p_bp->Rec.Amount, SFMT_MONEY);
 					else if(Src == srcCSession)
-						rResult.Cat(P_SessInfo->Total.Amount, SFMT_MONEY);
+						rResult.Cat(P_SessInfo->Total.CcT.Amount, SFMT_MONEY);
 					break;
 				case symbAmountBonus: // AMOUNTBONUS
 					if(Src == srcCCheck) {
@@ -788,7 +788,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					else if(Src == srcGoodsBill)                               // PPBillPacket AmtList PPBill
 						rResult.Cat(p_bp->Amounts.Get(PPAMT_DISCOUNT, 0), SFMT_MONEY);
 					else if(Src == srcCSession)
-						rResult.Cat(P_SessInfo->Total.Discount, SFMT_MONEY);
+						rResult.Cat(P_SessInfo->Total.CcT.Discount, SFMT_MONEY);
 					break;
 				case symbAmountWoDis:
 					if(Src == srcCCheck)
@@ -804,7 +804,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					else if(Src == srcGoodsBill)
 						rResult.Cat(p_bp->Rec.Amount + p_bp->Amounts.Get(PPAMT_DISCOUNT, 0), SFMT_MONEY);
 					else if(Src == srcCSession)
-						rResult.Cat(P_SessInfo->Total.Amount + P_SessInfo->Total.Discount, SFMT_MONEY);
+						rResult.Cat(P_SessInfo->Total.CcT.Amount + P_SessInfo->Total.CcT.Discount, SFMT_MONEY);
 					break;
 				case symbReturn:         // RETURN
 					if(Src == srcCCheck) {
@@ -825,7 +825,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					else if(Src == srcGoodsBill)
 						rResult.Cat(p_bp->Rec.Amount, SFMT_MONEY);
 					else
-						rResult.Cat(P_SessInfo->Total.Amount - P_SessInfo->Total.BnkAmount, SFMT_MONEY);
+						rResult.Cat(P_SessInfo->Total.CcT.Amount - P_SessInfo->Total.BnkAmount, SFMT_MONEY);
 					break;
 				case symbRetCashAmount: // RETCASHAMOUNT
 					if(Src == srcCCheck)
@@ -897,7 +897,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					else if(Src == srcGoodsBill)
 						rResult.Cat(0.0, SFMT_MONEY);
 					else
-						rResult.Cat(P_SessInfo->Total.Amount-P_SessInfo->Total.FiscalAmount, SFMT_MONEY); // @v7.5.8 WORetAmount-->Amount-FiscalAmount
+						rResult.Cat(P_SessInfo->Total.CcT.Amount-P_SessInfo->Total.FiscalAmount, SFMT_MONEY);
 					break;
 				case symbBringAmount:
 					if(Src == srcCCheck)

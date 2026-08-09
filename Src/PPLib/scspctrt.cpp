@@ -2031,7 +2031,7 @@ public:
 						}
 					}
 					else {
-						const double cca = pCcPack->CalcAmount(0, 0);
+						const double cca = pCcPack->CalcAmount(0);
 						t.Total = cca;
 						t.Cash = cca;
 					}

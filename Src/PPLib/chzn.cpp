@@ -8,6 +8,115 @@
 
 // @v12.6.6 ts piot regkey: 41d489c3-3ca2-4d4e-99bd-086144d7427f
 
+// @v12.7.2 {
+static const SIntToSymbTabEntry ChZnOfficialCategoryList[] {
+	{ 1, "lp" }, // Лёгкая промышленность
+	{ 2, "shoes" }, // Обувные товары
+	{ 3, "tobacco" }, // Табачная продукция
+	{ 4, "perfumery" }, // Духи и туалетная вода
+	{ 5, "tires" }, // Шины и покрышки пневматические резиновые новые
+	{ 6, "electronics" }, // Фотокамеры (кроме кинокамер), фотовспышки и лампы-вспышки
+	{ 8, "milk" }, // Молочная продукция
+	{ 9, "bicycle" }, // Велосипеды и велосипедные рамы
+	{ 10, "wheelchairs" }, // Медицинские изделия
+	{ 11, "alcohol" }, // Алкоголь
+	{ 12, "otp" }, // Альтернативная табачная продукция
+	{ 13, "water" }, // Упакованная вода
+	{ 14, "furs" }, // Товары из натурального меха
+	{ 15, "beer" }, // Пиво, напитки, изготавливаемые на основе пива, слабоалкогольные напитки
+	{ 16, "ncp" }, // Никотиносодержащая продукция
+	{ 17, "bio" }, // Специализированная пищевая продукция и БАД к пище
+	{ 19, "antiseptic" }, // Антисептики и дезинфицирующие средства
+	{ 20, "petfood" }, // Корма для животных
+	{ 21, "seafood" }, // Морепродукты
+	{ 22, "nabeer" }, // Безалкогольное пиво
+	{ 23, "softdrinks" }, // Соковая продукция и безалкогольные напитки
+	{ 25, "meat" }, // Мясные изделия
+	{ 26, "vetpharma" }, // Ветеринарные препараты
+	{ 27, "toys" }, // Игры и игрушки для детей
+	{ 28, "radio" }, // Радиоэлектронная продукция
+	{ 31, "titan" }, // Титановая металлопродукция
+	{ 32, "conserve" }, // Консервированная продукция
+	{ 33, "vegetableoil" }, // Растительные масла
+	{ 34, "opticfiber" }, // Оптоволокно и оптоволоконная продукция
+	{ 35, "chemistry" }, // Косметика, бытовая химия и товары личной гигиены
+	{ 36, "books" }, // Печатная продукция
+	{ 37, "grocery" }, // Бакалейная продукция
+	{ 38, "pharmaraw" }, // Фармацевтическое сырьё, лекарственные средства
+	{ 39, "construction" }, // Строительные материалы
+	{ 40, "fire" }, // Пиротехника и огнетушащее оборудование
+	{ 41, "heater" }, // Отопительные приборы
+	{ 42, "cableraw" }, // Кабельно-проводниковая продукция
+	{ 43, "autofluids" }, // Моторные масла
+	{ 44, "polymer" }, // Полимерные трубы
+	{ 45, "sweets" }, // Сладости и кондитерские изделия
+	{ 48, "carparts" }, // Автозапчасти и комплектующие транспортных средств
+	{ 49, "furslp" }, // Натуральный мех
+	{ 50, "nicotindev" }, // Радиоэлектронная продукция. Электронные системы доставки никотина
+	{ 51, "gadgets" }, // Радиоэлектронная продукция. Ноутбуки и смартфоны
+	{ 52, "frozen" }, // Полуфабрикаты и замороженные продукты
+	{ 53, "fertilizers" }, // Удобрения в потребительской упаковке
+	{ 54, "homeware" }, // Товары для дома и интерьера
+};
+
+/*static*/bool FASTCALL PPChZnPrcssr::GetOfficialCategorySymb(int officialId, SString & rSymb)
+	{ return SIntToSymbTab_GetSymb(ChZnOfficialCategoryList, SIZEOFARRAY(ChZnOfficialCategoryList), officialId, rSymb); }
+/*static*/int  FASTCALL PPChZnPrcssr::GetOfficialCatogoryId(const char * pOfficialSymb)
+	{ return SIntToSymbTab_GetId(ChZnOfficialCategoryList, SIZEOFARRAY(ChZnOfficialCategoryList), pOfficialSymb); }
+
+struct ChZnProductTypeToOfficial { 
+	uint   ChZnProductType;
+	int    OfficialId;
+};
+
+static const ChZnProductTypeToOfficial ChZnProductTypeToOfficialList[] = {
+	{ GTCHZNPT_FUR,               14 },
+	{ GTCHZNPT_TOBACCO,            3 },
+	{ GTCHZNPT_SHOE,               2 },
+	{ GTCHZNPT_MEDICINE,          38 },
+	{ GTCHZNPT_CARTIRE,            5 },
+	{ GTCHZNPT_TEXTILE,            1 },
+	{ GTCHZNPT_PERFUMERY,          4 },
+	{ GTCHZNPT_MILK,               8 },
+	{ GTCHZNPT_JEWELRY,            0 }, 
+	{ GTCHZNPT_WATER,             13 },
+	{ GTCHZNPT_ALTTOBACCO,        12 },
+	{ GTCHZNPT_DRAFTBEER,         15 }, // must be before GTCHZNPT_DRAFTBEER_AWR!
+	{ GTCHZNPT_DRAFTBEER_AWR,     15 },
+	{ GTCHZNPT_DIETARYSUPPLEMENT, 17 },
+	{ GTCHZNPT_BEER,              15 },
+	{ GTCHZNPT_ANTISEPTIC,        19 },
+	{ GTCHZNPT_MEDICALDEVICES,    10 },
+	{ GTCHZNPT_SOFTDRINKS,        23 },
+	{ GTCHZNPT_NONALCBEER,        22 },
+	{ GTCHZNPT_PETFOOD,           20 },
+	{ GTCHZNPT_VEGETABLEOIL,      33 },
+	{ GTCHZNPT_NCP,               16 },
+	{ GTCHZNPT_MOTOROIL,          43 },
+	{ GTCHZNPT_CHEMISTRY,         35 },
+	{ GTCHZNPT_GROCERY,           37 },
+	{ GTCHZNPT_CANNEDFOOD,        32 },
+	{ GTCHZNPT_TOYS,              27 },
+};
+// } @v12.7.2 
+
+/*static*/uint FASTCALL PPChZnPrcssr::GetCategoryIdByOfficialSymb(const char * pOfficialSymb)
+{
+	uint  result = 0;
+	if(!isempty(pOfficialSymb)) {
+		const  int oci = PPChZnPrcssr::GetOfficialCatogoryId(pOfficialSymb);
+		if(oci) {
+			for(uint i = 0; !result && i < SIZEOFARRAY(ChZnProductTypeToOfficialList); i++) {
+				const  ChZnProductTypeToOfficial & r_item = ChZnProductTypeToOfficialList[i];
+				if(r_item.OfficialId == oci) {
+					result = r_item.ChZnProductType;
+				}
+			}
+		}
+	}
+	return result;
+}
+
 class ChZnInterface {
 public:
 	enum {
@@ -258,7 +367,7 @@ public:
 	//
 	int    GetAggrMarkList(const InitBlock & rIb, const StringSet & rBoxCodeList, PPLotExtCodeContainer::MarkSet & rResult); // @v12.6.7 //_afQueryAggrMarkList
 	int    GetMarkInfo(const InitBlock & rIb, const StringSet & rCodeList, PPChZnPrcssr::CodeInfoCollection & rResult); // @v12.6.9
-	int    GetMarkOps(const InitBlock & rIb, const char * pCode); // @v12.7.1
+	int    GetMarkOps(const InitBlock & rIb, const char * pCode, PPChZnPrcssr::CodeOpsCollection & rResult); // @v12.7.1
 	int    ReadJsonReplyForSingleItem(const char * pReply, const char * pTarget, SString & rResult);
 	int    TransmitDocument2(const InitBlock & rIb, const ChZnInterface::Packet & rPack, SString & rReply);
 	int    GetDocumentTicket(const InitBlock & rIb, const char * pDocIdent, SString & rTicket);
@@ -539,6 +648,7 @@ DRAFTBEER HORECA @v11.9.4
 				dedicatedcase_mdlp_03          = 11, // @v12.6.1  "^01(\\d{14})21(.{1,13}?)10(.{1,20}?)91(.{4})92(.{44})$"
 				dedicatedcase_motoroil_01      = 12, // @v12.6.2  "^01(\\d{14})21(.+?)91(.+?)92(.+)$"
 				dedicatedcase_sunfruit_01      = 13, // @v12.7.0  "^01(\\d{14})10(.{4,20}?)21(.{4,20})$"
+				dedicatedcase_sunfruit_02      = 14, // @v12.7.2  "^01(\\d{14})21(.{8,15}?)93(.+)$";
 			};
 			// const char * re_tobacco = "^(\\d{14})(.{7})(.{4})(.{4})?$";
 			// const char * re_rigid_mark = "^01(\\d{14})21(.{16})240(.{8})$";
@@ -794,7 +904,7 @@ DRAFTBEER HORECA @v11.9.4
 					}
 				}
 			}
-			if(!dedicated_case) { // @v12.7.10
+			if(!dedicated_case) { // @v12.6.10
 				//dedicatedcase_sunfruit_01      = 13, // @v12.7.0  "^01(\\d{14})10(.{4,20}?)21(.{4,20})$"
 				const char * p_re_01_10_21 = "^01(\\d{14})10(.{4,20}?)21(.{4,20})$";
 				SRegExp2 re(p_re_01_10_21, cpANSI, SRegExp2::syntaxDefault, 0);
@@ -808,6 +918,23 @@ DRAFTBEER HORECA @v11.9.4
 						rS.AddOnlyToken(GtinStruc::fldSerial);
 						rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(3));
 						dedicated_case = dedicatedcase_sunfruit_01;
+					}
+				}
+			}
+			if(!dedicated_case) { // @v12.7.2
+				//dedicatedcase_sunfruit_02      = 14, // @v12.7.2  "^01(\\d{14})21(.{8,15}?)93(.+)$";
+				const char * p_re_01_21_93 = "^01(\\d{14})21(.{8,15}?)93(.+)$";
+				SRegExp2 re(p_re_01_21_93, cpANSI, SRegExp2::syntaxDefault, 0);
+				if(re.IsValid()) {
+					SRegExp2::FindResult reresult;
+					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+						assert(reresult.getCount() == 3+1);
+						rS.AddOnlyToken(GtinStruc::fldGTIN14);
+						rS.AddOnlyToken(GtinStruc::fldSerial);
+						rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(2));
+						rS.AddOnlyToken(GtinStruc::fldInner2);
+						rS.SetSpecialFixedToken(GtinStruc::fldInner2, reresult.GetItemLen(3));
+						dedicated_case = dedicatedcase_sunfruit_02;
 					}
 				}
 			}
@@ -1665,31 +1792,33 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 					if(p_js_inner) {
 						for(uint i = 0; i < p_bp->GetTCount(); i++) {
 							const  PPTransferItem & r_ti = p_bp->ConstTI(i);
-							const  double cost = fabs(r_ti.NetPrice());
-							double vat_in_cost = 0.0;
-							{
-								GTaxVect gtv;
-								gtv.CalcBPTI(*p_bp, r_ti, TIAMT_PRICE);
-								vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
-							}
-							p_bp->XcL.Get(i+1, 0, lotxcode_set);
-							lotxcode_set.GetByBoxID(0, ss);
-							for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-								if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-									mark_buf.Z();
-									if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-										mark_buf.Cat("01").Cat(temp_buf);
-										if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-											mark_buf.Cat("21").Cat(temp_buf);
-											SJson * p_js_item = new SJson(SJson::tOBJECT);
-											if(p_js_item) {
-												p_js_item->InsertString("cis", (temp_buf = mark_buf).Escape());
-												// @v12.6.11 {
-												if(cost > 0.0) {
-													p_js_item->InsertString("product_cost", temp_buf.Z().Cat(R0i(cost * 100.0)).Escape()); 
+							if(r_ti.GetSign(p_bp->Rec.OpID) == TISIGN_MINUS) { // @v12.7.2 @condition
+								const  double cost = fabs(r_ti.NetPrice());
+								double vat_in_cost = 0.0;
+								{
+									GTaxVect gtv;
+									gtv.CalcBPTI(*p_bp, r_ti, TIAMT_PRICE);
+									vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
+								}
+								p_bp->XcL.Get(i+1, 0, lotxcode_set);
+								lotxcode_set.GetByBoxID(0, ss);
+								for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+									if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+										mark_buf.Z();
+										if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+											mark_buf.Cat("01").Cat(temp_buf);
+											if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+												mark_buf.Cat("21").Cat(temp_buf);
+												SJson * p_js_item = new SJson(SJson::tOBJECT);
+												if(p_js_item) {
+													p_js_item->InsertString("cis", (temp_buf = mark_buf).Escape());
+													// @v12.6.11 {
+													if(cost > 0.0) {
+														p_js_item->InsertString("product_cost", temp_buf.Z().Cat(R0i(cost * 100.0)).Escape()); 
+													}
+													// } @v12.6.11 
+													p_js_inner->InsertChild(p_js_item);
 												}
-												// } @v12.6.11 
-												p_js_inner->InsertChild(p_js_item);
 											}
 										}
 									}
@@ -1745,27 +1874,29 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 								SXml::WNode npl(_doc, "products_list");
 								for(uint i = 0; i < p_bp->GetTCount(); i++) {
 									const PPTransferItem & r_ti = p_bp->ConstTI(i);
-									const  double cost = fabs(r_ti.NetPrice());
-									double vat_in_cost = 0.0;
-									{
-										GTaxVect gtv;
-										gtv.CalcBPTI(*p_bp, r_ti, TIAMT_PRICE);
-										vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
-									}
-									p_bp->XcL.Get(i+1, 0, lotxcode_set);
-									lotxcode_set.GetByBoxID(0, ss);
-									for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-										if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-											mark_buf.Z();
-											if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-												mark_buf.Cat("01").Cat(temp_buf);
-												if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-													mark_buf.Cat("21").Cat(temp_buf);
-													{
-														SXml::WNode np(_doc, "product");
-														XMLReplaceSpecSymb(mark_buf, "&<>\'");
-														np.PutInner("ki", mark_buf); // Возможно, дожно быть "cis" вместо "ki"
-														np.PutInner("cost", temp_buf.Z().Cat(R0i(cost * 100.0)));
+									if(r_ti.GetSign(p_bp->Rec.OpID) == TISIGN_MINUS) { // @v12.7.2 @condition
+										const  double cost = fabs(r_ti.NetPrice());
+										double vat_in_cost = 0.0;
+										{
+											GTaxVect gtv;
+											gtv.CalcBPTI(*p_bp, r_ti, TIAMT_PRICE);
+											vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
+										}
+										p_bp->XcL.Get(i+1, 0, lotxcode_set);
+										lotxcode_set.GetByBoxID(0, ss);
+										for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+											if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+												mark_buf.Z();
+												if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+													mark_buf.Cat("01").Cat(temp_buf);
+													if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+														mark_buf.Cat("21").Cat(temp_buf);
+														{
+															SXml::WNode np(_doc, "product");
+															XMLReplaceSpecSymb(mark_buf, "&<>\'");
+															np.PutInner("ki", mark_buf); // Возможно, дожно быть "cis" вместо "ki"
+															np.PutInner("cost", temp_buf.Z().Cat(R0i(cost * 100.0)));
+														}
 													}
 												}
 											}
@@ -1818,8 +1949,8 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 					</products_list>
 				</shipment>
 			*/
-			const  PPID   rcvr_ar_id = p_bp->Rec.Object;
-			const  PPID   rcvr_psn_id = ObjectToPerson(rcvr_ar_id, 0);
+			const  PPID rcvr_ar_id = p_bp->Rec.Object;
+			const  PPID rcvr_psn_id = ObjectToPerson(rcvr_ar_id, 0);
 			SString sender_inn;
 			SString receiver_inn;
 			PPID   subj_psn_id = main_org_id;
@@ -3623,6 +3754,148 @@ int _ParseAggrMarkJsonResult(const SJson * pJs, long parentId, PPLotExtCodeConta
 	return ok;
 }
 
+static const SIntToSymbTabEntry ChZnPackageTypeList[] = {
+	{ PPChZnPrcssr::ptUnit, "UNIT" },
+	{ PPChZnPrcssr::ptGroup, "GROUP" },
+	{ PPChZnPrcssr::ptSet, "SET" },
+	{ PPChZnPrcssr::ptBundle, "BUNDLE" },
+	{ PPChZnPrcssr::ptBox, "BOX" },
+	{ PPChZnPrcssr::ptATK, "ATK" },
+	{ PPChZnPrcssr::ptLevel1, "LEVEL1" },
+	{ PPChZnPrcssr::ptLevel2, "LEVEL2" },
+	{ PPChZnPrcssr::ptLevel3, "LEVEL3" },
+	{ PPChZnPrcssr::ptLevel4, "LEVEL4" },
+	{ PPChZnPrcssr::ptLevel5, "LEVEL5" },
+};
+
+/*static*/bool FASTCALL PPChZnPrcssr::GetPackageTypeSymb(int packageType, SString & rSymb)
+	{ return SIntToSymbTab_GetSymb(ChZnPackageTypeList, SIZEOFARRAY(ChZnPackageTypeList), packageType, rSymb); }
+
+/*static*/int  FASTCALL PPChZnPrcssr::GetPackageTypeId(const char * pSymb)
+	{ return SIntToSymbTab_GetId(ChZnPackageTypeList, SIZEOFARRAY(ChZnPackageTypeList), pSymb); }
+
+int _ParseMarkOpsJsonResult(const SJson * pJs, PPChZnPrcssr::CodeOpsCollection & rResult)
+{
+	int    ok = 1;
+	SString temp_buf;
+	PPChZnPrcssr::CodeOp * p_new_entry = 0;
+	if(SJson::IsArray(pJs)) {
+		for(const SJson * p_js_item = pJs->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+			if(SJson::IsObject(p_js_item)) {
+				p_new_entry = new PPChZnPrcssr::CodeOp();
+				THROW_SL(p_new_entry);
+				for(const SJson * p_cur = p_js_item->P_Child; p_cur; p_cur = p_cur->P_Next) {
+					/*
+						struct CodeOp {
+							CodeOp();
+							int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+							enum {
+								optypUndef    = 0, // Не определено
+								optypSelling  = 1, // Продажа
+								optypContract = 2, // Передача по АКС
+							};
+							int    ErrCode;         //
+							uint   ErrMessageP;     // utf8		
+							uint   CisP;            // Текст марки
+							uint   OpType;          // turnoverType. Тип отгрузки. SELLING — Продажа; CONTRACT — Передача по АКС //
+							uint   DocIdP;          // Идент документа, по которому реализована операция //
+							uint   PackType;        // ptXXX 
+							uint   GeneralPackType; // ptXXX 
+							ued_t  UedChZnProdType; // Тип продукции чзн
+							ued_t  UedOwnerINN;     // ИНН владельца //
+							ued_t  UedManufINN;     // ИНН производителя //
+							ued_t  UedProducerINN;  // ИНН производителя //
+							ued_t  UedTimestamp;    // Метка времени (какого времени?) // 
+							ued_t  UedOpTm;         // Дата создания документа, по которому в последний раз менялся статус КИ 
+							ued_t  UedEmissionTm;   // Дата эмиссии //
+							StringSet Children;     // Для упаковки: вложенные марки
+						};
+					*/ 
+					if(p_cur->Text.IsEqiAscii("cis")) {
+						(temp_buf = p_cur->P_Child->Text).Unescape();
+						rResult.AddS(temp_buf, &p_new_entry->CisP);
+					}
+					else if(p_cur->Text.IsEqiAscii("turnoverType")) {
+						(temp_buf = p_cur->P_Child->Text).Unescape();
+						if(temp_buf.IsEqiAscii("SELLING"))
+							p_new_entry->OpType = PPChZnPrcssr::CodeOp::optypSelling;
+						else if(temp_buf.IsEqiAscii("CONTRACT"))
+							p_new_entry->OpType = PPChZnPrcssr::CodeOp::optypContract;
+					}
+					else if(p_cur->Text.IsEqiAscii("gtin")) {
+						(temp_buf = p_cur->P_Child->Text).Unescape();
+					}
+					else if(p_cur->Text.IsEqiAscii("productGroup")) {
+						(temp_buf = p_cur->P_Child->Text).Unescape();
+						const  uint category = PPChZnPrcssr::GetCategoryIdByOfficialSymb(temp_buf);
+						if(category) {
+							p_new_entry->UedChZnProdType = UED::ApplyMetaToRawValue32(UED_META_RUCHZNPRODTYPE, category);
+						}
+					}
+					else if(p_cur->Text.IsEqiAscii("packageType")) {
+						(temp_buf = p_cur->P_Child->Text).Unescape();
+						p_new_entry->PackType = PPChZnPrcssr::GetPackageTypeId(temp_buf);
+					}
+					else if(p_cur->Text.IsEqiAscii("generalPackageType")) {
+						(temp_buf = p_cur->P_Child->Text).Unescape();
+						p_new_entry->GeneralPackType = PPChZnPrcssr::GetPackageTypeId(temp_buf);
+					}
+					else if(p_cur->Text.IsEqiAscii("ownerInn")) {
+						p_new_entry->UedOwnerINN = UED::SetRaw_Ru_INN(p_cur->P_Child->Text, true);
+					}
+					else if(p_cur->Text.IsEqiAscii("manufacturerInn")) {
+						p_new_entry->UedManufINN = UED::SetRaw_Ru_INN(p_cur->P_Child->Text, true);
+					}
+					else if(p_cur->Text.IsEqiAscii("producerInn")) {
+						p_new_entry->UedProducerINN = UED::SetRaw_Ru_INN(p_cur->P_Child->Text, true);
+					}
+					else if(p_cur->Text.IsEqiAscii("status")) {
+						(temp_buf = p_cur->P_Child->Text).Unescape();
+					}
+					else if(p_cur->Text.IsEqiAscii("operationDate")) {
+						(temp_buf = p_cur->P_Child->Text).Unescape();
+						SUniTime_Internal ut;
+						if(strtodatetime(temp_buf, ut, DATF_ISO8601CENT, 0))
+							p_new_entry->UedOpTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
+					}
+					else if(p_cur->Text.IsEqiAscii("emissionDate")) {
+						(temp_buf = p_cur->P_Child->Text).Unescape();
+						SUniTime_Internal ut;
+						if(strtodatetime(temp_buf, ut, DATF_ISO8601CENT, 0))
+							p_new_entry->UedEmissionTm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
+					}
+					else if(p_cur->Text.IsEqiAscii("partialSaleInfo")) {
+						// object
+						if(SJson::IsObject(p_cur->P_Child)) {
+							for(const SJson * p_psi = p_cur->P_Child->P_Child; p_psi; p_psi = p_psi->P_Next) {
+								if(p_psi->Text.IsEqiAscii("soldUnitCount")) {
+								}
+								else if(p_psi->Text.IsEqiAscii("rest")) {
+								}
+								else if(p_psi->Text.IsEqiAscii("correctRest")) { // bool
+								}
+								else if(p_psi->Text.IsEqiAscii("innerUnitCount")) { 
+								}
+							}
+						}
+					}
+					else if(p_cur->Text.IsEqiAscii("child")) { // array
+						SJson::GetArrayAsStringSet(p_cur->P_Child, p_new_entry->Children);
+					}
+				}
+				if(p_new_entry) {
+					rResult.insert(p_new_entry);
+					p_new_entry = 0;
+				}
+			}
+		}
+	}
+	CATCHZOK
+	delete p_new_entry;
+	return ok;
+}
+
 int _ParseMarkInfoJsonResult(const SJson * pJs, PPChZnPrcssr::CodeInfoCollection & rResult)
 {
 	int    ok = 1;
@@ -3677,9 +3950,11 @@ int _ParseMarkInfoJsonResult(const SJson * pJs, PPChZnPrcssr::CodeInfoCollection
 								}
 								else if(p_si->Text.IsEqiAscii("packageType")) {
 									(temp_buf = p_si->P_Child->Text).Unescape();
+									p_new_entry->PackType = PPChZnPrcssr::GetPackageTypeId(temp_buf);
 								}
 								else if(p_si->Text.IsEqiAscii("generalPackageType")) {
 									(temp_buf = p_si->P_Child->Text).Unescape();
+									p_new_entry->GeneralPackType = PPChZnPrcssr::GetPackageTypeId(temp_buf);
 								}
 								else if(p_si->Text.IsEqiAscii("ownerInn")) {
 									p_new_entry->UedOwnerINN = UED::SetRaw_Ru_INN(p_si->P_Child->Text, true);
@@ -3785,7 +4060,7 @@ int _ParseMarkInfoJsonResult(const SJson * pJs, PPChZnPrcssr::CodeInfoCollection
 	return ok;
 }
 
-int ChZnInterface::GetMarkOps(const InitBlock & rIb, const char * pCode) // @v12.7.1
+int ChZnInterface::GetMarkOps(const InitBlock & rIb, const char * pCode, PPChZnPrcssr::CodeOpsCollection & rResult) // @v12.7.1
 {
 	int    ok = -1;
 	SJson * p_json_result = 0;
@@ -3823,7 +4098,7 @@ int ChZnInterface::GetMarkOps(const InitBlock & rIb, const char * pCode) // @v12
 				}
 				if(code_buf.NotEmpty()) {
 					MakeTargetUrl_(qGetCodeOps, 0, rIb, url_buf);
-					url_buf.CatChar('?').CatEq("cis", code_buf);
+					url_buf.CatChar('?').CatEq("cis", temp_buf.EncodeUrl(code_buf, 1));
 					InetUrl url(url_buf);
 					StrStrAssocArray hdr_flds;
 					{
@@ -3838,9 +4113,9 @@ int ChZnInterface::GetMarkOps(const InitBlock & rIb, const char * pCode) // @v12
 								reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 								Lth.Log("rep", 0, reply_buf);
 								p_json_result = SJson::Parse(reply_buf);
-								/*if(_ParseMarkInfoJsonResult(p_json_result, rResult)) {
+								if(_ParseMarkOpsJsonResult(p_json_result, rResult)) {
 									ok = 1;
-								}*/
+								}
 							}
 						}
 					}
@@ -4505,7 +4780,8 @@ int PPChZnPrcssr::InteractiveQuery()
 						break;
 					case QueryParam::_afQueryMarkOps: // @v12.7.1
 						if(_param.ParamString.NotEmpty()) {
-							if(ifc.GetMarkOps(*p_ib, _param.ParamString)) {
+							PPChZnPrcssr::CodeOpsCollection result;
+							if(ifc.GetMarkOps(*p_ib, _param.ParamString, result)) {
 								;
 							}
 						}
@@ -5138,12 +5414,52 @@ int PPChZnPrcssr::CodeStatusCollection::SetupResultEntry(int rowN, const CodeSta
 	return result;
 }
 
+static constexpr uint PPChZnPrcssr_CodeOp_Ver = 0; // 
+static constexpr uint PPChZnPrcssr_CodeInfo_Ver = 0; // 
+
+PPChZnPrcssr::CodeOp::CodeOp() : ErrCode(0), ErrMessageP(0), CisP(0), OpType(0), DocIdP(0), PackType(0), GeneralPackType(0)
+{
+}
+
+int PPChZnPrcssr::CodeOp::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	uint   ver = PPChZnPrcssr_CodeOp_Ver;
+	THROW_SL(pSCtx->Serialize(dir, ver, rBuf)); // !
+	THROW_SL(pSCtx->Serialize(dir, ErrCode, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, ErrMessageP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, CisP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, OpType, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, DocIdP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, PackType, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, GeneralPackType, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedChZnProdType, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedOwnerINN, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedManufINN, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedProducerINN, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedTimestamp, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedOpTm, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedEmissionTm, rBuf));
+	THROW_SL(Children.Serialize(dir, rBuf, pSCtx));
+	CATCHZOK
+	return ok;
+}
+
+PPChZnPrcssr::CodeOpsCollection::CodeOpsCollection()
+{
+}
+
+PPChZnPrcssr::CodeOpsCollection & PPChZnPrcssr::CodeOpsCollection::Z()
+{
+	SStrGroup::ClearS();
+	freeAll();
+	return *this;
+}
+
 PPChZnPrcssr::CodeInfo::CodeInfo() : ErrCode(0), ErrMessageP(0), Flags(0), PackType(0), GeneralPackType(0), ReqCisP(0), CisP(0), 
 	OwnerNameP(0), ManufNameP(0), ProducerNameP(0), ProductNameP(0), BrandNameP(0), ExtraValue(0ULL)
 {
 }
-
-static constexpr uint PPChZnPrcssr_CodeInfo_Ver = 0; // 
 
 int PPChZnPrcssr::CodeInfo::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {

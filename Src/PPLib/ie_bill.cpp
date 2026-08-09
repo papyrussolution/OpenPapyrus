@@ -7098,7 +7098,14 @@ DocNalogRu_Generator::Document::Document(DocNalogRu_Generator & rG, const Docume
 		if(rInfo.Subj.NotEmpty()) {
 			N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_NAMEECSUBJCOMP)/*"ЌаимЁкон—уб—ост"*/, rG.EncText(temp_buf = rInfo.Subj));
 			if(rInfo.SubjReason.NotEmpty()) {
-				N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_REASONECSUBJCOMP)/*"ќснƒоверќрг—ост"*/, rG.EncText(temp_buf = rInfo.SubjReason));
+				long   tok_id = 0;
+				if(rInfo.KND == "1110339") {
+					tok_id = PPHSC_RU_REASONECSUBJCOMP2; // ќснƒовќрг—ост
+				}
+				else {
+					tok_id = PPHSC_RU_REASONECSUBJCOMP; // ќснƒоверќрг—ост
+				}
+				N.PutAttrib(rG.GetToken_Ansi(tok_id), rG.EncText(temp_buf = rInfo.SubjReason));
 			}
 		}
 	}
@@ -8730,7 +8737,7 @@ int DocNalogRu_Generator::WriteAddress_SBIS(const PPLocationPacket & rP, int reg
 	return ok;
 }
 
-int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCode, int hdrTag /*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/)
+int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCode, int hdrTag/*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/)
 {
 	int    ok = 1;
 	PPID   country_id = 0;
@@ -8740,8 +8747,52 @@ int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCo
 	LocationCore::GetAddress(rP, 0, addr_text);
 	PPLocAddrStruc las;
 	las.Recognize((temp_buf = addr_text).Transf(CTRANSF_INNER_TO_OUTER));
-	long    hdr_tag = oneof3(hdrTag, PPHSC_RU_ADDRESS, PPHSC_RU_ORGADDR, PPHSC_RU_LOADINGINFO_SHPADDR) ? hdrTag : PPHSC_RU_ADDRESS;
+	const  bool is_addr2 = oneof2(hdrTag, PPHSC_RU_DLVRADDR, PPHSC_RU_LOADINGINFO_SHPADDR); // (јдресѕольз“ип)
+	const  long hdr_tag = (is_addr2 || oneof2(hdrTag, PPHSC_RU_ADDRESS, PPHSC_RU_ORGADDR)) ? hdrTag : PPHSC_RU_ADDRESS;
+	// @v12.7.2 {
+	if(regionCode <= 0) {
+		SString _reg_code;
+		RegisterTbl::Rec reg_rec;
+		if(rP.Regs.GetRegister(PPREGT_KPP, ZERODATE, 0, &reg_rec) > 0) {
+			_reg_code = reg_rec.Num;
+			if(_reg_code.IsDec()) {
+				const  long iv = _reg_code.Trim(2).ToLong();
+				if(iv > 0) {
+					regionCode = iv;
+				}
+			}
+		}
+		if(regionCode <= 0) {
+			if(rP.OwnerID) {
+				if(PsnObj.GetRegNumber(rP.OwnerID, PPREGT_KPP, ZERODATE, _reg_code) > 0 && _reg_code.IsDec()) {
+					const  long iv = _reg_code.Trim(2).ToLong();
+					if(iv > 0) {
+						regionCode = iv;
+					}
+				}
+				if(regionCode <= 0) {
+					if(PsnObj.GetRegNumber(rP.OwnerID, PPREGT_TPID, ZERODATE, _reg_code) > 0 && _reg_code.IsDec()) {
+						const  long iv = _reg_code.Trim(2).ToLong();
+						if(iv > 0) {
+							regionCode = iv;
+						}
+					}
+				}
+			}
+		}
+	}
+	// } @v12.7.2 
 	SXml::WNode n__(P_X, GetToken_Ansi(hdr_tag));
+	if(is_addr2) {
+		if(rP.Regs.GetRegNumber(PPREGT_GLN, ZERODATE, temp_buf) > 0 && temp_buf.IsDec() && temp_buf.Len() == 13) {
+			n__.PutInner(GetToken_Ansi(PPHSC_RU_GLN2), temp_buf); //PPHSC_RU_GLN2 "√ЋЌ"
+		}
+		if(rP.Latitude != 0.0 && rP.Longitude != 0.0) {
+			SXml::WNode n2(P_X, GetToken_Ansi(PPHSC_RU_GPSCOORD)); //PPHSC_RU_GPSCOORD " оорд"
+			n2.PutInnerReal(GetToken_Ansi(PPHSC_RU_GPSCOORD_LAT), rP.Latitude, MKSFMTD(0, 8, 0)); //PPHSC_RU_GPSCOORD_LAT  "Ўирота"
+			n2.PutInnerReal(GetToken_Ansi(PPHSC_RU_GPSCOORD_LON), rP.Longitude, MKSFMTD(0, 8, 0)); //PPHSC_RU_GPSCOORD_LON "ƒолгота"
+		}
+	}
 	if(hdr_tag == PPHSC_RU_ORGADDR) {
 		n__.PutInner(GetToken_Ansi(PPHSC_RU_ADDR_COUNTRYCODE2), "643");
 		{
@@ -8777,17 +8828,23 @@ int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCo
 			n__.PutInner(GetToken_Ansi(PPHSC_RU_APARTM), EncText(temp_buf.Transf(CTRANSF_OUTER_TO_INNER)));
 	}
 	else {
+		/*
+			PPHSC_RU_ADDR_RF               "јдр–‘"
+			PPHSC_RU_ADDR2_RF              "јдрес–‘"  // @v12.7.2 (јдресѕольз“ип)
+			PPHSC_RU_ADDR_OFFSHR           "јдр»нф"
+			PPHSC_RU_ADDR2_OFFSHR          "јдрес»нф" // @v12.7.2 (јдресѕольз“ип)
+		*/
 		PPCountryBlock cb;
 		if(PsnObj.LocObj.GetCountry(&rP, &country_id, &cb) > 0 && !cb.IsNative) {
 			// »ностранец
-			SXml::WNode n_i(P_X, GetToken_Ansi(PPHSC_RU_ADDR_OFFSHR));
+			SXml::WNode n_i(P_X, GetToken_Ansi(is_addr2 ? PPHSC_RU_ADDR2_OFFSHR : PPHSC_RU_ADDR_OFFSHR));
 			n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_COUNTRYCODE), cb.Code);
 			n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_TEXT), EncText(addr_text));
 		}
 		else {
-			if(Flags & fExpPlainAddr) { // @v11.5.11
+			if(Flags & fExpPlainAddr) {
 				const char * p_country_code = cb.Code.NotEmpty() ? cb.Code.cptr() : "643";
-				SXml::WNode n_i(P_X, GetToken_Ansi(PPHSC_RU_ADDR_OFFSHR));
+				SXml::WNode n_i(P_X, GetToken_Ansi(is_addr2 ? PPHSC_RU_ADDR2_OFFSHR : PPHSC_RU_ADDR_OFFSHR));
 				n_i.PutAttrib(GetToken_Ansi(PPHSC_RU_ADDR_COUNTRYCODE), p_country_code);
 				// @v12.3.0 {
 				if(IsVer503()) { // @v12.3.9 (condition)
@@ -8808,7 +8865,7 @@ int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCo
 			}
 			else {
 				// –езидент
-				SXml::WNode n_i(P_X, GetToken_Ansi(PPHSC_RU_ADDR_RF));
+				SXml::WNode n_i(P_X, GetToken_Ansi(is_addr2 ? PPHSC_RU_ADDR2_RF : PPHSC_RU_ADDR_RF));
 				{
 					las.GetText(PPLocAddrStruc::tZip, temp_buf);
 					if(temp_buf.IsEmpty())
@@ -8839,7 +8896,7 @@ int DocNalogRu_Generator::WriteAddress(const PPLocationPacket & rP, int regionCo
 				}
 				if(las.GetText(PPLocAddrStruc::tStreet, temp_buf)) {
 					SString street_buf;
-					if(las.GetText(PPLocAddrStruc::tStreetKind, street_buf) > 0) // @v11.5.10
+					if(las.GetText(PPLocAddrStruc::tStreetKind, street_buf) > 0)
 						street_buf.Space().Cat(temp_buf);
 					else
 						street_buf = temp_buf;
@@ -8931,15 +8988,18 @@ int DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID personID,
 	PPPersonPacket psn_pack;
 	PPLocationPacket loc_pack;
 	THROW(PsnObj.GetPacket(personID, &psn_pack, PGETPCKF_USEINHERITENCE) > 0);
-	if(addrLocID)
+	if(addrLocID) {
 		PsnObj.LocObj.GetPacket(addrLocID, &loc_pack);
+	}
 	if(psn_pack.Regs.GetRegister(PPREGT_TPID, actualDate, 0, &reg_rec) > 0) {
 		(inn = reg_rec.Num).Strip();
 	}
-	if(loc_pack.Regs.GetRegister(PPREGT_KPP, actualDate, 0, &reg_rec) > 0)
+	if(loc_pack.Regs.GetRegister(PPREGT_KPP, actualDate, 0, &reg_rec) > 0) {
 		(kpp = reg_rec.Num).Strip();
-	else if(psn_pack.Regs.GetRegister(PPREGT_KPP, actualDate, 0, &reg_rec) > 0)
+	}
+	else if(psn_pack.Regs.GetRegister(PPREGT_KPP, actualDate, 0, &reg_rec) > 0) {
 		(kpp = reg_rec.Num).Strip();
+	}
 	// @v11.9.1 »зменен механизм получени€ кода региона путем включени€ костыл€, исключающего kpp с префиксом 99
 	// “ехнически, такой префикс у Ѕайконура, но по факту используетс€ дл€  ѕѕ крупных налогоплательщиков.
 	if(inn.NotEmpty() && (kpp.IsEmpty() || kpp.HasPrefix("99"))) {
@@ -8969,8 +9029,9 @@ int DocNalogRu_Generator::WriteOrgInfo(const char * pScopeXmlTag, PPID personID,
 				SXml::WNode n_p(P_X, GetToken_Ansi(PPHSC_RU_PRIVEINFO));
 				n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_INNPHS), inn);
 				// @v11.7.6 {
-				if(priv_reg_text.NotEmpty())
+				if(priv_reg_text.NotEmpty()) {
 					n_p.PutAttrib(GetToken_Ansi(PPHSC_RU_IND_REG), EncText(priv_reg_text)); 
+				}
 				// } @v11.7.6 
 				WriteFIO(psn_pack.Rec.Name, 0, false);
 				// @todo @20260415 ќ√–Ќ»ѕ
@@ -9785,6 +9846,13 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 		PPObjPerson psn_obj;
 		PPPersonPacket psn_pack;
 		PPObjTransport tr_obj;
+		SString freight_code;
+		if(!isempty(freight.Name)) {
+			freight_code = freight.Name;
+		}
+		else {
+			freight_code = R_Bp.Rec.Code;
+		}
         {
 			DocNalogRu_Generator::File f(G, _Hi);
 			GetMainOrgName(temp_buf);
@@ -9801,9 +9869,16 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 					//PPHSC_RU_TRN_D                 "ƒата“рЌ"  // @v12.7.0
 					//PPHSC_RU_TRN_N                 "Ќомер“рЌ" // @v12.7.0
 					//PPHSC_RU_CONTOFOP —одќпер
+					
+					// PPHSC_RU_TRN_ORD_N             "Ќом«ак"   // ѕор€дковый номер заказа (за€вки)
+					// PPHSC_RU_TRN_ORD_D             "ƒата«ак"  // ƒата заказа (за€вки)
 					n.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRN_D), temp_buf.Z().Cat(R_Bp.Rec.Dt, DATF_GERMANCENT));
-					n.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRN_N), G.EncText(temp_buf.Z().Cat(R_Bp.Rec.Code)));
+					n.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRN_N), G.EncText(temp_buf.Z().Cat(freight_code)));
 					n.PutAttrib(G.GetToken_Ansi(PPHSC_RU_CONTOFOP), G.GetToken_Ansi(PPHSC_RU_TRN_CONTOFOP));
+					{
+						n.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRN_ORD_D), temp_buf.Z().Cat(R_Bp.Rec.Dt, DATF_GERMANCENT));
+						n.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRN_ORD_N), G.EncText(temp_buf.Z().Cat(freight_code).CatChar('-').Cat("ORD")));
+					}
 				}
 				//PPHSC_RU_CONSIGNORINFO3        "—в√ќ"     // @v12.6.9
 				//PPHSC_RU_CONSIGNEEINFO3        "—в√ѕ"     // @v12.6.9
@@ -9822,12 +9897,25 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 				{
 					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_CONSIGNEEINFO3));
 					{
+						PPLocationPacket dlvr_loc_pack;
 						G.WriteOrgInfo(GetToken(PPHSC_RU_CONSIGNEEREQ), epi_blk.ConsigneePsnID, /*epi_blk.ConsigneeLocID*/0, R_Bp.Rec.Dt, /*DocNalogRu_Generator::woifAddrLoc_KppOnly*/0);
-						//PPHSC_RU_DLVRADDR              "јдресƒост√р" // @v12.6.9
+						if(freight.DlvrAddrID__ && G.PsnObj.LocObj.GetPacket(freight.DlvrAddrID__, &dlvr_loc_pack) > 0) {
+							//PPHSC_RU_DLVRADDR              "јдресƒост√р" // @v12.6.9
+							G.WriteAddress(dlvr_loc_pack, 0/*region_code*/, PPHSC_RU_DLVRADDR); // @v12.7.2
+						}
 					}
 				}
 				{
 					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION));
+					{
+						//PPHSC_RU_CONSIGNORDIRECTION_REDIR  "—вѕј" // —ведени€ о процедуре переадресовки
+						//PPHSC_RU_CONSIGNORDIRECTION_WHO    "Ћицоѕј"      // Ћицо, по указанию которого может осуществл€тьс€ переадресовка {√рузоотправитель|√рузополучатель}
+						//PPHSC_RU_CONSIGNORDIRECTION_METH   "—посѕер”кѕј" // —пособ передачи указани€ на переадресовку
+						//PPHSC_RU_CONSIGNORDIRECTION_METH_E "Ёлектронное уведомление перевозчика о переадресовке"
+						SXml::WNode n3(G.P_X, G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION_REDIR));
+						n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION_WHO), G.GetToken_Ansi(PPHSC_RU_CONSIGNOR));
+						n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION_METH), G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION_METH_E));
+					}
 				}
 				if(R_Bp.GetTCount()) {
 					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_PAYLOADINFO));
@@ -9886,6 +9974,7 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 									}
 									else {
 										temp_buf = G.GetToken_Ansi(PPHSC_RU_PAYLOAD_PCKG_DEFAULT);
+										temp_buf.Transf(CTRANSF_OUTER_TO_INNER); // @v12.7.2 @fix
 									}
 									n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_PAYLOAD_PCKG), G.EncText(temp_buf));
 								}
@@ -10004,7 +10093,7 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 						</—в“—>
 					*/ 
 					PPTransportPacket tr_pack;
-					THROW_PP_S(tr_obj.Search(freight.ShipID, &tr_pack) > 0, PPERR_ETRNEXP_TRANSPORTNEEDED, bill_text);
+					THROW_PP_S(tr_obj.Get(freight.ShipID, &tr_pack) > 0, PPERR_ETRNEXP_TRANSPORTNEEDED, bill_text); // @v12.7.2 @fix Search-->Get
 					{
 						SXml::WNode n3(G.P_X, G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_TRANSP));
 						n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_REGN), G.EncText(temp_buf = tr_pack.Rec.Code));
@@ -10119,7 +10208,19 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 					}
 					{
 						SXml::WNode n3(G.P_X, G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_PORTOWNER));
-						n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_CSNERISLDR), "1");
+						n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_CSNERISLDR2), "1");
+						if(epi_blk.ConsignorPsnID) {
+							G.PsnObj.GetRegNumber(epi_blk.ConsignorPsnID, PPREGT_TPID, R_Bp.Rec.Dt, temp_buf);
+							if(temp_buf.NotEmpty() && temp_buf.IsDec()) {
+								SXml::WNode n4(G.P_X, G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_LOADERID)); // "»дент–ек√ќ"   // »дентифицирующий реквизит грузоотправител€
+								if(temp_buf.Len() == 12) {
+									n4.PutInner(G.GetToken_Ansi(PPHSC_RU_INNPHS), temp_buf);
+								}
+								else {
+									n4.PutInner(G.GetToken_Ansi(PPHSC_RU_INNJUR), temp_buf);
+								}
+							}
+						}
 					}
 					/*
 						PPHSC_RU_LOADINGINFO           "—вѕогруз"   // @v12.6.9

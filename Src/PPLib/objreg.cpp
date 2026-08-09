@@ -399,13 +399,42 @@ int PPObjRegister::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		else if(_obj == PPOBJ_PERSON) {
 			BExtQuery q(P_Tbl, 0, 1);
 			q.select(P_Tbl->ID, 0L).where(P_Tbl->RegOrgID == _id);
-			if(q.fetchFirst() > 0)
+			if(q.fetchFirst() > 0) {
 				ok = RetRefsExistsErr(Obj, P_Tbl->data.ID);
+			}
 		}
 	}
-	else if(msg == DBMSG_OBJREPLACE) { // @v12.7.1 @construction
-		if(_obj == PPOBJ_PERSON) {
-			
+	else if(msg == DBMSG_OBJREPLACE) { // @v12.7.1
+		const  PPID replaced_id = _id;
+		const  PPID new_id = reinterpret_cast<long>(extraPtr);
+		if(replaced_id && replaced_id != new_id) {
+			if(_obj == PPOBJ_PERSON) {
+				PPIDArray  reg_id_list;
+				RegisterTbl::Key0 k0;
+				MEMSZERO(k0);
+				BExtQuery q(P_Tbl, 0, 1);
+				q.select(P_Tbl->ID, P_Tbl->RegOrgID, 0L).where(P_Tbl->RegOrgID == replaced_id);
+				for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
+					reg_id_list.add(P_Tbl->data.ID);
+				}
+				if(reg_id_list.getCount()) {
+					reg_id_list.sortAndUndup();
+					for(uint i = 0; ok == DBRPL_OK && i < reg_id_list.getCount(); i++) {
+						const  PPID reg_id = reg_id_list.get(i);
+						RegisterTbl::Rec rec;
+						if(P_Tbl->Search(reg_id, &rec) > 0) {
+							if(rec.RegOrgID == replaced_id) { // @paranoic
+								if(P_Tbl->rereadForUpdate(0, &k0)) {
+									rec.RegOrgID = new_id;
+									if(!P_Tbl->updateRecBuf(&rec)) {
+										ok = DBRPL_ERROR;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 	return ok;

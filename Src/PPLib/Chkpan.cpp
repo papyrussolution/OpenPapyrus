@@ -1917,15 +1917,12 @@ int CPosProcessor::CalcRestByCrdCard_(int checkCurItem)
 	return ok;
 }
 
-CPosProcessor::CcTotal::CcTotal() : Amount(0.0), Discount(0.0)
-{
-}
-
-CPosProcessor::CcTotal CPosProcessor::CalcTotal() const
+CcTotal CPosProcessor::CalcTotal() const
 {
 	CcTotal _t;
 	SForEachVectorItem(P, i) {
 		const CCheckItem & r_item = P.at(i);
+		++_t.Count; // @v12.7.2
 		if(r_item.Flags & cifGift) {
 			_t.Amount   = R2(_t.Amount - r_item.Quantity * r_item.Discount);
 			_t.Discount = R2(_t.Discount + r_item.Quantity * r_item.Discount);
@@ -2614,9 +2611,9 @@ int CPosProcessor::Helper_InitCcPacket(CCheckPacket * pPack, CCheckPacket * pExt
 		cct = CalcTotal();
 	}
 	else {
-		const bool to_fill_ext_pack = (!(pPack->Rec.Flags & CCHKF_SUSPENDED) && pExtPack && ExtCashNodeID);
-		int   has_gift = 0;
-		uint  i;
+		const  bool to_fill_ext_pack = (!(pPack->Rec.Flags & CCHKF_SUSPENDED) && pExtPack && ExtCashNodeID);
+		int    has_gift = 0;
+		uint   i;
 		CCheckItem * p_item = 0;
 		CCheckItemArray to_fill_items;
 		if(/*CnFlags & CASHF_UNIFYGDSATCHECK*/false) { // @v12.2.12 Блокируем возможность объединения строк чека из-за возможных проблем с макрировкой строк
@@ -2687,7 +2684,7 @@ int CPosProcessor::Helper_InitCcPacket(CCheckPacket * pPack, CCheckPacket * pExt
 			THROW(p_pack->InsertCcl(*p_item));
 		}
 		SETFLAG(pPack->Rec.Flags, CCHKF_HASGIFT, has_gift);
-		pPack->CalcAmount(&cct.Amount, &cct.Discount);
+		pPack->CalcAmount(&cct);
 	}
 	LDBLTOMONEY(cct.Amount, pPack->Rec.Amount);
 	LDBLTOMONEY(cct.Discount, pPack->Rec.Discount);
@@ -13729,7 +13726,7 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 	if(rB.Flags & rB.fAltReg && P_CM_ALT) {
 		if(rB.Flags & rB.fIsPack) {
 			rB.Pack.Rec.SessID = P_CM->GetCurSessID();
-			const  double cc_amount = rB.Pack.CalcAmount(0, 0);
+			const  double cc_amount = rB.Pack.CalcAmount(0);
 			if(cc_amount != 0.0) { // @v12.5.2
 				rB.R = P_CM_ALT->SyncPrintCheck(&rB.Pack, 1);
 				if(rB.R == 0)
@@ -13752,7 +13749,7 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 				P_CM->SyncOpenBox();
 		}
 		if(rB.Flags & rB.fIsPack) {
-			const  double cc_amount = rB.Pack.CalcAmount(0, 0);
+			const  double cc_amount = rB.Pack.CalcAmount(0);
 			THROW(rB.R = P_CM->SyncCheckForSessionOver());
 			if(rB.R > 0) {
 				rB.Pack.Rec.SessID = P_CM->GetCurSessID();
@@ -13777,7 +13774,7 @@ int CheckPaneDialog::TestCheck(CheckPaymMethod paymMethod)
 		if(rB.Flags & rB.fIsExtPack) {
 			THROW(rB.RExt = P_CM_EXT->SyncCheckForSessionOver());
 			if(rB.RExt > 0) {
-				const  double cc_amount = rB.ExtPack.CalcAmount(0, 0);
+				const  double cc_amount = rB.ExtPack.CalcAmount(0);
 				rB.ExtPack.Rec.SessID = P_CM_EXT->GetCurSessID();
 				if(cc_amount != 0.0) { // @v12.5.2
 					rB.RExt = P_CM_EXT->SyncPrintCheck(&rB.ExtPack, 1);
@@ -15387,7 +15384,7 @@ int PrcssrCCheckGenerator::Run()
 			}
 		}
 		{
-			const CPosProcessor::CcTotal cct = P.P_Pan->CalcTotal();
+			const  CcTotal cct = P.P_Pan->CalcTotal();
 			//
 			// выбор метода платежа и проведение чека
 			//

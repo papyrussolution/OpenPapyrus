@@ -927,27 +927,28 @@ int DGifCloseFile2(GifFileType * GifFile, int * pErrorCode)
 // to DGifGetCodeNext, until NULL block is returned.
 // The block should NOT be freed by the user (not dynamically allocated).
 // 
-int DGifGetCode(GifFileType * GifFile, int * CodeSize, uint8 ** CodeBlock)
+int DGifGetCode(GifFileType * pGifFile, int * pCodeSize, uint8 ** ppCodeBlock)
 {
-	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
-	if(!IS_READABLE(Private)) {
+	GifFilePrivateType * p_private = static_cast<GifFilePrivateType *>(pGifFile->Private);
+	if(!IS_READABLE(p_private)) {
 		/* This file was NOT open for reading: */
-		GifFile->Error = D_GIF_ERR_NOT_READABLE;
+		pGifFile->Error = D_GIF_ERR_NOT_READABLE;
 		return GIF_ERROR;
 	}
-	*CodeSize = Private->BitsPerPixel;
-	return DGifGetCodeNext(GifFile, CodeBlock);
+	else {
+		*pCodeSize = p_private->BitsPerPixel;
+		return DGifGetCodeNext(pGifFile, ppCodeBlock);
+	}
 }
 // 
 // Continue to get the image code in compressed form. This routine should be
 // called until NULL block is returned.
 // The block should NOT be freed by the user (not dynamically allocated).
 // 
-int DGifGetCodeNext(GifFileType * GifFile, uint8 ** CodeBlock)
+int DGifGetCodeNext(GifFileType * GifFile, uint8 ** ppCodeBlock)
 {
 	uint8 Buf;
 	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
-
 	/* coverity[tainted_data_argument] */
 	if(READ(GifFile, &Buf, 1) != 1) {
 		GifFile->Error = D_GIF_ERR_READ_FAILED;
@@ -955,20 +956,19 @@ int DGifGetCodeNext(GifFileType * GifFile, uint8 ** CodeBlock)
 	}
 	/* coverity[lower_bounds] */
 	if(Buf > 0) {
-		*CodeBlock = Private->Buf; /* Use private unused buffer. */
-		(*CodeBlock)[0] = Buf; /* Pascal strings notation (pos. 0 is len.). */
+		*ppCodeBlock = Private->Buf; /* Use private unused buffer. */
+		(*ppCodeBlock)[0] = Buf; /* Pascal strings notation (pos. 0 is len.). */
 		/* coverity[tainted_data] */
-		if(READ(GifFile, &((*CodeBlock)[1]), Buf) != Buf) {
+		if(READ(GifFile, &((*ppCodeBlock)[1]), Buf) != Buf) {
 			GifFile->Error = D_GIF_ERR_READ_FAILED;
 			return GIF_ERROR;
 		}
 	}
 	else {
-		*CodeBlock = NULL;
+		*ppCodeBlock = NULL;
 		Private->Buf[0] = 0; /* Make sure the buffer is empty! */
 		Private->PixelCount = 0; /* And local info. indicate image read. */
 	}
-
 	return GIF_OK;
 }
 // 
@@ -1783,7 +1783,7 @@ int EGifGCBToSavedExtension(const GraphicsControlBlock * GCB, GifFileType * GifF
 // to EGifPutCodeNext, until NULL block is given.
 // The block should NOT be freed by the user (not dynamically allocated).
 // 
-int EGifPutCode(GifFileType * GifFile, int CodeSize, const uint8 * CodeBlock)
+int EGifPutCode(GifFileType * GifFile, int CodeSize, const uint8 * pCodeBlock)
 {
 	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
 	if(!IS_WRITEABLE(Private)) {
@@ -1799,19 +1799,19 @@ int EGifPutCode(GifFileType * GifFile, int CodeSize, const uint8 * CodeBlock)
 	 * return GIF_ERROR;
 	 * }
 	 */
-	return EGifPutCodeNext(GifFile, CodeBlock);
+	return EGifPutCodeNext(GifFile, pCodeBlock);
 }
 // 
 // Continue to put the image code in compressed form. This routine should be
 // called with blocks of code as read via DGifGetCode/DGifGetCodeNext. If
 // given buffer pointer is NULL, empty block is written to mark end of code.
 // 
-int EGifPutCodeNext(GifFileType * GifFile, const uint8 * CodeBlock)
+int EGifPutCodeNext(GifFileType * GifFile, const uint8 * pCodeBlock)
 {
 	uint8 Buf;
 	GifFilePrivateType * Private = static_cast<GifFilePrivateType *>(GifFile->Private);
-	if(CodeBlock) {
-		if(InternalWrite(GifFile, CodeBlock, CodeBlock[0] + 1) != (uint)(CodeBlock[0] + 1)) {
+	if(pCodeBlock) {
+		if(InternalWrite(GifFile, pCodeBlock, pCodeBlock[0] + 1) != (uint)(pCodeBlock[0] + 1)) {
 			GifFile->Error = E_GIF_ERR_WRITE_FAILED;
 			return GIF_ERROR;
 		}

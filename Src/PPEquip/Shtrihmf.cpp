@@ -889,15 +889,14 @@ int ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 							// Установка скидки на чек и выравнивание суммы чека до величины, заданной
 							// во входном файле (total_amount)
 							//
-							double chk_amt = 0.0;
-							double chk_dis = 0.0;
-							check_pack.CalcAmount(&chk_amt, &chk_dis);
-							if(chk_amt != total_amount || total_discount != 0.0) {
-								const  double new_discount = chk_dis + (fabs(chk_amt) - fabs(total_amount));
+							CcTotal cct;
+							check_pack.CalcAmount(&cct);
+							if(cct.Amount != total_amount || total_discount != 0.0) {
+								const  double new_discount = cct.Discount + (fabs(cct.Amount) - fabs(total_amount));
 								check_pack.SetTotalDiscount__(fabs(new_discount), (new_discount < 0.0) ? CCheckPacket::stdfPlus : 0);
-								check_pack.CalcAmount(&chk_amt, &chk_dis);
+								check_pack.CalcAmount(&cct);
 							}
-							THROW(SetTempCheckAmounts(chk_id, /*chk_amt*/total_amount, chk_dis));
+							THROW(SetTempCheckAmounts(chk_id, /*chk_amt*/total_amount, cct.Discount));
 						}
 						for(uint chk_pos = 0; check_pack.EnumLines(&chk_pos, &cchkl_rec);) {
 							TempCCheckLineTbl::Rec ccl_rec;

@@ -652,10 +652,12 @@ IMPL_HANDLE_EVENT(WordSelector)
 				DrawListItem2(static_cast<TDrawItemData *>(TVINFOPTR));
 				clearEvent(event);
 			}
-			else if(TVCMD == cmRightClick)
+			else if(TVCMD == cmRightClick) {
 				clearEvent(event);
-			else if(TVCMD == cmUp)
+			}
+			else if(TVCMD == cmUp) {
 				ActivateInput();
+			}
 			/*
 			else if(TVCMD == cmLBItemFocused && CheckActive())
 				;

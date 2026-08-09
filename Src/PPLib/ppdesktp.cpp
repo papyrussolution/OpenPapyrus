@@ -28,16 +28,27 @@ PPDesktopAssocCmd & PPDesktopAssocCmd::Z()
 	return *this;
 }
 
+PPDesktopAssocCmd::CodeBlock::CodeBlock() : Type(0), AddedIntVal(0), Flags(0)
+{
+	Key.Z();
+}
+
+PPDesktopAssocCmd::CodeBlock & PPDesktopAssocCmd::CodeBlock::Z()
+{
+	Type = 0;
+	AddedIntVal = 0;
+	Flags = 0;
+	Key.Z();
+	LenRange.Z();
+	AddedStrVal.Z();
+	return *this;
+}
+
 int PPDesktopAssocCmd::ParseCode(CodeBlock & rBlk) const
 {
 	int    ok = 1;
 	int    done = 0;
-	rBlk.Type = 0;
-	rBlk.Flags = 0;
-	rBlk.AddedIntVal = 0;
-	rBlk.LenRange.Z();
-	rBlk.AddedStrVal.Z();
-	rBlk.Key.Z();
+	rBlk.Z();
 	SString temp_buf;
 	SStrScan scan(Code);
 	do {
@@ -3018,6 +3029,17 @@ int TFacadeWindow::MakeNavList(CentrigoNavBlock & rBlk)
 				StdTreeListBoxDef * p_lb_def = new StdTreeListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify|lbtTextUtf8, 0);
 				if(p_lb_def) {
 					p_lb->setDef(p_lb_def);
+					{
+						for(uint ii = 0; ii < p_list->getCount(); ii++) {
+							StrAssocArray::Item item = p_list->at_WithoutParent(ii);
+							CentrigoNavBlock::Entry * p_entry = rBlk.SearchEntry(item.Id);
+							if(p_entry) {
+								if(p_entry->Oid.Obj == PPOBJ_WORKBOOK && p_entry->Oid.Id) {
+									p_lb_def->AddVecImageAssoc(item.Id, PPDV_DOCUMENT_TEXT01);
+								}
+							}
+						}
+					}
 					p_lb->SetExpandedTreeBranchList(&parent_list);
 					if(P_Lo_NavItem) {
 						float  height = 0.0f;
@@ -3510,6 +3532,9 @@ int TFacadeWindow::DrawNavTreeItem(void * pCustomDrawDescriptor)
 										}
 									}
 								}
+								if(p_lo_img && is_there_image) {
+									
+								}
 								if(p_lo_text) {
 									HFONT  hf = (HFONT)::GetStockObject(DEFAULT_GUI_FONT);
 									int    temp_font_id = p_tb->CreateFont_(0, hf, 0);
@@ -3582,7 +3607,6 @@ int TFacadeWindow::DrawNavTreeItem(void * pCustomDrawDescriptor)
 			}
 		case WM_NOTIFY:
 			{
-				// @todo @20260217 Здесь обработать NM_CUSTOMDRAW!
 				p_view = static_cast<TFacadeWindow *>(TView::GetWindowUserData(hWnd));
 				if(p_view) {
 					NMHDR * p_nm = reinterpret_cast<NMHDR *>(lParam);
@@ -3896,8 +3920,10 @@ IMPL_HANDLE_EVENT(TFacadeWindow)
 			;
 		}
 		else if(event.isCmd(cmMouse)) {
-			//MouseEvent * p_me = static_cast<MouseEvent *>(TVINFOPTR);
-			;
+			MouseEvent * p_me = static_cast<MouseEvent *>(TVINFOPTR);
+			if(p_me) {
+				debug_mark = true; // @debug
+			}
 		}
 		else if(event.isCmd(cmChildFocusReceived)) { // @v12.6.0
 			TView * p_child = static_cast<TView *>(TVINFOPTR);
@@ -3906,48 +3932,25 @@ IMPL_HANDLE_EVENT(TFacadeWindow)
 				H_RecentFocusedChild = h_c;
 			}
 		}
-		/* (тупиковая ветка) else if(event.isCmd(cmCustomDraw)) {
-			NMTVCUSTOMDRAW * p_tv_blk = reinterpret_cast<NMTVCUSTOMDRAW *>(event.message.infoPtr);
-			if(p_tv_blk && p_tv_blk->nmcd.hdr.idFrom == CTL_FACADEWINDOW_NAVPANE) {
-				TView * p_view = getCtrlView(CTL_FACADEWINDOW_NAVPANE);
-				if(p_view) {
-					switch(p_tv_blk->nmcd.dwDrawStage) {
-						case CDDS_PREPAINT:
-							clearEvent(event);
-							event.message.infoLong = CDRF_NOTIFYITEMDRAW;
-							break;
-						case CDDS_ITEMPREPAINT:
-							{
-								HTREEITEM h_item = reinterpret_cast<HTREEITEM>(p_tv_blk->nmcd.dwItemSpec);
-								debug_mark = true; // @debug
+		else if(event.isCmd(cmRightClick)) {
+			TView * p_view = static_cast<TView *>(TVINFOPTR);
+			if(p_view->IsConsistent() && p_view->IsSubSign(TV_SUBSIGN_LISTBOX)) {
+				SmartListBox * p_lb = static_cast<SmartListBox *>(p_view);
+				int    _id = 0;
+				if(p_lb->getCurID(&_id)) {
+					if(_id) {
+						const CentrigoNavBlock::Entry * p_entry = NavBlk.SearchEntry(_id);
+						if(p_entry) {
+							debug_mark = true; // @debug
+							if(p_entry->Oid.Obj == PPOBJ_WORKBOOK) {
+								
 							}
-							break;
-					}
-				}
-			}
-			debug_mark = true;
-		}*/
-		/*
-		else if(event.isCmd(cmDrawItem)) {
-			if(false) {
-				TDrawItemData * p_draw_item = static_cast<TDrawItemData *>(TVINFOPTR);
-				if(p_draw_item && p_draw_item->P_View) {
-					PPID   list_ctrl_id = p_draw_item->P_View->GetId();
-					if(list_ctrl_id == CTL_FACADEWINDOW_NAVPANE) {
-						SmartListBox * p_lbx = static_cast<SmartListBox *>(p_draw_item->P_View);
-						if(p_draw_item->ItemAction & TDrawItemData::iaBackground) {
-							debug_mark = true; // @debug
-							//canv.Rect(_rc, 0, clrBkgnd);
-							//p_draw_item->ItemAction = 0; // Мы перерисовали фон
-						}
-						else if(p_draw_item->ItemID != _FFFF32) {
-							debug_mark = true; // @debug
 						}
 					}
 				}
+				clearEvent(event);
 			}
 		}
-		*/
 		else if(event.isCmd(cmLBDblClk)) {
 			TView * p_view = static_cast<TView *>(TVINFOPTR);
 			if(p_view->IsConsistent() && p_view->IsSubSign(TV_SUBSIGN_LISTBOX)) {
@@ -5233,9 +5236,10 @@ void CentrigoSecretsDialog::SetupSegmentType(uint type)
 @secretpool_bcard_cvv    "CVV/CVC-код"
 @secretpool_bcard_expiry "Срок действия карты"
 		*/ 
+	SUiLayout * p_lo_core = FindLayoutBySymb("LO_CORE");
 	switch(type) {
 		case PPSecretSegment::sectypUndef:
-			ResetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
+			ResetChildLayoutExcludedStatus(p_lo_core);
 			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
 			showCtrl(CTL_SECRETPOOL_TOPEN, true);
 			setLabelText(CTL_SECRETPOOL_TOPEN, "@secretpool_textopen");
@@ -5247,7 +5251,7 @@ void CentrigoSecretsDialog::SetupSegmentType(uint type)
 			showCtrl(CTL_SECRETPOOL_TEXT3, false);
 			break;
 		case PPSecretSegment::sectypFolder:
-			SetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
+			SetChildLayoutExcludedStatus(p_lo_core);
 			showCtrl(CTL_SECRETPOOL_EXPIRY, false);
 			showCtrl(CTL_SECRETPOOL_TOPEN, false);
 			showCtrl(CTL_SECRETPOOL_THIDDEN, false);
@@ -5258,7 +5262,7 @@ void CentrigoSecretsDialog::SetupSegmentType(uint type)
 			enable_type_selection = false;
 			break;
 		case PPSecretSegment::sectypGeneric:
-			ResetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
+			ResetChildLayoutExcludedStatus(p_lo_core);
 			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
 			showCtrl(CTL_SECRETPOOL_TOPEN, true);
 			setLabelText(CTL_SECRETPOOL_TOPEN, "@secretpool_textopen");
@@ -5270,7 +5274,7 @@ void CentrigoSecretsDialog::SetupSegmentType(uint type)
 			showCtrl(CTL_SECRETPOOL_TEXT3, false);
 			break;
 		case PPSecretSegment::sectypPassword:
-			ResetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
+			ResetChildLayoutExcludedStatus(p_lo_core);
 			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
 			showCtrl(CTL_SECRETPOOL_TOPEN, false);
 			showCtrl(CTL_SECRETPOOL_THIDDEN, true);
@@ -5281,7 +5285,7 @@ void CentrigoSecretsDialog::SetupSegmentType(uint type)
 			showCtrl(CTL_SECRETPOOL_TEXT3, false);
 			break;
 		case PPSecretSegment::sectypAuthSecret:
-			ResetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
+			ResetChildLayoutExcludedStatus(p_lo_core);
 			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
 			showCtrl(CTL_SECRETPOOL_TOPEN, true);
 			setLabelText(CTL_SECRETPOOL_TOPEN, "@secretpool_textopen");
@@ -5293,7 +5297,7 @@ void CentrigoSecretsDialog::SetupSegmentType(uint type)
 			showCtrl(CTL_SECRETPOOL_TEXT3, false);
 			break;
 		case PPSecretSegment::sectypOpenKey:
-			ResetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
+			ResetChildLayoutExcludedStatus(p_lo_core);
 			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
 			showCtrl(CTL_SECRETPOOL_TOPEN, true);
 			setLabelText(CTL_SECRETPOOL_TOPEN, "@secretpool_textopen");
@@ -5305,7 +5309,7 @@ void CentrigoSecretsDialog::SetupSegmentType(uint type)
 			showCtrl(CTL_SECRETPOOL_TEXT3, false);
 			break;
 		case PPSecretSegment::sectypBankCard:
-			ResetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
+			ResetChildLayoutExcludedStatus(p_lo_core);
 			showCtrl(CTL_SECRETPOOL_EXPIRY, false);
 			showCtrl(CTL_SECRETPOOL_TOPEN, true);
 			setLabelText(CTL_SECRETPOOL_TOPEN, "@secretpool_bcard_n");
@@ -5319,7 +5323,7 @@ void CentrigoSecretsDialog::SetupSegmentType(uint type)
 			showCtrl(CTL_SECRETPOOL_TEXT3, false);
 			break;
 		case PPSecretSegment::sectypSSH:
-			ResetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
+			ResetChildLayoutExcludedStatus(p_lo_core);
 			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
 			showCtrl(CTL_SECRETPOOL_TOPEN, true);
 			setLabelText(CTL_SECRETPOOL_TOPEN, "@secretpool_ssh_pubkey");
@@ -5332,7 +5336,7 @@ void CentrigoSecretsDialog::SetupSegmentType(uint type)
 			showCtrl(CTL_SECRETPOOL_TEXT3, false);
 			break;
 		case PPSecretSegment::sectypESignature:
-			ResetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
+			ResetChildLayoutExcludedStatus(p_lo_core);
 			showCtrl(CTL_SECRETPOOL_EXPIRY, true);
 			showCtrl(CTL_SECRETPOOL_TOPEN, true);
 			setLabelText(CTL_SECRETPOOL_TOPEN, "@secretpool_textopen");
@@ -5344,7 +5348,7 @@ void CentrigoSecretsDialog::SetupSegmentType(uint type)
 			showCtrl(CTL_SECRETPOOL_TEXT3, false);
 			break;
 		case PPSecretSegment::sectypPlainText:
-			SetChildLayoutExcludedStatus(CTL_SECRETPOOL_FRAME_TEXT);
+			SetChildLayoutExcludedStatus(p_lo_core);
 			showCtrl(CTL_SECRETPOOL_EXPIRY, false);
 			showCtrl(CTL_SECRETPOOL_TOPEN, false);
 			showCtrl(CTL_SECRETPOOL_THIDDEN, false);

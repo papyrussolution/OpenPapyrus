@@ -3753,7 +3753,7 @@ int PPViewCCheck::CalcTotal(CCheckTotal * pTotal)
 		for(InitIteration(0); NextIteration(&item) > 0;) {
 			const double amount = MONEYTOLDBL(item.Amount);
 			if(Filt.Grp != CCheckFilt::gNone) {
-				cs_total.Amount += amount;
+				cs_total.CcT.Amount += amount;
 				cs_total.BnkAmount += item.BnkAmt;
 				cs_total.CSCardAmount += item.CrdCardAmt;
 				pTotal->Count += item.G_Count;
@@ -3772,11 +3772,11 @@ int PPViewCCheck::CalcTotal(CCheckTotal * pTotal)
 			}
 			PPWaitPercent(GetCounter());
 		}
-		pTotal->Amount = cs_total.Amount;
-		pTotal->Discount = cs_total.Discount;
+		pTotal->Amount = cs_total.CcT.Amount;
+		pTotal->Discount = cs_total.CcT.Discount;
 		pTotal->AmtBank = cs_total.BnkAmount;
 		pTotal->AmtSCard = cs_total.CSCardAmount;
-		pTotal->AmtCash = (cs_total.Amount - cs_total.BnkAmount - cs_total.CSCardAmount);
+		pTotal->AmtCash = (cs_total.CcT.Amount - cs_total.BnkAmount - cs_total.CSCardAmount);
 		pTotal->AmtReturn = cs_total.RetAmount;
 		pTotal->AmtAltReg = cs_total.AltRegAmount;
 		pTotal->CountAltReg = cs_total.AltRegCount;

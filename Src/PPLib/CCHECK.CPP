@@ -6,6 +6,18 @@
 #include <pp.h>
 #pragma hdrstop
 #include <ppsoapclient.h>
+
+CcTotal::CcTotal() : Count(0), Amount(0.0), Discount(0.0)
+{
+}
+
+CcTotal & CcTotal::Z()
+{
+	Count = 0;
+	Amount = 0.0;
+	Discount = 0.0;
+	return *this;
+}
 //
 //
 //
@@ -1621,7 +1633,7 @@ int CCheckPacket::SetupPaymList(const CcAmountList * pList)
 	SString temp_buf;
 	if(pList && pList->getCount()) {
 		const double _total = pList->GetTotal();
-		const double _amt = CalcAmount(0, 0);
+		const double _amt = CalcAmount(0);
 		if(!feqeps(_amt, _total, 1E-6)) {
 			CCheckCore::MakeCodeString(&Rec, 0, temp_buf);
 			ok = PPSetError(PPERR_CCPAYMLISTDIFFAMT, temp_buf);
@@ -1747,7 +1759,22 @@ double FASTCALL CCheckPacket::GetItemDiscount(const CCheckLineTbl::Rec & rItem) 
 	return (rItem.Dscnt * rItem.Quantity);
 }
 
-double CCheckPacket::CalcAmount(double * pAmt, double * pDscnt) const
+double CCheckPacket::CalcAmount(CcTotal * pResult) const
+{
+	CcTotal cct;
+	CCheckLineTbl::Rec item;
+	for(uint i = 0; EnumLines(&i, &item);) {
+		const  double qtty = item.Quantity;
+		const  double s  = intmnytodbl(item.Price) * qtty;
+		const  double ds = item.Dscnt * qtty;
+		cct.Amount   = R2(cct.Amount + s - ds);
+		cct.Discount = R2(cct.Discount + ds);
+	}
+	ASSIGN_PTR(pResult, cct);
+	return cct.Amount;
+}
+
+double CCheckPacket::CalcAmount_Obsolete(double * pAmt, double * pDscnt) const
 {
 	double amount = 0.0;
 	double discount = 0.0;
@@ -1766,13 +1793,14 @@ double CCheckPacket::CalcAmount(double * pAmt, double * pDscnt) const
 
 void CCheckPacket::SetupAmount(double * pAmt, double * pDscnt)
 {
-	double amt = 0.0;
-	double dscnt = 0.0;
-	CalcAmount(&amt, &dscnt);
-	LDBLTOMONEY(amt, Rec.Amount);
-	LDBLTOMONEY(dscnt, Rec.Discount);
-	ASSIGN_PTR(pAmt, amt);
-	ASSIGN_PTR(pDscnt, dscnt);
+	//double amt = 0.0;
+	//double dscnt = 0.0;
+	CcTotal cct;
+	CalcAmount(&cct);
+	LDBLTOMONEY(cct.Amount, Rec.Amount);
+	LDBLTOMONEY(cct.Discount, Rec.Discount);
+	ASSIGN_PTR(pAmt, cct.Amount);
+	ASSIGN_PTR(pDscnt, cct.Discount);
 }
 
 int CCheckPacket::HasNonFiscalAmount(double * pFiscal, double * pNonFiscal) const
@@ -1915,9 +1943,9 @@ CSessTotal & CSessTotal::Z()
 
 void FASTCALL CSessTotal::Add(const CSessTotal * pSubTotal)
 {
-	CheckCount     += pSubTotal->CheckCount;
-	Amount         += pSubTotal->Amount;
-	Discount       += pSubTotal->Discount;
+	CcT.Count      += pSubTotal->CcT.Count;
+	CcT.Amount     += pSubTotal->CcT.Amount;
+	CcT.Discount   += pSubTotal->CcT.Discount;
 	BnkAmount      += pSubTotal->BnkAmount;    // @CSCardAmount
 	CSCardAmount   += pSubTotal->CSCardAmount;
 	WORetAmount    += pSubTotal->WORetAmount;
@@ -2236,23 +2264,24 @@ int CCheckCore::ValidateCheck(PPID id, ValidateCheckParam & rParam, PPLogger & r
 	SString chk_text;
 	SString msg_buf;
 	if(LoadPacket(id, 0, &cc_pack) > 0) {
-		double amt = 0.0;
-		double dscnt = 0.0;
+		//double amt = 0.0;
+		//double dscnt = 0.0;
+		CcTotal cct;
 		CCheckCore::MakeCodeString(&cc_pack.Rec, 0, chk_text);
-		cc_pack.CalcAmount(&amt, &dscnt);
+		cc_pack.CalcAmount(&cct);
 		const double rec_amt   = MONEYTOLDBL(cc_pack.Rec.Amount);
 		const double rec_dscnt = MONEYTOLDBL(cc_pack.Rec.Discount);
-		if(!feqeps(amt, rec_amt, rParam.Tolerance)) {
+		if(!feqeps(cct.Amount, rec_amt, rParam.Tolerance)) {
 			rParam.ErrorFlags |= ValidateCheckParam::efInvAmount;
 			// #error Сумма чека не совпадает с суммой по строкам
-			rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVAMOUNT, fmt_buf), chk_text.cptr(), rec_amt - amt));
+			rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVAMOUNT, fmt_buf), chk_text.cptr(), rec_amt - cct.Amount));
 			rParam.ErrorFlags |= ValidateCheckParam::efInvAmount;
 			ok = 0;
 		}
-		if(!feqeps(dscnt, rec_dscnt, rParam.Tolerance)) {
+		if(!feqeps(cct.Discount, rec_dscnt, rParam.Tolerance)) {
 			rParam.ErrorFlags |= ValidateCheckParam::efInvDiscount;
 			// #error Сумма скидки чека не совпадает с суммой скидки по строкам
-			rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVDSCNT, fmt_buf), chk_text.cptr(), rec_dscnt - dscnt));
+			rLogger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_CCHKERR_INVDSCNT, fmt_buf), chk_text.cptr(), rec_dscnt - cct.Discount));
 			rParam.ErrorFlags |= ValidateCheckParam::efInvDiscount;
 			ok = 0;
 		}
@@ -3337,13 +3366,13 @@ int CCheckCore::AddRecToSessTotal(const CCheckTbl::Rec * pRec, CSessTotal * pTot
 		ok = -1;
 	}
 	else {
-		pTotal->CheckCount++;
+		pTotal->CcT.Count++;
 		if(!(pRec->Flags & CCHKF_ZCHECK)) {
 			double amount = MONEYTOLDBL(pRec->Amount);
 			double add_paym = 0.0;
 			CCheckExtTbl::Rec ext_rec;
-			pTotal->Amount   += amount;
-			pTotal->Discount += MONEYTOLDBL(pRec->Discount);
+			pTotal->CcT.Amount   += amount;
+			pTotal->CcT.Discount += MONEYTOLDBL(pRec->Discount);
 			if(pRec->Flags & CCHKF_ALTREG) {
 				pTotal->AltRegCount++;
 				pTotal->AltRegAmount += amount;
@@ -4954,7 +4983,7 @@ int CSessGrouping::Grouping(PPID sessID, CSessTotal * pTotal, const LAssocArray 
 				long _f = (ggl_flags | CS.GetCcGroupingFlags(sess_rec, 0));
 				THROW(CC.GroupingToGoodsLines(sessID, &total, &cg_list, _f, 0));
 			}
-			cg_list.AdjustToSess(total.Amount);
+			cg_list.AdjustToSess(total.CcT.Amount);
 			THROW(GL.Add(sessID, &cg_list, 0));
 			if(pSubstList)
 				THROW(GL.SetDfctSubstList(sessID, pSubstList, 0));
@@ -5468,7 +5497,7 @@ int CSessGrouping::Convert(PPID sessID, PPID locID, const void * pData, CSessTot
 		THROW(ConvertDeficit(sessID, locID, pTotal));
 		GL.CalcSessTotal(sessID, pTotal);
 		if(!(r_eq_cfg.Flags & PPEquipConfig::fDisableAdjWrOffAmount)) {
-			double to_adj_amt = (pTotal->Amount-pTotal->AggrAmount) - (local_wr_off_amount + pTotal->WrOffAmount);
+			double to_adj_amt = (pTotal->CcT.Amount-pTotal->AggrAmount) - (local_wr_off_amount + pTotal->WrOffAmount);
 			long   oad_pos, oad_ext_pos;
 			if(fabs(to_adj_amt) > 0.01 && fabs(to_adj_amt) < 10.0 && oad.GetOptimal(oad_pos, &oad_ext_pos, 0, 0)) {
 				PPBillPacket adj_pack;
@@ -5546,7 +5575,6 @@ int CSessGrouping::TurnAccBill(PPID sessID, PPID locID, int use_ta)
 						}
 					}
 				}
-				// @v11.0.5 {
 				if(is_new_bill) {
 					acc_bill_list_with_other_op.sortAndUndup(); // @paranoic
 					if(acc_bill_list_with_other_op.getCount() == 1) {
@@ -5555,7 +5583,6 @@ int CSessGrouping::TurnAccBill(PPID sessID, PPID locID, int use_ta)
 						bill_id_to_remove = acc_bill_list_with_other_op.get(0);
 					}
 				}
-				// } @v11.0.5 
 			}
 			{
 				PPTransaction tra(use_ta);
@@ -5566,36 +5593,31 @@ int CSessGrouping::TurnAccBill(PPID sessID, PPID locID, int use_ta)
 				else
 					pack.Rec.Dt = sess_rec.Dt;
 				p_bobj->SubstMemo(&pack);
-				THROW(pack.Amounts.Put(PPAMT_MAIN,        0L/*curID*/, total.Amount,       1, 1));
-				THROW(pack.Amounts.Put(PPAMT_DISCOUNT,    0L/*curID*/, total.Discount,     1, 1));
-				THROW(pack.Amounts.Put(PPAMT_CS_CASH,     0L/*curID*/, total.Amount - total.BnkAmount - total.CSCardAmount, 1, 1));
+				THROW(pack.Amounts.Put(PPAMT_MAIN,        0L/*curID*/, total.CcT.Amount,       1, 1));
+				THROW(pack.Amounts.Put(PPAMT_DISCOUNT,    0L/*curID*/, total.CcT.Discount,     1, 1));
+				THROW(pack.Amounts.Put(PPAMT_CS_CASH,     0L/*curID*/, total.CcT.Amount - total.BnkAmount - total.CSCardAmount, 1, 1));
 				THROW(pack.Amounts.Put(PPAMT_CS_BANK,     0L/*curID*/, total.BnkAmount,    1, 1));
 				THROW(pack.Amounts.Put(PPAMT_CS_CSCARD,   0L/*curID*/, total.CSCardAmount, 1, 1));
 				THROW(pack.Amounts.Put(PPAMT_CS_AGGRSUM,  0L/*curID*/, total.AggrAmount,   1, 1));
 				THROW(pack.Amounts.Put(PPAMT_CS_AGGRREST, 0L/*curID*/, total.AggrRest,     1, 1));
 				if(do_calc_vat) {
 					if(!is_new_bill) {
-						THROW(pack.Amounts.Put(tais.VatAmtID[0], 0L/*curID*/, 0.0, 1, 1));
-						THROW(pack.Amounts.Put(tais.VatAmtID[1], 0L/*curID*/, 0.0, 1, 1));
-						THROW(pack.Amounts.Put(tais.VatAmtID[2], 0L/*curID*/, 0.0, 1, 1));
+						for(uint vri = 0; vri < SIZEOFARRAY(tais.VatRate); vri++) {
+							THROW(pack.Amounts.Put(tais.VatAmtID[vri], 0L/*curID*/, 0.0, 1, 1));
+						}
 					}
 					for(uint i = 0; i < bva_list.getCount(); i++) {
 						const BVATAccm & r_bva_item = bva_list.at(i);
-						if(r_bva_item.PRate == fdiv100i(tais.VatRate[0])) {
-							double vatamt = r_bva_item.PTrnovr * SalesTaxMult(fdiv100i(tais.VatRate[0]));
-							THROW(pack.Amounts.Put(tais.VatAmtID[0], 0L /* curID */, vatamt, 1, 1));
-						}
-						else if(r_bva_item.PRate == fdiv100i(tais.VatRate[1])) {
-							double vatamt = r_bva_item.PTrnovr * SalesTaxMult(fdiv100i(tais.VatRate[1]));
-							THROW(pack.Amounts.Put(tais.VatAmtID[1], 0L /* curID */, vatamt, 1, 1));
-						}
-						else if(r_bva_item.PRate == fdiv100i(tais.VatRate[2])) {
-							double vatamt = r_bva_item.PTrnovr * SalesTaxMult(fdiv100i(tais.VatRate[2]));
-							THROW(pack.Amounts.Put(tais.VatAmtID[2], 0L /* curID */, vatamt, 1, 1));
+						for(uint vri = 0; vri < SIZEOFARRAY(tais.VatRate); vri++) {
+							const  double vatrate = fdiv100i(tais.VatRate[vri]);
+							if(tais.VatAmtID[vri] && feqeps(r_bva_item.PRate, vatrate, -6)) {
+								const  double vatamt = r_bva_item.PTrnovr * SalesTaxMult(vatrate);
+								THROW(pack.Amounts.Put(tais.VatAmtID[vri], 0L/*curID*/, vatamt, 1, 1));
+							}
 						}
 					}
 				}
-				pack.Rec.Amount = total.Amount;
+				pack.Rec.Amount = total.CcT.Amount;
 				pack.SetPoolMembership(PPBillPacket::bpkCSess, sessID);
 				//
 				// Что бы при ручном редактировании не снесли рассчитанные суммы зафиксируем их.
@@ -5604,11 +5626,9 @@ int CSessGrouping::TurnAccBill(PPID sessID, PPID locID, int use_ta)
 				pack.InitAmounts();
 				THROW(p_bobj->FillTurnList(&pack));
 				if(is_new_bill) {
-					// @v11.0.5 {
 					if(bill_id_to_remove) {
 						THROW(p_bobj->RemovePacket(bill_id_to_remove, 0));
 					}
-					// } @v11.0.5 
 					THROW(p_bobj->TurnPacket(&pack, 0));
 					Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
 				}
@@ -5696,36 +5716,31 @@ int CSessGrouping::ConvertToBills(PPID sessID, PPID locID, const char * pMsg, ui
 				else
 					pack.Rec.Dt = sess_rec.Dt;
 				p_bobj->SubstMemo(&pack);
-				THROW(pack.Amounts.Put(PPAMT_MAIN,        0L/*curID*/, total.Amount,       1, 1));
-				THROW(pack.Amounts.Put(PPAMT_DISCOUNT,    0L/*curID*/, total.Discount,     1, 1));
-				THROW(pack.Amounts.Put(PPAMT_CS_CASH,     0L/*curID*/, total.Amount - total.BnkAmount - total.CSCardAmount, 1, 1));
+				THROW(pack.Amounts.Put(PPAMT_MAIN,        0L/*curID*/, total.CcT.Amount,       1, 1));
+				THROW(pack.Amounts.Put(PPAMT_DISCOUNT,    0L/*curID*/, total.CcT.Discount,     1, 1));
+				THROW(pack.Amounts.Put(PPAMT_CS_CASH,     0L/*curID*/, total.CcT.Amount - total.BnkAmount - total.CSCardAmount, 1, 1));
 				THROW(pack.Amounts.Put(PPAMT_CS_BANK,     0L/*curID*/, total.BnkAmount,    1, 1));
 				THROW(pack.Amounts.Put(PPAMT_CS_CSCARD,   0L/*curID*/, total.CSCardAmount, 1, 1));
 				THROW(pack.Amounts.Put(PPAMT_CS_AGGRSUM,  0L/*curID*/, total.AggrAmount,   1, 1));
 				THROW(pack.Amounts.Put(PPAMT_CS_AGGRREST, 0L/*curID*/, total.AggrRest,     1, 1));
 				if(do_calc_vat) {
 					if(!is_new_bill) {
-						THROW(pack.Amounts.Put(tais.VatAmtID[0], 0L/*curID*/, 0.0, 1, 1));
-						THROW(pack.Amounts.Put(tais.VatAmtID[1], 0L/*curID*/, 0.0, 1, 1));
-						THROW(pack.Amounts.Put(tais.VatAmtID[2], 0L/*curID*/, 0.0, 1, 1));
+						for(uint vri = 0; vri < SIZEOFARRAY(tais.VatRate); vri++) {
+							THROW(pack.Amounts.Put(tais.VatAmtID[vri], 0L/*curID*/, 0.0, 1, 1));
+						}
 					}
 					for(uint i = 0; i < bva_list.getCount(); i++) {
 						const BVATAccm & r_bva_item = bva_list.at(i);
-						if(r_bva_item.PRate == fdiv100i(tais.VatRate[0])) {
-							double vatamt = r_bva_item.PTrnovr * SalesTaxMult(fdiv100i(tais.VatRate[0]));
-							THROW(pack.Amounts.Put(tais.VatAmtID[0], 0L /* curID */, vatamt, 1, 1));
-						}
-						else if(r_bva_item.PRate == fdiv100i(tais.VatRate[1])) {
-							double vatamt = r_bva_item.PTrnovr * SalesTaxMult(fdiv100i(tais.VatRate[1]));
-							THROW(pack.Amounts.Put(tais.VatAmtID[1], 0L /* curID */, vatamt, 1, 1));
-						}
-						else if(r_bva_item.PRate == fdiv100i(tais.VatRate[2])) {
-							double vatamt = r_bva_item.PTrnovr * SalesTaxMult(fdiv100i(tais.VatRate[2]));
-							THROW(pack.Amounts.Put(tais.VatAmtID[2], 0L /* curID */, vatamt, 1, 1));
+						for(uint vri = 0; vri < SIZEOFARRAY(tais.VatRate); vri++) {
+							const  double vatrate = fdiv100i(tais.VatRate[vri]);
+							if(tais.VatAmtID[vri] && feqeps(r_bva_item.PRate, vatrate, 1E-6)) {
+								const  double vatamt = r_bva_item.PTrnovr * SalesTaxMult(vatrate);
+								THROW(pack.Amounts.Put(tais.VatAmtID[vri], 0L/*curID*/, vatamt, 1, 1));
+							}
 						}
 					}
 				}
-				pack.Rec.Amount = total.Amount;
+				pack.Rec.Amount = total.CcT.Amount;
 				pack.SetPoolMembership(PPBillPacket::bpkCSess, sessID);
 				//
 				// Что бы при ручном редактировании не снесли рассчитанные суммы зафиксируем их.
@@ -6474,16 +6489,16 @@ int CCheckCore::CorrectCCLineProblem01()
 				const  PPID cc_id = data.ID;
 				THROW_DB(getPosition(&c_pos));
 				if(LoadPacket(cc_id, 0, &cc_pack) > 0) {
-					double amt = cc_pack.CalcAmount(0, 0);
-					const double rec_amt   = MONEYTOLDBL(cc_pack.Rec.Amount);
-					const double rec_dscnt = MONEYTOLDBL(cc_pack.Rec.Discount);
+					double amt = cc_pack.CalcAmount(0);
+					const  double rec_amt   = MONEYTOLDBL(cc_pack.Rec.Amount);
+					const  double rec_dscnt = MONEYTOLDBL(cc_pack.Rec.Discount);
 					if(fabs(amt - rec_amt) > tolerance) {
 						LongArray rbc_list;
 						uint c = cc_pack.Items_.getCount();
 						while(c--) {
 							rbc_list.add(cc_pack.Items_.at(0).RByCheck);
 							cc_pack.Items_.atFree(0);
-							amt = cc_pack.CalcAmount(0, 0);
+							amt = cc_pack.CalcAmount(0);
 							if(fabs(amt - rec_amt) <= tolerance) {
 								for(uint i = 0; i < rbc_list.getCount(); i++) {
 									CCheckLineTbl::Key0 lk0;

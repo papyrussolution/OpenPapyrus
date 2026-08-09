@@ -204,7 +204,7 @@ int ListBoxDef::TransmitData(int dir, void * pData)
 	return s;
 }
 
-void * ListBoxDef::CreateImageList(HINSTANCE hInst) // @v10.9.4 HIMAGELIST-->(void *)
+void * ListBoxDef::CreateImageList(HINSTANCE hInst)
 {
 	HIMAGELIST himl = NULL;
 	LAssocArray added_list;
@@ -212,51 +212,19 @@ void * ListBoxDef::CreateImageList(HINSTANCE hInst) // @v10.9.4 HIMAGELIST-->(vo
 	if(ImageAssoc.getCount()) {
 		himl = ImageList_Create(GetSystemMetrics(SM_CXSMICON), GetSystemMetrics(SM_CYSMICON), ILC_COLOR8, 16, 64);
 		for(uint i = 0; i < ImageAssoc.getCount(); i++) {
-			long item_id  = ImageAssoc.at(i).Key;
-			uint image_id = static_cast<uint>(ImageAssoc.at(i).Val);
-			long image_idx = -1;
+			const  long item_id  = ImageAssoc.at(i).Key;
+			const  uint image_id = static_cast<uint>(ImageAssoc.at(i).Val);
+			long   image_idx = -1;
 			if(!added_list.Search(image_id, &image_idx, 0)) {
 				if(image_id & SlConst::VectorImageMask) {
 					TWhatmanToolArray::Item tool_item;
-					const SDrawFigure * p_fig = APPL->LoadDrawFigureById(image_id, &tool_item); // @v10.5.0 (image_id & ~0x40000000)-->image_id
-					// @v11.9.2 {
+					const SDrawFigure * p_fig = APPL->LoadDrawFigureById(image_id, &tool_item);
 					SPtrHandle h_icon = TCanvas2::TransformDrawFigureToIcon(APPL->GetUiToolBox(), p_fig, SPoint2S(16, 16), tool_item.ReplacedColor, SColor(255, 255, 255, 255));
 					if(h_icon) {
 						image_idx = ImageList_AddIcon(himl, reinterpret_cast<HICON>((void *)h_icon));
 						added_list.Add(image_id, image_idx, 0);
 						::DestroyIcon(reinterpret_cast<HICON>((void *)h_icon));
 					}
-					// } @v11.9.2 
-					/* @v11.9.2
-					if(p_fig) {
-						const uint _w = 16;
-						const uint _h = 16;
-						SImageBuffer ib(_w, _h);
-						SPaintToolBox * p_tb = APPL->GetUiToolBox();
-						if(p_tb) {
-							TCanvas2 canv(*p_tb, ib);
-							if(!tool_item.ReplacedColor.IsEmpty()) {
-								SColor replacement_color = p_tb->GetColor(TProgram::tbiIconRegColor);
-								canv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
-							}
-							LMatrix2D mtx;
-							SViewPort vp;
-							FRect pic_bounds(static_cast<float>(_w), static_cast<float>(_h));
-							//
-							canv.Rect(pic_bounds);
-							canv.Fill(SColor(255, 255, 255, 255), 0); // Прозрачный фон
-							canv.PushTransform();
-							p_fig->GetViewPort(&vp);
-							canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
-							canv.Draw(p_fig);
-						}
-						HICON h_icon = static_cast<HICON>(ib.TransformToIcon());
-						if(h_icon) {
-							image_idx = ImageList_AddIcon(himl, h_icon);
-							added_list.Add(image_id, image_idx, 0);
-							::DestroyIcon(h_icon);
-						}
-					}*/
 				}
 				else {
 					HICON h_icon = LoadIcon(hInst, MAKEINTRESOURCE(image_id));

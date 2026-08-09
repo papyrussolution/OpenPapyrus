@@ -617,7 +617,7 @@ int GoodsRestFiltDlg::setDTS(const GoodsRestFilt * pFilt)
 	}
 	setWL(LOGIC(Data.Flags & GoodsRestFilt::fLabelOnly));
 	SetPeriodInput(this, CTL_GOODSREST_DRAFTPRD, Data.DraftRcptPrd);
-	SetupStringCombo(this, CTLSEL_GOODSREST_ORD, PPTXT_GOODSRESTORDER, Data.InitOrder); // @v11.4.6
+	SetupStringCombo(this, CTLSEL_GOODSREST_ORD, PPTXT_GOODSRESTORDER, Data.InitOrder);
 	SetupCtrls();
 	SetupCrosstab();
 	return ok;

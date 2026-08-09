@@ -722,6 +722,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 	SString list_box_columns; // @v12.3.3
 	SString unterm_error_addedmsg;
 	SString design; // @v12.3.9
+	SString layout_symb; // @v12.7.2
 	FRect  label_bbox;
 	uint   ownerdraw = 0; // @v12.6.4 ownerdrawXXX 
 	int    fmt_prec = 0;
@@ -1164,7 +1165,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 						occurence_margin |= (occsLeft|occsTop|occsRight|occsBottom);
 					}
 					else if(oneof3(p_prop->Value.Code, CtmToken::acLayoutItemSizeEntry, T_CONST_REAL, T_CONST_INT)) {
-						uint local_cast_flags = 0;
+						uint   local_cast_flags = 0;
 						double v = p_prop->Value.GetDouble(&local_cast_flags);
 						alb.Margin.Set(static_cast<float>(v));
 						occurence_margin |= (occsLeft|occsTop|occsRight|occsBottom);
@@ -1746,6 +1747,21 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 						unterm_error_addedmsg = prop_key;
 					}
 				}
+				else if(prop_key == "layoutsymbol" || prop_key == "layoutsymb") { // @v12.7.2
+					if(layout_symb.IsEmpty()) {
+						if(p_prop->Value.IsIdent() || p_prop->Value.IsString()) {
+							prop_val = p_prop->Value.U.S;
+							(layout_symb = prop_val).Strip();
+						}
+						else {
+							// @err invalid variable value
+						}
+					}
+					else {
+						unterm_errcode = PPERR_DL6_PROP_REDEF;
+						unterm_error_addedmsg = prop_key;
+					}
+				}
 				else {
 					unterm_errcode = PPERR_DL6_PROP_INVALIDSYMB; // "DL600 неизвестный символ свойства '%s'"
 					unterm_error_addedmsg = prop_key;
@@ -1800,6 +1816,11 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		CtmExprConst c;
 		AddConst(static_cast<uint32>(control_flags), &c);
 		p_scope->AddConst(DlScope::cuifFlags, c, 1);
+	}
+	if(layout_symb.NotEmpty()) { // @v12.7.2
+		CtmExprConst c;
+		AddConst(layout_symb, &c);
+		p_scope->AddConst(DlScope::cuifLayoutSymbol, c, 1);
 	}
 	if(command_ident.NotEmpty()) {
 		CtmExprConst c;

@@ -1194,13 +1194,14 @@ int TInputLine::Implement_GetText()
 	int    ok = 1;
 	HWND   h_wnd = GetDlgItem(Parent, Id);
 	if(h_wnd) {
+		const  size_t max_len = GetMaxLen(); // MaxLen-->GetMaxLen()
 		// @v12.6.11 {
 		if(ViewOptions & ofUtf8) {
 			TView::SGetWindowTextUtf8(h_wnd, Data);
 			uint   _lenutf8 = Data.LenUtf8();
-			if(MaxLen > 0) {
-				if(_lenutf8 > MaxLen) {
-					Data.TrimUtf8(MaxLen);
+			if(max_len > 0) {
+				if(_lenutf8 > max_len) {
+					Data.TrimUtf8(max_len);
 				}
 			}
 			else if(_lenutf8 > default_len_limit) {
@@ -1211,7 +1212,7 @@ int TInputLine::Implement_GetText()
 		{
 			TView::SGetWindowText(h_wnd, Data);
 			Data.Transf(CTRANSF_OUTER_TO_INNER);
-			Data.Trim((MaxLen > 0) ? MaxLen : default_len_limit);
+			Data.Trim((max_len > 0) ? max_len : default_len_limit);
 		}
 	}
 	else

@@ -1777,15 +1777,24 @@ int SetupStringComboDevice(TDialog * dlg, uint ctlID, uint dvcClass, long initID
 }
 // } @vmiller
 
-static int Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SString & rLineBuf, const StrAssocArray * pAddendumList, const LongArray * pAllowedList, long initID)
+
+//
+// ARG(sortBy IN): 
+//   0 - порядок сортировки тот же, что и исходной строке
+//   1 - сортировать по тексту
+//
+static int Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SString & rLineBuf, 
+	const StrAssocArray * pAddendumList, const LongArray * pAllowedList, long initID, int sortBy)
 {
 	int    ok = 1;
 	StrAssocArray * p_list = 0;
 	if(rLineBuf.NotEmpty()) {
-		ComboBox * p_cb = 0;
-		if((p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctlID))) != 0) {
+		ComboBox * p_cb = static_cast<ComboBox *>(dlg->getCtrlView(ctlID));
+		if(p_cb) {
 			int    idx = 0;
-			SString item_buf, id_buf, txt_buf;
+			SString item_buf;
+			SString id_buf;
+			SString txt_buf;
 			THROW_MEM(p_list = new StrAssocArray());
 			for(idx = 0; PPGetSubStr(rLineBuf, idx, item_buf) > 0; idx++) {
 				long   id = 0;
@@ -1805,6 +1814,11 @@ static int Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SString & rL
 					THROW_SL(p_list->Add(ai.Id, ai.Txt, 0));
 				}
 			}
+			// @v12.7.2 {
+			if(sortBy == 1) {
+				p_list->SortByText();
+			}
+			// } @v12.7.2 
 			p_cb->setListWindow(CreateListWindow(p_list, lbtDisposeData|lbtDblClkNotify), initID);
 		}
 	}
@@ -1818,25 +1832,31 @@ static int Helper_SetupStringCombo(TDialog * dlg, uint ctlID, const SString & rL
 int STDCALL SetupStringCombo(TDialog * dlg, uint ctlID, int strID, long initID)
 {
 	SString line_buf;
-	return PPLoadText(strID, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, 0, 0, initID) : 0;
+	return PPLoadText(strID, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, 0, 0, initID, 0/*sortBy*/) : 0;
+}
+
+int STDCALL SetupStringComboSortByText(TDialog * dlg, uint ctlID, int strID, long initID) // @v12.7.2
+{
+	SString line_buf;
+	return PPLoadText(strID, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, 0, 0, initID, 1/*sortBy*/) : 0;
 }
 
 int STDCALL SetupStringCombo(TDialog * dlg, uint ctlID, const char * pStrSignature, long initID)
 {
 	SString line_buf;
-	return PPLoadString(pStrSignature, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, 0, 0, initID) : 0;
+	return PPLoadString(pStrSignature, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, 0, 0, initID, 0/*sortBy*/) : 0;
 }
 
 int STDCALL SetupStringComboWithAddendum(TDialog * dlg, uint ctlID, const char * pStrSignature, const StrAssocArray * pAddendumList, long initID)
 {
 	SString line_buf;
-	return PPLoadString(pStrSignature, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, pAddendumList, 0, initID) : 0;
+	return PPLoadString(pStrSignature, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, pAddendumList, 0, initID, 0/*sortBy*/) : 0;
 }
 
 int STDCALL SetupStringComboWithAllowedList(TDialog * dlg, uint ctlID, int strID, const LongArray * pAllowedList, long initID) // @v12.6.11
 {
 	SString line_buf;
-	return PPLoadText(strID, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, 0, pAllowedList, initID) : 0;
+	return PPLoadText(strID, line_buf) ? Helper_SetupStringCombo(dlg, ctlID, line_buf, 0, pAllowedList, initID, 0/*sortBy*/) : 0;
 }
 
 int STDCALL SetupStrAssocTreeCombo(TWindow * dlg, uint ctlID, const StrAssocArray & rList, long initID, uint flags, int ownerDrawListBox/*= 0*/)
@@ -8823,10 +8843,10 @@ bool PPDialogConstructor::MakeComplexLayout_InputLine(TWindow * pW, TView * pVie
 
 void PPDialogConstructor::InsertControlLayouts(TWindow * pW, DlContext & rCtx, const DlScope & rParentScope, SUiLayout * pLoParent)
 {
-	bool   debug_mark = false; // @debug
 	if(pLoParent) {
-		const DlScopeList & r_sc_list = rParentScope.GetChildList();
+		const  DlScopeList & r_sc_list = rParentScope.GetChildList();
 		SUiCtrlSupplement_With_Symbols supplement; // @v12.3.7
+		SString temp_buf;
 		for(uint i = 0; i < r_sc_list.getCount(); i++) {
 			const DlScope * p_scope = r_sc_list.at(i);
 			if(p_scope) {
@@ -9075,6 +9095,11 @@ void PPDialogConstructor::InsertControlLayouts(TWindow * pW, DlContext & rCtx, c
 							p_lo = InsertCtrlLayout(pW, pLoParent, static_cast<TView *>(0), lp);
 						}
 					}
+					if(p_lo) { // @v12.7.2
+						if(rCtx.GetConst_String(p_scope, DlScope::cuifLayoutSymbol, temp_buf)) {
+							p_lo->SetSymb(temp_buf);
+						}
+					}
 					//
 					if(oneof2(container_direc, DIREC_HORZ, DIREC_VERT)) {
 						InsertControlLayouts(pW, rCtx, *p_scope, p_lo); // @recursion
@@ -9165,8 +9190,8 @@ SUiLayout * PPLoadDl600Layout(const void * pIdent, void * extraPtr) // @v12.5.7 
 {
 	SUiLayout * p_result = 0;
 	DlContext * p_ctx = 0;
-	const DlScope * p_scope = 0;
-	const size_t ident_len = sstrnlen(static_cast<const char *>(pIdent), 128);
+	const  DlScope * p_scope = 0;
+	const  size_t ident_len = sstrnlen(static_cast<const char *>(pIdent), 128);
 	if(ident_len && sisascii(static_cast<const char *>(pIdent), ident_len)) {
 		SString ident_buf(static_cast<const char *>(pIdent));
 		if(ident_buf.IsDec()) {

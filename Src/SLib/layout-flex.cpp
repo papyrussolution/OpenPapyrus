@@ -1105,6 +1105,28 @@ int SUiLayout::GetMaxComponentID() const
 	return result;
 }
 
+bool SUiLayout::DoesContain(const SUiLayout * pLo) const
+{
+	bool   ok = false;
+	if(pLo) {
+		if(this == pLo) {
+			ok = true;
+		}
+		else {
+			const  uint _cc = GetChildrenCount();
+			if(_cc) {
+				for(uint i = 0; !ok && i < _cc; i++) {
+					const  SUiLayout * p_child = GetChildC(i);
+					if(p_child) {
+						ok = p_child->DoesContain(pLo); // @recursion
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 const SUiLayout * SUiLayout::FindByIdC(int id) const
 {
 	const SUiLayout * p_result = 0;

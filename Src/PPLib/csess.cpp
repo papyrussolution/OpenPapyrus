@@ -1,5 +1,5 @@
 // CSESS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -363,8 +363,8 @@ int CSessionCore::UpdateTotal(PPID id, const CSessTotal * pTotal, int wrOffSum, 
 			rec.AggrRest     = pTotal->AggrRest;
 		}
 		else {
-			rec.Amount     = pTotal->Amount;
-			rec.Discount   = pTotal->Discount;
+			rec.Amount     = pTotal->CcT.Amount;
+			rec.Discount   = pTotal->CcT.Discount;
 			rec.BnkAmount  = pTotal->BnkAmount; // @CSCardAmount
 			rec.CSCardAmount = pTotal->CSCardAmount;
 		}

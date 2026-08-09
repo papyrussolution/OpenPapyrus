@@ -1247,6 +1247,15 @@ void TWindow::SetupLayoutItem(SUiLayout * pLayout)
 
 SUiLayout * TWindow::GetLayout() { return P_Lfc; }
 
+SUiLayout * TWindow::FindLayoutBySymb(const char * pSymb)
+{
+	SUiLayout * p_result = 0;
+	if(P_Lfc && !isempty(pSymb)) {
+		p_result = P_Lfc->FindBySymb(pSymb);
+	}
+	return p_result;
+}
+
 void TWindow::EvaluateLayout(const TRect & rR)
 {
 	if(P_Lfc) {
@@ -1264,7 +1273,7 @@ void TWindow::DeleteChildLayout(TView * pV) // @v12.6.2
 	}
 }
 
-int TWindow::Helper_SetChildLayoutExcludedStatus(int topProcessedLayoutId, SUiLayout * pLo) // @v12.7.1
+int TWindow::Helper_SetChildLayoutExcludedStatus(const void * pTopProcessedLayoutId, SUiLayout * pLo) // @v12.7.1
 {
 	int    ok = -1;
 	if(pLo) {
@@ -1283,13 +1292,13 @@ int TWindow::Helper_SetChildLayoutExcludedStatus(int topProcessedLayoutId, SUiLa
 							P_PHC_List = new TSCollection <PreserveHiddenCtrlItems>();
 						}
 						THROW(P_PHC_List);
-						if(P_PHC_List->lsearch(&topProcessedLayoutId, &_idx, CMPF_LONG)) {
+						if(P_PHC_List->lsearch(&pTopProcessedLayoutId, &_idx, PTR_CMPFUNC(uintptr_t))) {
 							p_phc_item = P_PHC_List->at(_idx);
 						}
 						else {
 							p_phc_item = P_PHC_List->CreateNewItem();
 							THROW(p_phc_item);
-							p_phc_item->LayoutId = topProcessedLayoutId;
+							p_phc_item->P_Lo = pTopProcessedLayoutId;
 						}
 						if(p_phc_item) {
 							THROW(p_phc_item->HiddenCtlIdList.add(p_v->GetId()));
@@ -1301,7 +1310,7 @@ int TWindow::Helper_SetChildLayoutExcludedStatus(int topProcessedLayoutId, SUiLa
 		const  uint cc_ = pLo->GetChildrenCount();
 		for(uint i = 0; i < cc_; i++) {
 			SUiLayout * p_lo_child = pLo->GetChild(i);
-			THROW(Helper_SetChildLayoutExcludedStatus(topProcessedLayoutId, p_lo_child)); // @recursion
+			THROW(Helper_SetChildLayoutExcludedStatus(pTopProcessedLayoutId, p_lo_child)); // @recursion
 		}
 		ok = 1;
 	}
@@ -1309,14 +1318,14 @@ int TWindow::Helper_SetChildLayoutExcludedStatus(int topProcessedLayoutId, SUiLa
 	return ok;
 }
 
-int TWindow::SetChildLayoutExcludedStatus(int layoutId) // @v12.7.1 @construction
+int TWindow::SetChildLayoutExcludedStatus(SUiLayout * pLo) // @v12.7.1 @construction
 {
 	int    ok = -1;
-	if(layoutId && P_Lfc) {
-		SUiLayout * p_lo = P_Lfc->FindById(layoutId);
+	if(pLo && P_Lfc) {
+		SUiLayout * p_lo = P_Lfc->DoesContain(pLo) ? pLo : 0;
 		if(p_lo && !p_lo->IsExcluded()) {
 			p_lo->SetExcludedStatus();
-			if(!Helper_SetChildLayoutExcludedStatus(layoutId, p_lo))
+			if(!Helper_SetChildLayoutExcludedStatus(pLo, p_lo))
 				ok = 0;
 			else {
 				const TRect cr = getClientRect();
@@ -1333,7 +1342,7 @@ int TWindow::SetChildLayoutExcludedStatus(int layoutId) // @v12.7.1 @constructio
 	return ok;
 }
 
-int TWindow::Helper_ResetChildLayoutExcludedStatus(int topProcessedLayoutId, SUiLayout * pLo) // @v12.7.1
+int TWindow::Helper_ResetChildLayoutExcludedStatus(const void * pTopProcessedLayoutId, SUiLayout * pLo) // @v12.7.1
 {
 	int    ok = -1;
 	if(pLo) {
@@ -1345,7 +1354,7 @@ int TWindow::Helper_ResetChildLayoutExcludedStatus(int topProcessedLayoutId, SUi
 					bool   do_show = true;
 					if(p_v->GetId()) {
 						uint   _idx = 0;
-						if(P_PHC_List && P_PHC_List->lsearch(&topProcessedLayoutId, &_idx, CMPF_LONG)) {
+						if(P_PHC_List && P_PHC_List->lsearch(&pTopProcessedLayoutId, &_idx, PTR_CMPFUNC(uintptr_t))) {
 							PreserveHiddenCtrlItems * p_phc_item = P_PHC_List->at(_idx);
 							if(p_phc_item && p_phc_item->HiddenCtlIdList.lsearch(p_v->GetId())) {
 								do_show = false;
@@ -1360,7 +1369,7 @@ int TWindow::Helper_ResetChildLayoutExcludedStatus(int topProcessedLayoutId, SUi
 		const  uint cc_ = pLo->GetChildrenCount();
 		for(uint i = 0; i < cc_; i++) {
 			SUiLayout * p_lo_child = pLo->GetChild(i);
-			THROW(Helper_ResetChildLayoutExcludedStatus(topProcessedLayoutId, p_lo_child)); // @recursion
+			THROW(Helper_ResetChildLayoutExcludedStatus(pTopProcessedLayoutId, p_lo_child)); // @recursion
 		}
 		ok = 1;
 	}
@@ -1368,17 +1377,17 @@ int TWindow::Helper_ResetChildLayoutExcludedStatus(int topProcessedLayoutId, SUi
 	return ok;
 }
 
-int TWindow::ResetChildLayoutExcludedStatus(int layoutId) // @v12.7.1 @construction
+int TWindow::ResetChildLayoutExcludedStatus(SUiLayout * pLo) // @v12.7.1 @construction
 {
 	int    ok = -1;
-	if(layoutId && P_Lfc) {
-		SUiLayout * p_lo = P_Lfc->FindById(layoutId);
+	if(pLo && P_Lfc) {
+		SUiLayout * p_lo = P_Lfc->DoesContain(pLo) ? pLo : 0;
 		if(p_lo && p_lo->IsExcluded()) {
-			Helper_ResetChildLayoutExcludedStatus(layoutId, p_lo);
+			Helper_ResetChildLayoutExcludedStatus(pLo, p_lo);
 			p_lo->ResetExcludedStatus();
 			{
 				uint   _idx = 0;
-				if(P_PHC_List && P_PHC_List->lsearch(&layoutId, &_idx, CMPF_LONG)) {
+				if(P_PHC_List && P_PHC_List->lsearch(&p_lo, &_idx, PTR_CMPFUNC(uintptr_t))) {
 					P_PHC_List->atFree(_idx);
 					if(!P_PHC_List->getCount())
 						ZDELETE(P_PHC_List);
@@ -1426,8 +1435,6 @@ bool TWindow::SetStorableUserParamsSymbSuffix(const char * pSuffix)
 	return ok;
 }
 
-static const char * P_StorableUserParams_SubKey = "Software\\Papyrus\\UI\\StorableUserParams";
-
 int TWindow::StoreUserParams() // @v12.2.6
 {
 	int    ok = -1;
@@ -1437,7 +1444,7 @@ int TWindow::StoreUserParams() // @v12.2.6
 			SString js_buf;
 			p_js->ToStr(js_buf);
 			{
-				WinRegKey reg_key(HKEY_CURRENT_USER, P_StorableUserParams_SubKey, 0/*read-only*/);
+				WinRegKey reg_key(HKEY_CURRENT_USER, SlConst::P_WrKey_UiStorableUserParams, 0/*read-only*/);
 				if(reg_key.IsValid()) {
 					ok = reg_key.PutString(StorableUserParamsSymb, js_buf);
 				}
@@ -1452,7 +1459,7 @@ int TWindow::RestoreUserParams() // @v12.2.6
 {
 	int    ok = -1;
 	if(StorableUserParamsSymb.NotEmpty()) {
-		WinRegKey reg_key(HKEY_CURRENT_USER, P_StorableUserParams_SubKey, 1/*read-only*/);
+		WinRegKey reg_key(HKEY_CURRENT_USER, SlConst::P_WrKey_UiStorableUserParams, 1/*read-only*/);
 		if(reg_key.IsValid()) {
 			SString js_buf;
 			if(reg_key.GetString(StorableUserParamsSymb, js_buf) && js_buf.NotEmptyS()) {

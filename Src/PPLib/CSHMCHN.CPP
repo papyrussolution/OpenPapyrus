@@ -587,12 +587,12 @@ int PPCashMachine::SyncViewSessionStat(long options)
 				long   _f = cs_obj.P_Tbl->GetCcGroupingFlags(cs_rec, 0);
 				_f |= CCheckCore::gglfUseFullCcPackets;
 				cs_obj.P_Cc->GetSessTotal(NodeRec.CurSessID, _f, &cs_total, 0);
-				stat.AmtCash   = cs_total.Amount - cs_total.BnkAmount - cs_total.CSCardAmount;
+				stat.AmtCash   = cs_total.CcT.Amount - cs_total.BnkAmount - cs_total.CSCardAmount;
 				stat.AmtBank   = cs_total.BnkAmount;
 				stat.AmtSCard  = cs_total.CSCardAmount;
-				stat.Discount  = cs_total.Discount;
+				stat.Discount  = cs_total.CcT.Discount;
 				stat.AmtReturn = cs_total.RetAmount;
-				sum = cs_total.Amount;
+				sum = cs_total.CcT.Amount;
 			}
 			if(sum == 0.0) {
 				SyncGetSummator(&sum);

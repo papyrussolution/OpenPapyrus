@@ -2034,9 +2034,12 @@ int PPObjPrjTask::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		int    r = P_Tbl->SearchAnyRef(_obj, _id, &todo_id);
 		ok = (r > 0) ? RetRefsExistsErr(Obj, todo_id) : (r ? DBRPL_OK : DBRPL_ERROR);
 	}
-	else if(msg == DBMSG_OBJREPLACE)
-		if(!P_Tbl->ReplaceRefs(_obj, _id, reinterpret_cast<long>(extraPtr), 0))
+	else if(msg == DBMSG_OBJREPLACE) {
+		const  PPID replaced_id = _id;
+		const  PPID new_id = reinterpret_cast<long>(extraPtr);
+		if(!P_Tbl->ReplaceRefs(_obj, replaced_id, new_id, 0))
 			ok = DBRPL_ERROR;
+	}
 	return ok;
 }
 

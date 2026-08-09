@@ -2715,8 +2715,18 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 			const PPViewBill::BrwHdr * p_hdr = static_cast<const PPViewBill::BrwHdr *>(pData);
 			if(p_hdr->ID) {
 				if(r_col.OrgOffs == 0) { // ID
-					if(PPMaster && P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0 && bill_rec.Flags2 & BILLF2_FULLSYNC)
-						ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrDodgerblue));
+					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0) {
+						if(PPMaster) {
+							if(bill_rec.Flags2 & BILLF2_FULLSYNC) {
+								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrDodgerblue));
+							}
+						}
+						// @v12.7.2 {
+						if(bill_rec.Flags & BILLF_CHECK) {
+							ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrLightblue));
+						}
+						// } @v12.7.2 
+					}
 				}
 				else if(r_col.OrgOffs == 2) { // BillNo
 					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0) {
@@ -2732,7 +2742,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 						}
 						if(bill_rec.Flags2 & BILLF2_BHT)
 							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrLime));
-						if(bill_rec.Flags & BILLF_WHITELABEL) // @v11.1.12
+						if(bill_rec.Flags & BILLF_WHITELABEL)
 							ok = pStyle->SetRightFigTriangleColor(SClrHotpink);
 					}
 				}
@@ -2740,7 +2750,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 					SString & r_memos = SLS.AcquireRvlStr();
 					if(P_BObj->FetchExtMemo(p_hdr->ID, r_memos) > 0)
 						ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrDarkgreen));
-					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0 && bill_rec.Flags2 & BILLF2_FORCEDRECEIPT) { // @v11.2.12 @fix Fetch
+					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0 && bill_rec.Flags2 & BILLF2_FORCEDRECEIPT) {
 						if(pStyle->SetRightFigCircleColor(GetColorRef(SClrHotpink)) > 0) {
 							ok = 1;
 						}

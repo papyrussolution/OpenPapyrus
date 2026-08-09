@@ -125,9 +125,9 @@ int PPObjCSession::Edit(PPID * pID, void * extraPtr)
 				const char * P_TextSymb;
 			};
 			const Entry data_list[] = {
-				{ static_cast<double>(R_Total.CheckCount), "csesstotal_checkcount"      }, // "Количество чеков"
-				{ R_Total.Amount, "csesstotal_amount"          }, // "Сумма по чекам"
-				{ R_Total.Discount, "csesstotal_discount"        }, // "Скидка по чекам"
+				{ static_cast<double>(R_Total.CcT.Count), "csesstotal_checkcount"      }, // "Количество чеков"
+				{ R_Total.CcT.Amount, "csesstotal_amount"          }, // "Сумма по чекам"
+				{ R_Total.CcT.Discount, "csesstotal_discount"        }, // "Скидка по чекам"
 				{ static_cast<double>(R_Total.AggrCount), "csesstotal_aggrcount"       }, // "Количество агрегирующих строк"
 				{ R_Total.AggrAmount, "csesstotal_aggramount"      }, // "Сумма по агрегирующим строкам"
 				{ R_Total.AggrRest, "csesstotal_aggrrest"        }, // "Сумма дефицита по агрегирующим строкам"
@@ -250,7 +250,8 @@ int PPObjCSession::Recalc(PPID sessID, int use_ta)
 		P_Tbl->GetSubSessList(sessID, &sub_list);
 		sub_list.add(sessID);
 		for(i = 0; i < sub_list.getCount(); i++) {
-			PPID   bill_id = 0, sess_id = sub_list.at(i);
+			PPID   bill_id = 0;
+			PPID   sess_id = sub_list.at(i);
 			BillTbl::Rec bill_rec;
 			while(p_bobj->P_Tbl->EnumMembersOfPool(PPASS_CSESSBILLPOOL, sess_id, &bill_id) > 0) {
 				if(p_bobj->Search(bill_id, &bill_rec) > 0 && bill_rec.OpID != wroff_acc_op_id) {
@@ -264,8 +265,8 @@ int PPObjCSession::Recalc(PPID sessID, int use_ta)
 			THROW(P_Cc->GetSessTotal(sess_id, P_Tbl->GetCcGroupingFlags(sess_rec, sess_id), &cs_total, 0));
 		}
 		THROW_DB(updateFor(P_Tbl, 0, (P_Tbl->ID == sessID),
-			set(P_Tbl->Amount, dbconst(cs_total.Amount)).
-			set(P_Tbl->Discount, dbconst(cs_total.Discount)).
+			set(P_Tbl->Amount, dbconst(cs_total.CcT.Amount)).
+			set(P_Tbl->Discount, dbconst(cs_total.CcT.Discount)).
 			set(P_Tbl->AggrAmount, dbconst(cs_total.AggrAmount)).
 			set(P_Tbl->AggrRest, dbconst(cs_total.AggrRest)).
 			set(P_Tbl->WrOffAmount, dbconst(cs_total.WrOffAmount)).
@@ -285,14 +286,14 @@ int PPObjCSession::VerifyAmounts(PPID sessID, const CSessTotal & rTotal, PPLogge
 	CSessionTbl::Rec rec;
 	THROW(Search(sessID, &rec) > 0);
 	//
-	delta = R6(rTotal.Amount - rec.Amount);
+	delta = R6(rTotal.CcT.Amount - rec.Amount);
 	if(delta != 0) {
 		MakeCodeString(&rec, added_msg_buf).Space().CatEq("delta", delta);
 		rLogger.LogMsgCode(mfError, PPERR_CSES_CHKAMOUNT, added_msg_buf);
 		ok = -1;
 	}
 	//
-	delta = R6(rTotal.Discount - rec.Discount);
+	delta = R6(rTotal.CcT.Discount - rec.Discount);
 	if(delta != 0) {
 		MakeCodeString(&rec, added_msg_buf).Space().CatEq("delta", delta);
 		rLogger.LogMsgCode(mfError, PPERR_CSES_CHKDISCOUNT, added_msg_buf);
@@ -2872,7 +2873,7 @@ int PPCCheckImporter::Run()
 							if(p_posprc) {
 								const  bool zero_agent_restriction = p_posprc->Backend_SetZeroAgentRestriction(false);
 								PPID   cc_id = cc_pack.Rec.ID; // @note: non-const because func AcceptCheck will modify it
-								const  double cc_amt = cc_pack.CalcAmount(0, 0);
+								const  double cc_amt = cc_pack.CalcAmount(0);
 								if(p_posprc->RestoreSuspendedCheck(cc_id, 0/*pPack*/, 0/*unfinishedForReprinting*/)) {
 									if(DS.IsThreadInteractive()) {
 										p_posprc->PrintToLocalPrinters(-1, true/*ignoreNonZeroAgentReq*/);

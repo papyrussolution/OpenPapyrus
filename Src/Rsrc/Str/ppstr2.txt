@@ -5090,7 +5090,8 @@ PPTXT_AGGRFUNCNAMELIST              "1,@{aggrfunc_count};2,@{aggrfunc_sum};3,@{a
 PPTXT_CHZNPRODUCTTYPES              "1,Изделия из меха;2,Табачные изделия;3,Обувь;4,Лекарственные средства;5,Автомобильные шины;6,Текстиль;7,Парфюмерия;\
 8,Молочная продукция;9,Ювелирные изделия;10,Вода питьевая;11,Альтернативная табачная продукция;12,Пиво разливное;1012,Пиво разливное - автосписание;\
 13,Биологически-активные добавки;14,Пиво фасованное;15,Антисептики;16,Изделия медицинского назначения;17,Безалкогольные напитки;18,Безалкогольное пиво;19,Корм для животных;\
-20,Растительное масло;21,Никотиносодержащая продукция;22,Моторное масло;23,Косметика, бытовая химия и личная гигиена"
+20,Растительное масло;21,Никотиносодержащая продукция;22,Моторное масло;23,Косметика, бытовая химия и личная гигиена;24,Бакалея;25,Консервы;26,Детские игрушки"
+
 PPTXT_DEVICETIMEDIFFROMSYS          "@{attention} Время на регистраторе @datetime отличается от времени на компьютере"
 PPTXT_LOG_VK_NODEFIMG               "Изображение по-умолчанию не найдено!"
 PPTXT_LOG_VK_NODESCRFORGOODS        "Описание для товара '@goods_id' не найдено!"
@@ -5238,7 +5239,7 @@ PPTXT_CHZNPMSVRADDRHASBEENRESET        "Адрес сервера разреши
 PPTXT_CHZNPMSVRADDRRESET_NOTDONE       "Адрес сервера разрешительного режима чзн либо не задан"
 PPTXT_CHZN_LOG_DEBUGAUTH_SUCCESS       "Тестовая авторизация на сервере @{brand_chzn} прошла успешно" // @v12.6.7
 //PPSecretSegment::sectypXXX
-PPTXT_SECSEGTYPES                      "1,Папка;2,Общий;3,Пароль;4,Секрет авторизации;5,Открытый регистр;6,Банковская карта;7,SSH;8,Электронная подпись" // @v12.6.10
+PPTXT_SECSEGTYPES                      "1,Папка;2,Общий;3,Пароль;4,Секрет авторизации;5,Открытый регистр;6,Банковская карта;7,SSH;8,Электронная подпись;9,Текст" // @v12.6.10
 PPTXT_ENUMERATION_BILL                 "Перебор документов"
 PPTXT_CHZNMARKINFO_EXTRACTING          "Извлечение информации о марках @{brand_chzn}"
 //
@@ -19061,7 +19062,7 @@ PPHSC_RU_MANUFORIMPORTERINFO   "СведПроизвИмпортер"
 PPHSC_RU_CONSIGNORINFO3        "СвГО"       // @v12.6.9
 PPHSC_RU_CONSIGNORREQ          "РекИдентГО" // @v12.6.9
 PPHSC_RU_CONSIGNEEREQ          "РекИдентГП" // @v12.6.9
-PPHSC_RU_DLVRADDR              "АдресДостГр" // @v12.6.9
+PPHSC_RU_DLVRADDR              "АдресДостГр" // @v12.6.9 (АдресПользТип)
 PPHSC_RU_CONSIGNEEINFO3        "СвГП"       // @v12.6.9
 PPHSC_RU_TRANSPORTERINFO       "СвПер"      // @v12.6.9
 PPHSC_RU_DRIVERINFO            "СвВодит"    // @v12.6.9
@@ -19095,12 +19096,14 @@ PPHSC_RU_LOADINGINFO_TRKBDYSTATE "ФСостКуз" // Фактическое с
 PPHSC_RU_LOADINGINFO_BRUTTO     "МасБрутОтгр" // Масса брутто груза
 PPHSC_RU_LOADINGINFO_BRUTTOMETH "МетОпрМасс"  // Метод определения массы груза
 PPHSC_RU_LOADINGINFO_PACKCOUNT  "КолМестПрием" // Количество грузовых мест при приеме груза перевозчиком
-PPHSC_RU_LOADINGINFO_SHPADDR    "ФАдресПогр"   // Адрес места погрузки
+PPHSC_RU_LOADINGINFO_SHPADDR    "ФАдресПогр"   // Адрес места погрузки (АдресПользТип)
 PPHSC_RU_LOADINGINFO_LOADER     "СвЛицПогрГр"  // Сведения о лице, производящем погрузку груза
 PPHSC_RU_LOADINGINFO_PORTOWNER  "ВладИнфр"     // Сведения о владельце объекта инфраструктуры пункта погрузки
+PPHSC_RU_LOADINGINFO_LOADERID   "ИдентРекГО"   // Идентифицирующий реквизит грузоотправителя
 PPHSC_RU_LOADINGINFO_ACCSDOC    "ОснДостОбИнфрДок" // Doc - Основание беспрепятственного доступа к объекту инфраструктуры пункта погрузки лица, осуществляющего погрузку груза в транспортное средство 
 PPHSC_RU_LOADINGINFO_ACCSTEXT   "ОснДостОбИнфрТекст" // Text - Основание беспрепятственного доступа к объекту инфраструктуры пункта погрузки лица, осуществляющего погрузку груза в транспортное средство
-PPHSC_RU_LOADINGINFO_CSNERISLDR "СовпГОП"      // Признак совпадения с грузоотправителем: лицо, которое осуществляет погрузку груза в транспортное средство, является грузоотправителем 
+PPHSC_RU_LOADINGINFO_CSNERISLDR  "СовпГОП"      // Признак совпадения с грузоотправителем: лицо, которое осуществляет погрузку груза в транспортное средство, является грузоотправителем 
+PPHSC_RU_LOADINGINFO_CSNERISLDR2 "СовпГОВ"      // Признак совпадения лица, которое является владельцем инфраструктуры пункта погрузки,  с грузоотправителем {1|2|3}
 
 PPHSC_RU_PAYLOADINFO           "СвГруз"     // @v12.6.9 
 PPHSC_RU_PAYLOAD_DESCR         "ОпГруз"     // @v12.6.9 
@@ -19118,6 +19121,10 @@ PPHSC_RU_PAYLOAD_BRUTTO        "МасБрутЗнач" // @v12.6.9 Масса �
 PPHSC_RU_PAYLOAD_NETTO         "МасНетЗнач"  // @v12.6.9 Масса нетто груза в килограммах
 PPHSC_RU_PAYLOAD_PALLETCT      "КолПалл"     // @v12.6.9
 PPHSC_RU_CONSIGNORDIRECTION    "УказГО"     // @v12.6.9 
+PPHSC_RU_CONSIGNORDIRECTION_REDIR  "СвПА" // Сведения о процедуре переадресовки
+PPHSC_RU_CONSIGNORDIRECTION_WHO    "ЛицоПА"      // Лицо, по указанию которого может осуществляться переадресовка {Грузоотправитель|Грузополучатель}
+PPHSC_RU_CONSIGNORDIRECTION_METH   "СпосПерУкПА" // Способ передачи указания на переадресовку
+PPHSC_RU_CONSIGNORDIRECTION_METH_E "Электронное уведомление перевозчика о переадресовке"
 PPHSC_RU_PERSONINFO_PHS        "СведИП"
 PPHSC_RU_PERSONINFO_JUR        "СведЮЛ"
 PPHSC_RU_PERSONINFO_JUR2       "СвЮЛ"          // @v11.9.5 SBIS
@@ -19148,6 +19155,7 @@ PPHSC_RU_ORGPHN                "ТелОрг"
 PPHSC_RU_ORGEMAIL              "EmailОтпр"
 PPHSC_RU_KND                   "КНД"
 PPHSC_RU_GLN                   "GLN"         // @v11.9.5 SBIS
+PPHSC_RU_GLN2                  "ГЛН"         // @v12.7.2
 PPHSC_RU_EDISIDESINFO          "СвУчДокОбор" // Сведения об участниках электронного документооборота
 PPHSC_RU_EDIPROVIDERINFO       "СвОЭДОтпр"
 PPHSC_RU_EDIPROVIDERID         "ИдЭДО"
@@ -19177,6 +19185,7 @@ PPHSC_RU_CONSIGNORINFODATE     "ДатИнфГО" // @v12.6.9 etrn
 PPHSC_RU_CONSIGNORINFOTIME     "ВрИнфГО"  // @v12.6.9 etrn
 PPHSC_RU_NAMEECSUBJCOMP        "НаимЭконСубСост"
 PPHSC_RU_REASONECSUBJCOMP      "ОснДоверОргСост"
+PPHSC_RU_REASONECSUBJCOMP2     "ОснДовОргСост" // @v12.7.2 etrn (блядь! ну почему в госорганах сидят мутанты. Нахуя делать тот же по смыслу тег, но по-другому сокращенный?!)
 PPHSC_RU_INVOICE_ABBR          "СчФ"      // @v11.7.0
 PPHSC_RU_INVOICEHEADER         "СвСчФакт"
 PPHSC_RU_CORRINVOICEHEADER     "СвКСчФ" // @v11.7.0
@@ -19264,12 +19273,18 @@ PPHSC_RU_NOVAT_TAG             "БезНДС"
 PPHSC_RU_NOVAT_VAL             "без НДС"
 PPHSC_RU_ADDRESS               "Адрес"
 PPHSC_RU_ADDR_RF               "АдрРФ"
-PPHSC_RU_ADDR_FOREIGN          "АдрИно" // @v11.9.5
+PPHSC_RU_ADDR2_RF              "АдресРФ"  // @v12.7.2 (АдресПользТип)
 PPHSC_RU_ADDR_OFFSHR           "АдрИнф"
+PPHSC_RU_ADDR2_OFFSHR          "АдресИнф" // @v12.7.2 (АдресПользТип)
+PPHSC_RU_ADDR_FOREIGN          "АдрИно"   // @v11.9.5
 PPHSC_RU_ADDR_TEXT             "АдрТекст"
 PPHSC_RU_ADDR_COUNTRYCODE      "КодСтр"
 PPHSC_RU_ADDR_COUNTRYCODE2     "КодСтраны"
 PPHSC_RU_ADDR_COUNTRYNAME      "НаимСтран" // @v12.3.0 nalog.ru ver 5.03
+//PPHSC_RU_GLN2                   "ГЛН"
+PPHSC_RU_GPSCOORD              "Коорд"
+PPHSC_RU_GPSCOORD_LAT          "Широта"
+PPHSC_RU_GPSCOORD_LON          "Долгота"
 PPHSC_RU_INDEX                 "Индекс"
 PPHSC_RU_REGIONCODE            "КодРегион"
 PPHSC_RU_REGIONAME             "НаимРегион" // @v12.2.12 nalog.ru ver 5.03
@@ -19367,8 +19382,11 @@ PPHSC_RU_SALESLEDGERLN         "КнПродСтр"
 PPHSC_RU_TRANSACTIONCONTENT1   "СодФХЖ1"
 PPHSC_RU_TRANSACTIONCONTENT2   "СодФХЖ2"
 PPHSC_RU_TRANSACTIONCONTENT_TRNT1 "СодИнфГО"  // @v12.6.9
+PPHSC_RU_TRN_UNIQN             "УИД_ТрН"  // Уникальный идентификатор документа, транспортной накладной
+PPHSC_RU_TRN_ORD_N             "НомЗак"   // Порядковый номер заказа (заявки)
+PPHSC_RU_TRN_ORD_D             "ДатаЗак"  // Дата заказа (заявки)
 PPHSC_RU_TRN_D                 "ДатаТрН"  // @v12.7.0
-PPHSC_RU_TRN_N                 "НомерТрН" // @v12.7.0
+PPHSC_RU_TRN_N                 "НомерТрН" // @v12.7.0 Порядковый номер транспортной накладной
 //PPHSC_RU_CONTOFOP СодОпер
 PPHSC_RU_TRN_CONTOFOP          "Лицом, осуществляющим погрузку груза, при указанных обстоятельствах передан водителю груз с указанными характеристиками" // @v12.7.0
 PPHSC_RU_EXTRA1                "ИнфПолФХЖ1"

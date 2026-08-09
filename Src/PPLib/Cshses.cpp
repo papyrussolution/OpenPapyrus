@@ -1247,9 +1247,9 @@ int PPAsyncCashSession::CalcSessionTotal(PPID sessID, CSessTotal * pTotal)
 	for(p_q->initIteration(false, &k, spGe); p_q->nextIteration() > 0;) {
 		const CCheckTbl::Rec & r_rec = CC.data;
 		if(!(r_rec.Flags & CCHKF_ZCHECK)) {
-			pTotal->CheckCount++;
-			pTotal->Amount   += MONEYTOLDBL(r_rec.Amount);
-			pTotal->Discount += MONEYTOLDBL(r_rec.Discount);
+			pTotal->CcT.Count++;
+			pTotal->CcT.Amount   += MONEYTOLDBL(r_rec.Amount);
+			pTotal->CcT.Discount += MONEYTOLDBL(r_rec.Discount);
 		}
 	}
 	BExtQuery::ZDelete(&p_q);

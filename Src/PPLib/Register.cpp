@@ -1,5 +1,5 @@
 // REGISTER.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2019, 2020, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2019, 2020, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -65,7 +65,7 @@ int FASTCALL operator != (const RegisterTbl::Rec & r1, const RegisterTbl::Rec & 
 	if(r1.RegOrgID != r2.RegOrgID) return 1;
 	if(r1.Expiry != r2.Expiry) return 1;
 	if(r1.Flags != r2.Flags) return 1;
-	if(r1.ExtID != r2.ExtID) return 1; // @v10.6.0
+	if(r1.ExtID != r2.ExtID) return 1;
 	if(!sstreq(r1.Serial, r2.Serial)) return 1;
 	if(!sstreq(r1.Num, r2.Num)) return 1;
 	return 0;
@@ -289,7 +289,7 @@ int RegisterArray::CheckDuplicateBankAccount(const PPBankAccount * pRec, long po
 		const RegisterTbl::Rec & r_reg_rec = at(i);
 		if(r_reg_rec.RegTypeID == PPREGT_BANKACCOUNT) {
 			PPBankAccount ba = r_reg_rec;
-			if(stricmp(pRec->Acct, ba.Acct) == 0 && pRec->BankID == ba.BankID && (uint)pos != i) {
+			if(stricmp(pRec->Acct, ba.Acct) == 0 && pRec->BankID == ba.BankID && pos != static_cast<long>(i)) {
 				ok = PPSetError(PPERR_DUPLBNKACCT, ba.Acct);
 				break;
 			}
@@ -343,8 +343,7 @@ int RegisterArray::SetBankAccount(const PPBankAccount * pRec, uint pos)
 int RegisterArray::GetListByPeriod(PPID regTypeID, const DateRange & rPeriod, RegisterArray * pList) const
 {
 	int    ok = -1;
-	if(pList)
-		pList->clear();
+	CALLPTRMEMB(pList, clear());
 	const LDATE _l = rPeriod.low;
 	const LDATE _u = rPeriod.upp;
 	for(uint i = 0; i < getCount(); i++) {
@@ -731,19 +730,12 @@ int RegisterCore::_Put(PPID objType, PPID objID, RegisterArray * pAry, int use_t
 	return ok;
 }
 
-int RegisterCore::PutByEvent(PPID eventID, RegisterArray * pAry, int use_ta)
-	{ return _Put(PPOBJ_PERSONEVENT, eventID, pAry, use_ta); }
-int RegisterCore::PutByPerson(PPID personID, RegisterArray * ary, int use_ta)
-	{ return _Put(PPOBJ_PERSON, personID, ary, use_ta); }
-int RegisterCore::PutByLocation(PPID locID, RegisterArray * pList, int use_ta)
-	{ return _Put(PPOBJ_LOCATION, locID, pList, use_ta); }
-
-int RegisterCore::GetByEvent(PPID eventID, RegisterArray * pList)
-	{ return _Get(PPOBJ_PERSONEVENT, eventID, pList); }
-int RegisterCore::GetByPerson(PPID personID, RegisterArray * pList)
-	{ return _Get(PPOBJ_PERSON, personID, pList); }
-int RegisterCore::GetByLocation(PPID locID, RegisterArray * pList)
-	{ return _Get(PPOBJ_LOCATION, locID, pList); }
+int RegisterCore::PutByEvent(PPID eventID, RegisterArray * pAry, int use_ta) { return _Put(PPOBJ_PERSONEVENT, eventID, pAry, use_ta); }
+int RegisterCore::PutByPerson(PPID personID, RegisterArray * ary, int use_ta) { return _Put(PPOBJ_PERSON, personID, ary, use_ta); }
+int RegisterCore::PutByLocation(PPID locID, RegisterArray * pList, int use_ta) { return _Put(PPOBJ_LOCATION, locID, pList, use_ta); }
+int RegisterCore::GetByEvent(PPID eventID, RegisterArray * pList) { return _Get(PPOBJ_PERSONEVENT, eventID, pList); }
+int RegisterCore::GetByPerson(PPID personID, RegisterArray * pList) { return _Get(PPOBJ_PERSON, personID, pList); }
+int RegisterCore::GetByLocation(PPID locID, RegisterArray * pList) { return _Get(PPOBJ_LOCATION, locID, pList); }
 //
 //
 //
