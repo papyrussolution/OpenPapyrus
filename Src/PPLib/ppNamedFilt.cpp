@@ -1,5 +1,5 @@
 // PPNAMEDFILT.CPP
-// Copyright (c) P.Andrianov 2011, 2014, 2016, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025
+// Copyright (c) P.Andrianov 2011, 2014, 2016, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -147,14 +147,13 @@ int PPNamedFilt::XmlWriteGuaList(xmlTextWriter * pXmlWriter)
 
 int PPNamedFilt::ReadGuaListFromStr(SString & rGuaListInStr)
 {
-	int     ok = 1;
-	SString temp_buf;
+	int    ok = 1;
 	StringSet ss;
 	if(!rGuaListInStr.IsEqiAscii("undefined")) {
 		THROW(DestGuaList.InitEmpty());
 		if(rGuaListInStr.NotEmpty()) {
-			THROW(rGuaListInStr.Tokenize(",", ss));
-			temp_buf.Z();
+			rGuaListInStr.Tokenize(",", ss);
+			SString temp_buf;
 			for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 				DestGuaList.Add(temp_buf.ToLong());
 			}

@@ -1065,6 +1065,74 @@ DRAFTBEER HORECA @v11.9.4
 	return rCode;
 }
 
+/*static*/int PPChZnPrcssr::TransformCode(const char * pCode, uint mode, SString & rResult) // @v12.7.3
+{
+	rResult.Z();
+	int    ok = chznciNone;
+	if(!isempty(pCode)) {
+		GtinStruc gts;
+		ok = InterpretChZnCodeResult(ParseChZnCode(pCode, gts, 0));
+		if(ok) {
+			switch(mode) {
+				case trfrmNone:
+					rResult = pCode;
+					break;
+				case trfrmRemoveSpcChars:
+					rResult = pCode;
+					RemoveSpcCharsFromCode(rResult);
+					break;
+				case trfrmGtinSerial_Strict:
+					{
+						SString _gtin;
+						SString _serial;
+						gts.GetToken(GtinStruc::fldGTIN14, &_gtin);
+						gts.GetToken(GtinStruc::fldSerial, &_serial);
+						if(_gtin.NotEmpty() && _serial.NotEmpty()) {
+							rResult.Cat("01").Cat(_gtin).Cat("21").Cat(_serial);
+						}
+						else {
+							rResult = pCode;
+							ok = chznciNone;
+						}
+					}
+					break;
+				case trfrmGtinSerial:
+					if(ok == chznciPallet) {
+						rResult = pCode;
+					}
+					else if(ok == chznciReal) {
+						SString _gtin;
+						SString _serial;
+						SString _partno;
+						gts.GetToken(GtinStruc::fldGTIN14, &_gtin);
+						gts.GetToken(GtinStruc::fldSerial, &_serial);
+						gts.GetToken(GtinStruc::fldPart, &_partno);
+						if(_gtin.NotEmpty() && (!_serial.NotEmpty() || _partno.NotEmpty())) {
+							rResult.Cat("01").Cat(_gtin);
+							if(_serial.NotEmpty()) {
+								rResult.Cat("21").Cat(_serial);
+							}
+							if(_partno.NotEmpty()) {
+								rResult.Cat("10").Cat(_partno);
+							}
+						}
+						else {
+							rResult = pCode;
+						}
+					}
+					else {
+						rResult = pCode;
+					}
+					break;
+				default:
+					rResult = pCode;
+					break;
+			}
+		}
+	}
+	return ok;
+}
+
 /*static*/bool FASTCALL PPChZnPrcssr::AreChZnCodesEqual(const char * pCode1, const char * pCode2, bool adaptive)
 {
 	bool eq = true;
@@ -2969,7 +3037,7 @@ int ChZnInterface::GetDocumentTicket(const InitBlock & rIb, const char * pDocIde
 			HINTERNET h_inet_sess = 0;
 			HINTERNET h_connection = 0;
 			HINTERNET h_req = 0;
-			THROW(h_inet_sess = hstk.Push(InternetOpen(_T("Papyrus"), INTERNET_OPEN_TYPE_PRECONFIG, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
+			THROW(h_inet_sess = hstk.Push(InternetOpenW(L"Papyrus", INTERNET_OPEN_TYPE_PRECONFIG, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
 			THROW(h_connection = hstk.PushConnection(url, h_inet_sess));
 			{
 				THROW(h_req = hstk.PushHttpRequestGet(h_connection, url));
@@ -3288,7 +3356,7 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 					HINTERNET h_inet_sess = 0;
 					HINTERNET h_connection = 0;
 					HINTERNET h_req = 0;
-					THROW(h_inet_sess = hstk.Push(InternetOpen(_T("Papyrus"), /*INTERNET_OPEN_TYPE_PRECONFIG*/INTERNET_OPEN_TYPE_DIRECT, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
+					THROW(h_inet_sess = hstk.Push(InternetOpenW(L"Papyrus", /*INTERNET_OPEN_TYPE_PRECONFIG*/INTERNET_OPEN_TYPE_DIRECT, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
 					THROW(h_connection = hstk.PushConnection(url, h_inet_sess));
 					{
 						const uint32 req_len = req_buf.Len32();
@@ -3480,7 +3548,7 @@ int ChZnInterface::TransmitDocument2(const InitBlock & rIb, const ChZnInterface:
 							HINTERNET h_inet_sess = 0;
 							HINTERNET h_connection = 0;
 							HINTERNET h_req = 0;
-							THROW(h_inet_sess = hstk.Push(InternetOpen(_T("Papyrus"), /*INTERNET_OPEN_TYPE_PRECONFIG*/INTERNET_OPEN_TYPE_DIRECT, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
+							THROW(h_inet_sess = hstk.Push(InternetOpenW(L"Papyrus", /*INTERNET_OPEN_TYPE_PRECONFIG*/INTERNET_OPEN_TYPE_DIRECT, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
 							THROW(h_connection = hstk.PushConnection(url, h_inet_sess));
 							{
 								const uint32 req_len = req_buf.Len32();
@@ -3630,7 +3698,7 @@ int ChZnInterface::GetUserInfo2(InitBlock & rIb)
 	SString temp_buf;
 	SString req_buf;
 	InetUrl url(MakeTargetUrl_(qCurrentUserInfo, 0, rIb, temp_buf));
-	THROW(h_inet_sess = hstk.Push(InternetOpen(_T("Papyrus"), INTERNET_OPEN_TYPE_DIRECT, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
+	THROW(h_inet_sess = hstk.Push(InternetOpenW(L"Papyrus", INTERNET_OPEN_TYPE_DIRECT, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
 	THROW(h_connection = hstk.PushConnection(url, h_inet_sess));
 	{
 		THROW(h_req = hstk.PushHttpRequestGet(h_connection, url));
@@ -3673,7 +3741,7 @@ int ChZnInterface::GetToken2(const char * pAuthCode, InitBlock & rIb)
 	SString req_buf;
 	InetUrl url(MakeTargetUrl_(qToken, 0, rIb, temp_buf));
 	THROW(MakeTokenRequest(rIb, pAuthCode, req_buf));
-	THROW(h_inet_sess = hstk.Push(InternetOpen(_T("Papyrus"), INTERNET_OPEN_TYPE_PRECONFIG, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
+	THROW(h_inet_sess = hstk.Push(InternetOpenW(L"Papyrus", INTERNET_OPEN_TYPE_PRECONFIG, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
 	THROW(h_connection = hstk.PushConnection(url, h_inet_sess));
 	{
 		THROW(h_req = hstk.PushHttpRequestPost(h_connection, url));
@@ -3823,6 +3891,10 @@ int _ParseMarkOpsJsonResult(const SJson * pJs, PPChZnPrcssr::CodeOpsCollection &
 						else if(temp_buf.IsEqiAscii("CONTRACT"))
 							p_new_entry->OpType = PPChZnPrcssr::CodeOp::optypContract;
 					}
+					else if(p_cur->Text.IsEqiAscii("docId")) {
+						(temp_buf = p_cur->P_Child->Text).Unescape();
+						rResult.AddS(temp_buf, &p_new_entry->DocIdP);
+					}
 					else if(p_cur->Text.IsEqiAscii("gtin")) {
 						(temp_buf = p_cur->P_Child->Text).Unescape();
 					}
@@ -3852,6 +3924,12 @@ int _ParseMarkOpsJsonResult(const SJson * pJs, PPChZnPrcssr::CodeOpsCollection &
 					}
 					else if(p_cur->Text.IsEqiAscii("status")) {
 						(temp_buf = p_cur->P_Child->Text).Unescape();
+					}
+					else if(p_cur->Text.IsEqiAscii("timestamp")) {
+						(temp_buf = p_cur->P_Child->Text).Unescape();
+						SUniTime_Internal ut;
+						if(strtodatetime(temp_buf, ut, DATF_ISO8601CENT, 0))
+							p_new_entry->UedTimestamp = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
 					}
 					else if(p_cur->Text.IsEqiAscii("operationDate")) {
 						(temp_buf = p_cur->P_Child->Text).Unescape();
@@ -4062,6 +4140,7 @@ int _ParseMarkInfoJsonResult(const SJson * pJs, PPChZnPrcssr::CodeInfoCollection
 
 int ChZnInterface::GetMarkOps(const InitBlock & rIb, const char * pCode, PPChZnPrcssr::CodeOpsCollection & rResult) // @v12.7.1
 {
+	rResult.Z();
 	int    ok = -1;
 	SJson * p_json_result = 0;
 	if(!isempty(pCode)) {
@@ -4299,7 +4378,7 @@ int ChZnInterface::GetDocument(const InitBlock & rIb, const S_GUID * pUuid, cons
 			HINTERNET h_inet_sess = 0;
 			HINTERNET h_connection = 0;
 			HINTERNET h_req = 0;
-			THROW(h_inet_sess = hstk.Push(InternetOpen(_T("Papyrus"), INTERNET_OPEN_TYPE_PRECONFIG, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
+			THROW(h_inet_sess = hstk.Push(InternetOpenW(L"Papyrus", INTERNET_OPEN_TYPE_PRECONFIG, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
 			THROW(h_connection = hstk.PushConnection(*pUrl, h_inet_sess));
 			{
 				THROW(h_req = hstk.PushHttpRequestGet(h_connection, *pUrl));
@@ -4429,7 +4508,7 @@ int ChZnInterface::GetIncomeDocList2_temp(InitBlock & rIb)
 		}
 		ZDELETE(p_json_req);
 	}
-	THROW(h_inet_sess = hstk.Push(InternetOpen(_T("Papyrus"), INTERNET_OPEN_TYPE_DIRECT, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
+	THROW(h_inet_sess = hstk.Push(InternetOpenW(L"Papyrus", INTERNET_OPEN_TYPE_DIRECT, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
 	THROW(h_connection = hstk.PushConnection(url, h_inet_sess));
 	{
 		THROW(h_req = hstk.PushHttpRequestPost(h_connection, url));
@@ -4709,6 +4788,10 @@ int PPChZnPrcssr::EditQueryParam(PPChZnPrcssr::QueryParam * pData)
 			AddClusterAssoc(CTL_CHZNIX_WHAT, 5, PPChZnPrcssr::QueryParam::_afQueryMarkOps); // @v12.7.1
 			AddClusterAssoc(CTL_CHZNIX_WHAT, 6, PPChZnPrcssr::QueryParam::_afDebug_Auth); // @v12.6.7
 			SetClusterData(CTL_CHZNIX_WHAT, Data.DocType);
+			// @v12.7.3 {
+			AddClusterAssoc(CTL_CHZNIX_FLAGS, 0, PPChZnPrcssr::QueryParam::fOutputToFile);
+			SetClusterData(CTL_CHZNIX_FLAGS, Data.Flags);
+			// } @v12.7.3 
 			setCtrlString(CTL_CHZNIX_PARAM, Data.ParamString);
 			SetupArCombo(this, CTLSEL_CHZNIX_SUPPL, Data.ArID, 0, GetSupplAccSheet(), 0);
 			setCtrlString(CTL_CHZNIX_ST_INFO, Data.InfoText);
@@ -4719,6 +4802,7 @@ int PPChZnPrcssr::EditQueryParam(PPChZnPrcssr::QueryParam * pData)
 			int    ok = 1;
 			getCtrlData(CTLSEL_CHZNIX_GUA, &Data.GuaID);
 			GetClusterData(CTL_CHZNIX_WHAT, &Data.DocType);
+			GetClusterData(CTL_CHZNIX_FLAGS, &Data.Flags); // @v12.7.3
 			getCtrlString(CTL_CHZNIX_PARAM, Data.ParamString);
 			getCtrlData(CTLSEL_CHZNIX_SUPPL, &Data.ArID);
 			ASSIGN_PTR(pData, Data);
@@ -4781,21 +4865,131 @@ int PPChZnPrcssr::InteractiveQuery()
 					case QueryParam::_afQueryMarkOps: // @v12.7.1
 						if(_param.ParamString.NotEmpty()) {
 							PPChZnPrcssr::CodeOpsCollection result;
-							if(ifc.GetMarkOps(*p_ib, _param.ParamString, result)) {
-								;
+							PPChZnPrcssr::CodeOpsCollection info_from_db;
+							//
+							SETIFZQ(P_EcRefC, new ExtCodeRefCore());
+							//
+							/* @debug if(P_EcRefC) {
+								temp_buf = _param.ParamString;
+								if(P_EcRefC->GetOps(temp_buf, info_from_db) > 0) {
+									temp_buf.Space().Cat("found in db");
+									Log(temp_buf);
+									result_buf.Z();
+									for(uint i = 0; i < info_from_db.getCount(); i++) {
+										if(info_from_db.EntryToStr(i, 0, temp_buf)) {
+											result_buf.Cat(temp_buf).CR();
+										}
+									}
+									Log(result_buf);
+								}
+							}*/
+							SString code_buf;
+							StringSet ss_code;
+							uint   code_count = 0;
+							if(fileExists(_param.ParamString)) {
+								SFile f_in(_param.ParamString, SFile::mRead);
+								if(f_in.IsValid()) {
+									while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+										GtinStruc gts;
+										const  int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0));
+										if(ipczcr > 0) {
+											ss_code.add(temp_buf);
+											code_count++;
+										}
+									}
+								}
+							}
+							else {
+								ss_code.add(_param.ParamString);
+								code_count++;
+							}
+							const  bool show_wait_msg = (code_count > 3);
+							uint   query_result_count = 0;
+							SFile f_out;
+							if(_param.Flags & QueryParam::fOutputToFile) {
+								SString dir;
+								PPGetPath(PPPATH_OUT, dir);
+								MakeTempFileName(dir, "chzn_QueryMarkOps", "txt", temp_buf);
+								f_out.Open(temp_buf, SFile::mWrite);
+							}
+							if(show_wait_msg) {
+								PPWait(1);
+							}
+							for(uint ssp = 0; ss_code.get(&ssp, code_buf);) {
+								if(show_wait_msg) {
+									PPWaitMsg(code_buf);
+								}
+								if(ifc.GetMarkOps(*p_ib, code_buf, result)) {
+									query_result_count++;
+									result_buf.Z();
+									if(result.getCount()) {
+										for(uint i = 0; i < result.getCount(); i++) {
+											if(result.EntryToStr(i, 0, temp_buf)) {
+												result_buf.Cat(temp_buf).CR();
+											}
+										}
+									}
+									else {
+										result_buf.Cat(code_buf).CatDiv(':', 2).Cat("no results");
+									}
+									if(f_out.IsValid()) {
+										if(query_result_count > 1)
+											f_out.WriteBlancLine();
+										f_out.WriteLine(result_buf);
+									}
+									if(query_result_count == 1) {
+										_param.InfoText = result_buf;
+									}
+									else
+										_param.InfoText = "Multiple results";
+									if(P_EcRefC) {
+										if(!P_EcRefC->PutOps(result, 1)) {
+											LogLastError();
+										}
+									}
+								}
+							}
+							if(show_wait_msg) {
+								PPWait(0);
 							}
 						}
 						break;
 					case QueryParam::_afQueryMarkInfo: // @v12.6.9
 						if(_param.ParamString.NotEmpty()) {
+							const  uint max_items_per_query = 500;
 							StringSet ss_code;
 							PPChZnPrcssr::CodeInfoCollection result;
 							PPChZnPrcssr::CodeInfoCollection info_from_db;
 							//
 							SETIFZQ(P_EcRefC, new ExtCodeRefCore());
-							//
-							//ss_box.add(_param.ParamString);
-							_param.ParamString.Tokenize(" ", ss_code);
+							// @v12.7.3 {
+							uint   code_count = 0;
+							GtinStruc gts;
+							if(fileExists(_param.ParamString)) {
+								SFile f_in(_param.ParamString, SFile::mRead);
+								if(f_in.IsValid()) {
+									while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+										const  int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0));
+										if(ipczcr > 0) {
+											ss_code.add(temp_buf);
+											code_count++;
+										}
+									}
+								}
+							}
+							else {
+								StringSet ss_local;
+								_param.ParamString.Tokenize(" ", ss_local);
+								for(uint ssp = 0; ss_local.get(&ssp, temp_buf);) {
+									const  int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0));
+									if(ipczcr > 0) {
+										ss_code.add(temp_buf);
+										code_count++;
+									}
+								}
+							}
+							// } @v12.7.3 
+							/* @debug
 							if(P_EcRefC) {
 								PPLotExtCodeContainer::MarkSet set_from_db;	
 								for(uint ssp = 0; ss_code.get(&ssp, temp_buf);) {
@@ -4808,27 +5002,87 @@ int PPChZnPrcssr::InteractiveQuery()
 												result_buf.Cat(temp_buf).CR();
 											}
 										}
-										Log(temp_buf);
+										Log(result_buf);
 									}
 								}
-							}
-							if(ifc.GetMarkInfo(*p_ib, ss_code, result)) {
-								result_buf.Z();
-								if(result.getCount()) {
-									for(uint i = 0; i < result.getCount(); i++) {
-										if(result.EntryToStr(i, 0, temp_buf)) {
-											result_buf.Cat(temp_buf).CR();
+							}*/
+							{
+								TSCollection <StringSet> ss_list;
+								if(code_count <= max_items_per_query) {
+									StringSet * p_new_entry = ss_list.CreateNewItem();
+									if(p_new_entry)
+										*p_new_entry = ss_code;
+								}
+								else {
+									StringSet ss_local;
+									uint   local_count = 0;
+									for(uint ssp = 0; ss_code.get(&ssp, temp_buf);) {
+										ss_local.add(temp_buf);
+										local_count++;
+										if(local_count >= max_items_per_query) {
+											StringSet * p_new_entry = ss_list.CreateNewItem();
+											if(p_new_entry)
+												*p_new_entry = ss_local;
+											ss_local.Z();
+											local_count = 0;
+										}
+									}
+									if(local_count) {
+										StringSet * p_new_entry = ss_list.CreateNewItem();
+										if(p_new_entry)
+											*p_new_entry = ss_local;
+										ss_local.Z();
+										local_count = 0;
+									}
+								}
+								const  bool show_wait_msg = (code_count > 3);
+								uint   query_result_count = 0;
+								SFile f_out;
+								if(_param.Flags & QueryParam::fOutputToFile) {
+									SString dir;
+									PPGetPath(PPPATH_OUT, dir);
+									MakeTempFileName(dir, "chzn_QueryMarkInfo", "txt", temp_buf);
+									f_out.Open(temp_buf, SFile::mWrite);
+								}
+								if(show_wait_msg) {
+									PPWait(1);
+								}
+								for(uint i = 0; i < ss_list.getCount(); i++) {
+									const StringSet * p_ss = ss_list.at(i);
+									if(p_ss) {
+										if(ifc.GetMarkInfo(*p_ib, *p_ss, result)) {
+											query_result_count++;
+											result_buf.Z();
+											if(result.getCount()) {
+												for(uint i = 0; i < result.getCount(); i++) {
+													if(result.EntryToStr(i, 0, temp_buf)) {
+														result_buf.Cat(temp_buf).CR();
+													}
+												}
+											}
+											else {
+												result_buf.Cat("No results");
+											}
+											if(f_out.IsValid()) {
+												if(query_result_count > 1)
+													f_out.WriteBlancLine();
+												f_out.WriteLine(result_buf);
+											}
+											if(query_result_count == 1) {
+												_param.InfoText = result_buf;
+											}
+											else
+												_param.InfoText = "Multiple results";
+											if(P_EcRefC) {
+												if(!P_EcRefC->PutInfo(result, 1)) {
+													LogLastError();
+												}
+											}
 										}
 									}
 								}
-								else {
-									result_buf.Cat("No results");
-								}
-								_param.InfoText = result_buf;
-								if(P_EcRefC) {
-									if(!P_EcRefC->PutInfo(result, 1)) {
-										LogLastError();
-									}
+								if(show_wait_msg) {
+									PPWait(0);
 								}
 							}
 						}
@@ -4843,7 +5097,7 @@ int PPChZnPrcssr::InteractiveQuery()
 							//
 							//ss_box.add(_param.ParamString);
 							_param.ParamString.Tokenize(" ", ss_box);
-							if(P_EcRefC) {
+							/* @debug if(P_EcRefC) {
 								PPLotExtCodeContainer::MarkSet set_from_db;	
 								for(uint ssp = 0; ss_box.get(&ssp, temp_buf);) {
 									if(P_EcRefC->GetAggregation(temp_buf, true, set_from_db) > 0) {
@@ -4851,7 +5105,7 @@ int PPChZnPrcssr::InteractiveQuery()
 										Log(temp_buf);
 									}
 								}
-							}
+							}*/
 							if(ifc.GetAggrMarkList(*p_ib, ss_box, result)) {
 								temp_buf.Z();
 								if(result.GetCount()) {
@@ -5412,336 +5666,6 @@ int PPChZnPrcssr::CodeStatusCollection::SetupResultEntry(int rowN, const CodeSta
 		}
 	}
 	return result;
-}
-
-static constexpr uint PPChZnPrcssr_CodeOp_Ver = 0; // 
-static constexpr uint PPChZnPrcssr_CodeInfo_Ver = 0; // 
-
-PPChZnPrcssr::CodeOp::CodeOp() : ErrCode(0), ErrMessageP(0), CisP(0), OpType(0), DocIdP(0), PackType(0), GeneralPackType(0)
-{
-}
-
-int PPChZnPrcssr::CodeOp::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
-{
-	int    ok = 1;
-	uint   ver = PPChZnPrcssr_CodeOp_Ver;
-	THROW_SL(pSCtx->Serialize(dir, ver, rBuf)); // !
-	THROW_SL(pSCtx->Serialize(dir, ErrCode, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, ErrMessageP, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, CisP, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, OpType, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, DocIdP, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, PackType, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, GeneralPackType, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, UedChZnProdType, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, UedOwnerINN, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, UedManufINN, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, UedProducerINN, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, UedTimestamp, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, UedOpTm, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, UedEmissionTm, rBuf));
-	THROW_SL(Children.Serialize(dir, rBuf, pSCtx));
-	CATCHZOK
-	return ok;
-}
-
-PPChZnPrcssr::CodeOpsCollection::CodeOpsCollection()
-{
-}
-
-PPChZnPrcssr::CodeOpsCollection & PPChZnPrcssr::CodeOpsCollection::Z()
-{
-	SStrGroup::ClearS();
-	freeAll();
-	return *this;
-}
-
-PPChZnPrcssr::CodeInfo::CodeInfo() : ErrCode(0), ErrMessageP(0), Flags(0), PackType(0), GeneralPackType(0), ReqCisP(0), CisP(0), 
-	OwnerNameP(0), ManufNameP(0), ProducerNameP(0), ProductNameP(0), BrandNameP(0), ExtraValue(0ULL)
-{
-}
-
-int PPChZnPrcssr::CodeInfo::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
-{
-	int    ok = 1;
-	uint   ver = PPChZnPrcssr_CodeInfo_Ver;
-	THROW_SL(pSCtx->Serialize(dir, ver, rBuf)); // !
-	THROW_SL(pSCtx->Serialize(dir, ErrCode, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, ErrMessageP, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, ReqCisP, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, CisP, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, PackType, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, GeneralPackType, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, UedChZnProdType, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, UedAppTm, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, UedIntroduceTm, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, UedProductTm, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, UedEmissionTm, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, UedExpiryTm, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, UedManufINN, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, UedProducerINN, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, UedImporterINN, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, UedOwnerINN, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, OwnerNameP, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, ManufNameP, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, ProducerNameP, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, ProductNameP, rBuf));
-	THROW_SL(pSCtx->Serialize(dir, BrandNameP, rBuf));
-	THROW_SL(Children.Serialize(dir, rBuf, pSCtx));
-	// UedRecModifTm, ErrCode, ErrMsg, ExtraValue не сериализовать!
-	CATCHZOK
-	return ok;
-}
-
-PPChZnPrcssr::CodeInfoCollection::CodeInfoCollection()
-{
-}
-
-PPChZnPrcssr::CodeInfoCollection & PPChZnPrcssr::CodeInfoCollection::Z()
-{
-	SStrGroup::ClearS();
-	freeAll();
-	return *this;
-}
-
-bool PPChZnPrcssr::CodeInfoCollection::SearchExtraValue(uint64 key, uint * pIdx) const
-{
-	bool   ok = false;
-	uint   result_idx = 0;
-	if(key) {
-		for(uint i = 0; !ok && i < getCount(); i++) {
-			const  CodeInfo * p_entry = at(i);
-			if(p_entry && p_entry->ExtraValue == key) {
-				ok = true;
-				result_idx = i;
-			}
-		}
-	}
-	ASSIGN_PTR(pIdx, result_idx);
-	return ok;
-}
-
-bool PPChZnPrcssr::CodeInfoCollection::SearchCode(const char * pPattern, uint * pIdx) const
-{
-	bool   ok = false;
-	uint   result_idx = 0;
-	if(!isempty(pPattern) && getCount()) {
-		SString pattern(pPattern);
-		SString iter_code;
-
-		SString pattern_gtin;
-		SString pattern_serial;
-		SString pattern_partno;
-		SString iter_gtin;
-		SString iter_serial;
-		SString iter_partno;
-		GtinStruc gts;
-		const  int iczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(pPattern, gts, 0));
-		gts.GetToken(GtinStruc::fldGTIN14, &pattern_gtin);
-		gts.GetToken(GtinStruc::fldSerial, &pattern_serial);
-		gts.GetToken(GtinStruc::fldPart, &pattern_partno);
-		const   bool do_adapt_cmp = (pattern_gtin.NotEmpty() && (pattern_serial.NotEmpty() || pattern_partno.NotEmpty()));
-		for(uint i = 0; !ok && i < getCount(); i++) {
-			const  CodeInfo * p_entry = at(i);
-			if(p_entry) {
-				GetS(p_entry->ReqCisP, iter_code);
-				if(AreChZnCodesEqual(pattern, iter_code, false)) {
-					result_idx = i;
-					ok = true;
-				}
-				else if(do_adapt_cmp) {
-					const  int iczcr_iter = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(iter_code, gts, 0));
-					gts.GetToken(GtinStruc::fldGTIN14, &iter_gtin);
-					if(iter_gtin.IsEqiAscii(pattern_gtin)) {
-						gts.GetToken(GtinStruc::fldSerial, &iter_serial);
-						gts.GetToken(GtinStruc::fldPart, &iter_partno);
-						if((iter_serial.IsEmpty() || iter_serial.IsEqiAscii(pattern_serial)) &&
-							(iter_partno.IsEmpty() || iter_partno.IsEqiAscii(pattern_partno))) {
-							result_idx = i;
-							ok = true;
-						}
-					}
-				}
-			}
-		}
-	}
-	ASSIGN_PTR(pIdx, result_idx);
-	return ok;
-}
-
-int PPChZnPrcssr::CodeInfoCollection::EntryToStr(uint entryIdx, long flags, SString & rBuf) const
-{
-	rBuf.Z();
-	int    ok = 1;
-	const  CodeInfo * p_entry = (entryIdx < getCount()) ? at(entryIdx) : 0;
-	if(!p_entry) {
-		ok = 0;
-	}
-	else {
-		SString temp_buf;
-		if(p_entry->ErrCode) {
-			rBuf.CatEq("ErrCode", p_entry->ErrCode).Space();
-			if(GetS(p_entry->ErrMessageP, temp_buf))
-				rBuf.CatEq("ErrMsg", temp_buf);
-			rBuf.CRB();
-		}
-		if(GetS(p_entry->ReqCisP, temp_buf))
-			rBuf.CatEq("ReqCis", temp_buf).CRB();
-		if(GetS(p_entry->CisP, temp_buf))
-			rBuf.CatEq("Cis", temp_buf).CRB();
-		if(GetS(p_entry->ProductNameP, temp_buf))
-			rBuf.CatEq("Product", temp_buf).CRB();
-		if(GetS(p_entry->BrandNameP, temp_buf))
-			rBuf.CatEq("Brand", temp_buf).CRB();
-		{
-			const  SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
-			if(p_uedc && p_uedc->GetSymb(p_entry->UedChZnProdType, temp_buf)) {
-				rBuf.CatEq("ProductType", temp_buf).CRB();
-			}
-		}
-		if(p_entry->Flags) {
-			rBuf.Cat("Flags").CatChar('=').CatHex(p_entry->Flags).CRB();
-		}
-		{
-			SUniTime_Internal ut;
-			if(UED::_GetRaw_Time(p_entry->UedAppTm, ut)) {
-				ut.ToStr(DATF_ISO8601CENT, 0, temp_buf);
-				rBuf.CatEq("AppTime", temp_buf).CRB();
-			}
-			if(UED::_GetRaw_Time(p_entry->UedIntroduceTm, ut)) {
-				ut.ToStr(DATF_ISO8601CENT, 0, temp_buf);
-				rBuf.CatEq("IntroduceTime", temp_buf).CRB();
-			}
-			if(UED::_GetRaw_Time(p_entry->UedProductTm, ut)) {
-				ut.ToStr(DATF_ISO8601CENT, 0, temp_buf);
-				rBuf.CatEq("ProductTime", temp_buf).CRB();
-			}
-			if(UED::_GetRaw_Time(p_entry->UedEmissionTm, ut)) {
-				ut.ToStr(DATF_ISO8601CENT, 0, temp_buf);
-				rBuf.CatEq("EmissionTime", temp_buf).CRB();
-			}
-			if(UED::_GetRaw_Time(p_entry->UedExpiryTm, ut)) {
-				ut.ToStr(DATF_ISO8601CENT, 0, temp_buf);
-				rBuf.CatEq("ExpiryTime", temp_buf).CRB();
-			}
-			//
-			{
-				bool   is_there_anything = false;
-				if(UED::GetRaw_Ru_INN(p_entry->UedManufINN, temp_buf, 0)) {
-					rBuf.CatEq("ManufINN", temp_buf).Space();
-					is_there_anything = true;
-				}
-				if(GetS(p_entry->ManufNameP, temp_buf)) {
-					rBuf.CatEq("Manuf", temp_buf).Space();
-					is_there_anything = true;
-				}
-				if(is_there_anything)
-					rBuf.CRB();
-			}
-			{
-				bool   is_there_anything = false;
-				if(UED::GetRaw_Ru_INN(p_entry->UedProducerINN, temp_buf, 0)) {
-					rBuf.CatEq("ProducerINN", temp_buf).Space();
-					is_there_anything = true;
-				}
-				if(GetS(p_entry->ProducerNameP, temp_buf)) {
-					rBuf.CatEq("Producer", temp_buf).Space();
-					is_there_anything = true;
-				}
-				if(is_there_anything)
-					rBuf.CRB();
-			}
-			if(UED::GetRaw_Ru_INN(p_entry->UedImporterINN, temp_buf, 0)) {
-				rBuf.CatEq("ImporterINN", temp_buf).CRB();
-			}
-			{
-				bool   is_there_anything = false;
-				if(UED::GetRaw_Ru_INN(p_entry->UedOwnerINN, temp_buf, 0)) {
-					rBuf.CatEq("OwnerINN", temp_buf).Space();
-					is_there_anything = true;
-				}
-				if(GetS(p_entry->OwnerNameP, temp_buf)) {
-					rBuf.CatEq("Owner", temp_buf).Space();
-					is_there_anything = true;
-				}
-				if(is_there_anything)
-					rBuf.CRB();
-			}
-			if(p_entry->Children.IsCountGreaterThan(0)) {
-				rBuf.Cat("There are children codes").CRB();
-			}
-		}
-	}
-	return ok;
-}
-
-int PPChZnPrcssr::CodeInfoCollection::MoveEntryTo(uint entryIdx/*[0..]*/, CodeInfoCollection & rDest) const
-{
-	int    ok = 0;
-	if(entryIdx < getCount()) {
-		const  CodeInfo * p_entry = at(entryIdx);
-		if(p_entry) {
-			SString temp_buf;
-			SString code;
-			uint   ex_idx = 0;
-			GetS(p_entry->ReqCisP, code);
-			if(rDest.SearchCode(code, &ex_idx)) {
-				ok = -1;
-			}
-			else {
-				CodeInfo * p_new_entry = rDest.CreateNewItem();
-				if(p_new_entry) {
-					p_new_entry->ErrCode = p_entry->ErrCode;
-					GetS(p_entry->ErrMessageP, temp_buf);
-					rDest.AddS(temp_buf, &p_new_entry->ErrMessageP);
-					GetS(p_entry->ReqCisP, temp_buf);
-					rDest.AddS(temp_buf, &p_new_entry->ReqCisP);
-					GetS(p_entry->CisP, temp_buf);
-					rDest.AddS(temp_buf, &p_new_entry->CisP);
-					p_new_entry->Flags = p_entry->Flags;
-					p_new_entry->PackType = p_entry->PackType;
-					p_new_entry->GeneralPackType = p_entry->GeneralPackType;
-					p_new_entry->UedChZnProdType = p_entry->UedChZnProdType;
-					p_new_entry->UedAppTm = p_entry->UedAppTm;
-					p_new_entry->UedIntroduceTm = p_entry->UedIntroduceTm;
-					p_new_entry->UedProductTm = p_entry->UedProductTm;
-					p_new_entry->UedEmissionTm = p_entry->UedEmissionTm;
-					p_new_entry->UedExpiryTm = p_entry->UedExpiryTm;
-					p_new_entry->UedManufINN = p_entry->UedManufINN;
-					p_new_entry->UedProducerINN = p_entry->UedProducerINN;
-					p_new_entry->UedImporterINN = p_entry->UedImporterINN;
-					p_new_entry->UedOwnerINN = p_entry->UedOwnerINN;
-					GetS(p_entry->OwnerNameP, temp_buf);
-					rDest.AddS(temp_buf, &p_new_entry->OwnerNameP);
-					GetS(p_entry->ManufNameP, temp_buf);
-					rDest.AddS(temp_buf, &p_new_entry->ManufNameP);
-					GetS(p_entry->ProducerNameP, temp_buf);
-					rDest.AddS(temp_buf, &p_new_entry->ProducerNameP);
-					GetS(p_entry->ProductNameP, temp_buf);
-					rDest.AddS(temp_buf, &p_new_entry->ProductNameP);
-					GetS(p_entry->BrandNameP, temp_buf);
-					rDest.AddS(temp_buf, &p_new_entry->BrandNameP);
-					p_new_entry->Children = p_entry->Children;
-					p_new_entry->UedRecModifTm = p_entry->UedRecModifTm;
-					p_new_entry->ExtraValue = p_entry->ExtraValue; // @v12.7.0
-					ok = 1;
-				}
-				else
-					ok = 0;
-			}
-		}
-	}
-	return ok;
-}
-
-int PPChZnPrcssr::CodeInfoCollection::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
-{
-	int    ok = 1;
-	THROW_SL(SStrGroup::SerializeS(dir, rBuf, pSCtx));
-	THROW_SL(TSCollection_Serialize(*this, dir, rBuf, pSCtx));
-	CATCHZOK
-	return ok;
 }
 
 PPChZnPrcssr::PermissiveModeInterface::LocalSvcStatus::LocalSvcStatus() : Flags(0), Status(stUndef), OpMode(opmodeUndef), UedLastUpdateTm(0), UedLastSyncTm(0)
@@ -7702,690 +7626,433 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 	return ok;
 }
 //
-//
-//
-#if 0 // @v12.6.9 {
-int ChZnInterface::Document::Make_Obsolete(SXml::WDoc & rX, const ChZnInterface::InitBlock & rIb, const ChZnInterface::Packet * pPack)
+// 
+// 
+static constexpr uint PPChZnPrcssr_CodeOp_Ver = 0; // 
+static constexpr uint PPChZnPrcssr_CodeInfo_Ver = 0; // 
+
+PPChZnPrcssr::CodeOp::CodeOp() : ErrCode(0), ErrMessageP(0), CisP(0), OpType(0), DocIdP(0), PackType(0), GeneralPackType(0)
+{
+}
+
+int PPChZnPrcssr::CodeOp::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	SString temp_buf;
-	SString mark_buf;
-	SString subj_ident;
-	SString shipper_ident;
-	SString receiver_ident;
-	StringSet ss;
-	PPLotExtCodeContainer::MarkSet lotxcode_set;
-	GtinStruc gts;
-	PPObjPerson psn_obj;
-	PPObjGoods goods_obj;
-	Goods2Tbl::Rec goods_rec; // @v11.9.9
-	PPGoodsType2 gt_rec; // @v11.9.9
-	PPID   main_org_id = GetMainOrgID();
-	const  bool  medcine_only = IsMedcineOnly(pPack->DocType); // @v11.9.9 
-	if(pPack->DocType == doctGisMt_LkReceipt) {
-		const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
-		if(p_bp) {
-			/* xml
-				<withdrawal action_id="15" version="4"> 
-					<trade_participant_inn>7714897741</trade_participant_inn>
-					<withdrawal_type>RETAIL</withdrawal_type>
-					<withdrawal_date>08.10.2020</withdrawal_date>
-					<primary_document_type>OTHER</primary_document_type>
-					<primary_document_number>PDN</primary_document_number> 
-					<primary_document_date>08.10.2020</primary_document_date>
-					<primary_document_custom_name>custom</primary_document_custom_name>
-					<kkt_number>234</kkt_number>
-					<products_list> 
-						<product> 
-							<ki>0000000000000000000FFFFFFFFFFFFFFFFFFF</ki>
-							<cost>1000</cost>
-							<primary_document_type>OTHER</primary_document_type>
-							<primary_document_number>PDN</primary_document_number>
-							<primary_document_date>08.10.2020</primary_document_date> 
-							<primary_document_custom_name>custom</primary_document_custom_name> 
-						</product>
-					</products_list> 
-				</withdrawal>
+	uint   ver = PPChZnPrcssr_CodeOp_Ver;
+	THROW_SL(pSCtx->Serialize(dir, ver, rBuf)); // !
+	THROW_SL(pSCtx->Serialize(dir, ErrCode, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, ErrMessageP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, CisP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, OpType, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, DocIdP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, PackType, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, GeneralPackType, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedChZnProdType, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedOwnerINN, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedManufINN, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedProducerINN, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedTimestamp, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedOpTm, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedEmissionTm, rBuf));
+	THROW_SL(Children.Serialize(dir, rBuf, pSCtx));
+	// @transient не сериализовать! UedRecModifTm
+	CATCHZOK
+	return ok;
+}
 
-				kpp - string - КПП участника оборота 
-				fias_id - string - Идентификатор ФИАС
-			*/
-			/* json
-				{
-				   "inn":"1111111111",
-				   "action":"OTHER",
-				   "action_date":"2024-01-01",
-				   "withdrawal_type_other":"string",
-				   "document_type":"OTHER",
-				   "document_number":"22222",
-				   "document_date":"2024-01-01",
-				   "primary_document_custom_name":"string",
-				   "products":[
-					  {
-						 "cis":"010468888888888821lBEtVuGyhA0HO"
-					  }
-				   ]
-				}
-			*/ 
-			// Далее все не верно (по ошибке сделано в соответствии с doctGisMt_LpShipReceipt)
-			const  PPID rcvr_ar_id = p_bp->Rec.Object;
-			const  PPID rcvr_psn_id = ObjectToPerson(rcvr_ar_id, 0);
-			const  PPID subj_loc_id = p_bp->Rec.LocID;
-			SString sender_inn;
-			SString receiver_inn;
-			SString doc_date_text;
-			PPID   subj_psn_id = main_org_id;
-			doc_date_text.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT);
-			psn_obj.GetRegNumber(subj_psn_id, PPREGT_TPID, sender_inn);
-			if(rcvr_psn_id)
-				psn_obj.GetRegNumber(rcvr_psn_id, PPREGT_TPID, receiver_inn);
-			{ // @v12.6.2 @construction json-variant
-#if 0 // {
-				SJson js(SJson::tOBJECT);
-				js.InsertString("inn", sender_inn);
-				js.InsertString("action", "OTHER");
-				js.InsertString("action_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601CENT));
-				js.InsertString("withdrawal_type_other", "RETAIL");
-				js.InsertString("document_type", "OTHER");
-				js.InsertString("document_number", (temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
-				js.InsertString("document_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601CENT));
-				PPLoadStringUtf8("document_upd_s", temp_buf); // УПД
-				js.InsertString("primary_document_custom_name", temp_buf);
-				{
-					//"products"
-					SJson * p_js_inner = new SJson(SJson::tARRAY);
-					if(p_js_inner) {
-						for(uint i = 0; i < p_bp->GetTCount(); i++) {
-							const  PPTransferItem & r_ti = p_bp->ConstTI(i);
-							const  double cost = fabs(r_ti.NetPrice());
-							double vat_in_cost = 0.0;
-							{
-								GTaxVect gtv;
-								gtv.CalcBPTI(*p_bp, r_ti, TIAMT_PRICE);
-								vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
-							}
-							p_bp->XcL.Get(i+1, 0, lotxcode_set);
-							lotxcode_set.GetByBoxID(0, ss);
-							for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-								if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-									mark_buf.Z();
-									if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-										mark_buf.Cat("01").Cat(temp_buf);
-										if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-											mark_buf.Cat("21").Cat(temp_buf);
-											SJson * p_js_item = new SJson(SJson::tOBJECT);
-											if(p_js_item) {
-												p_js_item->InsertString("cis", (temp_buf = mark_buf).Escape());
-												p_js_inner->InsertChild(p_js_item);
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				//js.InsertString("kpp", "");
-				//js.InsertString("fias_id", "");
-#endif // } 0
-			}
-			SXml::WNode nh(rX, "withdrawal");
-			nh.PutAttrib("action_id", "15");
-			nh.PutAttrib("version", "4");
-			nh.PutInner("trade_participant_inn", sender_inn);
-			nh.PutInner("withdrawal_type", "RETAIL");
-			nh.PutInner("withdrawal_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT));
-			nh.PutInner("primary_document_type", "OTHER");
-			(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
-			nh.PutInner("primary_document_number", temp_buf);
-			nh.PutInner("primary_document_date", doc_date_text);
-			PPLoadString("document_upd_s", temp_buf); // УПД
-			nh.PutInner("primary_document_custom_name", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
-			// @v12.5.10 {
-			if(false) { // @v12.5.11 @condition Блядь! Сделал и выяснилось, что не надо было. 
-				PPLocationPacket loc_pack;
-				psn_obj.GetRegNumber(subj_psn_id, PPREGT_KPP, temp_buf);
-				if(temp_buf.NotEmpty()) {
-					nh.PutInner("kpp", temp_buf);
-				}
-				if(psn_obj.LocObj.GetPacket(subj_loc_id, &loc_pack) > 0) {
-					const ObjTagItem * p_tag_item = loc_pack.TagL.GetItem(PPTAG_LOC_FIASGUID_ADR);
-					S_GUID fias_uuid;
-					if(p_tag_item && p_tag_item->GetGuid(&fias_uuid)) {
-						temp_buf.Z().Cat(fias_uuid, S_GUID::fmtIDL);
-						nh.PutInner("fias_id", temp_buf);
-					}
-				}
-			}
-			// } @v12.5.10 
-			//nh.PutInner("primary_document_custom_name", "custom");
-			//nh.PutInner("kkt_number", "234");
-			//nh.PutInner("st_contract_id", ""); // optional
-			{
-				SXml::WNode npl(rX, "products_list");
-				for(uint i = 0; i < p_bp->GetTCount(); i++) {
-					const PPTransferItem & r_ti = p_bp->ConstTI(i);
-					const  double cost = fabs(r_ti.NetPrice());
-					double vat_in_cost = 0.0;
-					{
-						GTaxVect gtv;
-						gtv.CalcBPTI(*p_bp, r_ti, TIAMT_PRICE);
-						vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
-					}
-					p_bp->XcL.Get(i+1, 0, lotxcode_set);
-					lotxcode_set.GetByBoxID(0, ss);
-					for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-						if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-							mark_buf.Z();
-							if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-								mark_buf.Cat("01").Cat(temp_buf);
-								if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-									mark_buf.Cat("21").Cat(temp_buf);
-									{
-										SXml::WNode np(rX, "product");
-										XMLReplaceSpecSymb(mark_buf, "&<>\'");
-										np.PutInner("ki", mark_buf); // Возможно, дожно быть "cis" вместо "ki"
-										np.PutInner("cost", temp_buf.Z().Cat(R0i(cost * 100.0)));
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	else if(pPack->DocType == doctGisMt_LpShipReceipt) {
-		const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
-		if(p_bp) {
-			/*
-				<?xml version="1.0" encoding="UTF-8"?>
-				<shipment action_id="10" version="5">
-					<trade_participant_inn_sender>0000000000</trade_participant_inn_sender>
-					<trade_participant_inn_receiver>0000000000</trade_participant_inn_receiver>
-					<transfer_date>01.01.2020</transfer_date>
-					<move_document_number>12345678901234567890</move_document_number>
-					<move_document_date>01.01.2020</move_document_date>
-					<turnover_type>SELLING</turnover_type>
-					<!--Optional:-->
-					<withdrawal_type>STATE_ENTERPRISE</withdrawal_type>
-					<!--Optional:-->
-					<withdrawal_date>01.01.2020</withdrawal_date>
-					<!--Optional:-->
-					<st_contract_id>string</st_contract_id>
-					<products_list>
-						<!--1 or more repetitions:-->
-						<product>
-							<!--Optional:-->
-							<ki>00000000000000FFFFFFFFFFFFFFF</ki>
-							<!--Optional:-->
-							<cost>100000</cost>
-							<!--Optional:-->
-							<vat_value>100000</vat_value>
-						</product>
-					</products_list>
-				</shipment>
-			*/
-			const  PPID   rcvr_ar_id = p_bp->Rec.Object;
-			const  PPID   rcvr_psn_id = ObjectToPerson(rcvr_ar_id, 0);
-			SString sender_inn;
-			SString receiver_inn;
-			PPID   subj_psn_id = main_org_id;
-			psn_obj.GetRegNumber(subj_psn_id, PPREGT_TPID, sender_inn);
-			if(rcvr_psn_id)
-				psn_obj.GetRegNumber(rcvr_psn_id, PPREGT_TPID, receiver_inn);
-			SXml::WNode nh(rX, "shipment");
-			nh.PutAttrib("action_id", "10");
-			nh.PutAttrib("version", "5");
-			nh.PutInner("trade_participant_inn_sender", sender_inn);
-			nh.PutInner("trade_participant_inn_receiver", receiver_inn);
-			nh.PutInner("transfer_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT));
-			(temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8);
-			nh.PutInner("move_document_number", temp_buf);
-			nh.PutInner("move_document_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT));
-			nh.PutInner("turnover_type", "SELLING");
-			nh.PutInner("to_not_participant", "true"); // optional признак того, что отгружаем не участнику оборота чезн
-			nh.PutInner("withdrawal_type", "NO_RETAIL_USE"); // optional
-			nh.PutInner("withdrawal_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT)); // optional
-			// nh.PutInner("st_contract_id", ""); // optional
-			{
-				SXml::WNode npl(rX, "products_list");
-				for(uint i = 0; i < p_bp->GetTCount(); i++) {
-					const  PPTransferItem & r_ti = p_bp->ConstTI(i);
-					long   local_chzn_prod_type = 0; // @v11.9.9
-					if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
-						local_chzn_prod_type = gt_rec.ChZnProdType;
-					if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
-						const  double cost = fabs(r_ti.NetPrice());
-						double vat_in_cost = 0.0;
-						{
-							GTaxVect gtv;
-							gtv.CalcBPTI(*p_bp, r_ti, TIAMT_PRICE);
-							vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
-						}
-						p_bp->XcL.Get(i+1, 0, lotxcode_set);
-						lotxcode_set.GetByBoxID(0, ss);
-						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-							if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-								mark_buf.Z();
-								if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-									mark_buf.Cat("01").Cat(temp_buf);
-									if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-										mark_buf.Cat("21").Cat(temp_buf);
+PPChZnPrcssr::CodeOpsCollection::CodeOpsCollection()
+{
+}
 
-										SXml::WNode np(rX, "product");
-										XMLReplaceSpecSymb(mark_buf, "&<>\'");
-										np.PutInner("ki", mark_buf);
-										np.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
-										np.PutInner("vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+PPChZnPrcssr::CodeOpsCollection & PPChZnPrcssr::CodeOpsCollection::Z()
+{
+	SStrGroup::ClearS();
+	freeAll();
+	return *this;
+}
+
+int PPChZnPrcssr::CodeOpsCollection::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW_SL(SStrGroup::SerializeS(dir, rBuf, pSCtx));
+	THROW_SL(TSCollection_Serialize(*this, dir, rBuf, pSCtx));
+	CATCHZOK
+	return ok;
+}
+
+int PPChZnPrcssr::CodeOpsCollection::EntryToStr(uint entryIdx, long flags, SString & rBuf) const
+{
+	rBuf.Z();
+	int    ok = 1;
+	const  CodeOp * p_entry = (entryIdx < getCount()) ? at(entryIdx) : 0;
+	if(!p_entry) {
+		ok = 0;
 	}
 	else {
-		SXml::WNode wdocs(rX, "documents");
-		wdocs.PutAttrib("session_ui", rIb.Token);
-		wdocs.PutAttrib("version", "1.35");
-		wdocs.PutAttrib(SXml::nst_xmlns("xsi"), InetUrl::MkHttp("www.w3.org", "2001/XMLSchema-instance"));
+		SString temp_buf;
+		if(p_entry->ErrCode) {
+			rBuf.CatEq("ErrCode", p_entry->ErrCode).Space();
+			if(GetS(p_entry->ErrMessageP, temp_buf))
+				rBuf.CatEq("ErrMsg", temp_buf);
+			rBuf.CRB();
+		}
+		if(GetS(p_entry->CisP, temp_buf))
+			rBuf.CatEq("Cis", temp_buf).CRB();
+		if(p_entry->OpType == CodeOp::optypSelling) {
+			rBuf.CatEq("optype", "selling").CRB();
+		}
+		else if(p_entry->OpType == CodeOp::optypContract) {
+			rBuf.CatEq("optype", "contract").CRB();
+		}
+		else if(p_entry->OpType == CodeOp::optypContract) {
+			rBuf.CatEq("optype", "undef").CRB();
+		}
+		if(GetS(p_entry->DocIdP, temp_buf)) {
+			rBuf.CatEq("docid", temp_buf).CRB();
+		}
 		{
-			SIntToSymbTab_GetSymb(CzDocType_SymbTab, SIZEOFARRAY(CzDocType_SymbTab), pPack->DocType, temp_buf);
-			SXml::WNode wd(rX, temp_buf);
-			wd.PutAttrib("action_id", temp_buf.Z().Cat(pPack->DocType));
+			const  SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
+			if(p_uedc && p_uedc->GetSymb(p_entry->UedChZnProdType, temp_buf)) {
+				rBuf.CatEq("ProductType", temp_buf).CRB();
+			}
+		}
+		{
+			SUniTime_Internal ut;
+			if(UED::_GetRaw_Time(p_entry->UedTimestamp, ut)) {
+				ut.ToStr(DATF_ISO8601CENT, 0, temp_buf);
+				rBuf.CatEq("Timestamp", temp_buf).CRB();
+			}
+			if(UED::_GetRaw_Time(p_entry->UedOpTm, ut)) {
+				ut.ToStr(DATF_ISO8601CENT, 0, temp_buf);
+				rBuf.CatEq("OpTm", temp_buf).CRB();
+			}
+			if(UED::_GetRaw_Time(p_entry->UedEmissionTm, ut)) {
+				ut.ToStr(DATF_ISO8601CENT, 0, temp_buf);
+				rBuf.CatEq("EmissionTime", temp_buf).CRB();
+			}
 			//
-			if(pPack->DocType == doctypMdlpMovePlace) {
-				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
-				if(p_bp) {
-					const  PPID   rcvr_ar_id = p_bp->Rec.Object;
-					const  PPID   rcvr_loc_id = PPObjLocation::ObjToWarehouse(rcvr_ar_id);
-					const  PPID   subj_loc_id = p_bp->Rec.LocID;
-					PPID   subj_psn_id = main_org_id;
-					GetTransactionPartyCode(0, rcvr_loc_id, receiver_ident);
-					GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
-					wd.PutInner("subject_id", subj_ident);
-					wd.PutInner("receiver_id", receiver_ident);
-					_PutOperationDate(wd, temp_buf);
-					_PutDocDateAndNum(p_bp->Rec, wd, temp_buf);
-					{
-						SXml::WNode dtl(rX, "order_details");
-						for(uint i = 0; i < p_bp->GetTCount(); i++) {
-							const  PPTransferItem & r_ti = p_bp->ConstTI(i);
-							// @v11.9.9 {
-							long   local_chzn_prod_type = 0;
-							if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
-								local_chzn_prod_type = gt_rec.ChZnProdType;
-							if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
-								p_bp->XcL.Get(i+1, 0, lotxcode_set);
-								lotxcode_set.GetByBoxID(0, ss);
-								for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-									if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-										mark_buf.Z();
-										if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-											mark_buf.Cat(temp_buf);
-											if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-												mark_buf.Cat(temp_buf);
-												XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
-												dtl.PutInner("sgtin", mark_buf);
-											}
-										}
-									}
-								}
-							}
-						}
-					}
+			{
+				bool   is_there_anything = false;
+				if(UED::GetRaw_Ru_INN(p_entry->UedManufINN, temp_buf, 0)) {
+					rBuf.CatEq("ManufINN", temp_buf).Space();
+					is_there_anything = true;
 				}
+				if(is_there_anything)
+					rBuf.CRB();
 			}
-			else if(pPack->DocType == doctypMdlpRetailSale) {
-				const CCheckPacket * p_ccp = static_cast<const CCheckPacket *>(pPack->P_Data);
-				if(p_ccp) {
-					/*
-						<documents session_ui="4Aa246a6-D7e2-2465-a056-0234554369a3" version="1.34">
-							<retail_sale action_id="511">
-								<subject_id>19527400000042</subject_id>
-								<operation_date>2017-04-09T15:08:00+05:00</operation_date>
-								<sales>
-									<union>
-										<detail>
-											<sgtin>11670012610151BBM13L07G86DQ</sgtin>
-											<cost>17.0</cost>
-											<vat_value>300.0</vat_value>
-										</detail>
-										<sale_docs>
-											<doc_type>1</doc_type>
-											<doc_name>cheque</doc_name>
-											<doc_number>1</doc_number>
-											<doc_date>04.04.2017</doc_date>
-										</sale_docs>
-									</union>
-								</sales>
-							</retail_sale>
-						</documents>
-					*/
-					PPObjCashNode cnobj;
-					PPCashNode2 cn_rec;
-					if(cnobj.Fetch(p_ccp->Rec.PosNodeID, &cn_rec) > 0 && cn_rec.LocID) {
-						//p_ccp->Rec.CashID
-						const  PPID   subj_loc_id = cn_rec.LocID;
-						PPID  subj_psn_id = main_org_id;
-						GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
-						wd.PutInner("subject_id", subj_ident);
-						_PutOperationDate(wd, temp_buf);
-						{
-							SXml::WNode sn(rX, "sales");
-							CCheckItem ccitem;
-							for(uint i = 0; p_ccp->EnumLines(&i, &ccitem);) {
-								// @v11.9.9 {
-								long  local_chzn_prod_type = 0;
-								if(goods_obj.Fetch(ccitem.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
-									local_chzn_prod_type = gt_rec.ChZnProdType;
-								if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
-									p_ccp->GetLineTextExt(i, CCheckPacket::lnextChZnMark, temp_buf);
-									if(temp_buf.NotEmptyS()) {
-										if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-											mark_buf.Z();
-											if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-												mark_buf.Cat(temp_buf);
-												if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-													mark_buf.Cat(temp_buf);
-													double cost = R2(ccitem.Price - ccitem.Discount);
-													double vat_in_cost = 0.0;
-													PPGoodsTaxEntry gtx;
-													if(goods_obj.FetchTaxEntry2(ccitem.GoodsID, 0/*lotID*/, 0/*taxPayerID*/, p_ccp->Rec.Dt, 0, &gtx) > 0) {
-														GTaxVect gtv;
-														gtv.Calc_(gtx, cost, 1.0, GTAXVF_BEFORETAXES, 0);
-														vat_in_cost = gtv.GetValue(GTAXVF_VAT);
-													}
-													SXml::WNode un(rX, "union");
-													{
-														SXml::WNode dn(rX, "detail");
-														XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
-														dn.PutInner("sgtin", mark_buf);
-														dn.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
-														dn.PutInner("vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
-													}
-													{
-														SXml::WNode sdn(rX, "sale_docs");
-														sdn.PutInner("doc_type", "1");
-														sdn.PutInner("doc_name", "cheque");
-														sdn.PutInner("doc_number", temp_buf.Z().Cat(p_ccp->Rec.Code));
-														sdn.PutInner("doc_date", temp_buf.Z().Cat(p_ccp->Rec.Dt, DATF_GERMANCENT));
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
+			{
+				bool   is_there_anything = false;
+				if(UED::GetRaw_Ru_INN(p_entry->UedProducerINN, temp_buf, 0)) {
+					rBuf.CatEq("ProducerINN", temp_buf).Space();
+					is_there_anything = true;
 				}
+				if(is_there_anything)
+					rBuf.CRB();
 			}
-			else if(pPack->DocType == doctypMdlpMoveOrder) {
-				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
-				if(p_bp) {
-					const  PPID   rcvr_ar_id = p_bp->Rec.Object;
-					const  PPID   rcvr_psn_id = ObjectToPerson(rcvr_ar_id, 0);
-					const  PPID   rcvr_loc_id = p_bp->GetDlvrAddrID();
-					const  PPID   subj_loc_id = p_bp->Rec.LocID;
-					//
-					PPID   subj_psn_id = main_org_id;
-					GetTransactionPartyCode(rcvr_psn_id, rcvr_loc_id, receiver_ident);
-					GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
-					wd.PutInner("subject_id", subj_ident);
-					wd.PutInner("receiver_id", receiver_ident);
-					_PutOperationDate(wd, temp_buf);
-					_PutDocDateAndNum(p_bp->Rec, wd, temp_buf);
-					wd.PutInner("turnover_type", temp_buf.Z().Cat(2L));
-					wd.PutInner("source", temp_buf.Z().Cat(1L));
-					wd.PutInner("contract_type", temp_buf.Z().Cat(1L));
-					{
-						SXml::WNode dtl(rX, "order_details");
-						for(uint i = 0; i < p_bp->GetTCount(); i++) {
-							const PPTransferItem & r_ti = p_bp->ConstTI(i);
-							// @v11.9.9 {
-							long  local_chzn_prod_type = 0;
-							if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
-								local_chzn_prod_type = gt_rec.ChZnProdType;
-							if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
-								double cost = r_ti.Cost;
-								double vat_in_cost = 0.0;
-								{
-									GTaxVect gtv;
-									gtv.CalcBPTI(*p_bp, r_ti, TIAMT_COST);
-									vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
-								}
-								p_bp->XcL.Get(i+1, 0, lotxcode_set);
-								{
-									lotxcode_set.GetByBoxID(0, ss);
-									for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-										if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-											mark_buf.Z();
-											if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-												mark_buf.Cat(temp_buf);
-												if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-													mark_buf.Cat(temp_buf);
-													SXml::WNode un(rX, "union");
-													XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
-													un.PutInner("sgtin", mark_buf);
-													un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
-													un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
+			{
+				bool   is_there_anything = false;
+				if(UED::GetRaw_Ru_INN(p_entry->UedOwnerINN, temp_buf, 0)) {
+					rBuf.CatEq("OwnerINN", temp_buf).Space();
+					is_there_anything = true;
 				}
+				if(is_there_anything)
+					rBuf.CRB();
 			}
-			else if(pPack->DocType == doctypMdlpAccept) { // @v12.3.6 @construction
-				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
-				if(p_bp) {
-					const  PPID   dlvr_ar_id = p_bp->Rec.Object;
-					const  PPID   dlvr_psn_id = ObjectToPerson(dlvr_ar_id, 0);
-					const  PPID   dlvr_loc_id = p_bp->GetDlvrAddrID();
-					const  PPID   subj_loc_id = p_bp->Rec.LocID;
-					PPID   subj_psn_id = main_org_id;
-					GetTransactionPartyCode(dlvr_psn_id, dlvr_loc_id, shipper_ident);
-					GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
-					wd.PutInner("subject_id", subj_ident);
-					wd.PutInner("counterparty_id", shipper_ident);
-					_PutOperationDate(wd, temp_buf);
-					{
-						SXml::WNode dtl(rX, "order_details");
-						for(uint i = 0; i < p_bp->GetTCount(); i++) {
-							const PPTransferItem & r_ti = p_bp->ConstTI(i);
-							long  local_chzn_prod_type = 0;
-							if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
-								local_chzn_prod_type = gt_rec.ChZnProdType;
-							if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) {
-								p_bp->XcL.Get(i+1, 0, lotxcode_set);
-								{
-									lotxcode_set.GetByBoxID(0, ss);
-									for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-										if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-											mark_buf.Z();
-											if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-												mark_buf.Cat(temp_buf);
-												if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-													mark_buf.Cat(temp_buf);
-													XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
-													dtl.PutInner("sgtin", mark_buf);
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			else if(oneof2(pPack->DocType, doctypMdlpReceiveOrder, doctypMdlpPosting)) {
-				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
-				if(p_bp) {
-					const  PPID   dlvr_ar_id = p_bp->Rec.Object;
-					const  PPID   dlvr_psn_id = ObjectToPerson(dlvr_ar_id, 0);
-					const  PPID   dlvr_loc_id = p_bp->GetDlvrAddrID();
-					const  PPID   subj_loc_id = p_bp->Rec.LocID;
-					PPID   subj_psn_id = main_org_id;
-					GetTransactionPartyCode(dlvr_psn_id, dlvr_loc_id, shipper_ident);
-					GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
-					wd.PutInner("subject_id", subj_ident);
-					if(pPack->DocType == doctypMdlpReceiveOrder) {
-						wd.PutInner("shipper_id", shipper_ident);
-					}
-					else {
-						SXml::WNode si(rX, "shipper_info");
-						psn_obj.GetRegNumber(dlvr_psn_id, PPREGT_TPID, temp_buf);
-						si.PutInner("inn", temp_buf.Transf(CTRANSF_INNER_TO_UTF8)); // @todo
-						psn_obj.GetRegNumber(dlvr_psn_id, PPREGT_KPP, temp_buf);
-						si.PutInner("kpp", temp_buf.Transf(CTRANSF_INNER_TO_UTF8)); // @todo
-					}
-					_PutOperationDate(wd, temp_buf);
-					_PutDocDateAndNum(p_bp->Rec, wd, temp_buf);
-					if(pPack->DocType == doctypMdlpReceiveOrder) {
-						wd.PutInner("receive_type", temp_buf.Z().Cat(1L));
-						wd.PutInner("source", temp_buf.Z().Cat(1L));
-						wd.PutInner("contract_type", temp_buf.Z().Cat(1L));
-					}
-					else {
-						wd.PutInner("contract_type", temp_buf.Z().Cat(1L));
-						wd.PutInner("source", temp_buf.Z().Cat(1L));
-					}
-					{
-						SXml::WNode dtl(rX, "order_details");
-						for(uint i = 0; i < p_bp->GetTCount(); i++) {
-							const PPTransferItem & r_ti = p_bp->ConstTI(i);
-							// @v11.9.9 {
-							long  local_chzn_prod_type = 0;
-							if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
-								local_chzn_prod_type = gt_rec.ChZnProdType;
-							if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
-								double cost = r_ti.Cost;
-								double vat_in_cost = 0.0;
-								{
-									GTaxVect gtv;
-									gtv.CalcBPTI(*p_bp, r_ti, TIAMT_COST);
-									vat_in_cost = gtv.GetValue(GTAXVF_VAT) / fabs(r_ti.Quantity_);
-								}
-								p_bp->XcL.Get(i+1, 0, lotxcode_set);
-								{
-									lotxcode_set.GetByBoxID(0, ss);
-									for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-										if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-											mark_buf.Z();
-											if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-												mark_buf.Cat(temp_buf);
-												if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-													mark_buf.Cat(temp_buf);
-													SXml::WNode un(rX, "union");
-													XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
-													un.PutInner("sgtin", mark_buf);
-													un.PutInner("cost", temp_buf.Z().Cat(cost, MKSFMTD_020));
-													un.PutInner(/*"vat_in_cost"*/"vat_value", temp_buf.Z().Cat(vat_in_cost, MKSFMTD_020));
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			else if(pPack->DocType == doctypMdlpRefusalReceiver) {
-				const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
-				if(p_bp) {
-					const  PPID   dlvr_ar_id = p_bp->Rec.Object;
-					const  PPID   dlvr_psn_id = ObjectToPerson(dlvr_ar_id, 0);
-					const  PPID   dlvr_loc_id = p_bp->GetDlvrAddrID();
-					const  PPID   subj_loc_id = p_bp->Rec.LocID;
-					PPID   subj_psn_id = main_org_id;
-					GetTransactionPartyCode(dlvr_psn_id, dlvr_loc_id, shipper_ident);
-					GetTransactionPartyCode(subj_psn_id, subj_loc_id, subj_ident);
-					wd.PutInner("subject_id", subj_ident);
-					_PutOperationDate(wd, temp_buf);
-					wd.PutInner("shipper_id", shipper_ident);
-					if(p_bp->SMemo.NotEmpty()) {
-						(temp_buf = p_bp->SMemo).Transf(CTRANSF_INNER_TO_UTF8);
-					}
-					else
-						temp_buf = "refusal-receiver";
-					wd.PutInner("reason", temp_buf);
-					{
-						SXml::WNode dtl(rX, "order_details");
-						for(uint i = 0; i < p_bp->GetTCount(); i++) {
-							const PPTransferItem & r_ti = p_bp->ConstTI(i);
-							// @v11.9.9 {
-							long  local_chzn_prod_type = 0;
-							if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0)
-								local_chzn_prod_type = gt_rec.ChZnProdType;
-							if(!medcine_only || local_chzn_prod_type == GTCHZNPT_MEDICINE) { // @v11.9.9
-								p_bp->XcL.Get(i+1, 0, lotxcode_set);
-								lotxcode_set.GetByBoxID(0, ss);
-								for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
-									if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
-										mark_buf.Z();
-										if(gts.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-											mark_buf.Cat(temp_buf);
-											if(gts.GetToken(GtinStruc::fldSerial, &temp_buf)) {
-												mark_buf.Cat(temp_buf);
-												XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
-												dtl.PutInner("sgtin", mark_buf);
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			else if(pPack->DocType == doctypMdlpQueryKizInfo) {
-				const Packet::QueryKizInfo * p_bp = static_cast<const Packet::QueryKizInfo *>(pPack->P_Data);
-				if(p_bp) {
-					subj_ident = p_bp->SubjectIdent;
-					if(subj_ident.IsEmpty()) {
-						PPID   dlvr_psn_id = ObjectToPerson(p_bp->ArID, 0);
-						PPID   subj_psn_id = main_org_id;
-						GetTransactionPartyCode(/*dlvr_psn_id*/subj_psn_id, 0, subj_ident);
-					}
-					wd.PutInnerSkipEmpty("subject_id", subj_ident);
-					//int codetype = PPChZnPrcssr::IsChZnCode(p_bp->Code);
-					GtinStruc gts;
-					if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(p_bp->Code, gts, 0)) > 0) {
-						mark_buf = p_bp->Code;
-						XMLReplaceSpecSymb(mark_buf, "&<>\'"); // @v12.5.3
-						wd.PutInner("sgtin", mark_buf);
-					}
-					//SETIFZ(codetype, p_bp->CodeType);
-					/*if(codetype == SNTOK_CHZN_GS1_GTIN) {
-						wd.PutInner("sgtin", p_bp->Code);
-					}
-					else if(codetype == SNTOK_CHZN_SIGN_SGTIN) {
-						wd.PutInner("sgtin", p_bp->Code);
-					}
-					else if(codetype == SNTOK_CHZN_SSCC) {
-						if(p_bp->Modifier == 1) // down
-							wd.PutInner("sscc_down", p_bp->Code);
-						else if(p_bp->Modifier == 2) // up
-							wd.PutInner("sscc_up", p_bp->Code);
-						else // default - down
-							wd.PutInner("sscc_down", p_bp->Code);
-					}*/
-				}
+			if(p_entry->Children.IsCountGreaterThan(0)) {
+				rBuf.Cat("There are children codes").CRB();
 			}
 		}
 	}
 	return ok;
 }
-#endif // } 0 @v12.6.9
+
+PPChZnPrcssr::CodeInfo::CodeInfo() : ErrCode(0), ErrMessageP(0), Flags(0), PackType(0), GeneralPackType(0), ReqCisP(0), CisP(0), 
+	OwnerNameP(0), ManufNameP(0), ProducerNameP(0), ProductNameP(0), BrandNameP(0), ExtraValue(0ULL)
+{
+}
+
+int PPChZnPrcssr::CodeInfo::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	uint   ver = PPChZnPrcssr_CodeInfo_Ver;
+	THROW_SL(pSCtx->Serialize(dir, ver, rBuf)); // !
+	THROW_SL(pSCtx->Serialize(dir, ErrCode, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, ErrMessageP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, ReqCisP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, CisP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, PackType, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, GeneralPackType, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedChZnProdType, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedAppTm, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedIntroduceTm, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedProductTm, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedEmissionTm, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedExpiryTm, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedManufINN, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedProducerINN, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedImporterINN, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedOwnerINN, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, OwnerNameP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, ManufNameP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, ProducerNameP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, ProductNameP, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, BrandNameP, rBuf));
+	THROW_SL(Children.Serialize(dir, rBuf, pSCtx));
+	// @transient не сериализовать! UedRecModifTm, ErrCode, ErrMsg, ExtraValue 
+	CATCHZOK
+	return ok;
+}
+
+PPChZnPrcssr::CodeInfoCollection::CodeInfoCollection()
+{
+}
+
+PPChZnPrcssr::CodeInfoCollection & PPChZnPrcssr::CodeInfoCollection::Z()
+{
+	SStrGroup::ClearS();
+	freeAll();
+	return *this;
+}
+
+bool PPChZnPrcssr::CodeInfoCollection::SearchExtraValue(uint64 key, uint * pIdx) const
+{
+	bool   ok = false;
+	uint   result_idx = 0;
+	if(key) {
+		for(uint i = 0; !ok && i < getCount(); i++) {
+			const  CodeInfo * p_entry = at(i);
+			if(p_entry && p_entry->ExtraValue == key) {
+				ok = true;
+				result_idx = i;
+			}
+		}
+	}
+	ASSIGN_PTR(pIdx, result_idx);
+	return ok;
+}
+
+bool PPChZnPrcssr::CodeInfoCollection::SearchCode(const char * pPattern, uint * pIdx) const
+{
+	bool   ok = false;
+	uint   result_idx = 0;
+	if(!isempty(pPattern) && getCount()) {
+		SString pattern(pPattern);
+		SString iter_code;
+
+		SString pattern_gtin;
+		SString pattern_serial;
+		SString pattern_partno;
+		SString iter_gtin;
+		SString iter_serial;
+		SString iter_partno;
+		GtinStruc gts;
+		const  int iczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(pPattern, gts, 0));
+		gts.GetToken(GtinStruc::fldGTIN14, &pattern_gtin);
+		gts.GetToken(GtinStruc::fldSerial, &pattern_serial);
+		gts.GetToken(GtinStruc::fldPart, &pattern_partno);
+		const   bool do_adapt_cmp = (pattern_gtin.NotEmpty() && (pattern_serial.NotEmpty() || pattern_partno.NotEmpty()));
+		for(uint i = 0; !ok && i < getCount(); i++) {
+			const  CodeInfo * p_entry = at(i);
+			if(p_entry) {
+				GetS(p_entry->ReqCisP, iter_code);
+				if(AreChZnCodesEqual(pattern, iter_code, false)) {
+					result_idx = i;
+					ok = true;
+				}
+				else if(do_adapt_cmp) {
+					const  int iczcr_iter = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(iter_code, gts, 0));
+					gts.GetToken(GtinStruc::fldGTIN14, &iter_gtin);
+					if(iter_gtin.IsEqiAscii(pattern_gtin)) {
+						gts.GetToken(GtinStruc::fldSerial, &iter_serial);
+						gts.GetToken(GtinStruc::fldPart, &iter_partno);
+						if((iter_serial.IsEmpty() || iter_serial.IsEqiAscii(pattern_serial)) &&
+							(iter_partno.IsEmpty() || iter_partno.IsEqiAscii(pattern_partno))) {
+							result_idx = i;
+							ok = true;
+						}
+					}
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pIdx, result_idx);
+	return ok;
+}
+
+int PPChZnPrcssr::CodeInfoCollection::EntryToStr(uint entryIdx, long flags, SString & rBuf) const
+{
+	rBuf.Z();
+	int    ok = 1;
+	const  CodeInfo * p_entry = (entryIdx < getCount()) ? at(entryIdx) : 0;
+	if(!p_entry) {
+		ok = 0;
+	}
+	else {
+		SString temp_buf;
+		if(p_entry->ErrCode) {
+			rBuf.CatEq("ErrCode", p_entry->ErrCode).Space();
+			if(GetS(p_entry->ErrMessageP, temp_buf))
+				rBuf.CatEq("ErrMsg", temp_buf);
+			rBuf.CRB();
+		}
+		if(GetS(p_entry->ReqCisP, temp_buf))
+			rBuf.CatEq("ReqCis", temp_buf).CRB();
+		if(GetS(p_entry->CisP, temp_buf))
+			rBuf.CatEq("Cis", temp_buf).CRB();
+		if(GetS(p_entry->ProductNameP, temp_buf))
+			rBuf.CatEq("Product", temp_buf).CRB();
+		if(GetS(p_entry->BrandNameP, temp_buf))
+			rBuf.CatEq("Brand", temp_buf).CRB();
+		{
+			const  SrUedContainer_Rt * p_uedc = DS.GetUedContainer();
+			if(p_uedc && p_uedc->GetSymb(p_entry->UedChZnProdType, temp_buf)) {
+				rBuf.CatEq("ProductType", temp_buf).CRB();
+			}
+		}
+		if(p_entry->Flags) {
+			rBuf.Cat("Flags").CatChar('=').CatHex(p_entry->Flags).CRB();
+		}
+		{
+			SUniTime_Internal ut;
+			if(UED::_GetRaw_Time(p_entry->UedAppTm, ut)) {
+				ut.ToStr(DATF_ISO8601CENT, 0, temp_buf);
+				rBuf.CatEq("AppTime", temp_buf).CRB();
+			}
+			if(UED::_GetRaw_Time(p_entry->UedIntroduceTm, ut)) {
+				ut.ToStr(DATF_ISO8601CENT, 0, temp_buf);
+				rBuf.CatEq("IntroduceTime", temp_buf).CRB();
+			}
+			if(UED::_GetRaw_Time(p_entry->UedProductTm, ut)) {
+				ut.ToStr(DATF_ISO8601CENT, 0, temp_buf);
+				rBuf.CatEq("ProductTime", temp_buf).CRB();
+			}
+			if(UED::_GetRaw_Time(p_entry->UedEmissionTm, ut)) {
+				ut.ToStr(DATF_ISO8601CENT, 0, temp_buf);
+				rBuf.CatEq("EmissionTime", temp_buf).CRB();
+			}
+			if(UED::_GetRaw_Time(p_entry->UedExpiryTm, ut)) {
+				ut.ToStr(DATF_ISO8601CENT, 0, temp_buf);
+				rBuf.CatEq("ExpiryTime", temp_buf).CRB();
+			}
+			//
+			{
+				bool   is_there_anything = false;
+				if(UED::GetRaw_Ru_INN(p_entry->UedManufINN, temp_buf, 0)) {
+					rBuf.CatEq("ManufINN", temp_buf).Space();
+					is_there_anything = true;
+				}
+				if(GetS(p_entry->ManufNameP, temp_buf)) {
+					rBuf.CatEq("Manuf", temp_buf).Space();
+					is_there_anything = true;
+				}
+				if(is_there_anything)
+					rBuf.CRB();
+			}
+			{
+				bool   is_there_anything = false;
+				if(UED::GetRaw_Ru_INN(p_entry->UedProducerINN, temp_buf, 0)) {
+					rBuf.CatEq("ProducerINN", temp_buf).Space();
+					is_there_anything = true;
+				}
+				if(GetS(p_entry->ProducerNameP, temp_buf)) {
+					rBuf.CatEq("Producer", temp_buf).Space();
+					is_there_anything = true;
+				}
+				if(is_there_anything)
+					rBuf.CRB();
+			}
+			if(UED::GetRaw_Ru_INN(p_entry->UedImporterINN, temp_buf, 0)) {
+				rBuf.CatEq("ImporterINN", temp_buf).CRB();
+			}
+			{
+				bool   is_there_anything = false;
+				if(UED::GetRaw_Ru_INN(p_entry->UedOwnerINN, temp_buf, 0)) {
+					rBuf.CatEq("OwnerINN", temp_buf).Space();
+					is_there_anything = true;
+				}
+				if(GetS(p_entry->OwnerNameP, temp_buf)) {
+					rBuf.CatEq("Owner", temp_buf).Space();
+					is_there_anything = true;
+				}
+				if(is_there_anything)
+					rBuf.CRB();
+			}
+			if(p_entry->Children.IsCountGreaterThan(0)) {
+				rBuf.Cat("There are children codes").CRB();
+			}
+		}
+	}
+	return ok;
+}
+
+int PPChZnPrcssr::CodeInfoCollection::MoveEntryTo(uint entryIdx/*[0..]*/, CodeInfoCollection & rDest) const
+{
+	int    ok = 0;
+	if(entryIdx < getCount()) {
+		const  CodeInfo * p_entry = at(entryIdx);
+		if(p_entry) {
+			SString temp_buf;
+			SString code;
+			uint   ex_idx = 0;
+			GetS(p_entry->ReqCisP, code);
+			if(rDest.SearchCode(code, &ex_idx)) {
+				ok = -1;
+			}
+			else {
+				CodeInfo * p_new_entry = rDest.CreateNewItem();
+				if(p_new_entry) {
+					p_new_entry->ErrCode = p_entry->ErrCode;
+					GetS(p_entry->ErrMessageP, temp_buf);
+					rDest.AddS(temp_buf, &p_new_entry->ErrMessageP);
+					GetS(p_entry->ReqCisP, temp_buf);
+					rDest.AddS(temp_buf, &p_new_entry->ReqCisP);
+					GetS(p_entry->CisP, temp_buf);
+					rDest.AddS(temp_buf, &p_new_entry->CisP);
+					p_new_entry->Flags = p_entry->Flags;
+					p_new_entry->PackType = p_entry->PackType;
+					p_new_entry->GeneralPackType = p_entry->GeneralPackType;
+					p_new_entry->UedChZnProdType = p_entry->UedChZnProdType;
+					p_new_entry->UedAppTm = p_entry->UedAppTm;
+					p_new_entry->UedIntroduceTm = p_entry->UedIntroduceTm;
+					p_new_entry->UedProductTm = p_entry->UedProductTm;
+					p_new_entry->UedEmissionTm = p_entry->UedEmissionTm;
+					p_new_entry->UedExpiryTm = p_entry->UedExpiryTm;
+					p_new_entry->UedManufINN = p_entry->UedManufINN;
+					p_new_entry->UedProducerINN = p_entry->UedProducerINN;
+					p_new_entry->UedImporterINN = p_entry->UedImporterINN;
+					p_new_entry->UedOwnerINN = p_entry->UedOwnerINN;
+					GetS(p_entry->OwnerNameP, temp_buf);
+					rDest.AddS(temp_buf, &p_new_entry->OwnerNameP);
+					GetS(p_entry->ManufNameP, temp_buf);
+					rDest.AddS(temp_buf, &p_new_entry->ManufNameP);
+					GetS(p_entry->ProducerNameP, temp_buf);
+					rDest.AddS(temp_buf, &p_new_entry->ProducerNameP);
+					GetS(p_entry->ProductNameP, temp_buf);
+					rDest.AddS(temp_buf, &p_new_entry->ProductNameP);
+					GetS(p_entry->BrandNameP, temp_buf);
+					rDest.AddS(temp_buf, &p_new_entry->BrandNameP);
+					p_new_entry->Children = p_entry->Children;
+					p_new_entry->UedRecModifTm = p_entry->UedRecModifTm;
+					p_new_entry->ExtraValue = p_entry->ExtraValue; // @v12.7.0
+					ok = 1;
+				}
+				else
+					ok = 0;
+			}
+		}
+	}
+	return ok;
+}
+
+int PPChZnPrcssr::CodeInfoCollection::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	THROW_SL(SStrGroup::SerializeS(dir, rBuf, pSCtx));
+	THROW_SL(TSCollection_Serialize(*this, dir, rBuf, pSCtx));
+	CATCHZOK
+	return ok;
+}
 //
 // Descr: Процессор для сборки информации о марках чзн.
 //   Извлекает марки из документов, отправляет запросы на сервер чзн и сохраняет результаты в базе данных.

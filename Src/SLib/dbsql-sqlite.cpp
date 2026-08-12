@@ -1527,13 +1527,26 @@ int SSqliteDbProvider::ProcessBinding_SimpleType(int action, uint count, SSqlStm
 					const uchar * p_outer_text = sqlite3_column_text(h_stmt, idx-1); // @v12.3.11 @fix idx-->(idx-1)
 					SString & r_temp_buf = SLS.AcquireRvlStr();
 					(r_temp_buf = reinterpret_cast<const char *>(p_outer_text)).Transf(CTRANSF_UTF8_TO_INNER);
-					strnzcpy(static_cast<char *>(p_data), r_temp_buf, s);
+					// @v12.7.3 {
+					if(r_temp_buf.Len()) {
+						DBLobBlock * p_lb = pStmt->GetBindingLob();
+						if(p_lb) {
+							p_lb->SetSize(labs(pBind->Pos)-1, static_cast<size_t>(r_temp_buf.Len()+1));
+						}
+						SLob * p_lob = static_cast<SLob *>(p_data);
+						p_lob->InitPtr(csz);
+						void * p_lob_data = p_lob->GetRawDataPtr();
+						strnzcpy(static_cast<char *>(p_lob_data), r_temp_buf, r_temp_buf.Len()+1);
+					}
+					// } @v12.7.3
+					/* @v12.7.3 
+					strnzcpy(static_cast<char *>(p_data), r_temp_buf, s); // Проблема здесь! s == 0
 					{
 						SLob * p_lob = static_cast<SLob *>(p_data);
 						p_lob->InitPtr(csz);
 						void * p_lob_data = p_lob->GetRawDataPtr();
 						strnzcpy(static_cast<char *>(p_lob_data), r_temp_buf, csz);
-					}
+					}*/
 				}
 			}
 			break;

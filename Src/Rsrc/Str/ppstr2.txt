@@ -17117,6 +17117,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @chznprcssrparam_afquerymarkinfo          "Запрос информации о марках" // @v12.6.9
 @chznprcssrparam_afquerymarkops           "Запрос информации о движении марки" // @v12.7.1
 @chznprcssrparam_loc                      "@{warehouse}"
+@chznprcssrparam_foutputtofile            "Выводить результаты в файл"
 
 @chzn_check_offline                       "Проверить в offline-режиме" // @v12.3.12 Команда в диалоге проверки марок чзн (DLG_CHKCHZNMARK)
 @chzn_check_tspiot                        "Проверить в тс-пиот" // @v12.5.11 Команда в диалоге проверки марок чзн (DLG_CHKCHZNMARK)
@@ -19125,6 +19126,7 @@ PPHSC_RU_CONSIGNORDIRECTION_REDIR  "СвПА" // Сведения о проце�
 PPHSC_RU_CONSIGNORDIRECTION_WHO    "ЛицоПА"      // Лицо, по указанию которого может осуществляться переадресовка {Грузоотправитель|Грузополучатель}
 PPHSC_RU_CONSIGNORDIRECTION_METH   "СпосПерУкПА" // Способ передачи указания на переадресовку
 PPHSC_RU_CONSIGNORDIRECTION_METH_E "Электронное уведомление перевозчика о переадресовке"
+PPHSC_RU_CONSIGNORDIRECTION_REDIRCONTACT "КонтПА"
 PPHSC_RU_PERSONINFO_PHS        "СведИП"
 PPHSC_RU_PERSONINFO_JUR        "СведЮЛ"
 PPHSC_RU_PERSONINFO_JUR2       "СвЮЛ"          // @v11.9.5 SBIS

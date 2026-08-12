@@ -218,7 +218,7 @@ int InetAddr::Set(const char * pHostName, int port)
 	switch(protocol) {
 		case protHttp:     port = 80; break;
 		case protHttps:    port = 443; break;
-		case protFtp:      port = 21; break; // @v11.0.7 @fix sic! 20-->21
+		case protFtp:      port = 21; break;
 		case protGopher:   port = 70; break;
 		case protSvn:      port = 3690; break;
 		case protSMTP:     port = 25; break;
@@ -239,10 +239,10 @@ int InetAddr::Set(const char * pHostName, int port)
 		case protRTMPS:    port = 443; break;
 		case protLDAP:     port = 389; break;
 		case protLDAPS:    port = 636; break;
-		case protAMQP:     port = 5672; break; // @v10.5.3
-		case protAMQPS:    port = 5671; break; // @v10.5.3
+		case protAMQP:     port = 5672; break;
+		case protAMQPS:    port = 5671; break;
 		case prot_p_PapyrusServer: port = 28015; break;
-		case prot_p_MYSQL: port = 3306; break; // @v10.9.2
+		case prot_p_MYSQL: port = 3306; break;
 	}
 	return port;
 }
@@ -307,55 +307,6 @@ InetUrl & InetUrl::Z()
 	return *this;
 }
 
-#if 0 // @v11.1.11 {
-static const char * SchemeMnem[] = {
-	"",          // #0
-	"http",      // #1
-	"https",     // #2
-	"ftp",       // #3
-	"gopher",    // #4
-	"mailto",    // #5
-	"news",      // #6
-	"nntp",      // #7
-	"irc",       // #8
-	"prospero",  // #9
-	"telnet",  // #10
-	"wais",    // #11
-	"xmpp",    // #12
-	"file",    // #13
-	"data",    // #14
-	"svn",     // #15
-	"socks4",  // #16
-	"socks5",  // #17
-	"smtp",    // #18
-	"smtps",   // #19
-	"pop3",    // #20
-	"pop3s",   // #21
-	"imap",    // #22
-	"imaps",   // #23
-	"ftps",    // #24
-	"tftp",    // #25
-	"dict",    // #26
-	"ssh",     // #27
-	"smb",     // #28
-	"smbs",    // #29
-	"rtsp",    // #30
-	"rtmp",    // #31
-	"rtmpt",   // #32
-	"rtmps",   // #33
-	"ldap",    // #34
-	"ldaps",   // #35
-	"mailfrom", // #36 fixion
-	"",         // #37 private PapyrusServer
-	"amqp",     // #38
-	"amqps",    // #39
-	"mysql",    // #40 private
-	"sqlite",   // #41 private
-	"oracle",   // #42 private
-	"git",      // #43 @v11.1.11
-};
-#endif // } 0 @v11.1.11
-
 static const SIntToSymbTabEntry InetUrlSchemeList[] = {
 	{ InetUrl::protUnkn,         "" },          // #0
 	{ InetUrl::protHttp,         "http" },      // #1
@@ -400,24 +351,13 @@ static const SIntToSymbTabEntry InetUrlSchemeList[] = {
 	{ InetUrl::prot_p_MYSQL,     "mysql" },    // #40 private // @v10.9.2
 	{ InetUrl::prot_p_SQLITE,    "sqlite" },   // #41 private // @v10.9.2
 	{ InetUrl::prot_p_ORACLE,    "oracle" },   // #42 private // @v10.9.2
-	{ InetUrl::protGit,          "git" },      // #43 // @v11.1.11
+	{ InetUrl::protGit,          "git" },      // #43
 };
 
 /*static*/const char * FASTCALL InetUrl::GetSchemeMnem(int schemeId)
-{
-	// @v11.1.11 return (schemeId >= 0 && schemeId < SIZEOFARRAY(SchemeMnem)) ? SchemeMnem[schemeId] : SchemeMnem[0];
-	return SIntToSymbTab_GetSymbPtr(InetUrlSchemeList, SIZEOFARRAY(InetUrlSchemeList), schemeId); // @v11.1.11
-}
-
+	{ return SIntToSymbTab_GetSymbPtr(InetUrlSchemeList, SIZEOFARRAY(InetUrlSchemeList), schemeId); }
 /*static*/int FASTCALL InetUrl::GetSchemeId(const char * pSchemeMnem)
-{
-	/* @v11.1.11 for(uint i = 0; i < SIZEOFARRAY(SchemeMnem); i++) {
-		if(sstreqi_ascii(pSchemeMnem, SchemeMnem[i]))
-			return static_cast<int>(i);
-	}
-	return protUnkn;*/
-	return SIntToSymbTab_GetId(InetUrlSchemeList, SIZEOFARRAY(InetUrlSchemeList), pSchemeMnem); // @v11.1.11
-}
+	{ return SIntToSymbTab_GetId(InetUrlSchemeList, SIZEOFARRAY(InetUrlSchemeList), pSchemeMnem); }
 
 int InetUrl::Parse(const char * pUrl)
 {

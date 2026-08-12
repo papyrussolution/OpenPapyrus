@@ -792,8 +792,9 @@ static uint Helper_GeneratePhoneCheckNumber(const char * pOrgPhone, const char *
 				else
 					rResult.CatChar(c);
 			}
-			else if(oneof2(c, 't', 'T'))
+			else if(oneof2(c, 't', 'T') && rResult.NotEmpty()) { // @v12.7.3 (&& rResult.NotEmpty())
 				rResult.CatChar('t');
+			}
 			else if(c == '+' && rResult.Len() == 0) {
 				if(!(flags & nsfPlus)) {
 					if(p[1] == '7') { // Специальный случай - заменяем лидирующий +7 на 8 (Россия) поскольку Asterisk принимает коды именно так

@@ -165,14 +165,13 @@ struct _cairo_quartz_font_face {
 /*
  * font face backend
  */
-
 static cairo_status_t _cairo_quartz_font_face_create_for_toy(cairo_toy_font_face_t * toy_face, cairo_font_face_t  ** font_face)
 {
-	const char * family;
+	const  char * family;
 	char * full_name;
 	CFStringRef cgFontName = NULL;
 	CGFontRef cgFont = NULL;
-	int loop;
+	int    loop;
 	quartz_font_ensure_symbols();
 	if(!_cairo_quartz_font_symbols_present)
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
@@ -197,21 +196,17 @@ static cairo_status_t _cairo_quartz_font_face_create_for_toy(cairo_toy_font_face
 	for(loop = 0; loop < 5; loop++) {
 		if(loop == 4)
 			family = "Helvetica";
-
 		strcpy(full_name, family);
-
 		if(loop < 3 && (loop & 1) == 0) {
 			if(toy_face->weight == CAIRO_FONT_WEIGHT_BOLD)
 				strcat(full_name, " Bold");
 		}
-
 		if(loop < 3 && (loop & 2) == 0) {
 			if(toy_face->slant == CAIRO_FONT_SLANT_ITALIC)
 				strcat(full_name, " Italic");
 			else if(toy_face->slant == CAIRO_FONT_SLANT_OBLIQUE)
 				strcat(full_name, " Oblique");
 		}
-
 		if(CGFontCreateWithFontNamePtr) {
 			cgFontName = CFStringCreateWithCString(NULL, full_name, kCFStringEncodingASCII);
 			cgFont = CGFontCreateWithFontNamePtr(cgFontName);
@@ -220,37 +215,29 @@ static cairo_status_t _cairo_quartz_font_face_create_for_toy(cairo_toy_font_face
 		else {
 			cgFont = CGFontCreateWithNamePtr(full_name);
 		}
-
 		if(cgFont)
 			break;
 	}
-
 	if(!cgFont) {
 		/* Give up */
 		return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
-
 	*font_face = cairo_quartz_font_face_create_for_cgfont(cgFont);
 	CGFontRelease(cgFont);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
 static boolint _cairo_quartz_font_face_destroy(void * abstract_face)
 {
 	cairo_quartz_font_face_t * font_face = (cairo_quartz_font_face_t*)abstract_face;
-
 	CGFontRelease(font_face->cgFont);
 	return TRUE;
 }
 
 static const cairo_scaled_font_backend_t _cairo_quartz_scaled_font_backend;
 
-static cairo_status_t _cairo_quartz_font_face_scaled_font_create(void * abstract_face,
-    const cairo_matrix_t * font_matrix,
-    const cairo_matrix_t * ctm,
-    const cairo_font_options_t * options,
-    cairo_scaled_font_t ** font_out)
+static cairo_status_t _cairo_quartz_font_face_scaled_font_create(void * abstract_face, const cairo_matrix_t * font_matrix,
+    const cairo_matrix_t * ctm, const cairo_font_options_t * options, cairo_scaled_font_t ** font_out)
 {
 	cairo_quartz_font_face_t * font_face = abstract_face;
 	cairo_quartz_scaled_font_t * font = NULL;
@@ -283,20 +270,16 @@ static cairo_status_t _cairo_quartz_font_face_scaled_font_create(void * abstract
 	else {
 		CGGlyph wGlyph;
 		UniChar u;
-
 		quartz_CGFontMetrics * m;
 		m = CGFontGetHMetricsPtr(font_face->cgFont);
-
 		/* On OX 10.4, GetHMetricsPtr sometimes returns NULL for unknown reasons */
 		if(!m) {
 			status = _cairo_error(CAIRO_STATUS_NULL_POINTER);
 			goto FINISH;
 		}
-
 		fs_metrics.ascent = (m->ascent / ems);
 		fs_metrics.descent = -(m->descent / ems);
 		fs_metrics.height = fs_metrics.ascent + fs_metrics.descent + (m->leading / ems);
-
 		/* We kind of have to guess here; W's big, right? */
 		u = (UniChar)'W';
 		CGFontGetGlyphsForUnicharsPtr(font_face->cgFont, &u, &wGlyph, 1);
@@ -309,9 +292,7 @@ static cairo_status_t _cairo_quartz_font_face_scaled_font_create(void * abstract
 			fs_metrics.max_y_advance = 0.0;
 		}
 	}
-
 	status = _cairo_scaled_font_set_metrics(&font->base, &fs_metrics);
-
 FINISH:
 	if(status != CAIRO_STATUS_SUCCESS) {
 		SAlloc::F(font);
@@ -319,7 +300,6 @@ FINISH:
 	else {
 		*font_out = (cairo_scaled_font_t*)font;
 	}
-
 	return status;
 }
 
@@ -346,27 +326,20 @@ const cairo_font_face_backend_t _cairo_quartz_font_face_backend = {
 cairo_font_face_t * cairo_quartz_font_face_create_for_cgfont(CGFontRef font)
 {
 	cairo_quartz_font_face_t * font_face;
-
 	quartz_font_ensure_symbols();
-
 	font_face = SAlloc::M_zon0(sizeof(cairo_quartz_font_face_t));
 	if(!font_face) {
 		cairo_status_t ignore_status;
 		ignore_status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		return (cairo_font_face_t*)&_cairo_font_face_nil;
 	}
-
 	font_face->cgFont = CGFontRetain(font);
-
 	_cairo_font_face_init(&font_face->base, &_cairo_quartz_font_face_backend);
-
 	return &font_face->base;
 }
-
 /*
  * scaled font backend
  */
-
 static cairo_quartz_font_face_t * _cairo_quartz_scaled_to_face(void * abstract_font)
 {
 	cairo_quartz_scaled_font_t * sfont = (cairo_quartz_scaled_font_t*)abstract_font;

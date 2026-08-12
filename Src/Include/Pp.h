@@ -19,6 +19,7 @@
 //   Соболеву Эрику
 //   Егорову Геннадию Николаевичу [rip]
 //   Соболеву Всеволоду (SevaSob)
+//   Андрианову Павлу (P.Andrianov)
 //
 //  Соглашение об обозначениях:
 //
@@ -23101,7 +23102,7 @@ public:
 	virtual int GetDeviceTime(LDATETIME * pDtm) { ASSIGN_PTR(pDtm, ZERODATETIME); return -1; }
 	virtual int GetSummator(double * val) { return -1; }
 	virtual int EnableCashKeyb(int) { return -1; }
-	virtual int OpenSession_(PPID sessID) { return -1; } // @v11.3.12
+	virtual int OpenSession_(PPID sessID) { return -1; }
 	virtual int CloseSession(PPID sessID) { return -1; }
 	virtual int GetPrintErrCode() { return 0; }
 	virtual int OpenBox() { return -1; }
@@ -34815,7 +34816,7 @@ struct CfmReckoningParam {
 #define BCF_PICKLOTS               0x04000000L  // В товарных документах на расход предпочтение - подбору лота, а не товара
 #define BCF_INHSERIAL              0x08000000L  // Наследовать в приходах серийный номер от последнего лота
 #define BCF_DONTVERIFEXTCODECHAIN  0x10000000L  // Не проверять цепочки кодов расширения лотов при расходе
-#define BCF_NEWDOCBYFILTUSEFLTDATE 0x20000000L  // @v11.1.7 При создании документа по фильтру к документу применять верхнюю дату периода фильтра. Иначе - текущую системную.
+#define BCF_NEWDOCBYFILTUSEFLTDATE 0x20000000L  // При создании документа по фильтру к документу применять верхнюю дату периода фильтра. Иначе - текущую системную.
 
 struct PPBillConfig {        // @persistent @store(cvt:PropertyTbl)
 	PPBillConfig();
@@ -34968,7 +34969,7 @@ struct AutoFillInvFilt {
 	enum {
 		fFillWithZeroQtty        = 0x0001,
 		fRestrictZeroRestWithMtx = 0x0002, // Не добавлять в документ товары, которых нет на остатке и которые вне матрицы
-		fExcludeZeroRestPassiv   = 0x0004  // @v11.1.2 Пассивные товары с нулевым остатком не включать безусловно (независимо от матрицы)
+		fExcludeZeroRestPassiv   = 0x0004  // Пассивные товары с нулевым остатком не включать безусловно (независимо от матрицы)
 	};
 	PPID   BillID;
 	PPID   GoodsGrpID;
@@ -35181,8 +35182,8 @@ public:
 	int    Helper_InitCompleteData(const PPGoodsStruc & rGs, PPID goodsID, double needQty, const PPBillPacket * pBillPack, bool recursiveUnrollIncome);
 	ComplItem Head;
 private:
-	SStrGroup FPool; // @v11.2.4 Пул формул
-	TSCollection <PPGoodsStruc> GsList; // @v11.2.4
+	SStrGroup FPool; // Пул формул
+	TSCollection <PPGoodsStruc> GsList;
 };
 //
 // Descr: Структура, содержащая информацию о заменах дефицитного товара DestID
@@ -35281,8 +35282,8 @@ struct SelAddBySampleParam {
 		acnDraftRcpByOrder     =  3, // Драфт-приход по заказу
 		acnDraftExpRestByOrder =  4, // Драфт-расход по заказу (только не отгруженные позиции)
 		acnShipmAll            =  5, // Отгрузить весь оприходованный товар
-		acnDraftExpByDraftRcpt =  6, // @v11.0.2 Драфт-расход по драфт-приходу
-		acnDraftRcptByDraftExp =  7, // @v11.0.2 Драфт-приход по драфт-расходу
+		acnDraftExpByDraftRcpt =  6, // Драфт-расход по драфт-приходу
+		acnDraftRcptByDraftExp =  7, // Драфт-приход по драфт-расходу
 		acnBailmentByOrder     =  8, // @v12.4.2 Размещение основных средств по заказу 
 	};
 	long   Action;
@@ -37062,7 +37063,7 @@ public:
 #define CSESSOPRT_MERGECHK         0x00010000 // M Право на объединение чеков
 #define CSESSOPRT_ESCCLINEBORD     0x00020000 // Q Удаление строк в чеках до отправки заказа на изготовление
 #define CSESSOPRT_REPRNUNFCC       0x00040000 // 3 Право на повторную печать чека, по которому была ошибка печати на регистраторе
-#define CSESSOPRT_ARBITRARYDISC    0x00080000 // 4 @v11.0.9  Право на предоставление произвольной скидки на чек (суммой либо в процентах)
+#define CSESSOPRT_ARBITRARYDISC    0x00080000 // 4 Право на предоставление произвольной скидки на чек (суммой либо в процентах)
 
 int GetOperRightsByKeyPos(int keyPos, PPIDArray * pOperRightsAry);
 int EditDueToKeyboardRights();
@@ -37226,7 +37227,7 @@ struct TrnovrRngDis {      // @persistent @flat
 		fBonusAbsoluteValue = 0x0001, // Величина Value применяется как абсолютное значение, начисляемое на бонусную карту
 		fDiscountAddValue   = 0x0002, // Величина Value применяется как инкремент для величины скидки [-100..+100]
 		fDiscountMultValue  = 0x0004, // Величина Value применяется как мультипликатор для величины скидки [0..10]
-		fZeroTurnover       = 0x0008  // @v11.3.10 Если флаг установлен, то правило применяется к нулевым оборотам
+		fZeroTurnover       = 0x0008  // Если флаг установлен, то правило применяется к нулевым оборотам
 	};
 	RealRange R;
 	double Value;          //
@@ -37237,7 +37238,7 @@ struct TrnovrRngDis {      // @persistent @flat
 
 #define SCARDSER_AUTODIS_PREVPRD      1L // Предшествующий период
 #define SCARDSER_AUTODIS_THISPRD      2L // Текущий период 
-#define SCARDSER_AUTODIS_ARBITRARYPRD 3L // @v11.3.5 Произвольный период (вводится пользователем)
+#define SCARDSER_AUTODIS_ARBITRARYPRD 3L // Произвольный период (вводится пользователем)
 
 class PPSCardSerRule : public TSVector <TrnovrRngDis> { // @persistent @store(PropertyTbl)
 public:
@@ -37319,7 +37320,7 @@ struct SCardChargeRule {
 
 	PPID   SerID;
 	long   Period;
-	DateRange Ap; // @v11.3.5
+	DateRange Ap;
 };
 
 struct PPSCardConfig {         // @persistent @store(PropertyTbl)
@@ -37916,12 +37917,12 @@ struct AsyncCashSCardInfo {
 		fDisableSendPaperlassCCheck = 0x0002
 	};
 	long   Flags;
-	LDATE  PsnDOB;     // @v11.3.5 День рождения персоналии 
+	LDATE  PsnDOB;     // День рождения персоналии 
 	double Rest;       // Остаток по кредитной карте
 	SString PsnName;   // Наименование персоналии-владельца //
 	SString Phone;     // Номер телефона, ассоциированный с картой (не с персоналией)
-	SString PsnPhone;  // @v11.3.5 Номер телефона персоналии
-	SString Email;     // @v11.3.5 Электронная почта персоналии
+	SString PsnPhone;  // Номер телефона персоналии
+	SString Email;     // Электронная почта персоналии
 };
 
 class AsyncCashSCardsIterator {
@@ -38077,8 +38078,8 @@ private:
 	// то при создании нового объекта автоматически создавать и процессор в этой группе, соответствующий новому объекту.
 #define PRCF_HASEXT                0x00200000L // С процессором связана запись расширения в PropertyTbl
 #define PRCF_ALLOWCANCELAFTERCLOSE 0x00400000L // Разрешение на перевод сессии в состояние 'ОТМЕНЕНА' из 'ЗАКРЫТА'
-#define PRCF_ALLOWREPEATING        0x00800000L // @v11.0.4 Допускается ввод параметров повтора для сессий
-#define PRCF_TECHCAPACITYREV       0x01000000L // @v11.3.10 Обратное представление производительности технологий. 
+#define PRCF_ALLOWREPEATING        0x00800000L // Допускается ввод параметров повтора для сессий
+#define PRCF_TECHCAPACITYREV       0x01000000L // Обратное представление производительности технологий. 
 	// То есть, время на одну ед товара, а не количество единиц товара в единицу времени. В базе данных представление остается тем же,
 	// но при вводе и выводе на экран - отображается обратная величина.
 //
@@ -38099,7 +38100,7 @@ struct PPProcessorConfig { // @persistent @store(PropertyTbl)
 // Descr: Идентификаторы строк расширения блока PPProcessorPacket::Ext
 //
 #define PRCEXSTR_DETAILDESCR 1 // Подробное описание процессора (технологической сессии)
-#define PRCEXSTR_MEMO        2 // @v11.0.4 Примечание к техологической сессии (для процессоров пока не применяется)
+#define PRCEXSTR_MEMO        2 // Примечание к техологической сессии (для процессоров пока не применяется)
 
 class PPProcessorPacket { // @persistent
 public:
@@ -39521,7 +39522,7 @@ struct TSessionFilt : public PPBaseFilt {
 	char   ReserveStart[12]; // @anchor // @v11.7.6 [18]-->[12]
 	PPID   GoodsGroupID;   // @v11.7.6 Товарная группа, ограничивающая выборку документов по содержимому
 	int16  Reserve2;     // @v11.7.6 @alignment
-	int16  Ft_WritedOff; // @v11.0.6
+	int16  Ft_WritedOff; //
 	PPID   QuotKindID;   // Вид котировки, испольуземый для извлечения цен
 	PPID   UhttStoreID;  // ->Ref(PPOBJ_UHTTSTORE) Специальный критерий для передачи на онлайновый ресурс списка сессий
 	int32  Order;        // Порядок сортировки
@@ -39553,7 +39554,7 @@ public:
 	TSessionViewItem & Z();
 	PPCheckInPersonItem CipItem;
 	PPID   WrOffBillID;
-	SString SMemo; // @v11.0.4
+	SString SMemo;
 };
 
 class PPViewTSession : public PPView {
@@ -40008,7 +40009,7 @@ private:
 #define PPOTUP_NONE                 0 // Don't update
 #define PPOTUP_BYTIME               1 // Update by modif date/time
 #define PPOTUP_FORCE                2 // Force update
-#define PPOTUP_LATEUPDATINGDECISION 3 // @v11.3.0 @internal Проецируется на флаг пакета объекта PPObjPack::fLateUpdatingDecision
+#define PPOTUP_LATEUPDATINGDECISION 3 // @internal Проецируется на флаг пакета объекта PPObjPack::fLateUpdatingDecision
 
 #define TRNSMF_DELINFILES  0x00000001L
 #define TRNSMF_DELOUTFILES 0x00000002L
@@ -40707,8 +40708,8 @@ struct PrcssrUnifyPriceFilt : public PPBaseFilt { // @persistent
 		psrcGtPriceRestrLow, // Нижнее ограничение цены из товарного типа
 		psrcGtPriceRestrUpp, // Верхнее ограничение цены из товарного типа
 	};
-	uint8  ReserveStart[24]; // @anchor @reserve // @v11.1.12 [28]-->[24]
-	long   PriceSource; // @v11.1.12 Источник формирования цены
+	uint8  ReserveStart[24]; // @anchor @reserve 
+	long   PriceSource; // Источник формирования цены
 	long   Mode;        // Режим унификации PrcssrUnifyPriceFilt::mXXX
 	int    CostReval;   // Изменение цен поступления по поставщику
 	PPID   OpKindID;
@@ -41633,9 +41634,9 @@ public:
 		exvaOrdPrefSupplModel, // @v12.1.6 Отображение заказов для учетной модели с предпочтельным поставщиком (отгрузка "с колес")
 		exvaOrdMarketplace     // @v12.1.6 Отображение заказов на маркетплейсе
 	};
-	uint8  ReserveStart[12]; // @#0 @anchor !Использовать начиная со старших адресов // @v11.4.4 [20]-->[16] // @v12.1. [16]-->[12]
+	uint8  ReserveStart[12]; // @#0 @anchor !Использовать начиная со старших адресов // @v12.1.6 [16]-->[12]
 	PPID   AgentID;          // @v12.1.6 ->Article.ID
-	PPID   SupplPsnCategoryID; // @v11.4.4 Категория персоналии, соответствующей поставщику лота (клиенту в случае с лотами заказов)
+	PPID   SupplPsnCategoryID; // Категория персоналии, соответствующей поставщику лота (клиенту в случае с лотами заказов)
 	long   ExtViewAttr;      // Параметр, определяющий набор дополнительных столбцов для отображения в таблице
 	int16  CostDevRestr;     // LotFilt::drXXX
 	int16  PriceDevRestr;    // LotFilt::drXXX
@@ -57791,6 +57792,9 @@ public:
 			_afQueryMarkInfo     = 0x0040, // @v12.6.9 TrueAPI получение информации о марках // 
 			_afQueryMarkOps      = 0x0080, // @v12.7.1 TrueAPI получение информации о движении марки // 
 		};
+		enum {
+			fOutputToFile = 0x0001 // @v12.7.3 Выводить результаты запроса в текстовый файл (в приемлемом для визуального анализа виде)
+		};
 		long   DocType;
 		long   Flags;
 		PPID   GuaID;
@@ -57801,6 +57805,20 @@ public:
 	};
 	// @v12.6.9 @unused static int FASTCALL IsChZnCode(const char * pCode);
 	static SString & FASTCALL RemoveSpcCharsFromCode(SString & rCode);
+	//
+	// Descr: Режимы трансформации кодов марок чзн
+	//
+	enum {
+		trfrmNone              = 0,
+		trfrmRemoveSpcChars    = 1, // Убрать все специальные символы
+		trfrmGtinSerial        = 2, // Преобразовать код в формат (01)GTIN(21)SERIAL. Для кодов типа PPChZnPrcssr::chznciPallet без трансформации
+		trfrmGtinSerial_Strict = 3, // Преобразовать код в формат (01)GTIN(21)SERIAL. Если этих двух токенов нет в коде, то возвращать 0.
+	};
+	//
+	// Returns:
+	//   результат, полученный от PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(pCode))
+	//
+	static int TransformCode(const char * pCode, uint mode, SString & rResult);
 	//
 	// Descr: Проверяет на равенство два кода честный знак pCode1 и pCode2.
 	//   Сопоставление осуществляется без учета специальных символов.
@@ -58075,12 +58093,15 @@ public:
 		ued_t  UedOpTm;         // Дата создания документа, по которому в последний раз менялся статус КИ 
 		ued_t  UedEmissionTm;   // Дата эмиссии //
 		StringSet Children;     // Для упаковки: вложенные марки
+		ued_t  UedRecModifTm;   // @transient(не обрабатывается при сериализации) Время внесения записи в базу данных Papyrus
 	};
 
 	class CodeOpsCollection : public TSCollection <CodeOp>, public SStrGroup {
 	public:
 		CodeOpsCollection();
 		CodeOpsCollection & Z();
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+		int    EntryToStr(uint entryIdx, long flags, SString & rBuf) const;
 	};
 	//
 	// Descr: Интерфейс с ТС-ПИОТ (не спрашивайте: пидоры в кремле не успокоятся пока не загонят нас всех под землю)
@@ -58234,6 +58255,7 @@ public:
 			// Хвост переменной длины хранит сериализованную структуру PPLotExtCodeContainer::MarkSet
 		kCodeInfo    = 3, // @v12.6.9 Подробная информация о марке, полученная с сервера chzn
 			// Хвост переменной длины хранит сериализованную структуру PPChZnPrcssr::CodeInfoCollection
+		kCodeOps     = 4, // @v12.7.3 Информация о движении марки относительно предприятия, запрашивающего информацию //
 	};
 	ExtCodeRefCore();
 	int    PutAggregation(const char * pCode, PPLotExtCodeContainer::MarkSet & rSet, int use_ta);
@@ -58241,6 +58263,8 @@ public:
 	int    GetAggregation(const char * pCode, bool recursive, PPLotExtCodeContainer::MarkSet & rSet);
 	int    PutInfo(PPChZnPrcssr::CodeInfoCollection & rSet, int use_ta); // @v12.6.9
 	int    GetInfo(const char * pCode, PPChZnPrcssr::CodeInfoCollection & rResult); // @v12.6.9
+	int    PutOps(PPChZnPrcssr::CodeOpsCollection & rSet, int use_ta); // @v12.7.3
+	int    GetOps(const char * pCode, PPChZnPrcssr::CodeOpsCollection & rResult); // @v12.7.3
 };
 //
 // Панель чеков
@@ -60142,6 +60166,18 @@ public:
 	// @v12.4.11 (replaced with DocNalogRu_WriteBillBlock::WriteInvoiceItems_) int    WriteInvoiceItems(const PPBillImpExpParam & rParam, const FileInfo & rHi, const PPBillPacket & rBp, bool correction);
 	int    WriteAddress(const PPLocationPacket & rP, int regionCode, int hdrTag/*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/); // (АдресТип || АдресПользТип)
 	//
+	// ARG(force IN): Если не нашлось ни одного телефона, то внести фейковый номер для галочки.
+	//
+	int    GetPhones(const PPPersonPacket * pPsnPack, const PPLocationPacket * pLocPack, bool force, StringSet & rSs);
+	//
+	// ARG(force IN): Если не нашлось ни одного телефона, то внести фейковый номер для галочки.
+	//
+	int    WritePhones(const PPPersonPacket * pPsnPack, const PPLocationPacket * pLocPack, bool force);
+	//
+	// ARG(rSs IN): Список валидных номером телефонов. Функция не будет проверять строки в этом наборе.
+	//
+	int    WritePhones(const StringSet & rSs); // @v12.7.3
+	//
 	// Descr: Специализированная функция, реализующая запись адреса в формате EDI SBIS
 	//
 	int    WriteAddress_SBIS(const PPLocationPacket & rP, int regionCode, int hdrTag /*PPHSC_RU_ADDRESS||PPHSC_RU_ORGADDR*/);
@@ -60149,9 +60185,10 @@ public:
 	// Descr: Флаги функции WriteOrgInfo
 	//
 	enum {
-		woifAddrLoc_KppOnly = 0x0001 // Адрес addrLocID использовать только для извлечения КПП
+		woifAddrLoc_KppOnly = 0x0001, // Адрес addrLocID использовать только для извлечения КПП
+		woifForcePhone      = 0x0002, // @v12.7.3 Форсировать вывод номера телефона (даже фейкового) 
 	};
-	int    WriteOrgInfo(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
+	int    WriteOrgInfo(/*const char * pScopeXmlTag,*/int parentNodeTokenId, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
 	int    WriteOrgInfo_VatLedger(const char * pScopeXmlTag, PPID personID, PPID addrLocID, LDATE actualDate, long flags);
 	//
 	// Descr: Записывает тип "УчастникТип"
@@ -60226,6 +60263,7 @@ private:
 	//    4 - идентификатор найден в теге
 	//
 	int    GetIdentifier(PPID psnID, PPID dtoPersonID, SString & rBuf);
+
 	enum {
 		fExpChZnMarksGTINSER = 0x0001,
 		fExpPlainAddr        = 0x0002 // @v11.5.11 see pp.ini [config] ExpNalogRuPlainAddr

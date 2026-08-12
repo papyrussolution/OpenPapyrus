@@ -5822,7 +5822,7 @@ int PPObjLocation::IndexPhones(PPLogger * pLogger, int use_ta)
 		k2.Type = LOCTYP_ADDRESS;
 		if(P_Tbl->search(2, &k2, spGe) && P_Tbl->data.Type == LOCTYP_ADDRESS) do {
 			LocationCore::GetExField(&P_Tbl->data, LOCEXSTR_PHONE, temp_buf);
-			temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower(); // @v9.9.11
+			temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
 			PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone);
 			if(phone.Len() >= 5) {
 				PPID   city_id = P_Tbl->data.CityID;

@@ -1555,6 +1555,194 @@ int ExtCodeRefCore::GetInfo(const char * pCode, PPChZnPrcssr::CodeInfoCollection
 	return ok;
 }
 
+int ExtCodeRefCore::PutOps(PPChZnPrcssr::CodeOpsCollection & rSet, int use_ta) // @v12.7.3
+{
+	int    ok = -1;
+	const  bool do_remove = false;
+	SString temp_buf;
+	SString code;
+	bool   there_are_different_codes = false;
+	uint   i = rSet.getCount();
+	if(i) do {
+		const  PPChZnPrcssr::CodeOp * p_item = rSet.at(--i);
+		if(p_item) {
+			rSet.GetS(p_item->CisP, temp_buf);
+			if(temp_buf.NotEmpty()) {
+				if(code.NotEmpty() && code != temp_buf) {
+					there_are_different_codes = true;
+				}
+				else if(code.IsEmpty()) {
+					code = temp_buf;
+				}
+			}
+			else {
+				rSet.atFree(i);
+			}
+		}
+		else {
+			rSet.atFree(i);
+		}
+	} while(!there_are_different_codes && i);
+	if(there_are_different_codes) {
+		; // @todo @err
+	}
+	else if(code.NotEmpty()) {
+		ued_t  ued_now_dtm;
+		{
+			SUniTime_Internal ut;
+			ut.SetCurrent();
+			ued_now_dtm = UED::_SetRaw_Time(UED_META_TIME_MSEC, ut);
+		}
+		SBuffer cbuf;
+		ExtCodeRefTbl::Rec rec;
+		ExtCodeRefTbl::Key0 k0;
+		{
+			PPTransaction tra(use_ta);
+			THROW(tra);
+			{
+				MEMSZERO(k0);
+				STRNSCPY(k0.Code, code);
+				k0.Kind = kCodeOps;
+				if(!do_remove) {
+					SBuffer _sbuf;
+					SSerializeContext sctx;
+					THROW(rSet.Serialize(+1, _sbuf, &sctx));
+					THROW_SL(_sbuf.CompressOptional(256, cbuf));
+				}
+				{
+					if(search(0, &k0, spEq)) {
+						THROW(rereadForUpdate(0, &k0));
+						if(do_remove) {
+							THROW_DB(deleteRec());
+						}
+						else {
+							STRNSCPY(rec.Code, code);
+							rec.Kind = kCodeOps;
+							rec.UedModTm = ued_now_dtm;
+							CopyBufFrom(&rec, sizeof(rec));
+							const  size_t cbuf_len = cbuf.GetAvailableSize(); 
+							if(cbuf_len) {
+								THROW(writeLobData(this->VT, cbuf.constptr(), cbuf_len));
+							}
+							THROW_DB(updateRec());
+						}
+					}
+					else {
+						if(do_remove) {
+							ok = -1;
+						}
+						else {
+							STRNSCPY(rec.Code, code);
+							rec.Kind = kCodeOps;
+							rec.UedModTm = ued_now_dtm;
+							CopyBufFrom(&rec, sizeof(rec));
+							const  size_t cbuf_len = cbuf.GetAvailableSize(); 
+							if(cbuf_len) {
+								THROW(writeLobData(this->VT, cbuf.constptr(), cbuf_len));
+							}
+							THROW(insertRec());
+						}
+					}
+				}
+			}
+			THROW(tra.Commit());
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int ExtCodeRefCore::GetOps(const char * pCode, PPChZnPrcssr::CodeOpsCollection & rResult) // @v12.7.3
+{
+	rResult.freeAll();
+	int    ok = -1;
+#if 1 // @construction {
+	bool   found = false;
+	uint   search_iter_count = 0; // statistics
+	ExtCodeRefTbl::Key0 k0;
+	MEMSZERO(k0);
+	STRNSCPY(k0.Code, pCode);
+	k0.Kind = kCodeOps;
+	if(search(0, &k0, spEq)) {
+		found = true;
+	}
+	else {
+		SString temp_buf;
+		SString pattern_gtin;
+		SString pattern_serial;
+		SString pattern_partno;
+		GtinStruc gts;
+		const  int iczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(pCode, gts, 0));
+		if(iczcr == PPChZnPrcssr::chznciPallet) {
+			;
+		}
+		else if(iczcr == PPChZnPrcssr::chznciReal) {
+			gts.GetToken(GtinStruc::fldGTIN14, &pattern_gtin);
+			gts.GetToken(GtinStruc::fldSerial, &pattern_serial);
+			gts.GetToken(GtinStruc::fldPart, &pattern_partno);
+			if(pattern_gtin.NotEmpty() && (pattern_serial.NotEmpty() || pattern_partno.NotEmpty())) {
+				SString prefix;
+				SString iter_gtin;
+				SString iter_serial;
+				SString iter_partno;
+				prefix.Z().Cat("01").Cat(pattern_gtin);
+				if(pattern_serial.NotEmpty()) {
+					(temp_buf = prefix).Cat("21").Cat(pattern_serial);
+					if(sstrneq(pCode, temp_buf, temp_buf.Len())) {
+						prefix = temp_buf;
+					}
+				}
+				MEMSZERO(k0);
+				STRNSCPY(k0.Code, prefix);
+				k0.Kind = kCodeOps;
+				if(search(0, &k0, spGe)) {
+					do {
+						search_iter_count++;
+						temp_buf = data.Code;
+						if(temp_buf.HasPrefix(prefix) && data.Kind == kCodeOps) {
+							const  int iczcr2 = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0));
+							gts.GetToken(GtinStruc::fldGTIN14, &iter_gtin);
+							gts.GetToken(GtinStruc::fldSerial, &iter_serial);
+							gts.GetToken(GtinStruc::fldPart, &iter_partno);
+							if(pattern_gtin == iter_gtin && pattern_serial == iter_serial && pattern_partno == iter_partno) {
+								found = true;
+							}
+						}
+						else
+							break;
+					} while(!found && search(0, &k0, spNext));
+				}
+			}
+		}
+	}
+	if(found) {
+		SBuffer temp_sbuf;
+		readLobData(this->VT, temp_sbuf);
+		{
+			SBuffer _sbuf;
+			THROW_SL(temp_sbuf.DecompressOptional(_sbuf));
+			{
+				SSerializeContext sctx;
+				THROW(rResult.Serialize(-1, _sbuf, &sctx));
+				for(uint i = 0; i < rResult.getCount(); i++) {
+					PPChZnPrcssr::CodeOp * p_item = rResult.at(i);
+					if(p_item) {
+						p_item->UedRecModifTm = data.UedModTm;
+					}
+				}
+			}
+		}
+		ok = 1;
+	}
+	else {
+		THROW_DB(BTROKORNFOUND);
+	}
+	CATCHZOK
+#endif // } 0 @construction 
+	return ok;
+}
+
 int ExtCodeRefCore::PutAggregation(const char * pCode, PPLotExtCodeContainer::MarkSet & rSet, int use_ta)
 {
 	int    ok = 1;

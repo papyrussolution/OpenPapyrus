@@ -271,6 +271,7 @@ bool FASTCALL IsMadeOfEightDigitsFast(const uint8 * pS);
 
 static void InitTest()
 {
+	static_assert(sizeof(SAlloc::VcCrtMemBlockHeader) % 16 == 0); // @v12.7.3
 	if(SlDebugMode::CT()) {
 		static_assert(SKILOBYTE(11) == 11 * 1024); // @v12.3.2
 		static_assert(SKILOBYTELL(100200300400500LL) == 100200300400500LL * 1024LL); // @v12.3.2

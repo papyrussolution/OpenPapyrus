@@ -884,7 +884,7 @@ void PPDesktop::Paint()
 		h_old_bmp = static_cast<HBITMAP>(::SelectObject(h_dc_mem, h_bmp));
 		h_dc = h_dc_mem;
 	}
-	if(!use_buffer/*|| !ps.fErase*/) { // @v11.2.4
+	if(!use_buffer/*|| !ps.fErase*/) {
 		TCanvas canv(h_dc);
 		{
 			SColor bkg_color = Ptb.GetColor(colorBkg);
@@ -3426,7 +3426,7 @@ int TFacadeWindow::DrawNavTreeItem(void * pCustomDrawDescriptor)
 				RECT   rc_cli;
 				wchar_t _text[512];
 				item.hItem = h_item;
-				item.mask = TVIF_TEXT|TVIF_PARAM|TVIF_STATE|TVIF_CHILDREN|TVIF_HANDLE|TVIF_IMAGE;
+				item.mask = TVIF_TEXT|TVIF_PARAM|TVIF_STATE|TVIF_CHILDREN|TVIF_HANDLE|TVIF_IMAGE|TVIF_SELECTEDIMAGE;
 				item.stateMask = TVIS_EXPANDED|TVIS_EXPANDEDONCE;
 				item.pszText = _text;
 				item.cchTextMax = SIZEOFARRAY(_text);
@@ -3446,7 +3446,23 @@ int TFacadeWindow::DrawNavTreeItem(void * pCustomDrawDescriptor)
 							TCanvas2 canv(*p_tb, p_cd->nmcd.hdc);
 							bool   is_there_image = false;
 							int    item_state = TProgram::tbisBase;
+							HIMAGELIST h_iml = 0;
+							int    image_idx = -100;
 							::GetClientRect(p_cd->nmcd.hdr.hwndFrom, &rc_cli);
+							// @v12.7.3 {
+							if(item.mask & TVIF_IMAGE) {
+								image_idx = item.iImage;
+								if(image_idx == I_IMAGECALLBACK) {
+									;
+								}
+								else {
+									h_iml = TreeView_GetImageList(p_cd->nmcd.hdr.hwndFrom, TVSIL_NORMAL);
+									if(h_iml && image_idx >= 0 && image_idx < ImageList_GetImageCount(h_iml)) {
+										is_there_image = true;
+									}
+								}
+							}
+							// } @v12.7.3 
 							// Получение уровня вложенности элемента
 							int    level = 0;
 							{
@@ -3532,9 +3548,6 @@ int TFacadeWindow::DrawNavTreeItem(void * pCustomDrawDescriptor)
 										}
 									}
 								}
-								if(p_lo_img && is_there_image) {
-									
-								}
 								if(p_lo_text) {
 									HFONT  hf = (HFONT)::GetStockObject(DEFAULT_GUI_FONT);
 									int    temp_font_id = p_tb->CreateFont_(0, hf, 0);
@@ -3561,6 +3574,12 @@ int TFacadeWindow::DrawNavTreeItem(void * pCustomDrawDescriptor)
 										}
 										//*/
 									}
+								}
+								if(p_lo_img && is_there_image) {
+									// ICON here
+									FRect fr = p_lo_img->GetFrameAdjustedToParent();
+									fr.Move__(static_cast<float>(rc_item.left), static_cast<float>(rc_item.top));
+									ImageList_Draw(h_iml, image_idx, p_cd->nmcd.hdc, fr.a.x, fr.a.y, 0);
 								}
 							}
 							debug_mark = true; // @debug
@@ -5595,20 +5614,12 @@ IMPL_HANDLE_EVENT(CentrigoSecretsDialog)
 							uint   item_idx = 0;
 							const  PPSecretSegment * p_item = R_SecPool.SearchSegmentByID(id, &item_idx);
 							if(p_item) {
-								if(p_item->SecType == PPSecretSegment::sectypFolder) {
-									img_id = PPDV_FOLDER01;
-								}
-								else if(p_item->SecType == PPSecretSegment::sectypGeneric) {
-									img_id = PPDV_BOX01;
-								}
-								else if(p_item->SecType == PPSecretSegment::sectypSSH) {
-									img_id = PPDV_FTP01;
-								}
-								else if(p_item->SecType == PPSecretSegment::sectypBankCard) {
-									img_id = PPDV_CARD02;	
-								}
-								else {
-									img_id = PPDV_KEY01;
+								switch(p_item->SecType) {
+									case PPSecretSegment::sectypFolder:  img_id = PPDV_FOLDER01; break;
+									case PPSecretSegment::sectypGeneric: img_id = PPDV_BOX01; break;
+									case PPSecretSegment::sectypSSH: img_id = PPDV_FTP01; break;
+									case PPSecretSegment::sectypBankCard:  img_id = PPDV_CARD02; break;
+									default: img_id = PPDV_KEY01; break;
 								}
 								/*if(rec.Flags & PPInternetAccount::fFtpAccount)
 									img_id = PPDV_FTP01;

@@ -422,8 +422,8 @@ class GoodsValRestrDialog : public PPListDialog {
 public:
 	GoodsValRestrDialog() : PPListDialog(DLG_GVR, CTL_GVR_BARLIST)
 	{
-		SetupInputLine(CTL_GVR_LOWBFORM, MKSTYPE(S_ZSTRING, 1024), MKSFMT(1024, 0)); // @v10.2.8
-		SetupInputLine(CTL_GVR_UPPBFORM, MKSTYPE(S_ZSTRING, 1024), MKSFMT(1024, 0)); // @v10.2.8
+		SetupInputLine(CTL_GVR_LOWBFORM, MKSTYPE(S_ZSTRING, 1024), MKSFMT(1024, 0));
+		SetupInputLine(CTL_GVR_UPPBFORM, MKSTYPE(S_ZSTRING, 1024), MKSFMT(1024, 0));
 		updateList(-1);
 	}
 	DECL_DIALOG_SETDTS()

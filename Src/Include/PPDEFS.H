@@ -404,7 +404,7 @@
 	#define PPCFG_MAIN           1L
 #define PPOBJ_CURRENTSTATE       2L  // Текущее состояние // @v11.3.8 PPOBJ_STATUS-->PPOBJ_CURRENTSTATE Объект теперь используется для хранения специальных
 	// данных, отражающих текущее состояние, используемое для инфраструктурых целей.
-	#define CSTATEPRP_STQOBJBLOBLIST 1L // @v11.3.8 Список идентификаторов объектов, у которых есть BLOB'ы подлежащие отправки сервисам-медиаторам Stylo-Q
+	#define CSTATEPRP_STQOBJBLOBLIST 1L // Список идентификаторов объектов, у которых есть BLOB'ы подлежащие отправки сервисам-медиаторам Stylo-Q
 #define PPOBJ_USRGRP              3L  // $(PPSecur) Группы пользователей (struct PPSecur)
 	#define PPGRP_EVERYONE       1L
 #define PPOBJ_USR                 4L  // $(PPSecur) Пользователи (struct PPSecur)
@@ -724,17 +724,17 @@
 	#define PPACN_SYSMAINTENANCE        88L // Событие вызова одной из специальных функций обслуживания системы. Дополнительный параметр - ид функции
 	#define PPACN_BILLUNLINK            89L // Удалена привязка документа к другому документу. Дополнительный параметр - ид документа, к которому была привязка
 	#define PPACN_EVENTDETECTION        90L // Попытка обнаружения события (PPObjEvent). Следующая попытка будет опираться на время этой записи.
-	#define PPACN_RECENTVERSIONLAUNCHED 91L // @v11.2.10 Событие, иниициируемое при запуске сеанса, версия которого превышает последнее значение, зафиксированное
+	#define PPACN_RECENTVERSIONLAUNCHED 91L // Событие, иниициируемое при запуске сеанса, версия которого превышает последнее значение, зафиксированное
 		// таким же событием. Используется в Stylo-Q и, возможно, в иных однопользовательских приложениях. В Papyrus'е не применяется из-за того, что он многопользовательский -
 		// там другие механизмы.
-	#define PPACN_STYLOQSVCSELFREG      92L // @v11.2.12 Сервис Stylo-Q отправил собственные регистрационные данные медиатору. Доп параметр - ид медиатора.
+	#define PPACN_STYLOQSVCSELFREG      92L // Сервис Stylo-Q отправил собственные регистрационные данные медиатору. Доп параметр - ид медиатора.
 		// Событие используется для правильной идентификации необходимости повторной саморегистрации после изменения собственных данных.
-	#define PPACN_SCARDOWNERSET         93L // @v11.3.1 Установлен владелец персональной карты. Доп параметр - ID предыдущего владельца.
-	#define PPACN_STYLOQSVCIDXQUERY     94L // @v11.3.4 Сервис Stylo-Q отправил медиатору данные для индексации. Доп параметр - ид медиатора.
+	#define PPACN_SCARDOWNERSET         93L // Установлен владелец персональной карты. Доп параметр - ID предыдущего владельца.
+	#define PPACN_STYLOQSVCIDXQUERY     94L // Сервис Stylo-Q отправил медиатору данные для индексации. Доп параметр - ид медиатора.
 		// Событие используется для правильной идентификации необходимости повторной посылки данных.
-	#define PPACN_STYLOQFACETRANSMITTED 95L // @v11.3.9 Клиент Stylo-Q передал сервису свой лик. Объект: oid сервиса {PPOBJ_STYLOQBINDERY; id},
+	#define PPACN_STYLOQFACETRANSMITTED 95L // Клиент Stylo-Q передал сервису свой лик. Объект: oid сервиса {PPOBJ_STYLOQBINDERY; id},
 		// доп параметр - ид лика. Событие используется для правильной идентификации необходимости повторной посылки данных.
-	#define PPACN_SCARDOWNERUPDATED     96L // @v11.3.10 Изменилась персоналия-владелец карты. Событие привязывается к карте (PPOBJ_SCARD). Доп параметр - ид персоналии.
+	#define PPACN_SCARDOWNERUPDATED     96L // Изменилась персоналия-владелец карты. Событие привязывается к карте (PPOBJ_SCARD). Доп параметр - ид персоналии.
 	#define PPACN_LOTQCERTLINKUPDATED   97L // @v11.9.3 Изменилась ссылка лота на сертификат (ReceiptTbl::Rec::QCertID)
 	#define PPACN_BILLSHIPMFLAGSET      98L // @v12.4.3 У документа установлен флаг "Отгружен"
 		// !!! При вставке нового значения изменить PPACN_LAST !!!
@@ -924,7 +924,7 @@
 	#define SCPPRP_GRPLIST        2L // Список элементов-членов группы
 #define PPOBJ_STAFFCAL           58L // $ Штатный календарь
 	#define PPSTCAL_STANDARD     10L // Стандартный календарь.
-	#define PPSTCAL_REGULAR      11L // @v11.3.10 Регулярный календарь
+	#define PPSTCAL_REGULAR      11L // Регулярный календарь
 #define PPOBJ_NAMEDOBJASSOC      59L // $ Именованные ассоциации объектов
 #define PPOBJ_BIZSCORE           60L // Определители бизнес-показателей
 	#define BZSPRP_DESCR          1L // Описание показателя, совмещенное с формулой
@@ -939,7 +939,7 @@
 	#define PPEVTOK_CVTSCS9809      1L // Событие конвертации серий персональных карт v9.8.9
 	#define PPEVTOK_OBJHIST9811     2L // Событие переключения техники хранения версий объектов
 	#define PPEVTOK_CVTCMDGROUP     3L // Событие переключения форматов идентификации пользовательских меню и рабочих столов
-	#define PPEVTOK_CVTCLIAGT11200  4L // @v11.2.0 Событие переключения техники хранения версий объектов
+	#define PPEVTOK_CVTCLIAGT11200  4L // Событие переключения техники хранения версий объектов
 #define PPOBJ_SMSPRVACCOUNT      66L // Учетная запись провайдера рассылки SMS
 	//
 	// Extra record of PPOBJ_SMSPRVACCOUNT
@@ -1019,9 +1019,9 @@
 	#define PPUPRF_SRCHINGOODSFL     	  	   74
 	#define PPUPRF_TIMSERWRITE       	  	   75
 	#define PPUPRF_TSEVALSTAKES      	  	   76
-	#define PPUPRF_STYLOQ_CMD_ORDERPREREQ 	   77 // @v11.2.12
-	#define PPUPRF_STYLOQ_CMD_INDOORSVCPREREQ  78 // @v11.4.4
-	#define PPUPRF_STYLOQ_CMD_ATTENDANCEPREREQ 79 // @v11.4.4
+	#define PPUPRF_STYLOQ_CMD_ORDERPREREQ 	   77 //
+	#define PPUPRF_STYLOQ_CMD_INDOORSVCPREREQ  78 //
+	#define PPUPRF_STYLOQ_CMD_ATTENDANCEPREREQ 79 //
 	#define PPUPRF_EGAISMARKAUTOSELECTOR       80 // @v12.2.11 Локальный вызов функции EgaisMarkAutoselector
 	#define PPUPRF_EGAISMARKAUTOSELECTOR_SVR   81 // @v12.2.11 Серверный вызов функции EgaisMarkAutoselector
 	#define PPUPRF_LAST                        82 // @anchor Идентификатор для отмера количества существующих значений
@@ -1325,7 +1325,7 @@
 	// Для оперирования этим свойством объект UnxTextRefCore имеет несколько специализированных методов. Попытка работать с этим
 	// свойством как со строкой инициирует ошибку.
 #define PPTRPROP_DESCR          8 // Строка описания (не путать с PPTRPROP_NAME и PPTRPROP_LONGNAME). Используется, например, в проектах и задачах.
-#define PPTRPROP_CODE           9 // @v11.3.0 Отличается от SYMB тем, что в общем случае может существовать более одного кода для одного объекта
+#define PPTRPROP_CODE           9 // Отличается от SYMB тем, что в общем случае может существовать более одного кода для одного объекта
 #define PPTRPROP_RAWDATA_XML   10 // @v12.4.7 Исходные данные использованные для формирования объекта в xml-формате
 #define PPTRPROP_RAWDATA_JSON  11 // @v12.4.7 Исходные данные использованные для формирования объекта в json-формате
 
@@ -2055,7 +2055,7 @@
 #define cmCopyToClipboard        1169
 #define cmCopyToClipboardAll     1170
 #define cmLayoutEntry            1171 //
-#define cmPasteFromClipboardAll  1172 // @erik v10.5.2
+#define cmPasteFromClipboardAll  1172 // @erik
 #define cmDiagnostics            1173 // Кнопка диагностики
 #define cmTsList                 1174 // Кнопка списка временных серий
 #define cmPersonList             1175 // Кнопка списка персоналий
@@ -2067,15 +2067,15 @@
 #define cmQueryToken             1181 //
 #define cmLayoutContainer        1182 //
 #define cmRepeating              1183 // Вызов диалога повторений задания //
-#define cmUnmatch                1184 // @v11.1.8 Отменить (разорвать) сопоставление
-#define cmNow                    1185 // @v11.2.0 Кнопка [Сегодня] или [Сейчас] в календарях
-#define cmLayoutList             1186 // @v11.2.1 Команда отображения иерархического списка layout'ов
-#define cmPeriodResetLeft        1187 // @v11.2.4 Кнопка сброса левой границы периода в календарях
-#define cmPeriodResetRight       1188 // @v11.2.4 Кнопка сброса правой границы периода в календарях
-#define cmPeriodReset            1189 // @v11.2.4 Кнопка сброса периода в календарях
-#define cmTree                   1190 // @v11.2.11 Кнопка для просмотра древовидной структуры объекта (пока для товарных структур)
-#define cmSelectProcessors       1191 // @v11.3.4  Кнопка выбора списка процессоров
-#define cmToggleAllOrOwnOnly     1192 // @v11.4.1  Переключение отображения все/только свои (пока для товарных корзин)
+#define cmUnmatch                1184 // Отменить (разорвать) сопоставление
+#define cmNow                    1185 // Кнопка [Сегодня] или [Сейчас] в календарях
+#define cmLayoutList             1186 // Команда отображения иерархического списка layout'ов
+#define cmPeriodResetLeft        1187 // Кнопка сброса левой границы периода в календарях
+#define cmPeriodResetRight       1188 // Кнопка сброса правой границы периода в календарях
+#define cmPeriodReset            1189 // Кнопка сброса периода в календарях
+#define cmTree                   1190 // Кнопка для просмотра древовидной структуры объекта (пока для товарных структур)
+#define cmSelectProcessors       1191 // Кнопка выбора списка процессоров
+#define cmToggleAllOrOwnOnly     1192 // Переключение отображения все/только свои (пока для товарных корзин)
 #define cmExecMapOnGeoLoc        1193 // @v11.6.2  Кнопка запускает функцию открытия карты с координатами, введенными в прикрепленном поле
 #define cmImageChanged           1194 // @v12.0.4  [evCommand] Событие генерируется группой управляющих элементов ImageBrowseCtrlGroup в ответ на изменение изображения и передается в родительский диалог.
 #define cmAutoConfigure          1195 // @v12.2.1
@@ -2383,7 +2383,6 @@
 	#define CTL_GEO_LIST                 (1 + WINDOWS_ID_BIAS)
 #define DLG_ACCSHEET               54 // Таблица аналитических статей
 	#define CTL_ACCSHEET_NAME            (1 + WINDOWS_ID_BIAS)
-	// @v11.3.12 #define CTL_ACCSHEET_ASSOC_Removed   (2 + WINDOWS_ID_BIAS)
 	#define CTL_ACCSHEET_GROUP           (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ACCSHEET_GROUP        (4 + WINDOWS_ID_BIAS)
 	#define CTL_ACCSHEET_ARTICLES        (5 + WINDOWS_ID_BIAS) // Кнопка "Статьи..."
@@ -2395,8 +2394,8 @@
 	#define CTLSEL_ACCSHEET_REGTYPE      (11 + WINDOWS_ID_BIAS)
 	#define CTL_ACCSHEET_SYMB            (12 + WINDOWS_ID_BIAS)
 	#define CTL_ACCSHEET_ID              (13 + WINDOWS_ID_BIAS)
-	#define CTL_ACCSHEET_ASSCOBJ         (14 + WINDOWS_ID_BIAS) // @v11.3.12
-	#define CTLSEL_ACCSHEET_ASSCOBJ      (15 + WINDOWS_ID_BIAS) // @v11.3.12
+	#define CTL_ACCSHEET_ASSCOBJ         (14 + WINDOWS_ID_BIAS)
+	#define CTLSEL_ACCSHEET_ASSCOBJ      (15 + WINDOWS_ID_BIAS)
 #define DLG_ARTICLE                55 // Аналитическая статья //
 #define DLG_ARTICLEAUTO            57
 #define DLG_ARTICLEGROUP          808 // Группирующая статья аналитического учета
@@ -8712,6 +8711,7 @@
 	#define CTL_IEBILLSEL_MAILSUBJ     (17 + WINDOWS_ID_BIAS)
 	#define CTL_IEBILLSEL_GUA          (18 + WINDOWS_ID_BIAS)
 	#define CTLSEL_IEBILLSEL_GUA       (19 + WINDOWS_ID_BIAS)
+	#define CTL_IEBILLSEL_CMD_EMAILLIST (20 + WINDOWS_ID_BIAS)
 #define DLG_GMQUOT                 936
 //
 // CTL_GQUOT_...
@@ -9731,6 +9731,7 @@
 	#define CTL_GVR_LOWBFORM           (4 + WINDOWS_ID_BIAS)
 	#define CTL_GVR_UPPBFORM           (5 + WINDOWS_ID_BIAS)
 	#define CTL_GVR_BARLIST            (6 + WINDOWS_ID_BIAS)
+	#define CTL_GVR_CMD_SHIPMCONTROL   (7 + WINDOWS_ID_BIAS)
 #define DLG_SPLITSUSCHK              1101
 #define DLG_SPLITSUSCHK_L            1102
 	#define CTL_SPLITSUSCHK_AGENT      (1 + WINDOWS_ID_BIAS)
@@ -11527,6 +11528,7 @@
 	#define CTL_CHZNIX_SUPPL          (6 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CHZNIX_SUPPL       (7 + WINDOWS_ID_BIAS)
 	#define CTL_CHZNIX_ST_INFO        (8 + WINDOWS_ID_BIAS)
+	#define CTL_CHZNIX_FLAGS          (9 + WINDOWS_ID_BIAS)
 #define DLG_TIMSERTEST            1377
 	#define CTL_TIMSERTEST_WHAT       (1 + WINDOWS_ID_BIAS)
 	#define CTL_TIMSERTEST_DIST       (2 + WINDOWS_ID_BIAS)

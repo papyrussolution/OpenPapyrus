@@ -1,5 +1,5 @@
 // PPYIDATA.CPP
-// Copyright (c) A.Starodub, A.Sobolev 2003, 2005, 2006, 2007, 2008, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2025
+// Copyright (c) A.Starodub, A.Sobolev 2003, 2005, 2006, 2007, 2008, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -48,9 +48,9 @@ int PpyInetDataPrcssr::Init()
 	proxi.Cat(IConnCfg.ProxyHost).Colon().Cat(IConnCfg.ProxyPort);
 	access_type = (IConnCfg.AccessType == PPINETCONN_DIRECT) ? INTERNET_OPEN_TYPE_DIRECT :
 		((IConnCfg.AccessType == PPINETCONN_PROXY) ? INTERNET_OPEN_TYPE_PROXY : INTERNET_OPEN_TYPE_PRECONFIG);
-	THROW_PP(WinInetDLLHandle = ::LoadLibrary(_T("wininet.dll")), 0);
-	THROW_PP((InetSession = InternetOpen(SUcSwitch(IConnCfg.Agent), access_type, 
-		((access_type == INTERNET_OPEN_TYPE_PROXY) ? SUcSwitch(proxi) : 0), 0, 0)) != NULL, PPERR_RCVFROMINET); // @unicodeproblem
+	THROW_PP(WinInetDLLHandle = ::LoadLibraryW(L"wininet.dll"), 0);
+	THROW_PP((InetSession = InternetOpenW(SUcSwitchW(IConnCfg.Agent), access_type, 
+		((access_type == INTERNET_OPEN_TYPE_PROXY) ? SUcSwitchW(proxi) : 0), 0, 0)) != NULL, PPERR_RCVFROMINET);
 	THROW_PP(InternetSetOption(InetSession, INTERNET_OPTION_CONNECT_RETRIES, &IConnCfg.MaxTries, sizeof(IConnCfg.MaxTries)), PPERR_RCVFROMINET);
 	CATCH
 		SetInetError();
@@ -106,12 +106,12 @@ int WinInetFTP::Init(const PPInetConnConfig * pCfg)
 	}
 	else
 		access_type = INTERNET_OPEN_TYPE_PRECONFIG;
-	THROW_PP(WinInetDLLHandle = ::LoadLibrary(_T("wininet.dll")), 0);
-	THROW_PP((InetSession = InternetOpen(SUcSwitch(IConnCfg.Agent), access_type, SUcSwitch(p_proxy_name), 0, 0)) != NULL, PPERR_RCVFROMINET); // @unicodeproblem
-	THROW_PP(InternetSetOption(InetSession, INTERNET_OPTION_CONNECT_RETRIES, &IConnCfg.MaxTries, sizeof(IConnCfg.MaxTries)), PPERR_RCVFROMINET);
-	THROW_PP(InternetSetOption(InetSession, INTERNET_OPTION_CONNECT_TIMEOUT, &conn_timeout, sizeof(conn_timeout)), PPERR_RCVFROMINET);
-	THROW_PP(InternetSetOption(InetSession, INTERNET_OPTION_RECEIVE_TIMEOUT, &sendrcv_timeout, sizeof(sendrcv_timeout)), PPERR_RCVFROMINET);
-	THROW_PP(InternetSetOption(InetSession, INTERNET_OPTION_SEND_TIMEOUT, &sendrcv_timeout, sizeof(sendrcv_timeout)), PPERR_RCVFROMINET);
+	THROW_PP(WinInetDLLHandle = ::LoadLibraryW(L"wininet.dll"), 0);
+	THROW_PP((InetSession = InternetOpenW(SUcSwitchW(IConnCfg.Agent), access_type, SUcSwitchW(p_proxy_name), 0, 0)) != NULL, PPERR_RCVFROMINET);
+	THROW_PP(InternetSetOptionW(InetSession, INTERNET_OPTION_CONNECT_RETRIES, &IConnCfg.MaxTries, sizeof(IConnCfg.MaxTries)), PPERR_RCVFROMINET);
+	THROW_PP(InternetSetOptionW(InetSession, INTERNET_OPTION_CONNECT_TIMEOUT, &conn_timeout, sizeof(conn_timeout)), PPERR_RCVFROMINET);
+	THROW_PP(InternetSetOptionW(InetSession, INTERNET_OPTION_RECEIVE_TIMEOUT, &sendrcv_timeout, sizeof(sendrcv_timeout)), PPERR_RCVFROMINET);
+	THROW_PP(InternetSetOptionW(InetSession, INTERNET_OPTION_SEND_TIMEOUT, &sendrcv_timeout, sizeof(sendrcv_timeout)), PPERR_RCVFROMINET);
 	CATCH
 		SetInetError((HMODULE)WinInetDLLHandle);
 		ok = 0;

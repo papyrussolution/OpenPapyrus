@@ -1325,11 +1325,11 @@ void SImageBuffer::Palette::SetAlpha(uint8 alpha)
 		P_Buf[i] = ((alpha << 24) | (P_Buf[i] & 0x00ffffff));
 }
 
-uint SImageBuffer::Palette::GetCount() const { return Count; }
+uint   SImageBuffer::Palette::GetCount() const { return Count; }
 size_t SImageBuffer::Palette::GetSize() const { return (Count * sizeof(uint32)); }
 uint32 FASTCALL SImageBuffer::Palette::GetColor(uint idx) const { return (idx < Count) ? P_Buf[idx] : 0; }
 void * SImageBuffer::Palette::GetBuffer() { return P_Buf; } // really private 
-const uint32 * SImageBuffer::Palette::GetBufferC() const { return (const uint32 *)P_Buf; } // really private
+const  uint32 * SImageBuffer::Palette::GetBufferC() const { return (const uint32 *)P_Buf; } // really private
 //
 //
 //
@@ -1994,8 +1994,8 @@ int SImageBuffer::Store(const StoreParam & rP, SFile & rF) const
 	switch(rP.Fmt) {
 		case SFileFormat::Png: THROW(StorePng(rP, rF)); break;
 		case SFileFormat::Jpeg: THROW(StoreJpeg(rP, rF)); break;
-		case SFileFormat::Webp: THROW(StoreWebp(rP, rF)); break; // @v11.3.4
-		case SFileFormat::Bmp: THROW(StoreBmp(rP, rF)); break; // @v11.3.4
+		case SFileFormat::Webp: THROW(StoreWebp(rP, rF)); break;
+		case SFileFormat::Bmp: THROW(StoreBmp(rP, rF)); break;
 		default: CALLEXCEPT_S(SLERR_UNSUPPIMGFILEFORMAT); break;
 	}
 	CATCHZOK
@@ -2433,6 +2433,153 @@ int SImageBuffer::LoadBmp(SFile & rF)
 		THROW(Helper_LoadBmp(buffer, rF.GetName()));
 	}
 	CATCHZOK
+	return ok;
+}
+
+int SImageBuffer::LoadIco(HICON hIco) // @v12.7.3 // @construction (все еще работаю над функцией)
+{
+	int    ok = 1;
+	HDC    h_dc = 0;
+	uint32 * p_data = 0;
+	ICONINFO ii;
+	MEMSZERO(ii);
+	Destroy();
+	{
+		BITMAP bm_color;
+		BITMAP bm_mask;
+		struct {
+			BITMAPINFOHEADER bmiHeader;
+			RGBQUAD bmiColors[32];
+		} bi;
+		MEMSZERO(bi);
+		MEMSZERO(bm_color);
+		MEMSZERO(bm_mask);
+		THROW(hIco);
+		THROW(::GetIconInfo(hIco, &ii));
+		THROW(ii.hbmMask && ::GetObjectW(ii.hbmMask, sizeof(bm_mask), &bm_mask));
+		const  bool has_color = (ii.hbmColor && ::GetObjectW(ii.hbmColor, sizeof(bm_color), &bm_color));
+		// Размеры иконки
+		const  uint width = has_color ? (uint)bm_color.bmWidth : (uint)bm_mask.bmWidth;
+		const  uint height = has_color ? (uint)bm_color.bmHeight : (uint)bm_mask.bmHeight / 2;
+		const  bool is_32bpp = (bm_color.bmBitsPixel == 32);
+		bool   has_alpha = false;
+		THROW(width && height);
+		h_dc = ::CreateCompatibleDC(NULL);
+		THROW(h_dc);
+		// Инициализируем буфер под 32-битное ARGB изображение
+		THROW(Init(width, height, PixF(PixF::s32ARGB)));
+		p_data = (uint32*)GetData();
+		// Шаг 1: Читаем цветное изображение (XOR-маска)
+		if(has_color) {
+			bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+			bi.bmiHeader.biWidth = width;
+			bi.bmiHeader.biHeight = -(LONG)height; // top-down DIB
+			bi.bmiHeader.biPlanes = 1;
+			bi.bmiHeader.biBitCount = 32;
+			bi.bmiHeader.biCompression = BI_RGB;
+        
+			STempBuffer temp_buf(width * height * sizeof(uint32));
+			const  int lines = ::GetDIBits(h_dc, ii.hbmColor, 0, height, temp_buf, reinterpret_cast<BITMAPINFO *>(&bi), DIB_RGB_COLORS);
+			THROW(lines == (int)height);
+			const  uint32 * p_src = (uint32*)temp_buf.vcptr();
+			for(uint i = 0; i < height; ++i) {
+				for(uint j = 0; j < width; ++j) {
+					const  uint32 pixel = p_src[i * width + j];
+					// Windows DIB хранит пиксели в формате BGRA -> конвертируем в ARGB
+					const  uint8 b = (pixel >> 0) & 0xFF;
+					const  uint8 g = (pixel >> 8) & 0xFF;
+					const  uint8 r = (pixel >> 16) & 0xFF;
+					const  uint8 a = (pixel >> 24) & 0xFF;
+					p_data[i * width + j] = ((uint32)a << 24) | ((uint32)r << 16) | ((uint32)g << 8) | b;
+					if(a != 0 && is_32bpp) {
+						has_alpha = true;
+					}
+				}
+			}
+		}
+		else {
+			// Монохромная иконка — XOR-маска в верхней половине hbmMask
+			bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+			bi.bmiHeader.biWidth = width;
+			bi.bmiHeader.biHeight = -(LONG)height;
+			bi.bmiHeader.biPlanes = 1;
+			bi.bmiHeader.biBitCount = 1;
+			bi.bmiHeader.biCompression = BI_RGB;
+        
+			// Палитра: 0 = черный, 1 = белый
+			bi.bmiColors[0].rgbBlue = 0;
+			bi.bmiColors[0].rgbGreen = 0;
+			bi.bmiColors[0].rgbRed = 0;
+			bi.bmiColors[0].rgbReserved = 0;
+			bi.bmiColors[1].rgbBlue = 255;
+			bi.bmiColors[1].rgbGreen = 255;
+			bi.bmiColors[1].rgbRed = 255;
+			bi.bmiColors[1].rgbReserved = 0;
+        
+			uint line_size = (((width + 31) / 32) * 4);
+			STempBuffer temp_buf(line_size * height);
+			const  int lines = ::GetDIBits(h_dc, ii.hbmMask, 0, height, temp_buf, reinterpret_cast<BITMAPINFO *>(&bi), DIB_RGB_COLORS);
+			THROW(lines == (int)height);
+			const  uint8 * p_src = (uint8*)temp_buf.vcptr();
+			for(uint i = 0; i < height; ++i) {
+				for(uint j = 0; j < width; ++j) {
+					uint8 byte = p_src[i * line_size + j / 8];
+					uint8 bit = (byte >> (7 - (j % 8))) & 1;
+					// XOR-маска: 0 = черный, 1 = белый
+					uint32 color = bit ? 0xFFFFFFFF : 0xFF000000;
+					p_data[i * width + j] = color;
+				}
+			}
+		}
+		// Шаг 2: Читаем AND-маску, если нет альфа-канала
+		// AND-маска определяет прозрачность: 0 = непрозрачный, 1 = прозрачный
+		if(!has_alpha && ii.hbmMask) {
+			bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+			bi.bmiHeader.biWidth = width;
+			bi.bmiHeader.biHeight = -(LONG)height;
+			bi.bmiHeader.biPlanes = 1;
+			bi.bmiHeader.biBitCount = 1;
+			bi.bmiHeader.biCompression = BI_RGB;
+        
+			bi.bmiColors[0].rgbBlue = 0;
+			bi.bmiColors[0].rgbGreen = 0;
+			bi.bmiColors[0].rgbRed = 0;
+			bi.bmiColors[0].rgbReserved = 0;
+			bi.bmiColors[1].rgbBlue = 255;
+			bi.bmiColors[1].rgbGreen = 255;
+			bi.bmiColors[1].rgbRed = 255;
+			bi.bmiColors[1].rgbReserved = 0;
+        
+			uint line_size = (((width + 31) / 32) * 4);
+			STempBuffer temp_buf(line_size * height);
+			// Для цветных иконок AND-маска в начале hbmMask
+			// Для монохромных AND-маска во второй половине hbmMask
+			uint andOffset = has_color ? 0 : height;
+			const  int lines = ::GetDIBits(h_dc, ii.hbmMask, andOffset, height, temp_buf, reinterpret_cast<BITMAPINFO *>(&bi), DIB_RGB_COLORS);
+			THROW(lines == (int)height);
+			const  uint8 * p_src = (uint8*)temp_buf.vcptr();
+			for(uint i = 0; i < height; ++i) {
+				for(uint j = 0; j < width; ++j) {
+					uint8 byte = p_src[i * line_size + j / 8];
+					uint8 bit = (byte >> (7 - (j % 8))) & 1;
+					if(bit) {
+						p_data[i * width + j] &= 0x00FFFFFF; // Прозрачный пиксель
+					}
+					else {
+						p_data[i * width + j] |= 0xFF000000; // Непрозрачный пиксель
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	// GetIconInfo создаёт новые битмапы, которые нужно удалить
+	if(ii.hbmColor) 
+		::DeleteObject(ii.hbmColor);
+	if(ii.hbmMask) 
+		::DeleteObject(ii.hbmMask);
+	if(h_dc)
+		::DeleteDC(h_dc);
 	return ok;
 }
 

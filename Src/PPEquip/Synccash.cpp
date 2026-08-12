@@ -545,11 +545,9 @@ int SCS_SYNCCASH::PreprocessChZnCode(int op, const char * pCode, double qtty, in
 					Arr_In.Z();
 					THROW(ArrAdd(Arr_In, DVCPARAM_CHZNCODE, pCode));
 					THROW(ArrAdd(Arr_In, DVCPARAM_QUANTITY, qtty));
-					// @v11.2.6 {
 					if(ffrac(qtty) != 0.0 && uomFragm > 0) {
 						THROW(ArrAdd(Arr_In, DVCPARAM_UOMFRAGM, static_cast<int>(uomFragm)));
 					}
-					// } @v11.2.6 
 					// @v12.0.6 {
 					if(uomId)
 						THROW(ArrAdd(Arr_In, DVCPARAM_UOMID, uomId));

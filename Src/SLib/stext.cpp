@@ -1558,7 +1558,7 @@ int FASTCALL strnicmp866(const char * s1, const char * s2, size_t maxlen)
 {
 	uchar  c1, c2;
 	size_t i = 0;
-	if(maxlen)
+	if(maxlen) {
 		do {
 			c1 = static_cast<uchar>(ToUpper866(*s1++));
 			c2 = static_cast<uchar>(ToUpper866(*s2++));
@@ -1567,6 +1567,7 @@ int FASTCALL strnicmp866(const char * s1, const char * s2, size_t maxlen)
 			else if(c1 < c2)
 				return -1;
 		} while(c1 && c2 && ++i < maxlen);
+	}
 	return 0;
 }
 
@@ -2495,44 +2496,47 @@ int replacestr(char * str, const char * rstr, size_t * pPos, size_t * pLen, uint
 
 #pragma warn .par
 
-int SplitBuf(HDC hdc, SString & aBuf, uint maxStrSize, uint maxStrsCount)
+int SplitBuf(HDC hdc, SString & rBuf, uint maxStrSize, uint maxStrsCount)
 {
-	if(hdc && maxStrSize > 0 && maxStrsCount > 0 && aBuf.Len()) {
+	if(hdc && maxStrSize > 0 && maxStrsCount > 0 && rBuf.Len()) {
 		const  char * p_dots = "...";
-		char   ret_buf[1024];
-		int    src_pos = 0, dest_pos = 0;
+		//char   ret_buf[1024];
+		STempBuffer ret_buf_(rBuf.Len() * 2);
+		int    src_pos = 0;
+		int    dest_pos = 0;
 		int    dots_pos = -1;
 		uint   dots_size = 0;
 		SIZE   size;
-		memzero(ret_buf, sizeof(ret_buf));
-		GetTextExtentPoint32W(hdc, L".", 1, &size);
-		dots_size = size.cx * 3;
+		//memzero(ret_buf, sizeof(ret_buf));
+		memzero(ret_buf_, ret_buf_.GetSize());
+		GetTextExtentPoint32W(hdc, L"...", 1, &size);
+		dots_size = size.cx;
 		for(uint strs_count = 0; strs_count < maxStrsCount; strs_count++) {
-			int    is_last_str = BIN(strs_count >= maxStrsCount - 1);
+			const  bool is_last_str = (strs_count >= maxStrsCount - 1);
 			int    src_spc_pos = 0;
 			int    dest_spc_pos = 0;
 			uint   word_size = 0;
-			for(; word_size < maxStrSize && aBuf.C(src_pos);) {
-				if(aBuf.C(src_pos) == ' ') {
+			for(; word_size < maxStrSize && rBuf.C(src_pos);) {
+				if(rBuf.C(src_pos) == ' ') {
 					src_spc_pos = src_pos;
 					dest_spc_pos = dest_pos;
 				}
 				if(is_last_str)
 					dots_pos = word_size + (dots_size <= maxStrSize) ? dest_pos : dots_pos;
-				GetTextExtentPoint32W(hdc, SUcSwitchW(&aBuf[src_pos]), 1, &size);
+				GetTextExtentPoint32W(hdc, SUcSwitchW(&rBuf[src_pos]), 1, &size);
 				word_size += size.cx;
 				if(word_size <= maxStrSize) {
-					ret_buf[dest_pos] = aBuf.C(src_pos);
+					ret_buf_[dest_pos] = rBuf.C(src_pos);
 					src_pos++;
 					dest_pos++;
 				}
 			}
-			char   c = aBuf.C(src_pos);
+			char   c = rBuf.C(src_pos);
 			if(c) {
 				if(is_last_str) {
 					if(dots_pos >= 0) {
-						ret_buf[dots_pos] = '\0';
-						strcat(ret_buf, p_dots);
+						ret_buf_[dots_pos] = '\0';
+						strcat(ret_buf_, p_dots);
 						dest_pos = dots_pos + sstrleni(p_dots) - 1;
 					}
 				}
@@ -2542,11 +2546,11 @@ int SplitBuf(HDC hdc, SString & aBuf, uint maxStrSize, uint maxStrsCount)
 				}
 			}
 			if(!is_last_str)
-				ret_buf[dest_pos++] = '\n';
+				ret_buf_[dest_pos++] = '\n';
 			else
-				ret_buf[++dest_pos] = '\0';
+				ret_buf_[++dest_pos] = '\0';
 		}
-		aBuf.CopyFrom(ret_buf);
+		rBuf.CopyFrom(ret_buf_);
 	}
 	return 1;
 }

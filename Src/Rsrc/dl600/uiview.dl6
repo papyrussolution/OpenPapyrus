@@ -5763,17 +5763,22 @@ dialog DLG_TSESSCFG [vertical title: "@cfg_techsess" size: (545, 570) minsize: (
 	}
 }
 
-dialog DLG_CHZNIX [vertical title: "@chznprcssrparam" size: (665, 480) minsize: (665, 480) padding: 4 justifycontent: spacebetween ] { // @v12.6.7
+dialog DLG_CHZNIX [vertical title: "@chznprcssrparam" size: (665, 635) minsize: (665, 635) padding: 4 justifycontent: spacebetween ] { // @v12.6.7
 	combobox CTLSEL_CHZNIX_GUA [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@chznprcssrparam_gua" cblinesymb: CTL_CHZNIX_GUA];
 	view [horizontal width: bycontainer growfactor: 1] {
-		radiocluster CTL_CHZNIX_WHAT [growfactor: 1 margin: 4] {
-			radiobutton [title: "@chznprcssrparam_afqueryticket"];
-			radiobutton [title: "@chznprcssrparam_afquerykizinfo"];
-			radiobutton [title: "@chznprcssrparam_afquerydoclistin"];
-			radiobutton [title: "@chznprcssrparam_afqueryaggrmarklist"];
-			radiobutton [title: "@chznprcssrparam_afquerymarkinfo"]; // @v12.6.9
-			radiobutton [title: "@chznprcssrparam_afquerymarkops"]; // @v12.7.1
-			radiobutton [title: "@chznprcssrparam_afdebugauth"];
+		view [vertical growfactor: 1 height: bycontainer] {
+			radiocluster CTL_CHZNIX_WHAT [width: bycontainer margin: 4] {
+				radiobutton [title: "@chznprcssrparam_afqueryticket"];
+				radiobutton [title: "@chznprcssrparam_afquerykizinfo"];
+				radiobutton [title: "@chznprcssrparam_afquerydoclistin"];
+				radiobutton [title: "@chznprcssrparam_afqueryaggrmarklist"];
+				radiobutton [title: "@chznprcssrparam_afquerymarkinfo"]; // @v12.6.9
+				radiobutton [title: "@chznprcssrparam_afquerymarkops"]; // @v12.7.1
+				radiobutton [title: "@chznprcssrparam_afdebugauth"];
+			}
+			checkcluster CTL_CHZNIX_FLAGS [width: bycontainer margin: 4] {
+				checkbox [title: "@chznprcssrparam_foutputtofile"];
+			}
 		}
 		input CTL_CHZNIX_HINT [growfactor: 1 height: bycontainer margin: (4, 10, 4, 4) tabstop readonly] string[252];
 	}
@@ -6575,7 +6580,97 @@ dialog DLG_GOODS [vertical title: "@ware" size: (650, 700) minsize: (650, 700) p
 	}
 }
 
-// @20260803 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+dialog DLG_GVR [vertical title: "@goodsvalrestr" size: (685, 410) minsize: (685, 410) padding: 4] { // @v12.7.3
+	view [horizontal width: bycontainer height: 35] {
+		input CTL_GVR_NAME [growfactor: 2 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
+		input CTL_GVR_SYMB [growfactor: 1 height: 21 margin: 4 tabstop label: "@symbol"] string[20];
+		input CTL_GVR_ID [size: (60, 21) margin: 4 label: "@id" readonly fmtf: (nozero)] int32;
+	}
+	input CTL_GVR_LOWBFORM [width: bycontainer height: 50 margin: 4 tabstop multiline wantreturn label: "@goodsvalrestr_lowboundformula"] string[1024];
+	input CTL_GVR_UPPBFORM [width: bycontainer height: 50 margin: 4 tabstop multiline wantreturn label: "@goodsvalrestr_uppboundformula"] string[1024];
+	view [horizontal width: bycontainer height: 30 justifycontent: end] {
+		button STDCTL_TESTBUTTON [title: "@goodsvalrestr_validateformulas" tabstop size: (210, 21) margin: 4 command: cmTest];
+	}
+	framebox [horizontal width: bycontainer growfactor: 1 margin: 4 padding: (4, 12, 4, 4) title: "@goodsvalrestr_billarrestr"] {
+		listbox CTL_GVR_BARLIST [growfactor: 1 height: bycontainer margin: 4 columns: "@lbt_gvr_bar"];
+		view [vertical width: 100 height: bycontainer] {
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop size: (90, 21) margin: 4 command: cmaEdit];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+	}
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 2 height: bycontainer justifycontent: start] {
+			button CTL_GVR_CMD_SHIPMCONTROL [title: "@{goodsvalrestr_scp}..." tabstop size: (210, 21) margin: 4 command: cmShipmControl];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_CCBYBILL [vertical title: "@ccbybill" size: (470, 410) minsize: (390, 380) padding: 4 justifycontent: spacebetween] { // @v12.7.3
+	view [horizontal width: bycontainer height: 35] {
+		combobox CTLSEL_CCBYBILL_POSNODE [growfactor: 3 height: 21 margin: 4 tabstop label: "@ccbybill_posnode" cblinesymb: CTL_CCBYBILL_POSNODE];
+		input CTL_CCBYBILL_DIVISION [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (nozero) label: "@ccbybill_paymtype_division"] int32;
+	}
+	view [horizontal width: bycontainer height: 80] {
+		radiocluster CTL_CCBYBILL_PAYMTYPE [title: "@ccbybill_paymtype" growfactor: 1 margin: 4 padding: (4, 12, 4, 4)] {
+			radiobutton [title: "@ccbybill_paymtype_cash"];
+			radiobutton [title: "@ccbybill_paymtype_bank"];
+		}
+		view [vertical growfactor: 1 height: bycontainer justifycontent: center] {
+			checkbox CTL_CCBYBILL_FLAGS [title: "@ccbybill_fprepay" tabstop width: bycontainer height: 21 margin: 4];
+		}
+	}
+	view [horizontal width: bycontainer height: 35] {
+		input CTL_CCBYBILL_CASH [growfactor: 1 height: 21 margin: 4 tabstop fmtprec: 2 label: "@ccbybill_cash"] double;
+		input CTL_CCBYBILL_DIFF [growfactor: 1 height: 21 margin: 4 tabstop readonly fmtf: (tricomma) fmtprec: 2 label: "@ccbybill_change"] double;
+		view [horizontal growfactor: 1 height: 21] { // @stub
+		}
+	}
+	framebox [vertical width: bycontainer height: 90 margin: 4 padding: 4] {
+		input CTL_CCBYBILL_EADDR [width: bycontainer height: 21 margin: 4 tabstop label: "@pospaymblock_eaddr"] string[128];
+		checkbox CTL_CCBYBILL_PAPERLESS [title: "@pospaymblock_paperless" tabstop width: bycontainer(80) height: 21 margin: 4 ];
+	}
+	statictext CTL_CCBYBILL_ST_INFO [width: bycontainer height: 16 margin: 4 staticedge];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_RUNIE_BILL_EXP [vertical title: "@billrunie_exp" size: (460, 440) minsize: (460, 440) padding: 4 justifycontent: spacebetween] { // @v12.7.3
+	view [horizontal width: bycontainer height: 100] {
+		radiocluster CTL_IEBILLSEL_TECH [growfactor: 1 margin: 4] {
+			radiobutton [title: "@billrunie_standardmode"];
+			radiobutton [title: "@billrunie_fediimpexp"];
+			radiobutton [title: "@billrunie_fegaisimpexp"];
+			radiobutton [title: "@billrunie_fpaymorderexp"];
+		}
+		checkcluster CTL_IEBILLSEL_FLAGS [growfactor: 1 margin: 4] {
+			checkbox [title: "@billrunie_fsignexport"];
+			checkbox [title: "@billrunie_ftestmode"];
+			checkbox [title: "@billrunie_fegaisver3"];
+			checkbox [title: "@billrunie_fegaisver4"];
+		}
+	}
+	combobox CTLSEL_IEBILLSEL_BILL [width: bycontainer height: 21 margin: 4 tabstop label: "@billrunie_cfgexpnameheader" cblinesymb: CTL_IEBILLSEL_BILL];
+	combobox CTLSEL_IEBILLSEL_BROW [width: bycontainer height: 21 margin: 4 tabstop label: "@billrunie_cfgexpnamerows" cblinesymb: CTL_IEBILLSEL_BROW];
+	framebox [title: "@billrunie_transmit" vertical width: bycontainer height: 150 margin: 4 padding: (4, 12, 4, 4)] {
+		combobox CTLSEL_IEBILLSEL_MAILACC [width: bycontainer height: 21 margin: 4 tabstop label: "@billrunie_transmit_inetacc" cblinesymb: CTL_IEBILLSEL_MAILACC];
+		input CTL_IEBILLSEL_MAILADR [width: bycontainer height: 21 margin: 4 tabstop label: "@billrunie_transmit_addrlist"] string[255]
+			supplement ellipsisbutton(CTL_IEBILLSEL_CMD_EMAILLIST cmEMailList);
+		input CTL_IEBILLSEL_MAILSUBJ [width: bycontainer height: 21 margin: 4 tabstop label: "@billrunie_transmit_subj"] string[255];
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+// @20260812 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 
 // @construction

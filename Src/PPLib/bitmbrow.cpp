@@ -3286,7 +3286,7 @@ int LotXCodeListDialog_Base::PasteFromClipboardAll(int validation) // @erik
 	SStringU buf_from_copy;
 	SClipboard::Past_Text(buf_from_copy);
 	buf_from_copy.CopyToUtf8(temp_buf, 0);
-	if(temp_buf.Tokenize("\xD\xA", ss)) {
+	if(temp_buf.Tokenize("\xD\xA", ss) > 0) {
 		temp_buf.Z();
 		SString mark_buf;
 		for(uint ssp = 0; ss.get(&ssp, temp_buf); temp_buf.Z(), set.Z()) {

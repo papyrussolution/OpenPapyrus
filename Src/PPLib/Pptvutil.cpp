@@ -3302,16 +3302,17 @@ private:
 
 void UICfgDialog::SelectFont_(SFontDescr & rFd, uint indCtlId)
 {
-	CHOOSEFONT font;
-	LOGFONT log_font;
+	CHOOSEFONTW font;
+	LOGFONTW log_font;
 	MEMSZERO(font);
 	MEMSZERO(log_font);
+	font.lStructSize = sizeof(font);
 	font.hwndOwner   = H();
-	font.Flags       = CF_FORCEFONTEXIST|CF_SCREENFONTS|CF_INITTOLOGFONTSTRUCT|CF_NOVERTFONTS|CF_NOSCRIPTSEL;
+	font.Flags       = CF_FORCEFONTEXIST|CF_SCREENFONTS|CF_INITTOLOGFONTSTRUCT|CF_NOVERTFONTS|CF_NOSCRIPTSEL|CF_LIMITSIZE;
 	rFd.MakeLogFont(&log_font);
 	font.lpLogFont   = &log_font;
-	font.lStructSize = sizeof(font);
-	if(ChooseFont(&font)) {
+	font.nSizeMax    = 16; // @v12.7.3
+	if(ChooseFontW(&font)) {
 		rFd.SetLogFont(font.lpLogFont);
 		if(indCtlId) {
 			SString temp_buf;
@@ -3329,13 +3330,11 @@ int UISettingsDialog()
 	UICfgDialog	* p_dlg = new UICfgDialog();
 	if(CheckDialogPtrErr(&p_dlg)) {
 		uint   v = 0;
-		UserInterfaceSettings uiset = APPL->GetUiSettings(); // @v11.2.6 
-		// @v11.2.6 uiset.Restore();
+		UserInterfaceSettings uiset = APPL->GetUiSettings();
 		p_dlg->setDTS(&uiset);
 		if(ExecView(p_dlg) == cmOK) {
 			p_dlg->getDTS(&uiset);
-			// @v11.2.6 uiset.Save();
-			APPL->UpdateUiSettings(uiset); // @v11.2.6 
+			APPL->UpdateUiSettings(uiset);
 			r = 1;
 		}
 		else

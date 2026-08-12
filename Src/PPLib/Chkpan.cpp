@@ -389,7 +389,6 @@ void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack, con
 		SETFLAG(pPack->Rec.Flags, CCHKF_DELIVERY,   Eccd.Flags & Eccd.fDelivery);
 		SETFLAG(pPack->Rec.Flags, CCHKF_FIXEDPRICE, Eccd.Flags & Eccd.fFixedPrice);
 		SETFLAG(pPack->Rec.Flags, CCHKF_SPFINISHED, Eccd.Flags & Eccd.fSpFinished);
-		// @v11.3.6 {
 		// @v11.9.8 (похоже, я погорячился, закомментировав этот участок при перестройке работы блока строк расширения чека) /* @v11.8.11 
 		if(!EAddr.IsEmpty()) {
 			if(EAddr.AddrType == SNTOK_EMAIL) {
@@ -408,7 +407,6 @@ void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack, con
 			SETFLAG(pPack->Rec.Flags, CCHKF_PAPERLESS, 0);
 		}
 		// @v11.9.8 */
-		// } @v11.3.6 
 		// @v11.8.11 pPack->SetPrescription(Prescr); // @v11.7.12 
 		// @v11.8.8 {
 		/* @v11.8.11 {

@@ -4530,11 +4530,9 @@ public:
 	//   Важно: несколько разделителей идущих подряд считаются за один.
 	//   Функция не очищает rResult перед тем как начнет туда вставлять новые элементы.
 	// Returns:
-	//   2 - в строке this встречен как минимум один разделитель
-	//   1 - в строке this не было встречено ни одного разделителя - она полностью внесена в rResult
-	//  -1 - строка this пуста - в rResult ничего не добавлено
+	//   Количество токенов, добавленных в rResult
 	//
-	int    Tokenize(const char * pDelimChrSet, StringSet & rResult) const;
+	uint   Tokenize(const char * pDelimChrSet, StringSet & rResult) const;
 	//
 	// Descr: Ищет в строке this подстроку, установленную в качестве образца в блок pBlk.
 	// ARG(pBlk     IN): блок, в котором реализован препроцессинг образца для поиска.
@@ -8774,6 +8772,7 @@ public:
 	explicit SRevolver_SString(uint c);
 	SString & Get();
 	void   Saturate(uint minSize); // @debug
+	bool   Verify() const; // @debug
 };
 
 class SRevolver_SStringU : public TSRevolver <SStringU> {
@@ -8781,6 +8780,7 @@ public:
 	explicit SRevolver_SStringU(uint c);
 	SStringU & Get();
 	void   Saturate(uint minSize); // @debug
+	bool   Verify() const; // @debug
 };
 
 DECL_CMPFUNC(PcharNoCase);
@@ -19269,6 +19269,7 @@ public:
 	//   дескриптора битовой карты WinGDI.
 	//
 	int    LoadBmp(HDC hDc, HBITMAP hBmp, uint subImgSqIdx = 0, uint subImgSqSide = 0);
+	int    LoadIco(HICON hIco); // @v12.7.3
 	int    LoadMime_Base64(const char * pFormatStr, const SString & rS);
 	int    Store(const StoreParam &, SFile & rF) const;
 	int    StoreMime_Base64(const StoreParam &, SString & rBuf) const;
@@ -20393,7 +20394,7 @@ public:
 //
 // Debug
 //
-extern bool SlBreakpointCondition[16]; // @v11.2.4 Логические переменные для установки условных точек отладки.
+extern bool SlBreakpointCondition[16]; // Логические переменные для установки условных точек отладки.
 
 class MemLeakTracer {
 public:

@@ -754,7 +754,7 @@ bool StringSet::get(uint * pPos, char * pStr, size_t maxlen) const
 	return ok;
 }
 
-bool StringSet::get(uint * pPos, SString & s) const
+bool StringSet::get(uint * pPos, SString & rS) const
 {
 	bool   ok = true;
 	const  char * c = 0;
@@ -789,7 +789,7 @@ bool StringSet::get(uint * pPos, SString & s) const
 	}
 	else
 		ok = false;
-	s.CopyFromN(c, len);
+	rS.CopyFromN(c, len);
 	*pPos = static_cast<uint>(p + len + delim_len);
 	return ok;
 }

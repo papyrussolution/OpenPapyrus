@@ -6421,13 +6421,36 @@ int PhoneNumberMetaData::ValidateNumber(const char * pRawInput, size_t rawInputL
 		// 1. Очистка: оставляем только цифры и '+'
 		SString temp_buf;
 		SString _processed_phn;
+		// @v12.7.3 {
+		// Приключилась неприятность: email в котором был длинный цифровой код был воспринят как номер телефона.
+		// Далее, пытаюсь (возможно, неловко) минимизировать вероятность такого срабатывания //
+		uint   dec_count = 0;
+		uint   space_count = 0;
+		uint   nondec_count = 0;
+		bool   not_a_phone = false;
 		for(size_t i = 0; i < input_len; ++i) {
-			uchar c = pRawInput[i];
-			if(isdec(c) || c == '+') {
-				_processed_phn.CatChar(c);
+			const  uchar c = pRawInput[i];
+			const  bool is_dec_ = isdec(c);
+			if(c == ' ')
+				space_count++;
+			else {
+				if(is_dec_)
+					dec_count++;
+				else 
+					nondec_count++;
+				if(is_dec_ || c == '+') {
+					_processed_phn.CatChar(c);
+				}
 			}
 		}
-		if(checkirangef(_processed_phn.Len32(), 1U, 15U)) { // Быстрая отсечка по общей длине (1-15 цифр для телефонных номеров)
+		{
+			// Эвристика: если нецифровых символов в строке больше чем цифровых, то считаем что это не может быть номером телефона
+			if(dec_count < nondec_count) {
+				not_a_phone = true;
+			}
+		}
+		// } @v12.7.3
+		if(!not_a_phone && checkirangef(_processed_phn.Len32(), 1U, 15U)) { // Быстрая отсечка по общей длине (1-15 цифр для телефонных номеров)
 			SString _phn;
 			SString _phn_intl;
 			for(uint ti = 0; (pResultList || !ok) && ti < L.getCount(); ++ti) { // Перебор территорий.

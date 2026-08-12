@@ -48,6 +48,29 @@ void SRevolver_SString::Saturate(uint minSize) // @debug
 	}
 }
 
+static bool _IsBlockTypeValid(const int blockUse)
+{
+    return _BLOCK_TYPE(blockUse) == _CLIENT_BLOCK || _BLOCK_TYPE(blockUse) == _CRT_BLOCK || blockUse == _NORMAL_BLOCK || blockUse == _IGNORE_BLOCK;
+}
+
+bool SRevolver_SString::Verify() const // @debug
+{
+	bool   ok = true;
+	if(P_List) {
+		for(uint i = 0; ok && i < Count; i++) {
+			SString & r_item = P_List[i];
+			const char * ptr = r_item.cptr();
+			if(ptr) {
+				const SAlloc::VcCrtMemBlockHeader * mp = (reinterpret_cast<const SAlloc::VcCrtMemBlockHeader *>(ptr)-1);
+				assert(_IsBlockTypeValid(mp->_block_use));
+				if(!_IsBlockTypeValid(mp->_block_use))
+					ok = false;
+			}
+		}
+	}
+	return ok;
+}
+
 SRevolver_SStringU::SRevolver_SStringU(uint c) : TSRevolver <SStringU> (c) {}
 SStringU & SRevolver_SStringU::Get() { return Implement_Get().Z(); }
 
@@ -59,6 +82,24 @@ void SRevolver_SStringU::Saturate(uint minSize) // @debug
 			r_item.Ensure(minSize);
 		}
 	}
+}
+
+bool SRevolver_SStringU::Verify() const // @debug
+{
+	bool   ok = true;
+	if(P_List) {
+		for(uint i = 0; ok && i < Count; i++) {
+			SStringU & r_item = P_List[i];
+			const wchar_t * ptr = r_item.ucptr();
+			if(ptr) {
+				const SAlloc::VcCrtMemBlockHeader * mp = (reinterpret_cast<const SAlloc::VcCrtMemBlockHeader *>(ptr)-1);
+				assert(_IsBlockTypeValid(mp->_block_use));
+				if(!_IsBlockTypeValid(mp->_block_use))
+					ok = false;
+			}
+		}
+	}
+	return ok;
 }
 //
 //
@@ -1373,15 +1414,17 @@ int SString::GetWord(size_t * pPos, SString & rBuf) const
 	return static_cast<int>(rBuf.Len());
 }
 
-int SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) const
+uint SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) const
 {
-	int    ok = 1;
-	const size_t len = Len();
+	uint   result = 0;
+	const  size_t len = Len();
 	if(len) {
 		SETIFZ(pDelimChrSet, " \t\n\r");
 		const size_t delim_len = sstrlen(pDelimChrSet);
-		if(delim_len == 0)
+		if(delim_len == 0) {
 			rResult.add(*this);
+			result++;
+		}
 		else {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
 			uint   i = 0;
@@ -1393,7 +1436,7 @@ int SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) const
 						r_temp_buf.CatChar(P_Buf[i++]);
 					if(r_temp_buf.NotEmpty()) {
 						rResult.add(r_temp_buf);
-						ok = 2;
+						result++;
 					}
 					while(i < len && P_Buf[i] == delim)
 						i++;
@@ -1406,7 +1449,7 @@ int SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) const
 						r_temp_buf.CatChar(P_Buf[i++]);
 					if(r_temp_buf.NotEmpty()) {
 						rResult.add(r_temp_buf);
-						ok = 2;
+						result++;
 					}
 					while(i < len && smemchr(pDelimChrSet, P_Buf[i], delim_len)) // @v11.7.0 memchr-->smemchr
 						i++;
@@ -1414,9 +1457,7 @@ int SString::Tokenize(const char * pDelimChrSet, StringSet & rResult) const
 			}
 		}
 	}
-	else
-		ok = -1;
-	return ok;
+	return result;
 }
 
 int SString::Search(const SSrchPattern * pBlk, size_t startPos, size_t * pPos) const
