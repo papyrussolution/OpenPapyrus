@@ -1060,8 +1060,7 @@ static void dot(HDC hdc, int xdash, int ydash)
 
 uint luma_from_color(uint red, uint green, uint blue)
 {
-	/* convert to gray */
-	return (uint)(red * 0.30 + green * 0.59 + blue * 0.11);
+	return (uint)(red * 0.30 + green * 0.59 + blue * 0.11); // convert to gray
 }
 
 #ifdef USE_WINGDI

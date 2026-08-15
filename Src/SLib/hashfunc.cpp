@@ -3898,7 +3898,6 @@ SBdtFunct::TransformBlock::TransformBlock(SBdtFunct::Stat * pStat) : Phase(phase
 SBdtFunct::SBdtFunct(int alg) : A(alg)
 {
 	Key.Init();
-	// @v10.6.4 @ctr Ste.Z();
 }
 
 SBdtFunct::~SBdtFunct()

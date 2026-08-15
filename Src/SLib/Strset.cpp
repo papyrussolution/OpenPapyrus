@@ -843,6 +843,23 @@ bool FASTCALL StringSet::IsCountGreaterThan(uint t) const
 	return result;
 }
 
+bool FASTCALL StringSet::IsCountEq(uint t) const // @v12.7.4
+{
+	bool   result = false;
+	uint   count = 0;
+	uint   p = 0;
+	while(get(&p, 0, 0)) {
+		count++;
+		if(count == t)
+			result = true;
+		else if(count > t) {
+			result = false;
+			break;
+		}
+	}
+	return result;
+}
+
 const char * StringSet::getBuf() const { return P_Buf; }
 size_t StringSet::getSize() const { return Size; }
 

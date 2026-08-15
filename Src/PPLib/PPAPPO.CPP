@@ -863,7 +863,7 @@ int PPApp::processCommand(uint cmd)
 			break;
 		case cmSetupPreferredBarcodeTags: PPObjGoods().SetupPreferredBarcodeTags(); break;
 		case cmQueryEGAIS: PPEgaisProcessor(PPEgaisProcessor::cfUseVerByConfig, 0, 0).InteractiveQuery(); break;
-		case cmQueryCHZN: PPChZnPrcssr(0).InteractiveQuery(); break;
+		case cmQueryCHZN: PPChZnPrcssr(0).InteractiveQuery(0); break;
 		case cmFiltPool: ViewFiltPool(); break; // @paul pentaho
 		case cmIndexPhones: PPObject::IndexPhones(); break;
 		case cmIndexTextObjects:

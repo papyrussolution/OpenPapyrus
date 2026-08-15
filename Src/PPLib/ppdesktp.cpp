@@ -3033,10 +3033,8 @@ int TFacadeWindow::MakeNavList(CentrigoNavBlock & rBlk)
 						for(uint ii = 0; ii < p_list->getCount(); ii++) {
 							StrAssocArray::Item item = p_list->at_WithoutParent(ii);
 							CentrigoNavBlock::Entry * p_entry = rBlk.SearchEntry(item.Id);
-							if(p_entry) {
-								if(p_entry->Oid.Obj == PPOBJ_WORKBOOK && p_entry->Oid.Id) {
-									p_lb_def->AddVecImageAssoc(item.Id, PPDV_DOCUMENT_TEXT01);
-								}
+							if(p_entry && p_entry->Oid.Obj == PPOBJ_WORKBOOK && p_entry->Oid.Id) {
+								p_lb_def->AddVecImageAssoc(item.Id, PPDV_DOCUMENT_TEXT01);
 							}
 						}
 					}
@@ -3425,11 +3423,13 @@ int TFacadeWindow::DrawNavTreeItem(void * pCustomDrawDescriptor)
 				RECT   rc_item;
 				RECT   rc_cli;
 				wchar_t _text[512];
+				MEMSZERO(item);
 				item.hItem = h_item;
 				item.mask = TVIF_TEXT|TVIF_PARAM|TVIF_STATE|TVIF_CHILDREN|TVIF_HANDLE|TVIF_IMAGE|TVIF_SELECTEDIMAGE;
 				item.stateMask = TVIS_EXPANDED|TVIS_EXPANDEDONCE;
 				item.pszText = _text;
 				item.cchTextMax = SIZEOFARRAY(_text);
+				item.iImage = -1;
 				if(TreeView_GetItem(p_cd->nmcd.hdr.hwndFrom, &item)) {
 					// code: Value specifying the portion of the item for which to retrieve the bounding rectangle. 
 					//   If this parameter is TRUE, the bounding rectangle includes only the text of the item. Otherwise, 
@@ -3579,7 +3579,23 @@ int TFacadeWindow::DrawNavTreeItem(void * pCustomDrawDescriptor)
 									// ICON here
 									FRect fr = p_lo_img->GetFrameAdjustedToParent();
 									fr.Move__(static_cast<float>(rc_item.left), static_cast<float>(rc_item.top));
-									ImageList_Draw(h_iml, image_idx, p_cd->nmcd.hdc, fr.a.x, fr.a.y, 0);
+									//ImageList_Draw(h_iml, image_idx, p_cd->nmcd.hdc, fr.a.x, fr.a.y, 0);
+									HICON  h_ico = ImageList_GetIcon(h_iml, image_idx, 0/*flags*/);
+									if(h_ico) {
+										SImageBuffer img_buf;
+										if(img_buf.LoadIco(h_ico)) {
+											LMatrix2D mtx;
+											SViewPort vp;
+											vp.Flags &= ~SViewPort::fEmpty;
+											vp.a.Z();
+											vp.b.x = img_buf.GetWidth();
+											vp.b.y = img_buf.GetHeight();
+											canv.PushTransform();
+											canv.AddTransform(vp.GetMatrix(fr, mtx));
+											canv.Draw(&img_buf);
+											canv.PopTransform();											
+										}
+									}
 								}
 							}
 							debug_mark = true; // @debug

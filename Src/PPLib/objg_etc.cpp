@@ -329,11 +329,9 @@ int PPObjBarCodeStruc::Edit(PPID * pID, void * extraPtr)
 	}
 	dlg->setCtrlData(CTL_BCODESTR_NAME, rec.Name);
 	dlg->setCtrlData(CTL_BCODESTR_TEMPL, rec.Templ);
-	// @v10.7.6 {
 	dlg->AddClusterAssocDef(CTL_BCODESTR_SPC, 0, PPBarcodeStruc::spcNone);
 	dlg->AddClusterAssoc(CTL_BCODESTR_SPC, 1, PPBarcodeStruc::spcUhttSync);
 	dlg->SetClusterData(CTL_BCODESTR_SPC, rec.Speciality);
-	// } @v10.7.6 
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		dlg->getCtrlData(CTL_BCODESTR_NAME, rec.Name);
 		if(*strip(rec.Name) == 0)
@@ -341,7 +339,7 @@ int PPObjBarCodeStruc::Edit(PPID * pID, void * extraPtr)
 		else {
 			valid_data = 1;
 			dlg->getCtrlData(CTL_BCODESTR_TEMPL, rec.Templ);
-			dlg->GetClusterData(CTL_BCODESTR_SPC, &rec.Speciality); // @v10.7.6
+			dlg->GetClusterData(CTL_BCODESTR_SPC, &rec.Speciality);
 			if(*pID)
 				*pID = rec.ID;
 			THROW(StoreItem(PPOBJ_BCODESTRUC, *pID, &rec, 1));

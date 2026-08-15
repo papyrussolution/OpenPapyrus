@@ -2432,10 +2432,10 @@
 	#define CTL_ACCOUNT_OUTBAL          (12 + WINDOWS_ID_BIAS)
 	#define CTL_ACCOUNT_CODE            (13 + WINDOWS_ID_BIAS)
 	#define CTL_ACCOUNT_AUTONUMBER      (14 + WINDOWS_ID_BIAS)
-	#define CTL_ACCOUNT_ST_ACSMSG       (15 + WINDOWS_ID_BIAS) // Текст предупреждения о наличии связанных с
+	#define CTL_ACCOUNT_ST_ACSMSG       (15 + WINDOWS_ID_BIAS) // Текст предупреждения о наличии связанных с аналитической таблицей проводок
 	#define CTL_ACCOUNT_PARENT          (16 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ACCOUNT_PARENT       (17 + WINDOWS_ID_BIAS)
-		// аналитической таблицей проводок
+	#define CTL_ACCOUNT_ID              (18 + WINDOWS_ID_BIAS)
 #define DLG_OPRTYPE                60 // Тип операции
 	#define CTL_OPRTYPE_NAME             (1 + WINDOWS_ID_BIAS)
 	#define CTL_OPRTYPE_PICT             (2 + WINDOWS_ID_BIAS)

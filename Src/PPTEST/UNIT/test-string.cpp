@@ -933,6 +933,14 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				SLCHECK_EQ(dtm_converted.t, encodetime(21, 17, 02, 0));
 				strtotime("      21:17:02.047   ", TIMF_HMS, &dtm_converted.t);
 				SLCHECK_EQ(dtm_converted.t, encodetime(21, 17, 02, 4));
+				strtotime("      21:17:02.7   ", TIMF_HMS, &dtm_converted.t);
+				SLCHECK_EQ(dtm_converted.t, encodetime(21, 17, 02, 70));
+				strtotime("      21:17:02.78  ", TIMF_HMS, &dtm_converted.t);
+				SLCHECK_EQ(dtm_converted.t, encodetime(21, 17, 02, 78));
+				strtotime("      21:17:02.7129   ", TIMF_HMS, &dtm_converted.t);
+				SLCHECK_EQ(dtm_converted.t, encodetime(21, 17, 02, 71));
+				strtotime("      21:17:02.71299292992111   ", TIMF_HMS, &dtm_converted.t);
+				SLCHECK_EQ(dtm_converted.t, encodetime(21, 17, 02, 71));
 				strtotime(" 21 17 02 ", TIMF_HMS, &dtm_converted.t);
 				SLCHECK_EQ(dtm_converted.t, encodetime(21, 17, 02, 0));
 				strtotime(" 2117 ", TIMF_HM|TIMF_NODIV, &dtm_converted.t);
@@ -1416,6 +1424,54 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 							tr.Run(line_buf.ucptr(), line_buf.LenI(), nta.Z(), 0);
 							const float p = nta.Has(SNTOK_RU_INN);
 							SLCHECK_LE(0.1f, p);
+						}
+					}
+				}
+				{ // @v12.7.4
+					SFile f_in(MakeInputFilePath("license-plate-ru.txt"), SFile::mRead);
+					if(f_in.IsValid()) {
+						{ // utf-8
+							f_in.Seek64(0ULL);
+							while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+								tr.Run(line_buf.ucptr(), line_buf.LenI(), nta.Z(), 0);
+								const float p = nta.Has(SNTOK_RU_LICPLATE);
+								SLCHECK_LE(0.1f, p);
+							}
+						}
+						{ // cp1251
+							f_in.Seek64(0ULL);
+							while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+								line_buf.Transf(CTRANSF_UTF8_TO_OUTER);
+								tr.Run(line_buf.ucptr(), line_buf.LenI(), nta.Z(), 0);
+								const float p = nta.Has(SNTOK_RU_LICPLATE);
+								SLCHECK_LE(0.1f, p);
+							}
+						}
+						{ // cp866
+							f_in.Seek64(0ULL);
+							while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+								line_buf.Transf(CTRANSF_UTF8_TO_INNER);
+								tr.Run(line_buf.ucptr(), line_buf.LenI(), nta.Z(), 0);
+								const float p = nta.Has(SNTOK_RU_LICPLATE);
+								SLCHECK_LE(0.1f, p);
+							}
+						}
+					}
+					{
+						// invalid lic-plates
+						const char * p_inv_lic_plate_list[] = {
+							"В379ОЙ177",  // недопустимая буква
+							"Х675ОУ_250", // недопустимый (маловероятный) разделитель
+							"В783СА 7163", // лишняя цифра в конце
+							"В78СА 716", // не хватает одной цифры в середине
+							"675-ХОУ-250"  // все буквы в одной "упряжке"
+							"Х  675ОУ-250", // разделитель в два пробела
+						};
+						for(uint i = 0; i < SIZEOFARRAY(p_inv_lic_plate_list); i++) {
+							const char * p_text = p_inv_lic_plate_list[i];
+							tr.Run(PTR8C(p_text), sstrlen(p_text), nta.Z(), 0);
+							const float p = nta.Has(SNTOK_RU_LICPLATE);
+							SLCHECK_EQ(p, 0.0f);
 						}
 					}
 				}

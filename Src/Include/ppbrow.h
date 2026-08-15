@@ -2010,6 +2010,7 @@
 	#define PPVIEWITEM_TECHROUTE                             1462
 #define PPFILT_EXECSESSIONONTECHROUTE                1471
 #define PPFILT_OUTERPROCESSEXECUTION                 1481
+#define PPFILT_CHZNINTERACTIVEQUERY                  1491
 //
 // RECORD definitions
 //

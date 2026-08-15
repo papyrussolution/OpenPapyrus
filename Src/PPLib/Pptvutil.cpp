@@ -5836,15 +5836,17 @@ int EditObjMemos(PPID objTypeID, PPID prop, PPID objID)
 		ok = 1;
 	}
 	if(ok == -1 && memos.Len()) {
-		THROW(CheckDialogPtr(&(p_dlg = new EditMemosDialog)));
+		p_dlg = new EditMemosDialog;
+		THROW(CheckDialogPtr(&p_dlg));
 		p_dlg->setDTS(memos);
 		if(ExecView(p_dlg) == cmOK) {
 			p_dlg->getDTS(memos);
 			ok = 1;
 		}
 	}
-	if(ok > 0)
+	if(ok > 0) {
 		THROW(PutObjMemos(objTypeID, prop, objID, memos, 1));
+	}
 	CATCHZOK
 	delete p_dlg;
 	return ok;

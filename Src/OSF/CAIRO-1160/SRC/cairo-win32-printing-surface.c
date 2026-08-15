@@ -683,22 +683,14 @@ static cairo_status_t _cairo_win32_printing_surface_paint_image_pattern(cairo_wi
 		top = 0;
 		bottom = 1;
 	}
-
 	for(y_tile = top; y_tile < bottom; y_tile++) {
 		for(x_tile = left; x_tile < right; x_tile++) {
-			if(!StretchDIBits(surface->win32.dc,
-			    x_tile*opaque_image->width,
-			    y_tile*opaque_image->height,
-			    opaque_image->width,
-			    opaque_image->height,
-			    0,
-			    0,
+			if(!StretchDIBits(surface->win32.dc, x_tile*opaque_image->width, y_tile*opaque_image->height,
+			    opaque_image->width, opaque_image->height, 0, 0,
 			    use_mime ? mime_info.width : opaque_image->width,
 			    use_mime ? mime_info.height : opaque_image->height,
 			    use_mime ? mime_data : opaque_image->data,
-			    &bi,
-			    DIB_RGB_COLORS,
-			    SRCCOPY)) {
+			    &bi, DIB_RGB_COLORS, SRCCOPY)) {
 				status = _cairo_win32_print_gdi_error("_cairo_win32_printing_surface_paint(StretchDIBits)");
 				goto CLEANUP_OPAQUE_IMAGE;
 			}
@@ -706,21 +698,17 @@ static cairo_status_t _cairo_win32_printing_surface_paint_image_pattern(cairo_wi
 	}
 	SetStretchBltMode(surface->win32.dc, oldmode);
 	RestoreDC(surface->win32.dc, -1);
-
 CLEANUP_OPAQUE_IMAGE:
 	if(opaque_image != image)
 		cairo_surface_destroy(&opaque_image->base);
 CLEANUP_IMAGE:
 	_cairo_win32_printing_surface_release_image_pattern(surface, pattern, &image_pattern, image_extra);
-
 	return status;
 }
 
 static void vertex_set_color(TRIVERTEX * vert, cairo_color_stop_t * color)
 {
-	/* MSDN says that the range here is 0x0000 .. 0xff00;
-	 * that may well be a typo, but just chop the low bits
-	 * here. */
+	// MSDN says that the range here is 0x0000 .. 0xff00; that may well be a typo, but just chop the low bits here.
 	vert->Alpha = 0xff00;
 	vert->Red   = color->red_short & 0xff00;
 	vert->Green = color->green_short & 0xff00;

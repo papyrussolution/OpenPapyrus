@@ -6262,7 +6262,7 @@ browser PALM north(100), 1, 1, "КПК", OWNER|GRID, 0
 		EXPORTUHTT    : kbAltU,   TBBM_EXPORTUHTT,   "@{exporttouhtt}\tAlt-U"
 		CHANGEFILT    : kbCtrlV,  PPDV_FILTER01,     "@{filter}\tCtrl-V"
 		separator
-		TEST          : kbCtrlT,  PPDV_TEST01,       "Test\tCtrl-T" // @v11.2.6
+		TEST          : kbCtrlT,  PPDV_TEST01,       "Test\tCtrl-T"
 	}
 }
 
@@ -6935,7 +6935,7 @@ browser STYLOQBINDERY north(100), 1, 0, "@{view_styloqbindery}", OWNER|GRID, 0
 		separator
 		SYSJ             : kbCtrlJ,    PPDV_SYSJOURNAL,     "@{dobrowsesjbybill}\tCtrl-J"
 		CHANGEFILT       : kbCtrlV,    PPDV_FILTER01,       "@{filter}\tCtrl-V" // @v11.8.0
-		REFRESH          : kbAltV,     PPDV_REFRESH01,      "@{refresh}\tAlt-V" // @v11.3.12
+		REFRESH          : kbAltV,     PPDV_REFRESH01,      "@{refresh}\tAlt-V"
 	}
 }
 
@@ -7374,9 +7374,9 @@ cmd QueryCHZN             { "@{cmd_querychzn}"                             PPDV_
 cmd TssModel              { "@{cmd_tssmodel}"                              none                   none cmTssModel  }
 cmd Events                { "@{cmd_events}"                                none                   none cmEvents }
 cmd EventSubscription     { "@{cmd_eventsubscription}"                     none                   none cmEventSubscription }
-cmd AlcoDeclRu            { "@{cmd_alcodeclru}"                            PPDV_ALCODECL          none cmAlcoDeclRu view=AlcoDeclRu } // @v11.0.5
-cmd StyloQBindery         { "@{cmd_styloqbindery}"                         none                   none cmStyloQBindery  view=StyloQBindery } // @v11.1.7
-cmd StyloQCommands        { "@{cmd_styloqcommands}"                        none                   none cmStyloQCommands view=StyloQCommand } // @v11.1.9
+cmd AlcoDeclRu            { "@{cmd_alcodeclru}"                            PPDV_ALCODECL          none cmAlcoDeclRu view=AlcoDeclRu }
+cmd StyloQBindery         { "@{cmd_styloqbindery}"                         none                   none cmStyloQBindery  view=StyloQBindery }
+cmd StyloQCommands        { "@{cmd_styloqcommands}"                        none                   none cmStyloQCommands view=StyloQCommand }
 cmd ProcessUED            { "@{cmd_processued}"                            none                   none cmProcessUED } // @v11.6.6
 cmd ProcessBomEstimatedValues { "@{cmd_processbomestimatedvalues}"         none                   none cmProcessBomEstimatedValues } // @v11.8.0
 cmd ImportCChecks             { "@{cmd_importccheck}"                         none                   none cmImportCChecks } // @v11.8.5
@@ -7590,9 +7590,9 @@ view   StyloQBindery           { "@{view_styloqbindery}" }
 view   StyloQCommand           { "@{view_styloqcommands}" }
 filter StyloQAttendancePrereqParam { "@{filter_styloqattendanceprereqparam}" }
 filter StyloQIndexingParam     { "@{filter_styloqindexingparam}" }
-filter StyloQGoodsInfoParam    { "@{filter_styloqgoodsinfoparam}" } // @v11.4.5
-filter StyloQIncomingListParam { "@{filter_styloqincominglistparam}" } // @v11.4.7
-filter StyloQDocumentPrereqParam { "@{filter_styloqdocumentparam}" } // @v11.5.0
+filter StyloQGoodsInfoParam    { "@{filter_styloqgoodsinfoparam}" }
+filter StyloQIncomingListParam { "@{filter_styloqincominglistparam}" }
+filter StyloQDocumentPrereqParam { "@{filter_styloqdocumentparam}" }
 view   SwProgram { "@{view_swprogram}" } // @v11.9.11
 view   Computer  { "@{view_computer}" } // @v12.0.0
 filter MarketplaceInterchange    { "@{filter_marketplaceinterchange}" } // @v12.1.3
@@ -7609,6 +7609,7 @@ view   UniFindObj                   { "@{unifindobj}" } // @v12.4.10
 view   TechRoute                    { "@view_techroute" } // @v12.6.0
 filter ExecSessionOnTechRoute       { "" } // @v12.6.1
 filter OuterProcessExecution        { "@{filter_outerprocessexecution}" } // @v12.6.5
+filter ChZnInteractiveQuery         { "" } // @v12.7.4
 //
 // lastviewfilter ATTENTION: put new VIEWS and FILTERS before this line!
 //
@@ -9246,7 +9247,7 @@ reportstub Complete			{ dl600data=Complete,			"@{productcomposition}"}
 reportstub BillInfo			{ dl600data=BillInfo,			"@{billspecialinfo}"}
 reportstub PUGL				{ dl600data=PUGL,				"@{pugl}"}
 reportstub BarcodeLabelList { dl600data=BarcodeLabelList,   "Товарные этикетки со штрихкодами" }
-reportstub GeoTracking      { dl600data=GeoTracking,        "@{view_geotracking}" } // @v10.1.5
+reportstub GeoTracking      { dl600data=GeoTracking,        "@{view_geotracking}" }
 reportstub ClientActivity   { dl600data=ClientActivity,     "@{view_clientactivity}" } // @v12.2.10
 //
 // -------------- Описание меню, привязываемых к управляющим элементам диалогов
@@ -9684,17 +9685,3 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_FOLDER_ADD01        // @v12.6.11
 	PPDV_DOCUMENT_TEXT01     // @v12.7.2
 }
-
-//
-// Следующие изображения используются без замещения цвета
-//
-//drawvector "..\rsrc\svg" {
-	//PPDV_LOGOPAPYRUS noreplacecolor
-	//PPDV_LOGOUDS noreplacecolor
-	//PPDV_LOGOVK noreplacecolor
-	//PPDV_LOGOVETIS noreplacecolor
-	//PPDV_LOGOCHZN noreplacecolor
-	//PPDV_LOGOGOOGLEMAPS01 noreplacecolor
-	//PPDV_LOGOWILDBERRIES noreplacecolor // @v12.2.3
-	//PPDV_LOGOAPTEKARU noreplacecolor // @v12.2.3
-//}

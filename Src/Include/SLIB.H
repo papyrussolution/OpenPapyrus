@@ -5221,6 +5221,7 @@ public:
 	bool   isZeroDelim() const;
 	uint   getCount() const;
 	bool   FASTCALL IsCountGreaterThan(uint t) const;
+	bool   FASTCALL IsCountEq(uint t) const; // @v12.7.4
 	//
 	// Descr: Добавляет в конец набора новую строку, на которую указывает pStr длиной len.
 	//   Если z-длина строки pStr меньше чем len, то добавляется sstrlen(pStr) символов.  
@@ -12855,6 +12856,7 @@ int STDCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags);
 #define SNTOK_CHZN_PALLET_MOTOROIL      62 // @v12.5.12 Код транспортной упаковки чзн моторное масло
 #define SNTOK_CHZN_BULK                 63 // @v12.5.12 Код чзн весового товара с префиксом 02-
 #define SNTOK_CHZN_GENERAL              64 // @v12.6.5  Код можно трактовать как маркировку честного знака (в любом из вариантов). Часто совмещен с одним из иных варантов SNTOK_CHZN_XXX
+#define SNTOK_RU_LICPLATE               65 // @v12.7.4  Автомобильный номер (российский) @construction 
 
 #define SNTOKSEQ_DEC                0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR             0x00000002 // a-z
@@ -12938,8 +12940,9 @@ protected:
 	struct ImplementBlock {
 		enum {
 			// @v12.3.0 fUtf8     = 0x0001, // Весь токен состоит из валидных UTF8-символов
-			fPhoneSet = 0x0002, // Токен по набору символов может быть истолкован как номер телефона (но требуются дополнительные проверки)
-			fClRut    = 0x0004  // @v11.6.0 Токен по набору символов может быть истолкован как чилийский налоговый идентификатор RUT (требуются дополнительные проверки)
+			fPhoneSet      = 0x0002, // Токен по набору символов может быть истолкован как номер телефона (но требуются дополнительные проверки)
+			fClRut         = 0x0004, // @v11.6.0 Токен по набору символов может быть истолкован как чилийский налоговый идентификатор RUT (требуются дополнительные проверки)
+			fRuLicPlateSet = 0x0008, // @v12.7.4 Токен по набору символов может быть истолкован как российский автомобильный номер
 		};
 		ImplementBlock();
 		ImplementBlock & Z();
@@ -12949,6 +12952,7 @@ protected:
 		uint   DecCount; // Количество десятичных цифр
 		SNaturalTokenStat Stat;
 		SString Temp;
+		SStringU TempU; // @v12.7.4
 		// @v11.9.7 (moved to SNaturalTokenStat) LAssocArray ChrList;
 	};
 	int    Implement(ImplementBlock & rIb, const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat);
@@ -19146,10 +19150,10 @@ struct SViewPort : public FRect {
 		parMax
 	};
 	enum {
-		fEmpty = 0x0001, // ViewPort не определен
-		fSlice = 0x0002, // else Meet
-		fDontScale     = 0x0004, // Не масштабировать объект
-		fDontEnlarge   = 0x0008, // Не увеличивать объект (можно только уменьшать)
+		fEmpty       = 0x0001, // ViewPort не определен
+		fSlice       = 0x0002, // else Meet
+		fDontScale   = 0x0004, // Не масштабировать объект
+		fDontEnlarge = 0x0008, // Не увеличивать объект (можно только уменьшать)
 	};
 
 	explicit SViewPort(uint flags = 0);

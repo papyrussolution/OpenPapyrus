@@ -4725,8 +4725,19 @@ PPChZnPrcssr::Param::Param() : GuaID(0), LocID(0), Flags(0)
 	Period.Z();
 }
 
-PPChZnPrcssr::QueryParam::QueryParam() : DocType(0), Flags(0), GuaID(0), LocID(0)
+IMPLEMENT_PPFILT_FACTORY(ChZnInteractiveQuery); ChZnInteractiveQueryFilt::ChZnInteractiveQueryFilt() : PPBaseFilt(PPFILT_CHZNINTERACTIVEQUERY, 0, 0)
 {
+	SetFlatChunk(offsetof(ChZnInteractiveQueryFilt, ReserveStart), offsetof(ChZnInteractiveQueryFilt, 
+		Reserve) + sizeof(Reserve) - offsetof(ChZnInteractiveQueryFilt, ReserveStart));
+	SetBranchSString(offsetof(ChZnInteractiveQueryFilt, ParamString));
+	SetBranchSString(offsetof(ChZnInteractiveQueryFilt, InfoText));
+	Init(1, 0);
+}
+
+ChZnInteractiveQueryFilt & FASTCALL ChZnInteractiveQueryFilt::operator = (const ChZnInteractiveQueryFilt & rS)
+{
+	Copy(&rS, 1);
+	return *this;
 }
 
 PPChZnPrcssr::PPChZnPrcssr(PPLogger * pOuterLogger) : PPEmbeddedLogger(0, pOuterLogger, PPFILNAM_CHZN_LOG, LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER), 
@@ -4767,10 +4778,10 @@ int PPChZnPrcssr::EditParam(Param * pParam)
 	DIALOG_PROC_BODY(ChZnPrcssrParamDialog, pParam);
 }
 
-int PPChZnPrcssr::EditQueryParam(PPChZnPrcssr::QueryParam * pData)
+int PPChZnPrcssr::EditQueryParam(ChZnInteractiveQueryFilt * pData)
 {
 	class EditChZnQueryParamDialog : public TDialog {
-		DECL_DIALOG_DATA(PPChZnPrcssr::QueryParam);
+		DECL_DIALOG_DATA(ChZnInteractiveQueryFilt);
 	public:
 		EditChZnQueryParamDialog() : TDialog(DLG_CHZNIX)
 		{
@@ -4780,16 +4791,16 @@ int PPChZnPrcssr::EditQueryParam(PPChZnPrcssr::QueryParam * pData)
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
 			SetupPPObjCombo(this, CTLSEL_CHZNIX_GUA, PPOBJ_GLOBALUSERACC, Data.GuaID, OLW_CANINSERT, 0);
-			AddClusterAssocDef(CTL_CHZNIX_WHAT, 0, PPChZnPrcssr::QueryParam::_afQueryTicket);
-			AddClusterAssoc(CTL_CHZNIX_WHAT, 1, PPChZnPrcssr::QueryParam::_afQueryKizInfo);
-			AddClusterAssoc(CTL_CHZNIX_WHAT, 2, PPChZnPrcssr::QueryParam::_afQueryDocListIn); // @v11.8.2
-			AddClusterAssoc(CTL_CHZNIX_WHAT, 3, PPChZnPrcssr::QueryParam::_afQueryAggrMarkList); // @v12.6.7
-			AddClusterAssoc(CTL_CHZNIX_WHAT, 4, PPChZnPrcssr::QueryParam::_afQueryMarkInfo); // @v12.6.9
-			AddClusterAssoc(CTL_CHZNIX_WHAT, 5, PPChZnPrcssr::QueryParam::_afQueryMarkOps); // @v12.7.1
-			AddClusterAssoc(CTL_CHZNIX_WHAT, 6, PPChZnPrcssr::QueryParam::_afDebug_Auth); // @v12.6.7
+			AddClusterAssocDef(CTL_CHZNIX_WHAT, 0, ChZnInteractiveQueryFilt::_afQueryTicket);
+			AddClusterAssoc(CTL_CHZNIX_WHAT, 1, ChZnInteractiveQueryFilt::_afQueryKizInfo);
+			AddClusterAssoc(CTL_CHZNIX_WHAT, 2, ChZnInteractiveQueryFilt::_afQueryDocListIn); // @v11.8.2
+			AddClusterAssoc(CTL_CHZNIX_WHAT, 3, ChZnInteractiveQueryFilt::_afQueryAggrMarkList); // @v12.6.7
+			AddClusterAssoc(CTL_CHZNIX_WHAT, 4, ChZnInteractiveQueryFilt::_afQueryMarkInfo); // @v12.6.9
+			AddClusterAssoc(CTL_CHZNIX_WHAT, 5, ChZnInteractiveQueryFilt::_afQueryMarkOps); // @v12.7.1
+			AddClusterAssoc(CTL_CHZNIX_WHAT, 6, ChZnInteractiveQueryFilt::_afDebug_Auth); // @v12.6.7
 			SetClusterData(CTL_CHZNIX_WHAT, Data.DocType);
 			// @v12.7.3 {
-			AddClusterAssoc(CTL_CHZNIX_FLAGS, 0, PPChZnPrcssr::QueryParam::fOutputToFile);
+			AddClusterAssoc(CTL_CHZNIX_FLAGS, 0, ChZnInteractiveQueryFilt::fOutputToFile);
 			SetClusterData(CTL_CHZNIX_FLAGS, Data.Flags);
 			// } @v12.7.3 
 			setCtrlString(CTL_CHZNIX_PARAM, Data.ParamString);
@@ -4820,58 +4831,182 @@ int PPChZnPrcssr::EditQueryParam(PPChZnPrcssr::QueryParam * pData)
 	DIALOG_PROC_BODY(EditChZnQueryParamDialog, pData);
 }
 
-int PPChZnPrcssr::InteractiveQuery()
+uint PPChZnPrcssr::GetMarkSetFromQueryParam(const ChZnInteractiveQueryFilt & rParam, StringSet & rSs) const
 {
-	int    ok = -1;
+	rSs.Z();
+	uint   code_count = 0;
+	GtinStruc gts;
+	SString temp_buf;
+	if(fileExists(rParam.ParamString)) {
+		SFile f_in(rParam.ParamString, SFile::mRead);
+		if(f_in.IsValid()) {
+			while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+				const  int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0));
+				if(ipczcr > 0) {
+					rSs.add(temp_buf);
+					code_count++;
+				}
+			}
+		}
+	}
+	else {
+		StringSet ss_local;
+		rParam.ParamString.Tokenize(" ", ss_local);
+		for(uint ssp = 0; ss_local.get(&ssp, temp_buf);) {
+			const  int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0));
+			if(ipczcr > 0) {
+				rSs.add(temp_buf);
+				code_count++;
+			}
+		}
+	}
+	return code_count;
+}
+
+int PPChZnPrcssr::OpenOutputFileForQuery(const ChZnInteractiveQueryFilt & rParam, const char * pFileNameSuffix, SFile & rF)
+{
+	int   ok = -1;
+	if(rParam.Flags & ChZnInteractiveQueryFilt::fOutputToFile) {
+		SString temp_buf;
+		SString dir;
+		SString file_path;
+		PPGetPath(PPPATH_OUT, dir);
+		temp_buf.Z().Cat("chzn").CatChar('_').Cat(isempty(pFileNameSuffix) ? "QueryOutput" : pFileNameSuffix);
+		MakeTempFileName(dir, temp_buf, "txt", file_path);
+		ok = rF.Open(file_path, SFile::mWrite);
+	}
+	return ok;
+}
+
+int PPChZnPrcssr::DoQuery(const ChZnInteractiveQueryFilt & rParam, SString & rResultText) // @<<PPChZnPrcssr::InteractiveQuery(ChZnInteractiveQueryFilt * pParam)
+{
+	rResultText.Z();
+	int    ok = 1;
 	SString temp_buf;
 	SString result_buf;
-	QueryParam _param;
-	_param.LocID = LConfig.Location;
-	while(EditQueryParam(&_param) > 0) {
-		if(oneof7(_param.DocType, QueryParam::_afQueryTicket, QueryParam::_afQueryKizInfo, QueryParam::_afQueryDocListIn, 
-			QueryParam::_afDebug_Auth, QueryParam::_afQueryAggrMarkList, QueryParam::_afQueryMarkInfo, QueryParam::_afQueryMarkOps)) {
-			ChZnInterface ifc;
-			ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(P_Ib);
-			p_ib->ProtocolId = ChZnInterface::InitBlock::protidMdlp;
-			THROW(ifc.SetupInitBlock(_param.GuaID, 0, *p_ib));
-			if(ifc.Connect(*p_ib) > 0) {
-				//SString doc_ident = "e8b6b8e2-6135-4153-804d-7a676cbfc0de";
-				//ifc.GetDocumentTicket(*p_ib, doc_ident, temp_buf);
-				//ifc.GetIncomeDocList_(*p_ib);
-				switch(_param.DocType) {
-					case QueryParam::_afQueryTicket:
-						ifc.GetDocumentTicket(*p_ib, _param.ParamString, temp_buf);
-						break;
-					case QueryParam::_afQueryKizInfo:
-						{
-							ChZnInterface::Packet pack(ChZnInterface::doctypMdlpQueryKizInfo);
-							ChZnInterface::Packet::QueryKizInfo * p_cq = static_cast<ChZnInterface::Packet::QueryKizInfo *>(pack.P_Data);
-							p_cq->Code = _param.ParamString;
-							p_cq->ArID = _param.ArID;
-							if(!ifc.TransmitDocument2(*p_ib, pack, result_buf))
-								LogLastError();
+	if(oneof7(rParam.DocType, ChZnInteractiveQueryFilt::_afQueryTicket, ChZnInteractiveQueryFilt::_afQueryKizInfo, ChZnInteractiveQueryFilt::_afQueryDocListIn, 
+		ChZnInteractiveQueryFilt::_afDebug_Auth, ChZnInteractiveQueryFilt::_afQueryAggrMarkList, 
+		ChZnInteractiveQueryFilt::_afQueryMarkInfo, ChZnInteractiveQueryFilt::_afQueryMarkOps)) {
+		ChZnInterface ifc;
+		ChZnInterface::InitBlock * p_ib = static_cast<ChZnInterface::InitBlock *>(P_Ib);
+		p_ib->ProtocolId = ChZnInterface::InitBlock::protidMdlp;
+		if(!ifc.SetupInitBlock(rParam.GuaID, 0, *p_ib)) {
+			PPGetLastErrorMessage(1, rResultText);
+			LogLastError();
+			ok = 0;
+		}
+		else if(ifc.Connect(*p_ib) > 0) {
+			//SString doc_ident = "e8b6b8e2-6135-4153-804d-7a676cbfc0de";
+			//ifc.GetDocumentTicket(*p_ib, doc_ident, temp_buf);
+			//ifc.GetIncomeDocList_(*p_ib);
+			switch(rParam.DocType) {
+				case ChZnInteractiveQueryFilt::_afQueryTicket:
+					ifc.GetDocumentTicket(*p_ib, rParam.ParamString, temp_buf);
+					break;
+				case ChZnInteractiveQueryFilt::_afQueryKizInfo:
+					{
+						ChZnInterface::Packet pack(ChZnInterface::doctypMdlpQueryKizInfo);
+						ChZnInterface::Packet::QueryKizInfo * p_cq = static_cast<ChZnInterface::Packet::QueryKizInfo *>(pack.P_Data);
+						p_cq->Code = rParam.ParamString;
+						p_cq->ArID = rParam.ArID;
+						if(!ifc.TransmitDocument2(*p_ib, pack, result_buf))
+							LogLastError();
+					}
+					break;
+				case ChZnInteractiveQueryFilt::_afQueryDocListIn: // @v11.8.2
+					{
+						ChZnInterface::DocumentFilt filt;
+						filt.Flags |= ChZnInterface::DocumentFilt::fIncoming;
+						TSCollection <ChZnInterface::Document> doc_list; 
+						if(!ifc.GetDocumentList(*p_ib, &filt, doc_list)) {
+							LogLastError();
 						}
-						break;
-					case QueryParam::_afQueryDocListIn: // @v11.8.2
-						{
-							ChZnInterface::DocumentFilt filt;
-							filt.Flags |= ChZnInterface::DocumentFilt::fIncoming;
-							TSCollection <ChZnInterface::Document> doc_list; 
-							if(!ifc.GetDocumentList(*p_ib, &filt, doc_list)) {
-								LogLastError();
+					}
+					break;
+				case ChZnInteractiveQueryFilt::_afQueryMarkOps: // @v12.7.1
+					if(rParam.ParamString.NotEmpty()) {
+						PPChZnPrcssr::CodeOpsCollection result;
+						PPChZnPrcssr::CodeOpsCollection info_from_db;
+						//
+						SETIFZQ(P_EcRefC, new ExtCodeRefCore());
+						//
+						/* @debug if(P_EcRefC) {
+							temp_buf = rParam.ParamString;
+							if(P_EcRefC->GetOps(temp_buf, info_from_db) > 0) {
+								temp_buf.Space().Cat("found in db");
+								Log(temp_buf);
+								result_buf.Z();
+								for(uint i = 0; i < info_from_db.getCount(); i++) {
+									if(info_from_db.EntryToStr(i, 0, temp_buf)) {
+										result_buf.Cat(temp_buf).CR();
+									}
+								}
+								Log(result_buf);
+							}
+						}*/
+						SString code_buf;
+						StringSet ss_code;
+						const  uint code_count = GetMarkSetFromQueryParam(rParam, ss_code); // @v12.7.4
+						const  bool show_wait_msg = (code_count > 3);
+						uint   query_result_count = 0;
+						SFile  f_out;
+						OpenOutputFileForQuery(rParam, "QueryMarkOps", f_out);
+						if(show_wait_msg) {
+							PPWait(1);
+						}
+						for(uint ssp = 0; ss_code.get(&ssp, code_buf);) {
+							if(show_wait_msg) {
+								PPWaitMsg(code_buf);
+							}
+							if(ifc.GetMarkOps(*p_ib, code_buf, result)) {
+								query_result_count++;
+								result_buf.Z();
+								if(result.getCount()) {
+									for(uint i = 0; i < result.getCount(); i++) {
+										if(result.EntryToStr(i, 0, temp_buf)) {
+											result_buf.Cat(temp_buf).CR();
+										}
+									}
+								}
+								else {
+									result_buf.Cat(code_buf).CatDiv(':', 2).Cat("no results");
+								}
+								if(f_out.IsValid()) {
+									if(query_result_count > 1)
+										f_out.WriteBlancLine();
+									f_out.WriteLine(result_buf);
+								}
+								if(query_result_count == 1) {
+									rResultText = result_buf;
+								}
+								else
+									rResultText = "Multiple results";
+								if(P_EcRefC) {
+									if(!P_EcRefC->PutOps(result, 1)) {
+										LogLastError();
+									}
+								}
 							}
 						}
-						break;
-					case QueryParam::_afQueryMarkOps: // @v12.7.1
-						if(_param.ParamString.NotEmpty()) {
-							PPChZnPrcssr::CodeOpsCollection result;
-							PPChZnPrcssr::CodeOpsCollection info_from_db;
-							//
-							SETIFZQ(P_EcRefC, new ExtCodeRefCore());
-							//
-							/* @debug if(P_EcRefC) {
-								temp_buf = _param.ParamString;
-								if(P_EcRefC->GetOps(temp_buf, info_from_db) > 0) {
+						if(show_wait_msg) {
+							PPWait(0);
+						}
+					}
+					break;
+				case ChZnInteractiveQueryFilt::_afQueryMarkInfo: // @v12.6.9
+					if(rParam.ParamString.NotEmpty()) {
+						const  uint max_items_per_query = 500;
+						StringSet ss_code;
+						PPChZnPrcssr::CodeInfoCollection result;
+						PPChZnPrcssr::CodeInfoCollection info_from_db;
+						//
+						SETIFZQ(P_EcRefC, new ExtCodeRefCore());
+						const  uint code_count = GetMarkSetFromQueryParam(rParam, ss_code); // @v12.7.3 
+						/* @debug
+						if(P_EcRefC) {
+							PPLotExtCodeContainer::MarkSet set_from_db;	
+							for(uint ssp = 0; ss_code.get(&ssp, temp_buf);) {
+								if(P_EcRefC->GetInfo(temp_buf, info_from_db) > 0) {
 									temp_buf.Space().Cat("found in db");
 									Log(temp_buf);
 									result_buf.Z();
@@ -4882,69 +5017,74 @@ int PPChZnPrcssr::InteractiveQuery()
 									}
 									Log(result_buf);
 								}
-							}*/
-							SString code_buf;
-							StringSet ss_code;
-							uint   code_count = 0;
-							if(fileExists(_param.ParamString)) {
-								SFile f_in(_param.ParamString, SFile::mRead);
-								if(f_in.IsValid()) {
-									while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-										GtinStruc gts;
-										const  int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0));
-										if(ipczcr > 0) {
-											ss_code.add(temp_buf);
-											code_count++;
-										}
-									}
-								}
+							}
+						}*/
+						{
+							TSCollection <StringSet> ss_list;
+							if(code_count <= max_items_per_query) {
+								StringSet * p_new_entry = ss_list.CreateNewItem();
+								if(p_new_entry)
+									*p_new_entry = ss_code;
 							}
 							else {
-								ss_code.add(_param.ParamString);
-								code_count++;
+								StringSet ss_local;
+								uint   local_count = 0;
+								for(uint ssp = 0; ss_code.get(&ssp, temp_buf);) {
+									ss_local.add(temp_buf);
+									local_count++;
+									if(local_count >= max_items_per_query) {
+										StringSet * p_new_entry = ss_list.CreateNewItem();
+										if(p_new_entry)
+											*p_new_entry = ss_local;
+										ss_local.Z();
+										local_count = 0;
+									}
+								}
+								if(local_count) {
+									StringSet * p_new_entry = ss_list.CreateNewItem();
+									if(p_new_entry)
+										*p_new_entry = ss_local;
+									ss_local.Z();
+									local_count = 0;
+								}
 							}
 							const  bool show_wait_msg = (code_count > 3);
 							uint   query_result_count = 0;
 							SFile f_out;
-							if(_param.Flags & QueryParam::fOutputToFile) {
-								SString dir;
-								PPGetPath(PPPATH_OUT, dir);
-								MakeTempFileName(dir, "chzn_QueryMarkOps", "txt", temp_buf);
-								f_out.Open(temp_buf, SFile::mWrite);
-							}
+							OpenOutputFileForQuery(rParam, "QueryMarkInfo", f_out);
 							if(show_wait_msg) {
 								PPWait(1);
 							}
-							for(uint ssp = 0; ss_code.get(&ssp, code_buf);) {
-								if(show_wait_msg) {
-									PPWaitMsg(code_buf);
-								}
-								if(ifc.GetMarkOps(*p_ib, code_buf, result)) {
-									query_result_count++;
-									result_buf.Z();
-									if(result.getCount()) {
-										for(uint i = 0; i < result.getCount(); i++) {
-											if(result.EntryToStr(i, 0, temp_buf)) {
-												result_buf.Cat(temp_buf).CR();
+							for(uint i = 0; i < ss_list.getCount(); i++) {
+								const StringSet * p_ss = ss_list.at(i);
+								if(p_ss) {
+									if(ifc.GetMarkInfo(*p_ib, *p_ss, result)) {
+										query_result_count++;
+										result_buf.Z();
+										if(result.getCount()) {
+											for(uint i = 0; i < result.getCount(); i++) {
+												if(result.EntryToStr(i, 0, temp_buf)) {
+													result_buf.Cat(temp_buf).CR();
+												}
 											}
 										}
-									}
-									else {
-										result_buf.Cat(code_buf).CatDiv(':', 2).Cat("no results");
-									}
-									if(f_out.IsValid()) {
-										if(query_result_count > 1)
-											f_out.WriteBlancLine();
-										f_out.WriteLine(result_buf);
-									}
-									if(query_result_count == 1) {
-										_param.InfoText = result_buf;
-									}
-									else
-										_param.InfoText = "Multiple results";
-									if(P_EcRefC) {
-										if(!P_EcRefC->PutOps(result, 1)) {
-											LogLastError();
+										else {
+											result_buf.Cat("No results");
+										}
+										if(f_out.IsValid()) {
+											if(query_result_count > 1)
+												f_out.WriteBlancLine();
+											f_out.WriteLine(result_buf);
+										}
+										if(query_result_count == 1) {
+											rResultText = result_buf;
+										}
+										else
+											rResultText = "Multiple results";
+										if(P_EcRefC) {
+											if(!P_EcRefC->PutInfo(result, 1)) {
+												LogLastError();
+											}
 										}
 									}
 								}
@@ -4953,207 +5093,99 @@ int PPChZnPrcssr::InteractiveQuery()
 								PPWait(0);
 							}
 						}
-						break;
-					case QueryParam::_afQueryMarkInfo: // @v12.6.9
-						if(_param.ParamString.NotEmpty()) {
-							const  uint max_items_per_query = 500;
-							StringSet ss_code;
-							PPChZnPrcssr::CodeInfoCollection result;
-							PPChZnPrcssr::CodeInfoCollection info_from_db;
-							//
-							SETIFZQ(P_EcRefC, new ExtCodeRefCore());
-							// @v12.7.3 {
-							uint   code_count = 0;
-							GtinStruc gts;
-							if(fileExists(_param.ParamString)) {
-								SFile f_in(_param.ParamString, SFile::mRead);
-								if(f_in.IsValid()) {
-									while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-										const  int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0));
-										if(ipczcr > 0) {
-											ss_code.add(temp_buf);
-											code_count++;
-										}
+					}
+					break;
+				case ChZnInteractiveQueryFilt::_afQueryAggrMarkList: // @v12.6.7 //qGetAggrCodeList
+					//rParam.InfoText
+					if(rParam.ParamString.NotEmpty()) {
+						StringSet ss_code;
+						PPLotExtCodeContainer::MarkSet result;
+						PPLotExtCodeContainer::MarkSet::Entry entry;
+						//
+						SETIFZQ(P_EcRefC, new ExtCodeRefCore());
+						const  uint code_count = GetMarkSetFromQueryParam(rParam, ss_code); // @v12.7.4
+						//
+						//ss_code.add(rParam.ParamString);
+						// @v12.7.4 rParam.ParamString.Tokenize(" ", ss_code);
+						/* @debug if(P_EcRefC) {
+							PPLotExtCodeContainer::MarkSet set_from_db;	
+							for(uint ssp = 0; ss_codeget(&ssp, temp_buf);) {
+								if(P_EcRefC->GetAggregation(temp_buf, true, set_from_db) > 0) {
+									temp_buf.Space().Cat("found in db");
+									Log(temp_buf);
+								}
+							}
+						}*/
+						// @construction OpenOutputFileForQuery(rParam, "QueryAggrMarkList", f_out);
+						if(ifc.GetAggrMarkList(*p_ib, ss_code, result)) {
+							temp_buf.Z();
+							if(result.GetCount()) {
+								for(uint i = 0; i < result.GetCount(); i++) {
+									if(result.GetByIdx(i, entry)) {
+										temp_buf.Cat(entry.Id).CatDiv('-', 1).Cat(entry.ParentId).CatDiv('-', 1).Cat(entry.Flags).CatDiv('-', 1).Cat(entry.Code).CR();
+									}
+								}
+								if(P_EcRefC) {
+									if(!P_EcRefC->PutAggregation2(result, 1)) {
+										LogLastError();
 									}
 								}
 							}
 							else {
-								StringSet ss_local;
-								_param.ParamString.Tokenize(" ", ss_local);
-								for(uint ssp = 0; ss_local.get(&ssp, temp_buf);) {
-									const  int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0));
-									if(ipczcr > 0) {
-										ss_code.add(temp_buf);
-										code_count++;
-									}
-								}
+								temp_buf = "none";
 							}
-							// } @v12.7.3 
-							/* @debug
-							if(P_EcRefC) {
-								PPLotExtCodeContainer::MarkSet set_from_db;	
-								for(uint ssp = 0; ss_code.get(&ssp, temp_buf);) {
-									if(P_EcRefC->GetInfo(temp_buf, info_from_db) > 0) {
-										temp_buf.Space().Cat("found in db");
-										Log(temp_buf);
-										result_buf.Z();
-										for(uint i = 0; i < info_from_db.getCount(); i++) {
-											if(info_from_db.EntryToStr(i, 0, temp_buf)) {
-												result_buf.Cat(temp_buf).CR();
-											}
-										}
-										Log(result_buf);
-									}
-								}
-							}*/
-							{
-								TSCollection <StringSet> ss_list;
-								if(code_count <= max_items_per_query) {
-									StringSet * p_new_entry = ss_list.CreateNewItem();
-									if(p_new_entry)
-										*p_new_entry = ss_code;
-								}
-								else {
-									StringSet ss_local;
-									uint   local_count = 0;
-									for(uint ssp = 0; ss_code.get(&ssp, temp_buf);) {
-										ss_local.add(temp_buf);
-										local_count++;
-										if(local_count >= max_items_per_query) {
-											StringSet * p_new_entry = ss_list.CreateNewItem();
-											if(p_new_entry)
-												*p_new_entry = ss_local;
-											ss_local.Z();
-											local_count = 0;
-										}
-									}
-									if(local_count) {
-										StringSet * p_new_entry = ss_list.CreateNewItem();
-										if(p_new_entry)
-											*p_new_entry = ss_local;
-										ss_local.Z();
-										local_count = 0;
-									}
-								}
-								const  bool show_wait_msg = (code_count > 3);
-								uint   query_result_count = 0;
-								SFile f_out;
-								if(_param.Flags & QueryParam::fOutputToFile) {
-									SString dir;
-									PPGetPath(PPPATH_OUT, dir);
-									MakeTempFileName(dir, "chzn_QueryMarkInfo", "txt", temp_buf);
-									f_out.Open(temp_buf, SFile::mWrite);
-								}
-								if(show_wait_msg) {
-									PPWait(1);
-								}
-								for(uint i = 0; i < ss_list.getCount(); i++) {
-									const StringSet * p_ss = ss_list.at(i);
-									if(p_ss) {
-										if(ifc.GetMarkInfo(*p_ib, *p_ss, result)) {
-											query_result_count++;
-											result_buf.Z();
-											if(result.getCount()) {
-												for(uint i = 0; i < result.getCount(); i++) {
-													if(result.EntryToStr(i, 0, temp_buf)) {
-														result_buf.Cat(temp_buf).CR();
-													}
-												}
-											}
-											else {
-												result_buf.Cat("No results");
-											}
-											if(f_out.IsValid()) {
-												if(query_result_count > 1)
-													f_out.WriteBlancLine();
-												f_out.WriteLine(result_buf);
-											}
-											if(query_result_count == 1) {
-												_param.InfoText = result_buf;
-											}
-											else
-												_param.InfoText = "Multiple results";
-											if(P_EcRefC) {
-												if(!P_EcRefC->PutInfo(result, 1)) {
-													LogLastError();
-												}
-											}
-										}
-									}
-								}
-								if(show_wait_msg) {
-									PPWait(0);
-								}
-							}
+							rResultText = temp_buf;
 						}
-						break;
-					case QueryParam::_afQueryAggrMarkList: // @v12.6.7 //qGetAggrCodeList
-						if(_param.ParamString.NotEmpty()) {
-							StringSet ss_box;
-							PPLotExtCodeContainer::MarkSet result;
-							PPLotExtCodeContainer::MarkSet::Entry entry;
-							//
-							SETIFZQ(P_EcRefC, new ExtCodeRefCore());
-							//
-							//ss_box.add(_param.ParamString);
-							_param.ParamString.Tokenize(" ", ss_box);
-							/* @debug if(P_EcRefC) {
-								PPLotExtCodeContainer::MarkSet set_from_db;	
-								for(uint ssp = 0; ss_box.get(&ssp, temp_buf);) {
-									if(P_EcRefC->GetAggregation(temp_buf, true, set_from_db) > 0) {
-										temp_buf.Space().Cat("found in db");
-										Log(temp_buf);
-									}
-								}
-							}*/
-							if(ifc.GetAggrMarkList(*p_ib, ss_box, result)) {
-								temp_buf.Z();
-								if(result.GetCount()) {
-									for(uint i = 0; i < result.GetCount(); i++) {
-										if(result.GetByIdx(i, entry)) {
-											temp_buf.Cat(entry.Id).CatDiv('-', 1).Cat(entry.ParentId).CatDiv('-', 1).Cat(entry.Flags).CatDiv('-', 1).Cat(entry.Code).CR();
-										}
-									}
-									if(P_EcRefC) {
-										if(!P_EcRefC->PutAggregation2(result, 1)) {
-											LogLastError();
-										}
-									}
-								}
-								else {
-									temp_buf = "none";
-								}
-								_param.InfoText = temp_buf;
-							}
-							else {
-								PPGetLastErrorMessage(1, _param.InfoText);
-								LogLastError();
-							}
+						else {
+							PPGetLastErrorMessage(1, rResultText);
+							LogLastError();
 						}
-						break;
-					case QueryParam::_afDebug_Auth: // @v12.6.7
-						{
-							// Если мы дошли до этой точки, то авторизация выполнена успешно!
-							PPLoadText(PPTXT_CHZN_LOG_DEBUGAUTH_SUCCESS, _param.InfoText);
-							/*
-							switch(p_ib->ProtocolId) {
-								case ChZnInterface::InitBlock::protidEdoLtElk:
-								case ChZnInterface::InitBlock::protidEdoLtInt:
-								case ChZnInterface::InitBlock::protidEdoLtMdlp:
-							}*/
-							Log(_param.InfoText);
-						}
-						break;
-				}
-			}
-			else {
-				PPGetLastErrorMessage(1, _param.InfoText);
-				LogLastError();
+					}
+					break;
+				case ChZnInteractiveQueryFilt::_afDebug_Auth: // @v12.6.7
+					{
+						// Если мы дошли до этой точки, то авторизация выполнена успешно!
+						PPLoadText(PPTXT_CHZN_LOG_DEBUGAUTH_SUCCESS, rResultText);
+						/*
+						switch(p_ib->ProtocolId) {
+							case ChZnInterface::InitBlock::protidEdoLtElk:
+							case ChZnInterface::InitBlock::protidEdoLtInt:
+							case ChZnInterface::InitBlock::protidEdoLtMdlp:
+						}*/
+						Log(rResultText);
+					}
+					break;
+				default:
+					ok = -1;
+					break;
 			}
 		}
-		ok = 1;
+		else {
+			PPGetLastErrorMessage(1, rResultText);
+			LogLastError();
+			ok = 0;
+		}
 	}
-	CATCHZOKPPERR
+	else
+		ok = -1;
+	return ok;
+}
+
+int PPChZnPrcssr::InteractiveQuery(ChZnInteractiveQueryFilt * pParam)
+{
+	int    ok = -1;
+	SString result_buf;
+	if(pParam) {
+		ok = DoQuery(*pParam, result_buf);
+	}
+	else {
+		ChZnInteractiveQueryFilt _param;
+		_param.LocID = LConfig.Location;
+		while(EditQueryParam(&_param) > 0) {
+			ok = DoQuery(_param, result_buf);
+			_param.InfoText = result_buf;
+		}
+	}
 	return ok;
 }
 
@@ -8058,7 +8090,7 @@ int PPChZnPrcssr::CodeInfoCollection::Serialize(int dir, SBuffer & rBuf, SSerial
 //   Извлекает марки из документов, отправляет запросы на сервер чзн и сохраняет результаты в базе данных.
 //   Потом этими результатами могут пользоваться разные инфраструктурные компоненты.
 //
-class PrcssrChZnMarkInfoCollector { // @v12.6.11 @construction
+class PrcssrChZnMarkInfoCollector { // @v12.6.11
 public:
 	struct Param {
 		Param();

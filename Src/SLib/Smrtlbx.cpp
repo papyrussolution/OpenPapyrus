@@ -732,6 +732,11 @@ int  SmartListBox::SetupTreeWnd2(void * pParent)
 									is.item.iSelectedImage = I_IMAGECALLBACK;
 									is.item.mask |= (TVIF_IMAGE|TVIF_SELECTEDIMAGE);
 								}
+								else { // @v12.7.4
+									is.item.iImage = I_IMAGENONE;
+									is.item.iSelectedImage = I_IMAGENONE;
+									is.item.mask |= (TVIF_IMAGE|TVIF_SELECTEDIMAGE);
+								}
 								const  bool has_children = p_tree->HasNodeChildren(current_h);
 								is.item.cChildren = BIN(has_children);
 								is.item.pszText = LPSTR_TEXTCALLBACK;
@@ -788,6 +793,11 @@ int  SmartListBox::SetupTreeWnd2(void * pParent)
 						if(p_def->GetImageIdxByID(p_item->Id, 0) > 0) {
 							is.item.iImage = I_IMAGECALLBACK;
 							is.item.iSelectedImage = I_IMAGECALLBACK;
+							is.item.mask |= (TVIF_IMAGE|TVIF_SELECTEDIMAGE);
+						}
+						else { // @v12.7.4
+							is.item.iImage = I_IMAGENONE;
+							is.item.iSelectedImage = I_IMAGENONE;
 							is.item.mask |= (TVIF_IMAGE|TVIF_SELECTEDIMAGE);
 						}
 						const  uint32 first_child_p = p_def->T.GetFirstChildP(t_iter.GetCurrentPos());
@@ -1879,6 +1889,10 @@ void SmartListBox::Implement_Draw()
 							getID(item_i, &id);
 						if(P_Def->GetImageIdxByID(id, &img_idx) > 0) {
 							lvi.iImage = img_idx;
+							lvi.mask |= LVIF_IMAGE;
+						}
+						else { // @v12.7.4
+							lvi.iImage = I_IMAGENONE;
 							lvi.mask |= LVIF_IMAGE;
 						}
 						for(uint k = 0, pos = 0; k < cc; k++) {

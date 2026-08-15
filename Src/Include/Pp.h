@@ -538,7 +538,7 @@ public:
 	static constexpr uint PwSize_POP3_2           = 32; // @attention изменение значения требует конвертации хранимого пароля
 	static constexpr uint PwSize_UHTT             = 20; // @attention изменение значения требует конвертации хранимого пароля
 	// } @v11.8.11 
-	static constexpr const char * PipeCrr32Proxi = "PapyrusCrr32Proxi"; // @v11.9.5 @construction Имя именованного канала, по которому осуществляется взаимодействие
+	static constexpr const char * PipeCrr32Proxi = "PapyrusCrr32Proxi"; // @v11.9.5 Имя именованного канала, по которому осуществляется взаимодействие
 		// с proxi-сервером, обеспечивающим интерфейс с 32-битным клиентом CristalReports.
 	static constexpr GUID TsPiotRegUUID = {0x41d489c3, 0x3ca2, 0x4d4e, { 0x99, 0xbd, 0x08, 0x61, 0x44, 0xd7, 0x42, 0x7f }}; // @v12.6.6 Регистрационный GUID Papyrus для работы с тс пиот (получен 20260601)
 };
@@ -7711,7 +7711,7 @@ public:
 	// Descr: Возвращает !0 если текущий поток получил требование остановиться.
 	//
 	bool   IsThreadStopped();
-	int    DispatchNgxRequest(void * pReq, const void * pCfg); // @cs // @construction
+	int    DispatchNgxRequest(void * pReq, const void * pCfg); // @cs
 
 	enum {
 		ldsLock      = 1,
@@ -7936,7 +7936,7 @@ public:
 	int    Unregister();
 	int    GetRegisteredSess(const S_GUID & rUuid, PPSession::RegSessData * pData);
 	const  SrSyntaxRuleSet * GetSrSyntaxRuleSet(); // @cs
-	const  SrUedContainer_Rt * GetUedContainer(); // @cs // @v11.8.4 @construction 
+	const  SrUedContainer_Rt * GetUedContainer(); // @cs // @v11.8.4
 	int    FASTCALL PushLogMsgToQueue(const PPLogMsgItem & rItem);
 	int    Log(const char * pFileName, const char * pStr, long options);
 	int    GetStringHistory(const char * pKey, const char * pSubUtf8, long flags, StringSet & rList);
@@ -8041,7 +8041,7 @@ private:
 		// Единственная точка прямого доступа к этому указателю - FetchAlbatrosConfig()
 	SrSyntaxRuleSet * P_SrStxSet;      // Глобально доступный скомпилированный набор синтаксических правил
 		// Единственная точка прямого доступа к этому указателю - PPSession::GetSrSyntaxRuleSet()
-	SrUedContainer_Rt * P_UedC; // @v11.8.4 @construction Глобально доступный экземпляр для работы с коллекцией объектов UED
+	SrUedContainer_Rt * P_UedC; // @v11.8.4 Глобально доступный экземпляр для работы с коллекцией объектов UED
 	Profile GPrf; // Глобальный профайлер для всей сессии. Кроме него в каждом потоке есть собственный профайлер PPThreadLocalArea::Prf
 	PPConfigDatabase * P_ExtCfgDb; // Экспериментальный вариант экземпляра дополнительной конфигурационной базы данных
 	TWhatmanToolArray DvToolList_; // @v11.9.2 (moved from the class TProgram) Векторные изображения, загружаемые из внешнего файла 
@@ -14491,7 +14491,7 @@ public:
 	//
 	int    GetRest(GoodsRestParam & rP);
 	int    GetCurRest(GoodsRestParam & rP);
-	int    EvaluateAverageRestByLot(PPID lotID, const DateRange & rPeriod, double * pAvgQtty); // @v12.1.11 @construction
+	int    EvaluateAverageRestByLot(PPID lotID, const DateRange & rPeriod, double * pAvgQtty); // @v12.1.11
 	int    FixUpPeriodForAverageRestEvaluating(const PPIDArray & rLocList, const PPIDArray & rGoodsList, DateRange & rPeriod); // @v12.1.12
 	int    EvaluateAverageRestByGoods(const PPIDArray & rLocList, const PPIDArray & rGoodsList, DateRange & rPeriod, RAssocArray & rList); // @v12.1.12
 	int    GetLcrList(LDATE dt, UintHashTable * pLotList, RAssocArray * pRestList);
@@ -16753,7 +16753,7 @@ protected:
 			// связан указатель в PPThreadLocalArea (PPThreadLocalArea::GetPtr)
 		bsServerInstDestr    = 0x0004, // Устанавливается деструктором PPView::~PPView если
 			// серверный экземпляр (если существовал) был нормально разрушен.
-		bsUserChangedData    = 0x0008  // @v11.4.3 Реализация класса PPView самостоятельно поддерживает и использует
+		bsUserChangedData    = 0x0008  // Реализация класса PPView самостоятельно поддерживает и использует
 			// этот флаг. Он означает, что пользователь внес изменения в данные и их, вероятно, надо обновить в хранилище.
 	};
 	long   BaseState;
@@ -16807,8 +16807,8 @@ struct RegisterFilt : public PPBaseFilt {
     virtual bool IsEmpty() const;
 
 	uint8  ReserveStart[20]; // @anchor
-	SObjID Oid;             //
-	PPID   ExclLocID;        //
+	SObjID Oid;
+	PPID   ExclLocID;
 	PPID   ExclPersonID;
 	PPID   RegTypeID;
 	DateRange RegPeriod;
@@ -16847,10 +16847,10 @@ struct PPCommandDescr {
 	long   MenuCm;
 	long   IconId;
 	long   ToolbarId;
-	long   ViewId;         //
-	long   FiltId;         //
-	long   FiltExtId;      //
-	long   Reserve;        // @reserve
+	long   ViewId;
+	long   FiltId;
+	long   FiltExtId;
+	long   Reserve;
 	SString Symb;
 	SString Text;
 };
@@ -22572,7 +22572,6 @@ struct PPAccount { // @persistent @flat
 	} A;
 	PPID   AccSheetID;
 };
-// } @construction
 
 struct PPAccountPacket {
 	PPAccountPacket();
@@ -57762,6 +57761,36 @@ protected:
 	const  SymbHashTable * P_ShT_C; // Токены перечислены в строковом ресурсе PPSTR_HASHTOKEN_C (русскоязычные токены)
 };
 //
+// Descr: Фильтр интерактивного запроса к чзн
+//
+struct ChZnInteractiveQueryFilt : public PPBaseFilt {
+	ChZnInteractiveQueryFilt();
+	ChZnInteractiveQueryFilt & FASTCALL operator = (const ChZnInteractiveQueryFilt & rS);
+
+	enum {
+		_afQueryTicket       = 0x0001,
+		_afQueryKizInfo      = 0x0002,
+		_afSendCc            = 0x0004, // Отправка кассовых чеков
+		_afQueryDocListIn    = 0x0008, // @v11.8.2 Запрос списка входящих документов
+		_afDebug_Auth        = 0x0010, // @v12.6.7 Отладочная авторизация //
+		_afQueryAggrMarkList = 0x0020, // @v12.6.7 TrueAPI получение списка агрегированных марок //
+		_afQueryMarkInfo     = 0x0040, // @v12.6.9 TrueAPI получение информации о марках // 
+		_afQueryMarkOps      = 0x0080, // @v12.7.1 TrueAPI получение информации о движении марки // 
+	};
+	enum {
+		fOutputToFile = 0x0001 // @v12.7.3 Выводить результаты запроса в текстовый файл (в приемлемом для визуального анализа виде)
+	};
+	uint8  ReserveStart[32];
+	long   DocType;
+	long   Flags;
+	PPID   GuaID;
+	PPID   LocID;
+	PPID   ArID;  // Статья, сопоставленная с запросом (всегда, вероятно, поставщик)
+	uint8  Reserve[32];
+	SString ParamString;
+	SString InfoText; 
+};
+//
 // Descr: Класс, реализующий высокоуровневые механизмы обмена с "честным знаком"
 //
 class PPChZnPrcssr : private PPEmbeddedLogger {
@@ -57778,30 +57807,6 @@ public:
 		PPID   LocID;
 		long   Flags; // @v12.2.0
 		DateRange Period;
-	};
-	struct QueryParam {
-		QueryParam();
-
-		enum {
-			_afQueryTicket       = 0x0001,
-			_afQueryKizInfo      = 0x0002,
-			_afSendCc            = 0x0004, // Отправка кассовых чеков
-			_afQueryDocListIn    = 0x0008, // @v11.8.2 Запрос списка входящих документов
-			_afDebug_Auth        = 0x0010, // @v12.6.7 Отладочная авторизация //
-			_afQueryAggrMarkList = 0x0020, // @v12.6.7 TrueAPI получение списка агрегированных марок //
-			_afQueryMarkInfo     = 0x0040, // @v12.6.9 TrueAPI получение информации о марках // 
-			_afQueryMarkOps      = 0x0080, // @v12.7.1 TrueAPI получение информации о движении марки // 
-		};
-		enum {
-			fOutputToFile = 0x0001 // @v12.7.3 Выводить результаты запроса в текстовый файл (в приемлемом для визуального анализа виде)
-		};
-		long   DocType;
-		long   Flags;
-		PPID   GuaID;
-		PPID   LocID;
-		PPID   ArID;  // Статья, сопоставленная с запросом (всегда, вероятно, поставщик)
-		SString ParamString;
-		SString InfoText; // @transient
 	};
 	// @v12.6.9 @unused static int FASTCALL IsChZnCode(const char * pCode);
 	static SString & FASTCALL RemoveSpcCharsFromCode(SString & rCode);
@@ -57890,8 +57895,8 @@ public:
 	explicit PPChZnPrcssr(PPLogger * pOuterLogger);
 	~PPChZnPrcssr();
 	int    EditParam(Param * pParam);
-	int    EditQueryParam(PPChZnPrcssr::QueryParam * pData);
-	int    InteractiveQuery();
+	int    EditQueryParam(ChZnInteractiveQueryFilt * pData);
+	int    InteractiveQuery(ChZnInteractiveQueryFilt * pParam);
 	int    Run(const Param & rP);
 	int    TransmitCcList(const Param & rP, const TSCollection <CCheckPacket> & rList);
 	static int Test();
@@ -58239,6 +58244,9 @@ public:
 	static int PmCheck_VerifyResult(CodeStatusCollection & rList); // @v12.6.7
 private:
 	int    PrepareBillPacketForSending(PPID billID, void * pChZnPacket);
+	uint   GetMarkSetFromQueryParam(const ChZnInteractiveQueryFilt & rParam, StringSet & rSs) const;
+	int    OpenOutputFileForQuery(const ChZnInteractiveQueryFilt & rParam, const char * pFileNameSuffix, SFile & rF);
+	int    DoQuery(const ChZnInteractiveQueryFilt & rParam, SString & rResultText); // @<<PPChZnPrcssr::InteractiveQuery(ChZnInteractiveQueryFilt * pParam)
 	void * P_Ib; // Блок инициализации
 	ExtCodeRefCore * P_EcRefC; // @v12.6.8
 };
@@ -65265,7 +65273,7 @@ int    PPEditTextFile(const EditTextFileParam * pParam);
 //
 // Descr: Фильтр запуска внешнего приложения //
 //
-class OuterProcessExecutionFilt : public PPBaseFilt { // @v12.6.5 @construction
+class OuterProcessExecutionFilt : public PPBaseFilt { // @v12.6.5
 public:
 	OuterProcessExecutionFilt();
 	OuterProcessExecutionFilt(const OuterProcessExecutionFilt & rS);

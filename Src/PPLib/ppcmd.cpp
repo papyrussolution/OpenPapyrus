@@ -4997,7 +4997,7 @@ public:
 		ExecSessionOnTechRouteFilt param;
 		ExecSessionOnTechRouteFilt * p_filt = 0;
 		if(pParam && param.Read(*pParam, 0) > 0) {
-			p_filt = &param;
+			p_filt = &param; // @fixme Тут что-то не так: p_filt инициализируется но в PPObjTSession::ExecSessionOnTechRoute передается все равно указатель на param
 		}
 		if(PPObjTSession::ExecSessionOnTechRoute(&param) > 0) {
 			;
@@ -5250,7 +5250,7 @@ int PrcssrOuterProcessExecution::Run()
 	return ok;
 }
 
-class CMD_HDL_CLS(LAUNCHAPP) : public PPCommandHandler { // @v12.6.5 @construction
+class CMD_HDL_CLS(LAUNCHAPP) : public PPCommandHandler { // @v12.6.5
 public:
 	CMD_HDL_CLS(LAUNCHAPP)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
 	{
@@ -5303,3 +5303,50 @@ public:
 };
 
 IMPLEMENT_CMD_HDL_FACTORY(LAUNCHAPP);
+//
+// 
+//
+class CMD_HDL_CLS(QUERYCHZN) : public PPCommandHandler { // @v12.7.4
+public:
+	CMD_HDL_CLS(QUERYCHZN)(const PPCommandDescr * pDescr) : PPCommandHandler(pDescr)
+	{
+	}
+	virtual int EditParam(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = -1;
+		const  size_t preserve_offs = pParam ? pParam->GetRdOffs() : 0;
+		PPChZnPrcssr prcssr(0/*outerlogger*/);
+		ChZnInteractiveQueryFilt param;
+		if(pParam && pParam->GetAvailableSize() != 0) {
+			param.Read(*pParam, 0);
+		}
+		if(prcssr.EditQueryParam(&param) > 0) {
+			if(pParam) {
+				THROW(param.Write(pParam->Z(), 0));
+			}
+			ok = 1;
+		}
+		else if(pParam) {
+			pParam->SetRdOffs(preserve_offs);
+		}
+		CATCH
+			CALLPTRMEMB(pParam, SetRdOffs(preserve_offs));
+			ok = 0;
+		ENDCATCH
+		return ok;
+	}
+	virtual int Run(SBuffer * pParam, long, void * extraPtr)
+	{
+		int    ok = 1;
+		PPChZnPrcssr prcssr(0/*outerlogger*/);
+		ChZnInteractiveQueryFilt param;
+		ChZnInteractiveQueryFilt * p_filt = 0;
+		if(pParam && param.Read(*pParam, 0) > 0) {
+			p_filt = &param;
+		}
+		prcssr.InteractiveQuery(p_filt);
+		return ok;
+	}
+};
+
+IMPLEMENT_CMD_HDL_FACTORY(QUERYCHZN);

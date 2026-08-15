@@ -1046,8 +1046,9 @@ int PPObjAccount::Edit(PPID * pID, void * extraPtr /*accType*/)
 					case 5: acc_pack.Rec.Type = acc_type = ACY_BUDGET;   break;
 				}
 		}
-		else
+		else {
 			acc_pack.Rec.Type = acc_type = extra_acc_type;
+		}
 		if(oneof2(acc_pack.Rec.Type, ACY_REGISTER, ACY_BUDGET)) {
 			acc_pack.Rec.Flags |= ACF_SYSNUMBER;
 			THROW(GenerateNumber(&acc_pack.Rec));
@@ -1062,7 +1063,8 @@ int PPObjAccount::Edit(PPID * pID, void * extraPtr /*accType*/)
 			case ACY_BUDGET: dlg_id = DLG_ACCBUDGET; break;
 			default: dlg_id = DLG_ACCREGISTER; break;
 		}
-		THROW(CheckDialogPtr(&(p_bal_dlg = new AccountDialog(dlg_id))));
+		p_bal_dlg = new AccountDialog(dlg_id);
+		THROW(CheckDialogPtr(&p_bal_dlg));
 		THROW(EditPrereq(pID, p_bal_dlg, 0));
 		PPGetSubStr(PPTXT_ACCTITLES, acc_type, dlg_title);
 		p_bal_dlg->setTitle(dlg_title);

@@ -560,7 +560,7 @@ int DocNalogRu_Reader::ReadSingleXmlFile(const char * pFileName, FileInfo & rHea
 												if(oneof4(bc_std, BARCSTD_EAN13, BARCSTD_EAN8, BARCSTD_UPCA, BARCSTD_UPCE) && (dbcr > 0 || (dbcr < 0 && bc_diag == PPObjGoods::cddFreePrefixEan13))) {
 													p_item->GTIN = temp_buf;
 												}
-												else if(temp_buf.Len() >= 5) {
+												else if(temp_buf.Len() >= 4) { // @v12.7.4 5-->4
 													p_item->NonEAN_Code = temp_buf;
 												}
 											}
@@ -5626,8 +5626,10 @@ int PPBillImporter::Run()
 											ar_code = p_item->NonEAN_Code;
 										}
 										if(!goods_id) {
-											if(GObj.SearchByBarcode(p_item->NonEAN_Code, &bc_rec, &goods_rec, 0/* disable adopt mode*/) > 0) {
-												goods_id = goods_rec.ID;
+											if(p_item->NonEAN_Code.Len() >= 8) { // @v12.7.4 @condition
+												if(GObj.SearchByBarcode(p_item->NonEAN_Code, &bc_rec, &goods_rec, 0/* disable adopt mode*/) > 0) {
+													goods_id = goods_rec.ID;
+												}
 											}
 										}
 									}
@@ -9127,7 +9129,7 @@ int DocNalogRu_Generator::WriteOrgInfo(/*const char * pScopeXmlTag,*/int parentN
 				if(p_loc_pack)
 					WriteAddress(*p_loc_pack, region_code, PPHSC_RU_ADDRESS);
 			}
-			{
+			if(Di.KND != "1115133") { // @v12.7.4 @condition (для корректировки не надо, ибо нарушает тамошнюю структуру)
 				// @v12.7.3 Контакт
 				StringSet ss_phones;
 				const  int gpr = GetPhones(&psn_pack, p_loc_pack, LOGIC(flags & woifForcePhone), ss_phones);
@@ -10167,6 +10169,12 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 							n2.PutAttribSkipEmpty(G.GetToken_Ansi(PPHSC_RU_DRVLIC_SERIAL), G.EncText(temp_buf = reg_rec.Serial));
 							if(checkdate(reg_rec.Dt)) {
 								n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_DRVLIC_DATE), temp_buf.Z().Cat(reg_rec.Dt, DATF_GERMANCENT));
+							}
+						}
+						if(psn_pack.Regs.GetRegister(PPREGT_TPID, R_Bp.Rec.Dt, &reg_pos, &reg_rec) > 0) { // @v12.7.4
+							(temp_buf = reg_rec.Num).Strip();
+							if(temp_buf.Len() == 12 && temp_buf.IsDec()) {
+								n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_INNPHS), temp_buf);
 							}
 						}
 						G.WritePhones(&psn_pack, 0, true/*force*/);

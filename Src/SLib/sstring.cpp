@@ -2600,7 +2600,7 @@ SString & SString::Helper_MbToMb(uint srcCodepage, uint destCodepage)
 			const size_t len = r_temp_buf_u.Len();
 			Trim(0);
 			for(size_t offs = 0; offs < len;) {
-				size_t s = smin((len-offs), middle_buf_len/2); // @11.4.6 MIN-->smin
+				size_t s = smin((len-offs), middle_buf_len/2);
 				int ret = WideCharToMultiByte(destCodepage, 0, static_cast<const wchar_t *>(r_temp_buf_u)+offs, static_cast<int>(s), text, static_cast<int>(sizeof(text)), 0, 0);
 				if(ret > 0) {
 					offs += s;
@@ -2614,7 +2614,7 @@ SString & SString::Helper_MbToMb(uint srcCodepage, uint destCodepage)
 			SString temp_buf_big;
 			SString & r_temp_buf = (src_len > 256) ? temp_buf_big : SLS.AcquireRvlStr();
 			for(size_t offs = 0; offs < src_len;) {
-				size_t s = smin((src_len-offs), middle_buf_len/2); // @11.4.6 MIN-->smin
+				size_t s = smin((src_len-offs), middle_buf_len/2);
 				int    ret = MultiByteToWideChar(srcCodepage, 0, P_Buf+offs, static_cast<int>(s), wtext, SIZEOFARRAY(wtext));
 				if(ret > 0) {
 					offs += s;
@@ -5103,7 +5103,7 @@ const wchar_t * SStringU::SearchCharPos(size_t startPos, int c, size_t * pPos) c
 	size_t pos = 0;
 	const  wchar_t * p = 0;
 	if(L > (startPos+1)) {
-		p = static_cast<const wchar_t *>(wmemchr(P_Buf+startPos, static_cast<uchar>(c), Len()-startPos));
+		p = static_cast<const wchar_t *>(wmemchr(P_Buf+startPos, static_cast<wchar_t>(c), Len()-startPos)); // @v12.7.4 @fix static_cast<uchar>-->static_cast<wchar_t>
 		if(p)
 			pos = static_cast<size_t>(p - P_Buf);
 	}
@@ -8366,6 +8366,7 @@ static const SIntToSymbTabEntry SNTokSymb_List[] = {
 	{ SNTOK_BASE64_WP, "enc-base32-withpadding" }, // @v12.3.3
 	{ SNTOK_BASE64_URL_WP, "enc-base32url-withpadding" }, // @v12.3.3
 	{ SNTOK_SSCC, "sscc" }, // @v12.4.5
+	{ SNTOK_RU_LICPLATE, "ru-license-plate" }, // @v12.7.4
 };
 
 SNaturalToken::SNaturalToken() : ID(0), Prob(0.0f), Count(0)
@@ -8421,7 +8422,7 @@ int SNaturalTokenArray::Combine(const SNaturalTokenArray & rOther)
 	const  uint _c = rOther.getCount();
 	if(_c) {
 		for(uint i = 0; ok && i < _c; i++) {
-			const SNaturalToken & r_other_item = rOther.at(i);
+			const  SNaturalToken & r_other_item = rOther.at(i);
 			if(AddTok(r_other_item.ID, r_other_item.Prob, 0/*flags*/))
 				ok = 1;
 			else
@@ -8567,6 +8568,83 @@ void STokenRecognizer::ImplementBlock::Init(const uchar * pToken, int len)
 	Stat.Len = static_cast<uint32>((len >= 0) ? len : sstrlen(pToken));
 }
 
+static constexpr char * P_RuLicPlateUtf8Symbs = "АВЕКМНОРСТУХавекмнорстухABEKMHOPCTYXabekmhopctyx";
+
+template <class T> bool MayBeRuLicPlate(const LAssocArray & rChrList, const T & rSet)
+{
+	bool   result = true;
+	uint   dec_count = 0;
+	uint   lett_count = 0;
+	const  uint clc = rChrList.getCount();
+	for(uint ci = 0; result && ci < clc; ci++) {
+		const uint c = static_cast<uint>(rChrList.at(ci).Key);
+		const uint ccnt = static_cast<uint>(rChrList.at(ci).Val);
+		if(isdec(c)) {
+			dec_count += ccnt;
+			if(dec_count > 6)
+				result = false;
+		}
+		else if(oneof2(c, ' ', '-')) {
+			;
+		}
+		else if(rSet.HasChr(c)) {
+			lett_count += ccnt;
+			if(lett_count > 3)
+				result = false;
+		}
+		else
+			result = false;
+	}
+	if(result && (!oneof2(dec_count, 5, 6) || lett_count != 3)) {
+		result = false;
+	}
+	return result;
+}
+
+template <class T> bool IsRuLicPlate(const T & rText, const T & rSet)
+{
+	bool   result = false;
+	uint   ci = 0;
+	auto   c = rText.C(ci);
+	if(rSet.HasChr(c)) { // первый символ - буква
+		c = rText.C(++ci);
+		if(oneof2(c, ' ', '-')) { // возможен разделитель
+			c = rText.C(++ci);
+		}
+		if(isdec(c)) { // три цифры подряд
+			c = rText.C(++ci);
+			if(isdec(c)) {
+				c = rText.C(++ci);
+				if(isdec(c)) {
+					c = rText.C(++ci);
+					if(oneof2(c, ' ', '-')) { // возможен разделитель
+						c = rText.C(++ci);
+					}
+					if(rSet.HasChr(c)) { // две буквы подряд
+						c = rText.C(++ci);
+						if(rSet.HasChr(c)) {
+							c = rText.C(++ci);
+							if(oneof2(c, ' ', '-')) { // возможен разделитель
+								c = rText.C(++ci);
+							}
+							if(isdec(c)) { // две или три цифры подряд
+								c = rText.C(++ci);
+								if(isdec(c)) {
+									c = rText.C(++ci);
+									if(c == 0 || isdec(c)) {
+										result = true;	
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return result;
+}
+
 int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat)
 {
 	int    ok = 1;
@@ -8579,32 +8657,48 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 		uchar  num_potential_frac_delim = 0;
 		uchar  num_potential_tri_delim = 0;
 		bool   is_there_illegal_utf8 = false;
-		bool   is_there_multib_utf8 = false; // true если в тексте содержатся utf8 символы с длиной более однога байта
+		bool   is_there_multib_utf8 = false; // true если в тексте содержатся utf8 символы с длиной более одного байта
+		const  char the_first_chr = pToken[0];
 		h = 0xffffffffU & ~(SNTOKSEQ_LEADSHARP|SNTOKSEQ_LEADMINUS|SNTOKSEQ_LEADDOLLAR|SNTOKSEQ_BACKPCT);
-		const char the_first_chr = pToken[0];
-		if(toklen >= 5)
+		if(toklen >= 5) {
 			rIb.F |= ImplementBlock::fPhoneSet;
-		if(toklen >= 8)
-			rIb.F |= ImplementBlock::fClRut;
+			if(toklen >= 8) {
+				rIb.F |= ImplementBlock::fClRut;
+				if(toklen <= 16) { // @v12.7.4
+					rIb.F |= ImplementBlock::fRuLicPlateSet; 
+				}
+			}
+		}
 		for(i = 0; i < toklen; i++) {
-            const uchar c = pToken[i];
-			const uint16 utf8_extra = SUtfConst::TrailingBytesForUTF8[c];
-			const bool is_legal_utf8 = SUnicode::IsLegalUtf8Char(pToken+i, utf8_extra+1);
-			//const int   ul = IsUtf8(pToken+i, toklen-i);
-			if(/*ul > 1*/is_legal_utf8) {
-                /*rIb.F*/h |= /*ImplementBlock::fUtf8*/SNTOKSEQ_UTF8; // @v12.3.0 @fix ImplementBlock::fUtf8-->SNTOKSEQ_UTF8
-                i += (/*ul-1*/utf8_extra);
+			const  uint   preserve_idx = i;
+            const  uchar  c = pToken[i];
+			const  uint16 utf8_extra = SUtfConst::TrailingBytesForUTF8[c];
+			const  bool   is_legal_utf8 = ((utf8_extra < (toklen-i)) && SUnicode::IsLegalUtf8Char(pToken+i, utf8_extra+1)); // @v12.7.4 ((utf8_extra < (toklen-i)) &&)
+			if(is_legal_utf8) {
+                h |= SNTOKSEQ_UTF8;
+                i += utf8_extra;
 				if(utf8_extra > 0)
 					is_there_multib_utf8 = true;
 			}
 			else
 				is_there_illegal_utf8 = true;
-			if(!is_legal_utf8 || !utf8_extra) {
+			{
 				uint  pos = 0;
-				if(r_chr_list.Search(static_cast<long>(c), &pos))
-					r_chr_list.at(pos).Val++;
-				else
-					r_chr_list.Add(static_cast<long>(c), 1, 0);
+				if(is_legal_utf8 && utf8_extra) {
+					// @v12.7.4 {
+					const  long uc = static_cast<long>(SUnicode::Helper_Utf8ToUtf32(PTRCHRC_(pToken)+preserve_idx, utf8_extra+1));
+					if(r_chr_list.Search(uc, &pos))
+						r_chr_list.at(pos).Val++;
+					else
+						r_chr_list.Add(uc, 1, 0);
+					// } @v12.7.4 
+				}
+				else {
+					if(r_chr_list.Search(static_cast<long>(c), &pos))
+						r_chr_list.at(pos).Val++;
+					else
+						r_chr_list.Add(static_cast<long>(c), 1, 0);
+				}
 			}
 		}
 		if(is_there_illegal_utf8) {
@@ -8612,6 +8706,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 			is_there_multib_utf8 = false;
 		}
 		r_chr_list.Sort();
+		const  uint clc = r_chr_list.getCount();
 		// @v12.3.0 if(/*rIb.F*/h & /*ImplementBlock::fUtf8*/SNTOKSEQ_UTF8) { // @v12.3.0 @fix ImplementBlock::fUtf8-->SNTOKSEQ_UTF8
 		if(is_there_multib_utf8) { // @v12.3.0
 			h &= ~(SNTOKSEQ_DEC|SNTOKSEQ_HEX|SNTOKSEQ_LATLWR|SNTOKSEQ_LATUPR|SNTOKSEQ_LAT|SNTOKSEQ_DECLAT|
@@ -8638,7 +8733,6 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 			if((h & SNTOKSEQ_PLIDENT) && !(the_first_chr == '_' || isasciialpha(the_first_chr)))
 				h &= ~SNTOKSEQ_PLIDENT;
 			// } @v12.3.0 
-			const uint clc = r_chr_list.getCount();
 			for(; i < clc; i++) {
 				const uchar c = static_cast<uchar>(r_chr_list.at(i).Key);
 				const uint  ccnt = static_cast<uint>(r_chr_list.at(i).Val);
@@ -8971,6 +9065,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 				}
 			}
 			if(h & SNTOKSEQ_DEC) {
+				rIb.F &= ~ImplementBlock::fRuLicPlateSet; // @v12.7.4
 				// @v12.2.12 {
 				{
 					//SNTOKSEQ_LEADMINUS
@@ -9092,7 +9187,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 									rResultList.AddTok(SNTOK_RU_SNILS, 0.95f, 0/*flags*/);
 								}
 							}
-							break; // @v11.4.9 @fix (break)
+							break;
 						case 12:
 							cd = SCalcBarcodeCheckDigitL(reinterpret_cast<const char *>(pToken), toklen-1);
 							if(static_cast<uchar>(cd) == (last-'0')) {
@@ -9174,6 +9269,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 				}
 			}
 			if(h & (SNTOKSEQ_DECHYPHEN|SNTOKSEQ_DECSLASH|SNTOKSEQ_DECDOT)) {
+				rIb.F &= ~ImplementBlock::fRuLicPlateSet; // @v12.7.4
 				// 1-1-1 17-12-2016
 				if(toklen >= 5 && toklen <= 10) {
 					rIb.Temp.Z().CatN(reinterpret_cast<const char *>(pToken), toklen);
@@ -9186,8 +9282,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					else if(h & SNTOKSEQ_DECDOT)
 						p_div = ".";
 					rIb.Temp.Tokenize(p_div, ss);
-					const uint ss_count = ss.getCount();
-					if(ss_count == 3) {
+					if(ss.IsCountEq(3)) {
 						if(_ProbeDate(rIb.Temp.Z().CatN(reinterpret_cast<const char *>(pToken), toklen))) {
 							rResultList.AddTok(SNTOK_DATE, 0.8f, 0/*flags*/);
 						}
@@ -9195,6 +9290,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 				}
 			}
 			if(h & SNTOKSEQ_DECDOT) {
+				rIb.F &= ~ImplementBlock::fRuLicPlateSet; // @v12.7.4
 				// 1.1.1.1 255.255.255.255
 				rIb.Temp.Z().CatN(reinterpret_cast<const char *>(pToken), toklen);
 				StringSet ss('.', rIb.Temp);
@@ -9237,6 +9333,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 				}
 			}
 			if(h & SNTOKSEQ_NUMERIC) {
+				rIb.F &= ~ImplementBlock::fRuLicPlateSet; // @v12.7.4
 				if(num_potential_frac_delim && num_potential_frac_delim == num_potential_tri_delim) {
 					rResultList.AddTok(SNTOK_NUMERIC_COM, 0.6f, 0/*flags*/);
 					rResultList.AddTok(SNTOK_NUMERIC_DOT, 0.6f, 0/*flags*/);
@@ -9327,11 +9424,11 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						static_assert(sizeof(p_chrset_base64_url_wp) == 64+1+1);
 
 						struct TokRegExpTabEntry {
-							uint32   Token;
-							const char * P_ChrSet;
-							const char * P_RegExp;
-							long  &  R_RegExpHandler;
-							float    Prob;
+							uint32 Token;
+							const  char * P_ChrSet;
+							const  char * P_RegExp;
+							long & R_RegExpHandler;
+							float  Prob;
 						};
 
 						TokRegExpTabEntry tok_re_tab[] = {
@@ -9446,6 +9543,68 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 							else if(toklen == 25) {
 								rResultList.AddTok(SNTOK_CHZN_CIGBLOCK, 0.5f, 0/*flags*/);
 								rResultList.AddTok(SNTOK_CHZN_GENERAL, 0.5f, 0); // @v12.6.9
+							}
+						}
+					}
+				}
+			}
+		}
+		if(rIb.F & ImplementBlock::fRuLicPlateSet) { // @v12.7.4
+			// К142ХВ196
+			//rus  АВЕКМНОРСТУХ
+			//lat  ABEKMHOPCTYX
+			if(h & (SNTOKSEQ_UTF8|SNTOKSEQ_1251|SNTOKSEQ_866|SNTOKSEQ_ASCII)) {
+				bool   mu8 = false;
+				bool   m1251 = false;
+				bool   m866 = false;
+				bool   mascii = false;
+				if(h & SNTOKSEQ_UTF8) {
+					rIb.TempU.Z().CopyFromUtf8Strict(P_RuLicPlateUtf8Symbs, strlen(P_RuLicPlateUtf8Symbs));
+					if(MayBeRuLicPlate(r_chr_list, rIb.TempU)) {
+						SStringU & r_temp_buf_u = SLS.AcquireRvlStrU();
+						const  bool cfusr = r_temp_buf_u.CopyFromUtf8Strict(PTRCHRC_(pToken), toklen);
+						assert(cfusr); // Мы выше убедились, что исходный токен в кодировке utf8. Если здесь сбой, то надо перепроверять код выше.
+						if(IsRuLicPlate(r_temp_buf_u, rIb.TempU)) {
+							mu8 = true;
+							rResultList.AddTok(SNTOK_RU_LICPLATE, 0.8f, 0/*flags*/);
+						}
+					}
+				}
+				else {
+					if(h & SNTOKSEQ_1251) {
+						(rIb.Temp = P_RuLicPlateUtf8Symbs).Transf(CTRANSF_UTF8_TO_OUTER);
+						if(MayBeRuLicPlate(r_chr_list, rIb.Temp)) {
+							SString & r_temp_buf = SLS.AcquireRvlStr();
+							r_temp_buf.CatN(PTRCHRC_(pToken), toklen);
+							if(IsRuLicPlate(r_temp_buf, rIb.Temp)) {
+								m1251 = true;
+								rResultList.AddTok(SNTOK_RU_LICPLATE, 0.8f, 0/*flags*/);
+							}
+						}
+					}
+					if(!m1251) {
+						if(h & SNTOKSEQ_866) {
+							(rIb.Temp = P_RuLicPlateUtf8Symbs).Transf(CTRANSF_UTF8_TO_INNER);
+							if(MayBeRuLicPlate(r_chr_list, rIb.Temp)) {
+								SString & r_temp_buf = SLS.AcquireRvlStr();
+								r_temp_buf.CatN(PTRCHRC_(pToken), toklen);
+								if(IsRuLicPlate(r_temp_buf, rIb.Temp)) {
+									m866 = true;
+									rResultList.AddTok(SNTOK_RU_LICPLATE, 0.8f, 0/*flags*/);
+								}
+							}
+						}
+						if(!m866) {
+							if(h & SNTOKSEQ_ASCII) {
+								(rIb.Temp = P_RuLicPlateUtf8Symbs).Transf(CTRANSF_UTF8_TO_OUTER);
+								if(MayBeRuLicPlate(r_chr_list, rIb.Temp)) {
+									SString & r_temp_buf = SLS.AcquireRvlStr();
+									r_temp_buf.CatN(PTRCHRC_(pToken), toklen);
+									if(IsRuLicPlate(r_temp_buf, rIb.Temp)) {
+										mascii = true;
+										rResultList.AddTok(SNTOK_RU_LICPLATE, 0.7f, 0/*flags*/);
+									}
+								}
 							}
 						}
 					}

@@ -292,7 +292,7 @@ void ObjReceiveParam::Init()
 {
 	SenderDbDivList.Z();
 	Flags |= (fGetFromOutSrcr | fClearInpBefore);
-	SsOnlyFileNames.Z(); // @v10.6.8
+	SsOnlyFileNames.Z();
 }
 
 int ObjReceiveParam::CheckDbDivID(PPID id) const

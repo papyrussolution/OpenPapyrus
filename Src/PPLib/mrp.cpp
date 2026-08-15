@@ -1,5 +1,5 @@
 // MRP.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1313,7 +1313,6 @@ int PPObjMrpTab::Helper_ExpandReq(MrpTabPacket * pPack, const MrpTabLeaf * pLeaf
 					THROW(r = Helper_ExpandReq(pPack, pLeaf, reqi, 1, cflags, pRecurTrace)); // @recursion
 					THROW(pPack->AddLine__(pLeaf->TabID, goods_id, gs_item.GoodsID, ext_req, src_qtty, 0, (r == 2) ? 0 : MRPLF_TERMINAL));
 				}
-				// @v10.4.10 {
 				else {
 					SString msg_buf;
 					GetGoodsName(goods_id, msg_buf);
@@ -1323,7 +1322,6 @@ int PPObjMrpTab::Helper_ExpandReq(MrpTabPacket * pPack, const MrpTabLeaf * pLeaf
 					msg_buf.CatEq("goods_id", gs_item.GoodsID);
 					CALLEXCEPT_PP_S(PPERR_GSTRUCHASUNDEFGOODS, msg_buf);
 				}
-				// @v10.4.10 {
 			}
 			THROW(r2);
 			terminal = 0;

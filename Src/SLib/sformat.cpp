@@ -797,13 +797,13 @@ char * STDCALL datetimefmt(LDATETIME dtm, long dtfmt, long tmfmt, char * pBuf, s
 	return strnzcpy(pBuf, temp_buf, bufLen);
 }
 
-static int FASTCALL checkdeccount(const char * pBuf, uint decCount)
+static bool FASTCALL checkdeccount(const char * pBuf, uint decCount)
 {
 	for(uint i = 0; i < decCount; i++) {
 		if(!isdec(pBuf[i]))
-			return 0;
+			return false;
 	}
-	return 1;
+	return true;
 }
 
 bool STDCALL strtotime(const char * pBuf, long fmt, SUniTime_Internal & rResult) // @v12.6.9
@@ -883,7 +883,32 @@ bool STDCALL strtotime(const char * pBuf, long fmt, SUniTime_Internal & rResult)
 									p = 0;
 									if(isdec(pBuf[0])) {
 										do { p++; } while(isdec(pBuf[p]));
-										rResult.MSc = static_cast<int>(_texttodec32(pBuf, p));
+										// @v12.7.4 rResult.MSc = static_cast<int>(_texttodec32(pBuf, p));
+										// @v12.7.4 {
+										const  uint frac_len = smin(p, 4U);
+										const  uint sec_frac = _texttodec32(pBuf, frac_len);
+										// миллисекунды = (fraction + 10^(n-3)/2) / 10^(n-3)
+										switch(frac_len) {
+											case 1:
+												rResult.MSc = sec_frac * 100;
+												break;
+											case 2:
+												rResult.MSc = sec_frac * 10;
+												break;
+											case 3:
+												rResult.MSc = sec_frac;
+												break;
+											case 4:
+												{
+													const uint64 p10 = ui64pow10(frac_len-3);
+													rResult.MSc = static_cast<uint>((sec_frac + p10/2) / p10);
+												}
+												break;
+											default:
+												assert(0);
+												break;
+										}
+										// } @v12.7.4 
 									}
 								}
 							}

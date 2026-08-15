@@ -2032,7 +2032,6 @@ int xmlNop(void);
 		 * The schemas related types are kept internal
 		 */
 		typedef struct _xmlSchematron xmlSchematron;
-		// @v10.6.0 typedef xmlSchematron * xmlSchematronPtr;
 		/**
 		 * xmlSchematronValidityErrorFunc:
 		 * @ctx: the validation context
@@ -2206,10 +2205,6 @@ int xmlNop(void);
 		const xmlChSRange * shortRange; /* points to an array of ranges */
 		const xmlChLRange * longRange;
 	};
-
-	// @v10.6.0 typedef xmlChSRange * xmlChSRangePtr;
-	// @v10.6.0 typedef xmlChLRange * xmlChLRangePtr;
-	// @v10.6.0 typedef xmlChRangeGroup * xmlChRangeGroupPtr;
 	// 
 	// Descr: Range checking routine
 	// 
@@ -2484,10 +2479,8 @@ int xmlNop(void);
 		//}
 		//#endif
 	#endif
-	// @v10.6.0 #include <libxml/HTMLparser.h>
-	// @v10.6.0 #include <libxml/HTMLtree.h>
-	#include <libxml/HTMLparser.h> // @v11.0.0
-	#include <libxml/HTMLtree.h> // @v11.0.0
+	#include <libxml/HTMLparser.h>
+	#include <libxml/HTMLtree.h>
 	//#ifdef __cplusplus
 	//extern "C" {
 	//#endif
