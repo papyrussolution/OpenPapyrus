@@ -116,8 +116,8 @@ struct Config {
 
 struct CheckStruct {
 	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Qtty(0.0), PhQtty(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), UomId(0), UomFragm(0), 
-		TaxSys(0), Tax(0), PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0), ChZnProdType(0), ChZnPpResult(0), ChZnPpStatus(0), //@erik v10.4.12 add "Stt(0),"
-		Timestamp(ZERODATETIME) /*@v11.2.3*/, PrescrDate(ZERODATE)/*@v11.8.0*/, ChZnPm_ReqTimestamp(0ULL)/*@v12.1.1*/
+		TaxSys(0), Tax(0), PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0), ChZnProdType(0), ChZnPpResult(0), ChZnPpStatus(0), //@erik add "Stt(0),"
+		Timestamp(ZERODATETIME), PrescrDate(ZERODATE)/*@v11.8.0*/, ChZnPm_ReqTimestamp(0ULL)/*@v12.1.1*/
 	{
 	}
 	CheckStruct & Z()
@@ -413,9 +413,9 @@ private:
 	int    ExecCmd(const char * pHexCmd, const char * pInput, SString & rOut, SString & rError);
 	bool   PutByteToPort(int byte)
 	{
-		bool    ok = 0;
+		bool   ok = false;
+		size_t actual_size = 0;
 		if(So.IsValid()) {
-			size_t actual_size = 0;
 			ok = So.Send(&byte, 1, &actual_size);
 		}
 		else {
@@ -423,11 +423,32 @@ private:
 		}
 		return ok;
 	}
+	bool   PutCommandToPort(const char * pData, size_t len) // @v12.7.4
+	{
+		bool   ok = false;
+		size_t actual_size = 0;
+		if(pData && len) {
+			if(So.IsValid()) {
+				ok = So.Send(pData, len, &actual_size);
+			}
+			else {
+				ok = true;
+				for(size_t i = 0; ok && i < len; i++) {
+					if(CommPort.PutChr(pData[i])) {
+						actual_size++;
+					}
+					else
+						ok = false;
+				}
+			}
+		}
+		return ok;
+	}
 	bool   GetByteFromPort(int * pByte)
 	{
 		int    ok = 0;
 		if(So.IsValid()) {
-			int   b = 0;
+			int    b = 0;
 			size_t actual_size = 0;
 			ok = So.Recv(&b, 1, &actual_size);
 			*pByte = (ok && actual_size == 1) ? b : 0;
@@ -1908,7 +1929,12 @@ int PiritEquip::ENQ_ACK()
 	SString msg_buf;
 	SDelay(try_dealy);
 	do {
-		PutByteToPort(CHR_ENQ); // Проверка связи с ККМ
+		// @v12.7.4 PutByteToPort(CHR_ENQ); // Проверка связи с ККМ
+		// @v12.7.4 {
+		char   cmd[32];
+		cmd[0] = CHR_ENQ;
+		PutCommandToPort(cmd, 1);
+		// } @v12.7.4 
 		int    r = 0;
 		GetByteFromPort(&r);
 		if(r == CHR_ACK) {
@@ -1956,9 +1982,9 @@ int PiritEquip::SetConnection()
 		if(addr.GetPort() <= 0) {
 			addr.SetPort_(50003);
 		}
-		//So.SetTimeout(500);
-		So.SetSendTimeout(30000);
-		So.SetRcvTimeout(10000);
+		So.SetTimeout(500);
+		//So.SetSendTimeout(30000);
+		//So.SetRcvTimeout(10000);
 		{
 			const  uint prev_sockopt = So.GetSockOptions();
 			So.SetSockOptions(prev_sockopt|TcpSocket::sockoptNoDelay);
@@ -2196,15 +2222,15 @@ int PiritEquip::StartWork(bool force)
 
 int PiritEquip::GetCurFlags(int numFlags, int & rFlags)
 {
+	rFlags = 0;
 	const  uint max_tries = 3;
 	int    ok = 1;
-	SString out_data;
-	SString r_error;
-	uint count = 0;
-	rFlags = 0;
+	uint   count = 0;
 	int    flags_fatal_state = 0;
 	int    flags_current_state = 0;
 	int    flags_doc_status = 0;
+	SString out_data;
+	SString r_error;
 	{
 		OpLogBlock __oplb(LogFileName, "00", 0);
 		THROWERR(PutData("00", 0), PIRIT_NOTSENT); // Запрос флагов статуса
@@ -3221,49 +3247,42 @@ int PiritEquip::PutOfdReq(int reqCode, int textAttr, const char * pReqDescr, con
 
 int PiritEquip::GetWhile(SString & rOutData, SString & rError)
 {
-	const  uint max_tries = 10;
 	int    ok = 1;
-	uint   count = 0;
 	if(GetData(rOutData, rError) < 0) {
 		rError = "00";
 		ok = -1;
 	}
-	else {
-		if(rError.NotEmpty()) {
-			int  result_err_code = 0;
-			int  src_err_code = -1;
-			if(rError.Len() == 2 && ishex(rError.C(0)) && ishex(rError.C(1)))
-				src_err_code = _texttohex32(rError.cptr(), 2);
-			if(!oneof3(src_err_code, 0, 0x0B, 0x09)) {
-				switch(src_err_code) {
-					case 0x0C: result_err_code = PIRIT_DATELSLASTOP; break; // Системная дата меньше даты последней фискальной операции, зарегистрированной в ККМ
-					case 0x20: result_err_code = PIRIT_FATALERROR; break; // Фатальная ошибка ККМ
-					case 0x21: result_err_code = PIRIT_FMOVERFLOW; break; // Нет свободного места в фискальной памяти ККМ
-					case 0x41: result_err_code = PIRIT_ECRRFORMAT; break; // Некорректный формат или параметр команды ЭКЛЗ
-					case 0x42: result_err_code = PIRIT_ECRERRORSTATUS; break; // Некорректное состояние ЭКЛЗ
-					case 0x43: result_err_code = PIRIT_ECRACCIDENT; break; // Авария ЭКЛЗ
-					case 0x44: result_err_code = PIRIT_KCACCIDENT; break; // Авария КС (криптографического сопроцессора)в составе ЭКЛЗ
-					case 0x45: result_err_code = PIRIT_ECRTIMEOUT; break; // Исчерпан временной ресурс использования ЭКЛЗ
-					case 0x46: result_err_code = PIRIT_ECROVERFLOW; break; // ЭКЛЗ переполнена
-					case 0x47: result_err_code = PIRIT_ECRERRORDATETIME; break; // Неверные дата или время
-					case 0x48: result_err_code = PIRIT_ECRNODATA; break; // Нет запрошенных данных
-					case 0x49: result_err_code = PIRIT_ECRTOOMUCH; break; // Переполнение (отрицательный итог документа, слишком много отделов для клиента)
-					case 0x4A: result_err_code = PIRIT_NOANSWER; break; // Нет ответа от ЭКЛЗ
-					case 0x4B: result_err_code = PIRIT_ECRERREXCHANGE; break; // Ошибка при обмене данными с ЭКЛЗ
-					default:
-						if(SIntToSymbTab_HasId(Pirit_ErrMsg, SIZEOFARRAY(Pirit_ErrMsg), src_err_code))
-							result_err_code = src_err_code;
-						break;
-				}
-				if(result_err_code) {
-					THROWERR(0, result_err_code);
-				}
-				else {
-					THROWERR(0, src_err_code);
-				}
+	else if(rError.NotEmpty()) {
+		const  int src_err_code = (rError.Len() == 2 && rError.IsHex()) ? _texttohex32(rError.cptr(), rError.Len()) : -1;
+		if(!oneof3(src_err_code, 0, 0x0B, 0x09)) {
+			int    result_err_code = 0;
+			switch(src_err_code) {
+				case 0x0C: result_err_code = PIRIT_DATELSLASTOP; break; // Системная дата меньше даты последней фискальной операции, зарегистрированной в ККМ
+				case 0x20: result_err_code = PIRIT_FATALERROR; break; // Фатальная ошибка ККМ
+				case 0x21: result_err_code = PIRIT_FMOVERFLOW; break; // Нет свободного места в фискальной памяти ККМ
+				case 0x41: result_err_code = PIRIT_ECRRFORMAT; break; // Некорректный формат или параметр команды ЭКЛЗ
+				case 0x42: result_err_code = PIRIT_ECRERRORSTATUS; break; // Некорректное состояние ЭКЛЗ
+				case 0x43: result_err_code = PIRIT_ECRACCIDENT; break; // Авария ЭКЛЗ
+				case 0x44: result_err_code = PIRIT_KCACCIDENT; break; // Авария КС (криптографического сопроцессора)в составе ЭКЛЗ
+				case 0x45: result_err_code = PIRIT_ECRTIMEOUT; break; // Исчерпан временной ресурс использования ЭКЛЗ
+				case 0x46: result_err_code = PIRIT_ECROVERFLOW; break; // ЭКЛЗ переполнена
+				case 0x47: result_err_code = PIRIT_ECRERRORDATETIME; break; // Неверные дата или время
+				case 0x48: result_err_code = PIRIT_ECRNODATA; break; // Нет запрошенных данных
+				case 0x49: result_err_code = PIRIT_ECRTOOMUCH; break; // Переполнение (отрицательный итог документа, слишком много отделов для клиента)
+				case 0x4A: result_err_code = PIRIT_NOANSWER; break; // Нет ответа от ЭКЛЗ
+				case 0x4B: result_err_code = PIRIT_ECRERREXCHANGE; break; // Ошибка при обмене данными с ЭКЛЗ
+				default:
+					if(SIntToSymbTab_HasId(Pirit_ErrMsg, SIZEOFARRAY(Pirit_ErrMsg), src_err_code))
+						result_err_code = src_err_code;
+					break;
+			}
+			if(result_err_code) {
+				THROWERR(0, result_err_code);
+			}
+			else {
+				THROWERR(0, src_err_code);
 			}
 		}
-		count++;
 	}
 	CATCHZOK
 	return ok;
@@ -3349,9 +3368,25 @@ int PiritEquip::PutData(const char * pCommand, const char * pData)
 	//
 	// Отправляем пакет на ККМ
 	//
+	// @v12.7.4 {
+	{
+		char   cmd_packet[1024];
+		size_t cmd_packet_len = 0;
+		cmd_packet[cmd_packet_len++] = CHR_STX;
+		for(p = 0; p < r_pack.Len(); p++) {
+			const char v = r_pack.C(p);
+			cmd_packet[cmd_packet_len++] = v;
+		}
+		cmd_packet[cmd_packet_len++] = CHR_ETX;
+		cmd_packet[cmd_packet_len++] = buf[0];
+		cmd_packet[cmd_packet_len++] = buf[1];
+		THROW(PutCommandToPort(cmd_packet, cmd_packet_len)) 
+	}
+	// } @v12.7.4 
+	/* @v12.7.4
 	char   debug_packet[1024];
 	size_t debug_packet_pos = 0;
-	const  int fill_debug_buffer = 1;
+	const  bool fill_debug_buffer = false; // @v12.7.4 true-->false
 	if(fill_debug_buffer) {
 		// блок для отладки
 		memzero(debug_packet, sizeof(debug_packet));
@@ -3377,7 +3412,7 @@ int PiritEquip::PutData(const char * pCommand, const char * pData)
 		THROW(PutByteToPort(CHR_ETX));
 		THROW(PutByteToPort(buf[0]));
 		THROW(PutByteToPort(buf[1]));
-	}
+	}*/
 	CATCHZOK
 	return ok;
 }

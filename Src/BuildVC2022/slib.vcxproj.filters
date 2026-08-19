@@ -829,6 +829,7 @@
       <Filter>Argon2</Filter>
     </ClCompile>
     <ClCompile Include="..\SLib\slib-ued.cpp" />
+    <ClCompile Include="..\SLib\sntok.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

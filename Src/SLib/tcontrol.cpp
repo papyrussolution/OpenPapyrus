@@ -309,7 +309,7 @@ int TFrame::ErasePreviewLine()
 		case WM_MOUSEMOVE: // @v12.5.5
 			if(p_view && p_view->IsConsistentSizeBar()) {
 				HCURSOR cursor = 0;
-				p_view->RegisterMouseTracking(1, 10); 
+				p_view->RegisterMouseTracking(1, 500); // @v12.7.4 10-->500
 				if(p_view->State & TFrame::stSizing) {
 					SPoint2S tp;
 					tp.setwparam(static_cast<uint32>(lParam));
@@ -554,7 +554,7 @@ static BOOL CALLBACK ButtonDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		// @v12.5.3 {
 		case WM_MOUSEMOVE:
 			if(p_view)
-				p_view->RegisterMouseTracking(1, 50); 
+				p_view->RegisterMouseTracking(1, 500); // @v12.7.4 50-->500
 			break;
 		case WM_MOUSEHOVER:
 			if(p_view)
@@ -2402,17 +2402,19 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		case WM_USER_COMBO_CLEAR:
-			if(Flags & cbxAllowEmpty) {
-				TransmitData(+1, 0);
-				MessageCommandToOwner(cmCBSelected);
+			if(!IsInState(sfReadOnly)) {
+				if(Flags & cbxAllowEmpty) {
+					TransmitData(+1, 0);
+					MessageCommandToOwner(cmCBSelected);
+				}
 			}
 			break;
 		case WM_USER_COMBO_ACTIVATEBYCHAR:
-			if(!P_ListWin)
+			if(!P_ListWin || IsInState(sfReadOnly))
 				break;
 			P_ListWin->prepareForSearching(static_cast<int>(wParam));
 		case WM_COMMAND:
-			{
+			if(!IsInState(sfReadOnly)) { // @v12.7.4 @condition
 				ListWindow * p_list_win = P_ListWin;
 				if(!(State & stExecSemaphore) && p_list_win) {
 					State |= stExecSemaphore;
@@ -2609,12 +2611,14 @@ IMPL_HANDLE_EVENT(ComboBox)
 
 void ComboBox::setState(uint aState, bool enable)
 {
-	if(aState & sfDisabled)
-		P_ILink->setState(sfDisabled, enable);
-	if(aState & sfVisible)
-		P_ILink->setState(sfVisible, enable);
+	const  uint state_inducted_to_link[] = {sfDisabled, sfVisible};
+	for(uint i = 0; i < SIZEOFARRAY(state_inducted_to_link); i++) {
+		const   uint sf = state_inducted_to_link[i];
+		if(aState & sf)
+			P_ILink->setState(sf, enable);
+	}
 	TView::setState(aState, enable);
-	if(aState & (sfSelected | sfActive))
+	if(aState & (sfSelected|sfActive))
 		Draw_();
 }
 

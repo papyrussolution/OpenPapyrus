@@ -2521,11 +2521,13 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 			UiToolBox_.CreateBrush_(TProgram::tbiButtonBrush+TProgram::tbisSelect, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "button_sel_bg", SColor(0xBA, 0xBA, 0xC9)), 0);
 			{
 				const  float button_pen_width = 1.0f;
+				const  float button_pen_width_state_default = 2.0f; // @v12.7.4 1.0f-->2.0f
 				UiToolBox_.CreatePen_(TProgram::tbiButtonPen, SPaintObj::psSolid, button_pen_width, UiDescription::GetColorR(p_uid, p_cs, "button_border", UiToolBox_.GetColor(TProgram::tbiIconRegColor)));
-				UiToolBox_.CreatePen_(TProgram::tbiButtonPen+TProgram::tbisDefault, SPaintObj::psSolid, button_pen_width, UiDescription::GetColorR(p_uid, p_cs, "button_def_border", SClrGreen));
+				UiToolBox_.CreatePen_(TProgram::tbiButtonPen+TProgram::tbisDefault, SPaintObj::psSolid, button_pen_width_state_default, UiDescription::GetColorR(p_uid, p_cs, "button_def_border", SClrGreen));
 				UiToolBox_.CreatePen_(TProgram::tbiButtonPen+TProgram::tbisFocus,   SPaintObj::psSolid, button_pen_width, UiDescription::GetColorR(p_uid, p_cs, "button_focus_border", SClrOrange));
 				UiToolBox_.CreatePen_(TProgram::tbiButtonPen+TProgram::tbisSelect,  SPaintObj::psSolid, button_pen_width, UiDescription::GetColorR(p_uid, p_cs, "button_sel_border", SClrOrange));
 				UiToolBox_.CreatePen_(TProgram::tbiButtonPen+TProgram::tbisDisable, SPaintObj::psSolid, button_pen_width, UiDescription::GetColorR(p_uid, p_cs, "button_disabled_border", SColor(SClrWhite)));
+				UiToolBox_.CreatePen_(TProgram::tbiButtonPen+TProgram::tbisReadOnly, SPaintObj::psSolid, button_pen_width, UiDescription::GetColorR(p_uid, p_cs, "button_readonly_border", SColor(SClrBlack)));
 			}
 			// @v12.5.3 {
 			{

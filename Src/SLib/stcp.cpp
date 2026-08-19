@@ -536,9 +536,9 @@ int TcpSocket::RecvBlock(void * pBuf, size_t size, size_t * pRcvdSize)
 	return ok;
 }
 
-int TcpSocket::Send(const void * pBuf, size_t size, size_t * pSendedSize)
+bool TcpSocket::Send(const void * pBuf, size_t size, size_t * pSendedSize)
 {
-	int    ok = 1;
+	bool   ok = true;
 	int    len = 0;
 	THROW(Select(mWrite));
 	THROW(CheckErrorStatus());
@@ -551,7 +551,7 @@ int TcpSocket::Send(const void * pBuf, size_t size, size_t * pSendedSize)
 	THROW_S(len != SOCKET_ERROR, SLERR_SOCK_WINSOCK);
 	StatData.WrCount += len;
 	CATCH
-		ok = 0;
+		ok = false;
 		len = 0;
 	ENDCATCH
 	ASSIGN_PTR(pSendedSize, len);

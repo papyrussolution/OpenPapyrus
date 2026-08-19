@@ -1,6 +1,6 @@
 
 [hash]
-base=ppstr2.txt,Uuo3eR/8O4cSLSt8pszeskg7bskUYb1p1mvFto9WekM=,ppstr2.bin,tN6cAszCNyPXqPiF5cPxSw5FnLf0FyZfnvzpn/vDENo=
+base=ppstr2.txt,PlvDuhpSNY33a2VpZLCkFvEVSUjlEh92x6/PFZKBtxM=,ppstr2.bin,OwfHAy0rm6uQpOXwqgrXc1f5gAxWtwQ/gc0oCh6jkoM=
 lang-de=ppstr2-de.txt,vBHXz7GFmSlWHN5nhQWFT6WBP/qX1NctpzLNyBKBRUs=,ppstr2-de.bin,IgP0oJq+StX6/pHGw3DlOEbNMrxZZeYYfFLh/tUQQD4=
 lang-en=ppstr2-en.txt,+28p3hMfvSudDV3CqfJDOjTZKho2umy1K4C92tm3UyY=,ppstr2-en.bin,JDl8q1nkd4ILSPASoUHHH8s6KZM7kP5OUXwUOH/Kvug=
 lang-es=ppstr2-es.txt,bvkiJX8i+13kNCalRFfPxci9gmGnLr6J9xhKF+0NtLo=,ppstr2-es.bin,hebe73IxmbxJ+qOeg1vD9+iWczPBOsihVl0WLPu2McE=
@@ -11,7 +11,7 @@ java=ppstr2.java,8hRk2cAzEwS0EsHovMK0FwsFKE+SPf6kp36JNMaA+Jg=
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147499189
+LastSignatureCode=2147499191
 LastAutoCodeList=1,12477;102,10179;103,10074;110,10000;111,13063;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10314;120,10010;1001,10000;121,10000;122,10000;123,10661;124,10925;125,10128;126,10000
 
 [SignatureList]
@@ -2952,6 +2952,7 @@ cmd_accarticle=2147495409
 cmd_accbudget=2147485856
 cmd_accoutbal=2147495410
 cmd_accplan=2147485858
+cmd_accpersonal=2147499191
 cmd_accregister=2147485859
 cmd_accsheet=2147495411
 cmd_accturnbilllist=2147495412
@@ -3581,6 +3582,7 @@ account_name=2147495658
 account_opendate=2147486432
 account_overdraft=2147486433
 account_parent=2147486434
+account_parent2=2147499190
 account_sb=2147495659
 account_tag=2147495660
 account_type=2147495661

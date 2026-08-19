@@ -354,7 +354,9 @@ int ObjTransmContext::OutputAcceptMsg(PPID objType, PPID objID, int upd) { retur
 
 int ObjTransmContext::OutputAcceptErrMsg(uint msgID, PPID objID, const char * pObjName)
 {
-	SString msg_buf, err_msg, fmt_buf;
+	SString msg_buf;
+	SString err_msg;
+	SString fmt_buf;
 	PPGetLastErrorMessage(1, err_msg);
 	PPLoadText(msgID, fmt_buf);
 	return OutReceivingMsg(msg_buf.Printf(fmt_buf, objID, pObjName, err_msg.cptr()));
@@ -362,7 +364,10 @@ int ObjTransmContext::OutputAcceptErrMsg(uint msgID, PPID objID, const char * pO
 
 int ObjTransmContext::OutputAcceptObjErrMsg(PPID objType, PPID objID, const char * pObjName)
 {
-	SString msg_buf, err_msg, fmt_buf, obj_title;
+	SString msg_buf;
+	SString err_msg;
+	SString fmt_buf;
+	SString obj_title;
 	PPGetLastErrorMessage(1, err_msg);
 	PPLoadText(PPTXT_ERRACCEPTOBJECT, fmt_buf);
 	GetObjectTitle(objType, obj_title);

@@ -942,11 +942,11 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 	return ok;
 }
 
-#if 1 // @construction {
 int PPBillPacket::Helper_ConvertToCheck2_InsertTItems(const ConvertToCCheckParam & rParam, const PPSyncCashNode & rCnRec, 
-	CCheckPacket & rCp, CcTotal & rCcT, TSCollection <SCompoundError> * pErrList) const
+	CCheckPacket & rCp, CcTotal & rCcT, TSCollection <SCompoundError> * pErrList) const // @v12.7.3
 {
-	int   ok = -1;
+	int    ok = -1;
+	const  bool do_insert_chzn_marks_into_cc = false; // @v12.7.4 true-->false
 	SString temp_buf;
 	PPObjGoods goods_obj;
 	const  bool is_return = oneof3(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSRETURN, PPOPT_DRAFTRECEIPT);
@@ -967,92 +967,94 @@ int PPBillPacket::Helper_ConvertToCheck2_InsertTItems(const ConvertToCCheckParam
 			const  double n_pr = r_ti.NetPrice();
 			chzn_mark.Z();
 			if(goods_obj.Fetch(r_ti.GoodsID, &goods_rec) > 0) {
-				XcL.Get(tiidx+1, 0, lotxcode_set);
-				lotxcode_set.GetByBoxID(0, ss);
-				const  double _one = 1.0;
-				const  long chzn_prod_type = (goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) ? gt_rec.ChZnProdType : 0;
-				if(ss.IsCountGreaterThan(0)) {
-					bool   chznpm_ok = true;
-					for(uint ssp = 0; qtty_ >= _one && ss.get(&ssp, chzn_mark);) {
-						S_GUID chznpm_reqid;        // ответ разрешительного режима чзн: уникальный идентификатор запроса
-						int64  chznpm_reqtimestamp = 0; // ответ разрешительного режима чзн: дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
-						S_GUID chznpm_local_module_instance;
-						S_GUID chznpm_local_module_dbver;
-						PPChZnPrcssr::CodeStatusCollection pm_code_list;
-						if(pm_code_list.AddCodeEntry(chzn_mark, tiidx, chzn_prod_type, &chzn_mark_reconstructed) > 0) { // Кроме всего прочего, эта функция проверяет марку на валидность. 
-							assert(chzn_mark.NotEmpty());
-							if(!is_return && (rParam.Flags_ & PPBillPacket::ConvertToCCheckParam::fDoChZnPm) && 
-								rCnRec.ChZnPermissiveMode == PPSyncCashNode::chznpmStrict && rCnRec.ChZnGuaID) {
-								if(pm_code_list.getCount()) {
-									int    verif_result = 0;
-									if(use_tspiot) {
-										verif_result = PPChZnPrcssr::TsPiotCheck(rCnRec.ChZnGuaID, pm_code_list); 
-									}
-									else {
-										verif_result = PPChZnPrcssr::PmCheck(rCnRec.ChZnGuaID, 0, 2/*regular online/offline mode*/, pm_code_list);
-									}
-									THROW(verif_result);
-									const  int pmcvrr = PPChZnPrcssr::PmCheck_VerifyResult(pm_code_list); 
-									if(pmcvrr) {
-										chznpm_reqid = pm_code_list.ReqId;
-										chznpm_reqtimestamp = pm_code_list.ReqTimestamp;
-										chznpm_local_module_instance = pm_code_list.LocalModuleInstance;
-										chznpm_local_module_dbver = pm_code_list.LocalModuleDbVer;
-									}
-									else {
-										assert(pm_code_list.getCount() == 1);
-										bool   local_done = false;
-										for(uint cli = 0; cli < pm_code_list.getCount(); cli++) {
-											const  PPChZnPrcssr::CodeStatus * p_pm_item = pm_code_list.at(cli);
-											if(p_pm_item && p_pm_item->ErrorCode) {
-												if(pErrList) {
-													SCompoundError * p_err_item = pErrList->CreateNewItem();
-													p_err_item->ItemI = p_pm_item->OrgRowId;
-													p_err_item->Code = p_pm_item->InternalErrCode;
-													PPGetMessage(mfError, p_err_item->Code, p_pm_item->OrgMark, 1, p_err_item->Descr);
+				if(do_insert_chzn_marks_into_cc) {
+					XcL.Get(tiidx+1, 0, lotxcode_set);
+					lotxcode_set.GetByBoxID(0, ss);
+					const  double _one = 1.0;
+					const  long chzn_prod_type = (goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) ? gt_rec.ChZnProdType : 0;
+					if(ss.IsCountGreaterThan(0)) {
+						bool   chznpm_ok = true;
+						for(uint ssp = 0; qtty_ >= _one && ss.get(&ssp, chzn_mark);) {
+							S_GUID chznpm_reqid;        // ответ разрешительного режима чзн: уникальный идентификатор запроса
+							int64  chznpm_reqtimestamp = 0; // ответ разрешительного режима чзн: дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
+							S_GUID chznpm_local_module_instance;
+							S_GUID chznpm_local_module_dbver;
+							PPChZnPrcssr::CodeStatusCollection pm_code_list;
+							if(pm_code_list.AddCodeEntry(chzn_mark, tiidx, chzn_prod_type, &chzn_mark_reconstructed) > 0) { // Кроме всего прочего, эта функция проверяет марку на валидность. 
+								assert(chzn_mark.NotEmpty());
+								if(!is_return && (rParam.Flags_ & PPBillPacket::ConvertToCCheckParam::fDoChZnPm) && 
+									rCnRec.ChZnPermissiveMode == PPSyncCashNode::chznpmStrict && rCnRec.ChZnGuaID) {
+									if(pm_code_list.getCount()) {
+										int    verif_result = 0;
+										if(use_tspiot) {
+											verif_result = PPChZnPrcssr::TsPiotCheck(rCnRec.ChZnGuaID, pm_code_list); 
+										}
+										else {
+											verif_result = PPChZnPrcssr::PmCheck(rCnRec.ChZnGuaID, 0, 2/*regular online/offline mode*/, pm_code_list);
+										}
+										THROW(verif_result);
+										const  int pmcvrr = PPChZnPrcssr::PmCheck_VerifyResult(pm_code_list); 
+										if(pmcvrr) {
+											chznpm_reqid = pm_code_list.ReqId;
+											chznpm_reqtimestamp = pm_code_list.ReqTimestamp;
+											chznpm_local_module_instance = pm_code_list.LocalModuleInstance;
+											chznpm_local_module_dbver = pm_code_list.LocalModuleDbVer;
+										}
+										else {
+											assert(pm_code_list.getCount() == 1);
+											bool   local_done = false;
+											for(uint cli = 0; cli < pm_code_list.getCount(); cli++) {
+												const  PPChZnPrcssr::CodeStatus * p_pm_item = pm_code_list.at(cli);
+												if(p_pm_item && p_pm_item->ErrorCode) {
+													if(pErrList) {
+														SCompoundError * p_err_item = pErrList->CreateNewItem();
+														p_err_item->ItemI = p_pm_item->OrgRowId;
+														p_err_item->Code = p_pm_item->InternalErrCode;
+														PPGetMessage(mfError, p_err_item->Code, p_pm_item->OrgMark, 1, p_err_item->Descr);
+													}
+													if(!local_done) {
+														PPSetError(p_pm_item->InternalErrCode, p_pm_item->OrgMark);
+													}
+													ok = 0;
+													local_done = true;
 												}
-												if(!local_done) {
-													PPSetError(p_pm_item->InternalErrCode, p_pm_item->OrgMark);
-												}
-												ok = 0;
-												local_done = true;
+											}
+											if(!local_done) {
+												ok = PPSetError(PPERR_CHZNMARKPMFAULT);
 											}
 										}
-										if(!local_done) {
-											ok = PPSetError(PPERR_CHZNMARKPMFAULT);
-										}
 									}
 								}
-							}
-							THROW(rCp.InsertCclSimple(r_ti.GoodsID, _one, n_pr, 0.0, rParam.DivisionN));
-							const int cp_idx = static_cast<int>(rCp.GetCount());
-							rCcT.Amount += R2(n_pr * _one);
-							rCcT.Discount += R2(r_ti.Discount * _one);
-							qtty_ -= _one;
-							rCp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnMark, chzn_mark_reconstructed);
-								// @v12.3.12 (chzn_mark-->chzn_mark_reconstructed) Полагаю, здесь все же должно быть chzn_mark, но что б не менять ничего кроме pm_code_list.AddCodeEntry оставлю так.
-							rCp.SetLineTextExt(cp_idx, CCheckPacket::lnextSerial, serial);
-							if(!chznpm_reqid.IsZero() && chznpm_reqtimestamp) {
-								chznpm_reqid.ToStr(S_GUID::fmtPlain, temp_buf);
-								rCp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnPm_ReqId, temp_buf);
-								temp_buf.Z().Cat(chznpm_reqtimestamp);
-								rCp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnPm_ReqTimestamp, temp_buf);
-								if(!!chznpm_local_module_instance) {
-									chznpm_local_module_instance.ToStr(S_GUID::fmtPlain, temp_buf);
-									rCp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnPm_LocalModuleInstance, temp_buf);
+								THROW(rCp.InsertCclSimple(r_ti.GoodsID, _one, n_pr, 0.0/*discount*/, rParam.DivisionN));
+								const int cp_idx = static_cast<int>(rCp.GetCount());
+								rCcT.Amount += R2(n_pr * _one);
+								rCcT.Discount += R2(r_ti.Discount * _one);
+								qtty_ -= _one;
+								rCp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnMark, chzn_mark_reconstructed);
+									// @v12.3.12 (chzn_mark-->chzn_mark_reconstructed) Полагаю, здесь все же должно быть chzn_mark, но что б не менять ничего кроме pm_code_list.AddCodeEntry оставлю так.
+								rCp.SetLineTextExt(cp_idx, CCheckPacket::lnextSerial, serial);
+								if(!chznpm_reqid.IsZero() && chznpm_reqtimestamp) {
+									chznpm_reqid.ToStr(S_GUID::fmtPlain, temp_buf);
+									rCp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnPm_ReqId, temp_buf);
+									temp_buf.Z().Cat(chznpm_reqtimestamp);
+									rCp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnPm_ReqTimestamp, temp_buf);
+									if(!!chznpm_local_module_instance) {
+										chznpm_local_module_instance.ToStr(S_GUID::fmtPlain, temp_buf);
+										rCp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnPm_LocalModuleInstance, temp_buf);
+									}
+									if(!!chznpm_local_module_dbver) {
+										chznpm_local_module_dbver.ToStr(S_GUID::fmtPlain, temp_buf);
+										rCp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnPm_LocalModuleDbVer, temp_buf);
+									}
 								}
-								if(!!chznpm_local_module_dbver) {
-									chznpm_local_module_dbver.ToStr(S_GUID::fmtPlain, temp_buf);
-									rCp.SetLineTextExt(cp_idx, CCheckPacket::lnextChZnPm_LocalModuleDbVer, temp_buf);
-								}
+								ok = 1;
 							}
-							ok = 1;
 						}
+						THROW_PP(chznpm_ok, PPERR_B2CCCVT_CHZNMARKPMFAULT);
 					}
-					THROW_PP(chznpm_ok, PPERR_B2CCCVT_CHZNMARKPMFAULT);
 				}
 				if(qtty_ > 0.0) {
-					THROW(rCp.InsertCclSimple(r_ti.GoodsID, qtty_, n_pr, 0.0, rParam.DivisionN));
+					THROW(rCp.InsertCclSimple(r_ti.GoodsID, qtty_, n_pr, 0.0/*discount*/, rParam.DivisionN));
 					const int cp_idx = static_cast<int>(rCp.GetCount());
 					rCp.SetLineTextExt(cp_idx, CCheckPacket::lnextSerial, serial);
 					rCcT.Amount += R2(n_pr * qtty_);
@@ -1065,7 +1067,6 @@ int PPBillPacket::Helper_ConvertToCheck2_InsertTItems(const ConvertToCCheckParam
 	CATCHZOK
 	return ok;
 }
-#endif // } 0 @construction
 
 int PPBillPacket::ConvertToCheck2(const ConvertToCCheckParam & rParam, CCheckPacket * pCheckPack, TSCollection <SCompoundError> * pErrList) const // @v11.8.8
 {
@@ -4159,7 +4160,7 @@ static int EditBillCfgAddendum(PPBillConfig * pData) { DIALOG_PROC_BODY(BillConf
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  7, BCF_PICKLOTS);
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  8, BCF_INHSERIAL);
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  9, BCF_DONTVERIFEXTCODECHAIN);
-	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2, 10, BCF_NEWDOCBYFILTUSEFLTDATE); // @v11.1.7
+	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2, 10, BCF_NEWDOCBYFILTUSEFLTDATE);
 	dlg->SetClusterData(CTL_BILLCFG_FLAGS2, cfg.Flags);
 	dlg->AddClusterAssoc(CTL_BILLCFG_SHOWADDFLD, 0, BCF_SHOWBARCODESINGBLINES);
 	dlg->AddClusterAssoc(CTL_BILLCFG_SHOWADDFLD, 1, BCF_SHOWSERIALSINGBLINES);
@@ -4167,8 +4168,7 @@ static int EditBillCfgAddendum(PPBillConfig * pData) { DIALOG_PROC_BODY(BillConf
 	SetupPPObjCombo(dlg, CTLSEL_BILLCFG_CLCODEREG, PPOBJ_REGISTERTYPE, cfg.ClCodeRegTypeID, 0, 0);
 	//SetupPPObjCombo(dlg, CTLSEL_BILLCFG_CASHNODE, PPOBJ_CASHNODE, cfg.CashNodeID, 0, 0);
 	SetupPPObjCombo(dlg, CTLSEL_BILLCFG_INITST, PPOBJ_BILLSTATUS, cfg.InitStatusID, 0, 0);
-	// SetupPPObjCombo(dlg, CTLSEL_BILLCFG_CREGTYP, PPOBJ_REGISTERTYPE, cfg.ContractRegTypeID, 0, 0); // @v8.4.0
-	// @v8.4.11 {
+	// SetupPPObjCombo(dlg, CTLSEL_BILLCFG_CREGTYP, PPOBJ_REGISTERTYPE, cfg.ContractRegTypeID, 0, 0);
 	/*
 	{
 		ObjTagFilt ot_filt;
@@ -4176,7 +4176,6 @@ static int EditBillCfgAddendum(PPBillConfig * pData) { DIALOG_PROC_BODY(BillConf
 		SetupObjTagCombo(dlg, CTLSEL_BILLCFG_MNFLTAG, cfg.MnfCountryLotTagID, 0, &ot_filt);
 	}
 	*/
-	// } @v8.4.11
 	STRNSCPY(sn_buf, sn_cntr.Head.CodeTemplate);
 	STRNSCPY(invsn_buf, cfg.InvSnTemplt);
 	dlg->setCtrlData(CTL_BILLCFG_SNTEMPLT, sn_buf);

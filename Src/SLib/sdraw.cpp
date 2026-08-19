@@ -2695,6 +2695,7 @@ void Test_DrawImageOnPrinter()
 			SImageBuffer ib;
 			ib.Init(600, 600);
 			if(p_fig->TransformToImage(0, ib)) {
+				ib.TransformToGrayscale();
 				ok = ib.DrawOnPrinter(p_prn_port);
 			}
 		}
@@ -2732,6 +2733,14 @@ int SImageBuffer::DrawOnPrinter(HDC hDc) const // @v12.7.0 @construction
 		THROW(::StartPage(hDc) > 0);
 		is_page_started = true;
 		{
+			{
+				SPaintToolBox * p_tb = APPL->GetUiToolBox();
+				if(p_tb) {
+					TCanvas2 canv(*p_tb, hDc);
+					canv.Draw(this);
+				}
+			}
+#if 0 // {
 			// Расчет масштаба для вписывания в страницу (с сохранением пропорций)
 			const  int page_wd = GetDeviceCaps(hDc, HORZRES);
 			const  int page_ht = GetDeviceCaps(hDc, VERTRES);
@@ -2753,8 +2762,7 @@ int SImageBuffer::DrawOnPrinter(HDC hDc) const // @v12.7.0 @construction
 			bih.biSize = sizeof(BITMAPINFOHEADER);
 			bih.biWidth = static_cast<LONG>(w);
 			// КЛЮЧЕВОЙ МОМЕНТ: Отрицательная высота указывает GDI, что данные 
-			// в буфере расположены СВЕРХУ ВНИЗ (Top-Down DIB), что полностью 
-			// соответствует вашему циклу for(uint y = 0; y < _h; y++)
+			// в буфере расположены СВЕРХУ ВНИЗ (Top-Down DIB)
 			bih.biHeight = -static_cast<LONG>(h); 
 			bih.biPlanes = 1;
 			bih.biBitCount = 32; // Мы знаем, что конвертация идет в s32ARGB
@@ -2773,6 +2781,7 @@ int SImageBuffer::DrawOnPrinter(HDC hDc) const // @v12.7.0 @construction
 			int result = StretchDIBits(hDc, offs_x, offs_y, draw_wd, draw_ht, 
 				0, 0, w, h, GetData(), reinterpret_cast<const BITMAPINFO *>(&bih), DIB_RGB_COLORS, SRCCOPY);
 			THROW(result != GDI_ERROR);
+#endif // } 0
 		}
 	}
 	CATCHZOK

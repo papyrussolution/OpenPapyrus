@@ -503,7 +503,8 @@ int copyFileByName(const char * pSrcFileName, const char * pDestFileName)
 int SCopyFile(const char * pSrcFileName, const char * pDestFileName, SDataMoveProgressProc pp, long shareMode, void * pExtra)
 {
 	EXCEPTVAR(SLibError);
-	int   ok = 1, reply;
+	int   ok = 1;
+	int   reply;
 	int   quite = 0;
 	int   cancel = 0;
 	void * p_buf  = 0;

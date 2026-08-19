@@ -1649,7 +1649,6 @@ SLTEST_R(Directory)
 	uint   files_count = 0;
 	int64  files_size = 0;
 	SStrCollection file_list;
-	// @v11.3.1 {
 	{
 		const char * p_path_to_normalize = "D:\\Papyrus\\Src\\BuildVC2017\\..\\..\\ppy\\bin\\..\\..\\src\\pptest\\out\\lmdb-test";
 		SFsPath::NormalizePath(p_path_to_normalize, SFsPath::npfCompensateDotDot, temp_buf);
@@ -1661,7 +1660,21 @@ SLTEST_R(Directory)
 		SFsPath::NormalizePath(p_path_to_normalize, SFsPath::npfCompensateDotDot|SFsPath::npfUpper, temp_buf);
 		SLCHECK_EQ(temp_buf, "D:\\PAPYRUS\\SRC\\PPTEST\\OUT\\LMDB-TEST");
 	}
-	// } @v11.3.1 
+	{ // @v12.7.4
+		const char * p_path_to_normalize = "D:\\Papyrus\\Src\\Rsrc\\Rc\\..\\dlg\\OBSOLETE\\";
+		SFsPath::NormalizePath(p_path_to_normalize, SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase, temp_buf);
+		SLCHECK_EQ(temp_buf, "D:\\Papyrus\\Src\\Rsrc\\dlg\\OBSOLETE\\");
+	}
+	{ // @v12.7.4
+		const char * p_path_to_normalize = "D:\\Papyrus\\Src\\Rsrc\\R\\..\\dlg\\OBSOLETE\\";
+		SFsPath::NormalizePath(p_path_to_normalize, SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase, temp_buf);
+		SLCHECK_EQ(temp_buf, "D:\\Papyrus\\Src\\Rsrc\\dlg\\OBSOLETE\\");
+	}
+	{ // @v12.7.4
+		const char * p_path_to_normalize = "D:\\Papyrus\\Src\\Rsrc\\R\\..\\dlg\\OBSOLETE\\..";
+		SFsPath::NormalizePath(p_path_to_normalize, SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase, temp_buf);
+		SLCHECK_EQ(temp_buf, "D:\\Papyrus\\Src\\Rsrc\\dlg");
+	}
 	{
 		uint   arg_no = 0;
 		for(uint ap = 0, arg_no = 0; EnumArg(&ap, temp_buf); arg_no++) {

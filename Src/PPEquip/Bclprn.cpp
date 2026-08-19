@@ -2114,11 +2114,12 @@ int ZebraLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 	}
 	else if(pEntry->Type == BarcodeLabelEntry::etBarcode) {
 		PutCtrl(ZPL_B);
-		for(int j = 0; j < sizeof(_Z_BarCStdTab) / sizeof(BarCStdToZebraEntry); j++)
+		for(int j = 0; j < SIZEOFARRAY(_Z_BarCStdTab); j++) {
 			if(_Z_BarCStdTab[j].Std == pEntry->BarcodeStd) {
 				c = _Z_BarCStdTab[j].Chr;
 				break;
 			}
+		}
 		if(c == 0)
 			return PPSetError(PPERR_BARCSTDNSUPPORT);
 		PutChr(c);
@@ -2151,8 +2152,8 @@ int ZebraLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 int EltronLabelPrinter::StartLabel(const BarcodeLabelParam * param, int numCopies)
 {
 	NumCopies = numCopies;
-	BcNarrowPt = param->BcNarrowPt; // @v8.0.9
-	BcWidePt = param->BcWidePt;     // @v8.0.9
+	BcNarrowPt = param->BcNarrowPt;
+	BcWidePt = param->BcWidePt;
 	PutChr('N');   // Clear buffer
 	PutChr('\n');
 

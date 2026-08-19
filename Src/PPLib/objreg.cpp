@@ -491,11 +491,14 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 			if(Data.RegTypeID) {
 				PPRegisterType2 rt_rec;
 				PPObjRegisterType rt_obj;
-				if(rt_obj.Fetch(Data.RegTypeID, &rt_rec) > 0 && rt_rec.Flags & REGTF_ONLYNUMBER)
+				if(rt_obj.Fetch(Data.RegTypeID, &rt_rec) > 0 && rt_rec.Flags & REGTF_ONLYNUMBER) {
 					selectCtrl(CTL_REG_NUMBER);
-				else
-					selectCtrl(CTL_REG_DATE);
-				disableCtrl(CTLSEL_REG_REGTYP, true);
+				}
+				else {
+					selectCtrl(CTL_REG_SERIALNO); // @v12.7.4 CTL_REG_DATE-->CTL_REG_SERIALNO
+				}
+				// @v12.7.4 disableCtrl(CTLSEL_REG_REGTYP, true);
+				setCtrlReadOnly(CTLSEL_REG_REGTYP, true); // @v12.7.4
 				ValidateNumber();
 			}
 			setCtrlData(CTL_REG_DATE,     &Data.Dt);
@@ -723,9 +726,9 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 			setLabelText(CTL_REG_ORGAN, temp_buf);
 			return ok;
 		}
-		const RegisterArray * P_RegAry;
-		const PPPersonPacket * P_PsnPack;
-		const PPLocationPacket * P_LocPack;
+		const  RegisterArray * P_RegAry;
+		const  PPPersonPacket * P_PsnPack;
+		const  PPLocationPacket * P_LocPack;
 		PPID   RegOrgKind;
 		int    ValidCode;
 		SPaintToolBox Ptb;

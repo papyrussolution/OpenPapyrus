@@ -1987,13 +1987,13 @@ int SupplAgtDialog::EditExchangeCfg()
 	};
 	int    ok = -1;
 	int    valid_data = 0;
-	//PPSupplAgreement::ExchangeParam ep;
 	SupplExchangeCfgDialog * dlg = new SupplExchangeCfgDialog();
 	THROW(CheckDialogPtr(&dlg));
 	dlg->setDTS(&Data.Ep);
-	while(!valid_data && ExecView(dlg) == cmOK)
+	while(!valid_data && ExecView(dlg) == cmOK) {
 		if(dlg->getDTS(&Data.Ep) > 0)
 			valid_data = ok = 1;
+	}
 	CATCHZOKPPERR
 	delete dlg;
 	return ok;

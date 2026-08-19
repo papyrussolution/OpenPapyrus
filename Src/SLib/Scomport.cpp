@@ -283,12 +283,12 @@ int SCommPort::GetChr()
 
 #endif // } 0
 
-int FASTCALL SCommPort::PutChr(int c)
+bool FASTCALL SCommPort::PutChr(int c)
 {
 	char   buf[8];
 	DWORD  sz = 1;
-	PTR32(buf)[0] = 0;
+	buf[0] = 0;
 	buf[0] = c;
-	return (H_Port != INVALID_HANDLE_VALUE && ::WriteFile(H_Port, buf, sz, &sz, 0) && sz == 1) ? 1 : (SLibError = SLERR_COMMSEND, 0);
+	return (H_Port != INVALID_HANDLE_VALUE && ::WriteFile(H_Port, buf, sz, &sz, 0) && sz == 1) ? true : SLS.SetError(SLERR_COMMSEND);
 }
 

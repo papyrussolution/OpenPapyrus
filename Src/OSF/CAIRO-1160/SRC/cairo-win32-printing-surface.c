@@ -147,12 +147,8 @@ static void _cairo_win32_printing_surface_init_language_pack(cairo_win32_printin
  * Acquire source surface or raster source pattern.
  **/
 static cairo_status_t _cairo_win32_printing_surface_acquire_image_pattern(cairo_win32_printing_surface_t * surface,
-    const cairo_pattern_t * pattern,
-    const cairo_rectangle_int_t * extents,
-    cairo_surface_pattern_t * image_pattern,
-    int * width,
-    int * height,
-    void   ** image_extra)
+    const cairo_pattern_t * pattern, const cairo_rectangle_int_t * extents,
+    cairo_surface_pattern_t * image_pattern, int * width, int * height, void ** image_extra)
 {
 	cairo_status_t status;
 	cairo_image_surface_t * image;
@@ -1727,11 +1723,8 @@ cairo_surface_t * cairo_win32_printing_surface_create(HDC hdc)
 	_cairo_win32_printing_surface_init_ps_mode(surface);
 	_cairo_win32_printing_surface_init_image_support(surface);
 	_cairo_win32_printing_surface_init_language_pack(surface);
-	_cairo_surface_init(&surface->win32.base,
-	    &cairo_win32_printing_surface_backend,
-	    NULL,              /* device */
-	    CAIRO_CONTENT_COLOR_ALPHA,
-	    TRUE); /* is_vector */
+	_cairo_surface_init(&surface->win32.base, &cairo_win32_printing_surface_backend,
+	    NULL/*device*/, CAIRO_CONTENT_COLOR_ALPHA, TRUE/*is_vector*/); 
 	paginated = _cairo_paginated_surface_create(&surface->win32.base, CAIRO_CONTENT_COLOR_ALPHA, &cairo_win32_surface_paginated_backend);
 	/* paginated keeps the only reference to surface now, drop ours */
 	cairo_surface_destroy(&surface->win32.base);
@@ -1741,28 +1734,21 @@ cairo_surface_t * cairo_win32_printing_surface_create(HDC hdc)
 static const cairo_surface_backend_t cairo_win32_printing_surface_backend = {
 	CAIRO_SURFACE_TYPE_WIN32_PRINTING,
 	_cairo_win32_printing_surface_finish,
-
 	_cairo_default_context_create,
-
 	_cairo_win32_printing_surface_create_similar,
 	NULL, /* create similar image */
 	NULL, /* map to image */
 	NULL, /* unmap image */
-
 	_cairo_surface_default_source,
 	NULL, /* acquire_source_image */
 	NULL, /* release_source_image */
 	NULL, /* snapshot */
-
 	NULL, /* copy_page */
 	_cairo_win32_printing_surface_show_page,
-
 	_cairo_win32_printing_surface_get_extents,
 	_cairo_win32_printing_surface_get_font_options,
-
 	NULL, /* flush */
 	NULL, /* mark_dirty_rectangle */
-
 	_cairo_win32_printing_surface_paint,
 	NULL, /* mask */
 	_cairo_win32_printing_surface_stroke,

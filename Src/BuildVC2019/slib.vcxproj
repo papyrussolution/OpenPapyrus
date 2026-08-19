@@ -1926,6 +1926,7 @@
     <ClCompile Include="..\SLib\slrecmgr.cpp" />
     <ClCompile Include="..\SLib\sltabs.cpp" />
     <ClCompile Include="..\SLib\smemchr.cpp" />
+    <ClCompile Include="..\SLib\sntok.cpp" />
     <ClCompile Include="..\SLib\soapdbt.cpp" />
     <ClCompile Include="..\SLib\sprocess.cpp" />
     <ClCompile Include="..\SLib\sstrtransform.cpp" />

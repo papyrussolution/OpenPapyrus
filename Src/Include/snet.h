@@ -307,7 +307,7 @@ public:
 	//   По указателю pSendedSize возвращается количество действительно переданных
 	//   данных.
 	//
-	int    Send(const void * pBuf, size_t dataLen, size_t * pSendedSize); // @>>::send
+	bool   Send(const void * pBuf, size_t dataLen, size_t * pSendedSize); // @>>::send
 	int    RecvBuf(SBuffer & rBuf, size_t frameSize, size_t * pRcvdSize);
 	//
 	// Descr: Считывает из сокета данные в буфер rBuf до тех пор, пока не

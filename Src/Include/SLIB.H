@@ -5094,8 +5094,8 @@ public:
 	// Descr: Определяет факт наличия в строке this символа c.
 	//
 	bool   FASTCALL HasChr(wchar_t c) const;
-	const  wchar_t * SearchCharPos(size_t startPos, int c, size_t * pPos) const;
-	const  wchar_t * SearchChar(int c, size_t * pPos) const;
+	const  wchar_t * SearchCharPos(size_t startPos, wchar_t c, size_t * pPos) const;
+	const  wchar_t * SearchChar(wchar_t c, size_t * pPos) const;
 	int    Search(const wchar_t * pPattern, size_t startPos, size_t * pPos) const;
 	SStringU & Z();
 	wchar_t Last() const;
@@ -7893,7 +7893,7 @@ public:
 	void   FASTCALL SetTimeouts(const CommPortTimeouts *);
 	int    InitPort(int portNo, int ctsControl, int rtsControl);
 	int    ClosePort();
-	int    FASTCALL PutChr(int c);
+	bool   FASTCALL PutChr(int c);
 	int    GetChr();
 	int    FASTCALL GetChr(int * pChr);
 	void   SetReadCyclingParams(int cycleCount, int cycleDelay);
@@ -12936,6 +12936,23 @@ public:
 	//
 	int    Run(const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat);
 	int    Run(const SString & rToken, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat);
+	//
+	// Descr: Функция призвана нормализовать токен pToken длиной len и идентифицированный (предыдущим вызовом Run()) как tok.
+	//   Введена для обработки частных случаев, например: SNTOK_PHONE, SNTOK_RU_LICPLATE и подобных.
+	// Attention: Функция не пытается идентифицировать pToken как tok с целью верификации. То есть, 
+	//   если вызывающая функция ранее этого не сделала, то результат может быть непредсказуемым.
+	// ARG(pToken IN): указатель на строке токена
+	// ARG(len IN): длина токена. Если (len < 0), то предполагается, что длина токена равна sstrlen(pToken).
+	// ARG(rStat IN): статистика, полученная в результате предыдущего анализа токена функцией Run(). Эта статистика
+	//   может понадобиться для правильной интерпретации символов токена дабы правильно их нормализовать.
+	// ARG(tok IN): идентификатор токена, в соответсвии с которым его следует нормализовать. 
+	// ARG(rResult OUT): нормализованный токен
+	// Returns:
+	//   >0 - функция преобразовала pToken
+	//   <0 - функция ничего не делала (rResult == pToken)
+	//    0 - error
+	//
+	virtual int NormalizeToken(const uchar * pToken, int len, const SNaturalTokenStat & rStat, uint32 tok, SString & rResult);
 protected:
 	struct ImplementBlock {
 		enum {

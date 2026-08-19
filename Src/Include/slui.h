@@ -4154,6 +4154,7 @@ public:
 
 	int    GetStatistics(Statistics * pStat) const;
 	ComboBox * GetCombo() { return P_Combo; }
+	const  ComboBox * GetComboC() const { return P_Combo; }
 
 	static const wchar_t * WndClsName;
 protected:
@@ -5481,7 +5482,8 @@ public:
 		tbisFocus,
 		tbisDisable,
 		tbisHover,
-		tbisDefault
+		tbisDefault,
+		tbisReadOnly // @v12.7.4
 	};
 	//
 	// Descr: Идентификаторы инструментов рисования пользовательского интерфейса

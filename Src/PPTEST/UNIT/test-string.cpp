@@ -1474,6 +1474,88 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 							SLCHECK_EQ(p, 0.0f);
 						}
 					}
+					{
+						static const SStrToStrAssoc licplate_nn_to_n_list[] = {
+							{ "М 028 НМ 178", "М028НМ178" },
+							{ "м 314 НА 99", "М314НА99" },
+							{ "С 093 ОУ 797", "С093ОУ797" },
+							{ "У832РЕ-90", "У832РЕ90" },
+							{ "А 827 Рв 54", "А827РВ54" },
+							{ "Т 877 хК 750", "Т877ХК750" },
+							{ "Н 934 ХР 177", "Н934ХР177" },
+							{ "к363РЕ-716", "К363РЕ716" },
+							{ "А 666 ТР 96", "А666ТР96" },
+							{ "Х536ТК 23", "Х536ТК23" },
+							{ "К143ВР 790", "К143ВР790" },
+							{ "Х395СС-799", "Х395СС799" },
+							{ "К644АМ-50", "К644АМ50" },
+							{ "М 636 та 716", "М636ТА716" },
+							{ "В643ЕХ-799", "В643ЕХ799" },
+							{ "Р233ЕН 93", "Р233ЕН93" },
+							{ "Н518ОС 150", "Н518ОС150" },
+							{ "Х675ОУ-250", "Х675ОУ250" },
+							{ "В092СВ-196", "В092СВ196" },
+							
+							{ "К363РE-716", "К363РЕ716" }, // ascii символы вместо русских букв
+							{ "a 666 ТР 96", "А666ТР96" }, // ascii символы вместо русских букв
+							{ "Х536 TK 23", "Х536ТК23" },   // ascii символы вместо русских букв
+
+						};
+						SNaturalTokenStat ntstat;
+						SString normalized_token;
+						SString normalized_token_pattern;
+						{ // utf-8
+							for(uint i = 0; i < SIZEOFARRAY(licplate_nn_to_n_list); i++) {
+								const SStrToStrAssoc & r_entry = licplate_nn_to_n_list[i];
+								str = r_entry.Key;
+								tr.Run(str.ucptr(), str.Len(), nta.Z(), &ntstat);
+								const float p = nta.Has(SNTOK_RU_LICPLATE);
+								SLCHECK_LE(0.1f, p);
+								if(p > 0.0f) {
+									normalized_token_pattern = r_entry.Val;
+									int r = tr.NormalizeToken(str.ucptr(), str.Len(), ntstat, SNTOK_RU_LICPLATE, normalized_token);
+									SLCHECK_NZ(r > 0);
+									if(r > 0) {
+										SLCHECK_EQ(normalized_token, normalized_token_pattern);
+									}
+								}
+							}
+						}
+						{ // cp1251
+							for(uint i = 0; i < SIZEOFARRAY(licplate_nn_to_n_list); i++) {
+								const SStrToStrAssoc & r_entry = licplate_nn_to_n_list[i];
+								(str = r_entry.Key).Transf(CTRANSF_UTF8_TO_OUTER);
+								tr.Run(str.ucptr(), str.Len(), nta.Z(), &ntstat);
+								const float p = nta.Has(SNTOK_RU_LICPLATE);
+								SLCHECK_LE(0.1f, p);
+								if(p > 0.0f) {
+									(normalized_token_pattern = r_entry.Val).Transf(CTRANSF_UTF8_TO_OUTER);
+									int r = tr.NormalizeToken(str.ucptr(), str.Len(), ntstat, SNTOK_RU_LICPLATE, normalized_token);
+									SLCHECK_NZ(r > 0);
+									if(r > 0) {
+										SLCHECK_EQ(normalized_token, normalized_token_pattern);
+									}
+								}
+							}
+						}
+						{ // cp866
+							for(uint i = 0; i < SIZEOFARRAY(licplate_nn_to_n_list); i++) {
+								const SStrToStrAssoc & r_entry = licplate_nn_to_n_list[i];
+								(str = r_entry.Key).Transf(CTRANSF_UTF8_TO_INNER);
+								tr.Run(str.ucptr(), str.Len(), nta.Z(), &ntstat);
+								const float p = nta.Has(SNTOK_RU_LICPLATE);
+								SLCHECK_LE(0.1f, p);
+								if(p > 0.0f) {
+									(normalized_token_pattern = r_entry.Val).Transf(CTRANSF_UTF8_TO_INNER);
+									int r = tr.NormalizeToken(str.ucptr(), str.Len(), ntstat, SNTOK_RU_LICPLATE, normalized_token);
+									SLCHECK_NZ(r > 0);
+									if(r > 0) {
+										SLCHECK_EQ(normalized_token, normalized_token_pattern);
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 		}

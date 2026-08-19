@@ -351,8 +351,9 @@ long DateRange::GetLength() const
 	if(low == upp) {
 		len = (!low) ? (MAXLONG-1) : 1; // @v12.3.8 0-->1
 	}
-	else if(!low)
-		len = diffdate(upp, encodedate(1, 1, 0));
+	else if(!low) {
+		len = diffdate(upp, encodedate(1, 1, 1)); // @v12.7.4 year: 0-->1
+	}
 	else if(!upp)
 		len = (MAXLONG-2);
 	else

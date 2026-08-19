@@ -952,8 +952,9 @@ int main(int argc, char ** argv)
 	int    i;
 	SFile  outf;
 	bool   nothing_to_do = true;
-	if(argc < 3)
+	if(argc < 3) {
 		error("Usage: SPC2RC OUTFILE [@]INFILE");
+	}
 	else {
 		SString temp_buf;
 		SString msg_buf;
@@ -1045,6 +1046,8 @@ int main(int argc, char ** argv)
 			}
 			else {
 				SString final_file_name;
+				SString valuable_comment; // @v12.7.4
+				SString obsolete_path; // @v12.7.4
 				{
 					ps.Split(out_file_name);
 					ps.Nam = "ppdlgw";
@@ -1061,6 +1064,39 @@ int main(int argc, char ** argv)
 					error(msg_buf);
 				}
 				int    do_process = 0;
+				//inp_file_path
+				{
+					ps.Split(inp_file_path);
+					ps.Dir.SetLastSlash().Cat("OBSOLETE");
+					ps.Merge(obsolete_path);
+					// Здесь что-то не так с имененем каталога. Надо разбираться и править (ниже его использование отключено)
+					/*{
+						msg_buf.Printf("debug - backup dir before SFsPath::NormalizePath '%s'\n", obsolete_path.cptr());
+						printf(msg_buf);
+					}*/
+					SFsPath::NormalizePath(obsolete_path, SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase, temp_buf);
+					obsolete_path = temp_buf;
+					/*{
+						msg_buf.Printf("debug - backup dir after SFsPath::NormalizePath '%s'\n", obsolete_path.cptr());
+						printf(msg_buf);
+					}*/
+					if(SFile::IsDir(obsolete_path)) {
+						;
+					}
+					else if(SFile::CreateDir(obsolete_path)) {
+						{
+							msg_buf.Printf("Backup dir '%s' for the obsolete files is created\n", obsolete_path.cptr());
+							printf(msg_buf);
+						}
+					}
+					else {
+						{
+							msg_buf.Printf("Unable to create backup dir '%s' for the obsolete files\n", obsolete_path.cptr());
+							printf(msg_buf);
+						}
+						obsolete_path.Z();
+					}
+				}
 				if(!fileExists(final_file_name) || !fileExists(out_file_name)) {
 					do_process = 1;
 				}
@@ -1069,31 +1105,66 @@ int main(int argc, char ** argv)
 					SFile finalf(final_file_name, SFile::mRead);
 					if(finalf.IsValid() && finalf.GetDateTime(0, 0, &finalf_dtm)) {
 						SFsPath ps_path;
+						SString src_file_name; // @v12.7.4
+						SString src_file_path; // @v12.7.4
+						SString obsolete_file_path; // @v12.7.4
 						while(!do_process && rspf.ReadLine(temp_buf)) {
 							if(temp_buf.Chomp().NotEmptyS()) {
 								if(temp_buf.CmpPrefix("//", 0) != 0 && temp_buf.CmpPrefix("--", 0) != 0) {
+									bool   is_obsolete_entry = false; // @v12.7.4
+									valuable_comment.Z(); // @v12.7.4
 									// @v12.4.1 {
 									uint comment_pos = 0;
 									if(temp_buf.Search("//", 0, 0, &comment_pos) || temp_buf.Search("--", 0, 0, &comment_pos)) {
+										temp_buf.Sub(comment_pos+2, temp_buf.Len(), valuable_comment); // @v12.7.4
 										temp_buf.Trim(comment_pos).Strip();
+										src_file_name = temp_buf;
 									}
-									// } @v12.4.1 
+									// } @v12.4.1
+									// @v12.7.4 {
+									valuable_comment.Strip();
+									if(valuable_comment.HasPrefix("@uiview")) {
+										is_obsolete_entry = true;
+									}
+									// } @v12.7.4 
 									LDATETIME depf_dtm;
-									ps.Split(temp_buf);
+									ps.Split(src_file_name);
 									ps_path.Split(inp_file_path);
 									if(ps.Drv.IsEmpty() && ps_path.Drv.NotEmpty())
 										ps.Drv = ps_path.Drv;
 									if(ps.Dir.IsEmpty() && ps_path.Dir.NotEmpty())
 										ps.Dir = ps_path.Dir;
-									ps.Merge(temp_buf);
-									SFile depf(temp_buf, SFile::mRead);
-									if(depf.IsValid()) {
-										if(depf.GetDateTime(0, 0, &depf_dtm) && cmp(depf_dtm, finalf_dtm) > 0)
-											do_process = 1;
+									ps.Merge(src_file_path);
+									if(fileExists(src_file_path)) {
+										if(is_obsolete_entry) {
+											// @v12.7.4 {
+											msg_buf.Printf("File '%s' is obsolete\n", src_file_path.cptr());
+											printf(msg_buf);
+											if(SFile::IsDir(obsolete_path)) {
+												(obsolete_file_path = obsolete_path).SetLastSlash().Cat(src_file_name);
+												if(SCopyFile(src_file_path, obsolete_file_path, 0, FILE_SHARE_READ, 0) > 0) {
+													SFile::Remove(src_file_path);
+												}
+											}
+											// } @v12.7.4 
+										}
+										else {
+											SFile depf(src_file_path, SFile::mRead);
+											if(depf.IsValid()) {
+												if(depf.GetDateTime(0, 0, &depf_dtm) && cmp(depf_dtm, finalf_dtm) > 0)
+													do_process = 1;
+											}
+											else {
+												msg_buf.Printf("Unable to open file '%s'", src_file_path.cptr());
+												error(msg_buf);
+											}
+										}
 									}
 									else {
-										msg_buf.Printf("Unable to open file '%s'", temp_buf.cptr());
-										error(msg_buf);
+										if(!is_obsolete_entry) {
+											msg_buf.Printf("File '%s' is not found", src_file_path.cptr());
+											error(msg_buf);
+										}
 									}
 								}
 							}
@@ -1128,14 +1199,28 @@ int main(int argc, char ** argv)
 						while(rspf.ReadLine(temp_buf)) {
 							if(temp_buf.Chomp().NotEmptyS()) {
 								if(temp_buf.CmpPrefix("//", 0) != 0 && temp_buf.CmpPrefix("--", 0) != 0) {
+									bool   is_obsolete_entry = false; // @v12.7.4
+									valuable_comment.Z(); // @v12.7.4
 									//printf((msg_buf = "Processing file").Space().Cat(temp_buf).CR());
 									// @v12.4.5 {
 									uint comment_pos = 0;
 									if(temp_buf.Search("//", 0, 0, &comment_pos) || temp_buf.Search("--", 0, 0, &comment_pos)) {
+										temp_buf.Sub(comment_pos+2, temp_buf.Len(), valuable_comment); // @v12.7.4
 										temp_buf.Trim(comment_pos).Strip();
 									}
 									// } @v12.4.5 
-									ss_in_files.add(temp_buf);
+									// @v12.7.4 {
+									valuable_comment.Strip();
+									if(valuable_comment.HasPrefix("@uiview")) {
+										is_obsolete_entry = true;
+									}
+									// } @v12.7.4 
+									if(is_obsolete_entry) {
+										;
+									}
+									else {
+										ss_in_files.add(temp_buf);
+									}
 								}
 							}
 						}

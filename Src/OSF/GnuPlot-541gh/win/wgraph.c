@@ -1534,14 +1534,14 @@ static void draw_image(GW * lpgw, HDC hdc, char * image, POINT corners[4], uint 
 		bmi.bmiHeader.biPlanes = 1;
 		bmi.bmiHeader.biCompression = BI_RGB;
 		// create clip region 
-		hrgn = CreateRectRgn(MIN(corners[2].x, corners[3].x), MIN(corners[2].y, corners[3].y), MAX(corners[2].x, corners[3].x) + 1, MAX(corners[2].y, corners[3].y) + 1);
+		hrgn = CreateRectRgn(smin(corners[2].x, corners[3].x), smin(corners[2].y, corners[3].y), smax(corners[2].x, corners[3].x) + 1, smax(corners[2].y, corners[3].y) + 1);
 		SelectClipRgn(hdc, hrgn);
 		if(color_mode != IC_RGBA) {
 			char * dibimage;
 			bmi.bmiHeader.biBitCount = 24;
 			if(!lpgw->color) {
 				// create a copy of the color image 
-				int pad_bytes = (4 - (3 * width) % 4) % 4; /* scan lines start on ULONG boundaries */
+				int pad_bytes = (4 - (3 * width) % 4) % 4; // scan lines start on ULONG boundaries
 				int image_size = (width * 3 + pad_bytes) * height;
 				dibimage = (char *)SAlloc::M(image_size);
 				memcpy(dibimage, image, image_size);
@@ -1557,7 +1557,7 @@ static void draw_image(GW * lpgw, HDC hdc, char * image, POINT corners[4], uint 
 			else {
 				dibimage = image;
 			}
-			StretchDIBits(hdc, MIN(corners[0].x, corners[1].x), MIN(corners[0].y, corners[1].y),
+			StretchDIBits(hdc, smin(corners[0].x, corners[1].x), smin(corners[0].y, corners[1].y),
 				abs(corners[1].x - corners[0].x), abs(corners[1].y - corners[0].y), 0, 0, width, height, dibimage, &bmi, DIB_RGB_COLORS, SRCCOPY);
 			if(!lpgw->color) 
 				SAlloc::F(dibimage);
@@ -1587,7 +1587,7 @@ static void draw_image(GW * lpgw, HDC hdc, char * image, POINT corners[4], uint 
 			ftn.BlendFlags = 0;
 			ftn.AlphaFormat = AC_SRC_ALPHA; /* bitmap has an alpha channel */
 			ftn.SourceConstantAlpha = 0xff;
-			AlphaBlend(hdc, MIN(corners[0].x, corners[1].x), MIN(corners[0].y, corners[1].y),
+			AlphaBlend(hdc, smin(corners[0].x, corners[1].x), smin(corners[0].y, corners[1].y),
 				abs(corners[1].x - corners[0].x), abs(corners[1].y - corners[0].y), memdc, 0, 0, width, height, ftn);
 			SelectObject(memdc, oldbmp);
 			DeleteObject(membmp);

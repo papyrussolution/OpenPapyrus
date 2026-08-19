@@ -178,14 +178,14 @@
 #define ACY_OBAL             2   // Внебалансовый счет
 #define ACY_AGGR             3   // Агрегирующий счет
 #define ACY_REGISTER         4   // Регистр
-#define ACY_PERSONAL         5   // Персональный счет (under construction)
+#define ACY_PERSONAL         5   // Персональный счет @construction
 #define ACY_ALIAS            6   // Элиас счета
 #define ACY_BUDGET           7   // Бюджетный счет
 //
 // Порядок счета
 //
-#define ACO_1                1   // Синт. счет 1-го порядка
-#define ACO_2                2   // Синт. счет 2-го порядка (субсчет)
+#define ACO_1                1   // Синтетический счет 1-го порядка
+#define ACO_2                2   // Синтетический счет 2-го порядка (субсчет)
 #define ACO_3                3   // Терминальный счет (не обязательно субконто)
 //
 // Смещение поля AccTurn.RByBill для проводок покрытия валютных операций в базовой валюте
@@ -528,14 +528,15 @@
 	#define PPOPK_EDI_WROFFWITHMARKS    19L // Драфт-операция списание с остатков ЕГАИС акцизных марок
 	#define PPOPK_EDI_CHARGEONWITHMARKS 20L // Драфт-операция постановки на баланс маркированной продукции
 	#define PPOPK_GENERICREGACCTURN     21L // Общая регистровая бухгалтерская проводка
+	#define PPOPK_GENERICPSNACCTURN     22L // @v12.7.4 @centrigo Общая персональная бухгалтерская проводка 
 	#define PPOPK_UNASSIGNED          1000L // Специальный идентификатор
 	//
 	// Extra records of PPOBJ_OPRKIND
-	#define OPKPRP_BILLMEMO   (PP_MAXATURNTEMPLATES+1)  // @obsolete since @v3.0.2 Шаблон текста для ввода в примечание документа
+	// @v12.7.4 #define OPKPRP_BILLMEMO   (PP_MAXATURNTEMPLATES+1)  // @obsolete since @v3.0.2 Шаблон текста для ввода в примечание документа
 	#define OPKPRP_EXTSTRDATA (PP_MAXATURNTEMPLATES+1)  //
 	#define OPKPRP_EXAMTLIST  (PP_MAXATURNTEMPLATES+2)  //
 	#define OPKPRP_INVENTORY  (PP_MAXATURNTEMPLATES+3)  //
-	#define OPKPRP_GENLIST    (PP_MAXATURNTEMPLATES+4)  // PPIDArray obsolete since @v3.10.8
+	// @v12.7.4 #define OPKPRP_GENLIST    (PP_MAXATURNTEMPLATES+4)  // PPIDArray obsolete since @v3.10.8
 	#define OPKPRP_PAYMOPLIST (PP_MAXATURNTEMPLATES+5)  //
 	#define OPKPRP_BILLPOOL   (PP_MAXATURNTEMPLATES+6)  //
 	#define OPKPRP_DRAFT      (PP_MAXATURNTEMPLATES+7)  //
@@ -8114,6 +8115,8 @@
 	#define CTL_SUPPLAGT_ORDPRD        (24 + WINDOWS_ID_BIAS)
 	#define CTL_SUPPLAGT_FLAGS2        (25 + WINDOWS_ID_BIAS)
 	#define CTL_SUPPLAGT_ORDPL         (26 + WINDOWS_ID_BIAS)
+	#define CTL_SUPPLAGT_CMD_EXCHANGECFG (27 + WINDOWS_ID_BIAS)
+	#define CTL_SUPPLAGT_CMD_BILLS       (28 + WINDOWS_ID_BIAS)
 #define DLG_GPLABEL               833
 	#define CTL_GPLABEL_WHAT           (1 + WINDOWS_ID_BIAS)
 #define DLG_AUTONEWP              834 // Изменение цен в товарном документе
@@ -12238,6 +12241,8 @@
 	#define CTL_PRCRCHZNMCLLTR_LOC              (7 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PRCRCHZNMCLLTR_LOC           (8 + WINDOWS_ID_BIAS)
 	#define CTL_PRCRCHZNMCLLTR_LIMSTOREDAYS     (9 + WINDOWS_ID_BIAS)
+#define DLG_PERSONALACCOUNT      1601 // Персональный счет
+	// Ctrls CTL_ACCOUNT_XXX
 //
 // Win32 Dialog Identifiers
 //

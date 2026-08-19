@@ -1614,7 +1614,7 @@ int CCheckPacket::InsertCcl(const CCheckItem & rItem)
 	return ok;
 }
 
-int CCheckPacket::InsertCclSimple(PPID goodsID, double qtty, double price, double dscnt, short div /* =0 */, int isPrinted /* =0 */)
+int CCheckPacket::InsertCclSimple(PPID goodsID, double qtty, double price, double dscnt, short div/*=0*/, int isPrinted/*=0*/)
 {
 	CCheckLineTbl::Rec item;
 	item.DivID = static_cast<short>(div);

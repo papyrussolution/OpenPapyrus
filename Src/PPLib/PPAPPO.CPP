@@ -438,6 +438,7 @@ int PPApp::processCommand(uint cmd)
 		case cmAccAggr:              ShowObjects(PPOBJ_ACCOUNT2, reinterpret_cast<void *>(ACY_AGGR));    break;
 		case cmAccAlias:             ShowObjects(PPOBJ_ACCOUNT2, reinterpret_cast<void *>(ACY_ALIAS));   break;
 		case cmAccBudget:            ShowObjects(PPOBJ_ACCOUNT2, reinterpret_cast<void *>(ACY_BUDGET));  break;
+		case cmAccPersonal:          ShowObjects(PPOBJ_ACCOUNT2, reinterpret_cast<void *>(ACY_PERSONAL)); break; // @v12.7.4
 		case cmDraftCreateRules:     ShowObjects(PPOBJ_DFCREATERULE, 0);      break;
 		case cmEditGoodsInfo:        ShowObjects(PPOBJ_GOODSINFO, 0);         break;
 		case cmDynamicObjs:          ShowObjects(PPOBJ_DYNAMICOBJS, 0);       break;

@@ -133,8 +133,15 @@ TCanvas2::TCanvas2(SPaintToolBox & rTb, HDC hDc) : GdiObjStack(sizeof(HGDIOBJ)),
 	//Init();
 	S.HCtx = hDc;
 	//Flags |= fOuterSurface;
-	P_CrS = cairo_win32_surface_create(hDc);
-	assert(P_CrS);
+	int    dc_tech = hDc ? GetDeviceCaps(hDc, TECHNOLOGY) : 0; // @v12.7.4
+	if(dc_tech == DT_RASPRINTER) {
+		P_CrS = cairo_win32_printing_surface_create(hDc);
+		assert(P_CrS);
+	}
+	else {
+		P_CrS = cairo_win32_surface_create(hDc);
+		assert(P_CrS);
+	}
 	P_Cr = cairo_create(P_CrS);
 	// cairo_set_antialias(P_Cr, CAIRO_ANTIALIAS_BEST); // @v9.1.5 @construction
 	assert(P_Cr);

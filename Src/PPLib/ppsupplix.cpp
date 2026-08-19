@@ -5009,8 +5009,8 @@ int iSalesPepsi::SendInvoices()
 						}
 						line_buf.Cat(p_item->Qtty, MKSFMTD(0, 3, NMBF_DECCOMMA)).Tab();
 						{
-							iSalesBillAmountEntry * p_main_amt_entry = 0; // @v11.1.4
-							iSalesBillAmountEntry * p_discount_amt_entry = 0; // @v11.1.4
+							iSalesBillAmountEntry * p_main_amt_entry = 0;
+							iSalesBillAmountEntry * p_discount_amt_entry = 0;
 							for(uint si = 0; si < p_item->Amounts.getCount(); si++) {
 								iSalesBillAmountEntry * p_amt_entry = p_item->Amounts.at(si);
 								if(p_amt_entry) {
@@ -5027,7 +5027,7 @@ int iSalesPepsi::SendInvoices()
 							double net_sum = 0.0;
 							double discount_pct = 0.0;
 							double discount_amt = 0.0;
-							if(p_discount_amt_entry) { // @v11.1.4
+							if(p_discount_amt_entry) {
 								gross_sum = p_discount_amt_entry->GrossSum;
 								net_sum = p_discount_amt_entry->DiscNetSum;
 								discount_pct = fdivnz(p_discount_amt_entry->DiscGrossSum, p_discount_amt_entry->GrossSum) * 100.0;

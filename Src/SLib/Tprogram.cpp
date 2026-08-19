@@ -2079,6 +2079,7 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	int    draw_bitmap = 0;
 	uint   dv_id = 0;
 	bool   is_hovered = false; // @v12.5.3 true если над элементом висит курсор мыши
+	bool   is_default = false; // @v12.7.4
 	int    item_state = tbisBase;
 	if(pDi->itemState & ODS_DISABLED)
 		item_state = tbisDisable;
@@ -2127,8 +2128,10 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 					if(is_hovered)
 						item_state = tbisSelect;
 					*/
-					if(p_btn_->IsDefault())
+					if(p_btn_->IsDefault()) {
+						is_default = true;
 						item_state = tbisDefault;
+					}
 				}
 				// @v12.5.3 {
 				if(is_hovered && !oneof2(item_state, tbisFocus, tbisDisable)) {
@@ -2189,8 +2192,8 @@ int TProgram::DrawButton3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 								case STDCTL_REGISTERSBUTTON: dv_id = PPDV_REGISTERS01; break;
 								case STDCTL_VIEWOPTBUTTON:   dv_id = PPDV_VIEWOPTIONS02; break;
 								case STDCTL_PERSONBUTTON:    dv_id = PPDV_PERSON01; break;
-								case STDCTL_IMGADDBUTTON:    dv_id = PPDV_FOLDER02; break; // @v11.3.4
-								case STDCTL_IMGDELBUTTON:    dv_id = PPDV_CANCEL02; break; // @v11.3.4
+								case STDCTL_IMGADDBUTTON:    dv_id = PPDV_FOLDER02; break;
+								case STDCTL_IMGDELBUTTON:    dv_id = PPDV_CANCEL02; break;
 								case STDCTL_IMGPSTBUTTON:    dv_id = PPDV_CLIPBOARDPASTE01; break;
 								case STDCTL_SJBUTTON:        dv_id = PPDV_SYSJOURNAL; break;
 								case STDCTL_TRANSMITBUTTON:  dv_id = PPDV_SYNC01; break;
@@ -2551,7 +2554,27 @@ int TProgram::DrawInputLine3(HWND hwnd, DRAWITEMSTRUCT * pDi)
 	int    ok = 1;
 	InitUiToolBox();
 	int    item_state = tbisBase;
-	if(pDi->itemState & ODS_DISABLED)
+	// @v12.7.4 {
+	void * p_user_data = TView::GetWindowUserData(hwnd);
+	const  TInputLine * p_il = 0;
+	bool   is_readonly = false;
+	if(p_user_data && TView::IsSubSign(static_cast<TView *>(p_user_data), TV_SUBSIGN_INPUTLINE)) {
+		p_il = static_cast<const TInputLine *>(p_user_data);
+		const  ComboBox * p_cb = p_il->GetComboC();
+		if(p_cb) {
+			if(p_cb->IsInState(sfReadOnly)) {
+				is_readonly = true;
+			}
+		}
+		else if(p_il->IsInState(sfReadOnly)) {
+			is_readonly = true;
+		}
+	}
+	// } @v12.7.4 
+	if(is_readonly) { // @v12.7.4
+		item_state = tbisReadOnly;
+	}
+	else if(pDi->itemState & ODS_DISABLED)
 		item_state = tbisDisable;
 	else if(pDi->itemState & ODS_SELECTED && pDi->itemAction == ODA_SELECT)
 		item_state = tbisSelect;

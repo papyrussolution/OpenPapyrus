@@ -124,6 +124,7 @@
 			"button_focus_border": "#orange",
 			"button_sel_border": "#orange",
 			"button_disabled_border": "#white",
+			"button_readonly_border": "#black",
 			"button_fg": "#black",
 			"button_disabled_fg": "#white",
 			"icon_reg": "#004982",

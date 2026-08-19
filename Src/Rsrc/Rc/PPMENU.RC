@@ -185,6 +185,7 @@
 			MENUITEM "@cmd_accaggr",					cmAccAggr
 			MENUITEM "@cmd_accalias",					cmAccAlias
 			MENUITEM "@cmd_accbudget",					cmAccBudget
+			MENUITEM "@cmd_accpersonal",                cmAccPersonal // @v12.7.4
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_currency",                   cmCurrency
 			MENUITEM "@cmd_curratetype",				cmCurRateType

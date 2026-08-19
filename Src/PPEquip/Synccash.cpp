@@ -23,21 +23,21 @@
 //
 //   Режимы печати чеков и состояние чеков
 //
-#define PRNMODE_NO_PRINT			0x00	// Нет печати
-#define NO_PAPER					0x01	// Нет бумаги
-#define PRNMODE_AFTER_NO_PAPER		0x02	// Ожидание команды печати после режима 2
-#define PRNMODE_PRINT				0x04	// Режим печати
-#define FRMODE_OPEN_CHECK			0x08	// Чек открыт
+#define PRNMODE_NO_PRINT			0x00 // Нет печати
+#define NO_PAPER					0x01 // Нет бумаги
+#define PRNMODE_AFTER_NO_PAPER		0x02 // Ожидание команды печати после режима 2
+#define PRNMODE_PRINT				0x04 // Режим печати
+#define FRMODE_OPEN_CHECK			0x08 // Чек открыт
 //
 //   Коды возврата при операциях печати
 //
 #define RESCODE_NO_ERROR			  0
-#define RESCODE_UNKNOWNCOMMAND		301		// Неизвестная команда
-#define RESCODE_NO_CONNECTION		303		// Соединение не установлено
-#define RESCODE_SLIP_IS_EMPTY		400		// Буфер подкладного документа пуст
-#define RESCODE_INVEKLZSTATE		401		// Некорректное состояние ЭКЛЗ
-#define RESCODE_MEMOVERFLOW					402		// ЭКЛЗ или ФП переполнена
-#define RESCODE_GOTOCTO				403		// Ошибка ЭКЛЗ. Просьба обратиться в ЦТО
+#define RESCODE_UNKNOWNCOMMAND		301 // Неизвестная команда
+#define RESCODE_NO_CONNECTION		303 // Соединение не установлено
+#define RESCODE_SLIP_IS_EMPTY		400 // Буфер подкладного документа пуст
+#define RESCODE_INVEKLZSTATE		401 // Некорректное состояние ЭКЛЗ
+#define RESCODE_MEMOVERFLOW         402 // ЭКЛЗ или ФП переполнена
+#define RESCODE_GOTOCTO				403 // Ошибка ЭКЛЗ. Просьба обратиться в ЦТО
 
 //
 //   Sync_BillTaxArray
@@ -428,8 +428,9 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 			THROW(ExecOper(DVCCMD_SETCFG, Arr_In, Arr_Out));
 			// Загружаем логотип
 			Arr_In.Z();
-			if(!IsLogoSet)
+			if(!IsLogoSet) {
 				THROW(SetLogotype());
+			}
 			CashierPassword = cshr_pssw;
 		}
 	}
@@ -448,7 +449,7 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 	return ok;
 }
 
-/*virtual*/int SCS_SYNCCASH::Diagnostics(StringSet * pSs) // @v11.1.9
+/*virtual*/int SCS_SYNCCASH::Diagnostics(StringSet * pSs)
 {
 	int    ok = 1;
 	CALLPTRMEMB(pSs, Z());
@@ -465,7 +466,7 @@ int SCS_SYNCCASH::Connect(int forceKeepAlive/*= 0*/)
 	return ok;
 }
 
-/*static*/void PPSyncCashSession::LogPreprocessChZnCodeResult(int ret, int op, const char * pCode, double qtty, const CCheckPacket::PreprocessChZnCodeResult & rResult) // @v11.2.3
+/*static*/void PPSyncCashSession::LogPreprocessChZnCodeResult(int ret, int op, const char * pCode, double qtty, const CCheckPacket::PreprocessChZnCodeResult & rResult)
 {
 	SString msg;
 	msg.Cat("PreprocessChZnCode").CatDiv(':', 2).CatChar('(').Cat(ret).CatChar(')').Space();

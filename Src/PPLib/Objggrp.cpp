@@ -856,7 +856,6 @@ void GoodsGroupView::updateList(PPID id)
 		long   groups_type = (v == 1) ? GGRTYP_SEL_NORMAL : ((v == 2) ? GGRTYP_SEL_ALT : 0);
 		if(id < 0)
 			cur = P_Box->P_Def ? P_Box->P_Def->_curItem() : 0;
-		// @v11.1.10 GGObj.UpdateSelector(P_Box->def, 0, reinterpret_cast<void *>(groups_type));
 		GGObj.Selector(P_Box->P_Def, 0, reinterpret_cast<void *>(groups_type));
 		if(id >= 0) {
 			if(id > 0)
@@ -1644,9 +1643,27 @@ int PPObjTransport::Browse(void * extraPtr)
 class TransportDialog : public TDialog {
 	DECL_DIALOG_DATA(PPTransportPacket);
 public:
-	explicit TransportDialog(uint dlgID) : TDialog(dlgID), LockAutoName(0)
+	explicit TransportDialog(uint dlgID) : TDialog(dlgID), LockAutoName(0), ValidMainLicPlate(-1)
 	{
 		PPObjTransport::ReadConfig(&Cfg);
+		// @v12.7.4 {
+		{
+			const UiDescription * p_uid = SLS.GetUiDescription();
+			const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+			{
+				SColor _color;
+				if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
+					_color = SClrCoral; 
+				Ptb.SetBrush(brushInvalidNumber, SPaintObj::bsSolid, _color, 0);
+			}
+			{
+				SColor _color;
+				if(!p_cs || !p_cs->Get("valid_value_input_bg", &p_uid->ClrList, _color))
+					_color = SClrAqua; 
+				Ptb.SetBrush(brushValidNumber,   SPaintObj::bsSolid, _color,  0);
+			}
+		}
+		// } @v12.7.4 
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -1695,6 +1712,11 @@ public:
 		return ok;
 	}
 private:
+	enum {
+		dummyFirst = 1,
+		brushValidNumber,
+		brushInvalidNumber
+	};
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
@@ -1703,11 +1725,31 @@ private:
 			EditObjTagValList(&Data.TagL, 0);
 			clearEvent(event);			
 		}
+		// @v12.7.4 {
+		else if(event.isCmd(cmInputUpdated)) {
+			const  uint ctl_id = event.getCtlID();
+			if(ctl_id == CTL_TRANSPORT_CODE) {
+				if(ValidateLicPlate(ctl_id))
+					drawCtrl(CTL_TRANSPORT_CODE);
+			}
+			else
+				return;
+		}
+		else if(event.isCmd(cmCtlColor)) {
+			TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
+			if(p_dc && ValidMainLicPlate >= 0 && getCtrlHandle(CTL_TRANSPORT_CODE) == p_dc->H_Ctl) {
+				::SetBkMode(p_dc->H_DC, TRANSPARENT);
+				p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get((ValidMainLicPlate > 0) ? brushValidNumber : brushInvalidNumber));
+				clearEvent(event);
+			}
+			else
+				return;
+		}
+		// } @v12.7.4 
 		else if(!LockAutoName && Cfg.NameTemplate.NotEmpty()) {
 			if(event.isCbSelected(CTLSEL_TRANSPORT_MODEL) || event.isCbSelected(CTLSEL_TRANSPORT_OWNER) ||
 				event.isCbSelected(CTLSEL_TRANSPORT_CAPTAIN) ||
-				(event.isCmd(cmInputUpdated) &&
-				(event.isCtlEvent(CTL_TRANSPORT_CODE) || event.isCtlEvent(CTL_TRANSPORT_TRAILCODE)))) {
+				(event.isCmd(cmInputUpdated) && (event.isCtlEvent(CTL_TRANSPORT_CODE) || event.isCtlEvent(CTL_TRANSPORT_TRAILCODE)))) {
 				Helper_GetDTS();
 				SString name_buf;
 				TrObj.GetNameByTemplate(&Data.Rec, Cfg.NameTemplate, name_buf);
@@ -1715,6 +1757,18 @@ private:
 				clearEvent(event);
 			}
 		}
+	}
+	int  ValidateLicPlate(uint ctlId)
+	{
+		SString temp_buf;
+		getCtrlString(ctlId, temp_buf);
+		const  int prev = ValidMainLicPlate;
+		SNaturalTokenStat nts;
+		SNaturalTokenArray nta;
+		Trg.Run(temp_buf, nta.Z(), &nts); 
+		//
+		ValidMainLicPlate = (nta.Has(SNTOK_RU_LICPLATE) > 0.0f);
+		return (ValidMainLicPlate != prev);
 	}
 	void   Helper_GetDTS()
 	{
@@ -1736,8 +1790,11 @@ private:
 		Data.Rec.Flags = static_cast<int16>(GetClusterData(CTL_TRANSPORT_FLAGS));
 	}
 	int    LockAutoName;
+	int    ValidMainLicPlate; // @v12.7.4
 	PPTransportConfig Cfg;
 	PPObjTransport TrObj;
+	STokenRecognizer Trg; // @v12.7.4
+	SPaintToolBox Ptb;    // @v12.7.4
 };
 
 int PPObjTransport::Edit(PPID * pID, void * extraPtr /*initTrType*/)
@@ -1756,7 +1813,8 @@ int PPObjTransport::Edit(PPID * pID, void * extraPtr /*initTrType*/)
 		pack.Z();
 		if(tr_type != PPTRTYP_CAR && tr_type != PPTRTYP_SHIP) {
 			tr_type = 0;
-			THROW(CheckDialogPtr(&(sel_dlg = new TDialog(DLG_TRSEL))));
+			sel_dlg = new TDialog(DLG_TRSEL);
+			THROW(CheckDialogPtr(&sel_dlg));
 			sel_dlg->setCtrlUInt16(CTL_TRSEL_WHAT, 0);
 			if(ExecView(sel_dlg) == cmOK) {
 				ushort v = sel_dlg->getCtrlUInt16(CTL_TRSEL_WHAT);

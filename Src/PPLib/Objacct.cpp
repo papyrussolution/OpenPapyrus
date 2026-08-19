@@ -409,33 +409,22 @@ int PPObjAccount::LockFRR(PPID accID, LDATE dt, int doUnlock)
 
 int PPObjAccount::GenerateNumber(PPAccount * pRec)
 {
-	int    ok = -1, r;
-	int    start = 0, finish = 0;
+	int    ok = -1;
+	int    r;
+	IntRange range;
 	THROW_INVARG(pRec);
 	pRec->A.Ac = 0;
 	pRec->A.Sb = 0;
-	if(pRec->Type == ACY_OBAL) {
-		start = 1000;
-		finish = 1999;
+	switch(pRec->Type) {
+		case ACY_OBAL:     range.Set(1000,   1999); break;
+		case ACY_REGISTER: range.Set(2000,   9999); break;
+		case ACY_AGGR:     range.Set(10000, 11999); break;
+		case ACY_ALIAS:    range.Set(12000, 13999); break;
+		case ACY_BUDGET:   range.Set(14000, 21999); break;
+		case ACY_PERSONAL: range.Set(22000, 26999); break; // @v12.7.4
 	}
-	else if(pRec->Type == ACY_REGISTER) {
-		start = 2000;
-		finish = 9999;
-	}
-	else if(pRec->Type == ACY_AGGR) {
-		start = 10000;
-		finish = 11999;
-	}
-	else if(pRec->Type == ACY_ALIAS) {
-		start = 12000;
-		finish = 13999;
-	}
-	else if(pRec->Type == ACY_BUDGET) {
-		start  = 14000;
-		finish = 21999;
-	}
-	if(start > 0) {
-		for(int ac = start; ok < 0 && ac <= finish; ac++) {
+	if(range.low > 0) {
+		for(int ac = range.low; ok < 0 && ac <= range.upp; ac++) {
 			THROW(r = SearchNum(ac, 0, 0L));
 			if(r < 0) {
 				pRec->A.Ac = ac;
@@ -506,6 +495,10 @@ StrAssocArray * PPObjAccount::MakeStrAssocList(void * extraPtr /*acySelType*/)
 						if(rec.Type == ACY_BUDGET)
 							_suite = 1;
 						break;
+					case ACY_SEL_PERSONAL: // @v12.7.4
+						if(rec.Type == ACY_PERSONAL)
+							_suite = 1;
+						break;						
 					case ACY_SEL_BALOBAL:
 						if(oneof3(rec.Type, ACY_BAL, ACY_OBAL, ACY_REGISTER))
 							_suite = 1;
@@ -759,13 +752,90 @@ int GenAccountDialog::editItemDialog(ObjRestrictItem * pItem)
 //
 //
 class AccountDialog : public PPListDialog {
+	DECL_DIALOG_DATA(PPAccountPacket);
 public:
 	AccountDialog(uint dlgID) : PPListDialog(dlgID, CTL_ACCOUNT_CURLIST)
 	{
 		updateList(-1);
 	}
-	int    setDTS(const PPAccountPacket *);
-	int    getDTS(PPAccountPacket *);
+	DECL_DIALOG_SETDTS()
+	{
+		ushort v = 0;
+		bool   is_cur_acc = false;
+		RVALUEPTR(Data, pData);
+		setCtrlLong(CTL_ACCOUNT_ID, Data.Rec.ID); // @v12.7.4
+		setCtrlData(CTL_ACCOUNT_CODE,      Data.Rec.Code);
+		setCtrlData(CTL_ACCOUNT_NUMBER,    &Data.Rec.A.Ac);
+		setCtrlData(CTL_ACCOUNT_SUBNUMBER, &Data.Rec.A.Sb);
+		setCtrlData(CTL_ACCOUNT_NAME,      &Data.Rec.Name);
+		setCtrlData(CTL_ACCOUNT_OVERDRAFT, &Data.Rec.Overdraft);
+		setCtrlData(CTL_ACCOUNT_LIMIT,     &Data.Rec.Limit);
+		{
+			const  int kind = Data.Rec.Kind;
+			v = (kind == ACT_ACTIVE) ? 0 : ((kind == ACT_PASSIVE) ? 1 : ((kind == ACT_AP) ? 2 : 0));
+			setCtrlUInt16(CTL_ACCOUNT_TYPE, v);
+		}
+		SetupPPObjCombo(this, CTLSEL_ACCOUNT_ACCSHEET, PPOBJ_ACCSHEET, Data.Rec.AccSheetID, OLW_CANINSERT, 0);
+		if(Data.Rec.ID && !PPMaster) {
+			disableCtrls(1, CTL_ACCOUNT_NUMBER, CTL_ACCOUNT_SUBNUMBER, 0);
+			if(Data.Rec.AccSheetID)
+				disableCtrl(CTLSEL_ACCOUNT_ACCSHEET, true);
+		}
+		setCtrlUInt16(CTL_ACCOUNT_FLAGS, BIN(Data.Rec.Flags & ACF_CURRENCY));
+		setCtrlUInt16(CTL_ACCOUNT_OUTBAL, BIN(Data.Rec.Type == ACY_OBAL));
+		disableCtrl(CTL_ACCOUNT_OUTBAL, true);
+		updateList(-1);
+		is_cur_acc = LOGIC(Data.Rec.Flags & ACF_CURRENCY);
+		disableCtrls(!is_cur_acc, CTL_ACCOUNT_CURLIST, 0);
+		enableCommand(cmaInsert, is_cur_acc);
+		enableCommand(cmaDelete, is_cur_acc);
+		if(getCtrlView(CTL_ACCOUNT_AUTONUMBER)) {
+			v = BIN(Data.Rec.Flags & ACF_SYSNUMBER);
+			setCtrlUInt16(CTL_ACCOUNT_AUTONUMBER, v);
+			disableCtrls(v, CTL_ACCOUNT_NUMBER, CTL_ACCOUNT_SUBNUMBER, 0);
+		}
+		if(AtObj.VerifyChangingAccsheetOfAccount(Data.Rec.ID)) {
+			disableCtrl(CTLSEL_ACCOUNT_ACCSHEET, false);
+			setStaticText(CTL_ACCOUNT_ST_ACSMSG, 0);
+		}
+		else if(DS.CheckExtFlag(ECF_AVERAGE) && PPMaster) {
+			SString msg_buf;
+			PPLoadText(PPTXT_ACC_ACSUSED, msg_buf);
+			setStaticText(CTL_ACCOUNT_ST_ACSMSG, msg_buf);
+		}
+		else
+			disableCtrl(CTLSEL_ACCOUNT_ACCSHEET, true);
+		if(Data.Rec.Type == ACY_BUDGET)
+			SetupPPObjCombo(this, CTLSEL_ACCOUNT_PARENT,  PPOBJ_ACCOUNT2, Data.Rec.ParentID, OLW_CANSELUPLEVEL, reinterpret_cast<void *>(ACY_SEL_BUDGET));
+		else if(Data.Rec.Type == ACY_PERSONAL) // @v12.7.4
+			SetupPPObjCombo(this, CTLSEL_ACCOUNT_PARENT,  PPOBJ_ACCOUNT2, Data.Rec.ParentID, OLW_CANSELUPLEVEL, reinterpret_cast<void *>(ACY_SEL_PERSONAL));
+		return 1;
+	}
+	DECL_DIALOG_GETDTS()
+	{
+		ushort v;
+		getCtrlData(CTL_ACCOUNT_CODE,      Data.Rec.Code);
+		getCtrlData(CTL_ACCOUNT_NUMBER,    &Data.Rec.A.Ac);
+		getCtrlData(CTL_ACCOUNT_SUBNUMBER, &Data.Rec.A.Sb);
+		getCtrlData(CTL_ACCOUNT_NAME,      &Data.Rec.Name);
+		getCtrlData(CTL_ACCOUNT_OVERDRAFT, &Data.Rec.Overdraft);
+		getCtrlData(CTL_ACCOUNT_LIMIT,     &Data.Rec.Limit);
+		v = getCtrlUInt16(CTL_ACCOUNT_TYPE);
+		Data.Rec.Kind = (v == 0) ? ACT_ACTIVE : ((v == 1) ? ACT_PASSIVE : ((v == 2) ? ACT_AP : ACT_ACTIVE));
+		getCtrlData(CTLSEL_ACCOUNT_ACCSHEET, &Data.Rec.AccSheetID);
+		v = getCtrlUInt16(CTL_ACCOUNT_FLAGS);
+		SETFLAG(Data.Rec.Flags, ACF_CURRENCY, v & 1);
+		v = getCtrlUInt16(CTL_ACCOUNT_AUTONUMBER);
+		SETFLAG(Data.Rec.Flags, ACF_SYSNUMBER, v & 1);
+		if(Data.Rec.Type == ACY_BUDGET)
+			getCtrlData(CTLSEL_ACCOUNT_PARENT,  &Data.Rec.ParentID);
+		if(validate()) {
+			ASSIGN_PTR(pData, Data);
+			return 1;
+		}
+		else
+			return 0;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	virtual int  setupList();
@@ -774,7 +844,6 @@ private:
 	int    validate();
 
 	PPObjAccTurn AtObj;
-	PPAccountPacket AccPack;
 };
 
 int AccountDialog::validate()
@@ -783,32 +852,34 @@ int AccountDialog::validate()
 	int    err = 1;
 	uint   sel = 0;
 	PPObjAccount accobj;
-	if(*strip(AccPack.Rec.Name) == 0) {
+	if(*strip(Data.Rec.Name) == 0) {
 		PPSetError(PPERR_NAMENEEDED);
 		sel = CTL_ACCOUNT_NAME;
 	}
-	else if(AccPack.Rec.A.Ac == 0/*&& !(AccPack.Rec.Flags & ACF_SYSNUMBER)*/) {
+	else if(Data.Rec.A.Ac == 0/*&& !(Data.Rec.Flags & ACF_SYSNUMBER)*/) {
 		PPSetError(PPERR_ACC1NEEDED);
 		sel = CTL_ACCOUNT_NUMBER;
 	}
-	else if(AccPack.Rec.Limit < 0) {
+	else if(Data.Rec.Limit < 0) {
 		PPSetError(PPERR_NEGACCLIMIT);
 		sel = CTL_ACCOUNT_LIMIT;
 	}
 	else
 		err = 0;
-	if(!err && AccPack.Rec.A.Sb) {
-		if((r = accobj.SearchNum(AccPack.Rec.A.Ac, 0, 0)) < 0) {
+	if(!err && Data.Rec.A.Sb) {
+		r = accobj.SearchNum(Data.Rec.A.Ac, 0, 0);
+		if(r < 0) {
 			char   msg[48];
-			PPSetError(PPERR_BALNOTEXISTS, itoa(AccPack.Rec.A.Ac, msg, 10));
+			PPSetError(PPERR_BALNOTEXISTS, itoa(Data.Rec.A.Ac, msg, 10));
 			sel = CTL_ACCOUNT_NUMBER;
 			err = 1;
 		}
 		else
 			err = r ? 0 : 1;
 	}
-	if(!err && AccPack.Rec.ID == 0) {
-		if((r = accobj.SearchNum(AccPack.Rec.A.Ac, AccPack.Rec.A.Sb, 0)) > 0) {
+	if(!err && Data.Rec.ID == 0) {
+		r = accobj.SearchNum(Data.Rec.A.Ac, Data.Rec.A.Sb, 0);
+		if(r > 0) {
 			PPSetError(PPERR_DUPACCOUNTNUM);
 			sel = CTL_ACCOUNT_NUMBER;
 			err = 1;
@@ -817,89 +888,11 @@ int AccountDialog::validate()
 			err = r ? 0 : 1;
 	}
 	if(!err) {
-		err = BIN(PPObjAccount::CheckRecursion(AccPack.Rec.ID, AccPack.Rec.ParentID) == 0);
+		err = BIN(PPObjAccount::CheckRecursion(Data.Rec.ID, Data.Rec.ParentID) == 0);
 	}
 	if(err)
 		PPErrorByDialog(this, sel);
 	return !err;
-}
-
-int AccountDialog::setDTS(const PPAccountPacket * pAccPack)
-{
-	ushort v = 0;
-	bool   is_cur_acc = false;
-	AccPack = *pAccPack;
-	setCtrlData(CTL_ACCOUNT_CODE,      AccPack.Rec.Code);
-	setCtrlData(CTL_ACCOUNT_NUMBER,    &AccPack.Rec.A.Ac);
-	setCtrlData(CTL_ACCOUNT_SUBNUMBER, &AccPack.Rec.A.Sb);
-	setCtrlData(CTL_ACCOUNT_NAME,      &AccPack.Rec.Name);
-	setCtrlData(CTL_ACCOUNT_OVERDRAFT, &AccPack.Rec.Overdraft);
-	setCtrlData(CTL_ACCOUNT_LIMIT,     &AccPack.Rec.Limit);
-	{
-		const  int kind = AccPack.Rec.Kind;
-		v = (kind == ACT_ACTIVE) ? 0 : ((kind == ACT_PASSIVE) ? 1 : ((kind == ACT_AP) ? 2 : 0));
-		setCtrlUInt16(CTL_ACCOUNT_TYPE, v);
-	}
-	SetupPPObjCombo(this, CTLSEL_ACCOUNT_ACCSHEET, PPOBJ_ACCSHEET, AccPack.Rec.AccSheetID, OLW_CANINSERT, 0);
-	if(AccPack.Rec.ID && !PPMaster) {
-		disableCtrls(1, CTL_ACCOUNT_NUMBER, CTL_ACCOUNT_SUBNUMBER, 0);
-		if(AccPack.Rec.AccSheetID)
-			disableCtrl(CTLSEL_ACCOUNT_ACCSHEET, true);
-	}
-	setCtrlUInt16(CTL_ACCOUNT_FLAGS, BIN(AccPack.Rec.Flags & ACF_CURRENCY));
-	setCtrlUInt16(CTL_ACCOUNT_OUTBAL, BIN(AccPack.Rec.Type == ACY_OBAL));
-	disableCtrl(CTL_ACCOUNT_OUTBAL, true);
-	updateList(-1);
-	is_cur_acc = LOGIC(AccPack.Rec.Flags & ACF_CURRENCY);
-	disableCtrls(!is_cur_acc, CTL_ACCOUNT_CURLIST, 0);
-	enableCommand(cmaInsert, is_cur_acc);
-	enableCommand(cmaDelete, is_cur_acc);
-	if(getCtrlView(CTL_ACCOUNT_AUTONUMBER)) {
-		v = BIN(AccPack.Rec.Flags & ACF_SYSNUMBER);
-		setCtrlUInt16(CTL_ACCOUNT_AUTONUMBER, v);
-		disableCtrls(v, CTL_ACCOUNT_NUMBER, CTL_ACCOUNT_SUBNUMBER, 0);
-	}
-	if(AtObj.VerifyChangingAccsheetOfAccount(AccPack.Rec.ID)) {
-		disableCtrl(CTLSEL_ACCOUNT_ACCSHEET, false);
-		setStaticText(CTL_ACCOUNT_ST_ACSMSG, 0);
-	}
-	else if(DS.CheckExtFlag(ECF_AVERAGE) && PPMaster) {
-		SString msg_buf;
-		PPLoadText(PPTXT_ACC_ACSUSED, msg_buf);
-		setStaticText(CTL_ACCOUNT_ST_ACSMSG, msg_buf);
-	}
-	else
-		disableCtrl(CTLSEL_ACCOUNT_ACCSHEET, true);
-	if(AccPack.Rec.Type == ACY_BUDGET)
-		SetupPPObjCombo(this, CTLSEL_ACCOUNT_PARENT,  PPOBJ_ACCOUNT2, AccPack.Rec.ParentID, OLW_CANSELUPLEVEL, reinterpret_cast<void *>(ACY_SEL_BUDGET));
-	return 1;
-}
-
-int AccountDialog::getDTS(PPAccountPacket * pAccPack)
-{
-	ushort v;
-	getCtrlData(CTL_ACCOUNT_CODE,      AccPack.Rec.Code);
-	getCtrlData(CTL_ACCOUNT_NUMBER,    &AccPack.Rec.A.Ac);
-	getCtrlData(CTL_ACCOUNT_SUBNUMBER, &AccPack.Rec.A.Sb);
-	getCtrlData(CTL_ACCOUNT_NAME,      &AccPack.Rec.Name);
-	getCtrlData(CTL_ACCOUNT_OVERDRAFT, &AccPack.Rec.Overdraft);
-	getCtrlData(CTL_ACCOUNT_LIMIT,     &AccPack.Rec.Limit);
-	v = getCtrlUInt16(CTL_ACCOUNT_TYPE);
-	AccPack.Rec.Kind = (v == 0) ? ACT_ACTIVE : ((v == 1) ? ACT_PASSIVE : ((v == 2) ? ACT_AP : ACT_ACTIVE));
-	getCtrlData(CTLSEL_ACCOUNT_ACCSHEET, &AccPack.Rec.AccSheetID);
-	v = getCtrlUInt16(CTL_ACCOUNT_FLAGS);
-	SETFLAG(AccPack.Rec.Flags, ACF_CURRENCY, v & 1);
-	v = getCtrlUInt16(CTL_ACCOUNT_AUTONUMBER);
-	SETFLAG(AccPack.Rec.Flags, ACF_SYSNUMBER, v & 1);
-	if(AccPack.Rec.Type == ACY_BUDGET)
-		getCtrlData(CTLSEL_ACCOUNT_PARENT,  &AccPack.Rec.ParentID);
-
-	if(validate()) {
-		*pAccPack = AccPack;
-		return 1;
-	}
-	else
-		return 0;
 }
 
 IMPL_HANDLE_EVENT(AccountDialog)
@@ -909,8 +902,8 @@ IMPL_HANDLE_EVENT(AccountDialog)
 		ushort v = getCtrlUInt16(CTL_ACCOUNT_FLAGS);
 		bool   is_cur_acc = LOGIC(v & 1);
 		if(!is_cur_acc) {
-			for(uint i = 0; i < AccPack.CurList.getCount(); i++) {
-				if(!AtObj.VerifyRevokingCurFromAccount(AccPack.Rec.ID, AccPack.CurList.at(i))) {
+			for(uint i = 0; i < Data.CurList.getCount(); i++) {
+				if(!AtObj.VerifyRevokingCurFromAccount(Data.Rec.ID, Data.CurList.at(i))) {
 					PPError();
 					is_cur_acc = true;
 					setCtrlUInt16(CTL_ACCOUNT_FLAGS, 1);
@@ -926,16 +919,16 @@ IMPL_HANDLE_EVENT(AccountDialog)
 	}
 	else if(event.isClusterClk(CTL_ACCOUNT_AUTONUMBER)) {
 		ushort v = getCtrlUInt16(CTL_ACCOUNT_AUTONUMBER);
-		SETFLAG(AccPack.Rec.Flags, ACF_SYSNUMBER, v & 1);
+		SETFLAG(Data.Rec.Flags, ACF_SYSNUMBER, v & 1);
 		if(v) {
-			getCtrlData(CTL_ACCOUNT_NUMBER, &AccPack.Rec.A.Ac);
-			getCtrlData(CTL_ACCOUNT_SUBNUMBER, &AccPack.Rec.A.Sb);
-			if(AccPack.Rec.A.Ac == 0) {
+			getCtrlData(CTL_ACCOUNT_NUMBER, &Data.Rec.A.Ac);
+			getCtrlData(CTL_ACCOUNT_SUBNUMBER, &Data.Rec.A.Sb);
+			if(Data.Rec.A.Ac == 0) {
 				PPObjAccount acc_obj;
-				if(acc_obj.GenerateNumber(&AccPack.Rec)) {
-					setCtrlData(CTL_ACCOUNT_NUMBER, &AccPack.Rec.A.Ac);
-					AccPack.Rec.A.Sb = 0;
-					setCtrlData(CTL_ACCOUNT_SUBNUMBER, &AccPack.Rec.A.Sb);
+				if(acc_obj.GenerateNumber(&Data.Rec)) {
+					setCtrlData(CTL_ACCOUNT_NUMBER, &Data.Rec.A.Ac);
+					Data.Rec.A.Sb = 0;
+					setCtrlData(CTL_ACCOUNT_SUBNUMBER, &Data.Rec.A.Sb);
 				}
 				else
 					PPError();
@@ -948,10 +941,10 @@ IMPL_HANDLE_EVENT(AccountDialog)
 
 int AccountDialog::setupList()
 {
-	for(uint i = 0; i < AccPack.CurList.getCount(); i++) {
+	for(uint i = 0; i < Data.CurList.getCount(); i++) {
 		char   str[48];
 		PPCurrency cur_rec;
-		const  PPID  cur_id = AccPack.CurList.at(i);
+		const  PPID  cur_id = Data.CurList.at(i);
 		if(SearchObject(PPOBJ_CURRENCY, cur_id, &cur_rec) > 0) {
 			if(*strip(cur_rec.Symb))
 				STRNSCPY(str, cur_rec.Symb);
@@ -971,11 +964,11 @@ int AccountDialog::addItem(long *, long * pID)
 {
 	PPID   cur_id = 0;
 	PPObjCurrency cur_obj;
-	const  PPIDArray exclude_list(AccPack.CurList);
+	const  PPIDArray exclude_list(Data.CurList);
 	const  int r = cur_obj.Select(1, 0, &exclude_list, &cur_id);
 	if(r > 0) {
 		*pID = cur_id;
-		AccPack.CurList.insert(&cur_id);
+		Data.CurList.insert(&cur_id);
 		return 1;
 	}
 	else
@@ -986,9 +979,9 @@ int AccountDialog::delItem(long, long id)
 {
 	int    ok = -1;
 	uint   p;
-	if(AccPack.CurList.lsearch(id, &p)) {
-		if(AtObj.VerifyRevokingCurFromAccount(AccPack.Rec.ID, id)) {
-			AccPack.CurList.atFree(p);
+	if(Data.CurList.lsearch(id, &p)) {
+		if(AtObj.VerifyRevokingCurFromAccount(Data.Rec.ID, id)) {
+			Data.CurList.atFree(p);
 			ok = 1;
 		}
 		else
@@ -1049,18 +1042,19 @@ int PPObjAccount::Edit(PPID * pID, void * extraPtr /*accType*/)
 		else {
 			acc_pack.Rec.Type = acc_type = extra_acc_type;
 		}
-		if(oneof2(acc_pack.Rec.Type, ACY_REGISTER, ACY_BUDGET)) {
+		if(oneof3(acc_pack.Rec.Type, ACY_REGISTER, ACY_BUDGET, ACY_PERSONAL)) { // @v12.7.4 ACY_PERSONAL
 			acc_pack.Rec.Flags |= ACF_SYSNUMBER;
 			THROW(GenerateNumber(&acc_pack.Rec));
 		}
 	}
-	if(oneof5(acc_type, ACY_BAL, ACY_OBAL, ACY_REGISTER, ACY_ALIAS, ACY_BUDGET)) {
+	if(oneof6(acc_type, ACY_BAL, ACY_OBAL, ACY_REGISTER, ACY_ALIAS, ACY_BUDGET, ACY_PERSONAL)) { // @v12.7.4 ACY_PERSONAL
 		SString dlg_title;
 		uint   dlg_id = 0;
 		switch(acc_type) {
 			case ACY_BAL: dlg_id = DLG_ACCOUNT; break;
 			case ACY_ALIAS: dlg_id = DLG_ACCALIAS; break;
 			case ACY_BUDGET: dlg_id = DLG_ACCBUDGET; break;
+			case ACY_PERSONAL: dlg_id = DLG_PERSONALACCOUNT; break; // @v12.7.4
 			default: dlg_id = DLG_ACCREGISTER; break;
 		}
 		p_bal_dlg = new AccountDialog(dlg_id);

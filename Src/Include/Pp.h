@@ -22553,9 +22553,9 @@ struct PPAccount { // @persistent @flat
 	char   Name[48];
 	char   Code[20];
 	uint8  Reserve[20];
-	PPID   MainOrgID;
+	PPID   MainOrgID;   // ->Person.ID 
 	PPID   CurID;
-	PPID   ParentID;
+	PPID   ParentID;    // ->PPAccount.ID 
 	int16  Type;        // ACY_XXX
 	int16  Kind;        // 
 	long   Flags;
@@ -22590,6 +22590,7 @@ struct PPAccountPacket {
 #define ACY_SEL_AGGR         ACY_AGGR
 #define ACY_SEL_ALIAS        ACY_ALIAS
 #define ACY_SEL_BUDGET       ACY_BUDGET
+#define ACY_SEL_PERSONAL     ACY_PERSONAL // @v12.7.4 
 #define ACY_SEL_BALCUR       -1
 #define ACY_SEL_BALOBAL      -2
 #define ACY_SEL_BALOBALCUR   -3
