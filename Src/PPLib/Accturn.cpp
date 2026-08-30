@@ -239,7 +239,7 @@ int AccTurnCore::GetBalRest(LDATE dt, PPID accID, double * pDbt, double * pCrd, 
 				dbt += d;
 				crd += c;
 			}
-			if(flags & BALRESTF_SPREAD && acc_rec.Kind != ACT_AP) {
+			if(flags & BALRESTF_SPREAD && acc_rec.Kind != ACCK_AP) {
 				dbt -= crd;
 				if(dbt < 0) {
 					crd = -dbt;
@@ -258,7 +258,7 @@ int AccTurnCore::GetBalRest(LDATE dt, PPID accID, double * pDbt, double * pCrd, 
 		//
 		// Развернутое сальдо
 		//
-		else if(acc_rec.Kind == ACT_AP && acc_rec.AccSheetID) {
+		else if(acc_rec.Kind == ACCK_AP && acc_rec.AccSheetID) {
 			AcctRelTbl::Key1 k;
 			BExtQuery q(&AccRel, 1);
 			q.selectAll().where(AccRel.AccID == accID && AccRel.Closed == 0L);
@@ -337,8 +337,9 @@ int AccTurnCore::ConvertRec(const AccTurnTbl::Rec * pRec, PPAccTurn * pAturn, in
 		if(acc_id)
 			pAturn->Flags |= PPAF_OUTBAL_TRANSFER;
 	}
-	if(acc_rec.Type == ACY_REGISTER)
+	if(acc_rec.Type == ACY_REGISTER) {
 		pAturn->Flags |= PPAF_REGISTER;
+	}
 	if(!(pAturn->Flags & PPAF_REGISTER) && (!(pAturn->Flags & PPAF_OUTBAL) || (pAturn->Flags & PPAF_OUTBAL_TRANSFER))) {
 		if(useCache) {
 			THROW(AccObj.Fetch(pAturn->CrdID.ac, &acc_rec) > 0);
@@ -871,7 +872,7 @@ int AccTurnCore::GetBill(PPAccTurn * pAt)
 
 static int ValidateAccKind(int k)
 {
-	return oneof3(k, ACT_ACTIVE, ACT_PASSIVE, ACT_AP) ? 1 : PPSetError(PPERR_ACTNDEF);
+	return oneof3(k, ACCK_ACTIVE, ACCK_PASSIVE, ACCK_AP) ? 1 : PPSetError(PPERR_ACTNDEF);
 }
 
 int AccTurnCore::GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec, int createIfNExists, int use_ta)
@@ -917,7 +918,9 @@ int AccTurnCore::GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec, int c
 
 int AccTurnCore::_ProcessAcct(int side, PPID curID, const AcctID & rAcctId, PPID * pAccRelID, AccTurnParam * p)
 {
-	int    ok = 1, r, kind;
+	int    ok = 1;
+	int    r;
+	int    kind;
 	Acct   acct;
 	PPAccount acc_rec;
 	//
@@ -956,7 +959,8 @@ int AccTurnCore::_ProcessAcct(int side, PPID curID, const AcctID & rAcctId, PPID
 
 int AccTurnCore::SetupAccTurnParam(AccTurnParam * p, int side, int kind)
 {
-	double overdraft = p->Low, limit = p->Upp;
+	double overdraft = p->Low;
+	double limit = p->Upp;
 	//
 	// Уточняем знак суммы и предельные остатки
 	//
@@ -969,11 +973,11 @@ int AccTurnCore::SetupAccTurnParam(AccTurnParam * p, int side, int kind)
 	// приведена к своему изначальному виду такой же операцией :
 	// { if(side == PPCREDIT) { p->amt = -p->amt; } }
 	//
-	if(kind == ACT_PASSIVE) {
+	if(kind == ACCK_PASSIVE) {
 		p->Low = limit     ? -limit : -SMathConst::Max;
 		p->Upp = overdraft ? overdraft : 0.0;
 	}
-	else if(kind == ACT_ACTIVE) {
+	else if(kind == ACCK_ACTIVE) {
 		p->Low = overdraft ? -overdraft : 0.0;
 		p->Upp = limit     ? limit : SMathConst::Max;
 	}
@@ -1019,7 +1023,7 @@ int AccTurnCore::_UpdateTurn(PPID billID, short rByBill, double newAmt, double c
 	long   dbt_oprno;
 	long   crd_oprno;
 	double amt;  // Оригинальная сумма проводки
-	double _amt; // Сумма, на которую изменяются форвардные остатки и балансы
+	double forward_amt; // Сумма, на которую изменяются форвардные остатки и балансы
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1031,12 +1035,11 @@ int AccTurnCore::_UpdateTurn(PPID billID, short rByBill, double newAmt, double c
 		}
 		date = data.Dt;
 		amt  = MONEYTOLDBL(data.Amount);
-		_amt = newAmt - amt;
+		forward_amt = newAmt - amt;
 		dbt_rel_id = data.Acc;
 		crd_rel_id = data.CorrAcc;
 		dbt_acc_id = data.Bal;
 		dbt_oprno  = data.OprNo;
-
 		if(crd_rel_id == 0) {
 			PPAccount acc_rec;
 			THROW(AccObj.Search(dbt_acc_id, &acc_rec) > 0);
@@ -1047,10 +1050,10 @@ int AccTurnCore::_UpdateTurn(PPID billID, short rByBill, double newAmt, double c
 			THROW(rereadForUpdate(0, 0));
 			THROW_DB(deleteRec()); // @sfu
 		}
-		else if(_amt != 0.0) {
+		else if(forward_amt != 0.0) {
 			THROW(rereadForUpdate(0, 0));
 			LDBLTOMONEY(newAmt, data.Amount);
-			LDBLTOMONEY(MONEYTOLDBL(data.Rest) + _amt, data.Rest);
+			LDBLTOMONEY(MONEYTOLDBL(data.Rest) + forward_amt, data.Rest);
 			THROW_DB(updateRec()); // @sfu
 		}
 		if(!zero_crd_acc) {
@@ -1067,16 +1070,17 @@ int AccTurnCore::_UpdateTurn(PPID billID, short rByBill, double newAmt, double c
 				THROW(rereadForUpdate(0, 0));
 				THROW_DB(deleteRec()); // @sfu
 			}
-			else if(_amt != 0.0) {
+			else if(forward_amt != 0.0) {
 				THROW(rereadForUpdate(0, 0));
 				LDBLTOMONEY(newAmt, data.Amount);
-				LDBLTOMONEY(MONEYTOLDBL(data.Rest) - _amt, data.Rest);
+				LDBLTOMONEY(MONEYTOLDBL(data.Rest) - forward_amt, data.Rest);
 				THROW_DB(updateRec()); // @sfu
 			}
 		}
-		THROW(_RollbackTurn(PPDEBIT, date, dbt_oprno, dbt_acc_id, dbt_rel_id, _amt));
-		if(!zero_crd_acc)
-			THROW(_RollbackTurn(PPCREDIT, date, crd_oprno, crd_acc_id, crd_rel_id, _amt));
+		THROW(_RollbackTurn(PPDEBIT, date, dbt_oprno, dbt_acc_id, dbt_rel_id, forward_amt));
+		if(!zero_crd_acc) {
+			THROW(_RollbackTurn(PPCREDIT, date, crd_oprno, crd_acc_id, crd_rel_id, forward_amt));
+		}
 		if(rByBill <= BASE_RBB_BIAS) {
 			k0.BillID  = billID;
 			k0.RByBill = rByBill+BASE_RBB_BIAS;
@@ -1110,48 +1114,50 @@ int AccTurnCore::UpdateAmount(PPID billID, short rByBill, double newAmt, double 
 //
 //
 //
-int AccTurnCore::Turn(PPAccTurn * pAturn, int use_ta)
+int AccTurnCore::Turn(PPAccTurn & rAt, int use_ta)
 {
 	int    ok = 1;
-	const  int zero_crd_acc = BIN((pAturn->Flags & (PPAF_REGISTER|PPAF_OUTBAL)) && !(pAturn->Flags & PPAF_OUTBAL_TRANSFER));
-	PPID   dbt_rel = 0, crd_rel = 0;
-	AccTurnParam dbt_param, crd_param;
-	THROW_PP(pAturn->Amount != 0.0, PPERR_INVTURNAMOUNT);
-	dbt_param.Amt = crd_param.Amt = R2(pAturn->Amount);
+	const  bool zero_crd_acc = ((rAt.Flags & (PPAF_REGISTER|PPAF_OUTBAL)) && !(rAt.Flags & PPAF_OUTBAL_TRANSFER));
+	PPID   dbt_rel = 0;
+	PPID   crd_rel = 0;
+	AccTurnParam dbt_param;
+	AccTurnParam crd_param;
+	THROW_PP(rAt.Amount != 0.0, PPERR_INVTURNAMOUNT);
+	dbt_param.Amt = crd_param.Amt = R2(rAt.Amount);
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
-		if(pAturn->RByBill < BASE_RBB_BIAS) {
-			THROW(GetBill(pAturn));
+		if(rAt.RByBill < BASE_RBB_BIAS) {
+			THROW(GetBill(&rAt));
 		}
-		THROW(_ProcessAcct(PPDEBIT,  pAturn->CurID, pAturn->DbtID, &dbt_rel, &dbt_param));
+		THROW(_ProcessAcct(PPDEBIT,  rAt.CurID, rAt.DbtID, &dbt_rel, &dbt_param));
 		if(!zero_crd_acc) {
-			THROW(_ProcessAcct(PPCREDIT, pAturn->CurID, pAturn->CrdID, &crd_rel, &crd_param));
+			THROW(_ProcessAcct(PPCREDIT, rAt.CurID, rAt.CrdID, &crd_rel, &crd_param));
 		}
 		else
 			crd_rel = 0;
-		THROW(LockFRR(dbt_rel, pAturn->Date));
+		THROW(LockFRR(dbt_rel, rAt.Date));
 		if(!zero_crd_acc) {
-			THROW(LockFRR(crd_rel, pAturn->Date));
+			THROW(LockFRR(crd_rel, rAt.Date));
 		}
-		THROW(BalTurn.Turn(pAturn->DbtID.ac, pAturn->Date, &dbt_param, 0));
+		THROW(BalTurn.Turn(rAt.DbtID.ac, rAt.Date, &dbt_param, 0));
 		if(!zero_crd_acc) {
-			THROW(BalTurn.Turn(pAturn->CrdID.ac, pAturn->Date, &crd_param, 0));
+			THROW(BalTurn.Turn(rAt.CrdID.ac, rAt.Date, &crd_param, 0));
 		}
-		THROW(_Turn(pAturn, dbt_rel, crd_rel, dbt_param));
+		THROW(_Turn(&rAt, dbt_rel, crd_rel, dbt_param));
 		if(!zero_crd_acc) {
-			THROW(_Turn(pAturn, crd_rel, dbt_rel, crd_param));
+			THROW(_Turn(&rAt, crd_rel, dbt_rel, crd_param));
 		}
-		if(pAturn->CurID) {
-			PPAccTurn base_aturn = *pAturn;
+		if(rAt.CurID) {
+			PPAccTurn base_aturn(rAt);
 			base_aturn.RByBill  += BASE_RBB_BIAS;
 			base_aturn.CurID  = 0;
-			base_aturn.Amount = R2(pAturn->Amount * pAturn->CRate);
-			THROW(GetBaseAcctID(pAturn->DbtID, &base_aturn.DbtID));
+			base_aturn.Amount = R2(rAt.Amount * rAt.CRate);
+			THROW(GetBaseAcctID(rAt.DbtID, &base_aturn.DbtID));
 			if(!zero_crd_acc) {
-				THROW(GetBaseAcctID(pAturn->CrdID, &base_aturn.CrdID));
+				THROW(GetBaseAcctID(rAt.CrdID, &base_aturn.CrdID));
 			}
-			THROW(Turn(&base_aturn, 0)); // @recursion
+			THROW(Turn(base_aturn, 0)); // @recursion
 		}
 		THROW(tra.Commit());
 	}

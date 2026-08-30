@@ -573,6 +573,14 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 
 int PPViewGoodsStruc::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
+	//TCELHLD_GSTRUC_PROBLEMS                "Обнаружены проблемы, связанные с этой товарной структурой"
+	//TCELHLD_GSTRUC_KIND_BOM                "Стурктура комплектации/декомплектации (BOM)"
+	//TCELHLD_GSTRUC_KIND_PART               "Частичная структура"
+	//TCELHLD_GSTRUC_KIND_SUBST              "Подстановочная структура"
+	//TCELHLD_GSTRUC_KIND_GIFT               "Подарочная структура"
+	//TCELHLD_GSTRUC_KIND_COMPLEX            "Структура комплекса"
+	//TCELHLD_GSTRUC_KIND_UNDEF              "Вид структуры неопределен"
+	//TCELHLD_GSTRUC_BANNEDCOMMDENOM         "Структура имеет общий делитель, хотя конфигурация справочника товаров запрещает такие структуры"
 	int    ok = -1;
 	if(pBrw && pData && pStyle) {
 		const  BrowserDef * p_def = pBrw->getDef();
@@ -580,28 +588,58 @@ int PPViewGoodsStruc::CellStyleFunc_(const void * pData, long col, int paintActi
 			const BroColumn & r_col = p_def->at(col);
 			const GoodsStrucProcessingBlock::ItemEntry * p_item = static_cast<const GoodsStrucProcessingBlock::ItemEntry *>(pData);
 			if(r_col.OrgOffs == 0) { // id
-				if(Problems.getCount() && Problems.bsearch(&p_item->GStrucID, 0, CMPF_LONG))
+				if(Problems.getCount() && Problems.bsearch(&p_item->GStrucID, 0, CMPF_LONG)) {
 					ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_GSTRUC_PROBLEMS, SLS.AcquireRvlStr()));
+					}
+				}
 			}
 			else if(r_col.OrgOffs == 4) { // type of struc
 				SColor clr;
+				int   tcheld = 0;
 				switch(PPGoodsStruc::GetStrucKind(p_item->StrucFlags)) {
-					case PPGoodsStruc::kBOM: clr = GetColorRef(SClrGreen); break;
-					case PPGoodsStruc::kPart: clr = GetColorRef(SClrLightgreen); break;
-					case PPGoodsStruc::kSubst: clr = GetColorRef(SClrOrange); break;
-					case PPGoodsStruc::kGift: clr = GetColorRef(SClrPink); break;
-					case PPGoodsStruc::kComplex: clr = GetColorRef(SClrLightblue); break;
-					default: clr = SClrGrey; break;
+					case PPGoodsStruc::kBOM:
+						clr = GetColorRef(SClrGreen); 
+						tcheld = TCELHLD_GSTRUC_KIND_BOM;
+						break;
+					case PPGoodsStruc::kPart: 
+						clr = GetColorRef(SClrLightgreen);
+						tcheld = TCELHLD_GSTRUC_KIND_PART;
+						break;
+					case PPGoodsStruc::kSubst: 
+						clr = GetColorRef(SClrOrange);
+						tcheld = TCELHLD_GSTRUC_KIND_SUBST;
+						break;
+					case PPGoodsStruc::kGift: 
+						clr = GetColorRef(SClrPink);
+						tcheld = TCELHLD_GSTRUC_KIND_GIFT;
+						break;
+					case PPGoodsStruc::kComplex: 
+						clr = GetColorRef(SClrLightblue);
+						tcheld = TCELHLD_GSTRUC_KIND_COMPLEX;
+						break;
+					default:
+						clr = SClrGrey; 
+						tcheld = TCELHLD_GSTRUC_KIND_UNDEF;
+						break;
 				}
 				ok = pStyle->SetRightFigCircleColor(clr);
+				if(paintAction == BrowserWindow::paintQueryDescription && tcheld) {
+					pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, tcheld, SLS.AcquireRvlStr()));
+				}
 			}
 			else if(r_col.OrgOffs == 6) { // common denomitator
 				if(Cb.GObj.GetConfig().Flags & GCF_BANSTRUCCDONDECOMPL) {
 					if(p_item->GStrucID && p_item->StrucEntryP < Cb.StrucList.getCount()) {
 						const GoodsStrucProcessingBlock::StrucEntry & r_struc_entry = Cb.StrucList.at(p_item->StrucEntryP);
 						if((r_struc_entry.Flags & GSF_DECOMPL) && !(r_struc_entry.Flags & GSF_COMPL)) {
-							if(r_struc_entry.CommDenom != 0.0 && r_struc_entry.CommDenom != 1.0)
+							if(r_struc_entry.CommDenom != 0.0 && r_struc_entry.CommDenom != 1.0) {
 								ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrBrown));
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_GSTRUC_BANNEDCOMMDENOM, SLS.AcquireRvlStr()));
+								}
+							}
 						}
 					}
 				}
@@ -937,6 +975,10 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 						PPTooltipMessage(buf, 0, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
 							SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
 					}
+					else {
+						pBrw->ShowCellStyleHint(); // @v12.7.5
+					}
+					ok = -1;
 				}
 				break;
 			case PPVCMD_FOREIGNFOCUCNOTIFICATION:

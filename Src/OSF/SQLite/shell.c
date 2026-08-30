@@ -324,7 +324,8 @@ static GETPROCTIMES getProcessTimesAddr = NULL;
 ** Check to see if we have timer support.  Return 1 if necessary
 ** support found (or found previously).
 */
-static int hasTimer(void){
+static int hasTimer(void)
+{
 	if(getProcessTimesAddr) {
 		return 1;
 	}
@@ -338,8 +339,7 @@ static int hasTimer(void){
 		if(hProcess) {
 			HINSTANCE hinstLib = LoadLibrary(TEXT("Kernel32.dll"));
 			if(NULL != hinstLib) {
-				getProcessTimesAddr =
-				    (GETPROCTIMES)GetProcAddress(hinstLib, "GetProcessTimes");
+				getProcessTimesAddr = (GETPROCTIMES)GetProcAddress(hinstLib, "GetProcessTimes");
 				if(NULL != getProcessTimesAddr) {
 					return 1;
 				}

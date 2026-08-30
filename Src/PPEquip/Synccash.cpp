@@ -921,15 +921,15 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							}
 							if(ofdf.Sid.NotEmpty())
 								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSID, ofdf.Sid));
-							if(!sl_param.ChZnPm_ReqId.IsZero() && sl_param.ChZnPm_ReqTimestamp != 0) {
-								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMREQID, sl_param.ChZnPm_ReqId));
-								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMREQTIMESTAMP, sl_param.ChZnPm_ReqTimestamp));
+							if(!sl_param.ChZnPmRT.ReqId.IsZero() && sl_param.ChZnPmRT.ReqTimestamp != 0) {
+								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMREQID, sl_param.ChZnPmRT.ReqId));
+								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMREQTIMESTAMP, sl_param.ChZnPmRT.ReqTimestamp));
 								// @v12.3.12 {
-								if(!!sl_param.ChZnPm_LocalModuleInstance) { // @v12.4.5 @fix (!sl_param.ChZnPm_LocalModuleInstance)-->(!!sl_param.ChZnPm_LocalModuleInstance)
-									THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMLOCALMODULEINST, sl_param.ChZnPm_LocalModuleInstance));
+								if(!!sl_param.ChZnPmRT.LocalModuleInstance) { // @v12.4.5 @fix (!sl_param.ChZnPm_LocalModuleInstance)-->(!!sl_param.ChZnPm_LocalModuleInstance)
+									THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMLOCALMODULEINST, sl_param.ChZnPmRT.LocalModuleInstance));
 								}
-								if(!!sl_param.ChZnPm_LocalModuleDbVer) { // @v12.4.5 @fix (!sl_param.ChZnPm_LocalModuleDbVer)-->(!!sl_param.ChZnPm_LocalModuleDbVer)
-									THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMLOCALMODULEDBVER, sl_param.ChZnPm_LocalModuleDbVer));
+								if(!!sl_param.ChZnPmRT.LocalModuleDbVer) { // @v12.4.5 @fix (!sl_param.ChZnPm_LocalModuleDbVer)-->(!!sl_param.ChZnPm_LocalModuleDbVer)
+									THROW(ArrAdd(Arr_In, DVCPARAM_CHZNPMLOCALMODULEDBVER, sl_param.ChZnPmRT.LocalModuleDbVer));
 								}
 								// } @v12.3.12 
 							}

@@ -686,17 +686,38 @@ int PPViewFreight::Detail(const void * pHdr, PPViewBrowser * pBrw)
 
 int PPViewFreight::Export()
 {
-	int    ok = -1, r = 0;
-	PPIDArray bill_id_list;
+	int    ok = -1;
+	int    r = 0;
+	PPObjBill::ListForExport bill_id_list;
 	FreightViewItem item;
 	PPBillPacket pack;
 	PPBillExporter b_e;
 	for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 		BillTbl::Rec bill_rec;
 		if(P_BObj->Fetch(item.BillID, &bill_rec) > 0 && IsGoodsDetailOp(bill_rec.OpID)) {
-			bill_id_list.add(bill_rec.ID);
+			//bill_id_list.add(bill_rec.ID);
+			if(IsGoodsDetailOp(bill_rec.OpID) || bill_rec.Flags & BILLF_BANKING) {
+				THROW_SL(bill_id_list.add(bill_rec.ID));
+				ok = 1;
+				if(bill_rec.LocID) {
+					if(bill_id_list.SingleLocID < 0)
+						bill_id_list.SingleLocID = bill_rec.LocID;
+					else if(bill_id_list.SingleLocID != bill_rec.LocID)
+						bill_id_list.SingleLocID = 0;
+				}
+				if(bill_rec.Flags & BILLF_BANKING) {
+					bill_id_list.Flags |= PPObjBill::ListForExport::fIsThereBankPayment;
+					bill_id_list.BnkPaymPeriod.AdjustToDate(bill_rec.Dt);
+				}
+			}
 		}
 	}
+	if(bill_id_list.SingleLocID <= 0) {
+		bill_id_list.SingleLocID = Filt.LocID; //Filt.LocList.GetSingle();
+	}
+	ok = P_BObj->ExportList(bill_id_list, 0/*pBillParam*/, 0/*pBRowParam*/);
+	THROW(ok);
+	/*
 	if(bill_id_list.getCount()) {
 		THROW(P_BObj->ExtractPacket(bill_id_list.get(0), &pack) > 0);
 		THROW(r = b_e.Init(0, 0, &pack, 0));
@@ -711,8 +732,9 @@ int PPViewFreight::Export()
 			ok = 1;
 		}
 	}
+	*/
 	CATCHZOKPPERR
-	PPWaitStop();
+	//PPWaitStop();
 	return ok;
 }
 
@@ -726,7 +748,7 @@ int PPViewFreight::UpdateFeatures()
 	enum {
 		fSetPortOfDischargeByTrunkPt = 0x0001
 	};
-	long   _flags = 0; // @v11.2.10
+	long   _flags = 0;
     LDATE  issue_date = ZERODATE;
     LDATE  arrival_date = ZERODATE;
     TDialog * dlg = new TDialog(DLG_UPDFREIGHT);
@@ -741,15 +763,15 @@ int PPViewFreight::UpdateFeatures()
 	dlg->AddClusterAssoc(CTL_UPDFREIGHT_SHPF,  1,  1);
 	dlg->AddClusterAssoc(CTL_UPDFREIGHT_SHPF,  2,  0);
 	dlg->SetClusterData(CTL_UPDFREIGHT_SHPF, shipm_flag_mode);
-	dlg->AddClusterAssoc(CTL_UPDFREIGHT_FLAGS, 0, fSetPortOfDischargeByTrunkPt); // @v11.2.10
-	dlg->SetClusterData(CTL_UPDFREIGHT_FLAGS, _flags); // @v11.2.10
+	dlg->AddClusterAssoc(CTL_UPDFREIGHT_FLAGS, 0, fSetPortOfDischargeByTrunkPt);
+	dlg->SetClusterData(CTL_UPDFREIGHT_FLAGS, _flags);
 	if(ExecView(dlg) == cmOK) {
 		ship_id = dlg->getCtrlLong(CTLSEL_UPDFREIGHT_TR);
 		captain_id = dlg->getCtrlLong(CTLSEL_UPDFREIGHT_CAPT);
         issue_date = dlg->getCtrlDate(CTL_UPDFREIGHT_ISSDT);
         arrival_date = dlg->getCtrlDate(CTL_UPDFREIGHT_ARRDT);
         shipm_flag_mode = dlg->GetClusterData(CTL_UPDFREIGHT_SHPF);
-		dlg->GetClusterData(CTL_UPDFREIGHT_FLAGS, &_flags); // @v11.2.10
+		dlg->GetClusterData(CTL_UPDFREIGHT_FLAGS, &_flags);
         if(ship_id || captain_id || checkdate(issue_date) || checkdate(arrival_date) || oneof2(shipm_flag_mode, 0, 1) || (_flags & fSetPortOfDischargeByTrunkPt)) {
 			PPIDArray bill_list;
 			PPWaitStart();

@@ -2591,18 +2591,20 @@ void FASTCALL SCycleTimer::Restart(uint32 msDelay)
 {
 	Delay = msDelay;
 	Last = getcurdatetime_();
+	Next = plusdatetime(Last, Delay, SUOM_MSECOND); // @v12.7.5 
 }
 
-int FASTCALL SCycleTimer::Check(LDATETIME * pLast)
+bool FASTCALL SCycleTimer::Check(LDATETIME * pLast)
 {
-	int    ok = 0;
+	bool   ok = false;
 	if(Delay) {
-		const LDATETIME now_dtm = getcurdatetime_();
-		const LDATETIME next = plusdatetime(Last, Delay, SUOM_MSECOND);
+		const  LDATETIME now_dtm = getcurdatetime_();
+		// @v12.7.5 const  LDATETIME next = plusdatetime(Last, Delay, SUOM_MSECOND); 
 		ASSIGN_PTR(pLast, Last);
-		if(cmp(now_dtm, next) >= 0) {
+		if(cmp(now_dtm, Next) >= 0) {
 			Last = now_dtm;
-			ok = 1;
+			Next = plusdatetime(Last, Delay, SUOM_MSECOND); // @v12.7.5 
+			ok = true;
 		}
 	}
 	return ok;

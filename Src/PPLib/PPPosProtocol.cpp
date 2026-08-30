@@ -508,7 +508,7 @@ int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsI
 		dls.StartLoading(&stat_id, dvctCashs, nodeID, 1);
 		THROW(StartWriting(out_file_name, wb));
 		{
-			PPQuotKind qk_rec;
+			PPQuotKind2 qk_rec;
 			for(SEnum en = qk_obj.Enum(0); en.Next(&qk_rec) > 0;) {
 				if(qk_rec.ID == PPQUOTK_BASE || (qk_rec.Flags & QUOTKF_RETAILED)) {
 					qk_list.add(qk_rec.ID);
@@ -643,7 +643,7 @@ int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsI
 					while(acgi.Next(&acgi_item) > 0) {
 						qlist.clear();
 						qlist_result.clear();
-						goods_obj.GetQuotList(acgi_item.ID, cn_data.LocID, qlist);
+						goods_obj.GetQuotList(acgi_item.ID, /*cn_data.LocID*/0, qlist); // @v12.7.5 arg(locID) cn_data.LocID-->0
 						for(uint qkidx = 0; qkidx < qk_list.getCount(); qkidx++) {
 							const  PPID qk_id = qk_list.get(qkidx);
 							uint   ql_pos = 0;
@@ -706,7 +706,7 @@ int PPPosProtocol::ExportDataForPosNode(PPID nodeID, int updOnly, PPID sinceDlsI
 				// Виды котировок
 				//
 				if(used_qk_list.getCount()) {
-					PPQuotKind qk_rec;
+					PPQuotKind2 qk_rec;
 					for(uint i = 0; i < used_qk_list.getCount(); i++) {
 						if(qk_obj.Search(used_qk_list.get(i), &qk_rec) > 0) {
 							THROW(WriteQuotKindInfo(wb, "quotekind", qk_rec));
@@ -1750,7 +1750,7 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 		w_s.PutInner("name", CorrectAndEncText(rInfo.Name));
 		if(rInfo.P_CodeList && rInfo.P_CodeList->getCount()) {
 			for(uint i = 0; i < rInfo.P_CodeList->getCount(); i++) {
-				const BarcodeTbl::Rec & r_bc_rec = rInfo.P_CodeList->at(i);
+				const  BarcodeTbl::Rec & r_bc_rec = rInfo.P_CodeList->at(i);
 				SXml::WNode w_c(rB.P_Xw, "code");
 				if(IsInnerBarcodeType(r_bc_rec.BarcodeType, BARCODE_TYPE_PREFERRED))
 					w_c.PutAttrib("preferred", "true");
@@ -1872,7 +1872,7 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 	return ok;
 }
 
-int PPPosProtocol::WriteQuotKindInfo(WriteBlock & rB, const char * pScopeXmlTag, const PPQuotKind & rInfo)
+int PPPosProtocol::WriteQuotKindInfo(WriteBlock & rB, const char * pScopeXmlTag, const PPQuotKind2 & rInfo)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2421,6 +2421,7 @@ int PPPosProtocol::StartElement(const char * pName, const char ** ppAttrList)
 				case PPHS_CONTACT:
 				case PPHS_ZIP:
 				case PPHS_TEXT:
+				case PPHS_MINQTTY: // @v12.7.5 quot
 					break;
 			}
 		}
@@ -2807,7 +2808,7 @@ int PPPosProtocol::EndElement(const char * pName)
 						}
 					}
 					else if(prev_tok == PPHS_AMOUNTRANGE) {
-						double v = RdB.TagValue.ToReal();
+						const  double v = RdB.TagValue.ToReal();
 						p_item = PeekRefItem(&ref_pos, &type);
 						if(type == obQuotKind)
 							static_cast<QuotKindBlock *>(p_item)->AmountRestriction.low = v;
@@ -2816,7 +2817,7 @@ int PPPosProtocol::EndElement(const char * pName)
 				break;
 			case PPHS_UPP:
 				{
-					int prev_tok = RdB.TokPath.peek();
+					const  int prev_tok = RdB.TokPath.peek();
 					if(prev_tok == PPHS_TIMERANGE) {
 						LTIME   t = ZEROTIME;
 						if(strtotime(RdB.TagValue, TIMF_HMS, &t)) {
@@ -2888,6 +2889,16 @@ int PPPosProtocol::EndElement(const char * pName)
 								static_cast<QuotBlock *>(p_item)->QuotFlags = temp_q.Flags;
 							}
 							break;
+					}
+				}
+				break;
+			case PPHS_MINQTTY: // @v12.7.5
+				{
+					const  long v = RdB.TagValue.ToLong();
+					p_item = PeekRefItem(&ref_pos, &type);
+					if(type == obQuot) {
+						if(v > 0)
+							static_cast<QuotBlock *>(p_item)->MinQtty = v;
 					}
 				}
 				break;
@@ -3425,15 +3436,15 @@ int PPPosProtocol::CreateGoodsGroup(const GoodsGroupBlock & rBlk, uint refPos, i
 		PPQuotArray quot_list;
 		quot_list.GoodsID = native_id;
 		for(uint k = 0; k < RdB.QuotBlkList.getCount(); k++) {
-			const QuotBlock & r_qb = RdB.QuotBlkList.at(k);
+			const  QuotBlock & r_qb = RdB.QuotBlkList.at(k);
 			if(r_qb.GoodsGroupBlkP == refPos) {
 				assert(r_qb.BlkFlags & r_qb.fGroup);
 				int    type_qk = 0;
-				const QuotKindBlock * p_qk_item = (const QuotKindBlock *)RdB.GetItem(r_qb.QuotKindBlkP, &type_qk);
+				const  QuotKindBlock * p_qk_item = static_cast<const QuotKindBlock *>(RdB.GetItem(r_qb.QuotKindBlkP, &type_qk));
 				if(p_qk_item) {
 					assert(type_qk == obQuotKind);
 					if(p_qk_item->NativeID) {
-						const QuotIdent qi(0 /*locID*/, p_qk_item->NativeID, 0/*@curID*/, 0);
+						const  QuotIdent qi(0 /*locID*/, p_qk_item->NativeID, 0/*@curID*/, 0);
 						quot_list.SetQuot(qi, r_qb.Value, r_qb.QuotFlags, r_qb.MinQtty, r_qb.Period.IsZero() ? 0 : &r_qb.Period);
 					}
 				}
@@ -3842,7 +3853,7 @@ int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, bool 
 				//
 				quot_list.GoodsID = native_id;
 				for(uint k = 0; k < RdB.QuotBlkList.getCount(); k++) {
-					const QuotBlock & r_qb = RdB.QuotBlkList.at(k);
+					const  QuotBlock & r_qb = RdB.QuotBlkList.at(k);
 					if(r_qb.GoodsBlkP == refPos) {
 						assert(!(r_qb.BlkFlags & r_qb.fGroup));
 						int    type_qk = 0;
@@ -4033,7 +4044,7 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 				QuotKindBlock & r_blk = RdB.QkBlkList.at(i);
 				if(((phase > 0) || !(r_blk.Flags_ & r_blk.fRefItem)) && !r_blk.NativeID) {
 					PPID   native_id = 0;
-					PPQuotKind qk_rec;
+					PPQuotKind2 qk_rec;
 					const QuotKindBlock * p_analog = RdB.SearchAnalog_QuotKind(r_blk);
 					if(p_analog)
 						r_blk.NativeID = p_analog->NativeID;

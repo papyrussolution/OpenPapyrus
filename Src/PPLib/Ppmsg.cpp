@@ -615,7 +615,7 @@ int PPTooltipMessage(const char * pMsg, const char * pImgPath, HWND parent, long
 {
 	int    ok = 0;
 	if(DS.IsThreadInteractive()) {
-		if(pMsg || pImgPath) {
+		if(!isempty(pMsg) || !isempty(pImgPath)) {
 			SMessageWindow * p_win = new SMessageWindow;
 			if(p_win) {
 				SString buf(pMsg);
@@ -635,13 +635,12 @@ int PPTooltipMessage(uint options, int msgcode, const char * pAddInfo)
 		if(PPGetMessage(options, msgcode, pAddInfo, DS.CheckExtFlag(ECF_SYSSERVICE), buf)) {
 			SMessageWindow * p_win = new SMessageWindow;
 			if(p_win) {
-				buf.ReplaceChar('\003', ' ').Strip();
-				COLORREF color = GetColorRef(SClrSteelblue);
+				const  COLORREF color = GetColorRef((options & mfError) ? SClrRed : SClrSteelblue);
 				long   flags = SMessageWindow::fSizeByText|SMessageWindow::fOpaque|SMessageWindow::fPreserveFocus;
 				if(options & mfError) {
-					color = GetColorRef(SClrRed);
 					flags |= SMessageWindow::fShowOnRUCorner|SMessageWindow::fTopmost;
 				}
+				buf.ReplaceChar('\003', ' ').Strip();
 				ok = p_win->Open(buf, 0, 0, 0, 30000, color, flags, 0);
 			}
 		}

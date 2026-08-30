@@ -2619,7 +2619,7 @@ int Quotation2Core::GetRelListByFilt(const QuotFilt * pFilt, PPIDArray & rList)
 		kind_list.add(pFilt->QuotKindID);
 	else {
 		PPObjQuotKind qk_obj;
-		PPQuotKind qk_rec;
+		PPQuotKind2 qk_rec;
 		for(SEnum en = PPRef->Enum(PPOBJ_QUOTKIND, 0); en.Next(&qk_rec) > 0;) {
 			int    cls = 0;
 			if(!pFilt || (qk_obj.Classify(qk_rec.ID, &cls) > 0 && cls == pFilt->QkCls))
@@ -3380,7 +3380,7 @@ int Quotation2Core::Verify()
 	{
 		PPObjQuotKind qk_obj;
 		UintHashTable absence_rel_tab;
-		PPQuotKind qk_rec;
+		PPQuotKind2 qk_rec;
 		Quot2RelTbl::Key1 k1; // QuotKindID, LocID, ArID, CurID, PeriodIdx, MinQtty (unique); // #1 @v7.3.5
 		MEMSZERO(k1);
 		if(RelT.search(1, &k1, spFirst)) {

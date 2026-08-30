@@ -1,5 +1,5 @@
 // V_PSNEV.CPP
-// Copyright (c) A.Sobolev, A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
+// Copyright (c) A.Sobolev, A.Starodub 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025, 2026
 // @ModuleDef(PPViewPersonEvent)
 //
 #include <pp.h>
@@ -51,7 +51,7 @@ PersonEventViewItem::PersonEventViewItem() : GrpCount(0)
 PersonEventViewItem & PersonEventViewItem::Z()
 {
 	memzero(this, sizeof(PersonEventTbl::Rec));
-	SMemo.Z(); // @v11.1.12
+	SMemo.Z();
 	GrpText1.Z();
 	GrpText2.Z();
 	AvgEvTime.Z();
@@ -316,8 +316,7 @@ int FASTCALL PPViewPersonEvent::NextIteration(PersonEventViewItem * pItem)
 				pItem->GrpCount = r_rec.Count;
 				pItem->GrpText1 = r_rec.Name;
 				pItem->GrpText2 = r_rec.DtSubst;
-				// @v11.1.12 (buf = r_rec.Name).CR().Cat(r_rec.DtSubst).CopyTo(pItem->Memo, sizeof(pItem->Memo));
-				(pItem->SMemo = r_rec.Name).CR().Cat(r_rec.DtSubst); // @v11.1.12
+				(pItem->SMemo = r_rec.Name).CR().Cat(r_rec.DtSubst);
 				{
 					LDATETIME dtm = ZERODATETIME;
 					const long days = dtm.settotalsec(r_rec.AvgEvTime);
@@ -378,7 +377,7 @@ DBQuery * PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	DBE    dbe_avg_tm;
 	DBE    dbe_extreg;
 	DBE    dbe_exttag;
-	DBE    dbe_memo;   // @v11.1.12
+	DBE    dbe_memo;
 	if(P_TempGrpTbl) {
 		brw_id = BROWSER_PSNEVSUBST;
 		THROW(CheckTblPtr(P_TempGrpTbl));
@@ -419,7 +418,7 @@ DBQuery * PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn_prmr, PPDbqFuncPool::IdObjNamePerson, pe->PersonID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn_scnd, PPDbqFuncPool::IdObjNamePerson, pe->SecondID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_op, PPDbqFuncPool::IdObjNamePsnOpKind, pe->OpID);
-		PPDbqFuncPool::InitObjNameFunc(dbe_memo, PPDbqFuncPool::IdObjMemoPersonEvent, pe->ID); // @v11.1.12
+		PPDbqFuncPool::InitObjNameFunc(dbe_memo, PPDbqFuncPool::IdObjMemoPersonEvent, pe->ID);
 		// @v12.5.1 {
 		q = & Select_(
 			pe->ID,       // #0
@@ -430,7 +429,7 @@ DBQuery * PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 		q->addField(dbe_psn_prmr); // #4
 		q->addField(dbe_op);       // #5
 		q->addField(dbe_psn_scnd); // #6
-		q->addField(dbe_memo);     // #7 // @v11.1.12 pe->Memo-->dbe_memo
+		q->addField(dbe_memo);     // #7
 		// } @v12.5.1 
 		/* @v12.5.1 q = & Select_(
 			pe->ID,       // #0
@@ -440,7 +439,7 @@ DBQuery * PPViewPersonEvent::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 			dbe_psn_prmr, // #4
 			dbe_op,       // #5
 			dbe_psn_scnd, // #6
-			dbe_memo,     // #7 // @v11.1.12 pe->Memo-->dbe_memo
+			dbe_memo,     // #7
 			0L);*/
 		q->from(pe, 0L);
 		{
@@ -530,6 +529,9 @@ int PPViewPersonEvent::CellStyleFunc_(const void * pData, long col, int paintAct
 					pStyle->Color2 = GetColorRef(SClrViolet);
 					pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
 					ok = 1;
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_PERSONEVENT_FORCEPAIR, SLS.AcquireRvlStr()));
+					}
 				}
 			}
 		}
@@ -637,21 +639,31 @@ int PPViewPersonEvent::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 	else {
 		ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 		if(ok == -2) {
-			if(ppvCmd == PPVCMD_EDITPSNOPKIND) {
-				ok = -1;
-				PersonEventTbl::Rec rec;
-				PPID id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
-				if(id && PsnEvObj.Search(id, &rec) > 0) {
-					if(PokObj.Edit(&rec.OpID, 0) == cmOK)
-						ok = 1;
-				}
-			}
-			else if(ppvCmd == PPVCMD_CHNGFLAGS) {
-				ok = ChangeFlags(1);
-			}
-			else if(ppvCmd == PPVCMD_TRANSMIT) {
-				Transmit(0);
-				ok = -1;
+			switch(ppvCmd) {
+				case PPVCMD_EDITPSNOPKIND:
+					{
+						ok = -1;
+						PersonEventTbl::Rec rec;
+						PPID id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+						if(id && PsnEvObj.Search(id, &rec) > 0) {
+							if(PokObj.Edit(&rec.OpID, 0) == cmOK)
+								ok = 1;
+						}
+					}
+					break;
+				case PPVCMD_CHNGFLAGS:
+					ok = ChangeFlags(1);
+					break;
+				case PPVCMD_TRANSMIT:
+					Transmit(0);
+					ok = -1;
+					break;
+				case PPVCMD_MOUSEHOVER: // @v12.7.5
+					if(pBrw) {
+						pBrw->ShowCellStyleHint();
+						ok = -1;
+					}
+					break;
 			}
 		}
 	}
@@ -804,12 +816,9 @@ int PPALDD_PersonEventBase::InitData(PPFilt & rFilt, long rsrv)
 			CPYFLD(ScndSCardID);
 			#undef CPYFLD
 			{
-				// @v11.1.12 STRNSCPY(H.Memo, rec.Memo);
-				// @v11.1.12 {
 				SString & r_temp_buf = SLS.AcquireRvlStr();
 				p_obj->P_Tbl->GetItemMemo(H.ID, r_temp_buf);
 				STRNSCPY(H.Memo, r_temp_buf);
-				// } @v11.1.12 
 			}
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}

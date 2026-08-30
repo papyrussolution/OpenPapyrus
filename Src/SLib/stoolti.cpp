@@ -483,7 +483,14 @@ void SMessageWindow::Move()
 		else if(Flags & SMessageWindow::fShowOnCursor) {
 			//int    delta = GetSystemMetrics(SM_CXVSCROLL) + GetSystemMetrics(SM_CXBORDER);
 			POINT  p;
-			GetCursorPos(&p);
+			POINT  p_;
+			::GetCursorPos(&p);
+			// @v12.7.5 {
+			p_ = p;
+			if(::ScreenToClient(GetParent(HWnd), &p_)) { 
+				p.x = p_.x;
+			}
+			// } @v12.7.5 
 			toolt_rect.top  = p.y - toolt_h + 2;
 			toolt_rect.left = p.x - 2;
 			toolt_rect.top  = (toolt_rect.top  < parent_rect.top)  ? parent_rect.top  + 1 : toolt_rect.top;

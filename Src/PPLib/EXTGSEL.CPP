@@ -547,11 +547,8 @@ PPID ExtGoodsSelDialog::getSelectedItem()
 
 void ExtGoodsSelDialog::searchBarcode()
 {
-	//Goods2Tbl::Rec rec;
-	//SString bcode;
 	GoodsCodeSrchBlock blk;
 	blk.ArID = ArID;
-	//int    r = GObj.SelectGoodsByBarcode(0, ArID, &rec, 0, &bcode);
 	int    r = GObj.SelectGoodsByBarcode2(blk);
 	if(r > 0) {
 		if(OpID && !GObj.CheckMatrix(blk.Rec.ID, NZOR(LocID, LConfig.Location), OpID, ArID))
@@ -562,7 +559,7 @@ void ExtGoodsSelDialog::searchBarcode()
 	else if(r == -2 && PPMessage(mfConf|mfYesNo, PPCFM_ADDNEWGOODS) == cmYes) {
 		PPID   id = 0;
 		PPID   grp_id = getCtrlLong(CTLSEL_EXTGSEL_GGRP);
-		r = GObj.Edit(&id, gpkndGoods, grp_id, 0, blk.RetCode_);
+		r = GObj.Edit(&id, gpkndGoods, grp_id, 0, (blk.RetCode_.NotEmpty() ? blk.RetCode_ : blk.Code_)); // @v12.7.5 @fix (blk.RetCode_)-->(blk.RetCode_.NotEmpty() ? blk.RetCode_ : blk.Code_)
 		if(r == cmOK) {
 			grp_id = (GObj.Fetch(id, &blk.Rec) > 0) ? blk.Rec.ParentID : 0;
 			selectGoods(grp_id, id);

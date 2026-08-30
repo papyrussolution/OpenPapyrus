@@ -156,8 +156,8 @@ void SecurDialog::getPassword()
 
 void SecurDialog::getPaths()
 {
-	TDialog * dlg = 0;
-	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_PATH)))) {
+	TDialog * dlg = new TDialog(DLG_PATH);
+	if(CheckDialogPtrErr(&dlg)) {
 		static const struct {
 			long   PathID;
 			uint   FldId;
@@ -177,8 +177,6 @@ void SecurDialog::getPaths()
 		SString temp_buf;
 		SString pattern;
 		for(i = 0; i < SIZEOFARRAY(path_fld_list); i++) {
-			//setPathFld(dlg, path_fld_list[i].PathID, path_fld_list[i].FldId, path_fld_list[i].IndFldId);
-			//void SecurDialog::setPathFld(TDialog * dlg, long pathID, uint fldID, uint labelID)
 			char   st[8];
 			Data.Paths.GetPath(path_fld_list[i].PathID, &flags, temp_buf);
 			dlg->setCtrlString(path_fld_list[i].FldId, temp_buf.Strip());
@@ -187,20 +185,19 @@ void SecurDialog::getPaths()
 			st[2] = 0;
 			dlg->setStaticText(path_fld_list[i].IndFldId, st);
 		}
-		dlg->disableCtrl(CTL_PATH_DAT, true); // @v10.7.8
-		dlg->disableCtrl(CTL_PATH_ARC, true); // @v10.7.8
-		dlg->disableCtrl(CTL_PATH_BIN, true); // @v10.7.8
-		dlg->disableCtrl(CTL_PATH_TMP, true); // @v10.7.8
+		dlg->setCtrlReadOnly(CTL_PATH_DAT, true); // @v12.7.5 disableCtrl-->setCtrlReadOnly
+		dlg->setCtrlReadOnly(CTL_PATH_ARC, true);
+		dlg->setCtrlReadOnly(CTL_PATH_BIN, true);
+		dlg->setCtrlReadOnly(CTL_PATH_TMP, true);
 		if(ExecView(dlg) == cmOK) {
 			for(i = 0; i < SIZEOFARRAY(path_fld_list); i++) {
-				//getPathFld(dlg, path_fld_list[i].PathID, path_fld_list[i].FldId);
-				//void SecurDialog::getPathFld(TDialog * dlg, long pathID, uint fldID)
 				Data.Paths.GetPath(path_fld_list[i].PathID, &flags, pattern);
 				dlg->getCtrlString(path_fld_list[i].FldId, temp_buf);
 				temp_buf.Strip();
 				pattern.Strip();
-				if(temp_buf.CmpNC(pattern) != 0)
+				if(temp_buf.CmpNC(pattern) != 0) {
 					Data.Paths.SetPath(path_fld_list[i].PathID, temp_buf, 0, 1);
+				}
 			}
 		}
 	}

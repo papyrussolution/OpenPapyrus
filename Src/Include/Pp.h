@@ -245,7 +245,6 @@ class  TDialog;
 class  ComboBox;
 class  ListWindow;
 class  ListBoxDef;
-class  AccTurnDialog;
 class  TVRez;
 class  AccAnlzFilt;
 class  BhtProtocol;
@@ -482,8 +481,8 @@ public:
 	static constexpr uint64 Signature_Quotation2_DumpHeader        = 0x7654321098fedcbaULL; // Сигнатура дампа котировок = 0x7654321098fedcbaLL; // @persistent
 	static constexpr uint32 Signature_PPView                       = 0x099A099BU; // Сигнатура класса PPView 0x099A099BUL (former SIGN_PPVIEW)
 	static constexpr uint32 Signature_PPThreadLocalArea            = 0x7D08E311U; // Сигнатура класса PPThreadLocalArea (former SIGN_PPTLA)
-	static constexpr uint32 Signature_StqDbSymbToSvcIdMap          = 0xBCA10DD9U; // @v11.1.12 Сигнатура файла соответствий символов баз данных идентификаторам сервисов Stylo-Q
-	static constexpr uint32 Signature_BillMultiPrintParam          = 0xA4183530U; // @v11.2.0  Сигнатура класса BillMultiPrintParam
+	static constexpr uint32 Signature_StqDbSymbToSvcIdMap          = 0xBCA10DD9U; // Сигнатура файла соответствий символов баз данных идентификаторам сервисов Stylo-Q
+	static constexpr uint32 Signature_BillMultiPrintParam          = 0xA4183530U; // Сигнатура класса BillMultiPrintParam
 	static constexpr uint32 Signature_StyloQStoragePacket          = 0x11A52FB6U; // @v11.6.0 Сигнатура класса StyloQCore::StoragePacket
 	static constexpr uint32 Signature_StyloQPersonEventParam       = 0x230759EAU; // @v11.6.1 Сигнатура класса StyloQPersonEventParam
 	static constexpr long   Signature_LaunchAppParam               = 0x4c484150L; // 'LHAP'
@@ -495,7 +494,7 @@ public:
 	static constexpr const char * P_SubjectOrder = "$PpyOrderTransmission$";
 	static constexpr const char * P_SubjectCharry = "$PpyCharryTransmission$";
 	static constexpr const char * P_BillNotePrefix_IntrExpnd = "$INTREXPND"; // "$INTREXPND" Специальный префикс примечания документа передаваемый через ЕГАИС для привязка документа внутренней передачи
-	static constexpr const char * P_MagicFileTransmit = "$#FILETRANSMITMAGIC#$"; // @v11.2.9 "$#FILETRANSMITMAGIC#$" Префикс команды JobServer'а для передачи файлов
+	static constexpr const char * P_MagicFileTransmit = "$#FILETRANSMITMAGIC#$"; // "$#FILETRANSMITMAGIC#$" Префикс команды JobServer'а для передачи файлов
 	static constexpr const char * P_ObjMemoDelim      = "=^%"; // MemosDelim разделитель примечаний объектов
 	static constexpr const char * P_ObjMemo_UtmRejPfx = "UTM Rej"; // Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС УТМ
 	static constexpr const char * P_ObjMemo_EgaisRejPfx = "EGAIS Rej"; // Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС
@@ -803,8 +802,8 @@ public:
 	SString MsftTranslAcc; // Аккаунт доступа к службе Microsoft Translate
 	SString UhttAcc;       // Default-аккаунт доступа к службам Universe-HTT
 	SString VkAppIdent;    // Идентификатор приложения Papyrus в ВКонтакте
-	SString GoogleAppIdent; // @v11.0.2 Идентификатор приложения Papyrus в Google
-	SString FacebookAppIdent; // @v11.0.7 Идентификатор приложения Papyrus в Facebook
+	SString GoogleAppIdent; // Идентификатор приложения Papyrus в Google
+	SString FacebookAppIdent; // Идентификатор приложения Papyrus в Facebook
 	SString StyloQ_VerCode;   // @v12.3.10 Код версии Stylo-Q (gradle). Обычно целое число.
 	SString StyloQ_VerName;   // @v12.3.10 Наименование версии Stylo-Q (gradle). Обычно версионный формат eg: 0.8.8
 };
@@ -825,8 +824,8 @@ public:
 		taiCopyrightText,
 		taiMsftTranslAcc,
 		taiVkAppIdent,
-		taiGoogleAppIdent, // @v11.0.2
-		taiFacebookAppIdent, // @v11.0.7
+		taiGoogleAppIdent,
+		taiFacebookAppIdent,
 	};
 	explicit PPVersionInfo(const char * pOuterFileName = 0);
 	PPVersionInfo(const PPVersionInfo & s);
@@ -2071,7 +2070,7 @@ public:
 	struct SerialEntry {
 		SerialEntry();
 		PPID   ID; // @firstmember
-		uint64 UedTm;
+		ued_t  UedTm;
 		SBuffer Buf;
 	};
 	LocalStateBinderyCore();
@@ -3005,8 +3004,9 @@ public:
 	TagFilt & FASTCALL operator = (const TagFilt & rS);
 	int    FASTCALL Check(const ObjTagList * pList) const;
 	int    CheckTagItemForRestrict(const ObjTagItem * pItem, const SString & rRestrict) const;
-	bool   SelectIndicator(PPID objID, SColor & rClr) const;
-	bool   SelectIndicator(const ObjTagList * pTagList, SColor & rClr) const;
+	uint   SelectIndicator(PPID objID, SColor & rClr) const;
+	uint   SelectIndicator(const ObjTagList * pTagList, SColor & rClr) const;
+	void   MakeIndicatorDescrText(uint indIdx/*1..*/, const char * pPrefix, SString & rBuf) const;
 
 	char   ReserveStart[32];    // @anchor
 	long   Flags;               // @flags
@@ -5351,6 +5351,7 @@ void RegisterSTAcct();
 #define PPAF_OUTBAL_TRANSFER   0x0100L // Забалансовый трансфер
 	//
 #define PPAF_REGISTER          0x0200L // Регистровая проводка
+#define PPAF_PERSONAL          0x0400L // @v12.7.5 Персональная транзакция //
 //
 // Бухгалтерская проводка
 //
@@ -5373,7 +5374,7 @@ struct PPAccTurn { // @persistent
 	AcctID CrdID;
 	PPID   CrdSheet;
 	LDATE  Date;
-	char   BillCode[48];   // Код документа // @v11.1.12 [24]-->[48]
+	char   BillCode[48];   // Код документа
 	PPID   BillID;         // Идентификатор документа
 	int16  RByBill;        // Номер проводки по документу
 	int16  Reserve;        // @alignment
@@ -8208,7 +8209,7 @@ public:
 	PPTransaction(PPDbDependTransaction dbDepend, int use_ta);
 	PPTransaction(int use_ta);
 	~PPTransaction();
-	int    operator !();
+	bool   operator !() const;
 	//
 	// Descr: Запускает транзакцию в зависимости от параметров dbDepended и use_ta.
 	// Returns:
@@ -9068,7 +9069,7 @@ public:
 	virtual void * CreateObjListWin(uint aFlags, void * extraPtr);
 
 	enum {
-		implTaggedStrMakeList = 0x0001, // Класс реализует виртуальную функцию TaggedStringArray * PPObject::MakeList_(long)
+		// @v12.7.5 (unused) implTaggedStrMakeList = 0x0001, // Класс реализует виртуальную функцию TaggedStringArray * PPObject::MakeList_(long)
 		implStrAssocMakeList  = 0x0002, // Класс реализует виртуальную функцию StrAssocArray * PPObject::MakeSStrAssocList(long)
 		implTreeSelector      = 0x0004, // Класс реализует метод MakeSStrAssocList, возвращающий
 			// древовидный список (функции Selector и UpdateSelector должна инициализировать StdTreeListBoxDef).
@@ -10385,10 +10386,7 @@ struct CCheckItem { // @transient
 	int8   Queue;           // Очередность подачи
 	int8   Reserve[1];      // @alignment
 	int16  RByCheck;        // Проекция поля CCheckLineTbl::Rec::RByCheck
-	S_GUID ChZnPm_ReqId;    // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
-	int64  ChZnPm_ReqTimestamp; // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
-	S_GUID ChZnPm_LocalModuleInstance; // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
-	S_GUID ChZnPm_LocalModuleDbVer;    // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): версия базы «чёрного списка», на которой выполнялась проверка КИ
+	ChZnPmReplyTags ChZnPmRT;
 	double ChZnPrice;       // @v12.5.9 Цена, прошитая в марке чзн
 	char   BarCode[24];     //
 	char   GoodsName[128];  //
@@ -11363,7 +11361,7 @@ struct ILTI { // @persistent(DBX) @size=80
 #define BILLF_SHIPPED        0x00000040L // Товар по документу отгружен
 #define BILLF_NOLOADTRFR     0x00000080L // @transient При загрузке и обработке документа не следует загружать товарные строки
 #define BILLF_CLOSEDORDER    0x00000100L // Закрытый заказ
-#define BILLF_WRITEDOFF      BILLF_CLOSEDORDER // Списанный драфт
+#define BILLF_WRITEDOFF      BILLF_CLOSEDORDER // Списанный драфт или инвентаризация //
 #define BILLF_GREVAL         0x00000200L // Переоценка товара
 #define BILLF_CASH           0x00000400L // Кассовый документ
 #define BILLF_CHECK          0x00000800L // Признак пробитого чека
@@ -11425,7 +11423,7 @@ struct ILTI { // @persistent(DBX) @size=80
 	// запрос об отмене проведения.
 #define BILLF2_ROWLINKBYRBB  0x00000800L // @internal
 #define BILLF2_REVERSEDEBT   0x00001000L // Документ работает как реверсивная оплата или зачет: имеет отрицательную номинальную сумму оплачивает ее модулем другой документ
-#define BILLF2_FORCEDRECEIPT 0x00002000L // @v11.1.12 Документ прихода товара, сформированный с целью форсированной компенсанции дефицита
+#define BILLF2_FORCEDRECEIPT 0x00002000L // Документ прихода товара, сформированный с целью форсированной компенсанции дефицита
 	// при приеме данных из другого раздела. До версии 11.1.12 такие документы индицировались специальным примечанием N2. Далее это примечание использоваться не будет.
 //
 // Value added record for PPOBJ_BILL
@@ -18736,7 +18734,7 @@ public:
 			fLogStakeEvaluation  = 0x0040  // Выводить в журнал информацию о расчете ставок
 		};
 		enum {
-			efLong = 0x0001,
+			efLong         = 0x0001,
 			efShort        = 0x0002,
 			efDisableStake = 0x0004
 		};
@@ -20090,6 +20088,7 @@ public:
 #define OPSUBT_BAILMENT_PUT          13 // @v12.4.1 PPOPT_WAREHOUSE передача актива на ответственное хранение
 #define OPSUBT_BAILMENT_GET          14 // @v12.4.1 PPOPT_WAREHOUSE возврат актива с ответственного хранения //
 #define OPSUBT_GENERALWMSOP          15 // @v12.4.1 PPOPT_WAREHOUSE общая операция складского хранения //
+#define OPSUBT_PERSONALFINANCE       16 // @v12.7.5 PPOPT_ACCTURN операция учета персональных финансов
 //
 // Descr: Заголовочная запись вида операций
 //
@@ -22524,6 +22523,33 @@ public:
 	int    IsPrinter();
 };
 //
+// Виды счетов (активность для бухгалтерских счетов и категория для персональных)
+//
+//#define ACT_ACTIVE_           1 // Активный балансовый счет
+//#define ACT_PASSIVE_          2 // Пассивный балансовый счет
+//#define ACT_AP_               3 // Активно-пассивный балансовый счет
+
+#define ACCK_ACTIVE          1 // Активный балансовый счет
+#define ACCK_PASSIVE         2 // Пассивный балансовый счет
+#define ACCK_AP              3 // Активно-пассивный балансовый счет
+#define ACCK_PA_CASH       101 // @v12.7.5 Наличные
+#define ACCK_PA_BANKCCARD  102 // @v12.7.5 Банковская платежная карта 
+#define ACCK_PA_BANKCHEQ   103 // @v12.7.5 Банковский чековый (текущий) счет
+#define ACCK_PA_DEBT       104 // @v12.7.5 Собственный долг
+#define ACCK_PA_CREDIT     105 // @v12.7.5 Деньги переданые в долг
+#define ACCK_PA_INVESTMENT 106 // @v12.7.5 Инвестиционный или сберегательный счет
+#define ACCK_PA_ISVCACC    107 // @v12.7.5 Счет на каком-либо интернет-сервисе 
+//
+// Типы счетов
+//
+#define ACY_BAL              1   // Балансовый счет
+#define ACY_OBAL             2   // Внебалансовый счет
+#define ACY_AGGR             3   // Агрегирующий счет
+#define ACY_REGISTER         4   // Регистр
+#define ACY_PERSONAL         5   // Персональный счет @construction
+#define ACY_ALIAS            6   // Элиас счета
+#define ACY_BUDGET           7   // Бюджетный счет
+//
 // Флаги бухгалтерских счетов
 //
 #define ACF_FREEREST        0x0001L // Даже имея субсчета и (или) статьи, счет допускает прямые проводки
@@ -22799,7 +22825,7 @@ public:
 	int    GetAcctCurID(int aco, PPID accID, PPID * pCurID);
 	void   GetAccRelIDs(const AccTurnTbl::Rec *, PPID * pDbtRelID, PPID * pCrdRelID) const;
 	int    ConvertRec(const AccTurnTbl::Rec *, PPAccTurn *, int useCache);
-	int    Turn(PPAccTurn*, int use_ta);
+	int    Turn(PPAccTurn & rAt, int use_ta);
 	int    RollbackTurn(PPID, short rByBill, int use_ta);
 	int    UpdateAmount(PPID, short rByBill, double newAmt, double cRate, int use_ta);
 	int    AcctIDToRel(const AcctID *, PPID * rel);
@@ -22957,10 +22983,7 @@ struct SlipLineParam {
 	SString ChZnSerial;   // 
 	SString ChZnPartN;    // Номер партии в марке честный знак
 	SString ChZnSid;      // Ид предприятия для передачи в честный знак
-	S_GUID ChZnPm_ReqId;  // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
-	int64  ChZnPm_ReqTimestamp; // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
-	S_GUID ChZnPm_LocalModuleInstance; // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
-	S_GUID ChZnPm_LocalModuleDbVer;    // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): версия базы «чёрного списка», на которой выполнялась проверка КИ
+	ChZnPmReplyTags ChZnPmRT;
 };
 
 struct SlipDocCommonParam {
@@ -26182,7 +26205,7 @@ public:
 	PPQuotKindPacket & Z();
 	int    GetCalculatedQuot(PPID goodsID, double cost, double basePrice, double * pQuot, long * pFlags) const;
 
-	PPQuotKind Rec;
+	PPQuotKind2 Rec;
 };
 //
 // Зарезервированные символы видов котировок:
@@ -29214,7 +29237,7 @@ struct PPPsnEventPacket {
 
 	PersonEventTbl::Rec Rec;
 	RegisterTbl::Rec Reg;
-	SString SMemo; // @v11.1.12
+	SString SMemo;
 	ObjTagList   TagL;
 	ObjLinkFiles LinkFiles; // Связанные файлы
 	//
@@ -29445,7 +29468,7 @@ struct PersonEventFilt : public PPBaseFilt {
 struct PersonEventViewItem : public PersonEventTbl::Rec {
 	PersonEventViewItem();
 	PersonEventViewItem & Z();
-	SString SMemo; // @v11.1.12
+	SString SMemo;
 	SString GrpText1;
 	SString GrpText2;
 	SString AvgEvTime;
@@ -34924,7 +34947,7 @@ struct InventoryFilt : public PPBaseFilt {
 	InventoryFilt & FASTCALL operator = (const InventoryFilt & rS);
 	void   FASTCALL SetSingleBillID(PPID billID);
 	PPID   GetSingleBillID() const;
-	int    HasSubst() const;
+	bool   HasSubst() const;
 	enum {
 		fLack       = 0x0001, // Показывать недостачи
 		fSurplus    = 0x0002, // Показывать излишки
@@ -35400,7 +35423,7 @@ public:
 	int    CheckRightsWithOp(PPID opID, long rtflags);
 	int    Lock(PPID billID);
 	int    Unlock(PPID billID);
-	int    CheckStatusFlag(PPID statusID, long flag);
+	bool   CheckStatusFlag(PPID statusID, long flag);
 	int    FASTCALL GetEdiUserStatus(const BillTbl::Rec & rRec);
 	//
 	// Descr: Флаги функции PPObjBill::ValidatePacket
@@ -36051,7 +36074,7 @@ public:
 		int    LeadRbb;
 		PPID   SeqBillID;
 		int    SeqRbb;
-		int    AckStatus;
+		int    AckStatus; // Статус ответа поставщика на запрос: 1 - accepted, 2 - rejected
 		double AckCost;
 		double AckQtty;
 	};
@@ -36246,6 +36269,31 @@ public:
 	};
 
 	int   MakeExportParticipantIdentBlock(const PPBillPacket & rBp, ExportParticipantIdentBlock & rBlk); // @v12.6.9
+	//
+	// Descr: Список идентификаторов документов для экспорта с дополнительными факторами
+	//
+	struct ListForExport : public PPIDArray {
+		ListForExport() : PPIDArray(), Flags(0), SingleLocID(-1)
+		{
+			BnkPaymPeriod.Z();
+		}
+		ListForExport & Z()
+		{
+			PPIDArray::Z();
+			Flags = 0;
+			SingleLocID = -1;
+			BnkPaymPeriod.Z();
+			return *this;
+		}
+		enum {
+			fIsThereBankPayment = 0x0001
+		};
+		uint   Flags;
+		PPID   SingleLocID;
+		DateRange BnkPaymPeriod; // Период документов с признаком банковского платежного поручения или ордера
+	};
+	int    ExportList(const ListForExport & rList, const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam);
+	int    Helper_ExportBnkOrderList(const ListForExport & rList, const char * pSection, StringSet * pResultFileList, PPLogger & rLogger);
 public:
 	void * ExtraPtr;
 	PPBillConfig Cfg;
@@ -40982,7 +41030,7 @@ public:
 	int    GetBillIDList(PPIDArray *);
 	int    CalcTotal(BillTotal *);
 	int    CalcItemTotal(PPID billID, BillTotalData & rTotal);
-	int    ExportBnkOrder();
+	// @v12.7.5 @obsolete int    ExportBnkOrder();
 	int    ViewPayments(PPID, int kind);
 	int    ViewBillsByOrder(PPID);
 	int    WriteOffDraft(PPID);
@@ -41063,9 +41111,10 @@ private:
 	int    UniteReceiptBills(); // @<<PPViewBill::UniteBills
 	int    UniteSellBills();    // @<<PPViewBill::UniteBills
 	int    UniteInventory();    // @<<PPViewBill::UniteBills
-	int    Helper_ExportBnkOrder(const char * pSection, StringSet * pResultFileList, PPLogger & rLogger);
+	// @v12.7.5 (replaced by PPObjBill::Helper_ExportBnkOrderList) int    Helper_ExportBnkOrder(const char * pSection, StringSet * pResultFileList, PPLogger & rLogger);
 	int    EvaluateOrderFulfillmentStatus(PPID billID);
 	int    Test_ServerPrint(PPID billID); // @v12.4.7
+	int    MakeIdListForExport(PPObjBill::ListForExport & rList); // @v12.7.5
 
 	BillFilt Filt;
 	PPIDArray UpdateBillList; // для обновления измененнных документов в броузере
@@ -41253,10 +41302,10 @@ class PPViewInventory : public PPView {
 public:
 	PPViewInventory();
 	~PPViewInventory();
-	virtual int  EditBaseFilt(PPBaseFilt * pFilt);
-	virtual int  Init_(const PPBaseFilt * pBaseFilt);
-	virtual int   ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
-	virtual int   Print(const void *);
+	virtual int EditBaseFilt(PPBaseFilt * pFilt);
+	virtual int Init_(const PPBaseFilt * pBaseFilt);
+	virtual int ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
+	virtual int Print(const void *);
 	void   SetOuterPack(PPBillPacket * pPack);
 	int    InitIteration();
 	int    FASTCALL NextIteration(InventoryViewItem *);
@@ -41383,7 +41432,7 @@ public:
 		int    LinkRbb;
 		LDATE  LinkDt;
 		PPID   LinkArID;
-		int    SeqAckStatus;
+		int    SeqAckStatus; // Статус ответа поставщика на запрос: 1 - accepted, 2 - rejected
 		double RepQtty;
 		double RepPrice;
 		PPID   RepCurID;
@@ -42004,7 +42053,7 @@ private:
 	virtual int  Print(const void *);
 	virtual void ViewTotal();
 	int    GetBillList(ObjIdListFilt * pList);
-	int    PrintBill(PPID billID/* @v10.0.0, int addCashSummator*/);
+	int    PrintBill(PPID billID);
 	int    PrintBillList();
 	int    PrintAllBills();
 	int    PrintBillInfoList();
@@ -52778,7 +52827,7 @@ private:
 		uint   GoodsBlkP;
 		uint   CodeP;
         long   Pack;
-		long   BarcodeType; // @v11.0.0
+		long   BarcodeType;
 	};
 	struct QuotBlock { // @flat
 		QuotBlock();
@@ -53111,7 +53160,7 @@ private:
 	int    WriteSCardInfo(WriteBlock & rB, const char * pScopeXmlTag, const AsyncCashSCardInfo & rInfo);
 	int    WritePersonInfo(WriteBlock & rB, const char * pScopeXmlTag, PPID codeRegTypeID, const PPPersonPacket & rPack);
 	int    WriteQuotInfo(WriteBlock & rB, const char * pScopeXmlTag, PPID parentObj, const PPQuot & rInfo);
-	int    WriteQuotKindInfo(WriteBlock & rB, const char * pScopeXmlTag, const PPQuotKind & rInfo);
+	int    WriteQuotKindInfo(WriteBlock & rB, const char * pScopeXmlTag, const PPQuotKind2 & rInfo);
 	int    WriteRouteInfo(WriteBlock & rB, const char * pScopeXmlTag, const RouteBlock & rInfo);
 	int    WritePosNode(WriteBlock & rB, const char * pScopeXmlTag, const PPCashNode2 & rInfo);
 	int    WriteCSession(WriteBlock & rB, const char * pScopeXmlTag, const CSessionTbl::Rec & rInfo);
@@ -55735,6 +55784,9 @@ public:
 	//   Прямое использование недопустимо.
 	//
 	void   Helper_SetAllColumnsSortable();
+	int    ShowCellStyleHint(long row, long col); // @v12.7.5
+	int    ShowCellStyleHint(); // @v12.7.5
+
 	PPView * P_View;
 protected:
 	DECL_HANDLE_EVENT;
@@ -56035,7 +56087,7 @@ private:
 	int    processAccInput(TDialog *);
 	int    processArtInput(TDialog *);
 
-	PPObjAccTurn * ppobj;
+	PPObjAccTurn * P_AtObj; // @notowned (== BillObj->atobj)
 	AcctID AcctId;
 	PPID   AccSheetID;
 	PPID   CurID;
@@ -56428,21 +56480,6 @@ private:
 	LDATE  CRateDate;
 	Rec    Data;
 	AmtList * P_AL;
-};
-
-class AccTurnDialog : public TDialog {
-public:
-	AccTurnDialog(uint rezID, PPObjBill * pBObj);
-	int    setDTS(const PPAccTurn * pData, PPBillPacket * pPack, long templFlags = 0);
-	int    getDTS(PPAccTurn * pData);
-private:
-	DECL_HANDLE_EVENT;
-	void   setupCurrencyCombo();
-
-	PPObjBill    * P_BObj;
-	PPObjAccount AccObj;
-	PPBillPacket * P_Pack;
-	PPAccTurn      Data; // В форме идентификаторов
 };
 
 class DivisionCtrlGroup : public CtrlGroup {
@@ -57996,10 +58033,11 @@ public:
 		int    Code; // Result code. 0 - ok
 		uint   Flags; // @v12.6.5
 		SString Description; // error message or "ok"
-		S_GUID ReqId;
-		int64  ReqTimestamp;
-		S_GUID LocalModuleInstance; // @v12.3.12 Идент локального модуля проверки
-		S_GUID LocalModuleDbVer;    // @v12.3.12 Версия базы «чёрного списка», на которой выполнялась проверка КИ
+		ChZnPmReplyTags ChZnPmRT; // @v12.7.5
+		// @v12.7.5 S_GUID ReqId;
+		// @v12.7.5 int64  ReqTimestamp;
+		// @v12.7.5 S_GUID LocalModuleInstance; // @v12.3.12 Идент локального модуля проверки
+		// @v12.7.5 S_GUID LocalModuleDbVer;    // @v12.3.12 Версия базы «чёрного списка», на которой выполнялась проверка КИ
 	};
 	//
 	// Descr: Типы упаковки
@@ -58490,7 +58528,7 @@ public:
 	//
 	struct PgsBlock {
 		enum {
-			fMarkedBarcode          = 0x0001 // Товар был выбран по маркированному штрихкоду
+			fMarkedBarcode = 0x0001 // Товар был выбран по маркированному штрихкоду
 		};
 		explicit PgsBlock(PPID goodsID, double qtty);
 		double GetChZnPrice() const;
@@ -58511,15 +58549,11 @@ public:
 		SString ChZnMark;     // Марка 'честный знак'
 		SString ChZnGtin;     // GTIN код товара, считанный из марки 'честный знак'
 		SString ChZnSerial;   // Серийный номер марки 'честный знак'
-		int64  ChZnPm_ReqTimestamp; // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса. Параметр возвращает дату и время с точностью до миллисекунд.
-		S_GUID ChZnPm_ReqId;  // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
-		S_GUID ChZnPm_LocalModuleInstance; // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
-		S_GUID ChZnPm_LocalModuleDbVer;    // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): версия базы «чёрного списка», на которой выполнялась проверка КИ
+		ChZnPmReplyTags ChZnPmRT;
 		// @v12.6.7 (replaced by PriceBlk) RealRange AllowedPriceRange; // @v12.2.2 диапазон допустимых цен на товар (пока только по результату запроса разрешительного режима марки chzn)
 		PPChZnPrcssr::PriceByMarkBlock PriceBlk; // @v12.6.7 
 	};
-	//int    SetupNewRow(PPID goodsID, double qtty, double priceBySerial, const char * pSerial, PPID giftID = 0);
-	int    SetupNewRow(/*PPID goodsID,*/PgsBlock & rBlk, PPID giftID = 0);
+	int    SetupNewRow(PgsBlock & rBlk, PPID giftID = 0);
 	int    AcceptRow(PPID giftID = 0);
 	//
 	// Descr: Заполняет пакет чека по указателю pPack данными из текущего состояния панели.

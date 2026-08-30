@@ -59,7 +59,7 @@ uint BroGroup::NextColumn() const { return (First+Count); }
 //
 BrowserDef::BrowserDef(uint signature, int captionHight, uint aOptions, void * extraPtr /*=0*/) : Signature(signature), 
 	SArray(sizeof(BroColumn), aryDataOwner|aryEachItem), CaptionHight(captionHight), Options(aOptions), NumGroups(0), 
-	P_Groups(0), ViewHight(1), TopItem(0), CurItem(0), scrollDelta(0), P_CtList(0),
+	P_Groups(0), ViewHight(1), TopItem(0), CurItem(0), _ScrollDelta(0), P_CtList(0),
 	ExtraPtr(extraPtr), UserProc(0), isBOQ(false), isEOQ(false)
 {
 }
@@ -196,7 +196,7 @@ void BrowserDef::FreeAllCrosstab()
 
 void BrowserDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 {
-	ASSIGN_PTR(pScrollDelta, scrollDelta);
+	ASSIGN_PTR(pScrollDelta, _ScrollDelta);
 	ASSIGN_PTR(pScrollPos, CurItem);
 }
 
@@ -267,8 +267,8 @@ const BroGroup * BrowserDef::groupOf(uint column, uint * pGrpPos) const
 
 const void * BrowserDef::Helper_GetCellData(const void * pRowData, int columnIdx, TYPEID * pTypeID, long * pFmt, uint * pCOptions, void * pOuterBuf, size_t outerBufSize)
 {
-	const void * p_result = 0;
-	const char * p_src_data = static_cast<const char *>(pRowData);
+	const  void * p_result = 0;
+	const  char * p_src_data = static_cast<const char *>(pRowData);
 	TYPEID typ = 0;
 	long   fmt = 0;
 	uint   coptions = 0;
@@ -467,36 +467,28 @@ static void FASTCALL RemoveCtrlNFromStr_(SString & rBuf)
 SString & BrowserDef::getMultiLinesText(long row, int column, /*char * pBuf*/SString & rBuf, uint heightMult, uint * pCalcHeight)
 {
 	rBuf.Z();
-	//char   buf[4096];
-	//buf[0] = 0;
-	//SString temp_buf;
 	TYPEID typ = 0;
 	long   fmt = 0;
 	uint   coptions = 0;
-	char   dest_data[4096]; // @v12.6.0 [1024]-->[4096]
+	char   dest_data[4096];
 	const  void * p_final_data = Helper_GetCellData(getRow(row), column, &typ, &fmt, &coptions, dest_data, sizeof(dest_data));
 	if(p_final_data) {
-		// @v12.5.10 sttostr(typ, p_final_data, fmt, buf);
-		sttosstr(typ, p_final_data, fmt, rBuf); // @v12.5.10 
+		sttosstr(typ, p_final_data, fmt, rBuf);
 		if((heightMult > 1 || pCalcHeight) && coptions & BCO_RESIZEABLE) {
 			SString iter_buf;
 			uint   text_height = 0;
-			//strip(buf);
 			rBuf.Strip();
 			RemoveCtrlNFromStr_(rBuf);
 			text_height = GetTextHeight_(rBuf, SFMTLEN(fmt));
 			StringSet ss('\n', rBuf);
 			rBuf.Z();
-			for(uint i = 0, j = 0; ss.get(&i, iter_buf/*dest_data, sizeof(dest_data)*/); j++) {
-				//strcat(buf, strip(dest_data));
+			for(uint i = 0, j = 0; ss.get(&i, iter_buf); j++) {
 				rBuf.Cat(iter_buf);
 				if(j < ss.getCount()-1) {
 					if(j < (heightMult - 1) || pCalcHeight) {
-						//strcat(buf, "\n");
 						rBuf.CR();
 					}
 					else {
-						//strcat(buf, " ");
 						rBuf.Space();
 					}
 				}
@@ -508,7 +500,6 @@ SString & BrowserDef::getMultiLinesText(long row, int column, /*char * pBuf*/SSt
 			ASSIGN_PTR(pCalcHeight, 1);
 		}
 	}
-	//return strnzcpy(pBuf, buf, 0);
 	return rBuf;
 }
 
@@ -531,7 +522,7 @@ int BrowserDef::go(long row)
 			row = 0;
 			result = -1;
 		}
-		scrollDelta = CurItem - row;
+		_ScrollDelta = CurItem - row;
 		CurItem = row;
 		if(row < TopItem)
 			TopItem = CurItem;

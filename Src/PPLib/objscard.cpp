@@ -4753,10 +4753,8 @@ void SCardCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) cons
 	SCardTbl::Rec * p_data_rec = static_cast<SCardTbl::Rec *>(pDataRec);
 	if(p_data_rec) {
 		const Data * p_cache_rec = static_cast<const Data *>(pEntry);
-		memzero(p_data_rec, sizeof(*p_data_rec));
-
+		p_data_rec->Clear();
 		#define CPYFLD(f) p_data_rec->f = p_cache_rec->f
-
 		CPYFLD(ID);
 		CPYFLD(SeriesID);
 		CPYFLD(PersonID);
@@ -4771,9 +4769,7 @@ void SCardCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) cons
 		CPYFLD(UsageTmEnd);
 		CPYFLD(PeriodTerm);
 		CPYFLD(PeriodCount);
-
 		#undef CPYFLD
-
 		MultTextBlock b(this, pEntry);
 		b.Get(p_data_rec->Code, sizeof(p_data_rec->Code));
 		//b.Get(p_data_rec->Password, sizeof(p_data_rec->Password));

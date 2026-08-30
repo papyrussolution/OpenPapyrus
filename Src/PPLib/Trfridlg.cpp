@@ -3003,7 +3003,8 @@ int SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				const TagFilt & r_tag_filt = p_bobj->GetConfig().LotTagIndFilt;
 				if(!r_tag_filt.IsEmpty()) {
 					SColor clr;
-					if(r_tag_filt.SelectIndicator(p_item->LotID, clr)) {
+					const  uint tag_ind_idx = r_tag_filt.SelectIndicator(p_item->LotID, clr);
+					if(tag_ind_idx) {
 						pStyle->Color2 = static_cast<COLORREF>(clr);
 						pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
 						ok = 1;
@@ -3019,7 +3020,6 @@ int SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					}
 				}
 			}
-			// @v11.1.8 {
 			else if(r_col.OrgOffs == 5) { // Serial
 				if(!isempty(p_item->Serial)) {
 					if(SETIFZ(p_brw->P_SpcCore, new SpecSeriesCore)) {
@@ -3034,7 +3034,6 @@ int SelLotBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					}
 				}
 			}
-			// } @v11.1.8
 		}
 	}
 	return ok;

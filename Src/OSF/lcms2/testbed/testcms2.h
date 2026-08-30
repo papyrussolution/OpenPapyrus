@@ -41,9 +41,9 @@ void * PluginMemHandler();
 cmsContext WatchDogContext(FILE * fOut, void * usr);
 
 void ResetFatalError();
-void Die(FILE * fOut, const char * Reason, ...);
+void TestCMS2_Die(FILE * fOut, const char * Reason, ...);
 void Dot(FILE * fOut);
-void Fail(const char* frm, ...);
+void TestCMS2_Fail(const char* frm, ...);
 void SubTest(FILE * fOut, const char* frm, ...);
 void TestMemoryLeaks(FILE * fOut, boolint ok);
 void Say(FILE * fOut, const char* str);

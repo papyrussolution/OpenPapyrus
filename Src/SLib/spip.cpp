@@ -819,6 +819,10 @@ static const SIntToSymbTabEntry WinPermissionFlags[] = {
 	{ SYNCHRONIZE, "SYNCHRONIZE"},
 };
 
+WinSecurityAttrs::AceEntry::AceEntry() : Permissions(0), AccessMode(0), Inheritance(0)
+{
+}
+
 /*static*/void WinSecurityAttrs::GetPermissionFlagsMnemonic(uint flags, SString & rBuf)
 {
 	rBuf.Z();

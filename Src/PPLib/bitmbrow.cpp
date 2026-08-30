@@ -110,7 +110,7 @@ public:
 	int    CalcShippedQtty(const BillGoodsBrwItem * pItem, const BillGoodsBrwItemArray * pList, double * pVal);
 	int    CmpSortIndexItems(const BillGoodsBrwItem * pItem1, const BillGoodsBrwItem * pItem2);
 private:
-	static int PriceDevColorFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
+	static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
 	static int SortFunc(const LongArray * pSortColIdxList, void * extraPtr);
 	DECL_HANDLE_EVENT;
 	void   addItem_(int fromOrder, TIDlgInitData *, int sign);
@@ -495,7 +495,7 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 	return ok;
 }
 
-/*static*/int BillItemBrowser::PriceDevColorFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+/*static*/int BillItemBrowser::CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
 	BillItemBrowser * p_brw = static_cast<BillItemBrowser *>(extraPtr);
@@ -508,50 +508,80 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 		const  PPBillPacket & r_pack = p_brw->GetPacket();
 		if(p_def) {
 			if(col >= 0 && col < p_def->getCountI()) {
-				const BroColumn & r_col = p_def->at(col);
+				const  BroColumn & r_col = p_def->at(col);
 				if(r_col.OrgOffs == 0) {
 					const TagFilt & r_tag_filt = p_brw->P_BObj->GetConfig().LotTagIndFilt;
 					if(!r_tag_filt.IsEmpty()) {
 						ObjTagList * p_lot_tag_list = r_pack.LTagL.Get(pos);
 						SColor clr;
-						if(r_tag_filt.SelectIndicator(p_lot_tag_list, clr))
+						const  uint tag_ind_idx = r_tag_filt.SelectIndicator(p_lot_tag_list, clr);
+						if(tag_ind_idx) {
 							ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								SString & r_text = SLS.AcquireRvlStr();
+								SString & r_prefix = PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_TAGINDICATOR, SLS.AcquireRvlStr());
+								r_tag_filt.MakeIndicatorDescrText(tag_ind_idx, r_prefix, r_text);
+								pStyle->CatDescriptionText(r_text);
+							}
+						}
 					}
 				}
 			}
 			if(p_brw->GetColPos(posblk) > 0) {
-				if(pos >= 0 && pos < static_cast<int>(r_pack.GetTCount())) {
+				if(pos >= 0 && pos < r_pack.GetTCountI()) {
 					if(col == posblk.GoodsPos) {
-						const PPTransferItem & r_ti = r_pack.ConstTI(pos);
-						const TagFilt & r_tag_filt = p_brw->GObj.GetConfig().TagIndFilt;
+						const  PPTransferItem & r_ti = r_pack.ConstTI(pos);
+						const  TagFilt & r_tag_filt = p_brw->GObj.GetConfig().TagIndFilt;
 						if(!r_tag_filt.IsEmpty()) {
 							const  PPID goods_id = labs(r_ti.GoodsID);
 							SColor clr;
-							if(r_tag_filt.SelectIndicator(goods_id, clr))
+							const  uint tag_ind_idx = r_tag_filt.SelectIndicator(goods_id, clr);
+							if(tag_ind_idx) {
 								ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									SString & r_text = SLS.AcquireRvlStr();
+									SString & r_prefix = PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_GOODSTAGINDICATOR, SLS.AcquireRvlStr());
+									r_tag_filt.MakeIndicatorDescrText(tag_ind_idx, r_prefix, r_text);
+									pStyle->CatDescriptionText(r_text);
+								}
+							}
 						}
 						// @v12.3.11 {
 						{
 							Goods2Tbl::Rec goods_rec;
 							if(p_brw->GObj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.Flags & GF_PASSIV) {
 								ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrBrown));
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_PASSIVEGOODS, SLS.AcquireRvlStr()));
+								}
 							}
 						}
 						// } @v12.3.11 
 					}
 					else if(col == posblk.QttyPos) {
 						const PPTransferItem & r_ti = r_pack.ConstTI(pos);
-						if(r_ti.Flags & PPTFR_LOTSYNC)
+						if(r_ti.Flags & PPTFR_LOTSYNC) {
 							ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrIndigo));
-						else if(r_ti.Quantity_ < 0.0 && oneof2(r_pack.Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON))
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_LOTSYNC, SLS.AcquireRvlStr()));
+							}
+						}
+						else if(r_ti.Quantity_ < 0.0 && oneof2(r_pack.Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON)) {
 							ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrRed));
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_EDISTOCK, SLS.AcquireRvlStr()));
+							}
+						}
 					}
 					else if(col == posblk.OrdQttyPos) {
-						const PPTransferItem & r_ti = r_pack.ConstTI(pos);
-						double ord_qtty = p_brw->GetOrderedQtty(r_ti);
+						const  PPTransferItem & r_ti = r_pack.ConstTI(pos);
+						const  double ord_qtty = p_brw->GetOrderedQtty(r_ti);
 						if((ord_qtty - fabs(r_ti.Qtty())) > 1E-6) {
 							pStyle->Color = GetColorRef(SClrOrange);
 							ok = 1;
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_LNKORDFFP, SLS.AcquireRvlStr()));
+							}
 						}
 					}
 					else if(col == posblk.ShippedQttyPos) {
@@ -563,6 +593,9 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 						if(fabs(shp_qtty - fabs(r_ti.Quantity_)) > 1E-6) {
 							pStyle->Color = GetColorRef(SClrOrange);
 							ok = 1;
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_THSORDFFP, SLS.AcquireRvlStr()));
+							}
 						}
 					}
 					else if(col == posblk.VetisCertPos) {
@@ -573,6 +606,9 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 							if(checkdate(expiry_dt) && expiry_dt <= r_pack.Rec.Dt) {
 								pStyle->Color = GetColorRef(SClrCrimson);
 								ok = 1;
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_VETISEXPIRY, SLS.AcquireRvlStr()));
+								}
 							}
 						}
 					}
@@ -602,58 +638,122 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 						uint   qsip = 0;
 						if(r_pack.P_QuotSetupInfoList && r_pack.P_QuotSetupInfoList->lsearch(&pos, &qsip, CMPF_LONG)) {
 							const PPBillPacket::QuotSetupInfoItem & r_qsi = r_pack.P_QuotSetupInfoList->at(qsip);
-							if(r_qsi.Flags & r_qsi.fInvalidQuot)
+							if(r_qsi.Flags & r_qsi.fInvalidQuot) {
 								pStyle->Color = GetColorRef(SClrRed);
-							else if(r_qsi.Flags & r_qsi.fMissingQuot)
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_QUOTINV, SLS.AcquireRvlStr()));
+								}
+							}
+							else if(r_qsi.Flags & r_qsi.fMissingQuot) {
 								pStyle->Color = GetColorRef(SClrOrange);
-							else
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_QUOTMISS, SLS.AcquireRvlStr()));
+								}
+							}
+							else {
 								pStyle->Color = GetColorRef(SClrGreen);
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_QUOTSET, SLS.AcquireRvlStr()));
+								}
+							}
 						}
-						else
+						else {
 							pStyle->Color = GetColorRef(SClrYellow);
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_QUOTNOINFO, SLS.AcquireRvlStr()));
+							}
+						}
 						ok = 1;
 					}
 				}
 				if(pos >= 0 && pos < static_cast<long>(r_price_dev_list.getCount())) {
 					long   price_flags = r_price_dev_list.at(pos);
 					if(price_flags && oneof3(col, posblk.QttyPos, posblk.CostPos, posblk.PricePos)) {
-						if(col == posblk.QttyPos && price_flags & LOTSF_FIRST)
+						if(col == posblk.QttyPos && price_flags & LOTSF_FIRST) {
 							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrBlue));
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_LOTSF_FIRST, SLS.AcquireRvlStr()));
+							}
+						}
 						else if(col == posblk.CostPos) {
-							if(price_flags & LOTSF_COSTUP)
+							if(price_flags & LOTSF_COSTUP) {
 								ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
-							else if(price_flags & LOTSF_COSTDOWN)
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_LOTSF_COSTUP, SLS.AcquireRvlStr()));
+								}
+							}
+							else if(price_flags & LOTSF_COSTDOWN) {
 								ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
-							if(price_flags & LOTSF_LINKCOSTUP)
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_LOTSF_COSTDOWN, SLS.AcquireRvlStr()));
+								}
+							}
+							if(price_flags & LOTSF_LINKCOSTUP) {
 								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrGreen));
-							else if(price_flags & LOTSF_LINKCOSTDN)
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_LOTSF_LINKCOSTUP, SLS.AcquireRvlStr()));
+								}
+							}
+							else if(price_flags & LOTSF_LINKCOSTDN) {
 								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrRed));
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_LOTSF_LINKCOSTDN, SLS.AcquireRvlStr()));
+								}
+							}
 						}
 						else if(col == posblk.PricePos) {
-							if(price_flags & LOTSF_PRICEUP)
+							if(price_flags & LOTSF_PRICEUP) {
 								ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
-							else if(price_flags & LOTSF_PRICEDOWN)
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_LOTSF_PRICEUP, SLS.AcquireRvlStr()));
+								}
+							}
+							else if(price_flags & LOTSF_PRICEDOWN) {
 								ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
-							if(price_flags & LOTSF_RESTRBOUNDS)
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_LOTSF_PRICEDOWN, SLS.AcquireRvlStr()));
+								}
+							}
+							if(price_flags & LOTSF_RESTRBOUNDS) {
 								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrGrey));
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_LOTSF_RESTRBOUNDS, SLS.AcquireRvlStr()));
+								}
+							}
 						}
 					}
 				}
 				if(posblk.SerialPos >= 0 && col == posblk.SerialPos) {
-					if(p_item->Flags & BillGoodsBrwItem::fSerialBad)
+					if(p_item->Flags & BillGoodsBrwItem::fSerialBad) {
 						ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrOrange));
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_SERIALBAD, SLS.AcquireRvlStr()));
+						}
+					}
 				}
 				if(posblk.CodePos >= 0 && col == posblk.CodePos) {
-					if(p_item->Flags & BillGoodsBrwItem::fCodeWarn)
+					if(p_item->Flags & BillGoodsBrwItem::fCodeWarn) {
 						ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrOrange));
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_BARCODEWARN, SLS.AcquireRvlStr()));
+						}
+					}
 				}
 			}
 			if(col == 0) {
 				const StrAssocArray & r_problems_list = p_brw->GetProblemsList();
-				if(r_problems_list.Search(pos) > 0)
+				if(r_problems_list.Search(pos) > 0) {
 					ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrRed));
-				if(pos >= 0 && pos < r_pack.GetTCountI() && r_pack.TI(pos).TFlags & PPTransferItem::tfForceRemove)
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_SOMEPROBLEMS, SLS.AcquireRvlStr()));
+					}
+				}
+				if(pos >= 0 && pos < r_pack.GetTCountI() && r_pack.TI(pos).TFlags & PPTransferItem::tfForceRemove) {
 					ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrGrey));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TRFRLIST_FORCEREMOVE, SLS.AcquireRvlStr()));
+					}
+				}
 			}
 		}
 	}
@@ -942,10 +1042,10 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket & r
 				THROW(ConvertSupplRetLink(R_Pack.Rec.LocID));
 				for(i = 0; P_LinkPack->EnumTItems(&i, &p_link_ti);) {
 					if(p_link_ti->LotID) {
-						ReceiptTbl::Rec rr;
-						const bool used = R_Pack.SearchLot(p_link_ti->LotID, 0);
-						THROW(P_T->Rcpt.Search(p_link_ti->LotID, &rr) > 0);
-						if(rr.Closed && !used)
+						ReceiptTbl::Rec lot_rec;
+						const  bool used = R_Pack.SearchLot(p_link_ti->LotID, 0);
+						THROW(P_T->Rcpt.Search(p_link_ti->LotID, &lot_rec) > 0);
+						if(lot_rec.Closed && !used)
 							P_LinkPack->RemoveRow(--i);
 						else {
 							double rest = 0.0;
@@ -955,9 +1055,9 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket & r
 								// В случае возврата поставщику цены устанавливаем с учетом переоценки
 								//
 								if(P_LinkPack->OpTypeID == PPOPT_GOODSRECEIPT) {
-									THROW(P_T->GetLotPrices(&rr, R_Pack.Rec.Dt));
-									p_link_ti->Cost  = R5(rr.Cost);
-									p_link_ti->Price = R5(rr.Price);
+									THROW(P_T->GetLotPrices(&lot_rec, R_Pack.Rec.Dt));
+									p_link_ti->Cost  = R5(lot_rec.Cost);
+									p_link_ti->Price = R5(lot_rec.Price);
 								}
 								p_link_ti->Quantity_ = rest;
 							}
@@ -1016,7 +1116,7 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket & r
 	GetDefScaleData();
 	{
 		THROW(UpdatePriceDevList(-1, 0));
-		SetCellStyleFunc(PriceDevColorFunc, this);
+		SetCellStyleFunc(CellStyleFunc, this);
 	}
 	CATCH
 		if(P_LinkPack && !(State & stOrderSelector))
@@ -4350,13 +4450,25 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 		}
 		else if(TVBROADCAST) {
 			if(TVCMD == cmMouseHover) {
-				long   v = 0;
+				bool   hover_done = false;
+				long   col = 0;
+				long   row = 0;
 				SPoint2S point = *static_cast<SPoint2S *>(event.message.infoPtr);
-				if(ItemByPoint(point, 0, &v)) {
-					SString buf;
-					if(ProblemsList.GetText(v, buf) > 0)
-						PPTooltipMessage(buf, 0, H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
-							SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+				if(ItemByPoint(point, &col, &row)) {
+					SString temp_buf;
+					const long tooltip_flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
+						SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;								
+					if(ProblemsList.GetText(row, temp_buf) > 0) {
+						PPTooltipMessage(temp_buf, 0, H(), 10000, 0, tooltip_flags);
+						hover_done = true;
+					}
+					if(!hover_done) {
+						if(col >= 0) {
+							if(GetCellStyleDescription(row, col, temp_buf) > 0) {
+								PPTooltipMessage(temp_buf, 0, H(), 10000, 0, tooltip_flags);
+							}
+						}
+					}
 				}
 			}
 		}
@@ -5218,11 +5330,17 @@ private:
 				pStyle->Color = GetColorRef(SClrCoral);
 				pStyle->Flags = BrowserWindow::CellStyle::fCorner;
 				ok = 1;
+				if(paintAction == BrowserWindow::paintQueryDescription) {
+					pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_COMPLETELIST_SOURCE, SLS.AcquireRvlStr()));
+				}
 			}
 			else if(p_entry->Flags & CompleteItem::fBranch) {
 				pStyle->Color = GetColorRef(SClrLightgreen);
 				pStyle->Flags = BrowserWindow::CellStyle::fCorner;
 				ok = 1;
+				if(paintAction == BrowserWindow::paintQueryDescription) {
+					pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_COMPLETELIST_BRANCH, SLS.AcquireRvlStr()));
+				}
 			}
 		}
 	}
@@ -5302,6 +5420,25 @@ IMPL_HANDLE_EVENT(CompleteBrowser)
 	}
 	else if(event.isKeyDown(kbF7))
 		Print();
+	// @v12.7.5 {
+	else if(TVBROADCAST) {
+		if(TVCMD == cmMouseHover) {
+			long   col = 0;
+			long   row = 0;
+			SPoint2S point = *static_cast<SPoint2S *>(event.message.infoPtr);
+			if(ItemByPoint(point, &col, &row)) {
+				if(col >= 0) {
+					SString temp_buf;
+					const long tooltip_flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
+						SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;								
+					if(GetCellStyleDescription(row, col, temp_buf) > 0) {
+						PPTooltipMessage(temp_buf, 0, H(), 10000, 0, tooltip_flags);
+					}
+				}
+			}
+		}
+	}
+	// } @v12.7.5 
 	else
 		return;
 	clearEvent(event);

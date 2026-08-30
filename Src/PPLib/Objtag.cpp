@@ -217,29 +217,55 @@ static bool CheckTagItemForRawRestriction(const ObjTagItem * pTagItem, const cha
 	return select_ok;
 }
 
-bool TagFilt::SelectIndicator(const ObjTagList * pTagList, SColor & rClr) const
+void TagFilt::MakeIndicatorDescrText(uint indIdx/*1..*/, const char * pPrefix, SString & rBuf) const
 {
-	bool   select_ok = false;
-	if(pTagList) {
-		for(uint i = 0; !select_ok && i < TagsRestrict.getCount(); i++) {
-			StrAssocArray::Item tr_item = TagsRestrict.at_WithoutParent(i);
-			select_ok = CheckTagItemForRawRestriction(pTagList->GetItem(tr_item.Id), tr_item.Txt, rClr);
+	rBuf.Z();
+	if(!isempty(pPrefix)) {
+		rBuf.Cat(pPrefix);
+	}
+	if(checkirange(indIdx, 1U, TagsRestrict.getCount())) {
+		StrAssocArray::Item tr_item = TagsRestrict.at_WithoutParent(indIdx-1);
+		if(tr_item.Id) {
+			PPObjTag tag_obj;
+			PPObjectTag tag_rec;
+			if(tag_obj.Fetch(tr_item.Id, &tag_rec) > 0) {
+				rBuf.CatDivIfNotEmpty(':', 2).Cat(tag_rec.Name);
+				/*if(!isempty(tr_item.Txt)) {
+					rBuf.CatDiv('-', 1).Cat(tr_item.Txt);
+				}*/
+			}
 		}
 	}
-	return select_ok;
 }
 
-bool TagFilt::SelectIndicator(PPID objID, SColor & rClr) const
+uint TagFilt::SelectIndicator(const ObjTagList * pTagList, SColor & rClr) const
 {
-	bool   select_ok = false;
+	uint   result = 0;
+	if(pTagList) {
+		for(uint i = 0; !result && i < TagsRestrict.getCount(); i++) {
+			StrAssocArray::Item tr_item = TagsRestrict.at_WithoutParent(i);
+			if(CheckTagItemForRawRestriction(pTagList->GetItem(tr_item.Id), tr_item.Txt, rClr)) {
+				result = (i+1);
+			}
+		}
+	}
+	return result;
+}
+
+uint TagFilt::SelectIndicator(PPID objID, SColor & rClr) const
+{
+	uint   result = 0;
 	PPObjTag tag_obj;
-	for(uint i = 0; !select_ok && i < TagsRestrict.getCount(); i++) {
+	for(uint i = 0; !result && i < TagsRestrict.getCount(); i++) {
 		StrAssocArray::Item tr_item = TagsRestrict.at_WithoutParent(i);
 		ObjTagItem item;
-		if(tag_obj.FetchTag(objID, tr_item.Id, &item) > 0)
-			select_ok = CheckTagItemForRawRestriction(&item, tr_item.Txt, rClr);
+		if(tag_obj.FetchTag(objID, tr_item.Id, &item) > 0) {
+			if(CheckTagItemForRawRestriction(&item, tr_item.Txt, rClr)) {
+				result = (i+1);
+			}
+		}
 	}
-	return select_ok;
+	return result;
 }
 
 int TagFilt::Helper_CheckTagItemForRestrict_EnumID(const ObjTagItem * pItem, long restrictVal) const
@@ -2155,9 +2181,9 @@ int TagFiltDialog::EditItem(long * pPos)
 	const  bool is_new = (*pPos < 0);
 	uint   pos = is_new ? -1 : static_cast<uint>(*pPos);
 	SelTagDialogData item(is_new ? 0 : &Data.TagsRestrict.Get(pos));
-	SelTagDialog * p_dlg = 0;
 	GetClusterData(CTL_TAGFLT_FLAGS, &Data.Flags);
-	THROW(CheckDialogPtr(&(p_dlg = new SelTagDialog((Data.Flags & TagFilt::fNotTagsInList) ? 0 : 1, ObjType))));
+	SelTagDialog * p_dlg = new SelTagDialog((Data.Flags & TagFilt::fNotTagsInList) ? 0 : 1, ObjType);
+	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(&item);
 	while(ok <= 0 && ExecView(p_dlg) == cmOK) {
 		if(p_dlg->getDTS(&item) > 0) {

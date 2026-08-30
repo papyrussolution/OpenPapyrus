@@ -1075,10 +1075,7 @@ void GoodsListDialog::selectGoods(PPID grp, PPID goodsID)
 
 void GoodsListDialog::searchBarcode()
 {
-	//Goods2Tbl::Rec rec;
-	//SString bcode;
 	GoodsCodeSrchBlock blk;
-	//int    r = GObj.SelectGoodsByBarcode(0, 0, &rec, 0, &bcode);
 	int    r = GObj.SelectGoodsByBarcode2(blk);
 	if(r > 0) {
 		selectGoods(blk.Rec.ParentID, blk.Rec.ID);
@@ -1087,7 +1084,7 @@ void GoodsListDialog::searchBarcode()
 		PPID   id = 0;
 		Goods2Tbl::Rec goods_rec;
 		PPID   grp_id = getCtrlLong(CTLSEL_GDSLST_GGRP);
-		r = GObj.Edit(&id, gpkndGoods, grp_id, 0, blk.RetCode_);
+		r = GObj.Edit(&id, gpkndGoods, grp_id, 0, (blk.RetCode_.NotEmpty() ? blk.RetCode_ : blk.Code_)); // @v12.7.5 @fix (blk.RetCode_)-->(blk.RetCode_.NotEmpty() ? blk.RetCode_ : blk.Code_)
 		if(r == cmOK && GObj.Search(id, &goods_rec) > 0) {
 			grp_id = goods_rec.ParentID;
 			selectGoods(grp_id, id);
@@ -1185,30 +1182,46 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-int PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
+int PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
 	struct Goods_ {
 		long   ID;
 		long   Flags;
 	};
 	int    ok = -1;
-	if(pBrw && pData && pCellStyle && col >= 0) {
+	if(pBrw && pData && pStyle && col >= 0) {
 		BrowserDef * p_def = pBrw->getDef();
 		if(col >= 0 && col < p_def->getCountI()) {
 			const BroColumn & r_col = p_def->at(col);
 			if(col == 0) { // id
-				if(static_cast<const Goods_ *>(pData)->Flags & GF_HASIMAGES)
-					ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
+				if(static_cast<const Goods_ *>(pData)->Flags & GF_HASIMAGES) {
+					ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_GOODS_HASIMAGE, SLS.AcquireRvlStr()));
+					}
+				}
 			}
 			else if(col == 1) { // name
-				if(static_cast<const Goods_ *>(pData)->Flags & GF_GENERIC)
-					ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrOrange));
+				if(static_cast<const Goods_ *>(pData)->Flags & GF_GENERIC) {
+					ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrOrange));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_GOODS_GENERIC, SLS.AcquireRvlStr()));
+					}
+				}
 				{
 					const TagFilt & r_tag_filt = GObj.GetConfig().TagIndFilt;
 					if(!r_tag_filt.IsEmpty()) {
 						SColor clr;
-						if(r_tag_filt.SelectIndicator(static_cast<const Goods_ *>(pData)->ID, clr))
-							ok = pCellStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
+						const  uint tag_ind_idx = r_tag_filt.SelectIndicator(static_cast<const Goods_ *>(pData)->ID, clr);
+						if(tag_ind_idx) {
+							ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								SString & r_text = SLS.AcquireRvlStr();
+								SString & r_prefix = PPLoadStringS(PPSTR_TCELHLD, TCELHLD_GOODS_TAGINDICATOR, SLS.AcquireRvlStr());
+								r_tag_filt.MakeIndicatorDescrText(tag_ind_idx, r_prefix, r_text);
+								pStyle->CatDescriptionText(r_text);
+							}
+						}
 					}
 				}
 			}
@@ -1217,22 +1230,38 @@ int PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAction, B
 				SString barcode;
 				p_def->getFullText(pData, col, barcode);
 				if(barcode.NotEmptyS()) {
-					if(barcode.Len() == 3)
-						ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrOrange));
-					else if(barcode.Len() == 19)
-						ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrLightblue));
+					if(oneof2(barcode.Len(), 3, 4)) { // @v12.7.5 (3)-->(3||4)
+						ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrOrange));
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_GOODS_BARCODE_SHORT, SLS.AcquireRvlStr()));
+						}
+					}
+					else if(barcode.Len() == 19) {
+						ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrLightblue));
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_GOODS_BARCODE_ALC, SLS.AcquireRvlStr()));
+						}
+					}
 					else {
 						int    diag = 0, std = 0;
 						int    r = PPObjGoods::DiagBarcode(barcode, &diag, &std, 0);
 						if(r > 0) {
-							//pCellStyle->Flags |= BrowserWindow::CellStyle::fCorner;
-							//pCellStyle->Color = GetColorRef(SClrGreen);
+							//pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
+							//pStyle->Color = GetColorRef(SClrGreen);
 							//ok = 1;
 						}
-						else if(r < 0)
-							ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrYellow));
-						else
-							ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+						else if(r < 0) {
+							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrYellow));
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_GOODS_BARCODE_SOMEPROBLEM, SLS.AcquireRvlStr()));
+							}
+						}
+						else {
+							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_GOODS_BARCODE_NOTSTD, SLS.AcquireRvlStr()));
+							}
+						}
 					}
 				}
 				PROFILE_END
@@ -4505,13 +4534,25 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				}
 				break;
 			case PPVCMD_MOUSEHOVER:
-				if(HasImages(pHdr)) {
-					SString img_path;
-					ObjLinkFiles link_files(PPOBJ_GOODS);
-					link_files.Load(id, 0L);
-					link_files.At(0, img_path);
-					PPTooltipMessage(0, img_path, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
-						SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+				{
+					bool   hover_done = false;
+					long   row = 0;
+					long   col = 0;
+					pBrw->ItemByMousePos(&col, &row);
+					if(col == 0 && HasImages(pHdr)) {
+						SString img_path;
+						ObjLinkFiles link_files(PPOBJ_GOODS);
+						link_files.Load(id, 0L);
+						link_files.At(0, img_path);
+						if(fileExists(img_path)) {
+							hover_done = true;
+							PPTooltipMessage(0, img_path, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
+								SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+						}
+					}
+					if(!hover_done) {
+						pBrw->ShowCellStyleHint(row, col);
+					}
 				}
 				break;
 			/*
@@ -4818,7 +4859,7 @@ int PPALDD_QuotKind::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		H.ID = rFilt.ID;
-		PPQuotKind rec;
+		PPQuotKind2 rec;
 		if(SearchObject(PPOBJ_QUOTKIND, rFilt.ID, &rec) > 0) {
 			H.ID = rec.ID;
 			H.OpID = rec.OpID;

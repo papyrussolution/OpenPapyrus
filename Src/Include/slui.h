@@ -5796,18 +5796,15 @@ public:
 	int    setColumnTitle(int colN, const char * pText);
 	int    AddColumnGroup(BroGroup *);
 	const  BroGroup * groupOf(uint column, uint * pGrpPos = 0) const;
-	// @v12.4.8 (unused) uint   groupWidth(uint group, uint atColumn) const;
-	// @v12.4.8 (unused) uint   groupWidth(const BroGroup *, uint atColumn) const;
 	int    GetCellData(const void * pRowData, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen);
 	int    GetCellData(long row, int column, TYPEID * pType, void * pDataBuf, size_t dataBufLen);
-	// @v12.5.10 char * GetCellText(long row, int column, bool dontRestrictByFmtLen, char * pBuf);
 	SString & GetCellText(long row, int column, bool dontRestrictByFmtLen, SString & rBuf);
 	//
 	// Descr: Извлекает текст полностью (512 символов), независимо от ширины колонки в броузере
 	//
 	SString & getFullText(long row, int column, SString & rBuf);
 	SString & getFullText(const void * pRowData, int column, SString & rBuf);
-	SString & getMultiLinesText(long, int, /*char * pBuf*/SString & rBuf, uint = 0, uint * = 0);
+	SString & getMultiLinesText(long, int, SString & rBuf, uint = 0, uint * = 0);
 	long   GetTopItem() const { return TopItem; }
 	long   GetCurItem() const { return CurItem; }
 	long   GetCurFrameItem() const { return (CurItem - TopItem); }
@@ -5844,7 +5841,7 @@ protected:
 	int    ViewHight;
 	uint   NumGroups;
 	BroGroup * P_Groups;
-	long   scrollDelta;
+	long   _ScrollDelta; // @v12.7.5 scrollDelta-->_ScrollDelta
 	bool   isBOQ;
 	bool   isEOQ;
 	uint8  Reserve[2]; // @alignment
@@ -5854,7 +5851,7 @@ private:
 	virtual void FASTCALL freeItem(void *);
 	const void * Helper_GetCellData(const void * pRowData, int columnIdx, TYPEID * pTypeID, long * pFmt, uint * pCOptions, void * pOuterBuf, size_t outerBufSize);
 
-	SArray * P_CtList;         // Список кросс-таб столбцов
+	SArray * P_CtList; // Список кросс-таб столбцов
 	SBrowserDataProcBlock DpB;
 public:
 	uint   Options;
@@ -6019,6 +6016,7 @@ public:
 		int    FASTCALL SetRightFigTriangleColor(COLORREF c); // returns strictly 1
 		int    FASTCALL SetLeftBottomCornerColor(COLORREF c); // returns strictly 1
 		int    FASTCALL SetLeftTopCornerColor(COLORREF c); // returns strictly 1
+		void   FASTCALL CatDescriptionText(const SString & rNewPortion); // @v12.7.5
 		enum {
 			fCorner           = 0x0001,
 			fLeftBottomCorner = 0x0002,
@@ -6137,6 +6135,7 @@ public:
 	// Descr: Возвращает цвет некоторой ячейки
 	//
 	int    GetCellColor(long row, long col, COLORREF * pColor);
+	int    GetCellStyleDescription(long row, long col, SString & rBuf); // @v12.7.5
 	uint   GetRezID() const { return RezID; }
 	//
 	// Descr: Возвращает список номеров колонок, по котороым должны быть отсортированы данные
@@ -6157,7 +6156,7 @@ public:
 		ecsfForce          = 0x0002
 	};
 
-	int    EvaluateColumnSizes(/*bool recalcDataStat*/uint flags); // @v12.4.7
+	int    EvaluateColumnSizes(uint flags); // @v12.4.7
 
 	enum {
 		paintFocused = 0,

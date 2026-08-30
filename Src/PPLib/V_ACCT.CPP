@@ -50,6 +50,7 @@ PPViewAccount::~PPViewAccount()
 			case ACY_OBAL: v = 1; break;
 			case ACY_REGISTER: v = 2; break;
 			case ACY_AGGR: v = 3; break;
+			case ACY_PERSONAL: v = 4; break; // @v12.7.5
 		}
 		if(SelectorDialog(DLG_SELACTYP, CTL_SELACTYP_TYP, &v) > 0) {
 			switch(v) {
@@ -57,6 +58,7 @@ PPViewAccount::~PPViewAccount()
 				case 1: p_filt->Type = ACY_OBAL; break;
 				case 2: p_filt->Type = ACY_REGISTER; break;
 				case 3: p_filt->Type = ACY_AGGR; break;
+				case 4: p_filt->Type = ACY_PERSONAL; break; // @v12.7.5
 			}
 			ok = 1;
 		}

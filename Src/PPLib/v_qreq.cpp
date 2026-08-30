@@ -1,5 +1,5 @@
 // V_QREQ.CPP
-// Copyright (c) A.Sobolev 2019, 2020, 2021, 2023, 2025
+// Copyright (c) A.Sobolev 2019, 2020, 2021, 2023, 2025, 2026
 // @codepage UTF-8
 //
 // @moduledef(PPViewQuoteReqAnalyze) Анализ котировочных запросов
@@ -254,32 +254,39 @@ int FASTCALL PPViewQuoteReqAnalyze::NextIteration(QuoteReqAnalyzeViewItem * pIte
 	return ok;
 }
 
-/*static*/int PPViewQuoteReqAnalyze::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
+/*static*/int PPViewQuoteReqAnalyze::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	if(pBrw && pData && pCellStyle && col >= 0) {
+	if(pBrw && pData && pStyle && col >= 0) {
 		BrowserDef * p_def = pBrw->getDef();
-		if(col < static_cast<long>(p_def->getCount())) {
+		if(col < p_def->getCountI()) {
 			const BroColumn & r_col = p_def->at(col);
 			if(r_col.OrgOffs == 11) { // LinkBillCode
 				const  uint idx = *static_cast<const uint *>(pData);
 				PPViewQuoteReqAnalyze * p_view = static_cast<PPViewQuoteReqAnalyze *>(pBrw->P_View);
 				const  BrwItem * p_item = (p_view && idx > 0 && idx <= p_view->List.getCount()) ? &p_view->List.at(idx-1) : 0;
+				int    tcelhld = 0;
 				if(p_item) {
 					switch(p_item->SeqAckStatus) {
 						case 0:
-							pCellStyle->Color = GetColorRef(SClrIvory);
+							pStyle->Color = GetColorRef(SClrIvory);
 							ok = 1;
+							tcelhld = TCELHLD_QUOTEREQANALYZE_ACK_NONE; // Ответ от поставщика не поступал
 							break;
 						case 1:
-							pCellStyle->Color = GetColorRef(SClrLightgreen);
+							pStyle->Color = GetColorRef(SClrLightgreen);
 							ok = 1;
+							tcelhld = TCELHLD_QUOTEREQANALYZE_ACK_ACCEPTED; // От поставщика получено подтверждение
 							break;
 						case 2:
-							pCellStyle->Color = GetColorRef(SClrLightcoral);
+							pStyle->Color = GetColorRef(SClrLightcoral);
 							ok = 1;
+							tcelhld = TCELHLD_QUOTEREQANALYZE_ACK_REJECTED; // От поставщика получен отказ
 							break;
 					}
+				}
+				if(paintAction == BrowserWindow::paintQueryDescription && tcelhld) {
+					pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, tcelhld, SLS.AcquireRvlStr())); 
 				}
 			}
 		}
@@ -391,7 +398,6 @@ int PPViewQuoteReqAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 	if(ok == -2) {
 		const  uint idx = pHdr ? *static_cast<const uint *>(pHdr) : 0;
 		const  BrwItem * p_item = (idx > 0 && idx <= List.getCount()) ? &List.at(idx-1) : 0;
-		//if(idx)
 		switch(ppvCmd) {
 			case PPVCMD_EDITITEM:
 				ok = -1;
@@ -403,6 +409,12 @@ int PPViewQuoteReqAnalyze::ProcessCommand(uint ppvCmd, const void * pHdr, PPView
 				ok = -1;
 				if(p_item) {
 					ok = CreateLinkedRequest(p_item->LeadBillID, p_item->LeadRbb);
+				}
+				break;
+			case PPVCMD_MOUSEHOVER: // @v12.7.5
+				if(pBrw) {
+					pBrw->ShowCellStyleHint();
+					ok = -1;
 				}
 				break;
 		}

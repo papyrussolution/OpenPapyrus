@@ -1786,7 +1786,7 @@ void WorldCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) cons
 {
 	WorldTbl::Rec * p_data_rec = static_cast<WorldTbl::Rec *>(pDataRec);
 	const WorldData * p_cache_rec = static_cast<const WorldData *>(pEntry);
-	memzero(p_data_rec, sizeof(*p_data_rec));
+	p_data_rec->Clear();
 #define CPYFLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	CPYFLD(ID);
 	CPYFLD(Kind);

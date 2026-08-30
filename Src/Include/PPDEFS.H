@@ -166,22 +166,6 @@
 #define T_ACCT          MKSTYPE(S_ACCT, sizeof(int16)+sizeof(int16)+sizeof(int32))
 #define S_ARTICLE       (S_ACCT+1)
 //
-// Виды активности счетов
-//
-#define ACT_ACTIVE           1
-#define ACT_PASSIVE          2
-#define ACT_AP               3   // Активно-пассивные счета
-//
-// Типы счетов
-//
-#define ACY_BAL              1   // Балансовый счет
-#define ACY_OBAL             2   // Внебалансовый счет
-#define ACY_AGGR             3   // Агрегирующий счет
-#define ACY_REGISTER         4   // Регистр
-#define ACY_PERSONAL         5   // Персональный счет @construction
-#define ACY_ALIAS            6   // Элиас счета
-#define ACY_BUDGET           7   // Бюджетный счет
-//
 // Порядок счета
 //
 #define ACO_1                1   // Синтетический счет 1-го порядка
@@ -2691,6 +2675,15 @@
 	#define CTLCAL_ATURN_DATE           (37 + WINDOWS_ID_BIAS)
 	#define CTL_ATURN_LOCATION          (38 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ATURN_LOCATION       (39 + WINDOWS_ID_BIAS)
+	#define CTL_ATURN_ID                (40 + WINDOWS_ID_BIAS) // @v12.7.5
+	#define CTLCLC_ATURN_AMOUNT         (41 + WINDOWS_ID_BIAS) // @v12.7.5 
+	#define CTL_ATURN_CMD_BILLTAXES     (42 + WINDOWS_ID_BIAS) // @v12.7.5
+	#define CTL_ATURN_FLOWDIR           (43 + WINDOWS_ID_BIAS) // @v12.7.5 @centrigo расход/приход/перевод
+	#define CTL_ATURN_FLOWDIRIMG        (44 + WINDOWS_ID_BIAS) // @v12.7.5 картинка @centrigo расход/приход/перевод
+	#define CTL_ATURN_PA_CATEGORY       (45 + WINDOWS_ID_BIAS) // @v12.7.5 @centrigo категория операции
+	#define CTLSEL_ATURN_PA_CATEGORY    (46 + WINDOWS_ID_BIAS) // @v12.7.5 @centrigo категория операции
+	#define CTL_ATURN_PA_CONTRACTOR     (47 + WINDOWS_ID_BIAS) // @v12.7.5 @centrigo контрагент операции
+	#define CTLSEL_ATURN_PA_CONTRACTOR  (48 + WINDOWS_ID_BIAS) // @v12.7.5 @centrigo контрагент операции
 //                                 75, 76, 77, 78, 79 // Occupied
 #define DLG_BALFORM                80 // Фильтр бух. баланса
 	#define CTL_BALFORM_PERIOD           (1 + WINDOWS_ID_BIAS)
@@ -3888,12 +3881,13 @@
 	#define CTL_PSNFLT_NEWCLIONLY       (23 + WINDOWS_ID_BIAS)
 	#define CTL_PSNFLT_CASDT            (24 + WINDOWS_ID_BIAS) // @v12.2.2
 	#define CTLCAL_PSNFLT_CASDT         (25 + WINDOWS_ID_BIAS) // @v12.2.2
+	#define CTL_PSNFLT_CMD_ADVOPTIONS   (26 + WINDOWS_ID_BIAS) // @v12.7.5 
 #define DLG_LST2LST               261 // Формирование одного списка из другого
 	#define cmForward                 101
 	#define cmAllForward              102
 	#define cmBackward                103
 	#define cmAllBackward             104
-	#define cmSelectByTag             105 // @v11.0.3
+	#define cmSelectByTag             105
 	#define CTL_LST2LST_LST1             (1 + WINDOWS_ID_BIAS)
 	#define CTL_LST2LST_LST2             (2 + WINDOWS_ID_BIAS)
 	#define CTL_LST2LST_FW               (3 + WINDOWS_ID_BIAS) // Button
@@ -8400,6 +8394,7 @@
 	#define CTL_SELTAG_SELCOLOR        (8 + WINDOWS_ID_BIAS)
 	#define CTL_SELTAG_OPTION          (9 + WINDOWS_ID_BIAS)
 	#define CTL_SELTAG_INFO            (10 + WINDOWS_ID_BIAS)
+	#define CTL_SELTAG_CMD_SELENUM     (11 + WINDOWS_ID_BIAS) // @v12.7.5
 #define DLG_OPGRPNGFLTA          876
 	#define CTL_OPGRPNGFLTA_PRD        (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_OPGRPNGFLTA_PRD     (2 + WINDOWS_ID_BIAS)
@@ -12243,6 +12238,8 @@
 	#define CTL_PRCRCHZNMCLLTR_LIMSTOREDAYS     (9 + WINDOWS_ID_BIAS)
 #define DLG_PERSONALACCOUNT      1601 // Персональный счет
 	// Ctrls CTL_ACCOUNT_XXX
+#define DLG_ATURNPERSONAL        1602 // @v12.7.5 Проводка в персональных финансах
+	// Ctrls CTL_ATURN_XXX
 //
 // Win32 Dialog Identifiers
 //
@@ -12461,9 +12458,10 @@
 #define PPMSG_WARNING             100
 #define PPMSG_FATAL               101
 #define PPMSG_CONFIRMATION        102
-#define PPSTR_CONFIRMATION        PPMSG_CONFIRMATION // @v11.1.5
+#define PPSTR_CONFIRMATION        PPMSG_CONFIRMATION
 #define PPMSG_INFORMATION         103
-#define PPSTR_INFORMATION         PPMSG_INFORMATION // @v11.1.5
+#define PPSTR_INFORMATION         PPMSG_INFORMATION
+#define PPSTR_TCELHLD             104 // @v12.7.5 Table Cell HighLight Description
 //
 // Another strings classes
 //

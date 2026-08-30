@@ -5632,7 +5632,7 @@ PPChZnPrcssr::CodeStatus & PPChZnPrcssr::CodeStatus::AssignExceptOrgValues(const
 	return *this;
 }
 
-PPChZnPrcssr::CodeStatusCollection::CodeStatusCollection() : TSCollection <CodeStatus>(), Method(0), Code(0), Flags(0), ReqTimestamp(0)
+PPChZnPrcssr::CodeStatusCollection::CodeStatusCollection() : TSCollection <CodeStatus>(), Method(0), Code(0), Flags(0)
 {
 }
 		
@@ -5641,11 +5641,8 @@ PPChZnPrcssr::CodeStatusCollection & PPChZnPrcssr::CodeStatusCollection::Z()
 	Method = 0; // @v12.6.5
 	Code = 0;
 	Flags = 0;
-	ReqTimestamp = 0;
 	Description.Z();
-	ReqId.Z();
-	LocalModuleInstance.Z(); // @v12.3.12
-	LocalModuleDbVer.Z(); // @v12.3.12
+	ChZnPmRT.Z();
 	freeAll();
 	return *this;
 }
@@ -6024,10 +6021,10 @@ int PPChZnPrcssr::PermissiveModeInterface::CheckCodeList(const char * pHost, con
 			}
 			else if(p_cur->Text.IsEqiAscii("reqId")) {
 				SJson::GetChildTextUnescaped(p_cur, temp_buf);
-				rList.ReqId.FromStr(temp_buf);
+				rList.ChZnPmRT.ReqId.FromStr(temp_buf);
 			}
 			else if(p_cur->Text.IsEqiAscii("reqTimestamp")) {
-				rList.ReqTimestamp = p_cur->P_Child->Text.ToInt64();
+				rList.ChZnPmRT.ReqTimestamp = p_cur->P_Child->Text.ToInt64();
 			}
 			else if(p_cur->Text.IsEqiAscii("codes")) {
 				if(SJson::IsArray(p_cur->P_Child)) {
@@ -6460,16 +6457,16 @@ int PPChZnPrcssr::PermissiveModeInterface::LocalCheckCodeList(const char * pFisc
 											if(SJson::IsObject(p_js_item)) {
 												for(const SJson * p_cur2 = p_js_item->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
 													if(p_cur2->Text.IsEqiAscii("version")) {
-														SJson::GetChildGuid(p_cur2, rList.LocalModuleDbVer);
+														SJson::GetChildGuid(p_cur2, rList.ChZnPmRT.LocalModuleDbVer);
 													}
 													else if(p_cur2->Text.IsEqiAscii("reqTimestamp")) {
-														SJson::GetChildInt64(p_cur2, rList.ReqTimestamp);
+														SJson::GetChildInt64(p_cur2, rList.ChZnPmRT.ReqTimestamp);
 													}
 													else if(p_cur2->Text.IsEqiAscii("reqId")) {
-														SJson::GetChildGuid(p_cur2, rList.ReqId);
+														SJson::GetChildGuid(p_cur2, rList.ChZnPmRT.ReqId);
 													}
 													else if(p_cur2->Text.IsEqiAscii("inst")) {
-														SJson::GetChildGuid(p_cur2, rList.LocalModuleInstance);
+														SJson::GetChildGuid(p_cur2, rList.ChZnPmRT.LocalModuleInstance);
 													}
 													else if(p_cur2->Text.IsEqiAscii("description")) {
 														if(SJson::GetChildTextUnescaped(p_cur2, temp_buf))
@@ -6731,12 +6728,8 @@ int PPChZnPrcssr::PmCheck(PPID guaID, const char * pFiscalDriveNumber, int offli
 					p_cle->InternalErrCode = local_err_code;
 					ok = 0;
 				}
-				else { // @v12.1.1
+				else {
 					// OK
-					//rBlk.ChZnPm_ReqId = rList.ReqId;
-					//rBlk.ChZnPm_ReqTimestamp = rList.ReqTimestamp;
-					//rBlk.ChZnPm_LocalModuleInstance = rList.LocalModuleInstance; // @v12.3.12
-					//rBlk.ChZnPm_LocalModuleDbVer    = rList.LocalModuleDbVer;    // @v12.3.12
 				}
 			}
 		}
@@ -6880,11 +6873,11 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 									}
 									else if(p_cur2->Text.IsEqiAscii("reqId")) {
 										SJson::GetChildGuid(p_cur2, req_uuid);
-										rList.ReqId = req_uuid;
+										rList.ChZnPmRT.ReqId = req_uuid;
 									}
 									else if(p_cur2->Text.IsEqiAscii("reqTimestamp")) {
 										SJson::GetChildInt64(p_cur2, req_timestamp);
-										rList.ReqTimestamp = req_timestamp;
+										rList.ChZnPmRT.ReqTimestamp = req_timestamp;
 									}
 									else if(p_cur2->Text.IsEqiAscii("isCheckedOffline")) {
 										SJson::GetChildBool(p_cur2, is_checked_offline);
@@ -7399,11 +7392,11 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 			}
 			rBuf.CRB().Cat("ResultCode").CatDiv(':', 2).Cat(rList.Code);
 			rBuf.CRB().Cat("ResultDescr").CatDiv(':', 2).Cat(rList.Description);
-			rBuf.CRB().Cat("ReqId").CatDiv(':', 2).Cat(rList.ReqId, S_GUID::fmtIDL);
-			rBuf.CRB().Cat("ReqTimestamp").CatDiv(':', 2).Cat(rList.ReqTimestamp);
+			rBuf.CRB().Cat("ReqId").CatDiv(':', 2).Cat(rList.ChZnPmRT.ReqId, S_GUID::fmtIDL);
+			rBuf.CRB().Cat("ReqTimestamp").CatDiv(':', 2).Cat(rList.ChZnPmRT.ReqTimestamp);
 			if(method == prcsmarkMethodPmOffline) {
-				rBuf.CRB().Cat("LocalModuleInstance").CatDiv(':', 2).Cat(rList.LocalModuleInstance, S_GUID::fmtC);
-				rBuf.CRB().Cat("LocalModuleDbVer").CatDiv(':', 2).Cat(rList.LocalModuleDbVer, S_GUID::fmtC);
+				rBuf.CRB().Cat("LocalModuleInstance").CatDiv(':', 2).Cat(rList.ChZnPmRT.LocalModuleInstance, S_GUID::fmtC);
+				rBuf.CRB().Cat("LocalModuleDbVer").CatDiv(':', 2).Cat(rList.ChZnPmRT.LocalModuleDbVer, S_GUID::fmtC);
 			}
 			rBuf.CRB().Cat("---");
 			if(p_result_cle) {

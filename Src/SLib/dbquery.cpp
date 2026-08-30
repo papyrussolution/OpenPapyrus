@@ -789,9 +789,6 @@ int DBQuery::fetch(uint count, char * pBuf, /*RECORDNUMBER*/DBRowId * pPos, int 
 
 int DBQuery::fetch(uint count, char * pBuf, int dir) { return fetch(count, pBuf, 0, dir); }
 
-//#define BOQ  (P_Frame->State & Frame::stTop)
-//#define EOQ  (P_Frame->State & Frame::stBottom)
-
 long DBQuery::_defaultBufSize  = 64L;
 long DBQuery::_defaultBufDelta =  4L;
 

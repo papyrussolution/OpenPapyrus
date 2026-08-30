@@ -16,7 +16,7 @@
 #include "lcms2_internal.h"
 #pragma hdrstop
 
-#if SLTEST_RUNNING // {
+#if /*SLTEST_RUNNING*/true // { // @v12.7.5 SLTEST_RUNNING-->true
 
 #include "testcms2.h"
 
@@ -36,7 +36,7 @@ static SString TestbedPath; // @sobolev
 //#define cmsmin(a, b) (((a) < (b)) ? (a) : (b))
 
 // Die, a fatal unexpected error is detected!
-void Die(FILE * fOut, const char * Reason, ...)
+void TestCMS2_Die(FILE * fOut, const char * Reason, ...)
 {
 	va_list args;
 	va_start(args, Reason);
@@ -86,7 +86,7 @@ static void * DebugMalloc(cmsContext ContextID, uint32 size)
 {
 	_cmsMemoryBlock* blk;
 	if(size <= 0) {
-		Die(stderr, "malloc requested with zero bytes");
+		TestCMS2_Die(stderr, "malloc requested with zero bytes");
 	}
 	TotalMemory += size;
 	if(TotalMemory > MaxAllocated)
@@ -107,12 +107,12 @@ static void DebugFree(cmsContext ContextID, void * Ptr)
 {
 	_cmsMemoryBlock* blk;
 	if(Ptr == NULL) {
-		Die(stderr, "NULL free (which is a no-op in C, but may be an clue of something going wrong)");
+		TestCMS2_Die(stderr, "NULL free (which is a no-op in C, but may be an clue of something going wrong)");
 	}
 	blk = (_cmsMemoryBlock*)(((uint8 *)Ptr) - SIZE_OF_MEM_HEADER);
 	TotalMemory -= blk->KeepSize;
 	if(blk->WhoAllocated != ContextID && !blk->DontCheck) {
-		Die(stderr, "Trying to free memory allocated by a different thread");
+		TestCMS2_Die(stderr, "Trying to free memory allocated by a different thread");
 	}
 	SAlloc::F(blk);
 }
@@ -171,7 +171,7 @@ void TestMemoryLeaks(FILE * fOut, boolint ok)
 }
 
 // Here we go with the plug-in declaration
-static cmsPluginMemHandler DebugMemHandler = {
+cmsPluginMemHandler DebugMemHandler = {
 	{ cmsPluginMagicNumber, 2060, cmsPluginMemHandlerSig, NULL }, DebugMalloc, DebugFree, DebugRealloc, NULL, NULL, NULL };
 
 // Returnds a pointer to the memhandler plugin
@@ -181,14 +181,14 @@ cmsContext WatchDogContext(FILE * fOut, void * usr)
 {
 	cmsContext ctx = cmsCreateContext(&DebugMemHandler, usr);
 	if(!ctx)
-		Die(fOut, "Unable to create memory managed context");
+		TestCMS2_Die(fOut, "Unable to create memory managed context");
 	DebugMemDontCheckThis(ctx);
 	return ctx;
 }
 
 static void FatalErrorQuit(FILE * fOut, cmsContext ContextID, uint32 ErrorCode, const char * Text)
 {
-	Die(fOut, Text);
+	TestCMS2_Die(fOut, Text);
 	CXX_UNUSED(ContextID);
 	CXX_UNUSED(ErrorCode);
 }
@@ -199,21 +199,20 @@ void ResetFatalError()
 }
 
 // Print a dot for gauging
-void Dot(FILE * fOut)
+static void Dot(FILE * fOut)
 {
 	fprintf(fOut, "."); 
 	fflush(fOut);
 }
 
-void Say(FILE * fOut, const char * str)
+static void Say(FILE * fOut, const char * str)
 {
 	fprintf(fOut, "%s", str); 
 	fflush(fOut);
 }
 
 // Keep track of the reason to fail
-
-void Fail(const char * frm, ...)
+void TestCMS2_Fail(const char * frm, ...)
 {
 	va_list args;
 	va_start(args, frm);
@@ -222,8 +221,7 @@ void Fail(const char * frm, ...)
 }
 
 // Keep track of subtest
-
-void SubTest(FILE * fOut, const char * frm, ...)
+static void SubTest(FILE * fOut, const char * frm, ...)
 {
 	va_list args;
 	Dot(fOut);
@@ -302,7 +300,7 @@ static void Check(FILE * fOut, const char * Title, TestFn Fn)
 }
 
 // Dump a tone curve, for easy diagnostic
-void DumpToneCurve(cmsToneCurve * gamma, const char * FileName)
+static void DumpToneCurve(cmsToneCurve * gamma, const char * FileName)
 {
 	cmsHANDLE hIT8 = cmsIT8Alloc(gamma->InterpParams->ContextID);
 	cmsIT8SetPropertyDbl(hIT8, "NUMBER_OF_FIELDS", 2);
@@ -666,7 +664,7 @@ static int32 CheckEndianness()
 #endif
 	assert(IsOk); // @sobolev
 	if(!IsOk) {
-		Die(stderr, "\nOOOPPSS! You have CMS_USE_BIG_ENDIAN toggle misconfigured!\n\nPlease, edit lcms2.h and %s the CMS_USE_BIG_ENDIAN toggle.\n", BigEndian ? "uncomment" : "comment");
+		TestCMS2_Die(stderr, "\nOOOPPSS! You have CMS_USE_BIG_ENDIAN toggle misconfigured!\n\nPlease, edit lcms2.h and %s the CMS_USE_BIG_ENDIAN toggle.\n", BigEndian ? "uncomment" : "comment");
 		return 0;
 	}
 	return 1;
@@ -677,7 +675,7 @@ static int32 CheckQuickFloor()
 {
 	if((_cmsQuickFloor(1.234) != 1) || (_cmsQuickFloor(32767.234) != 32767) || (_cmsQuickFloor(-1.234) != -2) || (_cmsQuickFloor(-32767.1) != -32768)) {
 		assert(0);
-		Die(stderr, "\nOOOPPSS! _cmsQuickFloor() does not work as expected in your machine!\n\nPlease, edit lcms2.h and uncomment the CMS_DONT_USE_FAST_FLOOR toggle.\n");
+		TestCMS2_Die(stderr, "\nOOOPPSS! _cmsQuickFloor() does not work as expected in your machine!\n\nPlease, edit lcms2.h and uncomment the CMS_DONT_USE_FAST_FLOOR toggle.\n");
 		return 0;
 	}
 	return 1;
@@ -689,7 +687,7 @@ static int32 CheckQuickFloorWord()
 	for(uint32 i = 0; i < 65535; i++) {
 		if(_cmsQuickFloorWord((double)i + 0.1234) != i) {
 			assert(0);
-			Die(stderr, "\nOOOPPSS! _cmsQuickFloorWord() does not work as expected in your machine!\n\nPlease, edit lcms2.h and uncomment the CMS_DONT_USE_FAST_FLOOR toggle.\n");
+			TestCMS2_Die(stderr, "\nOOOPPSS! _cmsQuickFloorWord() does not work as expected in your machine!\n\nPlease, edit lcms2.h and uncomment the CMS_DONT_USE_FAST_FLOOR toggle.\n");
 			return 0;
 		}
 	}
@@ -710,18 +708,18 @@ boolint STDCALL IsGoodVal(const char * title, double in, double out, double max)
 	if(Err > MaxErr) 
 		MaxErr = Err;
 	if((Err > max )) {
-		Fail("(%s): Must be %f, But is %f ", title, in, out);
+		TestCMS2_Fail("(%s): Must be %f, But is %f ", title, in, out);
 		return FALSE;
 	}
 	return TRUE;
 }
 
-boolint STDCALL IsGoodFixed15_16(const char * title, double in, double out)
+static boolint STDCALL IsGoodFixed15_16(const char * title, double in, double out)
 {
 	return IsGoodVal(title, in, out, FIXED_PRECISION_15_16);
 }
 
-boolint IsGoodFixed8_8(const char * title, double in, double out)
+static boolint IsGoodFixed8_8(const char * title, double in, double out)
 {
 	return IsGoodVal(title, in, out, FIXED_PRECISION_8_8);
 }
@@ -729,16 +727,16 @@ boolint IsGoodFixed8_8(const char * title, double in, double out)
 boolint STDCALL IsGoodWord(const char * title, uint16 in, uint16 out)
 {
 	if((abs(in - out) > 0)) {
-		Fail("(%s): Must be %x, But is %x ", title, in, out);
+		TestCMS2_Fail("(%s): Must be %x, But is %x ", title, in, out);
 		return FALSE;
 	}
 	return TRUE;
 }
 
-boolint STDCALL IsGoodWordPrec(const char * title, uint16 in, uint16 out, uint16 maxErr)
+static boolint STDCALL IsGoodWordPrec(const char * title, uint16 in, uint16 out, uint16 maxErr)
 {
 	if((abs(in - out) > maxErr )) {
-		Fail("(%s): Must be %x, But is %x ", title, in, out);
+		TestCMS2_Fail("(%s): Must be %x, But is %x ", title, in, out);
 		return FALSE;
 	}
 	return TRUE;
@@ -786,7 +784,6 @@ static int32 CheckFixedPoint8_8()
 	if(!TestSingleFixed8_8(0.99999)) return 0;
 	if(!TestSingleFixed8_8(0.1234567890123456789099999)) return 0;
 	if(!TestSingleFixed8_8(+255.1234567890123456789099999)) return 0;
-
 	return 1;
 }
 
@@ -808,7 +805,7 @@ static int32 CheckD50Roundtrip()
 	double dz = fabs(cmsD50Z - z);
 	double euc = sqrt(dx*dx + dy*dy + dz* dz);
 	if(euc > 1E-5) {
-		Fail("D50 roundtrip |err| > (%f) ", euc);
+		TestCMS2_Fail("D50 roundtrip |err| > (%f) ", euc);
 		return 0;
 	}
 
@@ -827,7 +824,7 @@ static int32 CheckD50Roundtrip()
 	euc = sqrt(dx*dx + dy*dy + dz* dz);
 
 	if(euc > 1E-5) {
-		Fail("D50 roundtrip |err| > (%f) ", euc);
+		TestCMS2_Fail("D50 roundtrip |err| > (%f) ", euc);
 		return 0;
 	}
 
@@ -874,7 +871,7 @@ static int32 Check1D(int32 nNodesToCheck, boolint Down, int32 max_err)
 			if(Down) 
 				out = 0xffff - out;
 			if(abs(out - in) > max_err) {
-				Fail("(%dp): Must be %x, But is %x : ", nNodesToCheck, in, out);
+				TestCMS2_Fail("(%dp): Must be %x, But is %x : ", nNodesToCheck, in, out);
 				_cmsFreeInterpParams(p);
 				SAlloc::F(Tab);
 				return 0;
@@ -1271,7 +1268,7 @@ static int32 CheckReverseInterpolation3x3()
 	Hint[0] = 0; Hint[1] = 0; Hint[2] = 0;
 	cmsPipelineEvalReverseFloat(Target, Result, NULL, Lut);
 	if(Result[0] != 0 || Result[1] != 0 || Result[2] != 0) {
-		Fail("Reverse interpolation didn't find zero");
+		TestCMS2_Fail("Reverse interpolation didn't find zero");
 		goto Error;
 	}
 	// Transverse identity
@@ -1355,7 +1352,7 @@ static int32 CheckReverseInterpolation4x3(FILE * fOut)
 	Hint[0] = 0.1F; Hint[1] = 0.1F; Hint[2] = 0.1F;
 	cmsPipelineEvalReverseFloat(Target, Result, Hint, Lut);
 	if(Result[0] != 0 || Result[1] != 0 || Result[2] != 0 || Result[3] != 0) {
-		Fail("Reverse interpolation didn't find zero");
+		TestCMS2_Fail("Reverse interpolation didn't find zero");
 		goto Error;
 	}
 	SubTest(fOut, "4->3 find CMY");
@@ -1870,7 +1867,7 @@ static int32 CheckGammaCreation16(FILE * fOut)
 		in = (uint16)i;
 		out = cmsEvalToneCurve16(LinGamma, in);
 		if(in != out) {
-			Fail("(lin gamma): Must be %x, But is %x : ", in, out);
+			TestCMS2_Fail("(lin gamma): Must be %x, But is %x : ", in, out);
 			cmsFreeToneCurve(LinGamma);
 			return 0;
 		}
@@ -1890,7 +1887,7 @@ static int32 CheckGammaCreationFlt(FILE * fOut)
 		in = (float)(i / 65535.0);
 		out = cmsEvalToneCurveFloat(LinGamma, in);
 		if(fabs(in - out) > (1/65535.0)) {
-			Fail("(lin gamma): Must be %f, But is %f : ", in, out);
+			TestCMS2_Fail("(lin gamma): Must be %f, But is %f : ", in, out);
 			cmsFreeToneCurve(LinGamma);
 			return 0;
 		}
@@ -2021,7 +2018,7 @@ static int32 CheckJointCurves()
 	rc = cmsIsToneCurveLinear(Result);
 	cmsFreeToneCurve(Result);
 	if(!rc)
-		Fail("Joining same curve twice does not result in a linear ramp");
+		TestCMS2_Fail("Joining same curve twice does not result in a linear ramp");
 	return rc;
 }
 
@@ -2731,7 +2728,7 @@ static int32 CheckMLU()
 	if(!sstreq(Buffer, "Hola, mon"))
 		rc = 0;
 	if(rc == 0)
-		Fail("Unexpected string '%s'", Buffer);
+		TestCMS2_Fail("Unexpected string '%s'", Buffer);
 	// So far, so good.
 	cmsMLUfree(mlu);
 	// Now for performance, allocate an empty struct
@@ -2763,7 +2760,7 @@ static int32 CheckMLU()
 		}
 	}
 	if(rc == 0)
-		Fail("Unexpected string '%s'", Buffer2);
+		TestCMS2_Fail("Unexpected string '%s'", Buffer2);
 	// Check profile IO
 	h = cmsOpenProfileFromFileTHR(DbgThread(), "mlucheck.icc", "w");
 	cmsSetProfileVersion(h, 4.3);
@@ -2773,7 +2770,7 @@ static int32 CheckMLU()
 	h = cmsOpenProfileFromFileTHR(DbgThread(), "mlucheck.icc", "r");
 	mlu3 = (cmsMLU*)cmsReadTag(h, cmsSigProfileDescriptionTag);
 	if(mlu3 == NULL) {
-		Fail("Profile didn't get the MLU\n"); rc = 0; goto Error;
+		TestCMS2_Fail("Profile didn't get the MLU\n"); rc = 0; goto Error;
 	}
 	// Check all is still in place
 	for(i = 0; i < 4096; i++) {
@@ -2788,7 +2785,7 @@ static int32 CheckMLU()
 		}
 	}
 	if(rc == 0) 
-		Fail("Unexpected string '%s'", Buffer2);
+		TestCMS2_Fail("Unexpected string '%s'", Buffer2);
 Error:
 	cmsCloseProfile(h);
 	remove("mlucheck.icc");
@@ -2829,20 +2826,20 @@ static int32 CheckNamedColorList()
 		for(j = 0; j < 3; j++) {
 			if(CheckPCS[j] != PCS[j]) {
 				rc = 0; 
-				Fail("Invalid PCS"); 
+				TestCMS2_Fail("Invalid PCS"); 
 				goto Error;
 			}
 		}
 		for(j = 0; j < 4; j++) {
 			if(CheckColorant[j] != Colorant[j]) {
 				rc = 0; 
-				Fail("Invalid Colorant"); 
+				TestCMS2_Fail("Invalid Colorant"); 
 				goto Error;
 			}
 		}
 		if(!sstreq(Name, CheckName)) {
 			rc = 0; 
-			Fail("Invalid Name"); 
+			TestCMS2_Fail("Invalid Name"); 
 			goto Error;
 		}
 	}
@@ -2857,11 +2854,11 @@ static int32 CheckNamedColorList()
 	h = cmsOpenProfileFromFileTHR(DbgThread(), "namedcol.icc", "r");
 	nc2 = (cmsNAMEDCOLORLIST*)cmsReadTag(h, cmsSigNamedColor2Tag);
 	if(cmsNamedColorCount(nc2) != 4096) {
-		rc = 0; Fail("Invalid count"); goto Error;
+		rc = 0; TestCMS2_Fail("Invalid count"); goto Error;
 	}
 	i = cmsNamedColorIndex(nc2, "#123");
 	if(i != 123) {
-		rc = 0; Fail("Invalid index"); goto Error;
+		rc = 0; TestCMS2_Fail("Invalid index"); goto Error;
 	}
 	for(i = 0; i < 4096; i++) {
 		CheckPCS[0] = CheckPCS[1] = CheckPCS[2] = (uint16)i;
@@ -2874,20 +2871,20 @@ static int32 CheckNamedColorList()
 		for(j = 0; j < 3; j++) {
 			if(CheckPCS[j] != PCS[j]) {
 				rc = 0; 
-				Fail("Invalid PCS"); 
+				TestCMS2_Fail("Invalid PCS"); 
 				goto Error;
 			}
 		}
 		for(j = 0; j < 4; j++) {
 			if(CheckColorant[j] != Colorant[j]) {
 				rc = 0; 
-				Fail("Invalid Colorant"); 
+				TestCMS2_Fail("Invalid Colorant"); 
 				goto Error;
 			}
 		}
 		if(!sstreq(Name, CheckName)) {
 			rc = 0; 
-			Fail("Invalid Name"); 
+			TestCMS2_Fail("Invalid Name"); 
 			goto Error;
 		}
 	}
@@ -2917,7 +2914,7 @@ static void CheckSingleFormatter16(cmsContext id, uint32 Type, const char * Text
 	f = _cmsGetFormatter(id, Type,  cmsFormatterInput, CMS_PACK_FLAGS_16BITS);
 	b = _cmsGetFormatter(id, Type,  cmsFormatterOutput, CMS_PACK_FLAGS_16BITS);
 	if(f.Fmt16 == NULL || b.Fmt16 == NULL) {
-		Fail("no formatter for %s", Text);
+		TestCMS2_Fail("no formatter for %s", Text);
 		FormatterFailed = TRUE;
 		// Useful for debug
 		f = _cmsGetFormatter(id, Type,  cmsFormatterInput, CMS_PACK_FLAGS_16BITS);
@@ -2940,7 +2937,7 @@ static void CheckSingleFormatter16(cmsContext id, uint32 Type, const char * Text
 			if(bytes == 1)
 				Values[i] >>= 8;
 			if(Values[i] != i+j) {
-				Fail("%s failed", Text);
+				TestCMS2_Fail("%s failed", Text);
 				FormatterFailed = TRUE;
 
 				// Useful for debug
@@ -3158,7 +3155,7 @@ static void CheckSingleFormatterFloat(uint32 Type, const char * Text)
 	f = _cmsGetFormatter(0, Type,  cmsFormatterInput, CMS_PACK_FLAGS_FLOAT);
 	b = _cmsGetFormatter(0, Type,  cmsFormatterOutput, CMS_PACK_FLAGS_FLOAT);
 	if(f.FmtFloat == NULL || b.FmtFloat == NULL) {
-		Fail("no formatter for %s", Text);
+		TestCMS2_Fail("no formatter for %s", Text);
 		FormatterFailed = TRUE;
 		// Useful for debug
 		f = _cmsGetFormatter(0, Type,  cmsFormatterInput, CMS_PACK_FLAGS_FLOAT);
@@ -3177,7 +3174,7 @@ static void CheckSingleFormatterFloat(uint32 Type, const char * Text)
 		for(i = 0; i < nChannels; i++) {
 			double delta = fabs(Values[i] - ( i+j));
 			if(delta > 0.000000001) {
-				Fail("%s failed", Text);
+				TestCMS2_Fail("%s failed", Text);
 				FormatterFailed = TRUE;
 				// Useful for debug
 				for(i = 0; i < nChannels; i++) {
@@ -3246,7 +3243,7 @@ static int32 CheckFormattersHalf()
 		if(!my_isfinite(f)) {
 			int j = _cmsFloat2Half(f);
 			if(i != j) {
-				Fail("%d != %d in Half float support!\n", i, j);
+				TestCMS2_Fail("%d != %d in Half float support!\n", i, j);
 				return 0;
 			}
 		}
@@ -3481,7 +3478,7 @@ static int32 CheckNamedColor(int32 Pass, cmsHPROFILE hProfile, cmsTagSignature t
 			    Colorant[0] = Colorant[1] = Colorant[2] = Colorant[3] = (uint16)(max_check - i);
 			    sprintf(Name, "#%d", i);
 			    if(!cmsAppendNamedColor(nc, Name, PCS, Colorant)) {
-				    Fail("Couldn't append named color"); return 0;
+				    TestCMS2_Fail("Couldn't append named color"); return 0;
 			    }
 		    }
 		    rc = cmsWriteTag(hProfile, tag, nc);
@@ -3496,12 +3493,12 @@ static int32 CheckNamedColor(int32 Pass, cmsHPROFILE hProfile, cmsTagSignature t
 			    CheckColorant[0] = CheckColorant[1] = CheckColorant[2] = CheckColorant[3] = (uint16)(max_check - i);
 			    sprintf(CheckName, "#%d", i);
 			    if(!cmsNamedColorInfo(nc, i, Name, NULL, NULL, PCS, Colorant)) {
-				    Fail("Invalid string"); 
+				    TestCMS2_Fail("Invalid string"); 
 					return 0;
 			    }
 			    for(j = 0; j < 3; j++) {
 				    if(CheckPCS[j] != PCS[j]) {
-					    Fail("Invalid PCS"); 
+					    TestCMS2_Fail("Invalid PCS"); 
 						return 0;
 				    }
 			    }
@@ -3509,13 +3506,13 @@ static int32 CheckNamedColor(int32 Pass, cmsHPROFILE hProfile, cmsTagSignature t
 			    if(colorant_check) {
 				    for(j = 0; j < 4; j++) {
 					    if(CheckColorant[j] != Colorant[j]) {
-						    Fail("Invalid Colorant"); 
+						    TestCMS2_Fail("Invalid Colorant"); 
 							return 0;
 					    }
 				    }
 			    }
 			    if(!sstreq(Name, CheckName)) {
-				    Fail("Invalid Name");  
+				    TestCMS2_Fail("Invalid Name");  
 					return 0;
 			    }
 		    }
@@ -4098,7 +4095,7 @@ static int32 CheckDictionary24(int32 Pass,  cmsHPROFILE hProfile)
 		    if(!sstreq(Buffer, "Hola, mon"))
 				rc = 0;
 		    if(rc == 0)
-			    Fail("Unexpected string '%s'", Buffer);
+			    TestCMS2_Fail("Unexpected string '%s'", Buffer);
 		    return 1;
 		default:;
 	}
@@ -4134,26 +4131,26 @@ static int32 CheckProfileCreation(FILE * fOut)
 		return 0;
 	cmsSetProfileVersion(h, 4.3);
 	if(cmsGetTagCount(h) != 0) {
-		Fail("Empty profile with nonzero number of tags"); goto Error;
+		TestCMS2_Fail("Empty profile with nonzero number of tags"); goto Error;
 	}
 	if(cmsIsTag(h, cmsSigAToB0Tag)) {
-		Fail("Found a tag in an empty profile"); goto Error;
+		TestCMS2_Fail("Found a tag in an empty profile"); goto Error;
 	}
 	cmsSetColorSpace(h, cmsSigRgbData);
 	if(cmsGetColorSpace(h) !=  cmsSigRgbData) {
-		Fail("Unable to set colorspace"); goto Error;
+		TestCMS2_Fail("Unable to set colorspace"); goto Error;
 	}
 	cmsSetPCS(h, cmsSigLabData);
 	if(cmsGetPCS(h) !=  cmsSigLabData) {
-		Fail("Unable to set colorspace"); goto Error;
+		TestCMS2_Fail("Unable to set colorspace"); goto Error;
 	}
 	cmsSetDeviceClass(h, cmsSigDisplayClass);
 	if(cmsGetDeviceClass(h) != cmsSigDisplayClass) {
-		Fail("Unable to set deviceclass"); goto Error;
+		TestCMS2_Fail("Unable to set deviceclass"); goto Error;
 	}
 	cmsSetHeaderRenderingIntent(h, INTENT_SATURATION);
 	if(cmsGetHeaderRenderingIntent(h) != INTENT_SATURATION) {
-		Fail("Unable to set rendering intent"); goto Error;
+		TestCMS2_Fail("Unable to set rendering intent"); goto Error;
 	}
 	for(Pass = 1; Pass <= 2; Pass++) {
 		SubTest(fOut, "Tags holding XYZ");
@@ -4280,7 +4277,7 @@ static int32 CheckVersionHeaderWriting()
 		h = cmsOpenProfileFromFileTHR(DbgThread(), "versions.icc", "r");
 		// Only the first 3 digits are significant
 		if(fabs(cmsGetProfileVersion(h) - test_versions[index]) > 0.005) {
-			Fail("Version failed to round-trip: wrote %.2f, read %.2f", test_versions[index], cmsGetProfileVersion(h));
+			TestCMS2_Fail("Version failed to round-trip: wrote %.2f, read %.2f", test_versions[index], cmsGetProfileVersion(h));
 			return 0;
 		}
 		cmsCloseProfile(h);
@@ -4468,7 +4465,7 @@ static int32 Check8linearXFORM(cmsHTRANSFORM xform, int32 nChan)
 	}
 	// We allow 2 contone of difference on 8 bits
 	if(n2 > 2) {
-		Fail("Differences too big (%x)", n2);
+		TestCMS2_Fail("Differences too big (%x)", n2);
 		return 0;
 	}
 	return 1;
@@ -4490,7 +4487,7 @@ static int32 Compare8bitXFORM(cmsHTRANSFORM xform1, cmsHTRANSFORM xform2, int32 
 	}
 	// We allow 2 contone of difference on 8 bits
 	if(n2 > 2) {
-		Fail("Differences too big (%x)", n2);
+		TestCMS2_Fail("Differences too big (%x)", n2);
 		return 0;
 	}
 	return 1;
@@ -4515,7 +4512,7 @@ static int32 Check16linearXFORM(cmsHTRANSFORM xform, int32 nChan)
 
 		// We allow 2 contone of difference on 16 bits
 		if(n2 > 0x200) {
-			Fail("Differences too big (%x)", n2);
+			TestCMS2_Fail("Differences too big (%x)", n2);
 			return 0;
 		}
 	}
@@ -4542,7 +4539,7 @@ static int32 Compare16bitXFORM(cmsHTRANSFORM xform1, cmsHTRANSFORM xform2, int32
 
 	// We allow 2 contone of difference on 16 bits
 	if(n2 > 0x200) {
-		Fail("Differences too big (%x)", n2);
+		TestCMS2_Fail("Differences too big (%x)", n2);
 		return 0;
 	}
 
@@ -4669,7 +4666,7 @@ static int32 CheckOneLab(cmsHTRANSFORM xform, double L, double a, double b)
 	dE = cmsDeltaE(&In, &Out);
 	if(dE > MaxDE) MaxDE = dE;
 	if(MaxDE >  0.003) {
-		Fail("dE=%f Lab1=(%f, %f, %f)\n\tLab2=(%f %f %f)", MaxDE, In.L, In.a, In.b, Out.L, Out.a, Out.b);
+		TestCMS2_Fail("dE=%f Lab1=(%f, %f, %f)\n\tLab2=(%f %f %f)", MaxDE, In.L, In.a, In.b, Out.L, Out.a, Out.b);
 		cmsDoTransform(xform, &In, &Out, 1);
 		return 0;
 	}
@@ -4980,7 +4977,7 @@ static int32 CheckRGBPrimaries()
 	// valus were taken from http://en.wikipedia.org/wiki/RGB_color_spaces#Specifications 
 	if(!IsGoodFixed15_16("xRed", tripxyY.Red.x, 0.64) || !IsGoodFixed15_16("yRed", tripxyY.Red.y, 0.33) || !IsGoodFixed15_16("xGreen", tripxyY.Green.x, 0.30) ||
 	    !IsGoodFixed15_16("yGreen", tripxyY.Green.y, 0.60) || !IsGoodFixed15_16("xBlue", tripxyY.Blue.x, 0.15) || !IsGoodFixed15_16("yBlue", tripxyY.Blue.y, 0.06)) {
-		Fail("One or more primaries are wrong.");
+		TestCMS2_Fail("One or more primaries are wrong.");
 		return FALSE;
 	}
 	return TRUE;
@@ -5191,7 +5188,7 @@ static int32 CheckGamutCheck(FILE * fOut)
 		cmsCloseProfile(hSRGB);
 		cmsCloseProfile(hAbove);
 		cmsDeleteTransform(xform);
-		Fail("Gamut check on same profile failed");
+		TestCMS2_Fail("Gamut check on same profile failed");
 		return 0;
 	}
 	cmsDeleteTransform(xform);
@@ -6053,7 +6050,7 @@ static int32 CheckFloatNULLxform()
 	float out[10];
 	cmsHTRANSFORM xform = cmsCreateTransform(NULL, TYPE_GRAY_FLT, NULL, TYPE_GRAY_FLT, INTENT_PERCEPTUAL, cmsFLAGS_NULLTRANSFORM);
 	if(!xform) {
-		Fail("Unable to create float null transform");
+		TestCMS2_Fail("Unable to create float null transform");
 		return 0;
 	}
 	cmsDoTransform(xform, in, out, 10);
@@ -6144,7 +6141,7 @@ static int32 CheckTransformLineStride()
 	cmsDoTransformLineStride(t, buf1, out, 2, 4, 7, 7, 0, 0);
 	cmsDeleteTransform(t);
 	if(memcmp(out, buf1, sizeof(buf1)) != 0) {
-		Fail("Failed transform line stride on RGB8");
+		TestCMS2_Fail("Failed transform line stride on RGB8");
 		cmsCloseProfile(pIn);
 		cmsCloseProfile(pOut);
 		return 0;
@@ -6156,7 +6153,7 @@ static int32 CheckTransformLineStride()
 	if(memcmp(out, buf2, sizeof(buf2)) != 0) {
 		cmsCloseProfile(pIn);
 		cmsCloseProfile(pOut);
-		Fail("Failed transform line stride on RGBA8");
+		TestCMS2_Fail("Failed transform line stride on RGBA8");
 		return 0;
 	}
 	memzero(out, sizeof(out));
@@ -6166,7 +6163,7 @@ static int32 CheckTransformLineStride()
 	if(memcmp(out, buf3, sizeof(buf3)) != 0) {
 		cmsCloseProfile(pIn);
 		cmsCloseProfile(pOut);
-		Fail("Failed transform line stride on RGBA16");
+		TestCMS2_Fail("Failed transform line stride on RGBA16");
 		return 0;
 	}
 	memzero(out, sizeof(out));
@@ -6177,7 +6174,7 @@ static int32 CheckTransformLineStride()
 	if(memcmp(out, buf3, sizeof(buf3)) != 0) {
 		cmsCloseProfile(pIn);
 		cmsCloseProfile(pOut);
-		Fail("Failed transform line stride on RGBA16");
+		TestCMS2_Fail("Failed transform line stride on RGBA16");
 		return 0;
 	}
 	cmsCloseProfile(pIn);
@@ -6321,14 +6318,14 @@ static void SpeedTest32bits(FILE * fOut, const char * Title, cmsHPROFILE hlcmsPr
 {
 	int32 r, g, b, j;
 	clock_t atime;
-	double diff;
+	double diff = 0.0;
 	cmsHTRANSFORM hlcmsxform;
 	Scanline_rgba32 * In;
 	uint32 Mb;
 	uint32 Interval = 4; // Power of 2 number to increment r,g,b values by in the loops to keep the test duration practically short
 	uint32 NumPixels;
 	if(hlcmsProfileIn == NULL || hlcmsProfileOut == NULL)
-		Die(fOut, "Unable to open profiles");
+		TestCMS2_Die(fOut, "Unable to open profiles");
 	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_RGBA_FLT, hlcmsProfileOut, TYPE_RGBA_FLT, Intent, cmsFLAGS_NOCACHE);
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
@@ -6355,7 +6352,7 @@ static void SpeedTest32bits(FILE * fOut, const char * Title, cmsHPROFILE hlcmsPr
 		SAlloc::F(In);
 	}
 	else {
-		Die(fOut, "Not enough memory (%u)", Mb);
+		TestCMS2_Die(fOut, "Not enough memory (%u)", Mb);
 	}
 	PrintPerformance(fOut, Mb, sizeof(Scanline_rgba32), diff);
 	cmsDeleteTransform(hlcmsxform);
@@ -6365,12 +6362,12 @@ static void SpeedTest16bits(FILE * fOut, const char * Title, cmsHPROFILE hlcmsPr
 {
 	int32 r, g, b, j;
 	clock_t atime;
-	double diff;
+	double diff = 0.0;
 	cmsHTRANSFORM hlcmsxform;
 	Scanline_rgb16 * In;
 	uint32 Mb;
 	if(hlcmsProfileIn == NULL || hlcmsProfileOut == NULL)
-		Die(fOut, "Unable to open profiles");
+		TestCMS2_Die(fOut, "Unable to open profiles");
 	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_RGB_16, hlcmsProfileOut, TYPE_RGB_16, Intent, cmsFLAGS_NOCACHE);
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
@@ -6395,7 +6392,7 @@ static void SpeedTest16bits(FILE * fOut, const char * Title, cmsHPROFILE hlcmsPr
 		SAlloc::F(In);
 	}
 	else {
-		Die(fOut, "Not enough memory (%u)", Mb);
+		TestCMS2_Die(fOut, "Not enough memory (%u)", Mb);
 	}
 	PrintPerformance(fOut, Mb, sizeof(Scanline_rgb16), diff);
 	cmsDeleteTransform(hlcmsxform);
@@ -6405,14 +6402,14 @@ static void SpeedTest32bitsCMYK(FILE * fOut, const char * Title, cmsHPROFILE hlc
 {
 	int32 r, g, b, j;
 	clock_t atime;
-	double diff;
+	double diff = 0.0;
 	cmsHTRANSFORM hlcmsxform;
 	Scanline_rgba32 * In;
 	uint32 Mb;
 	uint32 Interval = 4; // Power of 2 number to increment r,g,b values by in the loops to keep the test duration practically short
 	uint32 NumPixels;
 	if(hlcmsProfileIn == NULL || hlcmsProfileOut == NULL)
-		Die(fOut, "Unable to open profiles");
+		TestCMS2_Die(fOut, "Unable to open profiles");
 	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_CMYK_FLT, hlcmsProfileOut, TYPE_CMYK_FLT, INTENT_PERCEPTUAL, cmsFLAGS_NOCACHE);
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
@@ -6439,7 +6436,7 @@ static void SpeedTest32bitsCMYK(FILE * fOut, const char * Title, cmsHPROFILE hlc
 		SAlloc::F(In);
 	}
 	else {
-		Die(fOut, "Not enough memory (%u)", Mb);
+		TestCMS2_Die(fOut, "Not enough memory (%u)", Mb);
 	}
 	PrintPerformance(fOut, Mb, sizeof(Scanline_rgba32), diff);
 	cmsDeleteTransform(hlcmsxform);
@@ -6449,12 +6446,12 @@ static void SpeedTest16bitsCMYK(FILE * fOut, const char * Title, cmsHPROFILE hlc
 {
 	int32 r, g, b, j;
 	clock_t atime;
-	double diff;
+	double diff = 0.0;
 	cmsHTRANSFORM hlcmsxform;
 	Scanline_rgba16 * In;
 	uint32 Mb;
 	if(hlcmsProfileIn == NULL || hlcmsProfileOut == NULL)
-		Die(fOut, "Unable to open profiles");
+		TestCMS2_Die(fOut, "Unable to open profiles");
 	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_CMYK_16, hlcmsProfileOut, TYPE_CMYK_16, INTENT_PERCEPTUAL,  cmsFLAGS_NOCACHE);
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
@@ -6480,7 +6477,7 @@ static void SpeedTest16bitsCMYK(FILE * fOut, const char * Title, cmsHPROFILE hlc
 		SAlloc::F(In);
 	}
 	else {
-		Die(fOut, "Not enough memory (%u)", Mb);
+		TestCMS2_Die(fOut, "Not enough memory (%u)", Mb);
 	}
 	PrintPerformance(fOut, Mb, sizeof(Scanline_rgba16), diff);
 	cmsDeleteTransform(hlcmsxform);
@@ -6490,12 +6487,12 @@ static void SpeedTest8bits(FILE * fOut, const char * Title, cmsHPROFILE hlcmsPro
 {
 	int32 r, g, b, j;
 	clock_t atime;
-	double diff;
+	double diff = 0.0;
 	cmsHTRANSFORM hlcmsxform;
 	Scanline_rgb8 * In;
 	uint32 Mb;
 	if(hlcmsProfileIn == NULL || hlcmsProfileOut == NULL)
-		Die(fOut, "Unable to open profiles");
+		TestCMS2_Die(fOut, "Unable to open profiles");
 	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_RGB_8, hlcmsProfileOut, TYPE_RGB_8, Intent, cmsFLAGS_NOCACHE);
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
@@ -6518,7 +6515,7 @@ static void SpeedTest8bits(FILE * fOut, const char * Title, cmsHPROFILE hlcmsPro
 		SAlloc::F(In);
 	}
 	else {
-		Die(fOut, "Not enough memory (%u)", Mb);
+		TestCMS2_Die(fOut, "Not enough memory (%u)", Mb);
 	}
 	PrintPerformance(fOut, Mb, sizeof(Scanline_rgb8), diff);
 	cmsDeleteTransform(hlcmsxform);
@@ -6528,12 +6525,12 @@ static void SpeedTest8bitsCMYK(FILE * fOut, const char * Title, cmsHPROFILE hlcm
 {
 	int32 r, g, b, j;
 	clock_t atime;
-	double diff;
+	double diff = 0.0;
 	cmsHTRANSFORM hlcmsxform;
 	Scanline_rgba8 * In;
 	uint32 Mb;
 	if(hlcmsProfileIn == NULL || hlcmsProfileOut == NULL)
-		Die(fOut, "Unable to open profiles");
+		TestCMS2_Die(fOut, "Unable to open profiles");
 	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_CMYK_8, hlcmsProfileOut, TYPE_CMYK_8, INTENT_PERCEPTUAL, cmsFLAGS_NOCACHE);
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
@@ -6557,7 +6554,7 @@ static void SpeedTest8bitsCMYK(FILE * fOut, const char * Title, cmsHPROFILE hlcm
 		SAlloc::F(In);
 	}
 	else {
-		Die(fOut, "Not enough memory (%u)", Mb);
+		TestCMS2_Die(fOut, "Not enough memory (%u)", Mb);
 	}
 	PrintPerformance(fOut, Mb, sizeof(Scanline_rgba8), diff);
 	cmsDeleteTransform(hlcmsxform);
@@ -6567,14 +6564,14 @@ static void SpeedTest32bitsGray(FILE * fOut, const char * Title, cmsHPROFILE hlc
 {
 	int32 r, g, b, j;
 	clock_t atime;
-	double diff;
+	double diff = 0.0;
 	cmsHTRANSFORM hlcmsxform;
 	float * In;
 	uint32 Mb;
 	uint32 Interval = 4; // Power of 2 number to increment r,g,b values by in the loops to keep the test duration practically short
 	uint32 NumPixels;
 	if(hlcmsProfileIn == NULL || hlcmsProfileOut == NULL)
-		Die(fOut, "Unable to open profiles");
+		TestCMS2_Die(fOut, "Unable to open profiles");
 	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_GRAY_FLT, hlcmsProfileOut, TYPE_GRAY_FLT, Intent, cmsFLAGS_NOCACHE);
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
@@ -6597,7 +6594,7 @@ static void SpeedTest32bitsGray(FILE * fOut, const char * Title, cmsHPROFILE hlc
 		SAlloc::F(In);
 	}
 	else {
-		Die(fOut, "Not enough memory (%u)", Mb);
+		TestCMS2_Die(fOut, "Not enough memory (%u)", Mb);
 	}
 	PrintPerformance(fOut, Mb, sizeof(float), diff);
 	cmsDeleteTransform(hlcmsxform);
@@ -6607,12 +6604,12 @@ static void SpeedTest16bitsGray(FILE * fOut, const char * Title, cmsHPROFILE hlc
 {
 	int32 r, g, b, j;
 	clock_t atime;
-	double diff;
+	double diff = 0.0;
 	cmsHTRANSFORM hlcmsxform;
 	uint16 * In;
 	uint32 Mb;
 	if(hlcmsProfileIn == NULL || hlcmsProfileOut == NULL)
-		Die(fOut, "Unable to open profiles");
+		TestCMS2_Die(fOut, "Unable to open profiles");
 	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_GRAY_16, hlcmsProfileOut, TYPE_GRAY_16, Intent, cmsFLAGS_NOCACHE);
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
@@ -6635,7 +6632,7 @@ static void SpeedTest16bitsGray(FILE * fOut, const char * Title, cmsHPROFILE hlc
 		SAlloc::F(In);
 	}
 	else {
-		Die(fOut, "Not enough memory (%u)", Mb);
+		TestCMS2_Die(fOut, "Not enough memory (%u)", Mb);
 	}
 	PrintPerformance(fOut, Mb, sizeof(uint16), diff);
 	cmsDeleteTransform(hlcmsxform);
@@ -6645,12 +6642,12 @@ static void SpeedTest8bitsGray(FILE * fOut, const char * Title, cmsHPROFILE hlcm
 {
 	int32 r, g, b, j;
 	clock_t atime;
-	double diff;
+	double diff = 0.0;
 	cmsHTRANSFORM hlcmsxform;
 	uint8 * In;
 	uint32 Mb;
 	if(hlcmsProfileIn == NULL || hlcmsProfileOut == NULL)
-		Die(fOut, "Unable to open profiles");
+		TestCMS2_Die(fOut, "Unable to open profiles");
 	hlcmsxform  = cmsCreateTransformTHR(DbgThread(), hlcmsProfileIn, TYPE_GRAY_8, hlcmsProfileOut, TYPE_GRAY_8, Intent, cmsFLAGS_NOCACHE);
 	cmsCloseProfile(hlcmsProfileIn);
 	cmsCloseProfile(hlcmsProfileOut);
@@ -6673,7 +6670,7 @@ static void SpeedTest8bitsGray(FILE * fOut, const char * Title, cmsHPROFILE hlcm
 		SAlloc::F(In);
 	}
 	else {
-		Die(fOut, "Not enough memory (%u)", Mb);
+		TestCMS2_Die(fOut, "Not enough memory (%u)", Mb);
 	}
 	PrintPerformance(fOut, Mb, sizeof(uint8), diff);
 	cmsDeleteTransform(hlcmsxform);
@@ -6786,7 +6783,7 @@ int Test_LCMS2(const char * pTestbedPath, const char * pOutputFileName, bool exh
 #endif
 	// First of all, check for the right header
 	if(cmsGetEncodedCMMversion() != LCMS_VERSION) {
-		Die(f_out, "Oops, you are mixing header and shared lib!\nHeader version reports to be '%d' and shared lib '%d'\n", LCMS_VERSION, cmsGetEncodedCMMversion());
+		TestCMS2_Die(f_out, "Oops, you are mixing header and shared lib!\nHeader version reports to be '%d' and shared lib '%d'\n", LCMS_VERSION, cmsGetEncodedCMMversion());
 	}
 	fprintf(f_out, "LittleCMS %2.2f test bed %s %s\n\n", LCMS_VERSION / 1000.0, __DATE__, __TIME__);
 	if(exhaustive) {

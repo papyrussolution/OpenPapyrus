@@ -2255,7 +2255,7 @@ int PPDS_CrrScale::TransferField(long fldID, Tfd dir, uint * pIter, SString & rB
 			{
 				SString buf;
 				if(dir == tfdDataToBuf) {
-					PPQuotKind qk_rec;
+					PPQuotKind2 qk_rec;
 					MEMSZERO(qk_rec);
 					if(QKObj.Search(Data.Rec.QuotKindID, &qk_rec) > 0)
 						buf.CopyFrom(qk_rec.Symb);
@@ -2483,7 +2483,7 @@ int PPDS_CrrQuotKind::InitData(Ido op, void * dataPtr, long addedParam)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *static_cast<const PPQuotKind *>(dataPtr);
+			Data = *static_cast<const PPQuotKind2 *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Search(addedParam, &Data) > 0)
 				ok = 1;
@@ -2499,8 +2499,8 @@ int PPDS_CrrQuotKind::InitData(Ido op, void * dataPtr, long addedParam)
 		if(*strip(Data.Symb) != 0 && Obj.SearchSymb(&id, Data.Symb) > 0) {
 			if(UpdateProtocol == updForce) {
 				Data.ID = id;
-				PPQuotKind rec;
-				MEMSZERO(rec);
+				PPQuotKind2 rec;
+				// @v12.7.5 @ctr MEMSZERO(rec);
 				THROW(Obj.Search(id, &rec) > 0);
 				for(uint i = 0; i < AcceptedFields.getCount(); i++) {
 					switch(AcceptedFields.get(i)) {
@@ -4211,7 +4211,7 @@ int PPDS_CrrAccount::TransferField(long fldID, Tfd dir, uint * pIter, SString & 
 			break;
 		case DSF_CRRACCOUNT_KIND:
 			{
-				const char * p_list = "ACT_ACTIVE;ACT_PASSIVE;ACT_AP";
+				const char * p_list = "ACCK_ACTIVE;ACCK_PASSIVE;ACCK_AP";
 				if(dir == tfdDataToBuf)
 					TempBuf.GetSubFrom(p_list, ';', Data.Rec.Kind - 1);
 				ok = TransferData(TempBuf, dir, rBuf);

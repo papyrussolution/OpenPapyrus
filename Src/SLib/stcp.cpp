@@ -426,13 +426,16 @@ int TcpSocket::Recv(void * pBuf, size_t size, size_t * pRcvdSize)
 {
 	int    ok = 1;
 	size_t rcvd_size = 0;
-	int    local_len;
-	THROW(CheckErrorStatus());
-	THROW(Select(mRead, -1, 0));
-	local_len = Helper_Recv(pBuf, size);
-	THROW_S(local_len != SOCKET_ERROR, SLERR_SOCK_WINSOCK);
-	rcvd_size += local_len;
-	StatData.RdCount += local_len;
+	if(pBuf && size) { // @v12.7.5 @condition
+		THROW(CheckErrorStatus());
+		THROW(Select(mRead, -1, 0));
+		{
+			const  int local_len = Helper_Recv(pBuf, size);
+			THROW_S(local_len != SOCKET_ERROR, SLERR_SOCK_WINSOCK);
+			rcvd_size += local_len;
+			StatData.RdCount += local_len;
+		}
+	}
 	CATCH
 		ok = 0;
 		rcvd_size = 0;
@@ -456,7 +459,7 @@ int TcpSocket::RecvUntil(SBuffer & rBuf, const char * pTerminator, size_t * pRcv
 				recv_sz = (term_len - match_len);
 				rd_len = 0;
 				{
-					int    local_len = Helper_Recv(InBuf.vptr(), recv_sz);
+					const  int local_len = Helper_Recv(InBuf.vptr(), recv_sz);
 					THROW_S(local_len != SOCKET_ERROR, SLERR_SOCK_WINSOCK);
 					rd_len = (size_t)local_len;
 					StatData.RdCount += local_len;
@@ -467,16 +470,18 @@ int TcpSocket::RecvUntil(SBuffer & rBuf, const char * pTerminator, size_t * pRcv
 					assert(rBuf.GetWrOffs() >= term_len);
 					const char * p_buf = static_cast<const char *>(rBuf.GetBuf(rBuf.GetWrOffs()-term_len));
 					match_len = 0;
-					for(uint i = 0; !match_len && i < term_len; i++)
+					for(uint i = 0; !match_len && i < term_len; i++) {
 						if(memcmp(p_buf+i, pTerminator, term_len-i) == 0)
 							match_len = (term_len-i);
+					}
 				}
 			} while(match_len < term_len && (rd_len == recv_sz));
 		}
 		ok = (match_len == term_len) ? 1 : -1;
 	}
-	else
+	else {
 		ok = RecvBuf(rBuf, 0, &total_sz);
+	}
 	CATCHZOK
 	ASSIGN_PTR(pRcvdSize, total_sz);
 	return ok;
@@ -490,7 +495,7 @@ int TcpSocket::RecvBuf(SBuffer & rBuf, size_t size, size_t * pRcvdSize)
 	if(sz) {
 		THROW(CheckErrorStatus());
 		while(Select(mRead, -1, 0)) {
-			size_t recv_sz = MIN(InBuf.GetSize(), sz);
+			const  size_t recv_sz = smin(InBuf.GetSize(), sz);
 			size_t rd_len = 0;
 			{
 				int    local_len = Helper_Recv(InBuf.vptr(), recv_sz);
@@ -501,8 +506,9 @@ int TcpSocket::RecvBuf(SBuffer & rBuf, size_t size, size_t * pRcvdSize)
 			THROW(rBuf.Write(InBuf.vcptr(), rd_len));
 			total_sz += rd_len;
 			if(size) {
-				if(total_sz < size)
+				if(total_sz < size) {
 					sz = size - total_sz;
+				}
 				else
 					break;
 			}

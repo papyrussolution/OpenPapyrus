@@ -2691,37 +2691,78 @@ DBQuery * PPViewCCheck::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					if(!cc_sent_to_egais) {
 						pStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
 						ok = 1;
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_CCHECK_EGAIS_SHADOW_NOTSENT, SLS.AcquireRvlStr()));
+						}
 					}
 				}
 			}
 			else if(r_col.OrgOffs == 9) { // pos-node
 				ok = 1;
+				int    hint_msg_id = 0; // TCELHLD_CCHECK_XXX
 				pStyle->Flags = BrowserWindow::CellStyle::fCorner;
-				if(p_row->Flags & CCHKF_ORDER)
+				if(p_row->Flags & CCHKF_ORDER) {
 					pStyle->Color = (p_row->Flags & CCHKF_SKIP) ? DarkenColor(GetColorRef(SClrBlue), 0.1f) : LightenColor(GetColorRef(SClrBlue), 0.3f);
-				else if(p_row->Flags & CCHKF_ZCHECK)
+					hint_msg_id = TCELHLD_CCHECK_ORDER;
+				}
+				else if(p_row->Flags & CCHKF_ZCHECK) {
 					pStyle->Color = LightenColor(GetColorRef(SClrYellow), 0.3f);
-				else if(p_row->Flags & CCHKF_JUNK)
+					hint_msg_id = TCELHLD_CCHECK_ZREP;
+				}
+				else if(p_row->Flags & CCHKF_JUNK) {
 					pStyle->Color = GetColorRef(SClrBrown);
-				else if(p_row->Flags & CCHKF_SUSPENDED)
+					hint_msg_id = TCELHLD_CCHECK_JUNK;
+				}
+				else if(p_row->Flags & CCHKF_SUSPENDED) {
 					pStyle->Color = GetColorRef(SClrOrange);
-				else if(p_row->Flags & CCHKF_RETURN)
+					hint_msg_id = TCELHLD_CCHECK_SUSPENDED;
+				}
+				else if(p_row->Flags & CCHKF_RETURN) {
 					pStyle->Color = GetColorRef(SClrRed);
-				else if(!(p_row->Flags & CCHKF_PRINTED))
+					hint_msg_id = TCELHLD_CCHECK_RETURN;
+				}
+				else if(!(p_row->Flags & CCHKF_PRINTED)) {
 					pStyle->Color = GetColorRef(SClrGrey);
-				else
+					hint_msg_id = TCELHLD_CCHECK_NOTPRINTED;
+				}
+				else {
 					ok = -1;
+				}
+				{
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						if(hint_msg_id) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, hint_msg_id, SLS.AcquireRvlStr()));
+						}
+					}
+					hint_msg_id = 0;
+				}
 				if(p_row->Flags & CCHKF_DELIVERY) {
-					pStyle->Color2 = (p_row->Flags & CCHKF_CLOSEDORDER) ? GetColorRef(SClrYellow) : GetColorRef(SClrCoral);
+					if(p_row->Flags & CCHKF_CLOSEDORDER) {
+						pStyle->Color2 = GetColorRef(SClrYellow);
+						hint_msg_id = TCELHLD_CCHECK_DELIVERY_DONE;
+					}
+					else {
+						pStyle->Color2 = GetColorRef(SClrCoral);
+						hint_msg_id = TCELHLD_CCHECK_DELIVERY;
+					}
 					pStyle->Flags &= ~BrowserWindow::CellStyle::fCorner;
 					pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
 					ok = 1;
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						if(hint_msg_id) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, hint_msg_id, SLS.AcquireRvlStr()));
+						}
+					}
 				}
 				{
 					if(p_view && p_view->GetProblems().getCount()) {
 						long problems_val = 0;
-						if(p_view->GetProblems().Search(p_row->ID, &problems_val, 0))
+						if(p_view->GetProblems().Search(p_row->ID, &problems_val, 0)) {
 							ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_CCHECK_PROBLEMS, SLS.AcquireRvlStr()));
+							}
+						}
 					}
 				}
 			}
@@ -3618,7 +3659,7 @@ int PPViewCCheck::ExportToChZn()
 
 int PPViewCCheck::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
-	int   ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
@@ -3736,6 +3777,10 @@ int PPViewCCheck::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 			case PPVCMD_EXPORTCHZN:
 				ok = ExportToChZn();
 				break;
+			case PPVCMD_MOUSEHOVER: // @v12.7.5
+				CALLPTRMEMB(pBrw, ShowCellStyleHint());
+				break;
+
 		}
 	}
 	return ok;

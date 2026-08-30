@@ -3660,7 +3660,7 @@ public:
 		{
 			StrAssocArray qk_list_addendum;
 			PPObjQuotKind qk_obj;
-			PPQuotKind qk_rec;
+			PPQuotKind2 qk_rec;
 			for(SEnum en = qk_obj.Enum(0); en.Next(&qk_rec) > 0;) {
 				qk_list_addendum.AddFast(qk_rec.ID + TrfrAnlzFilt::extvQuotBias, qk_rec.Name);
 			}

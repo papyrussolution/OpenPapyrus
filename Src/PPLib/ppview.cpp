@@ -2586,9 +2586,34 @@ int PPViewBrowser::SetTempGoodsGrp(PPID grpID)
 void PPViewBrowser::Helper_SetAllColumnsSortable()
 {
 	BrowserDef * p_def = getDef();
-	if(p_def)
-		for(uint cidx = 0; cidx < p_def->getCount(); cidx++)
+	if(p_def) {
+		for(uint cidx = 0; cidx < p_def->getCount(); cidx++) {
 			p_def->at(cidx).Options |= BCO_SORTABLE;
+		}
+	}
+}
+
+int PPViewBrowser::ShowCellStyleHint() // @v12.7.5
+{
+	long   row = 0;
+	long   col = 0;
+	ItemByMousePos(&col, &row);
+	return ShowCellStyleHint(row, col);
+}
+
+int PPViewBrowser::ShowCellStyleHint(long row, long col) // @v12.7.5
+{
+	int    ok = -1;
+	if(col >= 0) {
+		SString temp_buf;
+		if(GetCellStyleDescription(row, col, temp_buf) > 0) {
+			const long flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
+				SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;								
+			PPTooltipMessage(temp_buf, 0, H(), 10000, 0, flags);
+			ok = 1;
+		}
+	}
+	return ok;
 }
 
 int PPViewBrowser::getCurHdr(void * pHdr)

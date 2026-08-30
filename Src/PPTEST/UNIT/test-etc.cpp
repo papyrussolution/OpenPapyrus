@@ -1729,10 +1729,10 @@ SLTEST_R(LocalStateBinderyCore) // @v12.5.9
 					PPID   test_id = 0;
 					PPID   test_id2 = 0;
 					buf_to_work.Z().Write(buf_to_put, buf_to_put_size);
-					int rr = instance.RegisterState(&new_id, ident, buf_to_work, 1);
-					int gr = 0;
-					int gr2 = 0;
-					int vr = 0;
+					int    rr = instance.RegisterState(&new_id, ident, buf_to_work, 1);
+					int    gr = 0;
+					int    gr2 = 0;
+					int    vr = 0;
 					if(rr) {
 						gr = instance.GetState(ident, &test_id, &buf_to_read);
 						if(gr > 0) {

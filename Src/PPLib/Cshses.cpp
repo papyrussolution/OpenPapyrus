@@ -591,7 +591,7 @@ int PPSyncCashSession::CompleteSession(PPID sessID)
 												// 3 Оборот товара приостановлен
 										};
 									*/
-									if(!!sl_param.ChZnPm_ReqId && sl_param.ChZnPm_ReqTimestamp) {
+									if(!!sl_param.ChZnPmRT.ReqId && sl_param.ChZnPmRT.ReqTimestamp) {
 										SJson * p_js_indi_array = SJson::CreateArr();
 										{
 											SJson * p_js_indi = SJson::CreateObj();
@@ -605,14 +605,14 @@ int PPSyncCashSession::CompleteSession(PPID sessID)
 												temp_buf.Cat("030");
 											p_js_indi->InsertString("fois", temp_buf);
 											p_js_indi->InsertString("number", "477");
-											temp_buf.Z().CatEq("UUID", sl_param.ChZnPm_ReqId, S_GUID::fmtIDL|S_GUID::fmtLower).CatChar('&').
-												CatEq("Time", sl_param.ChZnPm_ReqTimestamp);
+											temp_buf.Z().CatEq("UUID", sl_param.ChZnPmRT.ReqId, S_GUID::fmtIDL|S_GUID::fmtLower).CatChar('&').
+												CatEq("Time", sl_param.ChZnPmRT.ReqTimestamp);
 											// @v12.3.12 {
-											if(!!sl_param.ChZnPm_LocalModuleInstance) {
-												temp_buf.CatChar('&').CatEq("Inst", sl_param.ChZnPm_LocalModuleInstance, S_GUID::fmtIDL|S_GUID::fmtLower);
+											if(!!sl_param.ChZnPmRT.LocalModuleInstance) {
+												temp_buf.CatChar('&').CatEq("Inst", sl_param.ChZnPmRT.LocalModuleInstance, S_GUID::fmtIDL|S_GUID::fmtLower);
 											}
-											if(!!sl_param.ChZnPm_LocalModuleDbVer) {
-												temp_buf.CatChar('&').CatEq("Ver", sl_param.ChZnPm_LocalModuleDbVer, S_GUID::fmtIDL|S_GUID::fmtLower);
+											if(!!sl_param.ChZnPmRT.LocalModuleDbVer) {
+												temp_buf.CatChar('&').CatEq("Ver", sl_param.ChZnPmRT.LocalModuleDbVer, S_GUID::fmtIDL|S_GUID::fmtLower);
 											}
 											// } @v12.3.12 
 											p_js_indi->InsertString("industryAttribute", temp_buf);
@@ -826,8 +826,8 @@ void PPAsyncCashSession::DestroyTables()
 
 void PPAsyncCashSession::SetupTempCcLineRec(TempCCheckLineTbl::Rec * pRec, long ccID, long ccCode, LDATE dt, int div, PPID goodsID)
 {
-	SETIFZ(pRec, &P_TmpCclTbl->data);
-	memzero(pRec, sizeof(*pRec));
+	SETIFZQ(pRec, &P_TmpCclTbl->data);
+	pRec->Clear();
 	pRec->CheckID   = ccID;
 	pRec->CheckCode = ccCode;
 	pRec->Dt        = dt;
@@ -2132,7 +2132,7 @@ int AsyncCashGoodsIterator::Init(long flags)
 		PricesLookBackPeriod = 0;
 
 		uint   i = 0;
-		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSALC, temp_buf.Z());
+		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSALC, temp_buf);
 		StringSet ss(',', temp_buf);
 		ss.get(&i, temp_buf.Z());
 		if(GcObj.SearchBySymb(temp_buf, &AlcoGoodsClsID) > 0) {
@@ -2148,10 +2148,10 @@ int AsyncCashGoodsIterator::Init(long flags)
 			}
 		}
 		//
-		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSTOBACCO, temp_buf.Z());
+		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSTOBACCO, temp_buf);
 		GcObj.SearchBySymb(temp_buf, &TobaccoGoodsClsID);
         //
-		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSGIFTCARD, temp_buf.Z());
+		ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_GOODSCLASSGIFTCARD, temp_buf);
 		GcObj.SearchBySymb(temp_buf, &GiftCardGoodsClsID);
 		//
 		if(eq_cfg.LookBackPricePeriod > 0 && eq_cfg.LookBackPricePeriod <= 365*2) {

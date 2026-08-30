@@ -407,7 +407,7 @@ int LocTransfCore::PrepareRec(PPID locID, const LocTransfOpBlock * pBlk, LocTran
 	uint   i = 0;
 	long   rbyloc = 0;
 	int16  rbybill = 0;
-	memzero(pRec, sizeof(*pRec));
+	pRec->Clear();
 	pRec->LocID = locID;
 	THROW(GetLastOpByLoc(locID, &rbyloc, 0));
 	pRec->RByLoc = rbyloc+1;

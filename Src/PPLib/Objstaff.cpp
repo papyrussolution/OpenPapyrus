@@ -1366,7 +1366,7 @@ void PersonPostCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 {
 	PersonPostTbl::Rec * p_data_rec = static_cast<PersonPostTbl::Rec *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
-	memzero(p_data_rec, sizeof(*p_data_rec));
+	p_data_rec->Clear();
 	#define FLD(f) p_data_rec->f = p_cache_rec->f
 	FLD(ID);
 	FLD(StaffID);

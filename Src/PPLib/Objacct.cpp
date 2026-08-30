@@ -452,7 +452,7 @@ int PPObjAccount::GetListByAccSheet(PPID accSheetID, PPIDArray & rList)
     return ok;
 }
 
-StrAssocArray * PPObjAccount::MakeStrAssocList(void * extraPtr /*acySelType*/)
+StrAssocArray * PPObjAccount::MakeStrAssocList(void * extraPtr/*acySelType*/)
 {
 	const  long acy_sel_type = reinterpret_cast<long>(extraPtr);
 	SString temp_buf;
@@ -524,8 +524,13 @@ StrAssocArray * PPObjAccount::MakeStrAssocList(void * extraPtr /*acySelType*/)
 						break;
 				}
 				if(_suite) {
-					temp_buf = rec.Code;
-					temp_buf.Strip().CatDiv('-', 1).Cat(rec.Name);
+					if(acy_sel_type == ACY_SEL_PERSONAL) {
+						temp_buf = rec.Name;
+					}
+					else {
+						temp_buf = rec.Code;
+						temp_buf.Strip().CatDiv('-', 1).Cat(rec.Name);
+					}
 					THROW_SL(p_list->Add(rec.ID, rec.ParentID, temp_buf));
 				}
 			}
@@ -770,10 +775,21 @@ public:
 		setCtrlData(CTL_ACCOUNT_NAME,      &Data.Rec.Name);
 		setCtrlData(CTL_ACCOUNT_OVERDRAFT, &Data.Rec.Overdraft);
 		setCtrlData(CTL_ACCOUNT_LIMIT,     &Data.Rec.Limit);
-		{
-			const  int kind = Data.Rec.Kind;
-			v = (kind == ACT_ACTIVE) ? 0 : ((kind == ACT_PASSIVE) ? 1 : ((kind == ACT_AP) ? 2 : 0));
-			setCtrlUInt16(CTL_ACCOUNT_TYPE, v);
+		if(Data.Rec.Type == ACY_PERSONAL) {
+			AddClusterAssoc(CTL_ACCOUNT_TYPE, 0, ACCK_PA_CASH);
+			AddClusterAssoc(CTL_ACCOUNT_TYPE, 1, ACCK_PA_BANKCCARD);
+			AddClusterAssoc(CTL_ACCOUNT_TYPE, 2, ACCK_PA_BANKCHEQ);
+			AddClusterAssoc(CTL_ACCOUNT_TYPE, 3, ACCK_PA_DEBT);
+			AddClusterAssoc(CTL_ACCOUNT_TYPE, 4, ACCK_PA_CREDIT);
+			AddClusterAssoc(CTL_ACCOUNT_TYPE, 5, ACCK_PA_INVESTMENT);
+			AddClusterAssoc(CTL_ACCOUNT_TYPE, 6, ACCK_PA_ISVCACC);
+			SetClusterData(CTL_ACCOUNT_TYPE, Data.Rec.Kind);
+		}
+		else {
+			AddClusterAssoc(CTL_ACCOUNT_TYPE, 0, ACCK_ACTIVE);
+			AddClusterAssoc(CTL_ACCOUNT_TYPE, 1, ACCK_PASSIVE);
+			AddClusterAssoc(CTL_ACCOUNT_TYPE, 2, ACCK_AP);
+			SetClusterData(CTL_ACCOUNT_TYPE, Data.Rec.Kind);
 		}
 		SetupPPObjCombo(this, CTLSEL_ACCOUNT_ACCSHEET, PPOBJ_ACCSHEET, Data.Rec.AccSheetID, OLW_CANINSERT, 0);
 		if(Data.Rec.ID && !PPMaster) {
@@ -820,8 +836,7 @@ public:
 		getCtrlData(CTL_ACCOUNT_NAME,      &Data.Rec.Name);
 		getCtrlData(CTL_ACCOUNT_OVERDRAFT, &Data.Rec.Overdraft);
 		getCtrlData(CTL_ACCOUNT_LIMIT,     &Data.Rec.Limit);
-		v = getCtrlUInt16(CTL_ACCOUNT_TYPE);
-		Data.Rec.Kind = (v == 0) ? ACT_ACTIVE : ((v == 1) ? ACT_PASSIVE : ((v == 2) ? ACT_AP : ACT_ACTIVE));
+		GetClusterData(CTL_ACCOUNT_TYPE, &Data.Rec.Kind);
 		getCtrlData(CTLSEL_ACCOUNT_ACCSHEET, &Data.Rec.AccSheetID);
 		v = getCtrlUInt16(CTL_ACCOUNT_FLAGS);
 		SETFLAG(Data.Rec.Flags, ACF_CURRENCY, v & 1);
@@ -1035,8 +1050,9 @@ int PPObjAccount::Edit(PPID * pID, void * extraPtr /*accType*/)
 					case 1: acc_pack.Rec.Type = acc_type = ACY_OBAL;     break;
 					case 2: acc_pack.Rec.Type = acc_type = ACY_REGISTER; break;
 					case 3: acc_pack.Rec.Type = acc_type = ACY_AGGR;     break;
-					case 4: acc_pack.Rec.Type = acc_type = ACY_ALIAS;    break;
-					case 5: acc_pack.Rec.Type = acc_type = ACY_BUDGET;   break;
+					// @v12.7.5 case 4: acc_pack.Rec.Type = acc_type = ACY_ALIAS;    break;
+					// @v12.7.5 case 5: acc_pack.Rec.Type = acc_type = ACY_BUDGET;   break;
+					case 4: acc_pack.Rec.Type = acc_type = ACY_PERSONAL; break; // @v12.7.5
 				}
 		}
 		else {

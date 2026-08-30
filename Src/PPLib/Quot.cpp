@@ -300,7 +300,7 @@ void QuotUpdDialog::GetQuotKindDefaults(int quotCls, PPID qkID, PPID * pAcsID, P
 			break;
 		default:
 			{
-				PPQuotKind qk_rec;
+				PPQuotKind2 qk_rec;
 				if(new_qk_id && QkObj.Fetch(new_qk_id, &qk_rec) > 0 && qk_rec.AccSheetID)
 					acc_sheet_id = qk_rec.AccSheetID;
 				else

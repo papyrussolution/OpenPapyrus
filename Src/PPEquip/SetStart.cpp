@@ -630,7 +630,7 @@ int ACS_SETSTART::ExportData(int updOnly)
 			fputs((f_str = "InternalDefaultSchmRecID").Semicol().Cat(default_scheme_id).CR(), p_file);
 			if(scard_series_list.getCount()) {
 				long   dscnt_code = 0;
-				PPQuotKind qk_rec;
+				PPQuotKind2 qk_rec;
 				SString card_code_low;
 				SString card_code_upp;
 				int    is_first = 1;

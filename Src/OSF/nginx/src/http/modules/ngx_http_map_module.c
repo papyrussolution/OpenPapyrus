@@ -158,28 +158,22 @@ static const char * ngx_http_map_block(ngx_conf_t * cf, const ngx_command_t * cm
 	}
 	name.len--;
 	name.data++;
-
 	var = ngx_http_add_variable(cf, &name, NGX_HTTP_VAR_CHANGEABLE);
 	if(var == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	var->get_handler = ngx_http_map_variable;
 	var->data = (uintptr_t)map;
-
 	pool = ngx_create_pool(NGX_DEFAULT_POOL_SIZE, cf->log);
 	if(pool == NULL) {
 		return NGX_CONF_ERROR;
 	}
-
 	ctx.keys.pool = cf->pool;
 	ctx.keys.temp_pool = pool;
-
 	if(ngx_hash_keys_array_init(&ctx.keys, NGX_HASH_LARGE) != NGX_OK) {
 		ngx_destroy_pool(pool);
 		return NGX_CONF_ERROR;
 	}
-
 	ctx.values_hash = (ngx_array_t*)ngx_pcalloc(pool, sizeof(ngx_array_t) * ctx.keys.hsize);
 	if(ctx.values_hash == NULL) {
 		ngx_destroy_pool(pool);
@@ -258,9 +252,8 @@ static const char * ngx_http_map_block(ngx_conf_t * cf, const ngx_command_t * cm
 
 static int ngx_libc_cdecl ngx_http_map_cmp_dns_wildcards(const void * one, const void * two)
 {
-	ngx_hash_key_t  * first, * second;
-	first = (ngx_hash_key_t*)one;
-	second = (ngx_hash_key_t*)two;
+	ngx_hash_key_t * first = (ngx_hash_key_t*)one;
+	ngx_hash_key_t * second = (ngx_hash_key_t*)two;
 	return ngx_dns_strcmp(first->key.data, second->key.data);
 }
 
@@ -308,11 +301,9 @@ static const char * ngx_http_map(ngx_conf_t * cf, const ngx_command_t * dummy, v
 				data = cvp->value.data;
 				len = cvp->value.len;
 			}
-
 			if(value[1].len != len) {
 				continue;
 			}
-
 			if(ngx_strncmp(value[1].data, data, len) == 0) {
 				var = vp[i];
 				goto found;
@@ -320,9 +311,7 @@ static const char * ngx_http_map(ngx_conf_t * cf, const ngx_command_t * dummy, v
 		}
 	}
 	else {
-		if(ngx_array_init(&ctx->values_hash[key], cf->pool, 4,
-			    sizeof(ngx_http_variable_value_t *))
-		    != NGX_OK) {
+		if(ngx_array_init(&ctx->values_hash[key], cf->pool, 4, sizeof(ngx_http_variable_value_t *)) != NGX_OK) {
 			return NGX_CONF_ERROR;
 		}
 	}

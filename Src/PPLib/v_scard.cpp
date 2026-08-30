@@ -1680,10 +1680,15 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-int PPViewSCard::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
+int PPViewSCard::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
+//TCELHLD_SCARD_NEEDACTIVATION           "Карта требует активации"
+//TCELHLD_SCARD_CLOSED                   "Карта закрыта"
+//TCELHLD_SCARD_INHERITED                "Карта наследует параметры от серии"
+//TCELHLD_SCARD_EXPIRED                  "Срок действия карты истек"
+//TCELHLD_SCARD_OWNERSPSNPHONE           "Номер телефон относится к владельцу карты, а не к самой карте"
 	int    ok = -1;
-	if(pBrw && pData && pCellStyle && col >= 0) {
+	if(pBrw && pData && pStyle && col >= 0) {
 		const BrowserDef * p_def = pBrw->getDef();
 		if(col < static_cast<long>(p_def->getCount())) {
 			const BroColumn & r_col = p_def->at(col);
@@ -1691,25 +1696,44 @@ int PPViewSCard::CellStyleFunc_(const void * pData, long col, int paintAction, B
 			SCardTbl::Rec sc_rec;
 			if(r_col.OrgOffs == 1) { // card number
 				if(SCObj.Fetch(sc_id, &sc_rec) > 0 && sc_rec.Flags & SCRDF_CLOSED) {
-					if(sc_rec.Flags & SCRDF_NEEDACTIVATION)
-						ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrOrange));
-					else
-						ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+					if(sc_rec.Flags & SCRDF_NEEDACTIVATION) {
+						ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrOrange));
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_SCARD_NEEDACTIVATION, SLS.AcquireRvlStr()));
+						}
+					}
+					else {
+						ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_SCARD_CLOSED, SLS.AcquireRvlStr()));
+						}
+					}
 				}
 			}
 			else if(r_col.OrgOffs == 10) { // series
-				if(SCObj.Fetch(sc_id, &sc_rec) > 0 && sc_rec.Flags & SCRDF_INHERITED)
-					ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrAqua));
+				if(SCObj.Fetch(sc_id, &sc_rec) > 0 && sc_rec.Flags & SCRDF_INHERITED) {
+					ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrAqua));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_SCARD_INHERITED, SLS.AcquireRvlStr()));
+					}
+				}
 			}
 			else if(r_col.OrgOffs == 2) { // expiry
-				if(SCObj.Fetch(sc_id, &sc_rec) > 0 && sc_rec.Expiry && sc_rec.Expiry <= getcurdate_())
-					ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+				if(SCObj.Fetch(sc_id, &sc_rec) > 0 && sc_rec.Expiry && sc_rec.Expiry <= getcurdate_()) {
+					ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_SCARD_EXPIRED, SLS.AcquireRvlStr()));
+					}
+				}
 			}
 			else if(r_col.OrgOffs == 12) { // @v12.4.1 phone
 				SString temp_buf;
 				HtPhone.Get(sc_id, &temp_buf);
 				if(temp_buf.HasSuffix(P_OwnerPhoneSuffix)) {
-					ok = pCellStyle->SetRightFigTriangleColor(GetColorRef(SClrSkyblue));
+					ok = pStyle->SetRightFigTriangleColor(GetColorRef(SClrSkyblue));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_SCARD_OWNERSPSNPHONE, SLS.AcquireRvlStr()));
+					}
 				}
 			}
 		}
@@ -2509,6 +2533,11 @@ int PPViewSCard::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 							Filt.SeriesID = ser_id;
 							ok = ChangeFilt(1, pBrw);
 						}
+					}
+					break;
+				case PPVCMD_MOUSEHOVER: // @v12.7.5
+					if(pBrw) {
+						pBrw->ShowCellStyleHint();
 					}
 					break;
 			}

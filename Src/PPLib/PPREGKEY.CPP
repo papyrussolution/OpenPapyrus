@@ -271,7 +271,7 @@ static PPLicFuncKey LfKeys[] = {
 	{ "JobServer",  PPLicData::effJobServer },
 	{ "DebtorStat", PPLicData::effDebtorStat },
 	{ "Remove",     PPLicData::effRemove },
-	{ "EGAIS",      PPLicData::effEgais } // @v8.8.2
+	{ "EGAIS",      PPLicData::effEgais }
 };
 
 int PPCreateLic(PPCreateLicParam * pParam)

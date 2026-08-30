@@ -1130,7 +1130,7 @@ int ObjTagCore::GetTagRec(PPID objType, PPID objID, PPID tagID, ObjTagTbl::Rec *
 		return 1;
 	}
 	else {
-		memzero(pRec, sizeof(*pRec));
+		CALLPTRMEMB(pRec, Clear());
 		return PPDbSearchError();
 	}
 }

@@ -1113,19 +1113,31 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 
 int PPViewSStat::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
+//TCELHLD_SSTAT_GOODSTAGINDICATOR        "Настраиваемая индикация тега товара"
+//TCELHLD_SSTAT_NEWGOODS                 "Новый товар"
+//TCELHLD_SSTAT_UNRELIABLE               "Ненадежный прогноз"
 	int    ok = -1;
 	if(pBrw && pData && pStyle) {
-		const DBQBrowserDef * p_def = static_cast<const DBQBrowserDef *>(pBrw->getDef());
+		const  DBQBrowserDef * p_def = static_cast<const DBQBrowserDef *>(pBrw->getDef());
 		if(p_def && col >= 0 && col < p_def->getCountI()) {
-			const BroColumn & r_col = p_def->at(col);
+			const  BroColumn & r_col = p_def->at(col);
 			const  PPID goods_id = P_Ct ? static_cast<const PPID *>(pData)[1] : static_cast<const PPID *>(pData)[0];
 			if(col == 0) { // Наименование товара
-				const TagFilt & r_tag_filt = GObj.GetConfig().TagIndFilt;
-				SColor clr;
-				if(!r_tag_filt.IsEmpty() && r_tag_filt.SelectIndicator(goods_id, clr)) {
-					pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
-					pStyle->Color2 = (COLORREF)clr;
-					ok = 1;
+				const  TagFilt & r_tag_filt = GObj.GetConfig().TagIndFilt;
+				if(!r_tag_filt.IsEmpty()) {
+					SColor clr;
+					const  uint tag_ind_idx = r_tag_filt.SelectIndicator(goods_id, clr);
+					if(tag_ind_idx) {
+						pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
+						pStyle->Color2 = (COLORREF)clr;
+						ok = 1;
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							SString & r_text = SLS.AcquireRvlStr();
+							SString & r_prefix = PPLoadStringS(PPSTR_TCELHLD, TCELHLD_SSTAT_GOODSTAGINDICATOR, SLS.AcquireRvlStr());
+							r_tag_filt.MakeIndicatorDescrText(tag_ind_idx, r_prefix, r_text);
+							pStyle->CatDescriptionText(r_text);
+						}
+					}
 				}
 			}
 			else if(!P_Ct) {
@@ -1137,14 +1149,16 @@ int PPViewSStat::CellStyleFunc_(const void * pData, long col, int paintAction, B
 					if(p_q) {
 						if(p_q->FieldCount > 15) { // #15 - поле запроса, содержащее признак доверия к прогнозу
 							size_t offs = 0;
-							for(uint i = 0; i < 15; i++)
+							for(uint i = 0; i < 15; i++) {
 								offs += stsize(p_q->flds[i].type);
+							}
 							memcpy(&is_trust, PTR8C(pData) + offs, sizeof(short));
 						}
 						if(p_q->FieldCount > 3) { // #03 - поле запроса, содержащее количество элементов статистики
 							size_t offs = 0;
-							for(uint i = 0; i < 3; i++)
+							for(uint i = 0; i < 3; i++) {
 								offs += stsize(p_q->flds[i].type);
+							}
 							memcpy(&stat_count, PTR8C(pData) + offs, sizeof(long));
 						}
 					}
@@ -1158,11 +1172,17 @@ int PPViewSStat::CellStyleFunc_(const void * pData, long col, int paintAction, B
 						pStyle->Color = (COLORREF)SColor(SClrBlue);
 						pStyle->Flags = BrowserWindow::CellStyle::fCorner;
 						ok = 1;
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_SSTAT_NEWGOODS, SLS.AcquireRvlStr()));
+						}
 					}
 					else if(!is_trust) {
 						pStyle->Color = RGB(0x91, 0x91, 0x91);
 						pStyle->Flags = BrowserWindow::CellStyle::fCorner;
 						ok = 1;
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_SSTAT_UNRELIABLE, SLS.AcquireRvlStr()));
+						}
 					}
 				}
 			}
@@ -1270,6 +1290,12 @@ int PPViewSStat::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 			case PPVCMD_VIEWBILLS:
 				ok = -1;
 				ViewCreatedBills();
+				break;
+			case PPVCMD_MOUSEHOVER: // @v12.7.5
+				if(pBrw) {
+					pBrw->ShowCellStyleHint();
+					ok = -1;
+				}
 				break;
 		}
 	}

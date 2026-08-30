@@ -777,7 +777,7 @@ int BarcodeLabel::SubstVar(char ** ppSrc, char ** ppDest)
 						const char * p_symb = s + var_len;
 						temp_str = 0;
 						PPObjQuotKind qk_obj;
-						PPQuotKind qk_rec;
+						PPQuotKind2 qk_rec;
 						for(size_t ss_ = 0; p_symb[ss_] && p_symb[ss_] != ' ' && p_symb[ss_] != '\t' && ss_ < (sizeof(qk_rec.Symb)-1); ss_++) {
 							temp_str.CatChar(p_symb[ss_]);
 							PPID   qk_id = 0;

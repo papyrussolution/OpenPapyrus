@@ -3707,10 +3707,15 @@ void PPBillPacket::CreateAccTurn(PPAccTurn & rAt) const
 	rAt.Opr    = Rec.OpID;
 	PPOprKind2 op_rec;
 	if(GetOpData(Rec.OpID, &op_rec) > 0) {
-		if(op_rec.SubType == OPSUBT_REGISTER)
+		if(op_rec.SubType == OPSUBT_PERSONALFINANCE) { // @v12.7.5
+			rAt.Flags |= PPAF_PERSONAL;
+		}
+		else if(op_rec.SubType == OPSUBT_REGISTER) {
 			rAt.Flags |= PPAF_REGISTER;
-		else
+		}
+		else {
 			SETFLAG(rAt.Flags, PPAF_OUTBAL, CheckOpFlags(Rec.OpID, OPKF_OUTBALACCTURN));
+		}
 	}
 }
 

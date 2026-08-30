@@ -6842,7 +6842,7 @@ void PersonCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) con
 {
 	PersonTbl::Rec * p_data_rec = static_cast<PersonTbl::Rec *>(pDataRec);
 	const PersonData * p_cache_rec = static_cast<const PersonData *>(pEntry);
-	memzero(p_data_rec, sizeof(*p_data_rec));
+	p_data_rec->Clear();
 	p_data_rec->ID       = p_cache_rec->ID;
 	p_data_rec->MainLoc  = p_cache_rec->MainLocID;
 	p_data_rec->RLoc     = p_cache_rec->RLocID;

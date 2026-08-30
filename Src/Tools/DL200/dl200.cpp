@@ -2160,7 +2160,8 @@ SLTEST_R(DL200_Account)
 	};
 	int    ok = 1;
 	uint   i;
-	char   temp_buf[256], temp_buf2[256];
+	char   temp_buf[256];
+	char   temp_buf2[256];
 	SString out_buf;
 	PrcssrDL200 dl2_ctx;
 	(out_buf = GetSuiteEntry()->OutPath).SetLastSlash().Cat("DL200_Account.txt");

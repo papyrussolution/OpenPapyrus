@@ -80,7 +80,7 @@ int32 CheckSimpleContext(FILE * fOut)
 	cmsDeleteContext(c2);
 	cmsDeleteContext(c3);
 	if(!rc) {
-		Fail("Creation of user data failed");
+		TestCMS2_Fail("Creation of user data failed");
 		return 0;
 	}
 	// Back to create 3 levels of inherance
@@ -93,7 +93,7 @@ int32 CheckSimpleContext(FILE * fOut)
 	cmsDeleteContext(c2);
 	cmsDeleteContext(c3);
 	if(!rc) {
-		Fail("Modification of user data failed");
+		TestCMS2_Fail("Modification of user data failed");
 		return 0;
 	}
 	// All seems ok
@@ -122,7 +122,7 @@ int32 CheckAlarmColorsContext(FILE * fOut)
 	rc = 1;
 	for(i = 0; i < 16; i++) {
 		if(out[i] != codes[i]) {
-			Fail("Bad alarm code %x != %x", out[i], codes[i]);
+			TestCMS2_Fail("Bad alarm code %x != %x", out[i], codes[i]);
 			rc = 0;
 			break;
 		}
@@ -154,7 +154,7 @@ int32 CheckAdaptationStateContext(FILE * fOut)
 	cmsDeleteContext(c3);
 	old2 =  cmsSetAdaptationStateTHR(NULL, -1);
 	if(old1 != old2) {
-		Fail("Adaptation state has changed");
+		TestCMS2_Fail("Adaptation state has changed");
 		return 0;
 	}
 	return rc;
@@ -222,18 +222,18 @@ int32 CheckInterp1DPlugin(FILE * fOut)
 	// 1st level context
 	cmsContext ctx = WatchDogContext(fOut, NULL);
 	if(!ctx) {
-		Fail("Cannot create context");
+		TestCMS2_Fail("Cannot create context");
 		goto Error;
 	}
 	cmsPluginTHR(ctx, &InterpPluginSample);
 	cpy = DupContext(ctx, NULL);
 	if(cpy == NULL) {
-		Fail("Cannot create context (2)");
+		TestCMS2_Fail("Cannot create context (2)");
 		goto Error;
 	}
 	Sampled1D = cmsBuildTabulatedToneCurveFloat(cpy, 11, tab);
 	if(Sampled1D == NULL) {
-		Fail("Cannot create tone curve (1)");
+		TestCMS2_Fail("Cannot create tone curve (1)");
 		goto Error;
 	}
 	// Do some interpolations with the plugin
@@ -247,7 +247,7 @@ int32 CheckInterp1DPlugin(FILE * fOut)
 	// Now in global context
 	Sampled1D = cmsBuildTabulatedToneCurveFloat(NULL, 11, tab);
 	if(Sampled1D == NULL) {
-		Fail("Cannot create tone curve (2)");
+		TestCMS2_Fail("Cannot create tone curve (2)");
 		goto Error;
 	}
 	// Now without the plug-in
@@ -283,7 +283,7 @@ int32 CheckInterp3DPlugin(FILE * fOut)
 	};
 	ctx = WatchDogContext(fOut, NULL);
 	if(!ctx) {
-		Fail("Cannot create context");
+		TestCMS2_Fail("Cannot create context");
 		return 0;
 	}
 	cmsPluginTHR(ctx, &InterpPluginSample);
@@ -603,45 +603,45 @@ int32 CheckTagTypePlugin(FILE * fOut)
 	cmsDeleteContext(cpy);
 	h = cmsCreateProfilePlaceholder(cpy2);
 	if(!h) {
-		Fail("Create placeholder failed");
+		TestCMS2_Fail("Create placeholder failed");
 		goto Error;
 	}
 	if(!cmsWriteTag(h, SigInt, &myTag)) {
-		Fail("Plug-in failed");
+		TestCMS2_Fail("Plug-in failed");
 		goto Error;
 	}
 	rc = cmsSaveProfileToMem(h, NULL, &clen);
 	if(!rc) {
-		Fail("Fetch mem size failed");
+		TestCMS2_Fail("Fetch mem size failed");
 		goto Error;
 	}
 	data = static_cast<char *>(SAlloc::M(clen));
 	if(!data) {
-		Fail("malloc failed ?!?");
+		TestCMS2_Fail("malloc failed ?!?");
 		goto Error;
 	}
 	rc = cmsSaveProfileToMem(h, data, &clen);
 	if(!rc) {
-		Fail("Save to mem failed");
+		TestCMS2_Fail("Save to mem failed");
 		goto Error;
 	}
 	cmsCloseProfile(h);
 	cmsSetLogErrorHandler(NULL);
 	h = cmsOpenProfileFromMem(data, clen);
 	if(!h) {
-		Fail("Open profile failed");
+		TestCMS2_Fail("Open profile failed");
 		goto Error;
 	}
 	ptr = (uint32 *)cmsReadTag(h, SigInt);
 	if(ptr) {
-		Fail("read tag/context switching failed");
+		TestCMS2_Fail("read tag/context switching failed");
 		goto Error;
 	}
 	cmsCloseProfile(h);
 	ResetFatalError();
 	h = cmsOpenProfileFromMemTHR(cpy2, data, clen);
 	if(!h) {
-		Fail("Open profile from mem failed");
+		TestCMS2_Fail("Open profile from mem failed");
 		goto Error;
 	}
 	// Get rid of data
@@ -649,7 +649,7 @@ int32 CheckTagTypePlugin(FILE * fOut)
 	data = NULL;
 	ptr = (uint32 *)cmsReadTag(h, SigInt);
 	if(!ptr) {
-		Fail("Read tag/conext switching failed (2)");
+		TestCMS2_Fail("Read tag/conext switching failed (2)");
 		return 0;
 	}
 	rc = (*ptr == 1234);
@@ -722,7 +722,7 @@ int32 CheckMPEPlugin(FILE * fOut)
 	cmsDeleteContext(cpy);
 	h = cmsCreateProfilePlaceholder(cpy2);
 	if(!h) {
-		Fail("Create placeholder failed");
+		TestCMS2_Fail("Create placeholder failed");
 		goto Error;
 	}
 	pipe = cmsPipelineAlloc(cpy2, 3, 3);
@@ -731,55 +731,55 @@ int32 CheckMPEPlugin(FILE * fOut)
 	cmsPipelineEvalFloat(In, Out, pipe);
 	rc = (IsGoodVal("0", Out[0], 1.0-In[0], 0.001) && IsGoodVal("1", Out[1], 1.0-In[1], 0.001) && IsGoodVal("2", Out[2], 1.0-In[2], 0.001));
 	if(!rc) {
-		Fail("Pipeline failed");
+		TestCMS2_Fail("Pipeline failed");
 		goto Error;
 	}
 	if(!cmsWriteTag(h, cmsSigDToB3Tag, pipe)) {
-		Fail("Plug-in failed");
+		TestCMS2_Fail("Plug-in failed");
 		goto Error;
 	}
 	// This cleans the stage as well
 	cmsPipelineFree(pipe);
 	rc = cmsSaveProfileToMem(h, NULL, &clen);
 	if(!rc) {
-		Fail("Fetch mem size failed");
+		TestCMS2_Fail("Fetch mem size failed");
 		goto Error;
 	}
 	data = static_cast<char *>(SAlloc::M(clen));
 	if(!data) {
-		Fail("malloc failed ?!?");
+		TestCMS2_Fail("malloc failed ?!?");
 		goto Error;
 	}
 	rc = cmsSaveProfileToMem(h, data, &clen);
 	if(!rc) {
-		Fail("Save to mem failed");
+		TestCMS2_Fail("Save to mem failed");
 		goto Error;
 	}
 	cmsCloseProfile(h);
 	cmsSetLogErrorHandler(NULL);
 	h = cmsOpenProfileFromMem(data, clen);
 	if(!h) {
-		Fail("Open profile failed");
+		TestCMS2_Fail("Open profile failed");
 		goto Error;
 	}
 	pipe = (cmsPipeline *)cmsReadTag(h, cmsSigDToB3Tag);
 	if(pipe != NULL) {
 		// Unsupported stage, should fail
-		Fail("read tag/context switching failed");
+		TestCMS2_Fail("read tag/context switching failed");
 		goto Error;
 	}
 	cmsCloseProfile(h);
 	ResetFatalError();
 	h = cmsOpenProfileFromMemTHR(cpy2, data, clen);
 	if(!h) {
-		Fail("Open profile from mem failed");
+		TestCMS2_Fail("Open profile from mem failed");
 		goto Error;
 	}
 	// Get rid of data
 	ZFREE(data);
 	pipe = (cmsPipeline *)cmsReadTag(h, cmsSigDToB3Tag);
 	if(pipe == NULL) {
-		Fail("Read tag/conext switching failed (2)");
+		TestCMS2_Fail("Read tag/conext switching failed (2)");
 		return 0;
 	}
 	// Evaluate for negation
@@ -1012,7 +1012,7 @@ static void MyMtxDestroy(cmsContext id, void * mtx)
 {
 	MyMtx* mtx_ = (MyMtx*)mtx;
 	if(mtx_->nlocks != 0)
-		Die(stderr, "Locks != 0 when setting free a mutex");
+		TestCMS2_Die(stderr, "Locks != 0 when setting free a mutex");
 	_cmsFree(id, mtx);
 }
 

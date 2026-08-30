@@ -1249,9 +1249,10 @@ int GoodsCore::Search(PPID id, void * b) { return SearchByID(this, PPOBJ_GOODS, 
 
 int GoodsCore::GetExt(PPID id, GoodsExtTbl::Rec * pRec)
 {
-	int    r = SearchByID(&GeT, PPOBJ_GOODS, id, pRec);
-	if(r <= 0)
-		memzero(pRec, sizeof(*pRec));
+	const  int r = SearchByID(&GeT, PPOBJ_GOODS, id, pRec);
+	if(r <= 0) {
+		CALLPTRMEMB(pRec, Clear());
+	}
 	return r;
 }
 
@@ -3220,7 +3221,7 @@ void GoodsCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) cons
 	Goods2Tbl::Rec * p_data_rec = static_cast<Goods2Tbl::Rec *>(pDataRec);
 	if(p_data_rec) {
 		const Data * p_cache_rec = static_cast<const Data *>(pEntry);
-		memzero(p_data_rec, sizeof(*p_data_rec));
+		p_data_rec->Clear();
 		p_data_rec->ID       = p_cache_rec->ID;
 		p_data_rec->ParentID = p_cache_rec->ParentID;
 		p_data_rec->UnitID   = p_cache_rec->UnitID;
@@ -3273,7 +3274,7 @@ int FASTCALL GoodsCore::Fetch(PPID id, Goods2Tbl::Rec * pRec)
 int GoodsCore::SearchBy2dBarcode(const char * pCodeLine, BarcodeTbl::Rec * pRec, Goods2Tbl::Rec * pGoodsRec)
 {
 	int    ok = -1;
-	memzero(pRec, sizeof(*pRec));
+	CALLPTRMEMB(pRec, Clear());
 	GoodsCache * p_cache = GetDbLocalCachePtr <GoodsCache> (PPOBJ_GOODS);
 	if(p_cache) {
 		const TwoDimBarcodeFormatArray * p_format = p_cache->GetBc2dSpec();

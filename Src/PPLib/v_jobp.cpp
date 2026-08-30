@@ -629,6 +629,9 @@ int PPViewJob::CellStyleFunc_(const void * pData, long col, int paintAction, Bro
 			if(r_col.OrgOffs == 1) { // name
 				if(p_item->Flags & PPJob::fDisable) {
 					ok = pStyle->SetFullCellColor(GetColorRef(SClrLightgrey));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_JOB_DISABLED, SLS.AcquireRvlStr()));
+					}
 				}
 			}
 		}
@@ -752,6 +755,12 @@ void PPViewJob::PreprocessBrowser(PPViewBrowser * pBrw)
 			case PPVCMD_PRINT:
 				ok = -1;
 				Print(pHdr);
+				break;
+			case PPVCMD_MOUSEHOVER: // @v12.7.5
+				if(pBrw) {
+					pBrw->ShowCellStyleHint();
+					ok = -1;
+				}
 				break;
 		}
 		if(ok > 0) {

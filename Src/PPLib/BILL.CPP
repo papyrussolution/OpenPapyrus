@@ -323,11 +323,14 @@ int BillCore::GetRentCondition(PPID id, PPRentCondition * pRC)
 {
 	PropertyTbl::Rec prp_rec;
 	int    r = PPRef->GetProperty(PPOBJ_BILL, id, BILLPRP_RENT, &prp_rec, sizeof(prp_rec));
-	if(pRC)
-		if(r > 0)
+	if(pRC) {
+		if(r > 0) {
 			memcpy(pRC, prp_rec.Text, sizeof(*pRC));
-		else
+		}
+		else {
 			memzero(pRC, sizeof(*pRC));
+		}
+	}
 	return r;
 }
 

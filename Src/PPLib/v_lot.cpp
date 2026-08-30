@@ -1734,6 +1734,12 @@ int PPViewLot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pB
 					}
 				}
 				break;
+			case PPVCMD_MOUSEHOVER: // @v12.7.5
+				if(pBrw) {
+					pBrw->ShowCellStyleHint();
+					ok = -1;
+				}
+				break;
 		}
 		if(ok > 0 && lot_id)
 			UpdateTempTable(lot_id);
@@ -2370,15 +2376,23 @@ int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 		BrowserDef * p_def = p_brw->getDef();
 		if(col >= 0 && col < static_cast<long>(p_def->getCount())) {
 			PPViewLot * p_view = static_cast<PPViewLot *>(p_brw->P_View);
-			const LotFilt * p_filt = static_cast<const LotFilt *>(p_view->GetBaseFilt());
-			const PPViewLot::BrwHdr * p_hdr = static_cast<const PPViewLot::BrwHdr *>(pData);
-			const BroColumn & r_col = p_def->at(col);
+			const  LotFilt * p_filt = static_cast<const LotFilt *>(p_view->GetBaseFilt());
+			const  PPViewLot::BrwHdr * p_hdr = static_cast<const PPViewLot::BrwHdr *>(pData);
+			const  BroColumn & r_col = p_def->at(col);
 			if(r_col.OrgOffs == 0) { // ID
 				const TagFilt & r_tag_filt = p_view->P_BObj->GetConfig().LotTagIndFilt;
 				if(!r_tag_filt.IsEmpty()) {
 					SColor clr;
-					if(r_tag_filt.SelectIndicator(p_hdr->ID, clr))
+					const  uint tag_ind_idx = r_tag_filt.SelectIndicator(p_hdr->ID, clr);
+					if(tag_ind_idx) {
 						ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							SString & r_text = SLS.AcquireRvlStr();
+							SString & r_prefix = PPLoadStringS(PPSTR_TCELHLD, TCELHLD_LOT_TAGINDICATOR, SLS.AcquireRvlStr());
+							r_tag_filt.MakeIndicatorDescrText(tag_ind_idx, r_prefix, r_text);
+							pStyle->CatDescriptionText(r_text);
+						}
+					}
 				}
 			}
 			else if(r_col.OrgOffs == 10) { // Expiry
@@ -2393,28 +2407,51 @@ int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 						if(checkdate(dest_data.Expiry) && diffdate(getcurdate_(), dest_data.Expiry) >= r_bcfg.WarnLotExpirDays) {
 							pStyle->Color = GetColorRef(SClrOrange);
 							ok = 1;
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_LOT_EXPIRY, SLS.AcquireRvlStr())); 
+							}
 						}
 					}
 				}
 			}
 			else {
-				const long qtty_col  = 4;
-				const long cost_col  = 8;
-				const long price_col = 9;
-				if(p_hdr->SFlags && oneof3(col, qtty_col, cost_col, price_col)) {
-					if(col == qtty_col && p_hdr->SFlags & LOTSF_FIRST)
+				const  long qtty_col  = 6;
+				const  long cost_col  = 8;
+				const  long price_col = 9;
+				if(p_hdr->SFlags && oneof3(r_col.OrgOffs, qtty_col, cost_col, price_col)) {
+					if(r_col.OrgOffs == qtty_col && p_hdr->SFlags & LOTSF_FIRST) {
 						ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrBlue));
-					else if(col == cost_col) {
-						if(p_hdr->SFlags & LOTSF_COSTUP)
-							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
-						else if(p_hdr->SFlags & LOTSF_COSTDOWN)
-							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_LOT_SF_FIRST, SLS.AcquireRvlStr())); 
+						}
 					}
-					else if(col == price_col) {
-						if(p_hdr->SFlags & LOTSF_PRICEUP)
+					else if(r_col.OrgOffs == cost_col) {
+						if(p_hdr->SFlags & LOTSF_COSTUP) {
 							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
-						else if(p_hdr->SFlags & LOTSF_PRICEDOWN)
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_LOT_SF_COSTUP, SLS.AcquireRvlStr())); 
+							}
+						}
+						else if(p_hdr->SFlags & LOTSF_COSTDOWN) {
 							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_LOT_SF_COSTDOWN, SLS.AcquireRvlStr())); 
+							}
+						}
+					}
+					else if(r_col.OrgOffs == price_col) {
+						if(p_hdr->SFlags & LOTSF_PRICEUP) {
+							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_LOT_SF_PRICEUP, SLS.AcquireRvlStr())); 
+							}
+						}
+						else if(p_hdr->SFlags & LOTSF_PRICEDOWN) {
+							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_LOT_SF_PRICEDOWN, SLS.AcquireRvlStr())); 
+							}
+						}
 					}
 				}
 			}

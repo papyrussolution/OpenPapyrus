@@ -445,7 +445,7 @@ private:
 class PPDS_CrrQuotKind : public PPDeclStruc {
 public:
 	PPDS_CrrQuotKind() : PPDeclStruc() {}
-	PPQuotKind Data;
+	PPQuotKind2 Data;
 private:
 	virtual int InitData(Ido op, void * dataPtr, long addedParam);
 	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);

@@ -318,7 +318,7 @@ int PPObjQuotKind::MakeReserved(long flags)
 	THROW_PP(num_recs = p_rez->getUINT(), PPERR_RESFAULT);
 	for(uint i = 0; i < num_recs; i++) {
 		PPQuotKindPacket pack;
-		PPQuotKind temp_rec;
+		PPQuotKind2 temp_rec;
 		const PPID id = p_rez->getLONG();
 		p_rez->getString(name, 2);
 		PPExpandString(name, CTRANSF_UTF8_TO_INNER);
@@ -342,10 +342,10 @@ int PPObjQuotKind::GetListByOp(PPID opID, LDATE dt, PPIDArray * pList)
 	PPObjGoods goods_obj;
 	const  int  intrexpnd = IsIntrExpndOp(opID);
 	const  PPID matrix_qk_id = goods_obj.GetConfig().MtxQkID;
-	SVector list(sizeof(PPQuotKind));
+	SVector list(sizeof(PPQuotKind2));
 	P_Ref->LoadItems(Obj, list);
 	for(uint qkidx = 0; qkidx < list.getCount(); qkidx++) {
-		const PPQuotKind * p_item = static_cast<const PPQuotKind *>(list.at(qkidx));
+		const  PPQuotKind2 * p_item = static_cast<const PPQuotKind2 *>(list.at(qkidx));
 		const  PPID id = p_item->ID;
 		if(ObjRts.CheckQuotKindID(id, 0)) {
 			//
@@ -380,8 +380,8 @@ int PPObjQuotKind::GetListByOp(PPID opID, LDATE dt, PPIDArray * pList)
 IMPL_CMPFUNC(PPQuotKind_RankName, i1, i2)
 {
 	int    cmp = 0;
-	const PPQuotKind * k1 = static_cast<const PPQuotKind *>(i1);
-	const PPQuotKind * k2 = static_cast<const PPQuotKind *>(i2);
+	const PPQuotKind2 * k1 = static_cast<const PPQuotKind2 *>(i1);
+	const PPQuotKind2 * k2 = static_cast<const PPQuotKind2 *>(i2);
 	if(k1->ID == PPQUOTK_BASE && k2->ID != PPQUOTK_BASE)
 		cmp = -1;
 	else if(k1->ID != PPQUOTK_BASE && k2->ID == PPQUOTK_BASE)
@@ -401,7 +401,7 @@ int PPObjQuotKind::ArrangeList(const LDATETIME & rDtm, PPIDArray & rQkList, long
 	const  uint c = rQkList.getCount();
 	if(c) {
 		uint i;
-		SArray qk_list(sizeof(PPQuotKind));
+		SArray qk_list(sizeof(PPQuotKind2));
 		for(i = 0; i < c; i++) {
 			PPQuotKindPacket qk_pack;
 			const  PPID qk_id = rQkList.get(i);
@@ -432,7 +432,7 @@ int PPObjQuotKind::ArrangeList(const LDATETIME & rDtm, PPIDArray & rQkList, long
 		qk_list.sort(PTR_CMPFUNC(PPQuotKind_RankName));
 		rQkList.clear();
 		for(i = 0; i < qk_list.getCount(); i++)
-			rQkList.addUnique(static_cast<const PPQuotKind *>(qk_list.at(i))->ID);
+			rQkList.addUnique(static_cast<const PPQuotKind2 *>(qk_list.at(i))->ID);
 	}
 	return ok;
 }
@@ -441,10 +441,10 @@ int PPObjQuotKind::Helper_GetRtlList(const LDATETIME & rDtm, PPIDArray * pList, 
 {
 	int    ok = -1;
 	if(pList || pTmList) {
-		SArray qk_list(sizeof(PPQuotKind));
+		SArray qk_list(sizeof(PPQuotKind2));
 		PPIDArray tm_list;
 		const  PPID sell_acc_sheet = GetSellAccSheet();
-		PPQuotKind  qkr;
+		PPQuotKind2 qkr;
 		for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&qkr) > 0;) {
 			int    suited = 0;
 			int    is_tm = 0;
@@ -475,7 +475,7 @@ int PPObjQuotKind::Helper_GetRtlList(const LDATETIME & rDtm, PPIDArray * pList, 
 			qk_list.sort(PTR_CMPFUNC(PPQuotKind_RankName));
 			pList->clear();
 			for(uint i = 0; i < qk_list.getCount(); i++)
-				pList->addUnique(static_cast<const PPQuotKind *>(qk_list.at(i))->ID);
+				pList->addUnique(static_cast<const PPQuotKind2 *>(qk_list.at(i))->ID);
 		}
 		ASSIGN_PTR(pTmList, tm_list);
 		ok = 1;
@@ -696,7 +696,7 @@ int PPObjQuotKind::PutPacket(PPID * pID, PPQuotKindPacket * pPack, int use_ta)
 	return r;
 }
 
-int PPObjQuotKind::SearchSymb(PPID * pID, const char * pSymb) { return P_Ref->SearchSymb(Obj, pID, pSymb, offsetof(PPQuotKind, Symb)); }
+int PPObjQuotKind::SearchSymb(PPID * pID, const char * pSymb) { return P_Ref->SearchSymb(Obj, pID, pSymb, offsetof(PPQuotKind2, Symb)); }
 
 StrAssocArray * PPObjQuotKind::MakeStrAssocList(void * extraPtr)
 {
@@ -711,8 +711,8 @@ IMPL_CMPFUNC(_QUOTK_LIST_ENTRY, i1, i2) { return stricmp866(static_cast<const PP
 
 IMPL_CMPFUNC(PPQuotKind, i1, i2)
 {
-	const PPQuotKind * p1 = static_cast<const PPQuotKind *>(i1);
-	const PPQuotKind * p2 = static_cast<const PPQuotKind *>(i2);
+	const PPQuotKind2 * p1 = static_cast<const PPQuotKind2 *>(i1);
+	const PPQuotKind2 * p2 = static_cast<const PPQuotKind2 *>(i2);
 	if(p1->Rank < p2->Rank)
 		return +1;
 	else if(p1->Rank > p2->Rank)
@@ -761,8 +761,8 @@ int PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pList)
 	int    ok = -1, i;
 	SString temp_buf;
 	PPIDArray id_list;
-	PPQuotKind qk_rec;
-	SVector rec_list(sizeof(PPQuotKind));
+	PPQuotKind2 qk_rec;
+	SVector rec_list(sizeof(PPQuotKind2));
 	const PPObjQuotKind::Special spc(PPObjQuotKind::Special::ctrInitializeWithCache);
 	if(pFilt->Flags & QuotKindFilt::fSupplDeal) {
 		const  PPID spc_qk_list[] = { spc.SupplDealID, spc.SupplDevUpID, spc.SupplDevDnID };
@@ -773,7 +773,7 @@ int PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pList)
 		}
 	}
 	else if(pFilt->Flags & (QuotKindFilt::fGoodsMatrix|QuotKindFilt::fGoodsMatrixRestrict)) {
-		const int is_matrix = BIN(pFilt->Flags & QuotKindFilt::fGoodsMatrix);
+		const  bool is_matrix = LOGIC(pFilt->Flags & QuotKindFilt::fGoodsMatrix);
 		PPGoodsConfig goods_cfg;
 		PPObjGoods::ReadConfig(&goods_cfg);
 		if(Search((is_matrix ? goods_cfg.MtxQkID : goods_cfg.MtxRestrQkID), &qk_rec) > 0) {
@@ -790,7 +790,7 @@ int PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pList)
 		THROW(P_Ref->LoadItems(Obj, rec_list));
 		if(pFilt->Flags & QuotKindFilt::fAddBase || intrexpnd) {
 			const  PPID base_id = PPQUOTK_BASE;
-			if(!rec_list.lsearch(&base_id, 0, CMPF_LONG, offsetof(PPQuotKind, ID))) {
+			if(!rec_list.lsearch(&base_id, 0, CMPF_LONG, offsetof(PPQuotKind2, ID))) {
 				MEMSZERO(qk_rec);
 				qk_rec.ID = PPQUOTK_BASE;
 				PPLoadString("basequote", temp_buf);
@@ -800,7 +800,7 @@ int PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pList)
 		}
 		rec_list.sort((pFilt->Flags & QuotKindFilt::fSortByRankName) ? PTR_CMPFUNC(PPQuotKind_RankName) : PTR_CMPFUNC(PPQuotKind));
 		for(i = rec_list.getCount()-1; i >= 0; i--) {
-			const PPQuotKind * p_rec = static_cast<const PPQuotKind *>(rec_list.at(i));
+			const  PPQuotKind2 * p_rec = static_cast<const PPQuotKind2 *>(rec_list.at(i));
 			if(!(pFilt->Flags & QuotKindFilt::fAll) && spc.IsSupplDealKind(p_rec->ID))
 				rec_list.atFree(i);
 			else if((p_rec->Flags & QUOTKF_NOTFORBILL) && (pFilt->Flags & QuotKindFilt::fExclNotForBill))
@@ -814,22 +814,25 @@ int PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pList)
 					rec_list.atFree(i);
 			}
 		}
-		if(pFilt->MaxItems > 0)
-			while(rec_list.getCount() > (uint)pFilt->MaxItems)
+		if(pFilt->MaxItems > 0) {
+			while(rec_list.getCount() > (uint)pFilt->MaxItems) {
 				rec_list.freeLast();
+			}
+		}
 	}
 	if(pFilt && !(pFilt->Flags & QuotKindFilt::fIgnoreRights)) {
 		uint   c = rec_list.getCount();
         if(c) do {
-			const  PPID qk_id = ((PPQuotKind *)rec_list.at(--c))->ID;
+			const  PPID qk_id = static_cast<const PPQuotKind2 *>(rec_list.at(--c))->ID;
 			if(!ObjRts.CheckQuotKindID(qk_id, 0))
 				rec_list.atFree(c);
         } while(c);
 	}
 	if(pList) {
-		PPQuotKind * p_rec;
-		for(uint j = 0; rec_list.enumItems(&j, (void **)&p_rec);)
+		for(uint j = 0; j < rec_list.getCount(); j++) {
+			const  PPQuotKind2 * p_rec = static_cast<const PPQuotKind2 *>(rec_list.at(j));
 			THROW_SL(pList->Add(p_rec->ID, p_rec->Name));
+		}
 	}
 	ok = rec_list.getCount() ? 1 : -1;
 	CATCHZOK
@@ -837,23 +840,23 @@ int PPObjQuotKind::MakeList(const QuotKindFilt * pFilt, StrAssocArray * pList)
 }
 // } AHTOXA
 
-static void SetDiscount(TDialog * pDlg, uint ctl, const PPQuotKind * pRec)
+static void SetDiscount(TDialog * pDlg, uint ctl, const PPQuotKind2 * pRec)
 {
 	SString buf;
-	double dis = R2(pRec->Discount);
+	const  double dis = R2(pRec->Discount);
 	buf.Cat(dis, MKSFMTD(18, 2, NMBF_NOZERO));
-	if(dis != 0 || (pRec->Flags & (QUOTKF_ABSDIS | QUOTKF_PCTDISONCOST))) {
+	if(dis != 0.0 || (pRec->Flags & (QUOTKF_ABSDIS | QUOTKF_PCTDISONCOST))) {
 		if(pRec->Flags & QUOTKF_ABSDIS)
 			buf.CatChar('$');
 		else if(pRec->Flags & QUOTKF_PCTDISONCOST)
 			buf.CatChar('C');
-		else if(dis != 0)
+		else if(dis != 0.0)
 			buf.CatChar('%');
 	}
 	pDlg->setCtrlString(ctl, buf);
 }
 
-static int GetDiscount(TDialog * pDlg, uint ctl, PPQuotKind * pRec)
+static int GetDiscount(TDialog * pDlg, uint ctl, PPQuotKind2 * pRec)
 {
 	int    ok = 1;
 	int    pctdis = 0;
@@ -1185,7 +1188,7 @@ int PPObjQuotKind::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	if(msg == DBMSG_OBJDELETE && _obj == PPOBJ_OPRKIND) {
 		int    r;
 		for(PPID id = 0; ok == DBRPL_OK && (r = P_Ref->EnumItems(Obj, &id)) > 0;)
-			if(reinterpret_cast<const PPQuotKind *>(&P_Ref->data)->OpID == _id)
+			if(reinterpret_cast<const PPQuotKind2 *>(&P_Ref->data)->OpID == _id)
 				ok = RetRefsExistsErr(Obj, id);
 		if(ok == DBRPL_OK && r == 0)
 			ok = DBRPL_ERROR;
@@ -1228,9 +1231,9 @@ int PPObjQuotKind::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCont
 			if(*pID == 0) {
 				PPID   same_id = 0;
 				if((p_pack->Rec.ID && p_pack->Rec.ID < PP_FIRSTUSRREF) ||
-					P_Ref->SearchSymb(Obj, &same_id, p_pack->Rec.Name, offsetof(PPQuotKind, Name)) > 0 ||
-					P_Ref->SearchSymb(Obj, &same_id, p_pack->Rec.Symb, offsetof(PPQuotKind, Symb)) > 0) {
-					PPQuotKind same_rec;
+					P_Ref->SearchSymb(Obj, &same_id, p_pack->Rec.Name, offsetof(PPQuotKind2, Name)) > 0 ||
+					P_Ref->SearchSymb(Obj, &same_id, p_pack->Rec.Symb, offsetof(PPQuotKind2, Symb)) > 0) {
+					PPQuotKind2 same_rec;
 					if(Search(same_id, &same_rec) > 0 && (same_rec.OpID == p_pack->Rec.OpID || p_pack->Rec.ID == PPQUOTK_BASE)) {
 						if(!(p->Flags & PPObjPack::fDispatcher)) {
 							if(!PutPacket(&same_id, p_pack, 1)) {

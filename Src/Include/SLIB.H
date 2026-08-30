@@ -3256,10 +3256,11 @@ class SCycleTimer {
 public:
 	explicit SCycleTimer(uint32 msDelay);
 	void   FASTCALL Restart(uint32 msDelay);
-	int    FASTCALL Check(LDATETIME * pLast);
+	bool   FASTCALL Check(LDATETIME * pLast);
 private:
 	uint32 Delay;
-	LDATETIME  Last;
+	LDATETIME Last;
+	LDATETIME Next; // @v12.7.5
 };
 //
 //
@@ -5062,6 +5063,7 @@ public:
 	~SStringU();
 	size_t Len() const;
 	uint32 Len32() const;
+	int    LenI() const { return static_cast<int>(Len()); } // @v12.7.5
 	operator const wchar_t * () const { return P_Buf; }
 	//
 	// Descr: Сокращенная версия operator const wchar_t * ()
@@ -7062,6 +7064,12 @@ public:
 	FORCEINLINE const  char * FASTCALL GetBufC(size_t offs) const { return static_cast<const char *>(Ptr(offs)); }
 	FORCEINLINE const  int8 * FASTCALL GetBufI8(size_t offs) const { return static_cast<const int8 *>(Ptr(offs)); }
 	FORCEINLINE const  uint8 * FASTCALL GetBufU8(size_t offs) const { return static_cast<const uint8 *>(Ptr(offs)); }
+	//
+	// Descr: Сдвигает содержимое буфера длиной (WrOff - offset) влево на offset байт.
+	//   Если offset > WrOff, то не делает ничего. После сдвига значение WrOffs уменьшаются на offset.
+	//   Значение RdOffs также уменьшается либо на offset, если offset <= RdOffs либо до нуля в противном случае.
+	//
+	void   FASTCALL OffsetLeft(size_t offset); // @v12.7.5
 	void   FASTCALL SetRdOffs(size_t offs);
 	void   FASTCALL SetWrOffs(size_t offs);
 	//
@@ -17313,17 +17321,15 @@ private:
 class WinSecurityAttrs { // @v12.4.4
 public:
 	struct AceEntry {
-		AceEntry() : Permissions(0), AccessMode(0), Inheritance(0)
-		{
-		}
+		AceEntry();
 		uint   Permissions;
 		uint   AccessMode;
 		uint   Inheritance;
 		SString TrusteeRaw;
 		SString Trustee;
 	};
-	static void    GetPermissionFlagsMnemonic(uint flags, SString & rBuf);
-	static uint    GetAclInfo(void * pACL, TSCollection <AceEntry> & rList);
+	static void GetPermissionFlagsMnemonic(uint flags, SString & rBuf);
+	static uint GetAclInfo(void * pACL, TSCollection <AceEntry> & rList);
 
 	enum {
 		fInheritHandle = 0x0001
@@ -17358,15 +17364,12 @@ public:
 	uint   GetType() const { return Type; }
 	uint32 GetDWord() const;
 	const  void * GetBinary(size_t * pDataLen) const;
-	//const  char * GetString() const;
 	int    GetStringUtf8(SString & rBuf) const;
 	int    PutDWord(uint32);
 	int    PutBinary(const void * pBuf, size_t dataSize);
 	int    PutStringUtf8(const char * pStr);
 private:
 	uint   Type;
-	//void * P_Buf;
-	//size_t BufSize;
 	size_t DataSize;
 };
 

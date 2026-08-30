@@ -671,3 +671,126 @@ SLTEST_R(SQLite)
 	delete p_tbl_ref02;
 	return CurrentStatus;
 }
+
+// @v12.7.5 @construction {
+
+struct SQLite_OneWriterManyReaders_Param {
+	SQLite_OneWriterManyReaders_Param() : CountOfWorkers(0), WorkerIdent(0)
+	{
+	}
+	bool   IsValid() const
+	{
+		return (DbPath.NotEmpty() && WorkerIdent > 0 && CountOfWorkers > 0 && WorkerIdent <= CountOfWorkers);
+	}
+	uint   CountOfWorkers;
+	uint   WorkerIdent;
+	SString DbPath;
+};
+
+int SQLite_OneWriterManyReaders_ProcessBodyFunc(const SQLite_OneWriterManyReaders_Param & rP)
+{
+	int    ok = 1;
+	THROW(rP.IsValid());
+	{
+		SString temp_buf;
+		SString test_file_path;
+		PPGetPath(PPPATH_TESTROOT, test_file_path);
+		test_file_path.SetLastSlash().Cat("data").SetLastSlash().Cat("ts-eurusd.csv");
+		SFile f_in(test_file_path, SFile::mRead);
+		THROW_SL(f_in.IsValid());
+		{
+			StringSet ss; // Набор тестовых строк для вставки в базу данных
+			LocalStateBinderyCore instance(SConstructorTest, rP.DbPath);
+			THROW(instance.IsValid());
+			{
+				uint   line_n = 0;
+				while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+					line_n++;
+					if(temp_buf.NotEmpty()) {
+						if((line_n % rP.CountOfWorkers) == rP.WorkerIdent || ((line_n % rP.CountOfWorkers) == 0 && rP.WorkerIdent == rP.CountOfWorkers)) {
+							ss.add(temp_buf);
+						}
+					}
+				}
+				THROW(ss.IsCountGreaterThan(99));
+			}
+			{
+				//
+				// Действия одной фазы цикла
+				//
+				enum {
+					opDummy = 1, // холостой ход (просто delay)
+					opRead  = 2,
+					opWrite = 3,
+				};
+				LongArray scheme; // Список действий, исполняемых в течении цикла
+				const  uint dummy_timeout = 100 + SLS.GetTLA().Rg.GetUniformIntPos(500);
+				{
+					const  uint dummy_op_count = 2 + SLS.GetTLA().Rg.GetUniformIntPos(10);
+					const  uint read_op_count = 1 + SLS.GetTLA().Rg.GetUniformIntPos(3);
+					const  uint write_op_count = 1;
+					{
+						for(uint i = 0; i < dummy_op_count; i++) {
+							scheme.add(opDummy);
+						}
+					}
+					{
+						for(uint i = 0; i < read_op_count; i++) {
+							scheme.add(opRead);
+						}
+					}
+					{
+						for(uint i = 0; i < write_op_count; i++) {
+							scheme.add(opWrite);
+						}
+					}
+					scheme.shuffle();
+				}
+				const  uint items_to_write = 10; // Количество элементов, которые будут внесены в бд за один цикл записи
+				uint   items_written = 0;
+				uint   cycle_n = 0;
+				uint   ssp_write = 0; // Указатель на очередную строку ss для записи в instance
+				SBuffer buf_to_write;
+				SBuffer buf_to_read;
+				LocalStateBinderyCore::StateIdent ident;
+				ident.Kind = LocalStateBinderyCore::kInput;
+				ident.Subj = rP.WorkerIdent;
+				ident.Symb = "Test_SQLite_OneWriterManyReaders";
+				for(bool done = false; !done; cycle_n++) {
+					const  int op = scheme.get(cycle_n % scheme.getCount());
+					switch(op) {
+						case opDummy:
+							SDelay(dummy_timeout);
+							break;
+						case opRead:
+							{
+							}
+							break;
+						case opWrite:
+							{
+								for(uint i = 0; !done && i < items_to_write; i++) {
+									if(ss.get(&ssp_write, temp_buf)) {
+										PPID   state_id = 0;
+										buf_to_write.Z().Write(temp_buf.cptr(), temp_buf.Len());
+										//instance.RegisterState(&state_id, ident, buf_to_write);
+									}
+									else {
+										done = true;
+									}
+								}
+							}
+							break;
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+SLTEST_R(SQLite_OneWriterManyReaders) 
+{
+	return CurrentStatus;
+}
+// } @v12.7.5

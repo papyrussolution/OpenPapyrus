@@ -135,7 +135,7 @@ void FiasAddrCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) c
 	FiasAddrObjTbl::Rec * p_data_rec = static_cast<FiasAddrObjTbl::Rec *>(pDataRec);
 	if(p_data_rec) {
 		const Data * p_cache_rec = static_cast<const Data *>(pEntry);
-		memzero(p_data_rec, sizeof(*p_data_rec));
+		p_data_rec->Clear();
 		#define CPYFLD(f) p_data_rec->f = p_cache_rec->f
 		CPYFLD(RecUuID);
 		CPYFLD(IdUuRef);
@@ -3521,7 +3521,7 @@ void LocationCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) c
 {
 	LocationTbl::Rec * p_data_rec = static_cast<LocationTbl::Rec *>(pDataRec);
 	const LocationData * p_cache_rec = static_cast<const LocationData *>(pEntry);
-	memzero(p_data_rec, sizeof(*p_data_rec));
+	p_data_rec->Clear();
 	p_data_rec->ID       = p_cache_rec->ID;
 	p_data_rec->ParentID = p_cache_rec->ParentID;
 	p_data_rec->Type     = p_cache_rec->Type;

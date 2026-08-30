@@ -2479,7 +2479,7 @@ int PrcssrAbsenceAccounts::Run()
 				pack.Rec.A.Sb  = acr_rec.Sb;
 				pack.Rec.CurID = acr_rec.CurID;
 				pack.Rec.Type  = ACY_BAL;
-				pack.Rec.Kind  = ACT_AP;
+				pack.Rec.Kind  = ACCK_AP;
 				while(AccObj.SearchNum(pack.Rec.A.Ac, pack.Rec.A.Sb, pack.Rec.CurID, &temp_rec) > 0) {
 					pack.Rec.A.Sb += 100;
 				}

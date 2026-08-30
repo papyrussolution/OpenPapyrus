@@ -7198,7 +7198,7 @@ PPID PrcssrMarketplaceInterchange::Helper_GetMarketplaceOpsAccount(bool createIf
 				(temp_buf = "Marketplace account").CatDiv('-', 1).Cat(GetGuaPack().Rec.Name);
 				STRNSCPY(acc_pack.Rec.Name, temp_buf);
 				acc_pack.Rec.Type = ACY_REGISTER;
-				acc_pack.Rec.Kind = ACT_ACTIVE;
+				acc_pack.Rec.Kind = ACCK_ACTIVE;
 				acc_pack.Rec.Flags |= ACF_SYSNUMBER;
 				acc_pack.Rec.AccSheetID = acs_id;
 				THROW(acc_obj.GenerateNumber(&acc_pack.Rec));

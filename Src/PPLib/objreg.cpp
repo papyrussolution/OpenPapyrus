@@ -1517,7 +1517,7 @@ void RegisterCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) c
 {
 	RegisterTbl::Rec * p_data_rec = static_cast<RegisterTbl::Rec *>(pDataRec);
 	const RegisterData * p_cache_rec = static_cast<const RegisterData *>(pEntry);
-	memzero(p_data_rec, sizeof(*p_data_rec));
+	p_data_rec->Clear();
 #define CPYFLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	CPYFLD(ID);
 	CPYFLD(ObjType);

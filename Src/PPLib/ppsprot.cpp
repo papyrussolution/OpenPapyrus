@@ -226,7 +226,7 @@ int PPJobSrvProtocol::Helper_Recv(TcpSocket & rSo, const char * pTerminal, size_
 	else {
 		WriteByte(((char *)&H)[0]);
 		WriteByte(((char *)&H)[1]);
-		if(pTerminal != 0) {
+		if(pTerminal) {
 			THROW_SL(rSo.RecvUntil(*this, pTerminal, &actual_size));
 		}
 		else {

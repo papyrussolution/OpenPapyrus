@@ -2323,7 +2323,7 @@ void ArticleCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) co
 {
 	ArticleTbl::Rec * p_data_rec = static_cast<ArticleTbl::Rec *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
-	memzero(p_data_rec, sizeof(*p_data_rec));
+	p_data_rec->Clear();
 	p_data_rec->ID       = p_cache_rec->ID;
 	p_data_rec->AccSheetID = p_cache_rec->AccSheetID;
 	p_data_rec->Article  = p_cache_rec->Article;

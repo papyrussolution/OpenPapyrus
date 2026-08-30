@@ -175,12 +175,28 @@ void   FASTCALL SBuffer::SetRdOffs(size_t offs) { RdOffs = smin(offs, WrOffs); }
 void   FASTCALL SBuffer::SetWrOffs(size_t offs) { WrOffs = smax(smin(offs, Size), RdOffs); }
 size_t SBuffer::GetAvailableSize() const { return (WrOffs > RdOffs) ? (WrOffs - RdOffs) : 0; }
 
+void FASTCALL SBuffer::OffsetLeft(size_t offset) // @v12.7.5
+{
+	assert(WrOffs <= Size);
+	if(WrOffs > Size) { // @paranoic (если смещение конца записи дальше Size, то нормализуем, но вообще то, в таком случае мне лучше убиться об стену.
+		WrOffs = Size;
+	}
+	if(offset <= WrOffs) {
+		memmove(Ptr(0), Ptr(offset), WrOffs-offset);
+		if(offset <= RdOffs)
+			RdOffs -= offset;
+		else
+			RdOffs = 0;
+		WrOffs -= offset;
+	}
+}
+
 int SBuffer::Write(const void * pBuf, size_t size)
 {
 	int    ok = 1;
 	if(size) {
 		if(RdOffs && Flags & fMovable) {
-			const size_t rd_offs = RdOffs;
+			const  size_t rd_offs = RdOffs;
 			memmove(Ptr(0), Ptr(rd_offs), Size-rd_offs);
 			RdOffs -= rd_offs;
 			WrOffs -= rd_offs;

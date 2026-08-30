@@ -157,7 +157,7 @@ int ACS_FRONTOL::ExportMarketingActions_XPos(int updOnly, StringSet & rSsResult)
 	if(scs_list.getCount()) {
 		scs_list.sortAndUndup();
 		long   dscnt_code = 0;
-		PPQuotKind qk_rec;
+		PPQuotKind2 qk_rec;
 		SString card_code_low;
 		SString card_code_upp;
 		int    is_first = 1;

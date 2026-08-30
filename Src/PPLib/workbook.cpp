@@ -2644,8 +2644,8 @@ int WorkbookCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraDat
 void WorkbookCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
 	WorkbookTbl::Rec * p_data_rec = static_cast<WorkbookTbl::Rec *>(pDataRec);
-	const Workbook2Data * p_cache_rec = static_cast<const Workbook2Data *>(pEntry);
-	memzero(p_data_rec, sizeof(*p_data_rec));
+	const  Workbook2Data * p_cache_rec = static_cast<const Workbook2Data *>(pEntry);
+	p_data_rec->Clear();
 	p_data_rec->ID       = p_cache_rec->ID;
 	p_data_rec->Rank     = p_cache_rec->Rank;
 	p_data_rec->Type     = p_cache_rec->Type;

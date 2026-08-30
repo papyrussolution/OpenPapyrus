@@ -1837,9 +1837,9 @@ void QuotListDialog::UpdateList(const QuotIdent & rIdent, double lastCost, doubl
 int QuotListDialog::setupList()
 {
 	int    ok = 1;
-	StringSet  ss(SLBColumnDelim);
-	PPQuot     quot;
-	PPQuotKind qkr;
+	StringSet ss(SLBColumnDelim);
+	PPQuot quot;
+	PPQuotKind2 qkr;
 	PPObjQuotKind qk_obj;
 	SString temp_buf, qk_text;
 	for(uint i = 0; i < QuotKindsAry.getCount(); i++) {
@@ -2030,7 +2030,7 @@ private:
 				{
 					Cls = PPQuot::clsGeneral;
 					SArray qlist(sizeof(RankNNameEntry));
-					PPQuotKind qkr;
+					PPQuotKind2 qkr;
 					for(PPID qk = 0; QkObj.EnumItems(&qk, &qkr) > 0;) {
 						if(qk != PPQUOTK_BASE && !Spc.IsSupplDealKind(qk) && !oneof3(qk, Spc.MtxID, Spc.MtxRestrID, Spc.PredictCoeffID) && oneof2(qkr.AccSheetID, 0, AccSheetID)) {
 							RankNNameEntry e;
@@ -3279,7 +3279,10 @@ int RetailPriceExtractor::GetPrice(PPID goodsID, PPID forceBaseLotID, double qtt
 		}
 		if(Flags & RTLPF_PRICEBYQUOT) {
 			double q_price = 0.0;
-			const QuotIdent qi(curdt, LocID, PPQUOTK_BASE, 0, ArID);
+			QuotIdent qi(curdt, LocID, PPQUOTK_BASE, 0, ArID);
+			if(qtty > 0.0) { // @v12.7.5
+				qi.Qtty_ = qtty;
+			}
 			if(P_GObj->GetQuotExt(goodsID, qi, lot_rec.Cost, price, &q_price, use_quot_cache) > 0) {
 				pItem->QuotKindUsedForPrice = PPQUOTK_BASE;
 				if(!use_outer_price)

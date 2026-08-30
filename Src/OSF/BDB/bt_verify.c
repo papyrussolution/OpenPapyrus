@@ -329,20 +329,21 @@ err:
  */
 static int __ram_vrfy_inp(DB * dbp, VRFY_DBINFO * vdp, PAGE * h, db_pgno_t pgno, db_indx_t * nentriesp, uint32 flags)
 {
-	ENV * env;
 	RINTERNAL * ri;
 	VRFY_CHILDINFO child;
 	VRFY_PAGEINFO * pip;
-	int ret, t_ret, isbad;
-	uint32 himark, i, offset, nentries;
+	int ret;
+	int t_ret;
+	int isbad = 0;
+	uint32 himark;
+	uint32 i;
+	uint32 offset;
+	uint32 nentries = 0;
 	db_indx_t * inp;
-	uint8 * pagelayout, * p;
-
-	env = dbp->env;
-	isbad = 0;
+	uint8 * pagelayout = 0;
+	uint8 * p;
+	ENV * env = dbp->env;
 	memzero(&child, sizeof(VRFY_CHILDINFO));
-	nentries = 0;
-	pagelayout = NULL;
 	if((ret = __db_vrfy_getpageinfo(vdp, pgno, &pip)) != 0)
 		return ret;
 	if(TYPE(h) != P_IRECNO) {

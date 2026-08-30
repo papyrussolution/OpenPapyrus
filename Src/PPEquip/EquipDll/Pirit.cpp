@@ -117,7 +117,7 @@ struct Config {
 struct CheckStruct {
 	CheckStruct() : CheckType(2), FontSize(3), CheckNum(0), Qtty(0.0), PhQtty(0.0), Price(0.0), Department(0), Ptt(0), Stt(0), UomId(0), UomFragm(0), 
 		TaxSys(0), Tax(0), PaymCash(0.0), PaymBank(0.0), IncassAmt(0.0), ChZnProdType(0), ChZnPpResult(0), ChZnPpStatus(0), //@erik add "Stt(0),"
-		Timestamp(ZERODATETIME), PrescrDate(ZERODATE)/*@v11.8.0*/, ChZnPm_ReqTimestamp(0ULL)/*@v12.1.1*/
+		Timestamp(ZERODATETIME), PrescrDate(ZERODATE)/*@v11.8.0*//*, ChZnPm_ReqTimestamp(0ULL)*//*@v12.1.1*/
 	{
 	}
 	CheckStruct & Z()
@@ -147,10 +147,7 @@ struct CheckStruct {
 		ChZnProdType = 0;
 		ChZnPpResult = 0;
 		ChZnPpStatus = 0;
-		ChZnPm_ReqId.Z();  // @v12.1.1
-		ChZnPm_ReqTimestamp = 0; // @v12.1.1
-		ChZnPm_LocalModuleInstance.Z(); // @v12.3.12
-		ChZnPm_LocalModuleDbVer.Z();    // @v12.3.12
+		ChZnPmRT.Z(); // @v12.7.5 
 		Timestamp.Z();
 		BuyersEmail.Z();
 		BuyersPhone.Z();
@@ -188,10 +185,7 @@ struct CheckStruct {
 	double IncassAmt;
 	int    ChZnPpResult; // Результат проверки марки честный знак на фазе препроцессинга
 	int    ChZnPpStatus; // Статус, присвоенный марке честный знак на фазе препроцессинга
-	S_GUID ChZnPm_ReqId;  // @v12.1.1 ответ разрешительного режима чзн: уникальный идентификатор запроса
-	int64  ChZnPm_ReqTimestamp; // @v12.1.1 ответ разрешительного режима чзн: дата и время формирования запроса
-	S_GUID ChZnPm_LocalModuleInstance; // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
-	S_GUID ChZnPm_LocalModuleDbVer;    // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): версия базы «чёрного списка», на которой выполнялась проверка КИ
+	ChZnPmReplyTags ChZnPmRT;
 	LDATETIME Timestamp; // Дата и время чека
 	SString Text;
 	SString Code;        //
@@ -240,6 +234,7 @@ public:
 	int    ReturnCheckParam(const SString & rInput, char * output, size_t size);
 	int    PutData(const char * pCommand, const char * pData);
 	int    GetData(SString & rData, SString & rError);
+	int    ReadReply(SString & rReply, SString & rError); // @v12.7.5 (замена GetData)
 	//
 	// Descr: Печать реквизита для ОФД (0x57)
 	// ARG(reqCode IN): Код реквизита
@@ -295,7 +290,7 @@ public:
 	int    LastError;
 	int    FatalFlags;	// Флаги фатального сотояния. Нужно для возвращения значения в сообщении об ошибке.
 	int    LastStatus;  // Последний статус ККМ или документа
-	SVerT  OfdVer;      // @v11.1.9
+	SVerT  OfdVer;      // Версия протокола работы с ОФД
 	SString OrgAddr;	// Адрес организации
 	SString CshrName;	// Имя кассира
 	SString LastStr;	// Содержит строку, которая не поместилась в выходной буфер
@@ -1612,26 +1607,26 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				S_GUID uuid;
 				if(pb.Get("CHZNPMREQID", param_val) > 0) {
 					if(uuid.FromStr(param_val))
-						Check.ChZnPm_ReqId = uuid;
+						Check.ChZnPmRT.ReqId = uuid;
 				}
 				if(pb.Get("CHZNPMREQTIMESTAMP", param_val) > 0) {
 					int64 ts = param_val.ToInt64();
 					if(ts != 0)
-						Check.ChZnPm_ReqTimestamp = ts;
+						Check.ChZnPmRT.ReqTimestamp = ts;
 				}
 				// @v12.3.12 {
 				if(pb.Get("CHZNPMLOCALMODULEINST", param_val) > 0) {
 					if(uuid.FromStr(param_val))
-						Check.ChZnPm_LocalModuleInstance = uuid;
+						Check.ChZnPmRT.LocalModuleInstance = uuid;
 				}
 				if(pb.Get("CHZNPMLOCALMODULEDBVER", param_val) > 0) {
 					if(uuid.FromStr(param_val))
-						Check.ChZnPm_LocalModuleDbVer = uuid;
+						Check.ChZnPmRT.LocalModuleDbVer = uuid;
 				}
 				// } @v12.3.12 
 			}
 			// } @v12.1.1 
-			if(pb.Get("UOMFRAGM", param_val) > 0) // @v11.2.5
+			if(pb.Get("UOMFRAGM", param_val) > 0)
 				Check.UomFragm = inrangeordefault(param_val.ToLong(), 1L, 100000L, 0L);
 			if(pb.Get("VATRATE", param_val) > 0) {
 				_vat_rate = R2(param_val.ToReal());
@@ -1921,13 +1916,13 @@ int PiritEquip::NotEnoughBuf(SString & rStr)
 
 int PiritEquip::ENQ_ACK()
 {
+	int    result = -1;
 	const  clock_t clk_init = clock();
 	const  uint max_clk = 2000;
 	const  uint max_tries = 3;
 	const  uint try_dealy = 50;
 	uint   try_no = 0;
-	SString msg_buf;
-	SDelay(try_dealy);
+	// @v12.7.5 (думаю, форвардная задержка все-таки избыточна) SDelay(try_dealy);
 	do {
 		// @v12.7.4 PutByteToPort(CHR_ENQ); // Проверка связи с ККМ
 		// @v12.7.4 {
@@ -1938,31 +1933,35 @@ int PiritEquip::ENQ_ACK()
 		int    r = 0;
 		GetByteFromPort(&r);
 		if(r == CHR_ACK) {
-			return 1;
+			result = 1; // done(ok)
 		}
 		else {
 			++try_no;
 			if(try_no >= max_tries) {
 				if(LogFileName.NotEmpty()) {
+					SString msg_buf;
 					(msg_buf = "Error ENQ_ACK() tries exceeded").Space().CatChar('(').Cat(try_no).CatChar(')').Space().CatEq("reply", r);
 					SLS.LogMessage(LogFileName, msg_buf, 8192);
 				}
-				return 0;
+				result = 0; // done(error)
 			}
 			else {
 				clock_t clk_current = clock();
 				if((clk_current - clk_init) >= max_clk) {
 					if(LogFileName.NotEmpty()) {
+						SString msg_buf;
 						(msg_buf = "Error ENQ_ACK() timeout exceeded").Space().CatChar('(').Cat(clk_current - clk_init).CatChar(')');
 						SLS.LogMessage(LogFileName, msg_buf, 8192);
 					}
-					return 0;
+					result = 0; // done(error)
 				}
-				else
+				else {
 					SDelay(try_dealy);
+				}
 			}
 		}
-	} while(1);
+	} while(result < 0);
+	return result;
 }
 
 int PiritEquip::SetConnection()
@@ -1983,8 +1982,8 @@ int PiritEquip::SetConnection()
 			addr.SetPort_(50003);
 		}
 		So.SetTimeout(500);
-		//So.SetSendTimeout(30000);
-		//So.SetRcvTimeout(10000);
+		So.SetSendTimeout(3000);
+		So.SetRcvTimeout(1000);
 		{
 			const  uint prev_sockopt = So.GetSockOptions();
 			So.SetSockOptions(prev_sockopt|TcpSocket::sockoptNoDelay);
@@ -2692,7 +2691,6 @@ int PiritEquip::RunCheck(int opertype)
 								str.Z().Cat(PpIfmConst::P_ChznTag1264); // @v11.9.3 // @v12.6.5 "477"-->PpIfmConst::P_ChznTag1264
 								CreateStr(str, in_data); // #17 (tag 1264) Номер документа основания. Должен содержать сведения об НПА отраслевого регулирования. 
 									// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
-								// @v11.2.3 {
 								{
 									// @v12.0.4 str.Z();
 									str.Z().Cat("mode=horeca"); // @v12.0.4
@@ -2700,7 +2698,6 @@ int PiritEquip::RunCheck(int opertype)
 										// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 								}
 								THROW(ExecCmd("24", in_data, out_data, r_error));
-								// } @v11.2.3 
 							}
 						}
 					}
@@ -2786,7 +2783,7 @@ int PiritEquip::RunCheck(int opertype)
 										(Строка)[0..256] Значение отраслевого реквизита (тег 1265). Значение определяется отраслевым НПА. Параметр используется только при регистрации ККТ в режиме ФФД 1.2. При наличии нескольких реквизитов (теги 1262,1263,1264 и 1265) они должны разделяться символом "|" (0x7C)
 
 									*/
-									in_data.Z(); // @v11.2.3 @fix
+									in_data.Z();
 									CreateStr(str.Z(), in_data); // #1 (tag 1162) Код товарной номенклатуры (для офд 1.2 - пустая строка)
 									if(Check.ChZnProdType == 4) { // #2 (tag 1191) GTCHZNPT_MEDICINE
 										str = "mdlp";
@@ -2836,7 +2833,6 @@ int PiritEquip::RunCheck(int opertype)
 									str.Z().Cat(PpIfmConst::P_ChznTag1264); // @v11.9.3 // @v12.6.5 "477"-->PpIfmConst::P_ChznTag1264
 									CreateStr(str, in_data); // #17 (tag 1264) Номер документа основания. Должен содержать сведения об НПА отраслевого регулирования. 
 										// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
-									// @v11.2.3 {
 									{
 										str.Z();
 										// 1265 "industryDetails": "tm=mdlp&sid=12121212121212&"
@@ -2861,18 +2857,18 @@ int PiritEquip::RunCheck(int opertype)
 											// } @v11.8.0 
 										}
 										// @v12.1.1 {
-										if(!Check.ChZnPm_ReqId.IsZero() && Check.ChZnPm_ReqTimestamp) {
+										if(!Check.ChZnPmRT.ReqId.IsZero() && Check.ChZnPmRT.ReqTimestamp) {
 											if(str.NotEmpty() && str.Last() != '&')
 												str.CatChar('&');
-											str.CatEq("UUID", Check.ChZnPm_ReqId, S_GUID::fmtIDL|S_GUID::fmtLower);
+											str.CatEq("UUID", Check.ChZnPmRT.ReqId, S_GUID::fmtIDL|S_GUID::fmtLower);
 											str.CatChar('&');
-											str.CatEq("Time", Check.ChZnPm_ReqTimestamp);
+											str.CatEq("Time", Check.ChZnPmRT.ReqTimestamp);
 											// @v12.3.12 {
-											if(!Check.ChZnPm_LocalModuleInstance.IsZero()) {
-												str.CatChar('&').CatEq("Inst", Check.ChZnPm_LocalModuleInstance, S_GUID::fmtIDL|S_GUID::fmtLower);
+											if(!Check.ChZnPmRT.LocalModuleInstance.IsZero()) {
+												str.CatChar('&').CatEq("Inst", Check.ChZnPmRT.LocalModuleInstance, S_GUID::fmtIDL|S_GUID::fmtLower);
 											}
-											if(!Check.ChZnPm_LocalModuleDbVer.IsZero()) {
-												str.CatChar('&').CatEq("Ver", Check.ChZnPm_LocalModuleDbVer, S_GUID::fmtIDL|S_GUID::fmtLower);
+											if(!Check.ChZnPmRT.LocalModuleDbVer.IsZero()) {
+												str.CatChar('&').CatEq("Ver", Check.ChZnPmRT.LocalModuleDbVer, S_GUID::fmtIDL|S_GUID::fmtLower);
 											}
 											// } @v12.3.12 
 										}
@@ -2883,7 +2879,6 @@ int PiritEquip::RunCheck(int opertype)
 											// Параметр используется только при регистрации ККТ в режиме ФФД 1.2.
 									}
 									THROW(ExecCmd("24", in_data, out_data, r_error));
-									// } @v11.2.3 
 								}
 							}
 						}
@@ -3288,52 +3283,203 @@ int PiritEquip::GetWhile(SString & rOutData, SString & rError)
 	return ok;
 }
 
-int PiritEquip::GetData(SString & rData, SString & rError)
+int PiritEquip::ReadReply(SString & rReply, SString & rError) // @v12.7.5 @construction (замена GetData)
 {
-	rData.Z();
+	rReply.Z();
 	rError.Z();
 	int    ok = 1;
-	int    c = 0;
-	//
-	// Получаем пакет ответа
-	//
-	if(GetByteFromPort(&c)) {
-		SString & r_buf = SLS.AcquireRvlStr();
-		do {
-			r_buf.CatChar(c);
-			GetByteFromPort(&c);
-		} while(c != CHR_ETX && c != 0);
-		{
-			int    crc = 0;
-			char   str_crc2[2];
-			size_t p = 0;
-			uint   i;
-			SString & r_str_crc1 = SLS.AcquireRvlStr();
-			r_buf.CatChar(c); // Добавили байт конца пакета
-			GetByteFromPort(&c); // Получили 1-й байт контрольной суммы
-			r_buf.CatChar(c);
-			GetByteFromPort(&c); // Получили 2-й байт контрольной суммы
-			r_buf.CatChar(c);
-			THROW(r_buf.C(0) == CHR_STX);
-			// Выделяем байты с информацией об ошибке
-			r_buf.Sub(4, 2, rError);
-			//
-			// Считываем данные
-			//
-			for(i = 6; r_buf.C(i) != CHR_ETX; i++) {
-				rData.CatChar(r_buf.C(i));
+	if(So.IsValid()) {
+		SCycleTimer ctmr(500);
+		const  size_t rcv_chunk_size = 256;
+		SBuffer rcv_buf;
+		const  char * p_stx = 0;
+		THROW(rcv_buf.IsValid());
+		for(bool done = false; !done;) {
+			size_t actual_size = 0;
+			THROW(So.RecvBuf(rcv_buf, rcv_chunk_size, &actual_size));
+			if(!actual_size) {
+				if(ctmr.Check(0)) {
+					ok = -1;
+					done = true;
+				}
+				else {
+					done = false; // and continue!
+				}
 			}
-			// Считаем контрольную сумму
-			for(i = 1; i < r_buf.Len()-2; i++)
-				crc ^= ((uchar)r_buf.C(i));
-			r_buf.Sub(r_buf.Len()-2, 2, r_str_crc1);
-			_itoa(crc, str_crc2, 16);
-			// Сверяем полученную и посчитанную контрольные суммы
-			THROW(r_str_crc1.CmpNC(str_crc2) == 0);
+			else {
+				if(!p_stx) {
+					const  size_t rd_offs01 = rcv_buf.GetRdOffs();
+					p_stx = PTRCHRC(smemchr(rcv_buf.GetBuf(rd_offs01), CHR_STX, actual_size));
+					rcv_buf.OffsetLeft(p_stx-rcv_buf.GetBufC(rd_offs01));
+				}
+				if(!p_stx) {
+					// продолжить чтение полным отрезком
+					rcv_buf.Z(); // все, что прочитано - мусор
+				}
+				else {
+					const  size_t rd_offs02 = rcv_buf.GetRdOffs();
+					const  char * p_etx = PTRCHRC(smemchr(rcv_buf.GetBuf(rd_offs02), CHR_ETX, actual_size));
+					if(!p_etx) {
+						// продолжить чтение полным отрезком
+					}
+					else {
+						ssize_t _tail = rcv_buf.GetBufC(rcv_buf.GetWrOffs()) - p_etx;
+						bool    do_process_reply = false;
+						if(_tail < 2) {
+							// еще один или два байта надо прочитать
+							THROW(So.RecvBuf(rcv_buf, static_cast<size_t>(2 - _tail), &actual_size));
+							if(actual_size == static_cast<size_t>(2 - _tail)) {
+								do_process_reply = true;
+							}
+							else {
+								ok = 0; // @err
+							}
+						}
+						else {
+							do_process_reply = true;
+						}
+						if(do_process_reply) {
+							// Мы все прочитали - обрабатываем ответ
+							SString & r_buf = SLS.AcquireRvlStr();
+							SString & r_str_crc1 = SLS.AcquireRvlStr();
+							int    crc = 0;
+							char   str_crc2[8];
+							const  size_t rd_offs = rcv_buf.GetRdOffs();
+							const  size_t rd_size = (p_etx - rcv_buf.GetBufC(rd_offs)) + 1/*CHR_ETX*/ + 2/*crc16*/;
+							assert(rd_size >= (1+1+2)); // CHR_STX + CHR_ETX + crc16
+							if(rd_size >= (1+1+2)) { // @paranoic
+								for(uint i = 0; i < rd_size; i++) {
+									const  int c = *rcv_buf.GetBufI8(rd_offs + i);
+									if(i == 0) {
+										assert(c == CHR_STX);
+									}
+									else if(i == (rd_size-3)) {
+										assert(c == CHR_ETX);
+									}
+									r_buf.CatChar(c);
+									if(i >= 1 && i <= (rd_size-3)) { // Считаем контрольную сумму
+										crc ^= ((uchar)r_buf.C(i));
+									}
+									else if(i >= (rd_size-2) && i <= (rd_size-1)) {
+										r_str_crc1.CatChar(c);
+									}
+									if(i >= 4 && i <= 5) { // Выделяем байты с информацией об ошибке
+										rError.CatChar(c);
+									}
+									if(i >= 6 && i <= (rd_size-4)) { // Собственно ответ
+										rReply.CatChar(c);
+									}
+								}
+								_itoa(crc, str_crc2, 16);
+								if(!r_str_crc1.IsEqiAscii(str_crc2)) { // Сверяем полученную и посчитанную контрольные суммы
+									ok = 0; // @err
+								}
+							}
+							else {
+								ok = 0; // @err
+							}
+						}
+						done = true;
+					}
+				}
+			}
 		}
 	}
-	else
-		ok = -1;
+	else {
+		int    c = 0;
+		if(GetByteFromPort(&c)) {
+			SString & r_buf = SLS.AcquireRvlStr();
+			do {
+				r_buf.CatChar(c);
+				GetByteFromPort(&c);
+			} while(c != CHR_ETX && c != 0);
+			{
+				int    crc = 0;
+				char   str_crc2[8];
+				size_t p = 0;
+				uint   i;
+				SString & r_str_crc1 = SLS.AcquireRvlStr();
+				r_buf.CatChar(c); // Добавили байт конца пакета
+				GetByteFromPort(&c); // Получили 1-й байт контрольной суммы
+				r_buf.CatChar(c);
+				GetByteFromPort(&c); // Получили 2-й байт контрольной суммы
+				r_buf.CatChar(c);
+				THROW(r_buf.C(0) == CHR_STX);
+				r_buf.Sub(4, 2, rError); // Выделяем байты с информацией об ошибке
+				//
+				// Считываем данные
+				//
+				for(i = 6; r_buf.C(i) != CHR_ETX; i++) {
+					rReply.CatChar(r_buf.C(i));
+				}
+				// Считаем контрольную сумму
+				for(i = 1; i < r_buf.Len()-2; i++)
+					crc ^= ((uchar)r_buf.C(i));
+				r_buf.Sub(r_buf.Len()-2, 2, r_str_crc1);
+				_itoa(crc, str_crc2, 16);
+				// Сверяем полученную и посчитанную контрольные суммы
+				THROW(r_str_crc1.CmpNC(str_crc2) == 0);
+			}
+		}
+		else
+			ok = -1;
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PiritEquip::GetData(SString & rData, SString & rError)
+{
+	const  bool   use_read_reply = true; // @construction
+	int    ok = 1;
+	if(use_read_reply) {
+		ok = ReadReply(rData, rError); // @v12.7.5
+	}
+	else {
+		rData.Z();
+		rError.Z();
+		int    c = 0;
+		//
+		// Получаем пакет ответа
+		//
+		if(GetByteFromPort(&c)) {
+			SString & r_buf = SLS.AcquireRvlStr();
+			do {
+				r_buf.CatChar(c);
+				GetByteFromPort(&c);
+			} while(c != CHR_ETX && c != 0);
+			{
+				int    crc = 0;
+				char   str_crc2[2];
+				size_t p = 0;
+				uint   i;
+				SString & r_str_crc1 = SLS.AcquireRvlStr();
+				r_buf.CatChar(c); // Добавили байт конца пакета
+				GetByteFromPort(&c); // Получили 1-й байт контрольной суммы
+				r_buf.CatChar(c);
+				GetByteFromPort(&c); // Получили 2-й байт контрольной суммы
+				r_buf.CatChar(c);
+				THROW(r_buf.C(0) == CHR_STX);
+				// Выделяем байты с информацией об ошибке
+				r_buf.Sub(4, 2, rError);
+				//
+				// Считываем данные
+				//
+				for(i = 6; r_buf.C(i) != CHR_ETX; i++) {
+					rData.CatChar(r_buf.C(i));
+				}
+				// Считаем контрольную сумму
+				for(i = 1; i < r_buf.Len()-2; i++)
+					crc ^= ((uchar)r_buf.C(i));
+				r_buf.Sub(r_buf.Len()-2, 2, r_str_crc1);
+				_itoa(crc, str_crc2, 16);
+				// Сверяем полученную и посчитанную контрольные суммы
+				THROW(r_str_crc1.CmpNC(str_crc2) == 0);
+			}
+		}
+		else
+			ok = -1;
+	}
 	CATCHZOK
 	return ok;
 }

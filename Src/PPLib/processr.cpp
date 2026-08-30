@@ -1132,7 +1132,7 @@ void ProcessorCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) 
 {
 	ProcessorTbl::Rec * p_data_rec = static_cast<ProcessorTbl::Rec *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
-	memzero(p_data_rec, sizeof(*p_data_rec));
+	p_data_rec->Clear();
 #define CPYFLD(Fld) p_data_rec->Fld=p_cache_rec->Fld
 	CPYFLD(ID);
 	CPYFLD(ParentID);

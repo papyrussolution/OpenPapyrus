@@ -2477,20 +2477,21 @@ public:
 		Data.GetExtssData(PersonFilt::extssNameText, temp_buf);
 		setCtrlString(CTL_PSNFLT_NAMESTR, temp_buf);
 		SetupWordSelector(CTL_PSNFLT_NAMESTR, new TextHistorySelExtra("personfilt-nametext-common"), 0, 2, WordSel_ExtraBlock::fFreeText);
-		setCtrlUInt16(CTL_PSNFLT_VATFREE, BIN(Data.Flags & PersonFilt::fVatFree));
-		AddClusterAssoc(CTL_PSNFLT_FLAGS, 0, PersonFilt::fTagsCrsstab);
-		AddClusterAssoc(CTL_PSNFLT_FLAGS, 1, PersonFilt::fHasImages);
-		AddClusterAssoc(CTL_PSNFLT_FLAGS, 2, PersonFilt::fShowHangedAddr);
-		AddClusterAssoc(CTL_PSNFLT_FLAGS, 3, PersonFilt::fLocTagF);
-		AddClusterAssoc(CTL_PSNFLT_FLAGS, 4, PersonFilt::fShowFiasRcgn);
+		// @v12.7.5 setCtrlUInt16(CTL_PSNFLT_VATFREE, BIN(Data.Flags & PersonFilt::fVatFree));
+		AddClusterAssoc(CTL_PSNFLT_FLAGS, 0, PersonFilt::fVatFree); // @v12.7.5 
+		AddClusterAssoc(CTL_PSNFLT_FLAGS, 1, PersonFilt::fTagsCrsstab); // @v12.7.5 0-->1
+		AddClusterAssoc(CTL_PSNFLT_FLAGS, 2, PersonFilt::fHasImages); // @v12.7.5 1-->2
+		AddClusterAssoc(CTL_PSNFLT_FLAGS, 3, PersonFilt::fShowHangedAddr); // @v12.7.5 2-->3
+		AddClusterAssoc(CTL_PSNFLT_FLAGS, 4, PersonFilt::fLocTagF); // @v12.7.5 3-->4
+		AddClusterAssoc(CTL_PSNFLT_FLAGS, 5, PersonFilt::fShowFiasRcgn); // @v12.7.5 4-->5
 		// @v12.2.8 AddClusterAssoc(CTL_PSNFLT_FLAGS, 5, PersonFilt::fCliActivityStats); // @v12.2.2
 		SetClusterData(CTL_PSNFLT_FLAGS, Data.Flags);
-		DisableClusterItem(CTL_PSNFLT_FLAGS, 2, Data.GetAttribType() != PPPSNATTR_ALLADDR);
+		DisableClusterItem(CTL_PSNFLT_FLAGS, 3, Data.GetAttribType() != PPPSNATTR_ALLADDR); // @v12.7.5 2-->3
 		// @v12.1.10 DisableClusterItem(CTL_PSNFLT_FLAGS, 3, !Data.IsLocAttr());
 		{
 			PPLocationConfig loc_cfg;
 			PPObjLocation::FetchConfig(&loc_cfg);
-			DisableClusterItem(CTL_PSNFLT_FLAGS, 4, !(loc_cfg.Flags & PPLocationConfig::fUseFias) || !Data.IsLocAttr());
+			DisableClusterItem(CTL_PSNFLT_FLAGS, 5, !(loc_cfg.Flags & PPLocationConfig::fUseFias) || !Data.IsLocAttr()); // @v12.7.5 4-->5
 		}
 		setCtrlData(CTL_PSNFLT_CASDT, &Data.ClientActivityEvalDate); // @v12.2.2
 		SetPeriodInput(this, CTL_PSNFLT_NEWCLIPERIOD, Data.NewCliPeriod);
@@ -2525,7 +2526,7 @@ public:
 		getCtrlData(CTL_PSNFLT_EMPTY, &Data.EmptyAttrib);
 		getCtrlString(CTL_PSNFLT_NAMESTR, temp_buf.Z());
 		Data.PutExtssData(PersonFilt::extssNameText, temp_buf);
-		SETFLAG(Data.Flags, PersonFilt::fVatFree, getCtrlUInt16(CTL_PSNFLT_VATFREE));
+		// @v12.7.5 SETFLAG(Data.Flags, PersonFilt::fVatFree, getCtrlUInt16(CTL_PSNFLT_VATFREE));
 		GetClusterData(CTL_PSNFLT_FLAGS, &Data.Flags);
 		if(IsThereCasDetectionList) {
 			getCtrlData(CTL_PSNFLT_CASDT, &Data.ClientActivityEvalDate); // @v12.2.2
@@ -2606,12 +2607,12 @@ private:
 			}
 			else
 				disableCtrl(CTL_PSNFLT_EMPTY, false);
-			DisableClusterItem(CTL_PSNFLT_FLAGS, 2, Data.GetAttribType() != PPPSNATTR_ALLADDR);
+			DisableClusterItem(CTL_PSNFLT_FLAGS, 3, Data.GetAttribType() != PPPSNATTR_ALLADDR); // @v12.7.5 2-->3
 			// @v12.1.10 DisableClusterItem(CTL_PSNFLT_FLAGS, 3, !Data.IsLocAttr());
 			{
 				PPLocationConfig loc_cfg;
 				PPObjLocation::FetchConfig(&loc_cfg);
-				DisableClusterItem(CTL_PSNFLT_FLAGS, 4, !(loc_cfg.Flags & PPLocationConfig::fUseFias) || !Data.IsLocAttr());
+				DisableClusterItem(CTL_PSNFLT_FLAGS, 5, !(loc_cfg.Flags & PPLocationConfig::fUseFias) || !Data.IsLocAttr()); // @v12.7.5 4-->5
 			}
 		}
 		else if(event.isCmd(cmTags)) {
@@ -2774,6 +2775,9 @@ PPViewPerson::ExtEntry::ExtEntry()
 					pStyle->Flags  = BrowserWindow::CellStyle::fLeftBottomCorner;
 					pStyle->Color2 = GetColorRef(SClrGreen);
 					ok = 1;
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_PERSON_HASIMAGE, SLS.AcquireRvlStr()));
+					}
 				}
 				/*else if(col == 1 && p_view->IsNewCliPerson(*static_cast<const PPID *>(pData))) {
 					pStyle->Flags = 0;
@@ -2789,16 +2793,32 @@ PPViewPerson::ExtEntry::ExtEntry()
 							switch(state & ~PPObjPerson::ClientActivityState::stfNewClient) {
 								case PPObjPerson::ClientActivityState::stDelayedTa:
 									ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrRed));
+									//TCELHLD_PERSON_CLIACTIVITY_DELAYEDTA "Клиент давно не проявлял активности (задержка большая, но не катастрофическая)"
+									if(paintAction == BrowserWindow::paintQueryDescription) {
+										pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_PERSON_CLIACTIVITY_DELAYEDTA, SLS.AcquireRvlStr()));
+									}
 									break;
 								case PPObjPerson::ClientActivityState::stHopelesslyDelayedTa:
 									ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrBlack));
+									//TCELHLD_PERSON_CLIACTIVITY_HLDELAYEDTA "Клиент безнадежно давно не проявлял активности"
+									if(paintAction == BrowserWindow::paintQueryDescription) {
+										pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_PERSON_CLIACTIVITY_HLDELAYEDTA, SLS.AcquireRvlStr()));
+									}
 									break;
 								case PPObjPerson::ClientActivityState::stRegularTa:
 									ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrGreen));
+									//TCELHLD_PERSON_CLIACTIVITY_REGULARTA "Клиент проявляет регулярную активность"
+									if(paintAction == BrowserWindow::paintQueryDescription) {
+										pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_PERSON_CLIACTIVITY_REGULARTA, SLS.AcquireRvlStr()));
+									}
 									break;
 							}
 							if(state & PPObjPerson::ClientActivityState::stfNewClient) {
 								ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrOrange));
+								//TCELHLD_PERSON_CLIACTIVITY_NEW "Новый клиент"
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_PERSON_CLIACTIVITY_NEW, SLS.AcquireRvlStr()));
+								}
 							}
 						}
 					}
@@ -4175,8 +4195,10 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 				case PPVCMD_MOUSEHOVER:
 					{
 						const  int has_images = HasImage(pHdr);
-						long   h = 0;
-						if(pBrw->ItemByMousePos(&h, 0) && oneof2(h, 0, 1)) {
+						bool   hover_done = false;
+						long   row = 0;
+						long   col = 0;
+						if(pBrw->ItemByMousePos(&col, &row) && oneof2(col, 0, 1)) {
 							int r = 0;
 							SString buf;
 							PPELinkArray phones_ary;
@@ -4197,6 +4219,10 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 								}
 								PPTooltipMessage(buf, img_path, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
 									SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+								hover_done = true;
+							}
+							if(!hover_done) {
+								pBrw->ShowCellStyleHint(row, col);
 							}
 						}
 					}

@@ -3868,7 +3868,7 @@ int Backend_SelectObjectBlock::ResolveCrit_QuotKind(int subcriterion, const SStr
 		case scCode:
 			{
 				PPObjQuotKind qk_obj;
-				qk_obj.P_Ref->SearchSymb(PPOBJ_QUOTKIND, &id, rArg, offsetof(PPQuotKind, Symb));
+				qk_obj.P_Ref->SearchSymb(PPOBJ_QUOTKIND, &id, rArg, offsetof(PPQuotKind2, Symb));
 			}
 			break;
 		default:

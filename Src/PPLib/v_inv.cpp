@@ -25,7 +25,7 @@ InventoryFilt & FASTCALL InventoryFilt::operator = (const InventoryFilt & rS)
 
 void FASTCALL InventoryFilt::SetSingleBillID(PPID billID) { BillList.SetSingle(billID); }
 PPID InventoryFilt::GetSingleBillID() const { return BillList.GetSingle(); }
-int  InventoryFilt::HasSubst() const { return BIN(!!Sgb || Sgg); }
+bool InventoryFilt::HasSubst() const { return (!!Sgb || Sgg); }
 
 void InventoryFilt::Setup(PPID billID)
 {
@@ -230,10 +230,10 @@ int PPViewInventory::EditBaseFilt(PPBaseFilt * pFilt)
 static int CheckInventoryLineForWrOff(long fltFlags, PPID billID, long lnFlags, double diffQtty)
 {
 	int    ok = 1;
-	const  long   f = (fltFlags & (InventoryFilt::fWrOff | InventoryFilt::fUnwrOff));
+	const  long f = (fltFlags & (InventoryFilt::fWrOff | InventoryFilt::fUnwrOff));
 	if(oneof2(f, InventoryFilt::fWrOff, InventoryFilt::fUnwrOff)) {
 		BillTbl::Rec bill_rec;
-		const int is_bill_wroff = BIN(BillObj->Fetch(billID, &bill_rec) && bill_rec.Flags & BILLF_CLOSEDORDER);
+		const  bool is_bill_wroff = (BillObj->Fetch(billID, &bill_rec) > 0 && bill_rec.Flags & BILLF_WRITEDOFF);
 		if(f == InventoryFilt::fWrOff) {
 			if(!(lnFlags & INVENTF_WRITEDOFF)) {
 				if(!is_bill_wroff || /*diffQtty != 0.0*/(lnFlags & (INVENTF_LACK|INVENTF_SURPLUS)))
@@ -1006,18 +1006,17 @@ public:
 	InventoryItemDialog(PPObjBill * pBObj, const PPBillPacket * pPack, const PPInventoryOpEx * pInvOpEx, int existsGoodsOnly) :
 		TDialog(DLG_INVITEM), P_BObj(pBObj), P_Pack(pPack), StockRest(0.0), StockPrice(0.0), St(0), Packs(0.0), Price(0.0)
 	{
-		InvOpEx = *pInvOpEx;
+		RVALUEPTR(InvOpEx, pInvOpEx);
 		SETFLAG(St, stExistsGoodsOnly, existsGoodsOnly);
 		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_INVITEM_GOODSGRP, CTLSEL_INVITEM_GOODS));
 		addGroup(ctlgroupQtty,  new QuantityCtrlGroup(CTL_INVITEM_UNITPERPACK, CTL_INVITEM_PACKS, CTL_INVITEM_QUANTITY));
-		disableCtrls(1, CTL_INVITEM_STOCKREST, CTL_INVITEM_DIFFREST, 0);
+		// @v12.7.5 disableCtrls(1, CTL_INVITEM_STOCKREST, CTL_INVITEM_DIFFREST, 0);
+		setCtrlReadOnly(CTL_INVITEM_STOCKREST, true); // @v12.7.5
+		setCtrlReadOnly(CTL_INVITEM_DIFFREST, true); // @v12.7.5
 		SETFLAG(St, stUseSerial, InvOpEx.Flags & INVOPF_USESERIAL);
 		{
 			SString temp_buf;
-			if(InvOpEx.Flags & INVOPF_COSTNOMINAL)
-				PPLoadString("inventory_cost", temp_buf);
-			else
-				PPLoadString("inventory_price", temp_buf);
+			PPLoadString((InvOpEx.Flags & INVOPF_COSTNOMINAL) ? "inventory_cost" : "inventory_price", temp_buf);
 			setLabelText(CTL_INVITEM_PRICE, temp_buf);
 		}
 		if(CConfig.Flags2__ & CCFLG2_HIDEINVENTORYSTOCK) {
@@ -1031,13 +1030,15 @@ public:
 		RVALUEPTR(Data, pData);
 		Serial = (St & stUseSerial) ? Data.Serial : 0;
 		int    ok = 1;
-		disableCtrl(CTL_INVITEM_SERIAL, !(St & stUseSerial));
+		setCtrlReadOnly(CTL_INVITEM_SERIAL, !(St & stUseSerial)); // @v12.7.5 disableCtrl-->setCtrlReadOnly
 		GoodsCtrlGroup::Rec gcg_rec(0, Data.GoodsID, P_Pack->Rec.LocID, GoodsCtrlGroup::disableEmptyGoods);
 		if(St & stExistsGoodsOnly)
 			gcg_rec.Flags |= GoodsCtrlGroup::existsGoodsOnly;
 		setGroupData(ctlgroupGoods, &gcg_rec);
 		if(Data.GoodsID) {
-			disableCtrls(1, CTLSEL_INVITEM_GOODS, CTLSEL_INVITEM_GOODSGRP, 0);
+			// @v12.7.5 disableCtrls(1, CTLSEL_INVITEM_GOODS, CTLSEL_INVITEM_GOODSGRP, 0);
+			setCtrlReadOnly(CTLSEL_INVITEM_GOODS, true); // @v12.7.5 
+			setCtrlReadOnly(CTLSEL_INVITEM_GOODSGRP, true); // @v12.7.5 
 			replyGoodsSelection();
 		}
 		else {
@@ -1046,7 +1047,7 @@ public:
 		}
 		setCtrlString(CTL_INVITEM_SERIAL, Serial);
 		setCtrlData(CTL_INVITEM_WROFFPRICE, &Data.WrOffPrice);
-		disableCtrl(CTL_INVITEM_WROFFPRICE, true);
+		setCtrlReadOnly(CTL_INVITEM_WROFFPRICE, true); // @v12.7.5 disableCtrl-->setCtrlReadOnly
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()
@@ -1249,7 +1250,8 @@ int PPViewInventory::EditLine(PPID billID, long * pOprNo, PPID goodsID, const ch
 		if(!skip_dialog) {
 			PPInventoryOpEx ioe;
 			THROW(P_BObj->P_OpObj->FetchInventoryData(bpack.Rec.OpID, &ioe));
-			THROW(CheckDialogPtr(&(dlg = new InventoryItemDialog(P_BObj, &bpack, &ioe, BIN(Filt.Flags & InventoryFilt::fSelExistsGoodsOnly)))));
+			dlg = new InventoryItemDialog(P_BObj, &bpack, &ioe, BIN(Filt.Flags & InventoryFilt::fSelExistsGoodsOnly));
+			THROW(CheckDialogPtr(&dlg));
 			THROW(dlg->setDTS(&rec));
 			for(valid_data = 0; !valid_data && (accel_mode || ExecView(dlg) == cmOK);) {
 				valid_data = dlg->getDTS(&rec);
@@ -1388,11 +1390,8 @@ int PPViewInventory::SelectByBarcode(int initChar, PPViewBrowser * pBrw)
 	const  int  accel_mode = PPInventoryOpEx::Helper_GetAccelInputMode(CommonIoeFlags);
 	int    ok = -1;
 	int    r = 0;
-	//SString code;
-	//Goods2Tbl::Rec goods_rec;
 	ReceiptTbl::Rec lot_rec;
 	PPIDArray lot_list;
-	//double qtty = 1.0;
 	GoodsCodeSrchBlock blk(initChar);
 	blk.LocID = loc_id;
 	blk.Qtty = 1.0;
@@ -1401,7 +1400,6 @@ int PPViewInventory::SelectByBarcode(int initChar, PPViewBrowser * pBrw)
 		r = PPViewInventory::SelectGoodsByBarcode(initChar, 0, &blk.Rec, &blk.Qtty, &blk.Code_);
 	}
 	else {
-		//r = GObj.SelectGoodsByBarcode(initChar, 0, &goods_rec, &qtty, &code);
 		r = GObj.SelectGoodsByBarcode2(blk);
 	}
 	if(blk.Qtty <= 0.0) {
@@ -1904,6 +1902,12 @@ int PPViewInventory::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 				ok = -1;
 				ConvertBillToBasket();
 				break;
+			case PPVCMD_MOUSEHOVER: // @v12.7.5
+				if(pBrw) {
+					pBrw->ShowCellStyleHint();
+					ok = -1;
+				}
+				break;
 		}
 	}
 	return ok;
@@ -1948,22 +1952,27 @@ int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintActio
 {
 	int    ok = -1;
 	if(pBrw && pData && pStyle) {
-		const  int is_subst = Filt.HasSubst();
-		if(!is_subst) {
+		if(!Filt.HasSubst()) {
 			const  BrowserDef * p_def = pBrw->getDef();
 			if(col >= 0 && col < p_def->getCountI()) {
-				const BroColumn & r_col = p_def->at(col);
-				const PPViewInventory::BrwHdr * p_hdr = static_cast<const PPViewInventory::BrwHdr *>(pData);
+				const  BroColumn & r_col = p_def->at(col);
+				const  PPViewInventory::BrwHdr * p_hdr = static_cast<const PPViewInventory::BrwHdr *>(pData);
 				if(r_col.OrgOffs == 1) { // ID
 					if(p_hdr->Flags & INVENTF_WRITEDOFF) {
 						pStyle->Color = GetColorRef(SClrDodgerblue);
 						pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
 						ok = 1;
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_INVENTORY_WROFF, SLS.AcquireRvlStr()));
+						}
 					}
 					else if(p_hdr->Flags & (INVENTF_LACK|INVENTF_SURPLUS)) {
 						pStyle->Color = GetColorRef(SClrOrange);
 						pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
 						ok = 1;
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_INVENTORY_DEVIATION, SLS.AcquireRvlStr()));
+						}
 					}
 				}
 				else if(r_col.OrgOffs == 5) { // Rest
@@ -1971,6 +1980,9 @@ int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintActio
 						pStyle->Color = GetColorRef(SClrBlue);
 						pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
 						ok = 1;
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_INVENTORY_GENAUTOLINE, SLS.AcquireRvlStr()));
+						}
 					}
 				}
 				else if(r_col.OrgOffs == 10) { // Difference
@@ -1979,27 +1991,42 @@ int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintActio
 							pStyle->Color = GetColorRef(SClrRed);
 							pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
 							ok = 1;
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_INVENTORY_LACK, SLS.AcquireRvlStr()));
+							}
 						}
 						else if(p_hdr->Flags & INVENTF_SURPLUS) {
 							pStyle->Color = GetColorRef(SClrGreen);
 							pStyle->Flags |= BrowserWindow::CellStyle::fCorner;
 							ok = 1;
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_INVENTORY_SURPLUS, SLS.AcquireRvlStr()));
+							}
 						}
 					}
 				}
 				else if(r_col.OrgOffs == 14) { // Status
 					//if(p_hdr->Flags & INVENTF_WRITEDOFF) {
-					if(CheckInventoryLineForWrOff(Filt.fWrOff, p_hdr->BillID, p_hdr->Flags, /*diffQtty*/0.0)) {
+					if(CheckInventoryLineForWrOff(InventoryFilt::fWrOff, p_hdr->BillID, p_hdr->Flags, /*diffQtty*/0.0)) {
 						pStyle->Color = GetColorRef(SClrLightblue);
 						ok = 1;
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_INVENTORY_WROFF2, SLS.AcquireRvlStr()));
+						}
 					}
 					else if(p_hdr->Flags & (INVENTF_LACK|INVENTF_SURPLUS)) {
 						pStyle->Color = GetColorRef(SClrYellow);
 						ok = 1;
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_INVENTORY_DEVIATION, SLS.AcquireRvlStr()));
+						}
 					}
 					else {
 						pStyle->Color = GetColorRef(SClrIvory);
 						ok = 1;
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_INVENTORY_NODEVIATION, SLS.AcquireRvlStr()));
+						}
 					}
 				}
 			}
@@ -2011,23 +2038,21 @@ int PPViewInventory::CellStyleFunc_(const void * pData, long col, int paintActio
 /*virtual*/void PPViewInventory::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
-		// @v11.1.8 {
 		if(!Filt.GetSingleBillID() && !Filt.HasSubst()) {
 			pBrw->InsColumn(0, "@billno", 15, 0, 0, 0);
 			pBrw->InsColumn(1, "@billdate", 16, 0, 0, 0);
 		}
-		// } @v11.1.8 
 		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
 	}
 }
 
 static IMPL_DBE_PROC(dbqf_invlnwroff_iiir)
 {
-	long   flt_flags = params[0].lval;
-	long   bill_id   = params[1].lval;
-	long   ln_flags  = params[2].lval;
-	double diff_qtty = params[3].rval;
-	long   r = CheckInventoryLineForWrOff(flt_flags, bill_id, ln_flags, diff_qtty);
+	const long   flt_flags = params[0].lval;
+	const long   bill_id   = params[1].lval;
+	const long   ln_flags  = params[2].lval;
+	const double diff_qtty = params[3].rval;
+	const long   r = CheckInventoryLineForWrOff(flt_flags, bill_id, ln_flags, diff_qtty);
 	result->init(r);
 }
 
@@ -2049,18 +2074,17 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	DBE    dbe_strgloc;
 	DBE    dbe_status;
 	DBE    dbe_wroff;
-	DBE    dbe_bill_code; // @v11.1.8
-	DBE    dbe_bill_date; // @v11.1.8
+	DBE    dbe_bill_code;
+	DBE    dbe_bill_date;
 	DBE    dbe_empty;
 	uint   brw_id = 0;
 	const  PPID single_bill_id = Filt.GetSingleBillID();
-	const  int  is_subst = Filt.HasSubst();
 	const  long ccfg_flags2 = CConfig.Flags2__;
 	{
 		dbe_empty.init();
 		dbe_empty.push(static_cast<DBFunc>(PPDbqFuncPool::IdEmpty));
 	}
-	if(is_subst) {
+	if(Filt.HasSubst()) {
 		assert(P_TempSubstTbl);
 		brw_id = BROWSER_INVNTRYLINESSUBST;
 		THROW(CheckTblPtr(st = new TempInventorySubstTbl(P_TempSubstTbl->GetName())));
@@ -2130,14 +2154,12 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			dbe_status.push(it->BillID);
 			dbe_status.push(static_cast<DBFunc>(PPDbqFuncPool::IdInventLnStatus));
 		}
-		// @v11.1.8 {
 		PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, it->BillID);
 		{
 			dbe_bill_date.init();
 			dbe_bill_date.push(it->BillID);
 			dbe_bill_date.push(static_cast<DBFunc>(PPDbqFuncPool::IdBillDate));
 		}		
-		// } @v11.1.8
 		if(p_tord)
 			tbl_l[tbl_count++] = p_tord;
 		tbl_l[tbl_count++] = it;
@@ -2160,8 +2182,8 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		q->addField(dbe_barcode);    // #12 
 		q->addField(dbe_strgloc);    // #13 
 		q->addField(dbe_status);     // #14
-		q->addField(dbe_bill_code);  // #15 // @v11.1.8
-		q->addField(dbe_bill_date);  // #16 // @v11.1.8
+		q->addField(dbe_bill_code);  // #15
+		q->addField(dbe_bill_date);  // #16
 		// } @v12.5.8 
 		/* @v12.5.8 q = & (Select_(
 			it->BillID,     // #00
@@ -2180,8 +2202,8 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			dbe_barcode,    // #12 
 			dbe_strgloc,    // #13 
 			dbe_status,     // #14
-			dbe_bill_code,  // #15 // @v11.1.8
-			dbe_bill_date,  // #16 // @v11.1.8
+			dbe_bill_code,  // #15
+			dbe_bill_date,  // #16
 			0L);*/
 		q->from(tbl_l[0], tbl_l[1], 0L);
 		ZDELETE(dbe_tmp1);

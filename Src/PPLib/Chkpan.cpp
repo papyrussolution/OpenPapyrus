@@ -552,7 +552,7 @@ int FASTCALL CPosProcessor::Packet::NextIteration(CCheckItem * pItem)
 //
 //
 CPosProcessor::PgsBlock::PgsBlock(PPID goodsID, double qtty) : 
-	GoodsID(goodsID), Flags(0), Qtty((qtty != 0.0) ? qtty : 1.0), PriceBySerial(0.0), AbstractPrice(0.0), ChZnPm_ReqTimestamp(0),
+	GoodsID(goodsID), Flags(0), Qtty((qtty != 0.0) ? qtty : 1.0), PriceBySerial(0.0), AbstractPrice(0.0), /*ChZnPm_ReqTimestamp(0),*/
 	PriceByMark(0.0), /*PriceByMarkPmMrp(0.0), PriceByMarkPmSmp(0.0),*/CnZnPmCritFlags(CConfig.ChZnPmCrit), ChZnSNTokID(0), PriceBlk()
 {
 	SETIFZQ(CnZnPmCritFlags, PPChZnPrcssr::GetDefaultCnZnPmCritFlags()); // @v12.6.5 
@@ -10359,10 +10359,7 @@ int CheckPaneDialog::VerifyChZnMark(PgsBlock & rBlk, int chznProdType/*gt_rec.Ch
 #if 1 // @v12.6.7 {
 				const  int pmcvrr = PPChZnPrcssr::PmCheck_VerifyResult(pm_code_list); // @v12.6.7
 				if(pmcvrr) {
-					rBlk.ChZnPm_ReqId = pm_code_list.ReqId;
-					rBlk.ChZnPm_ReqTimestamp = pm_code_list.ReqTimestamp;
-					rBlk.ChZnPm_LocalModuleInstance = pm_code_list.LocalModuleInstance; // @v12.3.12
-					rBlk.ChZnPm_LocalModuleDbVer    = pm_code_list.LocalModuleDbVer;    // @v12.3.12
+					rBlk.ChZnPmRT = pm_code_list.ChZnPmRT;
 					// @v12.6.9 {
 					if(pm_code_list.getCount()) {
 						PPChZnPrcssr::CodeStatus * p_pm_item = pm_code_list.at(0);
@@ -13008,10 +13005,7 @@ int CPosProcessor::SetupNewRow(PgsBlock & rBlk, PPID giftID/*=0*/)
 						STRNSCPY(r_item.EgaisMark, rBlk.EgaisMark);
 						STRNSCPY(r_item.ChZnSerial, rBlk.ChZnSerial);
 						STRNSCPY(r_item.ChZnMark, rBlk.ChZnMark);
-						r_item.ChZnPm_ReqId = rBlk.ChZnPm_ReqId; // @v12.1.1
-						r_item.ChZnPm_ReqTimestamp = rBlk.ChZnPm_ReqTimestamp; // @v12.1.1
-						r_item.ChZnPm_LocalModuleInstance = rBlk.ChZnPm_LocalModuleInstance; // @v12.3.12
-						r_item.ChZnPm_LocalModuleDbVer = rBlk.ChZnPm_LocalModuleDbVer; // @v12.3.12
+						r_item.ChZnPmRT = rBlk.ChZnPmRT;
 						// @v12.5.9 {
 						if(rBlk.GetChZnPrice() > 0) {
 							r_item.ChZnPrice = rBlk.GetChZnPrice();

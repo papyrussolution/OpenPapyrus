@@ -980,15 +980,18 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					ScanDvc.stopScan ();
 					ScanDvc.setScanLaserMode (8);
 					ScanDvc.closeScan ();
+				}
+				// @v12.7.5 (вынес блок за пределы условия if(ScanDvc != null)) {
+				if(BarcodeScanDeviceReceiver != null) {
 					// @v12.6.0 {
 					try {
 						unregisterReceiver(BarcodeScanDeviceReceiver);
 					} catch(Exception exn) {
 						;
 					}
-					BarcodeScanDeviceReceiver = null;
 					// } @v12.6.0
 				}
+				// @v12.7.5 {
 				// @v12.2.10 {
 				if(BSCReader != null) {
 					BSCReader.UnregisterListener();
@@ -1002,14 +1005,13 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 				// } @v12.6.0
 				break;
 			case SLib.EV_PAUSE: // @v12.2.2
-				if(ScanDvc != null) {
+				if(BarcodeScanDeviceReceiver != null) { // @v12.7.5 if(ScanDvc != null)-->if(BarcodeScanDeviceReceiver != null)
 					// @v12.6.0 {
 					try {
 						unregisterReceiver(BarcodeScanDeviceReceiver);
 					} catch(Exception exn) {
 						;
 					}
-					BarcodeScanDeviceReceiver = null;
 					// } @v12.6.0
 				}
 				// @v12.2.12 {
@@ -1030,9 +1032,9 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						}
 						else {
 							BSCReader = null;
-							if(ScanDvc != null) {
+							if(/*ScanDvc != null*/true) { // @v12.7.6 if(ScanDvc != null)-->if(true)
 								IntentFilter filter = new IntentFilter();
-								filter.addAction(/*SCAN_ACTION*/"scan.rcv.message");
+								filter.addAction("scan.rcv.message");
 								registerReceiver(BarcodeScanDeviceReceiver, filter);
 							}
 						}
@@ -2402,10 +2404,15 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 	{
 		@Override public void onReceive(Context context, Intent intent)
 		{
-			if(ScanDvc != null) {
+			if(true) { // @v12.7.5 if(ScanDvc != null)-->if(true)
 				String action = intent.getAction();
-				if(action.equals(/*SCAN_ACTION*/"scan.rcv.message")) {
+				if(action.equals("scan.rcv.message")) {
 					byte[] bytes_contents = intent.getByteArrayExtra("barocode"); // It's not a misprint: must be "barocode" not "barcode"!
+					// @v12.7.5 {
+					if(bytes_contents == null) {
+						bytes_contents = intent.getByteArrayExtra("barcodeData");
+					}
+					// } @v12.7.5
 					//int barocode_len = intent.getIntExtra("length", 0);
 					//byte barcode_type = intent.getByteExtra("barcodeType", (byte) 0);
 					//byte[] aimid = intent.getByteArrayExtra("aimid");
@@ -2415,7 +2422,9 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						if(pbr != null)
 							AcceptBarcodeInput(pbr);
 					}
-					ScanDvc.stopScan();
+					if(ScanDvc != null) { // @v12.7.5 @condition moved from the most top row
+						ScanDvc.stopScan();
+					}
 					//UtilSound.play ();
 				}
 			}

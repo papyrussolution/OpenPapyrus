@@ -315,22 +315,31 @@ int PPObjBill::SaveBalance(LDATE endDate, const char * pFileName)
 int PPObjBill::LoadBalance(LDATE endDate, const char * pFileName, int use_ta)
 {
 	int    ok = 1, ta = 0;
-	char   buf[256], msg_buf[64], format[64];
-	RECORDNUMBER numrecs = 0, recno = 0;
+	char   buf[256];
+	char   msg_buf[64];
+	char   format[64];
+	RECORDNUMBER numrecs = 0;
+	RECORDNUMBER recno = 0;
 	CurRateCore cr_core;
 	FILE * f_in = fopen(pFileName, "r");
 	THROW_PP(f_in, PPERR_OPENIMPORTFILE);
 	PPGetSubStr(PPTXT_CUTTINGPROCESS, 1, msg_buf, sizeof(msg_buf));
 	PPGetSubStr(PPTXT_SAVBAL_STRINGS, 1, format, sizeof(format));
 	THROW(PPStartTransaction(&ta, use_ta));
-	while(fgets(buf, sizeof(buf), f_in))
+	while(fgets(buf, sizeof(buf), f_in)) {
 		numrecs++;
+	}
 	rewind(f_in);
 	while(fgets(buf, sizeof(buf), f_in)) {
 		PPBillPacket pack;
-		PPID   accrel_id, acc_id, ar_id, cur_id;
-		Acct   acct, beg_rest_acct;
-		double rest, actual_rest;
+		PPID   accrel_id;
+		PPID   acc_id;
+		PPID   ar_id;
+		PPID   cur_id;
+		Acct   acct;
+		Acct   beg_rest_acct;
+		double rest;
+		double actual_rest;
 		PPWaitPercent(recno++, numrecs, msg_buf);
 		sscanf(buf, format, &accrel_id, &acc_id, &ar_id, &acct.ac, &acct.sb, &acct.ar, &cur_id, &rest);
 		atobj->P_Tbl->GetAcctRest(endDate, accrel_id, &actual_rest, 0);
@@ -353,15 +362,18 @@ int PPObjBill::LoadBalance(LDATE endDate, const char * pFileName, int use_ta)
 			}
 			atobj->ConvertAcct(&acct, cur_id, &acctid, &as_id);
 			if(atobj->P_Tbl->AccObj.Search(acctid.ac, &acc_rec) > 0) {
-				int    is_outbal = 0, is_reg = 0;
+				int    is_outbal = 0;
+				int    is_reg = 0;
 				if(oneof2(acc_rec.Type, ACY_OBAL, ACY_REGISTER)) {
 					p_at->DbtID = acctid;
 					p_at->DbtSheet = as_id;
 					p_at->Amount = rest - actual_rest;
-					if(acc_rec.Type == ACY_REGISTER)
+					if(acc_rec.Type == ACY_REGISTER) {
 						p_at->Flags |= PPAF_REGISTER;
-					else
+					}
+					else {
 						p_at->Flags |= PPAF_OUTBAL;
+					}
 				}
 				else {
 					if(rest > actual_rest) {

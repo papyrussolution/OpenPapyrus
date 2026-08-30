@@ -11641,43 +11641,100 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 
 int PPViewVetisDocument::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
+	//TCELHLD_VETISDOC_ORGDOCENTITY          "Определен ИД исходного сертификата"
+	//TCELHLD_VETISDOC_EXPIRED               "Срок годности по сертификату истек"
+	//TCELHLD_VETISDOC_LINKBILL_ROW          "Определен связанный документ и позиция строки в нем"
+	//TCELHLD_VETISDOC_LINKBILL_NOROW        "Определен связанный документ, но не определена позиция строки в нем"
+	//TCELHLD_VETISDOC_LINKGOODS             "Определен связанный товар"
+	//TCELHLD_VETISDOC_FROMMAINORG           "Сертификат на продукцию, отправляемую от нас к контрагенту (исходящий)"
+	//TCELHLD_VETISDOC_LINKFROMDLVRLOC       "Для сертификата определен адрес отправителя"
+	//TCELHLD_VETISDOC_TOMAINORG             "Сертификат на продукцию, отправляемую от контрагента к нам (входящий)"
+	//TCELHLD_VETISDOC_LINKTODLVRLOC         "Для сертификата определен адрес получателя"
+	//TCELHLD_VETISDOC_LINKTOPSN             "Для сертификата определена организация-получатель"
 	int    ok = -1;
 	if(pBrw && pData && pStyle) {
 		const  BrowserDef * p_def = pBrw->getDef();
 		if(col >= 0 && col < p_def->getCountI()) {
-			const BroColumn & r_col = p_def->at(col);
-			const PPViewVetisDocument::BrwHdr * p_hdr = static_cast<const PPViewVetisDocument::BrwHdr *>(pData);
+			const  BroColumn & r_col = p_def->at(col);
+			const  PPViewVetisDocument::BrwHdr * p_hdr = static_cast<const PPViewVetisDocument::BrwHdr *>(pData);
 			if(r_col.OrgOffs == 22) { // issuenumber
-				if(p_hdr->OrgDocEntityID)
+				if(p_hdr->OrgDocEntityID) {
 					ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrAqua));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_VETISDOC_ORGDOCENTITY, SLS.AcquireRvlStr()));
+					}
+				}
 			}
 			else if(r_col.OrgOffs == 24) { // uuid 
-				if(!VetisEntityCore::CheckExpiryDate(p_hdr->ExpiryFrom, p_hdr->ExpiryTo))
+				if(!VetisEntityCore::CheckExpiryDate(p_hdr->ExpiryFrom, p_hdr->ExpiryTo)) {
 					ok = pStyle->SetFullCellColor(GetColorRef(SClrCrimson));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_VETISDOC_EXPIRED, SLS.AcquireRvlStr()));
+					}
+				}
 			}
 			else if(r_col.OrgOffs == 17) { // waybillnumber
-				if(p_hdr->LinkBillID)
+				if(p_hdr->LinkBillID) {
 					ok = pStyle->SetRightFigCircleColor(GetColorRef((p_hdr->LinkBillRow > 0) ? SClrGreen : SClrYellow));
+					if(p_hdr->LinkBillRow > 0) {
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_VETISDOC_LINKBILL_ROW, SLS.AcquireRvlStr()));
+						}
+					}
+					else {
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_VETISDOC_LINKBILL_NOROW, SLS.AcquireRvlStr()));
+						}
+					}
+				}
 			}
 			if(r_col.OrgOffs == 18) { // goods
-				if(p_hdr->LinkGoodsID)
+				if(p_hdr->LinkGoodsID) {
 					ok = pStyle->SetFullCellColor(GetColorRef(SClrLightgreen));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_VETISDOC_LINKGOODS, SLS.AcquireRvlStr()));
+					}
+				}
 			}
 			else if(r_col.OrgOffs == 20) { // from
-				if(p_hdr->Flags & VetisVetDocument::fFromMainOrg)
+				if(p_hdr->Flags & VetisVetDocument::fFromMainOrg) {
 					ok = pStyle->SetFullCellColor(GetColorRef(SClrLightblue));
-				else if(p_hdr->LinkFromDlvrLocID)
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_VETISDOC_FROMMAINORG, SLS.AcquireRvlStr()));
+					}
+				}
+				else if(p_hdr->LinkFromDlvrLocID) {
 					ok = pStyle->SetFullCellColor(GetColorRef(SClrLightgreen));
-				else if(p_hdr->LinkFromPsnID)
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_VETISDOC_LINKFROMDLVRLOC, SLS.AcquireRvlStr()));
+					}
+				}
+				else if(p_hdr->LinkFromPsnID) {
 					ok = pStyle->SetFullCellColor(GetColorRef(SClrLightcyan));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_VETISDOC_LINKFROMPSN, SLS.AcquireRvlStr()));
+					}
+				}
 			}
 			else if(r_col.OrgOffs == 21) { // to
-				if(p_hdr->Flags & VetisVetDocument::fToMainOrg)
+				if(p_hdr->Flags & VetisVetDocument::fToMainOrg) {
 					ok = pStyle->SetFullCellColor(GetColorRef(SClrLightblue));
-				else if(p_hdr->LinkToDlvrLocID)
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_VETISDOC_TOMAINORG, SLS.AcquireRvlStr()));
+					}
+				}
+				else if(p_hdr->LinkToDlvrLocID) {
 					ok = pStyle->SetFullCellColor(GetColorRef(SClrLightgreen));
-				else if(p_hdr->LinkToPsnID)
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_VETISDOC_LINKTODLVRLOC, SLS.AcquireRvlStr()));
+					}
+				}
+				else if(p_hdr->LinkToPsnID) {
 					ok = pStyle->SetFullCellColor(GetColorRef(SClrLightcyan));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_VETISDOC_LINKTOPSN, SLS.AcquireRvlStr()));
+					}
+				}
 			}
 		}
 	}
@@ -13171,6 +13228,12 @@ int PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 					}
 					if(obj_to_match && EC.SearchDocument(id, &rec) > 0)
 						ok = ForceResolveObject(rec, obj_to_match);
+				}
+				break;
+			case PPVCMD_MOUSEHOVER: // @v12.7.5
+				if(pBrw) {
+					pBrw->ShowCellStyleHint();
+					ok = -1;
 				}
 				break;
 		}

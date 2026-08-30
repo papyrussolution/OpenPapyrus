@@ -537,7 +537,7 @@ int PPObjGoods::ImportQuotOld(int use_ta)
 	ReadConfig(&goods_cfg);
 	THROW_PP(in_tbl.IsOpen(), PPERR_DBFOPFAULT);
 	ini_file.Get(sect, PPINIPARAM_QUOTNAME, quotname);
-	if(PPRef->SearchSymb(PPOBJ_QUOTKIND, &quot_kind_id, quotname, offsetof(PPQuotKind, Symb)) <= 0)
+	if(PPRef->SearchSymb(PPOBJ_QUOTKIND, &quot_kind_id, quotname, offsetof(PPQuotKind2, Symb)) <= 0)
 		THROW_PP(PPRef->SearchName(PPOBJ_QUOTKIND, &quot_kind_id, quotname, 0) > 0, PPERR_IMPORTUNDEFFLD);
 	if(ini_file.Get(sect, PPINIPARAM_WAREHOUSE, temp_buf2) > 0) {
 		PPObjLocation loc_obj;

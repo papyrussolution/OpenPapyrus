@@ -72,7 +72,7 @@ SSqliteDbProvider::SSqliteDbProvider() : DbProvider(sqlstSQLite, cpUTF8, DbDicti
 		SString temp_buf;
 		SLS.QueryPath("temp", temp_buf);
 		if(temp_buf.NotEmpty() && SFile::IsDir(temp_buf)) {
-			sqlite3_temp_directory = (char *)sqlite3_malloc(temp_buf.Len()+1);
+			sqlite3_temp_directory = static_cast<char *>(sqlite3_malloc(temp_buf.Len()+1));
 			if(sqlite3_temp_directory) {
 				strcpy(sqlite3_temp_directory, temp_buf);
 			}

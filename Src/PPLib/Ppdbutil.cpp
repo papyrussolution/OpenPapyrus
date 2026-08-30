@@ -11,7 +11,7 @@ LocalStateBinderyCore::StateIdent::StateIdent() : Kind(0), Subj(0)
 {
 }
 
-LocalStateBinderyCore::SerialEntry::SerialEntry() : ID(0), UedTm(0)
+LocalStateBinderyCore::SerialEntry::SerialEntry() : ID(0)
 {
 }
 
@@ -270,7 +270,9 @@ int LocalStateBinderyCore::RegisterState(PPID * pID, const StateIdent & rIdent, 
 {
 	int    ok = 1;
 	PPID   result_id = 0;
+	bool   is_ta = false;
 	THROW(P_Tbl); // @todo @err
+	THROW(P_DbP); // @v12.7.5 @todo @err
 	THROW(rIdent.Kind && (rIdent.Subj || rIdent.Symb.NotEmpty())); // @todo @err
 	{
 		constexpr int64 ued_meta_time = UED_META_TIME_MSEC;
@@ -279,8 +281,14 @@ int LocalStateBinderyCore::RegisterState(PPID * pID, const StateIdent & rIdent, 
 		const  uint64 now_ued_time = UED::_SetRaw_Time(ued_meta_time, uti);
 		const  size_t size_to_write = rRawData.GetAvailableSize();
 		LocalStateBinderyTbl::Rec & r_tbl_rec = P_Tbl->data;
-		PPTransaction tra(use_ta);
-		THROW(tra);
+		if(use_ta) {
+			const  int tr = P_DbP->StartTransaction();
+			THROW_DB(tr);
+			if(tr > 0)
+				is_ta = true;
+		}
+		//PPTransaction tra(use_ta);
+		//THROW(tra);
 		if(IsStateSerial(rIdent.Kind)) {
 			r_tbl_rec.Clear();
 			r_tbl_rec.UedTm = now_ued_time;
@@ -321,10 +329,22 @@ int LocalStateBinderyCore::RegisterState(PPID * pID, const StateIdent & rIdent, 
 				P_Tbl->destroyLobData(P_Tbl->VT);
 			}
 		}
-		THROW(tra.Commit());
+		//THROW(tra.Commit());
+		if(is_ta) {
+			THROW_DB(P_DbP->CommitWork());
+			is_ta = false;
+		}
 		THROW(RegisterInMemState(result_id, now_ued_time, rIdent, rRawData));
 	}
-	CATCHZOK
+	CATCH
+		ok = 0;
+		if(is_ta) {
+			assert(P_DbP);
+			if(P_DbP) {
+				P_DbP->RollbackWork();
+			}
+		}
+	ENDCATCH
 	ASSIGN_PTR(pID, result_id);
 	return ok;
 }
@@ -4536,7 +4556,8 @@ SLTEST_R(TestDbSerialization)
 {
 	int    ok = 1;
 	uint   i;
-	SString raw_file_name, srlz_file_name;
+	SString raw_file_name;
+	SString srlz_file_name;
 
 	(raw_file_name = GetSuiteEntry()->OutPath).SetLastSlash().Cat("raw.bin");
 	(srlz_file_name = GetSuiteEntry()->OutPath).SetLastSlash().Cat("srlz.bin");

@@ -2505,19 +2505,22 @@ static int PPViewSwProgram_CellStyleFunc(const void * pData, long col, int paint
 	return ok;
 }
 	
-/*static*/int PPViewSwProgram::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
+/*static*/int PPViewSwProgram::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	if(pBrw && pData && pCellStyle && col >= 0) {
+	if(pBrw && pData && pStyle && col >= 0) {
 		BrowserDef * p_def = pBrw->getDef();
 		if(col >= 0 && col < static_cast<long>(p_def->getCount())) {
 			const BroColumn & r_col = p_def->at(col);
 			if(col == 0) { // id
 				const BrwItem * p_item = static_cast<const BrwItem *>(pData);
 				if(p_item->Flags & GF_DERIVED_HASIMAGES) { // @todo replace GF_DERIVED_HASIMAGES with ...
-					pCellStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
-					pCellStyle->Color2 = GetColorRef(SClrGreen);
+					pStyle->Flags |= BrowserWindow::CellStyle::fLeftBottomCorner;
+					pStyle->Color2 = GetColorRef(SClrGreen);
 					ok = 1;
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_SWPROGRAM_HASIMAGE, SLS.AcquireRvlStr()));
+					}
 				}
 			}
 		}
@@ -2561,13 +2564,23 @@ static int PPViewSwProgram_CellStyleFunc(const void * pData, long col, int paint
 				ok = Export();
 				break;
 			case PPVCMD_MOUSEHOVER:
-				if(id && static_cast<const BrwItem *>(pHdr)->Flags & GF_DERIVED_HASIMAGES) {
-					SString img_path;
-					ObjLinkFiles link_files(PPOBJ_SWPROGRAM);
-					link_files.Load(id, 0L);
-					link_files.At(0, img_path);
-					PPTooltipMessage(0, img_path, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
-						SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+				if(pBrw) {
+					bool   hover_done = false;
+					if(id && static_cast<const BrwItem *>(pHdr)->Flags & GF_DERIVED_HASIMAGES) {
+						SString img_path;
+						ObjLinkFiles link_files(PPOBJ_SWPROGRAM);
+						link_files.Load(id, 0L);
+						link_files.At(0, img_path);
+						if(fileExists(img_path)) {
+							PPTooltipMessage(0, img_path, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
+								SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+							hover_done = true;
+						}
+					}
+					if(!hover_done) {
+						pBrw->ShowCellStyleHint();
+					}
+					ok = -1;
 				}
 				break;
 			case PPVCMD_REFRESH:

@@ -580,12 +580,24 @@ int PPViewSysJournal::CellStyleFunc_(const void * pData, long col, int paintActi
 			const BroColumn & r_col = p_def->at(col);
 			const PPViewSysJournal::BrwHdr * p_hdr = static_cast<const PPViewSysJournal::BrwHdr *>(pData);
 			if(r_col.OrgOffs == 7) { // Action
-				if(oneof2(p_hdr->Action, PPACN_OBJRMV, PPACN_RMVBILL))
+				if(oneof2(p_hdr->Action, PPACN_OBJRMV, PPACN_RMVBILL)) {
 					ok = pStyle->SetFullCellColor(LightenColor(GetColorRef(SClrRed), 0.8f));
-				else if(oneof2(p_hdr->Action, PPACN_OBJADD, PPACN_TURNBILL))
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_SYSJOURNAL_OBJRMV, SLS.AcquireRvlStr()));
+					}
+				}
+				else if(oneof2(p_hdr->Action, PPACN_OBJADD, PPACN_TURNBILL)) {
 					ok = pStyle->SetFullCellColor(LightenColor(GetColorRef(SClrBlue), 0.8f));
-				else if(oneof2(p_hdr->Action, PPACN_OBJUPD, PPACN_UPDBILL))
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_SYSJOURNAL_OBJADD, SLS.AcquireRvlStr()));
+					}
+				}
+				else if(oneof2(p_hdr->Action, PPACN_OBJUPD, PPACN_UPDBILL)) {
 					ok = pStyle->SetFullCellColor(LightenColor(GetColorRef(SClrOrange), 0.8f));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_SYSJOURNAL_OBJUPD, SLS.AcquireRvlStr()));
+					}
+				}
 			}
 			else if(r_col.OrgOffs == 12) { // History column
 				if(Filt.Flags & Filt.fShowHistoryObj) {
@@ -595,10 +607,18 @@ int PPViewSysJournal::CellStyleFunc_(const void * pData, long col, int paintActi
 					key.Dtm = p_hdr->Dtm;
 					if(EvVerList.bsearch(&key, &p, PTR_CMPFUNC(PPViewSysJournal_EvVerEntry))) {
 						const EvVerEntry & r_entry = EvVerList.at(p);
-						if(r_entry.Flags & EvVerEntry::fAmtDn)
+						if(r_entry.Flags & EvVerEntry::fAmtDn) {
 							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
-						else if(r_entry.Flags & EvVerEntry::fAmtUp)
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_SYSJOURNAL_AMTDN, SLS.AcquireRvlStr()));
+							}
+						}
+						else if(r_entry.Flags & EvVerEntry::fAmtUp) {
 							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_SYSJOURNAL_AMTUP, SLS.AcquireRvlStr()));
+							}
+						}
 					}
 				}
 			}
@@ -778,104 +798,117 @@ int PPViewSysJournal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		BrwHdr hdr;
-		if(!RVALUEPTR(hdr, static_cast<const PPViewSysJournal::BrwHdr *>(pHdr)))
+		if(!RVALUEPTR(hdr, static_cast<const PPViewSysJournal::BrwHdr *>(pHdr))) {
 			MEMSZERO(hdr);
-		if(ppvCmd == PPVCMD_VIEWHISTORY) {
-			if(hdr.Obj == PPOBJ_BILL && oneof2(hdr.Action, PPACN_UPDBILL, PPACN_RMVBILL)) {
-				// @todo Необходимо показывать состояние документа до изменения статуса (PPACN_BILLSTATUSUPD),
-				// но для этого дополнительный объект по событию должен быть иным (ид сохраненной копии документа)
-				LDATETIME ev_dtm = hdr.Dtm;
-				ViewBillHistory(R0i(hdr.Extra), ev_dtm);
-				ok = -1;
-			}
-			else if(oneof2(hdr.Obj, PPOBJ_GOODS, PPOBJ_GOODSGROUP) && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
-				PPObjGoods _obj;
-				_obj.ViewVersion(R0i(hdr.Extra));
-				ok = -1;
-			}
-			else if(hdr.Obj == PPOBJ_PERSON && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
-				PPObjPerson _obj;
-				_obj.ViewVersion(R0i(hdr.Extra));
-				ok = -1;
-			}
-			else if(hdr.Obj == PPOBJ_SCARD && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
-				PPObjSCard _obj;
-				_obj.ViewVersion(R0i(hdr.Extra));
-				ok = -1;
-			}
-			else if(hdr.Obj == PPOBJ_OPRKIND && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) { // @v12.5.7
-				PPObjOprKind _obj;
-				_obj.ViewVersion(R0i(hdr.Extra));
-				ok = -1;
-			}
 		}
-		else if(ppvCmd == PPVCMD_RESTOREGOODS) {
-			if(oneof2(hdr.Obj, PPOBJ_GOODS, PPOBJ_GOODSGROUP) && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
-				ok = -1;
-			}
-		}
-		else if(ppvCmd == PPVCMD_COMPARE) {
-			if(hdr.Obj == PPOBJ_BILL && oneof2(hdr.Action, PPACN_UPDBILL, PPACN_RMVBILL)) {
-				ok = -1;
-				long   hist_id = R0i(hdr.Extra);
-				if(hdr.Id && hist_id) {
-					PPIDArray rh_bill_list;
-					rh_bill_list.add(hist_id);
-					if((ok = ViewGoodsBillCmp(hdr.Id, rh_bill_list, 1, ISHIST_RIGHTBILL, 0, &hdr.Dtm)) == 0)
-						PPError();
+		switch(ppvCmd) {
+			case PPVCMD_VIEWHISTORY:
+				if(hdr.Obj == PPOBJ_BILL && oneof2(hdr.Action, PPACN_UPDBILL, PPACN_RMVBILL)) {
+					// @todo Необходимо показывать состояние документа до изменения статуса (PPACN_BILLSTATUSUPD),
+					// но для этого дополнительный объект по событию должен быть иным (ид сохраненной копии документа)
+					LDATETIME ev_dtm = hdr.Dtm;
+					ViewBillHistory(R0i(hdr.Extra), ev_dtm);
+					ok = -1;
 				}
-			}
-		}
-		else if(ppvCmd == PPVCMD_TRANSMIT && (Filt.Flags & SysJournalFilt::fShowObjects)) {
-			Transmit();
-			ok = -1;
-		}
-		else if(ppvCmd == PPVCMD_SPCFUNC) {
-			ok = -1;
-			if(hdr.Obj == PPOBJ_PERSONPOST && hdr.Id && hdr.Action == PPACN_OBJRMV) {
-				PPObjStaffList sl_obj;
-				PPPsnPostPacket pack;
-				pack.Rec.ID = hdr.Id;
-				while(sl_obj.EditPostDialog(&pack, PPObjStaffList::epdfRecover) > 0) {
-					PPID   id = 0;
-					if(sl_obj.PutPostPacket(&id, &pack, 1))
-						break;
-					else
-						PPError();
+				else if(oneof2(hdr.Obj, PPOBJ_GOODS, PPOBJ_GOODSGROUP) && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
+					PPObjGoods _obj;
+					_obj.ViewVersion(R0i(hdr.Extra));
+					ok = -1;
 				}
-			}
-		}
-		else if(ppvCmd == PPVCMD_REFRESH) {
-			ok = -1;
-			int    do_refresh = 1;
-			if(GetServerInstId() && !(BaseState & bsServerInst)) {
-				PPJobSrvClient * p_cli = DS.GetClientSession(false/*dontReconnect*/);
-				if(p_cli) {
-					PPJobSrvCmd cmd;
-					PPJobSrvReply reply;
-					if(cmd.StartWriting(PPSCMD_REFRESHVIEW) && cmd.Write(GetServerInstId())) {
-						cmd.FinishWriting();
-						if(p_cli->ExecSrvCmd(cmd, reply)) {
-							SString reply_buf;
-							reply.StartReading(&reply_buf);
-							if(reply.CheckRepError()) {
-								ok = reply_buf.ToLong();
-								do_refresh = 0;
+				else if(hdr.Obj == PPOBJ_PERSON && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
+					PPObjPerson _obj;
+					_obj.ViewVersion(R0i(hdr.Extra));
+					ok = -1;
+				}
+				else if(hdr.Obj == PPOBJ_SCARD && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
+					PPObjSCard _obj;
+					_obj.ViewVersion(R0i(hdr.Extra));
+					ok = -1;
+				}
+				else if(hdr.Obj == PPOBJ_OPRKIND && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) { // @v12.5.7
+					PPObjOprKind _obj;
+					_obj.ViewVersion(R0i(hdr.Extra));
+					ok = -1;
+				}
+				break;
+			case PPVCMD_RESTOREGOODS:
+				if(oneof2(hdr.Obj, PPOBJ_GOODS, PPOBJ_GOODSGROUP) && oneof2(hdr.Action, PPACN_OBJUPD, PPACN_OBJRMV)) {
+					ok = -1;
+				}
+				break;
+			case PPVCMD_COMPARE:
+				if(hdr.Obj == PPOBJ_BILL && oneof2(hdr.Action, PPACN_UPDBILL, PPACN_RMVBILL)) {
+					ok = -1;
+					long   hist_id = R0i(hdr.Extra);
+					if(hdr.Id && hist_id) {
+						PPIDArray rh_bill_list;
+						rh_bill_list.add(hist_id);
+						if((ok = ViewGoodsBillCmp(hdr.Id, rh_bill_list, 1, ISHIST_RIGHTBILL, 0, &hdr.Dtm)) == 0)
+							PPError();
+					}
+				}
+				break;
+			case PPVCMD_TRANSMIT:
+				if(Filt.Flags & SysJournalFilt::fShowObjects) {
+					Transmit();
+					ok = -1;
+				}
+				break;
+			case PPVCMD_SPCFUNC:
+				ok = -1;
+				if(hdr.Obj == PPOBJ_PERSONPOST && hdr.Id && hdr.Action == PPACN_OBJRMV) {
+					PPObjStaffList sl_obj;
+					PPPsnPostPacket pack;
+					pack.Rec.ID = hdr.Id;
+					while(sl_obj.EditPostDialog(&pack, PPObjStaffList::epdfRecover) > 0) {
+						PPID   id = 0;
+						if(sl_obj.PutPostPacket(&id, &pack, 1))
+							break;
+						else
+							PPError();
+					}
+				}
+				break;
+			case PPVCMD_REFRESH:
+				ok = -1;
+				{
+					int    do_refresh = 1;
+					if(GetServerInstId() && !(BaseState & bsServerInst)) {
+						PPJobSrvClient * p_cli = DS.GetClientSession(false/*dontReconnect*/);
+						if(p_cli) {
+							PPJobSrvCmd cmd;
+							PPJobSrvReply reply;
+							if(cmd.StartWriting(PPSCMD_REFRESHVIEW) && cmd.Write(GetServerInstId())) {
+								cmd.FinishWriting();
+								if(p_cli->ExecSrvCmd(cmd, reply)) {
+									SString reply_buf;
+									reply.StartReading(&reply_buf);
+									if(reply.CheckRepError()) {
+										ok = reply_buf.ToLong();
+										do_refresh = 0;
+									}
+								}
 							}
 						}
 					}
+					if(do_refresh) {
+						const LDATETIME since = LastRefreshDtm;
+						LastRefreshDtm = getcurdatetime_();
+						if(IsTempTblNeeded()) {
+							if(RefreshTempTable(since) > 0)
+								ok = 1;
+						}
+						else
+							ok = 1;
+					}
 				}
-			}
-			if(do_refresh) {
-				const LDATETIME since = LastRefreshDtm;
-				LastRefreshDtm = getcurdatetime_();
-				if(IsTempTblNeeded()) {
-					if(RefreshTempTable(since) > 0)
-						ok = 1;
+				break;
+			case PPVCMD_MOUSEHOVER: // @v12.7.5
+				if(pBrw) {
+					pBrw->ShowCellStyleHint();
+					ok = -1;
 				}
-				else
-					ok = 1;
-			}
+				break;
 		}
 	}
 	return ok;

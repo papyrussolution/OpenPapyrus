@@ -726,12 +726,12 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 			const  bool is_spirit    = (pGoodsIter->GetAlcoGoodsExtension(r_cur_entry.ID, 0, agi) > 0);
 			const  bool is_tobacco   = (tobacco_cls_id && tobacco_cls_id == r_cur_entry.GdsClsID);
 			const  bool is_gift_card = (giftcard_cls_id && giftcard_cls_id == r_cur_entry.GdsClsID);
-			int    tag1212 = 0; // @v11.2.0
+			int    tag1212 = 0;
 			int    do_process_lookbackprices = 0;
 			int    is_weight = 0;
 			LDATE  expiry = ZERODATE;
 			PPID   country_id = 0;
-			PPQuotKind qk_rec;
+			PPQuotKind2 qk_rec;
 			const long divn = (rCnData.Flags & CASHF_EXPDIVN) ? r_cur_entry.DivN : 1;
 			const bool is_deleted = ((r_cur_entry.Flags_ & AsyncCashGoodsInfo::fDeleted) || (r_cur_entry.GoodsFlags & GF_PASSIV && 
 				rCnData.ExtFlags & CASHFX_RMVPASSIVEGOODS && r_cur_entry.Rest <= 0.0));
@@ -778,11 +778,10 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 				p_writer->EndElement();
 			}
 			else {
-				// @v11.4.4 {
 				if(goodsIdAsArticle) {
 					p_writer->StartElement("good", "marking-of-the-good", temp_buf.Z().Cat(r_cur_entry.ID)); 
 				}
-				else /* } @v11.4.4 */ {
+				else {
 					p_writer->StartElement("good", "marking-of-the-good", pref_barcode);
 				}
 				if(oneof2(mode, 0, 2)) { // only 0 works
@@ -806,7 +805,7 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 										case GTCHZNPT_CARTIRE: p_mark_type = "TYRES"; break;
 										case GTCHZNPT_PERFUMERY: p_mark_type = "PERFUMES"; break;
 										case GTCHZNPT_MILK: p_mark_type = "MILK"; break;
-										case GTCHZNPT_WATER: p_mark_type = "WATER"; break; // @v11.5.6
+										case GTCHZNPT_WATER: p_mark_type = "WATER"; break;
 										case GTCHZNPT_DRAFTBEER_AWR: p_mark_type = "DRAFT_BEER"; break; // @v12.0.5
 										case GTCHZNPT_DRAFTBEER: p_mark_type = "DRAFT_BEER"; break; // @v11.9.2
 										case GTCHZNPT_BEER: p_mark_type = "BEER"; break; // @v12.0.4
@@ -859,17 +858,17 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 					}
 					else if(is_tobacco) {
 						p_writer->PutElement("product-type", "ProductCiggyEntity");
-						tag1212 = (r_cur_entry.Flags_ & AsyncCashGoodsInfo::fGMarkedType) ? 31 : 30; // @v11.2.0
+						tag1212 = (r_cur_entry.Flags_ & AsyncCashGoodsInfo::fGMarkedType) ? 31 : 30;
 						if(!ignore_lookbackprices)
 							do_process_lookbackprices = 1;
 					}
 					else if(is_gift_card) {
 						p_writer->PutElement("product-type", "ProductGiftCardEntity");
-						tag1212 = 10; // @v11.2.0
+						tag1212 = 10;
 					}
 					else {
 						if(r_cur_entry.Flags_ & AsyncCashGoodsInfo::fGMarkedType)
-							tag1212 = 33; // @v11.2.0
+							tag1212 = 33;
 						else {
 							if(r_cur_entry.Flags_ & AsyncCashGoodsInfo::fGExciseProForma) // @v11.7.10
 								tag1212 = 2;

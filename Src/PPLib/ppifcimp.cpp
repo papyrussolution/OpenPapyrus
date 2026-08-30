@@ -2947,7 +2947,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPObjQuotKind, DL6ICLS_PPObjQuotKind_VTab, PPObjQuotKi
 //
 // Interface IPapyrusObject implementation
 //
-static void FASTCALL FillQuotKindRec(const PPQuotKind * pInner, SPpyO_QuotKind * pOuter)
+static void FASTCALL FillQuotKindRec(const PPQuotKind2 * pInner, SPpyO_QuotKind * pOuter)
 {
 	SString temp_buf;
 	#define FLD(f) pOuter->f = pInner->f
@@ -2973,7 +2973,7 @@ int32 DL6ICLS_PPObjQuotKind::Search(int32 id, PPYOBJREC rec)
 	int    ok = 0;
 	PPObjQuotKind * p_obj = static_cast<PPObjQuotKind *>(ExtraPtr);
 	if(p_obj) {
-		PPQuotKind qk_rec;
+		PPQuotKind2 qk_rec;
 		ok = p_obj->Search(id, &qk_rec);
 		FillQuotKindRec(&qk_rec, static_cast<SPpyO_QuotKind *>(rec));
 	}
@@ -2986,7 +2986,7 @@ int32 DL6ICLS_PPObjQuotKind::SearchByName(SString & text, int32 kind, int32 extr
 	int    ok = 0;
 	PPObjQuotKind * p_obj = static_cast<PPObjQuotKind *>(ExtraPtr);
 	if(p_obj) {
-		PPQuotKind qk_rec;
+		PPQuotKind2 qk_rec;
 		PPID   id = 0;
 		if(kind == 1) {
 			ok = p_obj->SearchBySymb(text, &id);

@@ -1990,7 +1990,7 @@ static void InitTest()
 	STATIC_ASSERT(sizeof(PPDynanicObjItem) == sizeof(Reference2Tbl::Rec));
 	STATIC_ASSERT(sizeof(PPStaffEntry) == sizeof(Reference2Tbl::Rec));
 	STATIC_ASSERT(sizeof(PPAccount) == sizeof(Reference2Tbl::Rec));
-	STATIC_ASSERT(sizeof(PPQuotKind) == sizeof(Reference2Tbl::Rec)); // @v11.7.1
+	STATIC_ASSERT(sizeof(PPQuotKind2) == sizeof(Reference2Tbl::Rec)); // @v11.7.1
 	STATIC_ASSERT(sizeof(PPBizScore2) == sizeof(Reference2Tbl::Rec)); // @v11.9.1
 	STATIC_ASSERT(sizeof(PPComputerCategory) == sizeof(Reference2Tbl::Rec)); // @v12.0.10
 	STATIC_ASSERT(sizeof(PPRawMaterial) == sizeof(Reference2Tbl::Rec)); // @v12.0.10

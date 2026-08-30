@@ -326,9 +326,9 @@ PPTransaction::~PPTransaction()
 		DBS.GetTLA().RollbackWork();
 }
 
-int PPTransaction::operator !()
+bool PPTransaction::operator !() const
 {
-	return Err ? (PPSetErrorDB(), 1) : 0;
+	return Err ? (PPSetErrorDB(), true) : false;
 }
 
 int PPTransaction::Start(int use_ta)

@@ -2198,27 +2198,27 @@ void OprKindDialog::EditOptions2(uint dlgID, int useMainAmt, const PPIDArray * p
 			SETFLAG(v, (1 << i), f & o);
 		}
 		dlg->setCtrlUInt16(CTL_OPKMORE_FLAGS, v);
-		//@erik v10.5.9 {
-		long paym_type_flg = 0;
-		const bool is_cash_f = ext_options.lsearch(OPKFX_PAYMENT_CASH);
-		const bool is_bank_f = ext_options.lsearch(OPKFX_PAYMENT_NONCASH);
+		//@erik {
+		long   paym_type_flg = 0;
+		const  bool is_cash_f = ext_options.lsearch(OPKFX_PAYMENT_CASH);
+		const  bool is_bank_f = ext_options.lsearch(OPKFX_PAYMENT_NONCASH);
 		assert((is_cash_f && is_bank_f) || (!is_cash_f && !is_bank_f));
 		if(is_cash_f && is_bank_f) {
 			paym_type_flg = 1; // если флаги есть, то не придется выполнять поиск еще раз. Далее просто проверим значение этой переменной
 			dlg->AddClusterAssocDef(CTL_OPKMORE_PAYMTYPE, 0, 0);
 			dlg->AddClusterAssoc(CTL_OPKMORE_PAYMTYPE, 1, OPKFX_PAYMENT_CASH);
 			dlg->AddClusterAssoc(CTL_OPKMORE_PAYMTYPE, 2, OPKFX_PAYMENT_NONCASH);
-			const long __p = CHKXORFLAGS(ext_f, OPKFX_PAYMENT_CASH, OPKFX_PAYMENT_NONCASH);
+			const  long __p = CHKXORFLAGS(ext_f, OPKFX_PAYMENT_CASH, OPKFX_PAYMENT_NONCASH);
 			dlg->SetClusterData(CTL_OPKMORE_PAYMTYPE, __p);
 		}
 		// } @erik
 		v = 0;
 		for(i = 0; i < ext_options.getCount(); i++) {
 			ext_o = (ulong)ext_options.at(i);
-			if(!oneof2(ext_o, OPKFX_PAYMENT_CASH, OPKFX_PAYMENT_NONCASH)) //@erik v10.5.9
+			if(!oneof2(ext_o, OPKFX_PAYMENT_CASH, OPKFX_PAYMENT_NONCASH)) { //@erik v10.5.9
 				SETFLAG(v, (1 << i), ext_f & ext_o);
+			}
 		}
-
 		dlg->setCtrlUInt16(CTL_OPKMORE_EXTFLAGS, v);
 		if(useMainAmt) {
 			s = (f & OPKF_SELLING);
@@ -2239,12 +2239,14 @@ void OprKindDialog::EditOptions2(uint dlgID, int useMainAmt, const PPIDArray * p
 		P_Data->GetExtStrData(OPKEXSTR_OBJ2NAME, obj2name);
 		dlg->setCtrlString(CTL_OPKMORE_MEMO,     memo_tmpl);
 		dlg->setCtrlString(CTL_OPKMORE_OBJ2NAME, obj2name);
-		if(dlg->getCtrlView(CTLSEL_OPKMORE_DEFLOC))
+		if(dlg->getCtrlView(CTLSEL_OPKMORE_DEFLOC)) {
 			SetupPPObjCombo(dlg, CTLSEL_OPKMORE_DEFLOC, PPOBJ_LOCATION, P_Data->Rec.DefLocID, 0, 0);
+		}
 		if(dlg->getCtrlView(CTL_OPKMORE_SUBTYPE) && pSubTypeList) {
 			v = 0;
-			if(pSubTypeList->lsearch(P_Data->Rec.SubType, &(i = 0)))
+			if(pSubTypeList->lsearch(P_Data->Rec.SubType, &(i = 0))) {
 				v = i;
+			}
 			dlg->setCtrlData(CTL_OPKMORE_SUBTYPE, &v);
 		}
 		if(dlg->getCtrlView(CTL_OPKMORE_MCR)) {
@@ -2355,7 +2357,7 @@ void OprKindDialog::moreDialog()
 			case PPOPT_ACCTURN:
 			case PPOPT_AGREEMENT:
 				subtypelist.addzlist(static_cast<long>(OPSUBT_COMMON), OPSUBT_ADVANCEREP, OPSUBT_REGISTER,
-					OPSUBT_WARRANT, OPSUBT_DEBTINVENT, OPSUBT_ACCWROFF, OPSUBT_POSCORRECTION, 0L);
+					OPSUBT_WARRANT, OPSUBT_DEBTINVENT, OPSUBT_ACCWROFF, OPSUBT_POSCORRECTION, OPSUBT_PERSONALFINANCE, 0L); // @v12.7.5 OPSUBT_PERSONALFINANCE
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_AUTOWL, OPKF_EXTACCTURN,
 					OPKF_RENT, OPKF_BANKING, OPKF_CURTRANSIT,
 					OPKF_PROFITABLE, OPKF_OUTBALACCTURN, OPKF_ADVACC, OPKF_ATTACHFILES, OPKF_FREIGHT, OPKF_USEEXT, 0L); // @v12.3.4 OPKF_USEEXT
@@ -2374,7 +2376,7 @@ void OprKindDialog::moreDialog()
 				subtypelist.addzlist(static_cast<long>(OPSUBT_COMMON), OPSUBT_ASSETRCV, 0L);
 				options_list.addzlist(OPKF_NEEDPAYMENT, OPKF_PROFITABLE, OPKF_ONORDER, OPKF_CALCSTAXES,
 					OPKF_AUTOWL, OPKF_USEEXT, OPKF_RENT, OPKF_FREIGHT, OPKF_NOUPDLOTREST,
-					OPKF_ATTACHFILES, OPKF_NEEDVALUATION, OPKF_RESTRICTBYMTX, OPKF_NOCALCTIORD, 0L); // @v11.0.10 OPKF_NOCALCTIORD
+					OPKF_ATTACHFILES, OPKF_NEEDVALUATION, OPKF_RESTRICTBYMTX, OPKF_NOCALCTIORD, 0L);
 				ext_options_list.addzlist(OPKFX_ALLOWPARTSTR, OPKFX_RESTRICTPRICE, OPKFX_UNLINKRET,
 					OPKFX_DLVRLOCASWH, OPKFX_AUTOGENUUID, OPKFX_SETCTXAGENT, 0L); // @v12.3.4
 				EditOptions2(DLG_OPKMORE_GRC, 1, &subtypelist, &options_list, &ext_options_list);

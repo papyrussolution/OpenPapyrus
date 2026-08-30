@@ -356,7 +356,7 @@ int PPViewPriceList::GetPriceByQuot(RecalcParamBlock * pRPB, PPID quotKindID, do
 int PPViewPriceList::SetByQuot(RecalcParamBlock * pRPB, double unitsPerPack, int isPresent, int use_ta)
 {
 	int    ok = 1, r;
-	PPQuotKind qk_rec;
+	PPQuotKind2 qk_rec;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);

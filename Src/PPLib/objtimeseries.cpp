@@ -2128,32 +2128,60 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-int PPViewTimeSeries::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
+int PPViewTimeSeries::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	if(pBrw && pData && pCellStyle && col >= 0) {
+	if(pBrw && pData && pStyle && col >= 0) {
 		const BrowserDef * p_def = pBrw->getDef();
 		if(col < static_cast<long>(p_def->getCount())) {
 			const BroColumn & r_col = p_def->at(col);
 			if(col == 0) { // id
-				const long cfg_flags = static_cast<const BrwItem *>(pData)->CfgFlags;
-				if(cfg_flags & PPObjTimeSeries::Config::efDisableStake)
-					ok = pCellStyle->SetLeftTopCornerColor(GetColorRef(SClrGrey));
-				if(cfg_flags & PPObjTimeSeries::Config::efLong && cfg_flags & PPObjTimeSeries::Config::efShort)
-					ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrOrange));
-				else if(cfg_flags & PPObjTimeSeries::Config::efLong)
-					ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrGreen));
-				else if(cfg_flags & PPObjTimeSeries::Config::efShort)
-					ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+				const  long cfg_flags = static_cast<const BrwItem *>(pData)->CfgFlags;
+				if(cfg_flags & PPObjTimeSeries::Config::efDisableStake) {
+					ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrGrey));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TIMESERIES_STAKE_DISABLED, SLS.AcquireRvlStr()));
+					}
+				}
+				if(cfg_flags & PPObjTimeSeries::Config::efLong && cfg_flags & PPObjTimeSeries::Config::efShort) {
+					ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrOrange));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TIMESERIES_STAKE_STAKE_ANY, SLS.AcquireRvlStr()));
+					}
+				}
+				else if(cfg_flags & PPObjTimeSeries::Config::efLong) {
+					ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrGreen));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TIMESERIES_STAKE_STAKE_LONG, SLS.AcquireRvlStr()));
+					}
+				}
+				else if(cfg_flags & PPObjTimeSeries::Config::efShort) {
+					ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TIMESERIES_STAKE_STAKE_SHORT, SLS.AcquireRvlStr()));
+					}
+				}
 			}
 			else if(col == 2) { // name
 				const int16 type = static_cast<const BrwItem *>(pData)->Type;
-				if(type == PPTimeSeries::tForex)
-					ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrPink));
-				else if(type == PPTimeSeries::tStocks)
-					ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrLightblue));
-				else if(type == PPTimeSeries::tCrypto)
-					ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrLightgreen));
+				if(type == PPTimeSeries::tForex) {
+					ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrPink));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TIMESERIES_FOREX, SLS.AcquireRvlStr()));
+					}
+				}
+				else if(type == PPTimeSeries::tStocks) {
+					ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrLightblue));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TIMESERIES_STOCK, SLS.AcquireRvlStr()));
+					}
+				}
+				else if(type == PPTimeSeries::tCrypto) {
+					ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrLightgreen));
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_TIMESERIES_CRYPTO, SLS.AcquireRvlStr()));
+					}
+				}
 			}
 		}
 	}
@@ -2353,6 +2381,12 @@ int PPViewTimeSeries::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 				break;
 			case PPVCMD_REFRESH:
 				ok = 1;
+				break;
+			case PPVCMD_MOUSEHOVER: // @v12.7.5
+				if(pBrw) {
+					pBrw->ShowCellStyleHint();
+					ok = -1;
+				}
 				break;
 		}
 	}

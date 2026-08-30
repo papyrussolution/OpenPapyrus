@@ -32,17 +32,14 @@ SlipLineParam & SlipLineParam::Z()
 	BarcodeWd = 0;
 	BarcodeHt = 0;
 	ChZnProductType = 0;
-	PpChZnR.Z(); // @v11.1.11
+	PpChZnR.Z();
 	Text.Z();
 	Code.Z();
 	ChZnCode.Z();
 	ChZnGTIN.Z();
 	ChZnSerial.Z();
 	ChZnSid.Z();
-	ChZnPm_ReqId.Z();  // @v12.1.1
-	ChZnPm_ReqTimestamp = 0; // @v12.1.1
-	ChZnPm_LocalModuleInstance.Z(); // @v12.3.12
-	ChZnPm_LocalModuleDbVer.Z();    // @v12.3.12
+	ChZnPmRT.Z();
 	return *this;
 }
 //
@@ -143,12 +140,12 @@ public:
 		long   GoodsID;       //
 		CCheckPacket::PaymentTermTag Ptt; // Признак способа расчета (определяется типом товара)
 		CCheckPacket::SubjTermTag Stt;    // @erikD Признак предмета расчета
-		char   Text[256];      //
-		char   Code[32];       //
-		char   ChZnCode[256];  //
-		char   ChZnGTIN[16];   // 
-		char   ChZnSerial[32]; // 
-		char   ChZnPartN[32];  // 
+		char   Text[256];
+		char   Code[32];
+		char   ChZnCode[256];
+		char   ChZnGTIN[16];
+		char   ChZnSerial[32];
+		char   ChZnPartN[32];
 		RECT   PictCoord;
 		const  Zone * P_Zone;
 		const  Entry * P_Entry;
@@ -156,11 +153,8 @@ public:
 			const Zone * P_Zone;
 			long  EntryNo;
 		};
-		int64  ChZnPm_ReqTimestamp; // @v12.1.1
-		S_GUID ChZnPm_ReqId;        // @anchor @v12.1.1
-		S_GUID ChZnPm_LocalModuleInstance; // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): идент локального модуля проверки
-		S_GUID ChZnPm_LocalModuleDbVer;    // @v12.3.12 ответ разрешительного режима чзн (локальный сервер): версия базы «чёрного списка», на которой выполнялась проверка КИ
-		TSStack <SI> Stack;         // @anchor
+		ChZnPmReplyTags ChZnPmRT; // @anchor
+		TSStack <SI> Stack;       // @anchor
 	};
 
 	PPSlipFormat();
@@ -337,15 +331,13 @@ PPSlipFormat::BarcodeBlock::BarcodeBlock() : Id(0), Flags(0), BcStd(0), Width(0)
 
 PPSlipFormat::Iter::Iter()
 {
-	memzero(this, offsetof(Iter, ChZnPm_ReqId));
+	memzero(this, offsetof(Iter, ChZnPmRT));
 }
 		
 PPSlipFormat::Iter & PPSlipFormat::Iter::Z()
 {
-	memzero(this, offsetof(Iter, ChZnPm_ReqId));
-	ChZnPm_ReqId.Z();
-	ChZnPm_LocalModuleInstance.Z();
-	ChZnPm_LocalModuleDbVer.Z();
+	memzero(this, offsetof(Iter, ChZnPmRT));
+	ChZnPmRT.Z();
 	Stack.freeAll();
 	return *this;
 }
@@ -1544,10 +1536,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 			pIter->ChZnGTIN[0] = 0;
 			pIter->ChZnSerial[0] = 0;
 			pIter->ChZnPartN[0] = 0;
-			pIter->ChZnPm_ReqId.Z();  // @v12.1.1
-			pIter->ChZnPm_ReqTimestamp = 0; // @v12.1.1
-			pIter->ChZnPm_LocalModuleInstance.Z(); // @v12.5.1
-			pIter->ChZnPm_LocalModuleDbVer.Z();    // @v12.5.1
+			pIter->ChZnPmRT.Z();
 			const PPSlipFormat::Zone * p_zone = pIter->P_Zone;
 			if(pIter->EntryNo < p_zone->getCountI()) {
 				const PPSlipFormat::Entry * p_entry = pIter->P_Entry = p_zone->at(pIter->EntryNo);
@@ -1666,17 +1655,17 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 										const int cclnext_pos = pIter->SrcItemNo+1;
 										P_CcPack->GetLineTextExt(cclnext_pos, CCheckPacket::lnextChZnPm_ReqId, temp_buf); 
 										if(temp_buf.NotEmptyS()) {
-											pIter->ChZnPm_ReqId.FromStr(temp_buf);
+											pIter->ChZnPmRT.ReqId.FromStr(temp_buf);
 											P_CcPack->GetLineTextExt(cclnext_pos, CCheckPacket::lnextChZnPm_ReqTimestamp, temp_buf); 
 											if(temp_buf.NotEmptyS())
-												pIter->ChZnPm_ReqTimestamp = temp_buf.ToInt64();
+												pIter->ChZnPmRT.ReqTimestamp = temp_buf.ToInt64();
 											// @v12.3.12 {
 											P_CcPack->GetLineTextExt(cclnext_pos, CCheckPacket::lnextChZnPm_LocalModuleInstance, temp_buf); 
 											if(temp_buf.NotEmpty())
-												pIter->ChZnPm_LocalModuleInstance.FromStr(temp_buf);
+												pIter->ChZnPmRT.LocalModuleInstance.FromStr(temp_buf);
 											P_CcPack->GetLineTextExt(cclnext_pos, CCheckPacket::lnextChZnPm_LocalModuleDbVer, temp_buf); 
 											if(temp_buf.NotEmpty())
-												pIter->ChZnPm_LocalModuleDbVer.FromStr(temp_buf);
+												pIter->ChZnPmRT.LocalModuleDbVer.FromStr(temp_buf);
 											// } @v12.3.12 
 										}
 									}
@@ -2578,7 +2567,6 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 			sl_param.ChZnSerial = CurIter.ChZnSerial;
 			sl_param.ChZnPartN = CurIter.ChZnPartN;
 			sl_param.ChZnProductType = CurIter.ChZnProductType;
-			// @v11.1.11 {
 			if(P_CcPack && sl_param.ChZnCode.NotEmpty()) {
 				const CCheckPacket::PreprocessChZnCodeResult * p_ppr = P_CcPack->GetLineChZnPreprocessResult(CurIter.SrcItemNo+1); 
 				if(p_ppr) {
@@ -2587,14 +2575,8 @@ int PPSlipFormat::NextIteration(SString & rBuf, SlipLineParam * pParam)
 				}
 				else
 					sl_param.PpChZnR.Z(); // @paranoic
-				// @v12.1.1 {
-				sl_param.ChZnPm_ReqId = CurIter.ChZnPm_ReqId;
-				sl_param.ChZnPm_ReqTimestamp = CurIter.ChZnPm_ReqTimestamp;
-				sl_param.ChZnPm_LocalModuleInstance = CurIter.ChZnPm_LocalModuleInstance; // @v12.5.1
-				sl_param.ChZnPm_LocalModuleDbVer = CurIter.ChZnPm_LocalModuleDbVer; // @v12.5.1
-				// } @v12.1.1 
+				sl_param.ChZnPmRT = CurIter.ChZnPmRT;
 			}
-			// } @v11.1.11 
 			{
 				const  long font_id = sl_param.Font;
 				uint   font_pos = 0;

@@ -1429,13 +1429,16 @@ int PPViewQuot::OnExecBrowser(PPViewBrowser * pBrw)
 	PPViewQuot * p_view = static_cast<PPViewQuot *>(extraPtr);
 	const QuotFilt * p_filt = (const QuotFilt*)p_view->GetBaseFilt();
 	PPViewQuot::BrwHdr hdr;
-	if(p_view && p_filt && pStyle && paintAction == BrowserWindow::paintNormal) {
+	if(p_view && p_filt && pStyle/* @v12.7.5 && paintAction == BrowserWindow::paintNormal*/) {
 		if(p_filt->IsSeries() && p_view->P_Qc2) {
 			const BrwHdrSer * p_hs = static_cast<const BrwHdrSer *>(pData);
 			if(col == 2 && p_hs->ValF & PPQuot::fActual) {
 				pStyle->Flags = BrowserWindow::CellStyle::fCorner;
 				pStyle->Color = GetColorRef(SClrCyan);
 				ok = 1;
+				if(paintAction == BrowserWindow::paintQueryDescription) {
+					pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_QUOT_ACTUAL, SLS.AcquireRvlStr()));
+				}
 			}
 		}
 		else {
@@ -1443,15 +1446,21 @@ int PPViewQuot::OnExecBrowser(PPViewBrowser * pBrw)
 				p_view->GetEditIds(pData, &hdr, col);
 				double val = 0.0;
 				p_view->GetCtQuotVal(pData, col, 0, &val);
-				if(val > 0) {
+				if(val > 0.0) {
 					pStyle->Flags = BrowserWindow::CellStyle::fCorner;
 					pStyle->Color = GetColorRef(SClrGreen);
 					ok = 1;
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_QUOT_POSITIVE, SLS.AcquireRvlStr()));
+					}
 				}
-				else if(val < 0) {
+				else if(val < 0.0) {
 					pStyle->Flags = BrowserWindow::CellStyle::fCorner;
 					pStyle->Color = GetColorRef(SClrRed);
 					ok = 1;
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_QUOT_NEGATIVE, SLS.AcquireRvlStr()));
+					}
 				}
 			}
 			else if(p_filt->QkCls == PPQuot::clsMtx) {
@@ -1461,7 +1470,6 @@ int PPViewQuot::OnExecBrowser(PPViewBrowser * pBrw)
 					DateRange period;
 					Quotation2Core::PeriodIdxToPeriod(p_hdr->PeriodIdx, &period);
 					for(uint i = 0; i < p_view->QList_.getCount(); i++) {
-
 					}
 					ok = -1;
 				}
@@ -1751,6 +1759,12 @@ int PPViewQuot::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 						Filt.GoodsGrpID = ggrp;
 						ok = ChangeFilt(1, pBrw);
 					}
+				}
+				break;
+			case PPVCMD_MOUSEHOVER: // @v12.7.5
+				if(pBrw) {
+					pBrw->ShowCellStyleHint();
+					ok = -1;
 				}
 				break;
 		}

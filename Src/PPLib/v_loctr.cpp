@@ -985,18 +985,21 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-int PPViewLocTransf::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
+int PPViewLocTransf::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	if(pBrw && pData && pCellStyle && col >= 0) {
+	if(pBrw && pData && pStyle && col >= 0) {
 		const BrowserDef * p_def = pBrw->getDef();
-		if(col < static_cast<long>(p_def->getCount())) {
-			const BroColumn & r_col = p_def->at(col);
+		if(col < p_def->getCountI()) {
+			const  BroColumn & r_col = p_def->at(col);
 			if(r_col.OrgOffs == 5) { // qtty
-				const long flags = static_cast<const Hdr *>(pData)->Flags;
+				const  long flags = static_cast<const Hdr *>(pData)->Flags;
 				if(flags & LOCTRF_ORDER) {
-					pCellStyle->Color = GetColorRef(SClrBlueviolet);
+					pStyle->Color = GetColorRef(SClrBlueviolet);
 					ok = 1;
+					if(paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_LOCTRANSF_ORDER, SLS.AcquireRvlStr()));
+					}
 				}
 			}
 		}
@@ -1026,9 +1029,7 @@ int PPViewLocTransf::CellStyleFunc_(const void * pData, long col, int paintActio
 
 DBQuery * PPViewLocTransf::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
-	// LocTransfFilt
 	static DbqStringSubst optype_subst(3);  // @global @threadsafe
-
 	uint   brw_id = (Filt.Domain == LOCTRFRDOMAIN_BAILMENT) ? BROWSER_LOCTRANSF_BAILMENT : BROWSER_LOCTRANSF;
 	DBQuery * p_q = 0;
 	DBE    dbe_loc;      // Наименование ячейки
@@ -1513,6 +1514,12 @@ int PPViewLocTransf::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 						else if(r > 0)
 							ok = 1;
 					}
+				}
+				break;
+			case PPVCMD_MOUSEHOVER: // @v12.7.5
+				if(pBrw) {
+					pBrw->ShowCellStyleHint();
+					ok = -1;
 				}
 				break;
 		}

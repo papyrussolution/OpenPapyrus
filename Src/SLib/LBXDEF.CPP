@@ -650,7 +650,7 @@ void StdTreeListBoxDef::getScrollData(long * pScrollDelta, long * pScrollPos)
 	ASSIGN_PTR(pScrollPos, 0);
 	if(P_SaList) {
 		uint32 pos = 0;
-		const long * p_id = static_cast<const long *>(getRow_(_curItem()));
+		const  long * p_id = static_cast<const long *>(getRow_(_curItem()));
 		if(p_id && *p_id && T.Search(p_id, &pos, CMPF_LONG)) {
 			const TreeItem * p_item = static_cast<const TreeItem *>(T.GetData(pos));
 			if(p_item)
@@ -906,10 +906,10 @@ static IMPL_CMPFUNC(INTVECBYINTVER, i1, i2)
 {
 	const LongArray * p_list = static_cast<const LongArray *>(pExtraData);
 	if(p_list) {
-		long v1 = *static_cast<const long *>(i1);
-		long v2 = *static_cast<const long *>(i2);
-		uint pos1 = 0;
-		uint pos2 = 0;
+		const  long v1 = *static_cast<const long *>(i1);
+		const  long v2 = *static_cast<const long *>(i2);
+		uint   pos1 = 0;
+		uint   pos2 = 0;
 		if(p_list->lsearch(v1, &pos1) && p_list->lsearch(v2, &pos2))
 			return CMPSIGN(pos1, pos2);
 		else

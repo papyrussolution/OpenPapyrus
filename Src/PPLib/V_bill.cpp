@@ -2709,7 +2709,7 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 	int    ok = -1;
 	if(pBrw && pData && pStyle) {
 		const  BrowserDef * p_def = pBrw->getDef();
-		if(col >= 0 && col < static_cast<long>(p_def->getCount())) {
+		if(col >= 0 && col < p_def->getCountI()) {
 			const BroColumn & r_col = p_def->at(col);
 			BillTbl::Rec bill_rec;
 			const PPViewBill::BrwHdr * p_hdr = static_cast<const PPViewBill::BrwHdr *>(pData);
@@ -2719,11 +2719,18 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 						if(PPMaster) {
 							if(bill_rec.Flags2 & BILLF2_FULLSYNC) {
 								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrDodgerblue));
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_BILL_FULLSYNC, SLS.AcquireRvlStr()));
+								}
 							}
 						}
 						// @v12.7.2 {
 						if(bill_rec.Flags & BILLF_CHECK) {
 							ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrLightblue));
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								// По документу отпечатан кассовый чек
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_BILL_CCHECK, SLS.AcquireRvlStr()));
+							}
 						}
 						// } @v12.7.2 
 					}
@@ -2733,81 +2740,190 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 						const TagFilt & r_tag_filt = P_BObj->GetConfig().TagIndFilt;
 						if(!r_tag_filt.IsEmpty()) {
 							SColor clr;
-							if(r_tag_filt.SelectIndicator(p_hdr->ID, clr))
+							const  uint tag_ind_idx = r_tag_filt.SelectIndicator(p_hdr->ID, clr);
+							if(tag_ind_idx) {
 								ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									SString & r_text = SLS.AcquireRvlStr();
+									SString & r_prefix = PPLoadStringS(PPSTR_TCELHLD, TCELHLD_BILL_TAGINDICATOR, SLS.AcquireRvlStr());
+									r_tag_filt.MakeIndicatorDescrText(tag_ind_idx, r_prefix, r_text);
+									pStyle->CatDescriptionText(r_text);
+								}
+							}
 						}
 						if(P_BObj->GetConfig().Flags & BCF_PAINTSHIPPEDBILLS) {
-							if(bill_rec.Flags & BILLF_SHIPPED)
+							if(bill_rec.Flags & BILLF_SHIPPED) {
 								ok = pStyle->SetFullCellColor(LightenColor(GetColorRef(SClrBlue), 0.7f));
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_BILL_SHIPPED, SLS.AcquireRvlStr()));
+								}
+							}
 						}
-						if(bill_rec.Flags2 & BILLF2_BHT)
+						if(bill_rec.Flags2 & BILLF2_BHT) {
 							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrLime));
-						if(bill_rec.Flags & BILLF_WHITELABEL)
+						}
+						if(bill_rec.Flags & BILLF_WHITELABEL) {
 							ok = pStyle->SetRightFigTriangleColor(SClrHotpink);
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								// Документ имеет специальную метку white-label
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_BILL_WL, SLS.AcquireRvlStr()));
+							}
+						}
 					}
 				}
 				else if(r_col.OrgOffs == 4) { // Memo
 					SString & r_memos = SLS.AcquireRvlStr();
-					if(P_BObj->FetchExtMemo(p_hdr->ID, r_memos) > 0)
+					if(P_BObj->FetchExtMemo(p_hdr->ID, r_memos) > 0) {
 						ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrDarkgreen));
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							// К документу привязаны дополнительные примечения //
+							//pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_BILL_EXTMEMOS, SLS.AcquireRvlStr()));
+						}
+					}
 					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0 && bill_rec.Flags2 & BILLF2_FORCEDRECEIPT) {
-						if(pStyle->SetRightFigCircleColor(GetColorRef(SClrHotpink)) > 0) {
-							ok = 1;
+						ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrHotpink));
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							// Документ форсированной компенсации операционного дефицита
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_BILL_FORCEDRECEIPT, SLS.AcquireRvlStr()));
 						}
 					}
 				}
 				else if(r_col.OrgOffs == 6) { // Contragent
 					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0 && bill_rec.Object) {
 						ArticleTbl::Rec ar_rec;
-						if(ArObj.Fetch(bill_rec.Object, &ar_rec) > 0 && ar_rec.Flags & ARTRF_STOPBILL)
+						if(ArObj.Fetch(bill_rec.Object, &ar_rec) > 0 && ar_rec.Flags & ARTRF_STOPBILL) {
 							ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrCoral));
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								// Для контрагента по этому документу установлен признак 'STOP'
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_BILL_CONTRACTORSTOPPED, SLS.AcquireRvlStr()));
+							}
+						}
 					}
 				}
 				else if(r_col.OrgOffs == 10) { // Status
 					if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0) {
 						const  PPID op_type_id = GetOpType(bill_rec.OpID);
 						if(oneof4(op_type_id, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) {
-							if(bill_rec.Flags2 & BILLF2_DECLINED)
+							if(bill_rec.Flags2 & BILLF2_DECLINED) {
 								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrGrey));
-							else if(bill_rec.Flags & BILLF_WRITEDOFF)
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									// Документ отклонен
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_BILL_DECLINED, SLS.AcquireRvlStr()));
+								}
+							}
+							else if(bill_rec.Flags & BILLF_WRITEDOFF) {
 								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrOrange));
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									// Документ списан
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_BILL_WRITEDOFF, SLS.AcquireRvlStr()));
+								}
+							}
 						}
 						else if(op_type_id == PPOPT_GOODSORDER) {
-							if(bill_rec.Flags2 & BILLF2_DECLINED) // @v12.1.6
+							if(bill_rec.Flags2 & BILLF2_DECLINED) { // @v12.1.6
 								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrGrey));
-							else if(bill_rec.Flags & BILLF_CLOSEDORDER)
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									// Заказ отклонен
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_BILL_ORDERDECLINED, SLS.AcquireRvlStr()));
+								}
+							}
+							else if(bill_rec.Flags & BILLF_CLOSEDORDER) {
 								ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrOrange));
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									// Заказ закрыт
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_BILL_ORDERCLOSED, SLS.AcquireRvlStr()));
+								}
+							}
 						}
 						{
 							const int edi_user_status = P_BObj->GetEdiUserStatus(bill_rec);
 							if(edi_user_status) {
 								COLORREF edi_color = 0;
+								int    hint_msg_id = 0;
 								switch(edi_user_status) {
-									case BEDIUS_DESADV_OUT_SENDED: 	edi_color = GetColorRef(SClrYellow); break;
-									case BEDIUS_DESADV_OUT_PROCESSED: edi_color = GetColorRef(SClrOrange); break;
-									case BEDIUS_DESADV_OUT_RECADV_ACC: edi_color = GetColorRef(SClrGreen); break;
-									case BEDIUS_DESADV_OUT_RECADV_PACC: edi_color = GetColorRef(SClrLightgreen); break;
-									case BEDIUS_DESADV_OUT_RECADV_REJ: edi_color = GetColorRef(SClrBrown); break;
-									case BEDIUS_DESADV_OUT_RECADV_CONF_ACC_ON_ACC: edi_color = GetColorRef(SClrBlue); break;
-									case BEDIUS_DESADV_OUT_RECADV_CONF_ACC_ON_PACC: edi_color = GetColorRef(SClrLightblue); break;
-									case BEDIUS_DESADV_OUT_RECADV_CONF_ACC_ON_REJ: edi_color = GetColorRef(SClrViolet); break;
+									case BEDIUS_DESADV_OUT_SENDED: 	
+										edi_color = GetColorRef(SClrYellow); 
+										hint_msg_id = TCELHLD_BILL_DESADV_OUT_SENDED;
+										break;
+									case BEDIUS_DESADV_OUT_PROCESSED: 
+										edi_color = GetColorRef(SClrOrange); 
+										hint_msg_id = TCELHLD_BILL_DESADV_OUT_PROCESSED;
+										break;
+									case BEDIUS_DESADV_OUT_RECADV_ACC: 
+										edi_color = GetColorRef(SClrGreen); 
+										hint_msg_id = TCELHLD_BILL_DESADV_OUT_RECADV_ACC;
+										break;
+									case BEDIUS_DESADV_OUT_RECADV_PACC: 
+										edi_color = GetColorRef(SClrLightgreen); 
+										hint_msg_id = TCELHLD_BILL_DESADV_OUT_RECADV_PACC;
+										break;
+									case BEDIUS_DESADV_OUT_RECADV_REJ: 
+										edi_color = GetColorRef(SClrBrown); 
+										hint_msg_id = TCELHLD_BILL_DESADV_OUT_RECADV_REJ;
+										break;
+									case BEDIUS_DESADV_OUT_RECADV_CONF_ACC_ON_ACC: 
+										edi_color = GetColorRef(SClrBlue); 
+										hint_msg_id = TCELHLD_BILL_DESADV_OUT_RECADV_CONF_ACC_ON_ACC;
+										break;
+									case BEDIUS_DESADV_OUT_RECADV_CONF_ACC_ON_PACC: 
+										edi_color = GetColorRef(SClrLightblue); 
+										hint_msg_id = TCELHLD_BILL_DESADV_OUT_RECADV_CONF_ACC_ON_PACC;
+										break;
+									case BEDIUS_DESADV_OUT_RECADV_CONF_ACC_ON_REJ: 
+										edi_color = GetColorRef(SClrViolet); 
+										hint_msg_id = TCELHLD_BILL_DESADV_OUT_RECADV_CONF_ACC_ON_REJ;
+										break;
 									case BEDIUS_DESADV_OUT_RECADV_CONF_REJ_ON_ACC:
+										edi_color = GetColorRef(SClrDarkgrey); 
+										hint_msg_id = TCELHLD_BILL_DESADV_OUT_RECADV_CONF_REJ_ON_ACC;
+										break;
 									case BEDIUS_DESADV_OUT_RECADV_CONF_REJ_ON_PACC:
-									case BEDIUS_DESADV_OUT_RECADV_CONF_REJ_ON_REJ: edi_color = GetColorRef(SClrDarkgrey); break;
-									case BEDIUS_DESADV_IN_ACCEPTED: edi_color = GetColorRef(SClrOrangered); break;
-									case BEDIUS_DESADV_IN_RECADV_ACC: edi_color = GetColorRef(SClrGreen); break;
-									case BEDIUS_DESADV_IN_RECADV_PACC: edi_color = GetColorRef(SClrLightgreen); break;
-									case BEDIUS_DESADV_IN_RECADV_REJ: edi_color = GetColorRef(SClrBrown); break;
-									default: edi_color = GetColorRef(SClrPink); break;
+										edi_color = GetColorRef(SClrDarkgrey); 
+										hint_msg_id = TCELHLD_BILL_DESADV_OUT_RECADV_CONF_REJ_ON_PACC;
+										break;
+									case BEDIUS_DESADV_OUT_RECADV_CONF_REJ_ON_REJ: 
+										edi_color = GetColorRef(SClrDarkgrey); 
+										hint_msg_id = TCELHLD_BILL_DESADV_OUT_RECADV_CONF_REJ_ON_REJ;
+										break;
+									case BEDIUS_DESADV_IN_ACCEPTED: 
+										edi_color = GetColorRef(SClrOrangered);
+										hint_msg_id = TCELHLD_BILL_DESADV_IN_ACCEPTED;
+										break;
+									case BEDIUS_DESADV_IN_RECADV_ACC: 
+										edi_color = GetColorRef(SClrGreen);
+										hint_msg_id = TCELHLD_BILL_DESADV_IN_RECADV_ACC;
+										break;
+									case BEDIUS_DESADV_IN_RECADV_PACC:
+										edi_color = GetColorRef(SClrLightgreen);
+										hint_msg_id = TCELHLD_BILL_DESADV_IN_RECADV_PACC;
+										break;
+									case BEDIUS_DESADV_IN_RECADV_REJ:
+										edi_color = GetColorRef(SClrBrown);
+										hint_msg_id = TCELHLD_BILL_DESADV_IN_RECADV_REJ;
+										break;
+									default: 
+										edi_color = GetColorRef(SClrPink);
+										hint_msg_id = TCELHLD_BILL_EDISTATUS_UNKN;
+										break;
 								}
 								ok = pStyle->SetRightFigCircleColor(edi_color);
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									if(hint_msg_id) {
+										pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, hint_msg_id, SLS.AcquireRvlStr()));
+									}
+								}
 							}
 						}
 						if(bill_rec.StatusID) {
 							PPBillStatus bs_rec;
 							PPObjBillStatus bs_obj;
-							if(bs_obj.Fetch(bill_rec.StatusID, &bs_rec) > 0 && !bs_rec.IndColor.IsEmpty())
+							if(bs_obj.Fetch(bill_rec.StatusID, &bs_rec) > 0 && !bs_rec.IndColor.IsEmpty()) {
 								ok = pStyle->SetFullCellColor(bs_rec.IndColor);
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									// Настраиваемая индикация статуса документа
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_BILL_STATUSINDICATOR, SLS.AcquireRvlStr()));
+								}
+							}
 						}
 					}
 				}
@@ -5581,639 +5697,46 @@ void PPViewBill::ViewTotal()
 	}
 }
 
-// @vmiller
-struct PrvdrDllLink {
-	PrvdrDllLink() : SessId(0), P_ExpDll(0)
-	{
-		PrvdrSymb[0] = 0;
+int PPViewBill::MakeIdListForExport(PPObjBill::ListForExport & rList) // @v12.7.5
+{
+	rList.Z();
+	int    ok = -1;
+	BillViewItem view_item;
+	for(InitIteration(OrdByDefault); NextIteration(&view_item) > 0;) {
+		if(IsGoodsDetailOp(view_item.OpID) || view_item.Flags & BILLF_BANKING) {
+			THROW_SL(rList.add(view_item.ID));
+			ok = 1;
+			if(view_item.LocID) {
+				if(rList.SingleLocID < 0)
+					rList.SingleLocID = view_item.LocID;
+				else if(rList.SingleLocID != view_item.LocID)
+					rList.SingleLocID = 0;
+			}
+			if(view_item.Flags & BILLF_BANKING) {
+				rList.Flags |= PPObjBill::ListForExport::fIsThereBankPayment;
+				rList.BnkPaymPeriod.AdjustToDate(view_item.Dt);
+			}
+		}
 	}
-	int    SessId;
-	char   PrvdrSymb[12]; // PPSupplExchangeCfg::PrvdrSymb
-	ImpExpDll * P_ExpDll;
-	ImpExpParamDllStruct ParamDll;
-};
-
-int WriteBill_ExportMarks(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, const SString & rFileName, SString & rResultFileName); // @prototype
-
-static bool IsByEmailAddrByContext(const SString & rBuf) { return (rBuf.IsEqiAscii("@bycontext") || rBuf == "@@"); }
+	if(rList.SingleLocID <= 0) {
+		rList.SingleLocID = Filt.LocList.GetSingle();
+	}
+	CATCHZOK
+	return ok;
+}
 
 int PPViewBill::ExportGoodsBill(const PPBillImpExpParam * pBillParam, const PPBillImpExpParam * pBRowParam)
 {
 	int    ok = -1;
-	Reference * p_ref(PPRef);
-	int    r = 0;
-	int    dll_pos = 0;
-	PPID   prev_bill_id = 0;
-	PPBillExporter b_e;
-	BillViewItem view_item;
-	SString msg_buf;
-	SString fmt_buf;
-	SString temp_buf;
-	STempBuffer result_str(1024);
-	char   errmsg_[1024];
-	PrvdrDllLink * p_prvd_dll_link = 0;
-	TSCollection <PrvdrDllLink> exp_dll_coll;
-	SString doc_type;
-	PPObjTag tag_obj;
-	PPLogger logger;
-	StringSet result_file_list;
-	PPIDArray bill_id_list;
-	PPIDArray exported_bill_id_list; // Список идентификаторов документов, которые были в действительности экспортированы
-	PPID   single_loc_id = -1;
-	int    is_there_bnkpaym = 0;
-	for(InitIteration(OrdByDefault); NextIteration(&view_item) > 0;) {
-		if(IsGoodsDetailOp(view_item.OpID) || view_item.Flags & BILLF_BANKING) {
-			bill_id_list.add(view_item.ID);
-			if(view_item.LocID) {
-				if(single_loc_id < 0)
-					single_loc_id = view_item.LocID;
-				else if(single_loc_id != view_item.LocID)
-					single_loc_id = 0;
-			}
-			if(view_item.Flags & BILLF_BANKING)
-				is_there_bnkpaym = 1;
-		}
-	}
-	if(bill_id_list.getCount()) {
-		PPBillPacket pack;
-		//
-		// Первый документ необходимо извлечь из БД для того, чтобы инициализировать возможные шаблоны переменных
-		// в наименовании файла экспорта.
-		//
-		THROW(P_BObj->ExtractPacketWithFlags(bill_id_list.get(0), &pack, BPLD_FORCESERIALS) > 0);
-		if(!is_there_bnkpaym)
-			b_e.DisabledOptions |= PPBillImpExpBaseProcessBlock::fPaymOrdersExp;
-		THROW(r = b_e.Init(pBillParam, pBRowParam, &pack, &result_file_list));
-		if(r > 0) {
-			//
-			const  PPID inet_acc_id = b_e.Tp.InetAccID;
-			const StrAssocArray inet_addr_list = b_e.Tp.AddrList;
-			// @v11.8.6 PPID  fix_tag_id = 0; // @v11.5.6
-			// @v11.8.6 PPObjectTag2 fix_tag_rec;
-			bool   use_mail_addr_by_context = false;
-			SString email_buf;
-			SString mail_subj(b_e.Tp.Subject);
-			mail_subj.SetIfEmpty("No Subject").Transf(CTRANSF_INNER_TO_UTF8);
-			if(inet_acc_id && inet_addr_list.getCount()) {
-				for(uint ai = 0; !use_mail_addr_by_context && ai < inet_addr_list.getCount(); ai++) {
-					temp_buf = inet_addr_list.Get(ai).Txt;
-					if(IsByEmailAddrByContext(temp_buf))
-						use_mail_addr_by_context = true;
-				}
-			}
-			//
-			PPBillImpExpParam bill_param(b_e.BillParam);
-			PPBillImpExpParam brow_param(b_e.BRowParam);
-			if(b_e.GetIEBill())
-				bill_param.FileName = b_e.GetIEBill()->GetPreservedOrgFileName();
-			if(b_e.GetIEBRow())
-				brow_param.FileName = b_e.GetIEBRow()->GetPreservedOrgFileName();
-			/* @v11.8.6
-			if(bill_param.FixTagID) {
-				if(tag_obj.Search(bill_param.FixTagID, &fix_tag_rec) > 0 && fix_tag_rec.ObjTypeID == PPOBJ_BILL)
-					fix_tag_id = fix_tag_rec.ID;	
-			}*/
-			// (не надо: сервисные функции PPBillImpExpBaseProcessBlock сами все сделают) fix_tag_id = b_e.GetFixTagID(0); // @v11.8.6
-			if(b_e.BillParam.PredefFormat) {
-				if(oneof8(b_e.BillParam.PredefFormat, piefNalogR_Invoice, piefNalogR_REZRUISP, piefNalogR_SCHFDOPPR, piefExport_Marks, 
-					piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR, piefNalogR_ON_NKORSCHFDOPPR, 
-					piefNalogR_Etrn_T1)) { // @v11.7.0 piefNalogR_ON_NKORSCHFDOPPR // @v12.6.9 piefNalogR_Etrn_T1
-					SString result_file_name_;
-					PPWaitStart();
-					for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
-						const  PPID bill_id = bill_id_list.get(_idx);
-						int    err = 0;
-						// @v11.8.6 ObjTagItem fix_tag_item;
-						// @v11.8.6 const  bool do_skip = (fix_tag_id && p_ref->Ot.GetTag(PPOBJ_BILL, bill_id, fix_tag_id, &fix_tag_item) > 0);
-						const  bool do_skip = b_e.SkipExportBillBecauseFixTag(bill_id); // @v11.8.6
-						if(!do_skip && P_BObj->ExtractPacketWithFlags(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
-							const  bool is_exp_correction = pack.IsExpCorrection();
-							int    r = -1;
-							THROW(b_e.Init(&bill_param, &brow_param, &pack, 0 /*&result_file_list*/));
-							{
-								const  SString nominal_file_name(b_e.BillParam.FileName);
-								StringSet ss_notch; // @v12.5.10
-								DocNalogRu_WriteBillBlock::GetNotchList(pack, ss_notch); // @v12.5.10
-								const  bool no_marks_because_notch = ss_notch.searchNcAscii("#nomarks", 0, 0); // @v12.5.10
-								bool   pack_has_marks = no_marks_because_notch ? false : pack.HasChZnMarks(is_exp_correction);
-								//const  bool no_marks_because_notch = SsNotch.searchNcAscii("#nomarks", 0, 0); // @v12.5.10
-								if(is_exp_correction && !no_marks_because_notch) {
-									if(!pack_has_marks && pack.P_LinkPack) {
-										pack_has_marks = pack.P_LinkPack->HasChZnMarks(is_exp_correction);
-									}
-								}
-								if(oneof2(b_e.BillParam.PredefFormat, piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR)) {
-									// @v12.7.0 Суффикс MARK в header_symb больше не актуален (хотя уверенности нет)
-									if(is_exp_correction) {
-										DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, (/*pack_has_marks ? "ON_NKORSCHFDOPPRMARK" :*/"ON_NKORSCHFDOPPR"), nominal_file_name);
-										r = _blk.Do_CorrInvoice(result_file_name_);
-									}
-									else {
-										DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, (/*pack_has_marks ? "ON_NSCHFDOPPRMARK" :*/"ON_NSCHFDOPPR"), nominal_file_name);
-										r = _blk.Do_Invoice2(result_file_name_);
-									}
-								}
-								else {
-									switch(b_e.BillParam.PredefFormat) {
-										case piefNalogR_Invoice:  
-											{
-												DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, "ON_SFAKT", nominal_file_name);
-												r = _blk.IsValid() ? _blk.Do_Invoice(result_file_name_) : 0;
-											}
-											break;
-										case piefNalogR_REZRUISP: 
-											{
-												DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, "DP_REZRUISP", nominal_file_name);
-												r = _blk.IsValid() ? _blk.Do_Invoice(result_file_name_) : 0;
-											}
-											break;
-										case piefNalogR_SCHFDOPPR: 
-											{
-												DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, "ON_NSCHFDOPPR", nominal_file_name);
-												r = _blk.IsValid() ? _blk.Do_UPD(result_file_name_) : 0;
-											}
-											break;
-										case piefExport_Marks: // @erik 
-											r = WriteBill_ExportMarks(b_e.BillParam, pack, nominal_file_name, result_file_name_); 
-											break; 
-										case piefNalogR_ON_NKORSCHFDOPPR: 
-											{
-												DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, pack_has_marks ? "ON_NKORSCHFDOPPRMARK" : "ON_NKORSCHFDOPPR", nominal_file_name);
-												r = _blk.IsValid() ? _blk.Do_CorrInvoice(result_file_name_) : 0;
-											}
-											break;
-										case piefNalogR_Etrn_T1: 
-											{
-												DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, "ON_TRNACLGROT", nominal_file_name);
-												r = _blk.IsValid() ? _blk.Do_Etrn_T1(result_file_name_) : 0;
-											}
-											break;
-									}
-								}
-								if(r > 0) {
-									result_file_list.add(result_file_name_);
-									exported_bill_id_list.add(bill_id);
-									// @v12.6.10 {
-									{
-										PPObjBill::MakeCodeString(&pack.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, temp_buf);
-										PPFormatT(PPTXT_LOG_EXPBILL_ITEM_TO_FILE, &msg_buf, temp_buf.cptr(), result_file_name_.cptr());
-										logger.Log(msg_buf);
-									}
-									// } @v12.6.10 
-								}
-								else if(r == 0) { // @v12.6.10
-									SFile::Remove(result_file_name_);
-									logger.LogLastError();
-								}
-							}
-						}
-						PPWaitPercent(_idx+1, bill_id_list.getCount());
-					}
-					// @todo @v12.2.6 Отправить файлы на ftp (или еще куда)
-					if(result_file_list.getCount()) {
-						PPObjInternetAccount ia_obj;
-						PPInternetAccount2 ia_pack;
-						// @v12.2.6 {
-						if(b_e.BillParam.InetAccID && ia_obj.Get(b_e.BillParam.InetAccID, &ia_pack) > 0 && ia_pack.Flags & PPInternetAccount::fFtpAccount) {
-							SString ftp_path;
-							SString naked_file_name;
-							SString accs_name;
-							for(uint rflp = 0; result_file_list.get(&rflp, temp_buf);) {
-								ftp_path.Z();
-								naked_file_name.Z();
-								accs_name.Z();
-								{
-									SFsPath ps(temp_buf);
-									ps.Merge(SFsPath::fNam|SFsPath::fExt, naked_file_name);
-									ia_pack.GetExtField(FTPAEXSTR_HOST, ftp_path);
-								}
-								{
-									SUniformFileTransmission uft;
-									char   pwd[256];
-									(uft.SrcPath = temp_buf).Transf(CTRANSF_OUTER_TO_UTF8);
-									SFsPath::NormalizePath(ftp_path, SFsPath::npfSlash|SFsPath::npfKeepCase, uft.DestPath);
-									uft.Flags = 0;
-									uft.Format = SFileFormat::Unkn;
-									ia_pack.GetExtField(FTPAEXSTR_USER, accs_name);
-									ia_pack.GetPassword_(pwd, sizeof(pwd), FTPAEXSTR_PASSWORD);
-									uft.AccsName.EncodeUrl(accs_name, 0);
-									uft.AccsPassword.EncodeUrl(pwd, 0);
-									memzero(pwd, sizeof(pwd));
-									if(uft.Run(0, 0)) {
-										; // @todo @succ
-									}
-									else {
-										logger.LogLastError();
-									}
-									accs_name.Obfuscate();
-								}
-							}
-						}
-						// } @v12.2.6 
-						if(inet_acc_id && inet_addr_list.getCount()) {
-							for(uint ai = 0; ai < inet_addr_list.getCount(); ai++) {
-								(temp_buf = inet_addr_list.Get(ai).Txt).Strip();
-								if(IsByEmailAddrByContext(temp_buf)) {
-									;
-								}
-								else
-									email_buf.CatDivIfNotEmpty(',', 0).Cat(temp_buf);
-							}
-							if(email_buf.NotEmptyS() && !PutFilesToEmail2(&result_file_list, inet_acc_id, email_buf, mail_subj, 0))
-								logger.LogLastError();
-						}
-					}
-					PPWaitStop();
-				}
-			}
-			else if(b_e.Flags & PPBillImpExpBaseProcessBlock::fPaymOrdersExp) {
-				StringSet local_result_file_list;
-				PPObjSecur sec_obj(PPOBJ_USR, 0);
-				email_buf.Z();
-				THROW(Helper_ExportBnkOrder(b_e.CfgNameBill, &local_result_file_list, logger));
-				if(inet_acc_id && inet_addr_list.getCount() && local_result_file_list.getCount()) {
-					for(uint ai = 0; ai < inet_addr_list.getCount(); ai++) {
-						(temp_buf = inet_addr_list.Get(ai).Txt).Strip();
-						if(IsByEmailAddrByContext(temp_buf)) {
-							const  PPID user_id = LConfig.UserID;
-							PPSecur2 sec_rec;
-							if(user_id && sec_obj.Fetch(user_id, &sec_rec) > 0 && sec_rec.PersonID) {
-								StringSet ss_elink;
-								PPELinkArray elink_list;
-								PsnObj.P_Tbl->GetELinks(sec_rec.PersonID, elink_list);
-								if(elink_list.GetListByType(ELNKRT_EMAIL, ss_elink) > 0) {
-									for(uint sselp = 0; ss_elink.get(&sselp, temp_buf);) {
-										if(temp_buf.NotEmptyS()) {
-											email_buf.CatDivIfNotEmpty(',', 0).Cat(temp_buf);
-											break;
-										}
-									}
-								}
-							}
-						}
-						else
-							email_buf.CatDivIfNotEmpty(',', 0).Cat(temp_buf);
-					}
-					if(email_buf.NotEmptyS() && !PutFilesToEmail2(&local_result_file_list, inet_acc_id, email_buf, mail_subj, 0))
-						logger.LogLastError();
-				}
-			}
-			else if(b_e.Flags & PPBillImpExpBaseProcessBlock::fEgaisImpExp) {
-				long   cflags = (b_e.Flags & PPBillImporter::fTestMode) ? PPEgaisProcessor::cfDebugMode : 0;
-				if(b_e.Flags & PPBillImporter::fEgaisVer4) { // @11.0.12
-					cflags |= PPEgaisProcessor::cfVer4;
-					cflags &= ~PPEgaisProcessor::cfVer3;
-				}
-				else if(b_e.Flags & PPBillImporter::fEgaisVer3) {
-					cflags |= PPEgaisProcessor::cfVer3;
-					cflags &= ~PPEgaisProcessor::cfVer4;
-				}
-				PPEgaisProcessor ep(cflags, &logger, 0); // @instantiation(PPEgaisProcessor)
-				THROW(ep);
-				THROW(ep.CheckLic());
-				{
-					PPBillIterchangeFilt sbp;
-					sbp.IdList = bill_id_list;
-					sbp.LocID = (single_loc_id > 0) ? single_loc_id : Filt.LocList.GetSingle();
-					TSVector <PPEgaisProcessor::UtmEntry> utm_list;
-					THROW(ep.GetUtmList(sbp.LocID, utm_list));
-					for(uint i = 0; i < utm_list.getCount(); i++) {
-						ep.SetUtmEntry(sbp.LocID, &utm_list.at(i), &sbp.Period);
-						ep.SendBillActs(sbp);
-						ep.SendBillRepeals(sbp);
-						ep.SendBills(sbp);
-						ep.SetUtmEntry(0, 0, 0);
-					}
-				}
-			}
-			else {
-				SString edi_prvdr_symb;
-				PPWaitStart();
-				// @vmiller {
-				// Запомним начальное значение конфигурации
-				{
-					const PPImpExp * p_iebill = b_e.GetIEBill();
-					doc_type = p_iebill ? p_iebill->GetParamConst().Name.cptr() : 0; // Тип документа (перечисление в PPTXT_EDIEXPCMD)
-				}
-				if(b_e.BillParam.BaseFlags & PPImpExpParam::bfDLL) {
-					SString prev_bill_code;
-					SString ini_file_name;
-					THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
-					PPIniFile ini_file(ini_file_name, 0, 1, 1);
-					//
-					// Проверка из-за экспорта через job-сервер, ибо там от него не передается флаг fEdiImpExp
-					// Если имя doc_type соответствует одной из строк перечисления PPTXT_EDIEXPCMD, то экспорт
-					// происходит в режиме EDI
-					//
-					if(!(b_e.Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp)) {
-						StringSet ss(';', PPLoadTextS(PPTXT_EDIEXPCMD, temp_buf));
-						for(uint i = 0, f_exit = 0; !f_exit && ss.get(&i, temp_buf);) {
-							uint j = 0;
-							StringSet ss1(',', temp_buf);
-							ss1.get(&j, temp_buf.Z());
-							ss1.get(&j, temp_buf.Z());
-							ss1.get(&j, temp_buf.Z());
-							if(temp_buf.CmpNC(doc_type) == 0) {
-								b_e.Flags |= PPBillImpExpBaseProcessBlock::fEdiImpExp;
-								f_exit = 1;
-							}
-						}
-					}
-					for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
-						const  PPID bill_id = bill_id_list.get(_idx);
-						int    err = 0;
-						if(P_BObj->ExtractPacketWithFlags(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
-							// Берем начальное значение BillParam
-							b_e.BillParam = bill_param;
-							PPSupplAgreement suppl_agt;
-							//
-							// Получаем соглашение поставщика
-							//
-							PPObjArticle::GetSupplAgreement(pack.Rec.Object, &suppl_agt, 1);
-							suppl_agt.Ep.GetExtStrData(PPSupplAgreement::ExchangeParam::extssEDIPrvdrSymb, edi_prvdr_symb);
-							//
-							// Так как в списке документов могут быть документы с разными поставщиками и, соответственно,
-							// провайдерами, то, чтобы 100500 раз не инициализировать и разрушать dll, инициализируем
-							// ее для каждого провайдера по одному разу и запомним указатель на библиотеку в коллекцию.
-							// Смотрим коллекцию на наличие инициализированной бибилиотеки
-							//
-							if((b_e.Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp) && !edi_prvdr_symb.NotEmptyS()) {
-								GetArticleName(pack.Rec.Object, temp_buf.Z());
-								PPSetError(PPERR_EMPTY_EDISYMB, temp_buf);
-								err = 1;
-							}
-							else {
-								PPLoadTextS(PPTXT_EDIPRVDRSYMBRECEIVED, msg_buf).Space().CatQStr(edi_prvdr_symb); // @vmiller
-								logger.Log(msg_buf); // @vmiller new
-								uint   dll_found = 0;
-								for(uint i = 0; i < exp_dll_coll.getCount(); i++) {
-									const PrvdrDllLink * p_item = exp_dll_coll.at(i);
-									if(p_item && edi_prvdr_symb.CmpNC(p_item->PrvdrSymb) == 0) {
-										dll_found = 1;
-										dll_pos = i;
-										break;
-									}
-								}
-								//if(!dll_found) {
-								b_e.BillParam = bill_param;
-								ImpExpDll * p_exp_dll = new ImpExpDll;
-								THROW_MEM(p_exp_dll);
-								THROW_MEM(p_prvd_dll_link = new PrvdrDllLink);
-								edi_prvdr_symb.CopyTo(p_prvd_dll_link->PrvdrSymb, sizeof(p_prvd_dll_link->PrvdrSymb));
-								p_prvd_dll_link->P_ExpDll = p_exp_dll;
-								//
-								// Считываем нужную конфигурацию
-								// Причем считываем всегда! Ибо в b_e.BillParam должна быть актуальная для текущего провайдера инфа
-								// На следующем круге провайдер может поменяться, и, соответственно, настройки тоже.
-								// При этом не важно, втречается нам провайдер первый раз или мы уже с ним работали.
-								// Сначала сформруем название конфигурации
-								//
-								if(b_e.Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp) {
-									b_e.BillParam.ProcessName(1, temp_buf.Z());
-									temp_buf.Cat("DLL_").Cat(edi_prvdr_symb).CatChar('_').Cat(doc_type);
-									// Теперь читаем параметры конфигурации из ini-файла
-									if(!b_e.BillParam.ReadIni(&ini_file, temp_buf, 0)) {
-										PPSetError(PPERR_IMPEXPCFGRDFAULT, temp_buf);
-										err = 1;
-									}
-									else if(!b_e.BRowParam.ReadIni(&ini_file, temp_buf, 0)) {
-										PPSetError(PPERR_IMPEXPCFGRDFAULT, temp_buf);
-										err = 1;
-									}
-									p_prvd_dll_link->ParamDll = b_e.BillParam.ImpExpParamDll;
-								}
-								if(!dll_found) {
-									exp_dll_coll.insert(p_prvd_dll_link);
-									dll_pos = exp_dll_coll.getCount()-1;
-									if(!err) {
-										b_e.BillParam.ImpExpParamDll.FileName = b_e.BillParam.FileName;
-										PrvdrDllLink * p_prvdr_item = exp_dll_coll.at(dll_pos);
-										if(p_prvdr_item->P_ExpDll->InitLibrary(b_e.BillParam.ImpExpParamDll.DllPath, 1)) {
-											int    sess_id = 0;
-											Sdr_ImpExpHeader hdr;
-											PPVersionInfo vi;
-											//vers_info.GetProductName(temp_buf.Z());
-											vi.GetTextAttrib(vi.taiProductName, temp_buf);
-											STRNSCPY(hdr.SrcSystemName, temp_buf);
-											//vers_info.GetVersionText(hdr.SrcSystemVer, sizeof(hdr.SrcSystemVer));
-											vi.GetTextAttrib(vi.taiVersionText, temp_buf);
-											STRNSCPY(hdr.SrcSystemVer, temp_buf);
-											b_e.BillParam.ImpExpParamDll.Login.CopyTo(hdr.EdiLogin, sizeof(hdr.EdiLogin));
-											b_e.BillParam.ImpExpParamDll.Password.CopyTo(hdr.EdiPassword, sizeof(hdr.EdiPassword));
-											if(p_prvdr_item->P_ExpDll->InitExport(&hdr, b_e.BillParam.ImpExpParamDll.FileName, &sess_id))
-												p_prvdr_item->SessId = sess_id;
-											else
-												err = 1;
-										}
-										else
-											err = 1;
-									}
-								}
-							}
-							if(!err) {
-								PrvdrDllLink * p_prvdr_item = (dll_pos < static_cast<int>(exp_dll_coll.getCount())) ? exp_dll_coll.at(dll_pos) : 0;
-								ImpExpDll * p_exp_dll = p_prvdr_item ? p_prvdr_item->P_ExpDll : 0;
-								if(!b_e.PutPacket(&pack, (p_prvdr_item ? p_prvdr_item->SessId : 0), p_exp_dll)) {
-									if(b_e.Flags & PPBillImpExpBaseProcessBlock::fEdiImpExp) {
-										// В методе PutPacket() вызывается внешний метод dll SetExportObj(), который
-										// начинает формировать новый документ для отправки, но предварительно
-										// он отправляет старый. То есть если на этом этапе не отправился документ, то это
-										// это не текущий, а предыдущий
-										logger.LogMsgCode(mfError, PPERR_IMPEXP_BILL, prev_bill_code);
-									}
-									else
-										logger.LogMsgCode(mfError, PPERR_IMPEXP_BILL, pack.Rec.Code);
-								}
-								else {
-									PPObjBill::MakeCodeString(&pack.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, temp_buf);
-									PPFormatT(PPTXT_LOG_EXPBILL_ITEM, &msg_buf, temp_buf.cptr());
-									logger.Log(msg_buf);
-								}
-							}
-							prev_bill_code = pack.Rec.Code;
-						}
-						else
-							err = 1;
-						if(err) {
-							logger.LogLastError();
-						}
-						PPWaitPercent(_idx+1, bill_id_list.getCount());
-					}
-					for(uint i = 0; i < exp_dll_coll.getCount(); i++) {
-						PrvdrDllLink * p_item = exp_dll_coll.at(i);
-						if(p_item && p_item->P_ExpDll && p_item->P_ExpDll->IsInited()) {
-							b_e.BillParam.ImpExpParamDll = p_item->ParamDll;
-							if(!b_e.CheckBillsWasExported(p_item->P_ExpDll)) {
-								errmsg_[0] = 0;
-								p_item->P_ExpDll->GetErrorMessage(errmsg_, sizeof(errmsg_));
-								PPSetError(PPERR_IMPEXP_DLL, msg_buf.Z().Cat(errmsg_).Transf(CTRANSF_OUTER_TO_INNER));
-								logger.LogLastError();
-							}
-							else if(!p_item->P_ExpDll->FinishImpExp()) {
-								errmsg_[0] = 0;
-								p_item->P_ExpDll->GetErrorMessage(errmsg_, sizeof(errmsg_));
-								PPSetError(PPERR_IMPEXP_DLL, msg_buf.Z().Cat(errmsg_).Transf(CTRANSF_OUTER_TO_INNER));
-								logger.LogLastError();
-							}
-						}
-					}
-					//THROW(b_e.SignBill());
-					ok = 1;
-				}
-				else {
-					if(b_e.BillParam.Flags & PPBillImpExpParam::fExpOneByOne) {
-						StringSet local_result_file_list;
-						for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
-							const  PPID bill_id = bill_id_list.get(_idx);
-							// @v11.8.6 ObjTagItem fix_tag_item;
-							// @v11.8.6 const  bool do_skip = (fix_tag_id && p_ref->Ot.GetTag(PPOBJ_BILL, bill_id, fix_tag_id, &fix_tag_item) > 0); // @v11.5.6
-							const  bool do_skip = b_e.SkipExportBillBecauseFixTag(bill_id); // @v11.8.6
-							if(!do_skip && P_BObj->ExtractPacketWithFlags(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
-								local_result_file_list.Z();
-								THROW(r = b_e.Init(&bill_param, &brow_param, &pack, &local_result_file_list));
-								result_file_list.add(local_result_file_list);
-								{
-									PPImpExp * p_iebill = b_e.GetIEBill();
-									PPImpExp * p_iebrow = b_e.GetIEBRow();
-									if(!b_e.PutPacket(&pack, 0, 0)) {
-										logger.LogMsgCode(mfError, PPERR_IMPEXP_BILL, pack.Rec.Code);
-									}
-									else {
-										PPObjBill::MakeCodeString(&pack.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, temp_buf);
-										PPFormatT(PPTXT_LOG_EXPBILL_ITEM, &msg_buf, temp_buf.cptr());
-										logger.Log(msg_buf);
-									}
-									CALLPTRMEMB(p_iebrow, CloseFile());
-									if(p_iebill) {
-										p_iebill->CloseFile();
-										if(!(b_e.BillParam.Flags & PPBillImpExpParam::fImpExpRowsOnly)) // @v11.1.10
-											b_e.BillParam.DistributeFile(&logger);
-										if(p_iebrow && fileExists(b_e.BRowParam.FileName) && b_e.BRowParam.FileName.CmpNC(b_e.BillParam.FileName) != 0)
-											b_e.BRowParam.DistributeFile(&logger);
-									}
-								}
-								if(use_mail_addr_by_context && pack.GetContextEmailAddr(temp_buf) > 0 && local_result_file_list.getCount()) {
-									if(PutFilesToEmail2(&local_result_file_list, inet_acc_id, temp_buf, mail_subj, 0)) {
-										exported_bill_id_list.add(bill_id); // @v11.5.6
-									}
-									else
-										logger.LogLastError();
-								}
-								else
-									exported_bill_id_list.add(bill_id); // @v11.5.6
-							}
-							else
-								logger.LogLastError();
-							PPWaitPercent(_idx+1, bill_id_list.getCount());
-						}
-					}
-					else {
-						PPImpExp * p_iebill = b_e.GetIEBill();
-						PPImpExp * p_iebrow = b_e.GetIEBRow();
-						for(uint _idx = 0; _idx < bill_id_list.getCount(); _idx++) {
-							const  PPID bill_id = bill_id_list.get(_idx);
-							// @v11.8.6 ObjTagItem fix_tag_item;
-							// @v11.8.6 const  bool do_skip = (fix_tag_id && p_ref->Ot.GetTag(PPOBJ_BILL, bill_id, fix_tag_id, &fix_tag_item) > 0); // @v11.5.6
-							const  bool do_skip = b_e.SkipExportBillBecauseFixTag(bill_id); // @v11.8.6
-							if(!do_skip) {
-								if(P_BObj->ExtractPacketWithFlags(bill_id, &pack, BPLD_FORCESERIALS) > 0) {
-									if(!b_e.PutPacket(&pack, 0, 0)) {
-										logger.LogMsgCode(mfError, PPERR_IMPEXP_BILL, pack.Rec.Code);
-									}
-									else {
-										PPObjBill::MakeCodeString(&pack.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, temp_buf);
-										PPFormatT(PPTXT_LOG_EXPBILL_ITEM, &msg_buf, temp_buf.cptr());
-										logger.Log(msg_buf);
-										exported_bill_id_list.add(bill_id); // @v11.5.6
-									}
-								}
-								else
-									logger.LogLastError();
-							}
-							PPWaitPercent(_idx+1, bill_id_list.getCount());
-						}
-						CALLPTRMEMB(p_iebrow, CloseFile());
-						if(p_iebill) {
-							p_iebill->CloseFile();
-							if(exported_bill_id_list.getCount()) { // @v11.5.6
-								b_e.BillParam.DistributeFile(&logger);
-								if(p_iebrow && fileExists(b_e.BRowParam.FileName) && b_e.BRowParam.FileName.CmpNC(b_e.BillParam.FileName) != 0)
-									b_e.BRowParam.DistributeFile(&logger);
-							}
-						}
-						//THROW(b_e.SignBill());
-						ok = 1;
-					}
-					if(inet_acc_id && inet_addr_list.getCount() && result_file_list.getCount()) {
-						temp_buf.Z();
-						for(uint ai = 0; !use_mail_addr_by_context && ai < inet_addr_list.getCount(); ai++) {
-							temp_buf = inet_addr_list.Get(ai).Txt;
-							if(IsByEmailAddrByContext(temp_buf))
-								temp_buf.Z();
-							else
-								break;
-						}
-						if(temp_buf.NotEmptyS() && !PutFilesToEmail2(&result_file_list, inet_acc_id, temp_buf, mail_subj, 0))
-							logger.LogLastError();
-					}
-				}
-			}
-			// @v11.5.6 {
-			/* @v11.8.6 if(exported_bill_id_list.getCount()) {
-				if(fix_tag_id && oneof6(fix_tag_rec.TagDataType, OTTYP_BOOL, OTTYP_NUMBER, OTTYP_INT, OTTYP_DATE, OTTYP_TIMESTAMP, OTTYP_STRING)) {
-					exported_bill_id_list.sortAndUndup();
-					PPTransaction tra(1);
-					THROW(tra);
-					for(uint bidx = 0; bidx < exported_bill_id_list.getCount(); bidx++) {
-						const  PPID bill_id = exported_bill_id_list.get(bidx);
-						BillTbl::Rec bill_rec;
-						if(P_BObj->Search(bill_id, &bill_rec) > 0) {
-							ObjTagItem tag_item;
-							switch(fix_tag_rec.TagDataType) {
-								case OTTYP_BOOL: tag_item.SetInt(fix_tag_id, 1); break;
-								case OTTYP_NUMBER: tag_item.SetReal(fix_tag_id, 1.0); break;
-								case OTTYP_INT:  tag_item.SetInt(fix_tag_id, 1); break;
-								case OTTYP_DATE: tag_item.SetDate(fix_tag_id, getcurdate_()); break;
-								case OTTYP_TIMESTAMP: tag_item.SetTimestamp(fix_tag_id, getcurdatetime_()); break;
-								case OTTYP_STRING: tag_item.SetStr(fix_tag_id, "done"); break;
-							}
-							THROW(p_ref->Ot.PutTag(PPOBJ_BILL, bill_id, &tag_item, 0));
-						}
-					}
-					THROW(tra.Commit());
-				}
-			}*/
-			// } @v11.5.6 
-			// @v11.8.6 {
-			exported_bill_id_list.sortAndUndup();
-			THROW(b_e.SetFixTagOnExportedBill(exported_bill_id_list, 1));
-			// } @v11.8.6
-		}
-	}
-	CATCH
-		if(dll_pos < static_cast<int>(exp_dll_coll.getCount())) {
-			ImpExpDll * p_ied = exp_dll_coll.at(dll_pos)->P_ExpDll;
-			if(p_ied && p_ied->IsInited()) {
-				errmsg_[0] = 0;
-				p_ied->GetErrorMessage(errmsg_, sizeof(errmsg_));
-				PPSetError(PPERR_IMPEXP_DLL, msg_buf.Z().Cat(errmsg_).Transf(CTRANSF_OUTER_TO_INNER));
-			}
-		}
-		logger.LogLastError();
-		ok = PPErrorZ();
-	ENDCATCH
-	for(uint i = 0; i < exp_dll_coll.getCount(); i++) {
-		ImpExpDll * p_ied = exp_dll_coll.at(i)->P_ExpDll;
-		b_e.BillParam.ImpExpParamDll = exp_dll_coll.at(i)->ParamDll;
-		if(p_ied && p_ied->IsInited())
-			b_e.CheckBillsWasExported(p_ied);
-		ZDELETE(exp_dll_coll.at(i)->P_ExpDll);
-	}
-	PPWaitStop();
-	logger.Save(PPFILNAM_IMPEXP_LOG, 0);
+	PPObjBill::ListForExport bill_id_list;
+	THROW(MakeIdListForExport(bill_id_list));
+	ok = P_BObj->ExportList(bill_id_list, pBillParam, pBRowParam);
+	THROW(ok);
+	CATCHZOKPPERR
 	return ok;
 }
 
+#if 0 // @v12.7.5 (replaced by PPObjBill::Helper_ExportBnkOrderList) {
 int PPViewBill::Helper_ExportBnkOrder(const char * pSection, StringSet * pResultFileList, PPLogger & rLogger)
 {
 	int    ok = -1;
@@ -6222,20 +5745,22 @@ int PPViewBill::Helper_ExportBnkOrder(const char * pSection, StringSet * pResult
 		SString temp_buf;
 		SString fmt_buf;
 		SString msg_buf;
-		BillViewItem item;
 		PPIDArray id_list;
 		DateRange period;
 		period.Set(MAXDATE, encodedate(1, 1, 1900));
 		PPWaitStart();
-		for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
-			if(item.Flags & BILLF_BANKING) {
-				id_list.addUnique(item.ID);
-				period.AdjustToDate(item.Dt);
-			}
-			else {
-				temp_buf.Z().Cat(item.Dt);
-				msg_buf.Printf(PPLoadTextS(PPTXT_BILLNOTBANKING, fmt_buf), item.Code, temp_buf.cptr());
-				rLogger.Log(msg_buf);
+		{
+			BillViewItem item;
+			for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
+				if(item.Flags & BILLF_BANKING) {
+					id_list.addUnique(item.ID);
+					period.AdjustToDate(item.Dt);
+				}
+				else {
+					PPObjBill::MakeCodeString(&item, PPObjBill::mcsAddOpName, temp_buf);
+					msg_buf.Printf(PPLoadTextS(PPTXT_BILLNOTBANKING, fmt_buf), temp_buf.cptr());
+					rLogger.Log(msg_buf);
+				}
 			}
 		}
 		const uint cnt = id_list.getCount();
@@ -6265,8 +5790,9 @@ int PPViewBill::Helper_ExportBnkOrder(const char * pSection, StringSet * pResult
 	PPWaitStop();
 	return ok;
 }
+#endif // } @v12.7.5
 
-int PPViewBill::ExportBnkOrder()
+/* @v12.7.5 @obsolete int PPViewBill::ExportBnkOrder()
 {
 	int    ok = -1;
 	SString section;
@@ -6276,7 +5802,7 @@ int PPViewBill::ExportBnkOrder()
 	}
 	logger.Save(PPFILNAM_IMPEXP_LOG, 0);
 	return ok;
-}
+}*/
 
 static int SCardNumDlg(PPSCardPacket & rScPack, CCheckTbl::Rec * pChkRec, int isDraft)
 {
@@ -7069,10 +6595,6 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 						ViewGoodsBillCmp(hdr.ID, rh_bill_list, 0);
 				}
 				break;
-			case PPVCMD_ATTACHBILLTOBILL:  ok = AttachBill(hdr.ID, pBrw); break;
-			case PPVCMD_TRANSMIT:          ok = Transmit(hdr.ID, 0); break;
-			case PPVCMD_TRANSMITCHARRY:    ok = Transmit(hdr.ID, 1); break;
-			case PPVCMD_EXPORT:            ok = ExportGoodsBill(0, 0); break;
 			case PPVCMD_PRINT:
 				if(State & stCtrlX) {
 					if(hdr.ID) {
@@ -7084,10 +6606,14 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 					ok = PrintBill(hdr.ID);
 				}
 				break;
-			case PPVCMD_PRINTLIST:         ok = Print(); break;
-			case PPVCMD_PRINTINFOLIST:     ok = PrintBillInfoList(); break;
-			case PPVCMD_PRINTALLBILLS:     ok = PrintAllBills(); break;
-			case PPVCMD_POSPRINTBYBILL:    ok = P_BObj->PosPrintByBill(hdr.ID); break;
+			case PPVCMD_ATTACHBILLTOBILL: ok = AttachBill(hdr.ID, pBrw); break;
+			case PPVCMD_TRANSMIT:         ok = Transmit(hdr.ID, 0); break;
+			case PPVCMD_TRANSMITCHARRY:   ok = Transmit(hdr.ID, 1); break;
+			case PPVCMD_EXPORT:           ok = ExportGoodsBill(0, 0); break;
+			case PPVCMD_PRINTLIST:        ok = Print(); break;
+			case PPVCMD_PRINTINFOLIST:    ok = PrintBillInfoList(); break;
+			case PPVCMD_PRINTALLBILLS:    ok = PrintAllBills(); break;
+			case PPVCMD_POSPRINTBYBILL:   ok = P_BObj->PosPrintByBill(hdr.ID); break;
 			case PPVCMD_CREATEMRPTAB:
 				if(hdr.ID)
 					ok = CreateMrpTab(hdr.ID);
@@ -7175,27 +6701,29 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 				break;
 			case PPVCMD_MOUSEHOVER:
 				if(id && pBrw) {
-					long   h = 0;
-					pBrw->ItemByMousePos(&h, 0);
-					if(h >= 0) {
+					long   col = 0;
+					long   row = 0;
+					pBrw->ItemByMousePos(&col, &row);
+					if(col >= 0) {
+						SString temp_buf;
 						int    mfn = -1;
 						if(!(Filt.Flags & BillFilt::fCashOnly)) {
 							BrowserDef * p_def = pBrw->getDef();
 							if(p_def && p_def->getCount())
 								mfn = p_def->getCount()-1;
 						}
-						if(h == mfn) {
-							SString memos;
-							if(id && P_BObj->FetchExtMemo(id, memos) > 0) {
-							//if(id && PPRef->GetPropVlrString(PPOBJ_BILL, id, PPPRP_BILLMEMO, memos) > 0 && memos.Len() > 0) {
-								const long flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
-									SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;
-								memos.ReplaceChar('\n', ' ');
-								memos.ReplaceChar('\r', ' ');
-								memos.ReplaceStr(PPConst::P_ObjMemoDelim, "\n", 0);
-								PPTooltipMessage(memos, 0, pBrw->H(), 10000, 0, flags);
-							}
+						if(col == mfn && id && P_BObj->FetchExtMemo(id, temp_buf) > 0) {
+							const long flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
+								SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;
+							temp_buf.ReplaceChar('\n', ' ');
+							temp_buf.ReplaceChar('\r', ' ');
+							temp_buf.ReplaceStr(PPConst::P_ObjMemoDelim, "\n", 0);
+							PPTooltipMessage(temp_buf, 0, pBrw->H(), 10000, 0, flags);
 						}
+						else { // @v12.7.5 
+							pBrw->ShowCellStyleHint(row, col);
+						}
+						ok = -1;
 					}
 				}
 				break;

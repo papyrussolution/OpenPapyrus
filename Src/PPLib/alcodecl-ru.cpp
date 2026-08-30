@@ -1,5 +1,5 @@
 // ALCODECL-RU.CPP
-// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Алкогольная декларация (Россия)
 //
@@ -1018,12 +1018,12 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
-int PPViewAlcoDeclRu::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
+int PPViewAlcoDeclRu::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
 	int    ok = -1;
-	if(pBrw && pData && pCellStyle && col >= 0) {
-		const BrowserDef * p_def = pBrw->getDef();
-		if(col < static_cast<long>(p_def->getCount())) {
+	if(pBrw && pData && pStyle && col >= 0) {
+		const  BrowserDef * p_def = pBrw->getDef();
+		if(col < p_def->getCountI()) {
 			const BroColumn & r_col = p_def->at(col);
 			if(Filt.GetParentView()) {
 			}
@@ -1031,17 +1031,26 @@ int PPViewAlcoDeclRu::CellStyleFunc_(const void * pData, long col, int paintActi
 				const InnerRcptEntry * p_item = static_cast<const InnerRcptEntry *>(pData);
 				if(r_col.OrgOffs == 7) { // div
 					if(DivStatusList.Search(p_item->DivID, 0)) {
-						ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+						ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_ALCODECLRU_PROBLEM_DIV, SLS.AcquireRvlStr()));
+						}
 					}
 				}
 				else if(r_col.OrgOffs == 2) { // manuf
 					if(ManufStatusList.Search(p_item->ManufID, 0)) {
-						ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+						ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_ALCODECLRU_PROBLEM_MANUF, SLS.AcquireRvlStr()));
+						}
 					}
 				}
 				else if(r_col.OrgOffs == 8) { // supplier
 					if(SupplStatusList.Search(p_item->SupplID, 0)) {
-						ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+						ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_ALCODECLRU_PROBLEM_SUPPL, SLS.AcquireRvlStr()));
+						}
 					}
 				}
 			}
@@ -1049,12 +1058,18 @@ int PPViewAlcoDeclRu::CellStyleFunc_(const void * pData, long col, int paintActi
 				const InnerMovEntry * p_item = static_cast<const InnerMovEntry *>(pData);
 				if(r_col.OrgOffs == 16) { // div
 					if(DivStatusList.Search(p_item->DivID, 0)) {
-						ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+						ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_ALCODECLRU_PROBLEM_DIV, SLS.AcquireRvlStr()));
+						}
 					}
 				}
 				else if(r_col.OrgOffs == 2) { // manuf
 					if(ManufStatusList.Search(p_item->ManufID, 0)) {
-						ok = pCellStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+						ok = pStyle->SetRightFigCircleColor(GetColorRef(SClrRed));
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_ALCODECLRU_PROBLEM_MANUF, SLS.AcquireRvlStr()));
+						}
 					}
 				}
 			}
@@ -1189,6 +1204,12 @@ void PPViewAlcoDeclRu::PreprocessBrowser(PPViewBrowser * pBrw)
 							}
 						}
 					}
+				}
+				break;
+			case PPVCMD_MOUSEHOVER: // @v12.7.5
+				if(pBrw) {
+					pBrw->ShowCellStyleHint();
+					ok = -1;
 				}
 				break;
 		}

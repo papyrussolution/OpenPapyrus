@@ -10,6 +10,7 @@
 //     PPMSG_FATAL               101
 //     PPMSG_CONFIRMATION        102
 //     PPMSG_INFORMATION         103
+//     PPSTR_TCELHLD             104 // @v12.7.5 Table Cell HighLight Description
 //     PPSTR_OBJNAMES            110 // Наименования объектов
 //     PPSTR_TEXT                111 // Просто строки
 //     PPSTR_ACTION              112 // Наименования событий в SysJ
@@ -2611,7 +2612,6 @@ PPCFM_TSESSAUTOCOMPLETE    "Эта операция заполнит строк�
 PPCFM_CREATESPCOPRKIND     "Выбранная категории документов требует специальной зарезервированной операции. Создать ее сейчас?"
 
 [103]
-
 PPINF_CANNOTDELCONFIG      "Нельзя удалять конфигурацию"
 PPINF_IMPOSSIBLEDELETING   "Такое удаление недопустимо"
 PPINF_NOPRONLOC            "По неактивному складу товарные операции запрещены"
@@ -2686,8 +2686,181 @@ PPINF_ACTCHARGEONDONTCR    "Не создано ни одного докумен
 PPINF_EGAISSHOPRETURNCR    "Создан документ возврата с регистра 2 @{brand_egais}: %s"
 PPINF_BILLCANTBEMERGED_STATUS "Документ '%s' не можеть быть объединен поскольку это запрещено его статусом" // @v12.5.10
 
-[110] // Наименования типов объектов данных
+[104] // @v12.7.5 PPSTR_TCELHLD Table Cell HighLight Description
+TCELHLD_BILL_FULLSYNC          "Документ полностью синхронизирован"
+TCELHLD_BILL_CCHECK            "По документу отпечатан кассовый чек"
+TCELHLD_BILL_TAGINDICATOR      "Настраиваемая индикация тега"
+TCELHLD_BILL_SHIPPED           "Документ отгружен"
+TCELHLD_BILL_WL                "Документ имеет метку white-label"
+TCELHLD_BILL_EXTMEMOS          "К документу привязаны дополнительные примечения"
+TCELHLD_BILL_FORCEDRECEIPT     "Документ форсированной компенсации операционного дефицита"
+TCELHLD_BILL_CONTRACTORSTOPPED "Для контрагента по этому документу установлен признак 'STOP'"
+TCELHLD_BILL_DECLINED          "Документ отклонен"
+TCELHLD_BILL_WRITEDOFF         "Документ списан"
+TCELHLD_BILL_ORDERDECLINED     "Заказ отклонен"
+TCELHLD_BILL_ORDERCLOSED       "Заказ закрыт"
+TCELHLD_BILL_STATUSINDICATOR   "Настраиваемая индикация статуса документа"
+TCELHLD_BILL_DESADV_OUT_SENDED      "Документ отправлен получателю в виде DESADV"
+TCELHLD_BILL_DESADV_OUT_PROCESSED   "Документ, отправленный получателю в виде DESADV, принят EDI-сервером"
 
+TCELHLD_BILL_DESADV_OUT_RECADV_ACC  "На документ, отправленный получателю в виде DESADV, получен RECADV 'принят'"
+TCELHLD_BILL_DESADV_OUT_RECADV_PACC "На документ, отправленный получателю в виде DESADV, получен RECADV 'частично принят'"
+TCELHLD_BILL_DESADV_OUT_RECADV_REJ  "На документ, отправленный получателю в виде DESADV, получен RECADV 'отклонен'"
+TCELHLD_BILL_DESADV_OUT_RECADV_CONF_ACC_ON_ACC   "Мы подтвердили RECADV accept, полученный в ответ на наш DESADV"
+TCELHLD_BILL_DESADV_OUT_RECADV_CONF_ACC_ON_PACC  "Мы подтвердили частичный RECADV accept, полученный в ответ на наш DESADV"
+TCELHLD_BILL_DESADV_OUT_RECADV_CONF_ACC_ON_REJ   "Мы подтвердили RECADV reject, полученный в ответ на наш DESADV"
+TCELHLD_BILL_DESADV_OUT_RECADV_CONF_REJ_ON_ACC   "Мы отклонили RECADV accept, полученный в ответ на наш DESADV"
+TCELHLD_BILL_DESADV_OUT_RECADV_CONF_REJ_ON_PACC  "Мы отклонили частичный RECADV accept, полученный в ответ на наш DESADV"
+TCELHLD_BILL_DESADV_OUT_RECADV_CONF_REJ_ON_REJ   "Мы отклонили RECADV reject, полученный в ответ на наш DESADV"
+TCELHLD_BILL_DESADV_IN_ACCEPTED     "Документ получен от отправителя в виде DESADV"
+TCELHLD_BILL_DESADV_IN_RECADV_ACC   "На документ, полученный от отправителя в виде DESADV, отправлен RECADV 'принят'"
+TCELHLD_BILL_DESADV_IN_RECADV_PACC  "На документ, полученный от отправителя в виде DESADV, отправлен RECADV 'частично принят'"
+TCELHLD_BILL_DESADV_IN_RECADV_REJ   "На документ, полученный от отправителя в виде DESADV, отправлен RECADV 'отклонен'"
+TCELHLD_BILL_EDISTATUS_UNKN         "Неизвестный EDI-статус документа"
+
+TCELHLD_CCHECK_ORDER           "Чек заказа"
+TCELHLD_CCHECK_ZREP            "Чек Z-отчета"
+TCELHLD_CCHECK_JUNK            "JUNK-чек"
+TCELHLD_CCHECK_SUSPENDED       "Отложенный чек"
+TCELHLD_CCHECK_RETURN          "Чек возврата"
+TCELHLD_CCHECK_NOTPRINTED      "Чек не отпечатан на регистраторе"
+TCELHLD_CCHECK_DELIVERY        "Чек с доставкой" 
+TCELHLD_CCHECK_DELIVERY_DONE   "Чек с доставкой - исполнен" 
+TCELHLD_CCHECK_EGAIS_SHADOW_NOTSENT "Теневой чек ЕГАИС - не отправлен"
+TCELHLD_CCHECK_PROBLEMS        "По чеку выявлены проблемы"
+
+TCELHLD_GOODS_HASIMAGE            "Товар имеет изображение"
+TCELHLD_GOODS_GENERIC             "Обобщенный товар"
+TCELHLD_GOODS_TAGINDICATOR        "Настраиваемая индикация тега"
+TCELHLD_GOODS_BARCODE_SHORT       "Короткий (ручной) штрихкод"
+TCELHLD_GOODS_BARCODE_ALC         "Код алкогольной продукции ЕГАИС"
+TCELHLD_GOODS_BARCODE_SOMEPROBLEM "Штрихкод удовлетворяет стандартам EAN/UPC, но не полностью (с замечаниями)"
+TCELHLD_GOODS_BARCODE_NOTSTD      "Штрихкод не удовлетворяет стандартам EAN/UPC"
+
+TCELHLD_PERSON_HASIMAGE                "Персоналия имеет изображение"
+TCELHLD_PERSON_CLIACTIVITY_DELAYEDTA   "Клиент давно не проявлял активности (задержка большая, но не катастрофическая)"
+TCELHLD_PERSON_CLIACTIVITY_HLDELAYEDTA "Клиент безнадежно давно не проявлял активности"
+TCELHLD_PERSON_CLIACTIVITY_REGULARTA   "Клиент проявляет регулярную активность"
+TCELHLD_PERSON_CLIACTIVITY_NEW         "Новый клиент"
+
+TCELHLD_TRFRLIST_TAGINDICATOR          "Настраиваемая индикация тега"
+TCELHLD_TRFRLIST_GOODSTAGINDICATOR     "Настраиваемая индикация тега товара"
+TCELHLD_TRFRLIST_PASSIVEGOODS          "Пассивный товар"
+TCELHLD_TRFRLIST_LOTSYNC               "Строка документа, принятого из другого раздела и синхронизированная с ним по лоту"
+TCELHLD_TRFRLIST_EDISTOCK              "Драфт-операция подтверждение остатков, учитываемых EDI-сервисом"
+TCELHLD_TRFRLIST_LNKORDFFP             "Строка заказа, к которой привязана эта позиция, исполнена не полностью"
+TCELHLD_TRFRLIST_THSORDFFP             "Эта строка заказа исполнена не полностью"
+TCELHLD_TRFRLIST_VETISEXPIRY           "Срок годности товара, заданный в системе меркурий, истек"
+TCELHLD_TRFRLIST_QUOTINV               "(?) Ошибочная котировка"
+TCELHLD_TRFRLIST_QUOTMISS              "Для товара отсутствует подходящая котировка"
+TCELHLD_TRFRLIST_QUOTSET               "Цена на товар установлена по котировке"
+TCELHLD_TRFRLIST_QUOTNOINFO            "(?) Нет информации об установке цены по котировке"
+TCELHLD_TRFRLIST_LOTSF_FIRST           "Это - первый лот товара на складе"
+TCELHLD_TRFRLIST_LOTSF_COSTUP          "Цена поступления выше, той что была у предыдущей партии"
+TCELHLD_TRFRLIST_LOTSF_COSTDOWN        "Цена поступления ниже, той что была у предыдущей партии"
+TCELHLD_TRFRLIST_LOTSF_LINKCOSTUP      "Цена поступления превышает цену в документе заказа, на основании которого вводится данный документ"
+TCELHLD_TRFRLIST_LOTSF_LINKCOSTDN      "Цена поступления ниже цены в документе заказа, на основании которого вводится данный документ"
+TCELHLD_TRFRLIST_LOTSF_PRICEUP         "Цена реализации выше, той что была у предыдущей партии"
+TCELHLD_TRFRLIST_LOTSF_PRICEDOWN       "Цена реализации ниже, той что была у предыдущей партии"
+TCELHLD_TRFRLIST_LOTSF_RESTRBOUNDS     "Цена выходит за границы диапазона, определяемого ограничениями товарных величин"
+TCELHLD_TRFRLIST_SERIALBAD             "Серийный номер этой строки находится в списке партий, неразрешенных к продаже"
+TCELHLD_TRFRLIST_BARCODEWARN           "Това в этой строке имеет проблемы со штрихкодом"
+TCELHLD_TRFRLIST_SOMEPROBLEMS          "Строка имеет проблемы, зафиксированные при вызове функции проверки"
+TCELHLD_TRFRLIST_FORCEREMOVE           "При проведении документа строка будет удалена в форсированном режиме (в обход любых проверок)"
+
+TCELHLD_GOODSREST_SUBSTCOSTQUOT        "Вместо цены поступления подставлено значение котировки"
+TCELHLD_GOODSREST_SUBSTPRICEQUOT       "Вместо цены реализации подставлено значение котировки"
+TCELHLD_GOODSREST_INMTX                "Товар принадлежит товарной матрице"
+TCELHLD_GOODSREST_OUTOFMTX             "Товар не принадлежит товарной матрице"
+TCELHLD_GOODSREST_GOODSTAGINDICATOR    "Настраиваемая индикация тега товара"
+
+TCELHLD_LOT_TAGINDICATOR               "Настраиваемая индикация тега"
+TCELHLD_LOT_EXPIRY                     "Срок годности истек"
+TCELHLD_LOT_SF_FIRST                   "Это - первый лот товара на складе"
+TCELHLD_LOT_SF_COSTUP                  "Цена поступления выше, той что была у предыдущей партии"
+TCELHLD_LOT_SF_COSTDOWN                "Цена поступления ниже, той что была у предыдущей партии"
+TCELHLD_LOT_SF_PRICEUP                 "Цена реализации выше, той что была у предыдущей партии"
+TCELHLD_LOT_SF_PRICEDOWN               "Цена реализации ниже, той что была у предыдущей партии"
+
+TCELHLD_SCARD_NEEDACTIVATION           "Карта требует активации"
+TCELHLD_SCARD_CLOSED                   "Карта закрыта"
+TCELHLD_SCARD_INHERITED                "Карта наследует параметры от серии"
+TCELHLD_SCARD_EXPIRED                  "Срок действия карты истек"
+TCELHLD_SCARD_OWNERSPSNPHONE           "Номер телефон относится к владельцу карты, а не к самой карте"
+
+TCELHLD_INVENTORY_WROFF                "Строка инвентаризации списана"
+TCELHLD_INVENTORY_WROFF2               "Строка инвентаризации списана (*)" // Есть крохотный нюанс, отличающий этот признак от TCELHLD_INVENTORY_WROFF
+TCELHLD_INVENTORY_DEVIATION            "Строка инвентаризации содержит отклонение от учетного остатка"
+TCELHLD_INVENTORY_GENAUTOLINE          "Автоматически сформированная строка инвентаризации"
+TCELHLD_INVENTORY_LACK                 "Строка инвентаризации содержит недостачу"
+TCELHLD_INVENTORY_SURPLUS              "Строка инвентаризации содержит излишек"
+TCELHLD_INVENTORY_NODEVIATION          "Строка инвентаризации не содержит отклонений от учетного остатка"
+
+TCELHLD_QUOT_ACTUAL                    "Актуальное значение котировки"
+TCELHLD_QUOT_POSITIVE                  "Положительное значение котировки"
+TCELHLD_QUOT_NEGATIVE                  "Отрицательное значение котировки"
+
+TCELHLD_VETISDOC_ORGDOCENTITY          "Определен ИД исходного сертификата"
+TCELHLD_VETISDOC_EXPIRED               "Срок годности по сертификату истек"
+TCELHLD_VETISDOC_LINKBILL_ROW          "Определен связанный документ и позиция строки в нем"
+TCELHLD_VETISDOC_LINKBILL_NOROW        "Определен связанный документ, но не определена позиция строки в нем"
+TCELHLD_VETISDOC_LINKGOODS             "Определен связанный товар"
+TCELHLD_VETISDOC_FROMMAINORG           "Сертификат на продукцию, отправляемую от нас к контрагенту (исходящий)"
+TCELHLD_VETISDOC_LINKFROMDLVRLOC       "Для сертификата определен адрес отправителя"
+TCELHLD_VETISDOC_LINKFROMPSN           "Для сертификата определена организация-отправитель"
+TCELHLD_VETISDOC_TOMAINORG             "Сертификат на продукцию, отправляемую от контрагента к нам (входящий)"
+TCELHLD_VETISDOC_LINKTODLVRLOC         "Для сертификата определен адрес получателя"
+TCELHLD_VETISDOC_LINKTOPSN             "Для сертификата определена организация-получатель"
+
+TCELHLD_GSTRUC_PROBLEMS                "Обнаружены проблемы, связанные с этой товарной структурой"
+TCELHLD_GSTRUC_KIND_BOM                "Структура комплектации/декомплектации (BOM)"
+TCELHLD_GSTRUC_KIND_PART               "Частичная структура"
+TCELHLD_GSTRUC_KIND_SUBST              "Подстановочная структура"
+TCELHLD_GSTRUC_KIND_GIFT               "Подарочная структура"
+TCELHLD_GSTRUC_KIND_COMPLEX            "Структура комплекса"
+TCELHLD_GSTRUC_KIND_UNDEF              "Вид структуры неопределен"
+TCELHLD_GSTRUC_BANNEDCOMMDENOM         "Структура имеет общий делитель, хотя конфигурация справочника товаров запрещает такие структуры"
+
+TCELHLD_ALCODECLRU_PROBLEM_DIV         "Проблема с подразделением"
+TCELHLD_ALCODECLRU_PROBLEM_MANUF       "Проблема с производителем"
+TCELHLD_ALCODECLRU_PROBLEM_SUPPL       "Проблема с поставщиком"
+
+TCELHLD_BRAND_HASIMAGE                 "@{brand} имеет изображение"  
+
+TCELHLD_JOB_DISABLED                   "Задача запрещена для выполнения"
+
+TCELHLD_SSTAT_GOODSTAGINDICATOR        "Настраиваемая индикация тега товара"
+TCELHLD_SSTAT_NEWGOODS                 "Новый товар"
+TCELHLD_SSTAT_UNRELIABLE               "Ненадежный прогноз"
+
+TCELHLD_LOCTRANSF_ORDER                "Заказ на размещение"
+
+TCELHLD_PERSONEVENT_FORCEPAIR          "Запись имеет аварийный признак наличия парной записи, хотя таковой нет"
+
+TCELHLD_COMPLETELIST_SOURCE            "Исходный лот (расход)"
+TCELHLD_COMPLETELIST_BRANCH            "Лот, произведенный из исходного лота (выход)"
+
+TCELHLD_SYSJOURNAL_OBJRMV              "Объект был удален"
+TCELHLD_SYSJOURNAL_OBJADD              "Объект был создан"
+TCELHLD_SYSJOURNAL_OBJUPD              "Объект был изменен"
+TCELHLD_SYSJOURNAL_AMTDN               "После события сумма документа уменьшилась (либо документ был удален)"
+TCELHLD_SYSJOURNAL_AMTUP               "После события сумма документа увеличилась"
+
+TCELHLD_SWPROGRAM_HASIMAGE             "Программа имеет изображение"
+
+TCELHLD_QUOTEREQANALYZE_ACK_NONE      "Ответ от поставщика не поступал"
+TCELHLD_QUOTEREQANALYZE_ACK_ACCEPTED  "От поставщика получено подтверждение"
+TCELHLD_QUOTEREQANALYZE_ACK_REJECTED  "От поставщика получен отказ"
+
+TCELHLD_TIMESERIES_STAKE_DISABLED     "Ставка по этому инструменту запрещена"
+TCELHLD_TIMESERIES_STAKE_STAKE_ANY    "Разрешены и длинные и короткие ставки"
+TCELHLD_TIMESERIES_STAKE_STAKE_LONG   "Разрешены только длинные ставки"
+TCELHLD_TIMESERIES_STAKE_STAKE_SHORT  "Разрешены только короткие ставки"
+TCELHLD_TIMESERIES_FOREX              "Инструмент относится к рынку FOREX"
+TCELHLD_TIMESERIES_STOCK              "Инструмент относится к рынку акций"
+TCELHLD_TIMESERIES_CRYPTO             "Инструмент относится к рынку крипто-валют"
+									
+[110] // Наименования типов объектов данных
 1    "@{config}"
 3    "@{usergroup}"
 4    "@{user}"
@@ -3723,7 +3896,7 @@ PPTXT_SELECTOBJECT                  "Выберите объект"
 PPTXT_SELECTTIROWFORMARKSUBST       "Выберите строку документа, в которую следует включить марку"
 // Типы счетов
 PPTXT_ACCTITLES                           "@{account_accounting};@{account_balance};@{balancelessaccount};Агрегирующий счет;@{account_register};\
-	Персональный счет;@{accountalias};@{budgetaccount}"
+	@{account_personal};@{accountalias};@{budgetaccount}"
 PPTXT_ACCKIND                             "1,@{active};2,@{passive};3,@{activepassive}"
 PPTXT_BILLTYPES                           "1,@{commoditydocument};2,@{orderdocument};3,@{accountdocument};4,@{inventorydocument};8,@{draftdocument};10,Постановка на баланс маркированной продукции"
 PPTXT_NUMBERWORDS           "один;одна;два;две;три;четыре;пять;шесть;семь;восемь;девять;десять;одиннадцать;двенадцать;тринадцать;четырнадцать;пятнадцать;шестнадцать;\
@@ -3884,7 +4057,7 @@ PPTXT_CALCBADSALESGOODS                   "Расчет плохо продав�
 PPTXT_CALCUNPROFITABLEGOODS               "Расчет убыточных товаров"
 PPTXT_GOODSOPRADDVALNAMES                 "@{qtty};Остатки;@{stockamtcost};@{stockamtprice};Сумма в ценах поступления;Сумма в ценах реализации;Доход;Доход в % к ценам поступления;Доход в % к ценам реализации"
 PPTXT_CCHECKSELFORPERIOD                  "Выборка чеков за период"
-PPTXT_BILLNOTBANKING                      "Документ (@{number}=%s, @{date}=%s) не экспортирован, так как он не является платежным поручением."
+PPTXT_BILLNOTBANKING                      "Документ '%s' не экспортирован, так как он не является платежным поручением."
 PPTXT_SELALTGOODSGRPS                     "Выбор альтернативных групп для вставки нового товара"
 PPTXT_DUPLWORLDOBJNAMES                   "Найдены дублирующиеся географические объекты"
 PPTXT_DUPLPERSONNAMES                     "Найдены дублирующиеся персоналии"
@@ -6507,6 +6680,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @deficit                             "Дефицит"
 @recompl                             "Рекомплектация"
 @transfer                            "Трансфер"
+@remittance                          "Перевод" // @v12.7.5 в смысле перевод денег (от кого-то кому-то)
 @correction                          "Коррекция"
 @correction_sell                     "Коррекция продажи"
 @correction_sell_storno              "Сторно продажи"
@@ -7470,6 +7644,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @account_grouping                    "Группирующий счет"
 @balancelessaccount                  "Забалансовый счет"
 @balancelessaccount_pl               "Забалансовые счета"
+@account_personal                    "Персональный счет"  // @v12.7.5
+@account_personal_pl                 "Персональные счета" // @v12.7.5
 @accountalias                        "Алиас счета"
 @accname                             "Наименование счета"
 @accnamedbt                          "Наименование счета дебета"
@@ -9182,7 +9358,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cmd_accbudget                            "Бюджетные счета"
 @cmd_accoutbal                            "@{balancelessaccount_pl}"
 @cmd_accplan                              "@{view_account}"
-@cmd_accpersonal                          "Персональные счета" // @v12.7.4 @centrigo
+@cmd_accpersonal                          "@{account_personal_pl}" // @v12.7.4 @centrigo
 @cmd_accregister                          "Бухгалтерские регистры"
 @cmd_accsheet                             "@{accsheet_pl}"
 @cmd_accturnbilllist                      "@{accountdocument_pl}"
@@ -9807,6 +9983,17 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 //
 // Далее следует блок из каталога объектов Papyrus
 //
+@acck_active                              "Активный счет"
+@acck_passive                             "Пассивный счет"
+@acck_ap                                  "Активно-пассивный счет"
+@acck_pa_cash                             "Наличные"
+@acck_pa_bankccard                        "Банковская платежная карта"
+@acck_pa_bankcheq                         "Банковский чековый (текущий) счет"
+@acck_pa_debt                             "Собственный долг"
+@acck_pa_credit                           "Деньги переданые в долг"
+@acck_pa_investment                       "Инвестиционный или сберегательный счет"
+@acck_pa_isvcacc                          "Счет интернет-сервиса"
+
 @account_ac                               "@{account}"
 @account_accsheet                         "@{accsheet}"
 @account_acf_freerest                     ""
@@ -12763,6 +12950,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @opsubt_bailment_order                    "Заказ на операцию ответственного хранения"
 @opsubt_bailment_put                      "Передача актива на ответственное хранение"
 @opsubt_bailment_get                      "Возврат актива с ответственного хранения"
+@opsubt_personalfinance                   "Транзакция с персональными финансами" // @v12.7.5
 //
 // Дженерики для заголовков диалогов видов операций
 @oprkindgroup_wms                         "Вид складской операции"
@@ -18952,6 +19140,7 @@ PPHS_BASERATIO                   "baseratio"
 PPHS_RATIO                       "ratio"
 PPHS_DEFAULT                     "default"
 PPHS_NODISCOUNT                  "nodiscount"
+PPHS_MINQTTY                     "minqtty" // @v12.7.5
 PPHS_BCS_CODE11                  "code11"
 PPHS_BCS_CODE39                  "code39"
 PPHS_BCS_CODE49                  "code49"

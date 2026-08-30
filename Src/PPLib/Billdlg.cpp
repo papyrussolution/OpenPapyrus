@@ -12,20 +12,40 @@ int ViewAdvBillDetails(PPBillPacket * pPack, PPObjBill * pBObj);
 int EditPaymPlan(const PPBillPacket * pPack, PayPlanArray * pData);
 //
 //
-#define GRP_DBT    1
-#define GRP_CRD    2
+//#define GRP_DBT    1
+//#define GRP_CRD    2
 #define GRP_CURAMT 3
 #define GRP_FBG    4
 #define GRP_QCERT  5
 
+class AccTurnDialog : public TDialog {
+	DECL_DIALOG_DATA(PPAccTurn);
+	enum {
+		grpDbt    = 1,
+		grpCrd    = 2,
+		grpCurAmt = 3,
+	};
+public:
+	AccTurnDialog(uint rezID, PPObjBill * pBObj);
+	int    setDTS(const PPAccTurn * pData, PPBillPacket * pPack, long templFlags = 0);
+	int    getDTS(PPAccTurn * pData);
+private:
+	DECL_HANDLE_EVENT;
+	void   setupCurrencyCombo();
+
+	PPObjBill * P_BObj;
+	PPObjAccount AccObj;
+	PPBillPacket * P_Pack;
+};
+
 AccTurnDialog::AccTurnDialog(uint rezID, PPObjBill * pBObj) : TDialog(rezID), P_BObj(pBObj), P_Pack(0)
 {
 	AcctCtrlGroup * p_ac_grp = new AcctCtrlGroup(CTL_ATURN_DACC, CTL_ATURN_DART, CTLSEL_ATURN_DACCNAME, CTLSEL_ATURN_DARTNAME);
-	addGroup(GRP_DBT, p_ac_grp);
+	addGroup(grpDbt, p_ac_grp);
 	p_ac_grp = new AcctCtrlGroup(CTL_ATURN_CACC, CTL_ATURN_CART, CTLSEL_ATURN_CACCNAME, CTLSEL_ATURN_CARTNAME);
-	addGroup(GRP_CRD, p_ac_grp);
+	addGroup(grpCrd, p_ac_grp);
 	CurAmtCtrlGroup * p_ca_grp = new CurAmtCtrlGroup(CTL_ATURN_AMOUNT, CTLSEL_ATURN_CUR, CTL_ATURN_CRATE, CTL_ATURN_BASEAMT, CTL_ATURN_DATE, 0, 0);
-	addGroup(GRP_CURAMT, p_ca_grp);
+	addGroup(grpCurAmt, p_ca_grp);
 	SetupCalDate(CTLCAL_ATURN_DATE, CTL_ATURN_DATE);
 	setDTS(0, 0);
 }
@@ -33,8 +53,8 @@ AccTurnDialog::AccTurnDialog(uint rezID, PPObjBill * pBObj) : TDialog(rezID), P_
 int AccTurnDialog::setDTS(const PPAccTurn * pData, PPBillPacket * pPack, long templFlags)
 {
 	int    ok = 1;
+	SString temp_buf;
 	PPID   temp_acc_id;
-	AcctCtrlGroup::Rec rec;
 	CurAmtCtrlGroup::Rec ca_rec;
 	P_Pack = pPack;
 	if(P_Pack) {
@@ -46,22 +66,35 @@ int AccTurnDialog::setDTS(const PPAccTurn * pData, PPBillPacket * pPack, long te
 			setTitle(op_rec.Name);
 		setCtrlString(CTL_ATURN_MEMO, P_Pack->SMemo);
 		SetupPPObjCombo(this, CTLSEL_ATURN_LOCATION, PPOBJ_LOCATION, P_Pack->Rec.LocID, 0);
+		// @v12.7.5 {
+		{
+			GetObjectName(PPOBJ_BILLSTATUS, P_Pack->Rec.StatusID, temp_buf);
+			setStaticText(CTL_BILL_STATUS, temp_buf);
+		}
+		// } @v12.7.5 
 	}
 	if(pData) {
 		Data = *pData;
-		if(Data.DbtID.ac)
-			if(AccObj.SearchBase(Data.DbtID.ac, &temp_acc_id, 0) > 0)
+		if(Data.DbtID.ac) {
+			if(AccObj.SearchBase(Data.DbtID.ac, &temp_acc_id, 0) > 0) {
 				Data.DbtID.ac = temp_acc_id;
-			else
+			}
+			else {
 				PPError();
-		if(Data.CrdID.ac)
-			if(AccObj.SearchBase(Data.CrdID.ac, &temp_acc_id, 0) > 0)
+			}
+		}
+		if(Data.CrdID.ac) {
+			if(AccObj.SearchBase(Data.CrdID.ac, &temp_acc_id, 0) > 0) {
 				Data.CrdID.ac = temp_acc_id;
-			else
+			}
+			else {
 				PPError();
+			}
+		}
 	}
-	else
+	else {
 		Data.Z();
+	}
 	if(Data.Flags & PPAF_OUTBAL && Data.Flags & PPAF_OUTBAL_TRANSFER) {
 		if(Data.Amount >= 0.0)
 			Data.SwapDbtCrd();
@@ -70,35 +103,54 @@ int AccTurnDialog::setDTS(const PPAccTurn * pData, PPBillPacket * pPack, long te
 	}
 	setCtrlData(CTL_ATURN_DATE, &Data.Date);
 	setCtrlData(CTL_ATURN_DOC,  Data.BillCode);
-	rec.AcctId      = Data.DbtID;
-	rec.AccSheetID  = Data.DbtSheet;
-	if(Data.Flags & PPAF_REGISTER)
-		rec.AccSelParam = ACY_SEL_REGISTER;
-	else if(Data.Flags & PPAF_OUTBAL)
-		rec.AccSelParam = ACY_SEL_OBAL;
-	else
-		rec.AccSelParam = ACY_SEL_BAL;
-	setGroupData(GRP_DBT, &rec);
-	rec.AcctId      = Data.CrdID;
-	rec.AccSheetID  = Data.CrdSheet;
-	if(Data.Flags & PPAF_REGISTER)
-		rec.AccSelParam = ACY_SEL_REGISTER;
-	else if(Data.Flags & PPAF_OUTBAL)
-		rec.AccSelParam = ACY_SEL_OBAL;
-	else
-		rec.AccSelParam = ACY_SEL_BAL;
-	setGroupData(GRP_CRD, &rec);
+	setCtrlLong(CTL_ATURN_ID, Data.BillID); // @v12.7.5
+	{
+		AcctCtrlGroup::Rec rec;
+		rec.AcctId      = Data.DbtID;
+		rec.AccSheetID  = Data.DbtSheet;
+		if(Data.Flags & PPAF_PERSONAL) { // @v12.7.5
+			rec.AccSelParam = ACY_SEL_PERSONAL;
+		}
+		else if(Data.Flags & PPAF_REGISTER) {
+			rec.AccSelParam = ACY_SEL_REGISTER;
+		}
+		else if(Data.Flags & PPAF_OUTBAL) {
+			rec.AccSelParam = ACY_SEL_OBAL;
+		}
+		else {
+			rec.AccSelParam = ACY_SEL_BAL;
+		}
+		setGroupData(grpDbt, &rec);
+	}
+	{
+		AcctCtrlGroup::Rec rec;
+		rec.AcctId      = Data.CrdID;
+		rec.AccSheetID  = Data.CrdSheet;
+		if(Data.Flags & PPAF_PERSONAL) { // @v12.7.5
+			rec.AccSelParam = ACY_SEL_PERSONAL;
+		}
+		else if(Data.Flags & PPAF_REGISTER) {
+			rec.AccSelParam = ACY_SEL_REGISTER;
+		}
+		else if(Data.Flags & PPAF_OUTBAL) {
+			rec.AccSelParam = ACY_SEL_OBAL;
+		}
+		else {
+			rec.AccSelParam = ACY_SEL_BAL;
+		}
+		setGroupData(grpCrd, &rec);
+	}
 	ca_rec.Amount = Data.Amount;
 	ca_rec.CurID  = Data.CurID;
 	ca_rec.CRate  = Data.CRate;
 	ca_rec.CRateDate = Data.Date;
-	setGroupData(GRP_CURAMT, &ca_rec);
+	setGroupData(grpCurAmt, &ca_rec);
 	setupCurrencyCombo();
-	disableCtrl(CTL_ATURN_DACC, LOGIC(templFlags & ATTF_DACCFIX));
-	disableCtrl(CTL_ATURN_DART, LOGIC(templFlags & ATTF_DARTFIX));
-	disableCtrl(CTL_ATURN_CACC, LOGIC(templFlags & ATTF_CACCFIX));
-	disableCtrl(CTL_ATURN_CART, LOGIC(templFlags & ATTF_CARTFIX));
-	disableCtrl(CTL_ATURN_BASEAMT, true);
+	setCtrlReadOnly(CTL_ATURN_DACC, LOGIC(templFlags & ATTF_DACCFIX)); // @v12.7.5 disableCtrl-->setCtrlReadOnly
+	setCtrlReadOnly(CTL_ATURN_DART, LOGIC(templFlags & ATTF_DARTFIX)); // @v12.7.5 disableCtrl-->setCtrlReadOnly
+	setCtrlReadOnly(CTL_ATURN_CACC, LOGIC(templFlags & ATTF_CACCFIX)); // @v12.7.5 disableCtrl-->setCtrlReadOnly
+	setCtrlReadOnly(CTL_ATURN_CART, LOGIC(templFlags & ATTF_CARTFIX)); // @v12.7.5 disableCtrl-->setCtrlReadOnly
+	setCtrlReadOnly(CTL_ATURN_BASEAMT, true); // @v12.7.5 disableCtrl-->setCtrlReadOnly
 	if(Data.Flags & PPAF_OUTBAL) {
 		ushort v = 0;
 		if(Data.Flags & PPAF_OUTBAL_WITHDRAWAL)
@@ -123,13 +175,13 @@ int AccTurnDialog::getDTS(PPAccTurn * pData)
 		SETFLAG(Data.Flags, PPAF_OUTBAL_WITHDRAWAL, v == 1);
 		SETFLAG(Data.Flags, PPAF_OUTBAL_TRANSFER,   v == 2);
 	}
-	THROW(getGroupData(GRP_DBT, &rec));
+	THROW(getGroupData(grpDbt, &rec));
 	Data.DbtID    = rec.AcctId;
 	Data.DbtSheet = rec.AccSheetID;
-	THROW(getGroupData(GRP_CRD, &rec));
+	THROW(getGroupData(grpCrd, &rec));
 	Data.CrdID    = rec.AcctId;
 	Data.CrdSheet = rec.AccSheetID;
-	THROW(getGroupData(GRP_CURAMT, &ca_rec));
+	THROW(getGroupData(grpCurAmt, &ca_rec));
 	Data.Amount   = ca_rec.Amount;
 	Data.CurID    = ca_rec.CurID;
 	Data.CRate    = ca_rec.CRate;
@@ -150,17 +202,19 @@ int AccTurnDialog::getDTS(PPAccTurn * pData)
 	else {
 		THROW(AccObj.SearchCur(Data.CrdID.ac, Data.CurID, &crd_acc_id, 0) > 0);
 		Data.CrdID.ac = crd_acc_id;
-		if(Data.Flags & PPAF_OUTBAL_TRANSFER)
+		if(Data.Flags & PPAF_OUTBAL_TRANSFER) {
 			if(Data.Amount >= 0)
 				Data.SwapDbtCrd();
 			else
 				Data.Amount = -Data.Amount;
+		}
 	}
 	if(P_Pack) {
 		if(P_Pack->Turns.getCount())
 			memcpy(&P_Pack->Turns.at(0), &Data, sizeof(Data));
-		else
+		else {
 			THROW_SL(P_Pack->Turns.insert(&Data));
+		}
 		P_Pack->Rec.Dt = Data.Date;
 		memcpy(P_Pack->Rec.Code, Data.BillCode, sizeof(P_Pack->Rec.Code));
 		getCtrlData(CTLSEL_ATURN_LOCATION, &P_Pack->Rec.LocID);
@@ -180,8 +234,8 @@ void AccTurnDialog::setupCurrencyCombo()
 {
 	PPIDArray cur_list;
 	AcctCtrlGroup::Rec dbt_rec, crd_rec;
-	getGroupData(GRP_DBT, &dbt_rec);
-	getGroupData(GRP_CRD, &crd_rec);
+	getGroupData(grpDbt, &dbt_rec);
+	getGroupData(grpCrd, &crd_rec);
 	AccObj.GetIntersectCurList(dbt_rec.AcctId.ac, crd_rec.AcctId.ac, &cur_list);
 	TView::messageCommand(this, cmCurAmtGrpSetupCurrencyCombo, &cur_list);
 }
@@ -4913,4 +4967,68 @@ int PPObjBill::EditLotSystemInfo(PPID lotID)
 	}
 	delete dlg;
 	return ok;
+}
+
+static void FASTCALL _processFlags(TDialog * dlg, long flags)
+{
+	static const struct { 
+		long   f;
+		uint   c; 
+	} _tab[] = {
+		{ATDF_DSBLDOC,    CTL_ATURN_DOC},
+		{ATDF_DSBLDATE,   CTL_ATURN_DATE},
+		{ATDF_DSBLDACC,   CTL_ATURN_DACC},
+		{ATDF_DSBLDART,   CTL_ATURN_DART},
+		{ATDF_DSBLCACC,   CTL_ATURN_CACC},
+		{ATDF_DSBLCART,   CTL_ATURN_CART},
+		{ATDF_DSBLAMOUNT, CTL_ATURN_AMOUNT}
+	};
+	int    sel = -1;
+	for(uint i = 0; i < SIZEOFARRAY(_tab); i++) {
+		if(flags & _tab[i].f) {
+			dlg->setCtrlReadOnly(_tab[i].c, true); // @v12.7.5 disableCtrl-->setCtrlReadOnly
+		}
+		else if(sel == -1)
+			sel = _tab[i].c;
+	}
+	if(sel == -1)
+		sel = STDCTL_CANCELBUTTON;
+	dlg->selectCtrl(sel);
+}
+
+int PPObjBill::EditGenericAccTurn(PPBillPacket * pPack, long flags)
+{
+	int    ok = 1;
+	int    r = 0;
+	int    valid_data = 0;
+	PPAccTurn at;
+	AccTurnDialog * dlg = 0;
+	uint   dlg_id = 0;
+	if(pPack->Turns.getCount())
+		at = pPack->Turns.at(0);
+	else
+		pPack->CreateAccTurn(at);
+	if(GetOpSubType(pPack->Rec.OpID) == OPSUBT_PERSONALFINANCE) { // @v12.7.5
+		dlg_id = DLG_ATURNPERSONAL;
+	}
+	else if(GetOpSubType(pPack->Rec.OpID) == OPSUBT_REGISTER) {
+		dlg_id = DLG_REGATURN;
+	}
+	else if(at.Flags & PPAF_OUTBAL) {
+		dlg_id = DLG_OUTBALATURN;
+	}
+	else {
+		dlg_id = DLG_ATURN;
+	}
+	dlg = new AccTurnDialog(dlg_id, this);
+	THROW(CheckDialogPtr(&dlg));
+	dlg->setDTS(&at, pPack);
+	_processFlags(dlg, flags);
+	for(r = cmCancel; !valid_data && (r = ExecView(dlg)) == cmOK;) {
+		if(dlg->getDTS(&at))
+			valid_data = 1;
+	}
+	CATCHZOK
+	delete dlg;
+	return ok ? r : 0;
 }

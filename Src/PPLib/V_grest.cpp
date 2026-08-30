@@ -3273,11 +3273,6 @@ void PPViewGoodsRest::GetEditIds(const void * pRow, PPID * pLocID, PPID * pGoods
 
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
-	/* @v11.7.11 
-	PPViewGoodsRest * p_view = static_cast<PPViewGoodsRest *>(extraPtr);
-	return p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle) : -1;
-	*/
-	// @v11.7.11 {
 	int    ok = -1;
 	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw) {
@@ -3285,13 +3280,16 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
 	}
 	return ok;
-	// } @v11.7.11 
 }
 
 int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
 {
+	//TCELHLD_GOODSREST_SUBSTCOSTQUOT        "Вместо цены поступления подставлено значение котировки"
+	//TCELHLD_GOODSREST_SUBSTPRICEQUOT       "Вместо цены реализации подставлено значение котировки"
+	//TCELHLD_GOODSREST_INMTX                "Товар принадлежит товарной матрице"
+	//TCELHLD_GOODSREST_OUTOFMTX             "Товар не принадлежит товарной матрице"
+	//TCELHLD_GOODSREST_GOODSTAGINDICATOR    "Настраиваемая индикация тега товара"
 	int    ok = -1;
-	//if(col >= 0 && col < p_def->getCountI()) {
 	if(pData && pStyle && pBrw) {
 		BrowserDef * p_def = pBrw->getDef();
 		if(col >= 0 && col < p_def->getCountI()) {
@@ -3312,6 +3310,9 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 					const SubstPriceQuotEntry key(goods_id, loc_id);
 					if(SubstPriceQuotList.bsearch(&key, 0, PTR_CMPFUNC(_2long))) { // список отсортирован в ::Init_
 						ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrBlue));
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_GOODSREST_SUBSTCOSTQUOT, SLS.AcquireRvlStr()));
+						}
 					}
 				}
 				else if(qu == 1 && r_col.OrgOffs == 13) {
@@ -3322,6 +3323,9 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 					const SubstPriceQuotEntry key(goods_id, loc_id);
 					if(SubstPriceQuotList.bsearch(&key, 0, PTR_CMPFUNC(_2long))) { // список отсортирован в ::Init_
 						ok = pStyle->SetLeftBottomCornerColor(GetColorRef(SClrBlue));
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_GOODSREST_SUBSTPRICEQUOT, SLS.AcquireRvlStr()));
+						}
 					}
 				}
 			}
@@ -3346,15 +3350,31 @@ int PPViewGoodsRest::CellStyleFunc_(const void * pData, long col, int paintActio
 					}
 					if(accept) {
 						if(Filt.Flags & GoodsRestFilt::fShowGoodsMatrixBelongs) {
-							if(GObj.P_Tbl->BelongToMatrix(goods_id, loc_id) > 0)
+							if(GObj.P_Tbl->BelongToMatrix(goods_id, loc_id) > 0) {
 								ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrGreen));
-							else
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_GOODSREST_INMTX, SLS.AcquireRvlStr()));
+								}
+							}
+							else {
 								ok = pStyle->SetLeftTopCornerColor(GetColorRef(SClrRed));
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_GOODSREST_OUTOFMTX, SLS.AcquireRvlStr()));
+								}
+							}
 						}
 						if(!r_tag_filt.IsEmpty()) {
 							SColor clr;
-							if(r_tag_filt.SelectIndicator(goods_id, clr))
+							const  uint tag_ind_idx = r_tag_filt.SelectIndicator(goods_id, clr);
+							if(tag_ind_idx) {
 								ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
+								if(paintAction == BrowserWindow::paintQueryDescription) {
+									SString & r_text = SLS.AcquireRvlStr();
+									SString & r_prefix = PPLoadStringS(PPSTR_TCELHLD, TCELHLD_GOODSREST_GOODSTAGINDICATOR, SLS.AcquireRvlStr());
+									r_tag_filt.MakeIndicatorDescrText(tag_ind_idx, r_prefix, r_text);
+									pStyle->CatDescriptionText(r_text);
+								}
+							}
 						}
 					}
 				}
@@ -4138,6 +4158,16 @@ int PPViewGoodsRest::ExportUhtt(int silent)
 					if(pBrw && pBrw->GetToolbarComboData(&grp_id) && Filt.GoodsGrpID != grp_id) {
 						Filt.GoodsGrpID = grp_id;
 						ok = ChangeFilt(1, pBrw);
+					}
+				}
+				break;
+			case PPVCMD_MOUSEHOVER: // @v12.7.5
+				if(pBrw) {
+					long   col = 0;
+					long   row = 0;
+					pBrw->ItemByMousePos(&col, &row);
+					if(col >= 0) {
+						pBrw->ShowCellStyleHint(row, col);
 					}
 				}
 				break;

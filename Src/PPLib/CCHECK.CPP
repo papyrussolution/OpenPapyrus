@@ -553,7 +553,7 @@ CCheckItem & FASTCALL CCheckItem::operator = (const CCheckLineTbl::Rec & rS)
 	Discount = rS.Dscnt;
 	Flags    = (rS.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? cifIsPrinted : 0;
 	Division = (rS.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? rS.DivID - CHECK_LINE_IS_PRINTED_BIAS : rS.DivID;
-	RByCheck = rS.RByCheck; // @v11.5.8
+	RByCheck = rS.RByCheck;
 	return *this;
 }
 
@@ -1134,13 +1134,13 @@ bool CCheckPacket::EnumLines(uint * pPos, CCheckItem * pItem) const
 				if(temp_buf.NotEmptyS())
 					chzn_pm_req_timestamp = temp_buf.ToInt64();
 				if(chzn_pm_req_timestamp && !chzn_pm_req_id.IsZero()) {
-					pItem->ChZnPm_ReqId = chzn_pm_req_id;
-					pItem->ChZnPm_ReqTimestamp = chzn_pm_req_timestamp;
+					pItem->ChZnPmRT.ReqId = chzn_pm_req_id;
+					pItem->ChZnPmRT.ReqTimestamp = chzn_pm_req_timestamp;
 					// @v12.3.12 {
 					GetLineTextExt(_pos, CCheckPacket::lnextChZnPm_LocalModuleInstance, temp_buf);
-					pItem->ChZnPm_LocalModuleInstance.FromStr(temp_buf);
+					pItem->ChZnPmRT.LocalModuleInstance.FromStr(temp_buf);
 					GetLineTextExt(_pos, CCheckPacket::lnextChZnPm_LocalModuleDbVer, temp_buf);
-					pItem->ChZnPm_LocalModuleDbVer.FromStr(temp_buf);
+					pItem->ChZnPmRT.LocalModuleDbVer.FromStr(temp_buf);
 					// } @v12.3.12 
 				}
 			}
@@ -1581,19 +1581,19 @@ int CCheckPacket::InsertCcl(const CCheckItem & rItem)
 		}
 		// } @v12.5.9 
 		// @v12.1.1 {
-		if(!rItem.ChZnPm_ReqId.IsZero() && rItem.ChZnPm_ReqTimestamp) {
-			rItem.ChZnPm_ReqId.ToStr(S_GUID::fmtPlain, temp_buf);
+		if(!rItem.ChZnPmRT.ReqId.IsZero() && rItem.ChZnPmRT.ReqTimestamp) {
+			rItem.ChZnPmRT.ReqId.ToStr(S_GUID::fmtPlain, temp_buf);
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnPm_ReqId, temp_buf));
 			//
-			temp_buf.Z().Cat(rItem.ChZnPm_ReqTimestamp);
+			temp_buf.Z().Cat(rItem.ChZnPmRT.ReqTimestamp);
 			THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnPm_ReqTimestamp, temp_buf));
 			// @v12.3.12 {
-			if(!!rItem.ChZnPm_LocalModuleInstance) {
-				rItem.ChZnPm_LocalModuleInstance.ToStr(S_GUID::fmtPlain, temp_buf);
+			if(!!rItem.ChZnPmRT.LocalModuleInstance) {
+				rItem.ChZnPmRT.LocalModuleInstance.ToStr(S_GUID::fmtPlain, temp_buf);
 				THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnPm_LocalModuleInstance, temp_buf));
 			}
-			if(!!rItem.ChZnPm_LocalModuleDbVer) {
-				rItem.ChZnPm_LocalModuleDbVer.ToStr(S_GUID::fmtPlain, temp_buf);
+			if(!!rItem.ChZnPmRT.LocalModuleDbVer) {
+				rItem.ChZnPmRT.LocalModuleDbVer.ToStr(S_GUID::fmtPlain, temp_buf);
 				THROW(SetLineTextExt(idx, CCheckPacket::lnextChZnPm_LocalModuleDbVer, temp_buf));
 			}
 			// } @v12.3.12 

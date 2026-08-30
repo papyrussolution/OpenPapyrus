@@ -97,17 +97,17 @@ int PPViewBalance::Init_(const PPBaseFilt * pBaseFilt)
 			else {
 				entry.DbtTrnovr  = entry.OutDbtRest - entry.InDbtRest;
 				entry.CrdTrnovr  = entry.OutCrdRest - entry.InCrdRest;
-				if(p_aci->Kind == ACT_ACTIVE) {
+				if(p_aci->Kind == ACCK_ACTIVE) {
 					entry.OutDbtRest -= entry.OutCrdRest;
 					entry.InDbtRest  -= entry.InCrdRest;
 					entry.OutCrdRest  = entry.InCrdRest = 0.0;
 				}
-				else if(p_aci->Kind == ACT_PASSIVE) {
+				else if(p_aci->Kind == ACCK_PASSIVE) {
 					entry.OutCrdRest -= entry.OutDbtRest;
 					entry.InCrdRest  -= entry.InDbtRest;
 					entry.OutDbtRest  = entry.InDbtRest = 0.0;
 				}
-				else if(p_aci->Kind == ACT_AP) {
+				else if(p_aci->Kind == ACCK_AP) {
 					//
 					// Свертка остатков по активно-пассивным счетам
 					//
