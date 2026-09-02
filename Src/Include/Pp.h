@@ -5346,12 +5346,17 @@ void RegisterSTAcct();
 #define PPAF_TEMPLATE          0x0010L // Шаблон бухгалтерской проводки
 #define PPAF_AUTOBILL          0x0020L // Проводка автоматически генерирует документ
 #define PPAF_OUTBAL            0x0040L // Забалансовая проводка
-#define PPAF_OUTBAL_WITHDRAWAL 0x0080L // Забалансовый расход (Withdrawal)
-	// If PPAF_OUTBAL && !PPAF_OUTBAL_WITHDRAWAL then Deposit
-#define PPAF_OUTBAL_TRANSFER   0x0100L // Забалансовый трансфер
-	//
+#define PPAF_OUTBAL_WITHDRAWAL 0x0080L // Забалансовый расход (Withdrawal) // If PPAF_OUTBAL && !PPAF_OUTBAL_WITHDRAWAL then Deposit
+#define PPAF_OUTBAL_TRANSFER   0x0100L // Забалансовый трансфер //
 #define PPAF_REGISTER          0x0200L // Регистровая проводка
 #define PPAF_PERSONAL          0x0400L // @v12.7.5 Персональная транзакция //
+//
+// Descr: Направление движения денег во внебалансовых (забалансовые, регистровые, персональные) бухгалтерских проводка
+//
+#define PPATFLOW_UNDEF              0
+#define PPATFLOW_INCOME             1
+#define PPATFLOW_EXPENSE            2
+#define PPATFLOW_TRANSFER           3
 //
 // Бухгалтерская проводка
 //
@@ -5367,7 +5372,9 @@ struct PPAccTurn { // @persistent
 	PPAccTurn();
 	PPAccTurn & Z();
 	void   SwapDbtCrd();
-	int    FASTCALL IsEq(const PPAccTurn & rS) const;
+	bool   FASTCALL IsEq(const PPAccTurn & rS) const;
+	bool   SetNonBalancedFlow(int dir/*PPATFLOW_XXX*/);
+	int    GetNonBalancedFlow() const;
 
 	AcctID DbtID;
 	PPID   DbtSheet;
@@ -5381,7 +5388,7 @@ struct PPAccTurn { // @persistent
 	PPID   CurID;          // Валюта проводки
 	double CRate;          // Курс валюты CurID по отношению к базовой
 	double Amount;         // Сумма в валюте CurID
-	long   Opr;
+	long   Opr;            // Вид операции 
 	long   Flags;
 };
 //
@@ -17535,7 +17542,7 @@ private:
 #define OLW_LOADDEFONOPEN      0x0080 // Загружает данные для списка при первом открытии
 #define OLW_WORDSELECTOR       0x0100 // При поиске отображать список строк, удовлетворяющих строке поиска
 #define OLW_OUTERLIST          0x0200 // Данные для списка были приложены к PPObjListWindow при создании экземпляра - не следует перестраивать список при изменении элемента.
-#define OLW_INSCONTEXTEDITEMS  0x0400 // @v11.1.10 Добавить в список контекстные значения //
+#define OLW_INSCONTEXTEDITEMS  0x0400 // Добавить в список контекстные значения //
 //
 // Строки соответствующие SubstGrpPersonEvent: PPTXT_SUBSTPSNEVLIST
 //
@@ -25059,7 +25066,8 @@ struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	long   ID;             //
 	char   Name[48];       // @name
 	char   Symb[20];       //
-	char   Reserve[28];    // @reserve
+	char   Reserve[24];    // @reserve // @v12.7.6 [28]-->[24]
+	LDATE  ChZnSoftModeBefore; // @v12.7.6 До этой даты продажа маркированной продукции осуществляется в мягком режиме (можно без сканирования для старых остатков)
 	long   ChZnProdType;   //
 	double StockTolerance; // Величина толерантности к дефициту либо к излишку товара.
 		// Если доступный остаток меньше требуемого на величину, не превышающую StockTolerance
@@ -33925,10 +33933,13 @@ struct AsyncCashGoodsInfo { // @transient
 	int    AdjustBarcode(int chkDig);
 
 	enum {
-		fDeleted         = 0x0001,
-		fGMarkedType     = 0x0002,
-		fGMarkedCode     = 0x0004,
-		fGExciseProForma = 0x0008  // @v11.7.10 Формально подакцизный товар
+		fDeleted          = 0x0001,
+		fGMarkedType      = 0x0002,
+		fGMarkedCode      = 0x0004,
+		fGExciseProForma  = 0x0008, // @v11.7.10 Формально подакцизный товар
+		fChZnMarkSoftMode = 0x0010, // @v12.7.6 Мягкий режим сканирования чзн-марок (для продажи немаркированных товаров).
+			// Флаг устанавливается если в записи типа товаров, к которому принадлежит товар, установлена дата ChZnSoftModeBefore,
+			// которая валидна и больше или равна текущей дате.
 	};
 	PPID   ID;
 	char   Name[128];        //
@@ -35507,7 +35518,7 @@ public:
 	//
 	int    EditFreightDialog(PPBillPacket & rPack);
 	int    CheckParentStatus(PPID billID);
-	int    EditGenericAccTurn(PPBillPacket *, long flags);
+	int    EditGenericAccTurn(PPBillPacket & rPack, long flags);
 	int    EditGoodsBill(PPID id, const EditParam * pExtraParam);
 
 	struct SearchBlock {
@@ -55786,6 +55797,7 @@ public:
 	void   Helper_SetAllColumnsSortable();
 	int    ShowCellStyleHint(long row, long col); // @v12.7.5
 	int    ShowCellStyleHint(); // @v12.7.5
+	int    ShowImageHint(SObjID oid, const char * pMsg); // @v12.7.6
 
 	PPView * P_View;
 protected:
@@ -56092,10 +56104,10 @@ private:
 	PPID   AccSheetID;
 	PPID   CurID;
 	long   AccSelParam;
-	uint   ctl_acc;
-	uint   ctl_art;
-	uint   ctlsel_accname;
-	uint   ctlsel_artname;
+	const  uint CtlAcc;
+	const  uint CtlArt;
+	const  uint CtlselAccName;
+	const  uint CtlselArtName;
 };
 
 class ArticleCtrlGroup : public CtrlGroup {
@@ -56129,10 +56141,10 @@ private:
 	PPID   OpID;
 	PPID   AccSheetID;
 	long   Flags;
-	const uint   CtlselAcs;
-	const uint   CtlselOp;
-	const uint   CtlselAr;
-	const uint   CmEditList;
+	const  uint CtlselAcs;
+	const  uint CtlselOp;
+	const  uint CtlselAr;
+	const  uint CmEditList;
 };
 
 class TextHistorySelExtra : public WordSel_ExtraBlock {
@@ -60024,6 +60036,7 @@ public:
 			fIndepFormatProvider = 0x0002  // @v11.9.5 Если формат является независимой кастомизацией "по мотивам" nalog.ru, то устанавливается этот флаг
 		};
 		long   Flags;
+		long   PredefFormat;      // @v12.7.6 PredefinedImpExpFormat копия PPBillImpExpParam::PredefFormat. Нужно для тонкой настройки экспорта
 		S_GUID Uuid;
 		SString FormatPrefix;
 		SString SenderIdent;
@@ -60309,7 +60322,7 @@ private:
 
 	enum {
 		fExpChZnMarksGTINSER = 0x0001,
-		fExpPlainAddr        = 0x0002 // @v11.5.11 see pp.ini [config] ExpNalogRuPlainAddr
+		fExpPlainAddr        = 0x0002 // see pp.ini [config] ExpNalogRuPlainAddr
 	};
 	uint   Flags;
 	enum {
@@ -60350,7 +60363,7 @@ public:
 	int    Do_CorrInvoice(SString & rResultFileName);
 	int    Do_UPD(SString & rResultFileName);
 	int    Do_DP_REZRUISP(SString & rResultFileName);
-	int    Do_Etrn_T1(SString & rResultFileName); // @v12.6.9
+	int    Do_Etrn_T1(SString & rResultFileName, StringSet & rSsDaignose); // @v12.6.9
 	//
 	// Descr: Ищет документ заказа, к которому привязан PPBillPacket & R_Bp.
 	//   Если документ заказа найден, то по ссылке rOrderBillRec присваивается заголовочная запись этого документа,
@@ -60464,7 +60477,7 @@ public:
 		fEgaisVer3      = 0x0200,  // Передача документов в ЕГАИС в 3-й версии (возможность переопределить конфигурацию глобального обмена)
 		fFullEdiProcess = 0x0400,  // Полный цикл EDI-обмена данными с контрагентами
 		fChZnImpExp     = 0x0800,  // Обмен данными с честным знаком
-		fEgaisVer4      = 0x1000,  // @v11.0.12 Передача документов в ЕГАИС в 4-й версии (возможность переопределить конфигурацию глобального обмена)
+		fEgaisVer4      = 0x1000,  // Передача документов в ЕГАИС в 4-й версии (возможность переопределить конфигурацию глобального обмена)
 	};
 	struct TransmitParam {
 		TransmitParam();

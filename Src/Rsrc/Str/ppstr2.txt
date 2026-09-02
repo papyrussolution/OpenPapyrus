@@ -2423,6 +2423,10 @@ PPERR_GSITEMGOODSUNRESOLVED         "Не удалось разрешить то
 PPERR_SYNCPOSNODEREGPORTUNDEF       "У синхронного кассового узла '%s' не определен порт кассового регистратора"
 PPERR_ETRNEXP_FREIGHTNEEDED         "Для экспорта документа '%s' в формате nalog.ru etrn необходимы параметры фрахта"
 PPERR_ETRNEXP_TRANSPORTNEEDED       "Для экспорта документа '%s' в формате nalog.ru etrn в параметрах фрахта необходим транспорт"
+PPERR_ETRNEXP_CONSIGNORNEEDED       "Для экспорта документа '%s' в формате nalog.ru etrn необходим грузоотправитель (поставщик)"
+PPERR_ETRNEXP_CONSIGNEENEEDED       "Для экспорта документа '%s' в формате nalog.ru etrn необходим грузополучатель (покупатель)"
+PPERR_ETRNEXP_TRANSPORTERNEEDED     "Для экспорта документа '%s' в формате nalog.ru etrn необходима транспортная компания (владелец транспорта)"
+PPERR_ETRNEXP_CAPTAINNEEDED         "Для экспорта документа '%s' в формате nalog.ru etrn необходим капитан (водитель) транспорта"
 PPERR_SECSEGHASCHLDRN_UNABLEDEL     "Невозможно удалить '%s'. Существуют дочерние элементы"
 
 // LastError
@@ -9073,6 +9077,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_gua_chzntspioturl                   "URL модуля тс-пиот"                             // @v12.5.11
 @rtag_lot_tecroutestage                   "Этап технологического маршрута" // @v12.6.2
 @rtag_lot_tecrouteassignment              "Параметры прохождения по техмаршруту" // @v12.6.5
+// @rtag_goods_semichznmarked                "Частично маркированный товар" // @v12.7.6
 //
 // Зарезервированные типы регистрационных документов
 //
@@ -12622,6 +12627,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodstype_wroffgrp                       "@{goods_wroffgrp}"
 @goodstype_stocktolerance                 "Толерантность к остатку"
 @goodstype_chznprodtype                   "Тип продукта @{brand_chzn}"
+@goodstype_chznsoftmodebefore             "Мягкий режим сканирования марок до даты"
 
 @goodsvalrestr                            "Ограничения товарных величин"
 @goodsvalrestr_id                         "@{id}"
@@ -19252,6 +19258,7 @@ PPHSC_RU_MANUFORIMPORTERID     "ИДПроизвИмп"
 PPHSC_RU_MANUFORIMPORTERID_    "ИдПроизвИмп"
 PPHSC_RU_MANUFORIMPORTERINFO   "СведПроизвИмпортер"
 PPHSC_RU_CONSIGNORINFO3        "СвГО"       // @v12.6.9
+PPHSC_RU_ISFORWARDER           "ГОЭксп"     // @v12.7.6 Статус грузоотправителя (грузоотправитель является / не является экспедитором)
 PPHSC_RU_CONSIGNORREQ          "РекИдентГО" // @v12.6.9
 PPHSC_RU_CONSIGNEEREQ          "РекИдентГП" // @v12.6.9
 PPHSC_RU_DLVRADDR              "АдресДостГр" // @v12.6.9 (АдресПользТип)

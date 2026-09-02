@@ -3300,13 +3300,7 @@ int PPViewBrand::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				if(pBrw) {
 					bool   hover_done = false;
 					if(id && static_cast<const BrwItem *>(pHdr)->Flags & GF_DERIVED_HASIMAGES) {
-						SString img_path;
-						ObjLinkFiles link_files(PPOBJ_BRAND);
-						link_files.Load(id, 0L);
-						link_files.At(0, img_path);
-						if(fileExists(img_path)) {
-							PPTooltipMessage(0, img_path, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
-								SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+						if(pBrw->ShowImageHint(SObjID(PPOBJ_BRAND, id), 0) > 0) {
 							hover_done = true;
 						}
 					}

@@ -827,7 +827,15 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 								}
 								p_writer->StartElement("bar-code", "code", bc.Code);
 								if((r_cur_entry.Flags_ & AsyncCashGoodsInfo::fGMarkedType) || IsInnerBarcodeType(bc.BarcodeType, BARCODE_TYPE_MARKED)) {
-									p_writer->AddAttrib("marked", "true");
+									// @v12.7.6 {
+									//if(r_cur_entry.ChZnProdType == GTCHZNPT_GROCERY) {
+									if(r_cur_entry.Flags_ & AsyncCashGoodsInfo::fChZnMarkSoftMode) {
+										p_writer->AddAttrib("marked", "false");
+									}
+									else // } @v12.7.6 
+									{
+										p_writer->AddAttrib("marked", "true");
+									}
 								}
 								// p_writer->StartElement("price-entry", "price", temp_buf.Z().Cat(r_cur_entry.Price));
 								// p_writer->PutElement("begin-date", beg_dtm);
@@ -1188,7 +1196,7 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	int    add_time_to_fname = 0;
 	int    use_new_dscnt_code_alg = 0;
 	int    diff_goods_export = 0;
-	int    goodsid_as_article = 0; // @v11.4.4
+	int    goodsid_as_article = 0;
 	uint   i = 0;
 	SString temp_buf;
 	SString path;
@@ -1229,7 +1237,7 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_ADDTIMETOFILENAMES, &add_time_to_fname);
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_USENEWDSCNTCODEALG, &use_new_dscnt_code_alg);
 	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_DIFFGOODSEXPORT, &diff_goods_export);
-	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_GOODSIDASARTICLE, &goodsid_as_article); // @v11.4.4
+	ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CRYSTAL_GOODSIDASARTICLE, &goodsid_as_article);
 	{
 		// @v12.0.5 Проверка доступности каталога PPPATH_OUT
 		PPGetPath(PPPATH_OUT, temp_buf);
@@ -1270,9 +1278,11 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 	//
 	// Инициализируем список видов котировок, которые нам понадобятся от RetailGoodsExtractor для экспорта
 	//
-	for(i = 0; i < scard_quot_ary.getCount(); i++)
-		if(scard_quot_ary.at(i).Val)
+	for(i = 0; i < scard_quot_ary.getCount(); i++) {
+		if(scard_quot_ary.at(i).Val) {
 			gds_info.QuotList.Add(scard_quot_ary.at(i).Val, 0, 1);
+		}
+	}
 	//
 	{
 		long acgif = 0;
@@ -1378,7 +1388,7 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 							p_writer->AddAttrib("deleted", false);
 							p_writer->AddAttrib("guid", ser_ident);
 							p_writer->AddAttrib("name", ser_name);
-							p_writer->AddAttrib("personalized", true); // @v11.3.7
+							p_writer->AddAttrib("personalized", true);
 							p_writer->AddAttrib("percentage-discount", temp_buf.Z().Cat(fdiv100i(ser_rec.PDis), MKSFMTD(0, 2, NMBF_EXPLFLOAT)));
 						p_writer->EndElement();
 					}
@@ -1436,12 +1446,10 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 									}
 									p_writer->AddAttrib("send-by-sms", (info.Flags & AsyncCashSCardInfo::fDisableSendPaperlassCCheck) ? false : true);
 									p_writer->AddAttrib("send-by-email", (info.Flags & AsyncCashSCardInfo::fDisableSendPaperlassCCheck) ? false : true);
-									// @v11.3.9 {
 									if(is_thereis_email)
 										p_writer->AddAttrib("receipt-feedback", "BY_EMAIL");
 									else if(is_thereis_phone)
 										p_writer->AddAttrib("receipt-feedback", "BY_PHONE");
-									// } @v11.3.9 
 								}
 								p_writer->EndElement();
 							}
@@ -1472,7 +1480,6 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 								p_writer->AddAttrib("deleted", false);
 								p_writer->AddAttrib("guid", info.Rec.PersonID);
 								p_writer->AddAttrib("lastName", info.PsnName);
-								// @v11.3.5 {
 								if(checkdate(info.PsnDOB)) {
 									temp_buf.Z().Cat(info.PsnDOB, DATF_ISO8601CENT);
 									p_writer->AddAttrib("birth-date", temp_buf);
@@ -1481,14 +1488,13 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 									p_writer->AddAttrib("email", info.Email);
 								}
 								if(info.Phone.NotEmpty()) {
-									p_writer->AddAttrib("mobile-phone", info.Phone); // @v11.3.7 phone-->mobile-phone
+									p_writer->AddAttrib("mobile-phone", info.Phone);
 								}
 								else if(info.PsnPhone.NotEmpty()) {
-									p_writer->AddAttrib("mobile-phone", info.PsnPhone); // @v11.3.7 phone-->mobile-phone
+									p_writer->AddAttrib("mobile-phone", info.PsnPhone);
 								}
 								p_writer->AddAttrib("send-by-sms", (info.Flags & AsyncCashSCardInfo::fDisableSendPaperlassCCheck) ? false : true);
 								p_writer->AddAttrib("send-by-email", (info.Flags & AsyncCashSCardInfo::fDisableSendPaperlassCCheck) ? false : true);
-								// } @v11.3.5 
 							}
 							ser_name = ser_rec.Name;
 							p_writer->StartElement("internal-card-type");

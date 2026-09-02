@@ -2761,7 +2761,7 @@ int PPObjBill::AddAccturnBySample(PPID * pBillID, PPID sampleBillID)
 		pack.UngetCounter();
 		THROW(atobj->CreateBlankAccTurnBySample(&pack, &sample_pack, &flags));
 		do {
-			THROW(r = EditGenericAccTurn(&pack, flags));
+			THROW(r = EditGenericAccTurn(pack, flags));
 			if(r == cmOK)
 				if(!TurnPacket(&pack, 1))
 					r = PPErrorZ();
@@ -2787,7 +2787,7 @@ int PPObjBill::AddGenAccturn(PPID * pBillID, PPID opID, PPID registerID)
 		SETIFZ(r_at.DbtID.ac, registerID);
 	}
 	do {
-		THROW(r = EditGenericAccTurn(&pack, flags));
+		THROW(r = EditGenericAccTurn(pack, flags));
 		if(r == cmOK) {
 			if(!TurnPacket(&pack, 1))
 				r = PPErrorZ();
@@ -2861,7 +2861,7 @@ int PPObjBill::EditAccTurn(PPID id)
 	if(att_list.getCount())
 		flags = ATTF_TO_ATDF(att_list.at(0).Flags);
 	flags |= (ATDF_DSBLDACC | ATDF_DSBLDART | ATDF_DSBLCACC | ATDF_DSBLCART);
-	THROW(r = EditGenericAccTurn(&pack, flags));
+	THROW(r = EditGenericAccTurn(pack, flags));
 	if(r == cmOK && (memcmp(&pack.Turns.at(0), &at, sizeof(at)) || !pack.Amounts.IsEq(org_amt_list) || pack.Rec.LocID != org_loc_id || org_mem != pack.SMemo)) {
 		THROW(UpdatePacket(&pack, 1));
 	}
@@ -11049,10 +11049,12 @@ int PPObjBill::ExportList(const ListForExport & rList, const PPBillImpExpParam *
 			//
 			PPBillImpExpParam bill_param(b_e.BillParam);
 			PPBillImpExpParam brow_param(b_e.BRowParam);
-			if(b_e.GetIEBill())
+			if(b_e.GetIEBill()) {
 				bill_param.FileName = b_e.GetIEBill()->GetPreservedOrgFileName();
-			if(b_e.GetIEBRow())
+			}
+			if(b_e.GetIEBRow()) {
 				brow_param.FileName = b_e.GetIEBRow()->GetPreservedOrgFileName();
+			}
 			// (не надо: сервисные функции PPBillImpExpBaseProcessBlock сами все сделают) fix_tag_id = b_e.GetFixTagID(0); // @v11.8.6
 			if(b_e.BillParam.PredefFormat) {
 				if(oneof8(b_e.BillParam.PredefFormat, piefNalogR_Invoice, piefNalogR_REZRUISP, piefNalogR_SCHFDOPPR, piefExport_Marks, 
@@ -11122,8 +11124,30 @@ int PPObjBill::ExportList(const ListForExport & rList, const PPBillImpExpParam *
 											break;
 										case piefNalogR_Etrn_T1: 
 											{
-												DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, "ON_TRNACLGROT", nominal_file_name);
-												r = _blk.IsValid() ? _blk.Do_Etrn_T1(result_file_name_) : 0;
+												SString _unfinished_file_name;
+												{
+													DocNalogRu_WriteBillBlock _blk(b_e.BillParam, pack, "ON_TRNACLGROT", nominal_file_name);
+													if(_blk.IsValid()) {
+														_unfinished_file_name = _blk._Hi.FileName;
+														StringSet ss_diagnose;
+														r = _blk.Do_Etrn_T1(result_file_name_, ss_diagnose);
+														if(!r) {
+															if(ss_diagnose.IsCountGreaterThan(0)) {
+																for(uint ssp = 0; ss_diagnose.get(&ssp, temp_buf);) {
+																	logger.Log(temp_buf);
+																}
+																SFile::Remove(result_file_name_);
+																r = -1; // что бы не выводилось сообщение об ошибке ниже
+															}
+														}
+													}
+													else
+														r = 0;
+													//r = _blk.IsValid() ? _blk.Do_Etrn_T1(result_file_name_, ss_diagnose) : 0;
+												}
+												if(r <= 0) {
+													SFile::Remove(_unfinished_file_name);
+												}
 											}
 											break;
 									}

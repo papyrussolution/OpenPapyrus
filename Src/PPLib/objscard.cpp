@@ -3177,8 +3177,8 @@ public:
 	};
 	explicit SCardDialog(long options = 0) : TDialog(DLG_SCARD), Options(options)
 	{
-		SetupCalDate(CTLCAL_SCARD_DATE,   CTL_SCARD_DATE);
-		SetupCalDate(CTLCAL_SCARD_EXPIRY, CTL_SCARD_EXPIRY);
+		// @v12.7.6 SetupCalDate(CTLCAL_SCARD_DATE,   CTL_SCARD_DATE);
+		// @v12.7.6 SetupCalDate(CTLCAL_SCARD_EXPIRY, CTL_SCARD_EXPIRY);
 		addGroup(ctlgroupSpcDvcInp, new SpecialInputCtrlGroup(CTL_SCARD_CODE, 500));
 		if(getCtrlView(CTL_SCARD_PHONEINPUT)) {
 			LocationCtrlGroup * p_loc_grp = new LocationCtrlGroup(0, 0, CTL_SCARD_PHONEINPUT, 0, cmAddress, LocationCtrlGroup::fStandaloneByPhone, 0);

@@ -1,5 +1,5 @@
 // WINSRVC.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2016, 2019, 2020, 2021, 2023, 2025
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2016, 2019, 2020, 2021, 2023, 2025, 2026
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -11,9 +11,9 @@
 //
 class WinServiceMngr {
 public:
-	WinServiceMngr()
+	WinServiceMngr(uint desiredAccess = SC_MANAGER_ALL_ACCESS)
 	{
-		H = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+		H = OpenSCManagerW(NULL, NULL, desiredAccess/*SC_MANAGER_ALL_ACCESS*/);
 	}
 	~WinServiceMngr()
 	{
@@ -42,17 +42,93 @@ private:
 	return s.Delete();
 }
 
-/*static*/int WinService::Start(const char * pServiceName, int stop)
+#if 0 // {
+#include <windows.h>
+#include <winsvc.h>
+#include <iostream>
+
+bool IsServiceRunning(const std::wstring& serviceName) 
 {
-	WinServiceMngr sm;
-	WinService s(sm, pServiceName, stop ? SERVICE_STOP : SERVICE_START);
-	return stop ? s.Stop() : s.Start();
+	SC_HANDLE hSCManager = OpenSCManager(
+		nullptr,                 // локальный компьютер
+		nullptr,                 // база данных активных служб
+		SC_MANAGER_CONNECT); // запрашиваемые права доступа
+	if(hSCManager == nullptr) {
+		std::cerr << "OpenSCManager failed. Error: " << GetLastError() << std::endl;
+		return false;
+	}
+	// Открываем службу с правом на запрос её статуса[reference:0]
+	SC_HANDLE hService = OpenService(hSCManager, serviceName.c_str(), SERVICE_QUERY_STATUS/*достаточно для получения статуса[reference:1]*/);
+	if(hService == nullptr) {
+		std::cerr << "OpenService failed. Error: " << GetLastError() << std::endl;
+		CloseServiceHandle(hSCManager);
+		return false;
+	}
+	SERVICE_STATUS status;
+	// Запрашиваем текущий статус службы[reference:2]
+	if(!QueryServiceStatus(hService, &status)) {
+		std::cerr << "QueryServiceStatus failed. Error: " << GetLastError() << std::endl;
+		CloseServiceHandle(hService);
+		CloseServiceHandle(hSCManager);
+		return false;
+	}
+	CloseServiceHandle(hService);
+	CloseServiceHandle(hSCManager);
+	// Сравниваем полученный статус с состоянием "остановлена"[reference:3]
+	return status.dwCurrentState != SERVICE_STOPPED;
+}
+
+int main() 
+{
+	if(IsServiceRunning(L"Spooler")) {
+		std::wcout << L"Служба запущена." << std::endl;
+	} 
+	else {
+		std::wcout << L"Служба НЕ запущена." << std::endl;
+	}
+	return 0;
+}
+#endif // } 0
+
+/*static*/int WinService::GetStatus(const char * pServiceName)
+{
+	int   result = 0;
+	if(!isempty(pServiceName)) {
+		WinServiceMngr sm(SC_MANAGER_CONNECT);
+		WinService s(sm, pServiceName, SERVICE_QUERY_STATUS);
+		if(s.IsValid()) {
+			result = s.QueryStatus();
+		}
+	}
+	return result;
+}
+
+/*static*/int WinService::Start(const char * pServiceName)
+{
+	int    ok = 0;
+	if(!isempty(pServiceName)) {
+		WinServiceMngr sm;
+		WinService s(sm, pServiceName, SERVICE_START);
+		ok = s.Start();
+	}
+	return ok;
+}
+
+/*static*/int WinService::Stop(const char * pServiceName)
+{
+	int    ok = 0;
+	if(!isempty(pServiceName)) {
+		WinServiceMngr sm;
+		WinService s(sm, pServiceName, SERVICE_STOP);
+		ok = s.Stop();
+	}
+	return ok;
 }
 
 WinService::WinService(const WinServiceMngr & rMngr, const char * pServiceName, long desiredAccess) : P_ScMngr(&rMngr), H(0), Name(pServiceName)
 {
 	if(P_ScMngr->IsValid()) {
-		H = ::OpenService(*P_ScMngr, SUcSwitch(pServiceName), desiredAccess); // @unicodeproblem
+		H = ::OpenServiceW(*P_ScMngr, SUcSwitchW(pServiceName), desiredAccess);
 		if(!H) {
 			DWORD last_err = GetLastError();
 			if(GetLastError() == ERROR_SERVICE_DOES_NOT_EXIST)
@@ -72,13 +148,23 @@ WinService::~WinService()
 
 bool WinService::IsValid() const { return LOGIC(H); }
 
+int WinService::QueryStatus() // @v12.7.6 @construction
+{
+	int    result = 0;
+	SERVICE_STATUS status;
+	if(QueryServiceStatus(H, &status)) {
+		result = status.dwCurrentState;
+	}
+	return result;
+}
+
 int WinService::Create(const char * pDisplayName, const char * pModuleName, const char * pLogin, const char * pPw)
 {
 	int    ok = 0;
 	if(P_ScMngr->IsValid()) {
-		const TCHAR * p_login = (pLogin && *pLogin) ? SUcSwitch(pLogin) : 0;
-		const TCHAR * p_pw = (p_login && pPw) ? SUcSwitch(pPw) : 0;
-		const TCHAR * p_disp_name = pDisplayName ? SUcSwitch(pDisplayName) : SUcSwitch(Name.cptr());
+		const  wchar_t * p_login = (pLogin && *pLogin) ? SUcSwitchW(pLogin) : 0;
+		const  wchar_t * p_pw = (p_login && pPw) ? SUcSwitchW(pPw) : 0;
+		const  wchar_t * p_disp_name = pDisplayName ? SUcSwitchW(pDisplayName) : SUcSwitchW(Name.cptr());
 		SString path;
 		if(pModuleName) {
 			path = pModuleName;
@@ -86,9 +172,9 @@ int WinService::Create(const char * pDisplayName, const char * pModuleName, cons
 		else
 			SSystem::SGetModuleFileName(0, path);
 		if(!H) {
-			H = ::CreateService(*P_ScMngr, SUcSwitch(Name), p_disp_name,
+			H = ::CreateServiceW(*P_ScMngr, SUcSwitchW(Name), p_disp_name,
     	    	SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS, SERVICE_AUTO_START, SERVICE_ERROR_NORMAL,
-        		SUcSwitch(path), NULL, NULL, NULL, p_login, p_pw);
+        		SUcSwitchW(path), NULL, NULL, NULL, p_login, p_pw);
 			ok = BIN(H);
 		}
 		else {
@@ -112,8 +198,8 @@ int WinService::Create(const char * pDisplayName, const char * pModuleName, cons
 			QUERY_SERVICE_CONFIG & cfg = *p_cfg;
 			DWORD  bytes_needed = buf_sz;
 			int    to_upd = 0;
-			if(::QueryServiceConfig(H, &cfg, buf_sz, &bytes_needed)) {
-				SString _path(SUcSwitch(cfg.lpBinaryPathName));
+			if(::QueryServiceConfigW(H, &cfg, buf_sz, &bytes_needed)) {
+				SString _path(SUcSwitchW(cfg.lpBinaryPathName));
 				SString _path2(path);
 				if(_path.CmpNC(_path2) != 0)
 					to_upd = 1;
@@ -122,9 +208,9 @@ int WinService::Create(const char * pDisplayName, const char * pModuleName, cons
 						to_upd = 1;
 				}
 				if(to_upd) {
-					if(::ChangeServiceConfig(H, cfg.dwServiceType, cfg.dwStartType, cfg.dwErrorControl,
-						SUcSwitch(path), cfg.lpLoadOrderGroup, 0, cfg.lpDependencies,
-						p_login ? p_login : cfg.lpServiceStartName, p_pw, cfg.lpDisplayName)) // @unicodeproblem
+					if(::ChangeServiceConfigW(H, cfg.dwServiceType, cfg.dwStartType, cfg.dwErrorControl,
+						SUcSwitchW(path), cfg.lpLoadOrderGroup, 0, cfg.lpDependencies,
+						p_login ? p_login : cfg.lpServiceStartName, p_pw, cfg.lpDisplayName))
 						ok = 1;
 				}
 			}
@@ -151,14 +237,15 @@ int WinService::Delete()
 
 int WinService::Start()
 {
-	return BIN(H && StartService(H, 0, 0));
+	return BIN(H && StartServiceW(H, 0, 0));
 }
 
 int WinService::Stop()
 {
 	int    ok = 0;
 	SERVICE_STATUS r;
-	if(H)
+	if(H) {
 		ok = BIN(ControlService(H, SERVICE_CONTROL_STOP, &r) || GetLastError() == ERROR_SERVICE_NOT_ACTIVE);
+	}
 	return ok;
 }

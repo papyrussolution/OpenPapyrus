@@ -4848,8 +4848,7 @@ int PPSession::Implement_PPLogin(const PPDbEntrySet2 * pDbes, const char * pDbSy
 #if !defined(_PPDLL) && !defined(_PPSERVER)
 			if(oneof2(logmode, logmOrdinary, logmSystem) && db_state & DbProvider::dbstContinuous) {
 				PPLoadText(PPTXT_DBINCONTINUOUSMODE, msg_buf);
-				PPTooltipMessage(msg_buf, 0, 0, 10000, GetColorRef(SClrOrangered),
-					SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fTextAlignLeft);
+				PPTooltipMessage(msg_buf, 0, 0, 10000, GetColorRef(SClrOrangered), SMessageWindow::fStdNotification|SMessageWindow::fTextAlignLeft);
 			}
 #endif
 		}

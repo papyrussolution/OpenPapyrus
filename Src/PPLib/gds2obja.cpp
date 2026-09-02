@@ -819,8 +819,9 @@ int PPObjNamedObjAssoc::Browse(void * extraPtr)
 	int    ok = 1;
 	if(CheckRights(PPR_READ)) {
 		TDialog * dlg = new NamedObjAssocView(this);
-		if(CheckDialogPtrErr(&dlg))
+		if(CheckDialogPtrErr(&dlg)) {
 			ExecViewAndDestroy(dlg);
+		}
 		else
 			ok = 0;
 	}

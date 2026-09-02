@@ -495,7 +495,6 @@ void PPViewFreight::ViewTotal()
 	double brutto = 0.0;
 	double volume = 0.0;
 	FreightViewItem item;
-	TDialog * dlg = 0;
 	for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 		count++;
 		amount += item.Amount;
@@ -503,7 +502,8 @@ void PPViewFreight::ViewTotal()
 		brutto += item.Brutto;
 		volume += item.Volume;
 	}
-	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_FRGHTTOTAL)))) {
+	TDialog * dlg = new TDialog(DLG_FRGHTTOTAL);
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setCtrlLong(CTL_FRGHTTOTAL_COUNT,  count);
 		dlg->setCtrlReal(CTL_FRGHTTOTAL_AMOUNT, amount);
 		dlg->setCtrlReal(CTL_FRGHTTOTAL_PACKCOUNT, pack_count);

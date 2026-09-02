@@ -1615,12 +1615,10 @@ int WhatmanObjectCafeTable::HandleCommand(int cmd, void * pExt)
 					break;
 			}
 			if(text.NotEmpty()) {
-				const long flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
-					SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;
 				SMessageWindow * p_win = new SMessageWindow;
 				if(p_win) {
 					text.ReplaceChar('\003', ' ').Strip();
-					p_win->Open(text, 0, p_owner_win->H(), 0, 5000, 0, flags, 0);
+					p_win->Open(text, 0, p_owner_win->H(), 0, 5000, 0, SMessageWindow::fStdOnMouseOptions, 0);
 				}
 			}
 		}

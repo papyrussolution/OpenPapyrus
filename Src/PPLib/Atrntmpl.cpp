@@ -13,34 +13,95 @@ PPAccTurn::PPAccTurn() : DbtSheet(0), CrdSheet(0), Date(ZERODATE), BillID(0), RB
 
 PPAccTurn & PPAccTurn::Z()
 {
-	THISZERO();
+	DbtID.Z();
+	DbtSheet = 0;
+	CrdID.Z();
+	CrdSheet = 0;
+	Date.Z();
+	BillCode[0] = 0;
+	BillID = 0;
+	RByBill = 0;
+	Reserve = 0;
+	CurID = 0;
+	CRate = 0.0;
+	Amount = 0.0;
+	Opr = 0;
+	Flags = 0;
 	return *this;
 }
 
-int FASTCALL PPAccTurn::IsEq(const PPAccTurn & rS) const
+bool FASTCALL PPAccTurn::IsEq(const PPAccTurn & rS) const
 {
 	// DbtSheet не участвует в проверке эквивалентности, поскольку есть избыточное поле и инициализируется по DbtID 
 	// CrdSheet не участвует в проверке эквивалентности, поскольку есть избыточное поле и инициализируется по CrdID
-	int    eq = 1;
+	bool   eq = true;
 	if(DbtID != rS.DbtID)
-		eq = 0;
+		eq = false;
 	else if(CrdID != rS.CrdID)
-		eq = 0;
+		eq = false;
 	else if(Date != rS.Date)
-		eq = 0;
+		eq = false;
 	else if(BillID != rS.BillID)
-		eq = 0;
+		eq = false;
 	else if(CurID != rS.CurID)
-		eq = 0;
+		eq = false;
 	else if(!feqeps(R2(Amount), R2(rS.Amount), 1e-6))
-		eq = 0;
+		eq = false;
 	else if(Opr != rS.Opr)
-		eq = 0;
+		eq = false;
 	else if(Flags != rS.Flags)
-		eq = 0;
+		eq = false;
 	else if(!sstreq(BillCode, rS.BillCode))
-		eq = 0;
+		eq = false;
 	return eq;
+}
+
+bool PPAccTurn::SetNonBalancedFlow(int dir/*PPATFLOW_XXX*/)
+{
+	bool   ok = false;
+	if(oneof3(dir, PPATFLOW_INCOME, PPATFLOW_EXPENSE, PPATFLOW_TRANSFER)) {
+		if(Flags & (PPAF_OUTBAL|PPAF_REGISTER|PPAF_PERSONAL)) {
+			if(dir == PPATFLOW_INCOME) {
+				Flags &= ~(PPAF_OUTBAL_WITHDRAWAL|PPAF_OUTBAL_TRANSFER);
+				ok = true;
+			}
+			else if(dir == PPATFLOW_EXPENSE) {
+				Flags &= ~(PPAF_OUTBAL_TRANSFER);
+				Flags |= (PPAF_OUTBAL_WITHDRAWAL);
+				ok = true;
+			}
+			else if(dir == PPATFLOW_TRANSFER) {
+				Flags &= ~(PPAF_OUTBAL_WITHDRAWAL);
+				Flags |= (PPAF_OUTBAL_TRANSFER);
+				ok = true;
+			}
+		}
+	}
+	return false;
+}
+
+int PPAccTurn::GetNonBalancedFlow() const
+{
+	int    result = PPATFLOW_UNDEF;
+	if(Flags & (PPAF_OUTBAL|PPAF_REGISTER|PPAF_PERSONAL)) {
+		const  long _f = (Flags & (PPAF_OUTBAL_WITHDRAWAL|PPAF_OUTBAL_TRANSFER));
+		if(_f == 0) {
+			result = PPATFLOW_INCOME;
+		}
+		else if(_f == (PPAF_OUTBAL_WITHDRAWAL|PPAF_OUTBAL_TRANSFER)) {
+			result = PPATFLOW_UNDEF; // Неопределенное значение из-за того, что оба флага установлены
+		}
+		else if(_f == PPAF_OUTBAL_WITHDRAWAL) {
+			result = PPATFLOW_EXPENSE;
+		}
+		else if(_f == PPAF_OUTBAL_TRANSFER) {
+			result = PPATFLOW_TRANSFER;
+		}
+		else {
+			assert(0); // unreachable point
+		}
+	}
+	return result;
 }
 
 void PPAccTurn::SwapDbtCrd()

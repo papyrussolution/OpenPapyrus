@@ -5049,8 +5049,10 @@ public:
 		setCtrlString(CTL_LAUNCHAPP_APP, Data.AppNameUtf8);
 		setCtrlString(CTL_LAUNCHAPP_PARAMS, Data.CmdLineUtf8);
 		AddClusterAssoc(CTL_LAUNCHAPP_FLAGS, 0, OuterProcessExecutionFilt::fWait);
-		AddClusterAssoc(CTL_LAUNCHAPP_FLAGS, 1, OuterProcessExecutionFilt::fRemote);
+		//AddClusterAssoc(CTL_LAUNCHAPP_FLAGS, 1, OuterProcessExecutionFilt::fRemote);
 		SetClusterData(CTL_LAUNCHAPP_FLAGS, Data.Flags);
+		AddClusterAssoc(CTL_LAUNCHAPP_REMOTE, 0, OuterProcessExecutionFilt::fRemote);
+		SetClusterData(CTL_LAUNCHAPP_REMOTE, Data.Flags);
 		setCtrlString(CTL_LAUNCHAPP_SERVER, Data.WmiServer);
 		setCtrlString(CTL_LAUNCHAPP_USER,   Data.UserLogin);
 		//
@@ -5071,6 +5073,7 @@ public:
 		THROW_PP(Data.AppNameUtf8.Len(), PPERR_USERINPUT);
 		getCtrlString(CTL_LAUNCHAPP_PARAMS, Data.CmdLineUtf8);
 		GetClusterData(CTL_LAUNCHAPP_FLAGS, &Data.Flags);
+		GetClusterData(CTL_LAUNCHAPP_REMOTE, &Data.Flags);
 		getCtrlString(CTL_LAUNCHAPP_SERVER, Data.WmiServer);
 		getCtrlString(CTL_LAUNCHAPP_USER,   Data.UserLogin);
 
@@ -5088,6 +5091,11 @@ private:
 		TDialog::handleEvent(event);
 		if(event.isClusterClk(CTL_LAUNCHAPP_FLAGS)) {
 			GetClusterData(CTL_LAUNCHAPP_FLAGS, &Data.Flags);
+			SetupCtrls();
+			clearEvent(event);
+		}
+		else if(event.isClusterClk(CTL_LAUNCHAPP_REMOTE)) {
+			GetClusterData(CTL_LAUNCHAPP_REMOTE, &Data.Flags);
 			SetupCtrls();
 			clearEvent(event);
 		}

@@ -972,8 +972,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 					if(Problems.getCount() && Problems.bsearch(&brw_hdr.GStrucID, &pp, CMPF_LONG)) {
 						const PPObjGoodsStruc::CheckGsProblem * p_problem = Problems.at(pp);
 						SString buf(p_problem->Descr);
-						PPTooltipMessage(buf, 0, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
-							SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+						PPTooltipMessage(buf, 0, pBrw->H(), 10000, 0, SMessageWindow::fStdOnMouseOptions);
 					}
 					else {
 						pBrw->ShowCellStyleHint(); // @v12.7.5

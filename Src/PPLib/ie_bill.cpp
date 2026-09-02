@@ -78,7 +78,7 @@ GLNѕокуп
 //
 //
 //
-DocNalogRu_Base::FileInfo::FileInfo() : SenderPersonID(0), ReceiverPersonID(0), ProviderPersonID(0), Flags(0), CurDtm(ZERODATETIME)
+DocNalogRu_Base::FileInfo::FileInfo() : SenderPersonID(0), ReceiverPersonID(0), ProviderPersonID(0), PredefFormat(0), Flags(0), CurDtm(ZERODATETIME)
 {
 }
 
@@ -89,6 +89,7 @@ DocNalogRu_Base::FileInfo & DocNalogRu_Base::FileInfo::Z()
 	ProviderPersonID = 0;
 	CurDtm.Z();
 	Flags = 0;
+	PredefFormat = 0; // @v12.7.6
 	Uuid.Z();
 	FormatPrefix.Z();
 	SenderIdent.Z();
@@ -7024,7 +7025,7 @@ DocNalogRu_Generator::File::File(DocNalogRu_Generator & rG, FileInfo & rHi) : N(
 				temp_buf = "5.01";
 			N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_VERFORM)/*"¬ерс‘орм"*/, temp_buf);
 		}
-		if(!rG.IsVer503()) { // @v12.2.12
+		if(!rG.IsVer503() && rHi.PredefFormat != piefNalogR_Etrn_T1) { // @v12.2.12 // @v12.7.6 (&& rHi.PredefFormat != piefNalogR_Etrn_T1)
 			SXml::WNode n_(rG.P_X, rG.GetToken_Ansi(PPHSC_RU_EDISIDESINFO)); // —ведени€ об участниках электронного документооборота
 			if(rHi.SenderIdent.NotEmpty()) {
 				/* @v12.0.0 if(rHi.ProviderIdent.NotEmpty())
@@ -7089,7 +7090,7 @@ DocNalogRu_Generator::Document::Document(DocNalogRu_Generator & rG, const Docume
 		else if(rInfo.KND == "1110339") { // @v12.6.9 etrn ON_TRNACLGROT
 			temp_buf.Z().Cat(now_dtm.d, DATF_GERMANCENT);
 			N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_CONSIGNORINFODATE), temp_buf);
-			temp_buf.Z().Cat(now_dtm.t, TIMF_HMS|TIMF_DOTDIV);
+			temp_buf.Z().Cat(now_dtm.t, TIMF_HMS); // @v12.7.6 (TIMF_HMS|TIMF_DOTDIV)-->(TIMF_HMS)
 			N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_CONSIGNORINFOTIME), temp_buf);
 		}
 		if(rInfo.NameOfDoc.NotEmpty()) {
@@ -7099,7 +7100,9 @@ DocNalogRu_Generator::Document::Document(DocNalogRu_Generator & rG, const Docume
 			N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_NAMEOFDOC2), rG.EncText(temp_buf = rInfo.NameOfDoc2));
 		}
 		if(rInfo.Subj.NotEmpty()) {
-			N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_NAMEECSUBJCOMP)/*"ЌаимЁкон—уб—ост"*/, rG.EncText(temp_buf = rInfo.Subj));
+			if(rInfo.KND != "1110339") { // @v12.7.6 !etrn ON_TRNACLGROT
+				N.PutAttrib(rG.GetToken_Ansi(PPHSC_RU_NAMEECSUBJCOMP)/*"ЌаимЁкон—уб—ост"*/, rG.EncText(temp_buf = rInfo.Subj));
+			}
 			if(rInfo.SubjReason.NotEmpty()) {
 				long   tok_id = 0;
 				if(rInfo.KND == "1110339") {
@@ -9254,6 +9257,7 @@ DocNalogRu_WriteBillBlock::DocNalogRu_WriteBillBlock(const PPBillImpExpParam & r
 	MainOrgID = GetMainOrgID();
 	ContragentID = ObjectToPerson(R_Bp.Rec.Object, 0);
 	_Hi.EdiProviderSymb = rParam.EdiProviderSymb; // @v12.0.0
+	_Hi.PredefFormat = rParam.PredefFormat; // @v12.7.6
 	{
 		//
 		// Ѕлок определени€ версии форматы исход€щего файла
@@ -9915,7 +9919,7 @@ int DocNalogRu_WriteBillBlock::Do_Invoice(SString & rResultFileName)
 	return ok;
 }
 
-int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
+int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName, StringSet & rSsDaignose) // @v12.6.9
 {
 	rResultFileName.Z();
 	int    ok  = 1;
@@ -9926,10 +9930,72 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 	const  bool no_marks_because_notch = G.SsNotch.searchNcAscii("#nomarks", 0, 0); // @v12.5.10
 	PPFreight freight;
 	PPObjBill::MakeCodeString(&R_Bp.Rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, bill_text);
-	THROW_PP_S(R_Bp.GetFreight(&freight) > 0, PPERR_ETRNEXP_FREIGHTNEEDED, bill_text);
-	THROW_PP_S(freight.ShipID, PPERR_ETRNEXP_TRANSPORTNEEDED, bill_text);
+	PPObjBill::ExportParticipantIdentBlock epi_blk;
+	// @v12.7.6 {
 	{
-		PPObjPerson psn_obj;
+		bool   fault_on_data = false; // ѕризнак того, что есть неостатки в исходных данных (сообшени€ занос€тс€ в rSsDaignose)
+		bool   is_there_freight = false;
+		if(R_Bp.GetFreight(&freight) > 0) {
+			is_there_freight = true;
+			//THROW_PP_S(freight.ShipID, PPERR_ETRNEXP_TRANSPORTNEEDED, bill_text);
+			if(freight.ShipID) {
+				;
+			}
+			else {
+				fault_on_data = true;
+				PPGetMessage(mfError, PPERR_ETRNEXP_TRANSPORTNEEDED, bill_text, 1, temp_buf);
+				if(temp_buf.NotEmpty())
+					rSsDaignose.add(temp_buf);
+			}
+		}
+		else {
+			fault_on_data = true;
+			PPGetMessage(mfError, PPERR_ETRNEXP_FREIGHTNEEDED, bill_text, 1, temp_buf);
+			if(temp_buf.NotEmpty())
+				rSsDaignose.add(temp_buf);
+		}
+		if(p_bobj->MakeExportParticipantIdentBlock(R_Bp, epi_blk)) {
+			if(!epi_blk.ConsignorPsnID) {
+				fault_on_data = true;
+				PPGetMessage(mfError, PPERR_ETRNEXP_CONSIGNORNEEDED, bill_text, 1, temp_buf);
+				if(temp_buf.NotEmpty())
+					rSsDaignose.add(temp_buf);
+			}
+			if(!epi_blk.ConsigneePsnID) {
+				fault_on_data = true;
+				PPGetMessage(mfError, PPERR_ETRNEXP_CONSIGNEENEEDED, bill_text, 1, temp_buf);
+				if(temp_buf.NotEmpty())
+					rSsDaignose.add(temp_buf);
+			}
+			if(is_there_freight) { // Ќет смысла выводить сообщени€ об отсутсвии транспортера и водител€ если нет фрахта
+				if(!epi_blk.TransporterPsnID) {
+					fault_on_data = true;
+					PPGetMessage(mfError, PPERR_ETRNEXP_TRANSPORTERNEEDED, bill_text, 1, temp_buf);
+					if(temp_buf.NotEmpty())
+						rSsDaignose.add(temp_buf);
+				}
+				if(!epi_blk.CaptainID) {
+					fault_on_data = true;
+					PPGetMessage(mfError, PPERR_ETRNEXP_CAPTAINNEEDED, bill_text, 1, temp_buf);
+					if(temp_buf.NotEmpty())
+						rSsDaignose.add(temp_buf);
+				}
+			}
+		}
+		else {
+			fault_on_data = true;
+			PPGetMessage(mfError, PPErrCode, 0, 1, temp_buf);
+			if(temp_buf.NotEmpty())
+				rSsDaignose.add(temp_buf);
+		}
+		THROW(!fault_on_data);
+	}
+	// } @v12.7.6 
+	// @v12.7.6 THROW_PP_S(R_Bp.GetFreight(&freight) > 0, PPERR_ETRNEXP_FREIGHTNEEDED, bill_text);
+	// @v12.7.6 THROW_PP_S(freight.ShipID, PPERR_ETRNEXP_TRANSPORTNEEDED, bill_text);
+	// @v12.7.6 THROW(p_bobj->MakeExportParticipantIdentBlock(R_Bp, epi_blk));
+	//
+	{
 		PPPersonPacket psn_pack;
 		PPObjTransport tr_obj;
 		SString freight_code;
@@ -9946,8 +10012,6 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 			docinfo.KND = "1110339";
 			docinfo.Subj = temp_buf;
 			(docinfo.NameOfDoc2 = G.GetToken_Utf8(PPHSC_RU_NAMEOFDOC2_TRNT1)).Transf(CTRANSF_UTF8_TO_INNER); // @v12.4.11
-			PPObjBill::ExportParticipantIdentBlock epi_blk;
-			THROW(p_bobj->MakeExportParticipantIdentBlock(R_Bp, epi_blk));
 			DocNalogRu_Generator::Document d(G, docinfo);
 			{
 				double total_brutto = 0.0;
@@ -9978,9 +10042,9 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 				//PPHSC_RU_CONSIGNORDIRECTION    "”каз√ќ"   // @v12.6.9 
 				{
 					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_CONSIGNORINFO3));
-					{
-						G.WriteOrgInfo(PPHSC_RU_CONSIGNORREQ, epi_blk.ConsignorPsnID, epi_blk.ConsignorLocID, R_Bp.Rec.Dt, DocNalogRu_Generator::woifForcePhone);
-					}
+					//PPHSC_RU_ISFORWARDER           "√ќЁксп"     // @v12.7.6 —татус грузоотправител€ (грузоотправитель €вл€етс€ / не €вл€етс€ экспедитором)
+					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_ISFORWARDER), "0"); // "0" || "1" // @v12.7.6
+					G.WriteOrgInfo(PPHSC_RU_CONSIGNORREQ, epi_blk.ConsignorPsnID, epi_blk.ConsignorLocID, R_Bp.Rec.Dt, DocNalogRu_Generator::woifForcePhone);
 				}
 				{
 					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_CONSIGNEEINFO3));
@@ -9990,36 +10054,6 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 						if(freight.DlvrAddrID__ && G.PsnObj.LocObj.GetPacket(freight.DlvrAddrID__, &dlvr_loc_pack) > 0) {
 							//PPHSC_RU_DLVRADDR              "јдресƒост√р" // @v12.6.9
 							G.WriteAddress(dlvr_loc_pack, 0/*region_code*/, PPHSC_RU_DLVRADDR); // @v12.7.2
-						}
-					}
-				}
-				{
-					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION));
-					{
-						//PPHSC_RU_CONSIGNORDIRECTION_REDIR  "—вѕј" // —ведени€ о процедуре переадресовки
-						//PPHSC_RU_CONSIGNORDIRECTION_REDIRCONTACT " онтѕј"
-						//PPHSC_RU_CONSIGNORDIRECTION_WHO    "Ћицоѕј"      // Ћицо, по указанию которого может осуществл€тьс€ переадресовка {√рузоотправитель|√рузополучатель}
-						//PPHSC_RU_CONSIGNORDIRECTION_METH   "—посѕер”кѕј" // —пособ передачи указани€ на переадресовку
-						//PPHSC_RU_CONSIGNORDIRECTION_METH_E "Ёлектронное уведомление перевозчика о переадресовке"
-						SXml::WNode n3(G.P_X, G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION_REDIR));
-						n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION_WHO), G.GetToken_Ansi(PPHSC_RU_CONSIGNOR));
-						n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION_METH), G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION_METH_E));
-						{
-							//epi_blk.ConsignorPsnID, epi_blk.ConsignorLocID	
-							if(epi_blk.ConsignorPsnID) {
-								PPPersonPacket local_psn_pack;
-								//PPLocationPacket local_loc_pack;
-								if(G.PsnObj.GetPacket(epi_blk.ConsignorPsnID, &local_psn_pack, 0) > 0) {
-									//  онтакт
-									StringSet ss_phones;
-									const  int gpr = G.GetPhones(&psn_pack, 0/*loc_pack*/, true/*force*/, ss_phones);
-									if(gpr > 0) {
-										assert(ss_phones.IsCountGreaterThan(0));
-										SXml::WNode n_contact(G.P_X, G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION_REDIRCONTACT));
-										G.WritePhones(ss_phones);
-									}
-								}
-							}
 						}
 					}
 				}
@@ -10155,13 +10189,43 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 					}
 				}
 				{
+					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION));
+					{
+						//PPHSC_RU_CONSIGNORDIRECTION_REDIR  "—вѕј" // —ведени€ о процедуре переадресовки
+						//PPHSC_RU_CONSIGNORDIRECTION_REDIRCONTACT " онтѕј"
+						//PPHSC_RU_CONSIGNORDIRECTION_WHO    "Ћицоѕј"      // Ћицо, по указанию которого может осуществл€тьс€ переадресовка {√рузоотправитель|√рузополучатель}
+						//PPHSC_RU_CONSIGNORDIRECTION_METH   "—посѕер”кѕј" // —пособ передачи указани€ на переадресовку
+						//PPHSC_RU_CONSIGNORDIRECTION_METH_E "Ёлектронное уведомление перевозчика о переадресовке"
+						SXml::WNode n3(G.P_X, G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION_REDIR));
+						n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION_WHO), G.GetToken_Ansi(PPHSC_RU_CONSIGNOR));
+						n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION_METH), G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION_METH_E));
+						{
+							//epi_blk.ConsignorPsnID, epi_blk.ConsignorLocID	
+							if(epi_blk.ConsignorPsnID) {
+								PPPersonPacket local_psn_pack;
+								//PPLocationPacket local_loc_pack;
+								if(G.PsnObj.GetPacket(epi_blk.ConsignorPsnID, &local_psn_pack, 0) > 0) {
+									//  онтакт
+									StringSet ss_phones;
+									const  int gpr = G.GetPhones(&psn_pack, 0/*loc_pack*/, true/*force*/, ss_phones);
+									if(gpr > 0) {
+										assert(ss_phones.IsCountGreaterThan(0));
+										SXml::WNode n_contact(G.P_X, G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION_REDIRCONTACT));
+										G.WritePhones(ss_phones);
+									}
+								}
+							}
+						}
+					}
+				}
+				{
 					//SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_TRANSPORTERINFO));
 					G.WriteOrgInfo(PPHSC_RU_TRANSPORTERINFO, epi_blk.TransporterPsnID, 0, R_Bp.Rec.Dt, DocNalogRu_Generator::woifForcePhone);
 				}
 				{
 					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_DRIVERINFO));
 					//<—в¬одит Ќом¬”="1234567890" —ер¬”="1234" ƒата¬ыд¬”="01.01.2015">
-					if(psn_obj.GetPacket(epi_blk.CaptainID, &psn_pack, 0) > 0) {
+					if(G.PsnObj.GetPacket(epi_blk.CaptainID, &psn_pack, 0) > 0) {
 						uint   reg_pos = 0;
 						RegisterTbl::Rec reg_rec;
 						if(psn_pack.Regs.GetRegister(PPREGT_DRIVERLICENSE, R_Bp.Rec.Dt, &reg_pos, &reg_rec) > 0) {
@@ -10317,22 +10381,27 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName) // @v12.6.9
 						G.WriteAddress(loc_pack, region_code, PPHSC_RU_LOADINGINFO_SHPADDR); // @v12.6.10
 					}
 					{
-						SXml::WNode n3(G.P_X, G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_LOADER));
-						n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_CSNERISLDR), "1");
-					}
-					{
-						SXml::WNode n3(G.P_X, G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_PORTOWNER));
-						n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_CSNERISLDR2), "1");
+						SString consignor_inn;
 						if(epi_blk.ConsignorPsnID) {
 							G.PsnObj.GetRegNumber(epi_blk.ConsignorPsnID, PPREGT_TPID, R_Bp.Rec.Dt, temp_buf);
-							if(temp_buf.NotEmpty() && temp_buf.IsDec()) {
+							if(temp_buf.IsDec()) {
+								consignor_inn = temp_buf;
+							}
+						}
+						{
+							SXml::WNode n3(G.P_X, G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_LOADER)); // "—вЋицѕогр√р"
+							n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_CSNERISLDR), "1"); // ѕризнак совпадени€ с грузоотправителем: лицо, которое осуществл€ет погрузку груза в транспортное средство, €вл€етс€ грузоотправителем
+							if(consignor_inn.NotEmpty()) {
 								SXml::WNode n4(G.P_X, G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_LOADERID)); // "»дент–ек√ќ"   // »дентифицирующий реквизит грузоотправител€
-								if(temp_buf.Len() == 12) {
-									n4.PutInner(G.GetToken_Ansi(PPHSC_RU_INNPHS), temp_buf);
-								}
-								else {
-									n4.PutInner(G.GetToken_Ansi(PPHSC_RU_INNJUR), temp_buf);
-								}
+								n4.PutInner(G.GetToken_Ansi((consignor_inn.Len() == 12) ? PPHSC_RU_INNPHS : PPHSC_RU_INNJUR), consignor_inn);
+							}
+						}
+						{
+							SXml::WNode n3(G.P_X, G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_PORTOWNER));
+							n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_CSNERISLDR2), "1");
+							if(consignor_inn.NotEmpty()) {
+								SXml::WNode n4(G.P_X, G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_LOADERID)); // "»дент–ек√ќ"   // »дентифицирующий реквизит грузоотправител€
+								n4.PutInner(G.GetToken_Ansi((consignor_inn.Len() == 12) ? PPHSC_RU_INNPHS : PPHSC_RU_INNJUR), consignor_inn);
 							}
 						}
 					}

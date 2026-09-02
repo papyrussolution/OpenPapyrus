@@ -2434,8 +2434,6 @@ int PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 								PPPrjTaskPacket pt_pack;
 								ok = -1;
 								if(id && TodoObj.GetPacket(id, &pt_pack) > 0 && (pt_pack.SDescr.Len() || pt_pack.SMemo.Len())) {
-									const  long flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
-										SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;
 									SString buf;
 									(buf = pt_pack.SDescr).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ');
 									if(pt_pack.SMemo.Len()) {
@@ -2445,7 +2443,7 @@ int PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 										(memo = pt_pack.SMemo).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ');
 										buf.CR().CR().Cat(word).Cat(memo);
 									}
-									PPTooltipMessage(buf, 0, pBrw->H(), 10000, 0, flags);
+									PPTooltipMessage(buf, 0, pBrw->H(), 10000, 0, SMessageWindow::fStdOnMouseOptions);
 								}
 							}
 						}

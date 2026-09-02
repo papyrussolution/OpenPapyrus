@@ -1748,7 +1748,7 @@ int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, co
 		SXml::WNode w_s(rB.P_Xw, pScopeXmlTag);
 		w_s.PutInner("id", temp_buf.Z().Cat(rInfo.ID));
 		w_s.PutInner("name", CorrectAndEncText(rInfo.Name));
-		if(rInfo.P_CodeList && rInfo.P_CodeList->getCount()) {
+		if(SVectorBase::GetCount(rInfo.P_CodeList)) {
 			for(uint i = 0; i < rInfo.P_CodeList->getCount(); i++) {
 				const  BarcodeTbl::Rec & r_bc_rec = rInfo.P_CodeList->at(i);
 				SXml::WNode w_c(rB.P_Xw, "code");
@@ -2016,7 +2016,7 @@ int PPPosProtocol::StartWriting(const char * pFileName, PPPosProtocol::WriteBloc
 {
 	int    ok = 1;
 	SString temp_buf;
-	THROW_SL(rB.P_Xw = xmlNewTextWriterFilename(pFileName, 9 /*compression*/), 0);
+	THROW_SL(rB.P_Xw = xmlNewTextWriterFilename(pFileName, 9 /*compression*/));
 	xmlTextWriterSetIndent(rB.P_Xw, 1);
 	xmlTextWriterSetIndentTab(rB.P_Xw);
 	THROW_MEM(rB.P_Xd = new SXml::WDoc(rB.P_Xw, cpUTF8));

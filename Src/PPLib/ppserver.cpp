@@ -5800,7 +5800,7 @@ int install_service(int inst, const char * pLoginName, const char * pLoginPasswo
 
 int start_service(int start)
 {
-	return start ? WinService::Start(SERVICE_NAME, 0) : WinService::Start(SERVICE_NAME, 1);
+	return start ? WinService::Start(SERVICE_NAME) : WinService::Stop(SERVICE_NAME);
 }
 //
 //

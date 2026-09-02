@@ -99,6 +99,8 @@ static const SIntToSymbTabEntry SNTokSymb_List[] = {
 	{ SNTOK_BASE64_URL_WP, "enc-base32url-withpadding" }, // @v12.3.3
 	{ SNTOK_SSCC, "sscc" }, // @v12.4.5
 	{ SNTOK_RU_LICPLATE, "ru-license-plate" }, // @v12.7.4
+	{ SNTOK_WININTERNALCMD, "win-internal-cmd" }, // @v12.7.6
+	{ SNTOK_WININTERNALCMD_CF, "win-internal-cf-cmd" }, // @v12.7.6
 };
 
 SNaturalToken::SNaturalToken() : ID(0), Prob(0.0f), Count(0)
@@ -794,6 +796,9 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						rResultList.AddTok(SNTOK_TIME, 0.9f, 0/*flags*/);
 					}
 				}
+			}
+			if(h & SNTOKSEQ_LAT) { // @v12.7.6
+				// SNTOK_WININTERNALCMD SNTOK_WININTERNALCMD_CF
 			}
 			if(h & SNTOKSEQ_DEC) {
 				rIb.F &= ~ImplementBlock::fRuLicPlateSet; // @v12.7.4

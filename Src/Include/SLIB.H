@@ -37,8 +37,8 @@
 	#include <float.h>
 	#include <time.h>
 	#include <errno.h>
-	#include <signal.h> // @v11.2.12
-	#include <setjmp.h> // @v11.2.12
+	#include <signal.h>
+	#include <setjmp.h>
 	#include <locale.h> // @v11.7.1
 	#if _MSC_VER < 1900
 		// POSIX Supplement
@@ -94,7 +94,7 @@
 	#include <wchar.h>
 	#include <stdint.h>
 	#include <inttypes.h> // @v12.4.11
-	#include <string.h> // @v11.0.7
+	#include <string.h>
 	#include <malloc.h> // @v11.7.1 
 	#ifdef HAVE_UNISTD_H
 		#include <unistd.h>
@@ -322,7 +322,6 @@ typedef int32               TYPEID;
 	#define FALSE              0
 #endif
 //
-// @v11.2.3
 // Descr: Мнемоники специальных символов
 //
 #define CHR_SOH   0x01 // Start Of Heading
@@ -592,12 +591,12 @@ typedef int32               TYPEID;
 #define oneof13(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11)||(f)==(c12)||(f)==(c13))
 #define oneof14(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11)||(f)==(c12)||(f)==(c13)||(f)==(c14))
 #define NZOR(v,a)                   ((v)?(v):(a))
-#define NZSTR(v)                    ((v)?(v):"") // @v11.3.12
+#define NZSTR(v)                    ((v)?(v):"")
 //#define NZOR_F(v,a)                 ((!!(v))?(v):(a))
 // Использование SETIFZ может инициировать нежелательное замечание компилятора "assignment within conditional expression" (MSVC C4706).
 // Если этот побочный эффект неприемлем, то используйте SETIFZQ (в этом случае применить его в условном выражении не удасться.
 #define SETIFZ(v,a)  (!!(v) || !!((v)=(a)))
-#define SETIFZQ(v,a) {if(!(v)) (v)=(a);} // @v11.1.12
+#define SETIFZQ(v,a) {if(!(v)) (v)=(a);}
 #define SETMAX(v,b) {if((v)<(b)) (v)=(b);}
 #define SETMIN(v,b) {if((v)>(b)) (v)=(b);}
 #define SETMINMAX(v,i,x) {if((v)>(x)) (v)=(x); else if((v)<(i)) (v)=(i);}
@@ -621,8 +620,8 @@ typedef int32               TYPEID;
 #define ZDELETEFAST(p) {if(p) ((delete (p)), (p) = nullptr);}
 #define ZDELETEARRAY(p)             ((delete [] (p)), (p) = nullptr)
 #define FREEANDASSIGN(p, n)         (SAlloc::F(p), (p) = (n))
-#define ZFREE(p)                    FREEANDASSIGN((p), 0)
-#define ZFREE_const(p)              (SAlloc::F((void *)p), (p) = 0)
+#define ZFREE(p)                    FREEANDASSIGN((p), nullptr)
+#define ZFREE_const(p)              (SAlloc::F((void *)p), (p) = nullptr)
 //
 // Exception handling
 //
@@ -12865,6 +12864,8 @@ int STDCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags);
 #define SNTOK_CHZN_BULK                 63 // @v12.5.12 Код чзн весового товара с префиксом 02-
 #define SNTOK_CHZN_GENERAL              64 // @v12.6.5  Код можно трактовать как маркировку честного знака (в любом из вариантов). Часто совмещен с одним из иных варантов SNTOK_CHZN_XXX
 #define SNTOK_RU_LICPLATE               65 // @v12.7.4  Автомобильный номер (российский) @construction 
+#define SNTOK_WININTERNALCMD            66 // @v12.7.6  Внутренняя команда windows 
+#define SNTOK_WININTERNALCMD_CF         67 // @v12.7.6  Внутренняя команда windows (control flow) - т.е. команды, управляющие потоком исполнения - if, for, exit etc)
 
 #define SNTOKSEQ_DEC                0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR             0x00000002 // a-z
@@ -17487,9 +17488,28 @@ private:
 //
 class WinService {
 public:
-	static int Install(const char * pServiceName, const char * pDisplayName, const char * pModuleName, const char * pLoginName, const char * pPassword);
-	static int Uninstall(const char * pServiceName);
-	static int Start(const char * pServiceName, int stop = 0);
+	//
+	// Descr: Варианты текущего состояния службы.
+	//
+	enum {
+		svcstUnkn            = 0, // internal
+		svcstStopped         = 1, // SERVICE_STOPPED       0x00000001 The service is not running. 
+		svcstStartPending    = 2, // SERVICE_START_PENDING 0x00000002 The service is starting.
+		svcstStopPending     = 3, // SERVICE_STOP_PENDING  0x00000003 The service is stopping.
+		svcstRunning         = 4, // SERVICE_RUNNING       0x00000004 The service is running.
+		svcstContinuePending = 5, // SERVICE_CONTINUE_PENDING 0x00000005 The service continue is pending.
+		svcstPausePending    = 6, // SERVICE_PAUSE_PENDING 0x00000006 The service pause is pending.
+		svcstPaused          = 7, // SERVICE_PAUSED        0x00000007 The service is paused.
+	};
+	static int  Install(const char * pServiceName, const char * pDisplayName, const char * pModuleName, const char * pLoginName, const char * pPassword);
+	static int  Uninstall(const char * pServiceName);
+	//
+	// Descr: Возвращает текущее состояние службы с именем pServiceName.
+	// Returns: одна из констант WinService::svcstXXX
+	//
+	static int  GetStatus(const char * pServiceName);
+	static int  Start(const char * pServiceName);
+	static int  Stop(const char * pServiceName);
 
 	WinService(const WinServiceMngr &, const char * pServiceName, long desiredAccess = SERVICE_ALL_ACCESS);
 	~WinService();
@@ -17518,6 +17538,10 @@ public:
 	//   desiredAccess = SERVICE_STOP
 	//
 	int    Stop();
+	//
+	// Descr: Возвращает текущее состояние службы
+	//
+	int    QueryStatus();
 private:
 	const  WinServiceMngr * P_ScMngr;
 	SC_HANDLE H;
@@ -20889,6 +20913,10 @@ struct BdtTestItem {
 };
 
 extern "C" typedef STestCase * (*FN_SLTEST_FACTORY)(STestSuite * pSuite);
+//
+// Descr: Функция, которая может быть вызвана тестовым приложением SlTestApp в ответ на аргумент execfunc
+//
+extern "C" typedef int (*FN_SLTEST_APPFUNC)(const char * pArg); // @v12.7.6
 
 // @v11.7.7 SLTEST_CHECK_XXX-->SLCHECK_XXX
 #define SLCHECK_NZ(v)                _check_nz(!!(v), #v)

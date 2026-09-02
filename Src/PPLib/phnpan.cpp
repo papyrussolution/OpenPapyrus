@@ -1350,8 +1350,7 @@ int PhoneServiceEventResponder::IdentifyCaller(const char * pCaller, PPObjIDArra
 						temp_buf.Space().CatParStr(contact_buf);
 					}
 					msg_buf.Printf(fmt_buf, temp_buf.cptr());
-					p_win->Open(msg_buf, 0, /*H()*/0, 0, 5000, /*GetColorRef(SClrCadetblue)*/RGB(0x8E, 0xE4, 0xAF),
-						SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText, 0);
+					p_win->Open(msg_buf, 0, /*H()*/0, 0, 5000, RGB(0x8E, 0xE4, 0xAF), SMessageWindow::fStdLargeNotification, 0);
 				}
 			}
 			ok = 1;

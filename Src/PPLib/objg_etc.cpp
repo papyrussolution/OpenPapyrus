@@ -142,6 +142,7 @@ int PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 			AddClusterAssoc(CTL_GDSTYP_FLAGS, 13, GTF_EGAISAUTOWO); // @v12.0.7
 			SetClusterData(CTL_GDSTYP_FLAGS, Data.Flags);
 			setCtrlReal(CTL_GDSTYP_STKTLR, Data.StockTolerance);
+			setCtrlDate(CTL_GDSTYP_CHZNSOFTMODEDT, Data.ChZnSoftModeBefore); // @v12.7.6
 			SetupCtrls();
 			return ok;
 		}
@@ -167,6 +168,7 @@ int PPObjGoodsType::Edit(PPID * pID, void * extraPtr)
 				GetClusterData(CTL_GDSTYP_UNLIM, &Data.Flags);
 				GetClusterData(CTL_GDSTYP_FLAGS, &Data.Flags);
 				Data.StockTolerance = getCtrlReal(CTL_GDSTYP_STKTLR);
+				Data.ChZnSoftModeBefore = getCtrlDate(CTL_GDSTYP_CHZNSOFTMODEDT); // @v12.7.6
 			}
 			ASSIGN_PTR(pData, Data);
 			return ok;
@@ -237,6 +239,7 @@ private:
 			FLD(AmtPrice);
 			FLD(AmtDscnt);
 			FLD(AmtCVat);
+			FLD(ChZnSoftModeBefore); // @v12.7.6
 			FLD(ChZnProdType);
 			FLD(Flags);
 			#undef FLD
@@ -260,6 +263,7 @@ private:
 		FLD(AmtPrice);
 		FLD(AmtDscnt);
 		FLD(AmtCVat);
+		FLD(ChZnSoftModeBefore); // @v12.7.6
 		FLD(ChZnProdType);
 		FLD(Flags);
 		#undef FLD
@@ -273,6 +277,7 @@ public:
 		PPID   AmtPrice;
 		PPID   AmtDscnt;
 		PPID   AmtCVat;
+		LDATE  ChZnSoftModeBefore; // @v12.7.6
 		long   ChZnProdType;
 		long   Flags;
 	};
@@ -1704,13 +1709,10 @@ static int PPViewComputer_CellStyleFunc(const void * pData, long col, int paintA
 	if(ok == -2) {
 		switch(ppvCmd) {
 			case PPVCMD_MOUSEHOVER:
-				if(id && static_cast<const BrwItem *>(pHdr)->Flags & GF_DERIVED_HASIMAGES) {
-					SString img_path;
-					ObjLinkFiles link_files(PPOBJ_COMPUTER);
-					link_files.Load(id, 0L);
-					link_files.At(0, img_path);
-					PPTooltipMessage(0, img_path, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
-						SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+				if(pBrw) {
+					if(id && static_cast<const BrwItem *>(pHdr)->Flags & GF_DERIVED_HASIMAGES) {
+						pBrw->ShowImageHint(SObjID(PPOBJ_COMPUTER, id), 0);
+					}
 				}
 				break;
 			case PPVCMD_REFRESH:
@@ -2567,13 +2569,7 @@ static int PPViewSwProgram_CellStyleFunc(const void * pData, long col, int paint
 				if(pBrw) {
 					bool   hover_done = false;
 					if(id && static_cast<const BrwItem *>(pHdr)->Flags & GF_DERIVED_HASIMAGES) {
-						SString img_path;
-						ObjLinkFiles link_files(PPOBJ_SWPROGRAM);
-						link_files.Load(id, 0L);
-						link_files.At(0, img_path);
-						if(fileExists(img_path)) {
-							PPTooltipMessage(0, img_path, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
-								SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+						if(pBrw->ShowImageHint(SObjID(PPOBJ_SWPROGRAM, id), 0) > 0) {
 							hover_done = true;
 						}
 					}

@@ -2598,6 +2598,11 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 							if(gt_rec.Flags & GTF_GMARKED) {
 								Rec.Flags_ |= AsyncCashGoodsInfo::fGMarkedType;
 								Rec.ChZnProdType = static_cast<int16>(gt_rec.ChZnProdType);
+								// @v12.7.6 {
+								if(checkdate(gt_rec.ChZnSoftModeBefore) && gt_rec.ChZnSoftModeBefore >= now_dtm.d) {
+									Rec.Flags_ |= AsyncCashGoodsInfo::fChZnMarkSoftMode;
+								}
+								// } @v12.7.6 
 							}
 							// @v11.7.10 {
 							if(gt_rec.Flags & GTF_EXCISEPROFORMA)

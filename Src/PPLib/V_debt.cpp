@@ -2264,8 +2264,7 @@ int PPViewDebtTrnovr::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 							r = 1;
 						}
 						if(r > 0)
-							PPTooltipMessage(buf, 0, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
-								SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+							PPTooltipMessage(buf, 0, pBrw->H(), 10000, 0, SMessageWindow::fStdOnMouseOptions);
 					}
 				}
 				break;

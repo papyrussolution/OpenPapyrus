@@ -560,8 +560,8 @@ private:
 	}
 	void editCurConfig()
 	{
-		TDialog * dlg = 0;
-		if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_CURCFG)))) {
+		TDialog * dlg = new TDialog(DLG_CURCFG);
+		if(CheckDialogPtrErr(&dlg)) {
 			SetupPPObjCombo(dlg, CTLSEL_CURCFG_BASECUR, PPOBJ_CURRENCY, Data.BaseCurID, OLW_CANINSERT, 0);
 			SetupPPObjCombo(dlg, CTLSEL_CURCFG_RATETYPE, PPOBJ_CURRATETYPE, Data.BaseRateTypeID, OLW_CANINSERT, 0);
 			dlg->AddClusterAssoc(CTL_CURCFG_FLAGS, 0, CFGFLG_MULTICURACCT);

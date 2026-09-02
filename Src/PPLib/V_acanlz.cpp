@@ -151,8 +151,16 @@ public:
 		if(Data.Flags & AccAnlzFilt::fAsCashBook) {
 			if(Data.Period.IsZero())
 				Data.Period.SetDate(getcurdate_()); // @v12.7.0 LConfig.OperDate-->getcurdate_()
-			disableCtrls(1, CTL_ACCANLZ_ACCGRP, CTLSEL_ACCANLZ_SUBST, CTL_ACCANLZ_CORACCGRP, CTL_ACCANLZ_ACC,
-				CTLSEL_ACCANLZ_ACCNAME, CTL_ACCANLZ_ART, CTLSEL_ACCANLZ_ARTNAME, 0);
+			// @v12.7.6 disableCtrls(1, CTL_ACCANLZ_ACCGRP, CTLSEL_ACCANLZ_SUBST, CTL_ACCANLZ_CORACCGRP, CTL_ACCANLZ_ACC, CTLSEL_ACCANLZ_ACCNAME, CTL_ACCANLZ_ART, CTLSEL_ACCANLZ_ARTNAME, 0);
+			// @v12.7.6 {
+			setCtrlReadOnly(CTL_ACCANLZ_ACCGRP, true);
+			setCtrlReadOnly(CTLSEL_ACCANLZ_SUBST, true);
+			setCtrlReadOnly(CTL_ACCANLZ_CORACCGRP, true);
+			setCtrlReadOnly(CTL_ACCANLZ_ACC, true);
+			setCtrlReadOnly(CTLSEL_ACCANLZ_ACCNAME, true);
+			setCtrlReadOnly(CTL_ACCANLZ_ART, true);
+			setCtrlReadOnly(CTLSEL_ACCANLZ_ARTNAME, true);
+			// } @v12.7.6 
 		}
 		else if(Data.AcctId.ac) {
 			PPID   temp_acc_id = 0;
@@ -505,20 +513,20 @@ int PPViewAccAnlz::EditSupplTrnovrFilt(AccAnlzFilt * pFilt)
 /*virtual*/int PPViewAccAnlz::EditBaseFilt(PPBaseFilt * pFilt)
 {
 	int    ok = -1;
-	int    valid_data = 0;
 	AccAnlzFilt * p_filt = static_cast<AccAnlzFilt *>(pFilt);
 	THROW_INVARG(p_filt);
-	if(p_filt->Flags & AccAnlzFilt::fTrnovrBySuppl)
+	if(p_filt->Flags & AccAnlzFilt::fTrnovrBySuppl) {
 		ok = EditSupplTrnovrFilt(p_filt);
+	}
 	else {
 		const uint dlg_id = (p_filt->Flags & AccAnlzFilt::fAsCashBook) ? DLG_CASHBOOK : DLG_ACCANLZ;
 		AccAnlzFiltDialog * dlg = new AccAnlzFiltDialog(dlg_id, P_BObj->atobj);
 		if(CheckDialogPtrErr(&dlg)) {
 			dlg->setDTS(p_filt);
-			while(!valid_data && ExecView(dlg) == cmOK) {
+			while(ok < 0 && ExecView(dlg) == cmOK) {
 				if(dlg->getDTS(p_filt)) {
 					SETFLAG(p_filt->Flags, AccAnlzFilt::fGroupByCorAcc, p_filt->CorAco);
-					ok = valid_data = 1;
+					ok = 1;
 				}
 			}
 		}

@@ -4534,21 +4534,13 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				}
 				break;
 			case PPVCMD_MOUSEHOVER:
-				{
+				if(pBrw) {
 					bool   hover_done = false;
 					long   row = 0;
 					long   col = 0;
 					pBrw->ItemByMousePos(&col, &row);
-					if(col == 0 && HasImages(pHdr)) {
-						SString img_path;
-						ObjLinkFiles link_files(PPOBJ_GOODS);
-						link_files.Load(id, 0L);
-						link_files.At(0, img_path);
-						if(fileExists(img_path)) {
-							hover_done = true;
-							PPTooltipMessage(0, img_path, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
-								SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
-						}
+					if(col == 0 && HasImages(pHdr) && pBrw->ShowImageHint(SObjID(PPOBJ_GOODS, id), 0) > 0) {
+						hover_done = true;
 					}
 					if(!hover_done) {
 						pBrw->ShowCellStyleHint(row, col);

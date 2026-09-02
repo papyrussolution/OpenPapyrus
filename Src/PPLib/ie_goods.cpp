@@ -1088,8 +1088,9 @@ int EditGoodsImpExpParams()
 	};
 	int    ok = 1;
 	GoodsImpExpCfgListDialog * dlg = new GoodsImpExpCfgListDialog;
-	if(CheckDialogPtrErr(&dlg))
+	if(CheckDialogPtrErr(&dlg)) {
 		ExecViewAndDestroy(dlg);
+	}
 	else
 		ok = PPErrorZ();
 	return ok;

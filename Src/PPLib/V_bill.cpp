@@ -4478,8 +4478,7 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 			if(PPLoadText(msg_id, fmt_buf)) {
 				PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName, bill_text);
 				msg_buf.Printf(fmt_buf, bill_text.cptr());
-				PPTooltipMessage(msg_buf, 0, pBrw->H(), 10000, GetColorRef(SClrOrange), SMessageWindow::fShowOnCursor/*|SMessageWindow::fCloseOnMouseLeave*/|
-					SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+				PPTooltipMessage(msg_buf, 0, pBrw->H(), 10000, GetColorRef(SClrOrange), SMessageWindow::fShowOnCursor|SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
 			}
 		}
 	}
@@ -6713,12 +6712,10 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 								mfn = p_def->getCount()-1;
 						}
 						if(col == mfn && id && P_BObj->FetchExtMemo(id, temp_buf) > 0) {
-							const long flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
-								SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;
 							temp_buf.ReplaceChar('\n', ' ');
 							temp_buf.ReplaceChar('\r', ' ');
 							temp_buf.ReplaceStr(PPConst::P_ObjMemoDelim, "\n", 0);
-							PPTooltipMessage(temp_buf, 0, pBrw->H(), 10000, 0, flags);
+							PPTooltipMessage(temp_buf, 0, pBrw->H(), 10000, 0, SMessageWindow::fStdOnMouseOptions);
 						}
 						else { // @v12.7.5 
 							pBrw->ShowCellStyleHint(row, col);

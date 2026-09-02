@@ -1704,10 +1704,12 @@ static const UiValueDescr UiValueDescrList[] = {
 	{ UiValueList::vButtonDoubleWidth, "button_double_width", T_INT32 },
 	{ UiValueList::vFontSmoothingType, "font_smoothing_type", MKSTYPE(S_ZSTRING, 0) }, // @v12.2.1 0=none; 1=standard; 2=cleartype
 	{ UiValueList::vFontSmoothingContrast, "font_smoothing_contrast", T_INT32 }, // @v12.2.1 [1000..2200] default=1400
-	{ UiValueList::vPopUpMsgWinTransparency, "popupmsgwin_transparency", T_INT32 },        // @v12.7.1 popupmsgwin_transparency        [75] // 0..100 прозрачность всплывающего окна сообщений
-	{ UiValueList::vPopUpMsgWinDefTimerMs, "popupmsgwin_deftimerms", T_INT32 },          // @v12.7.1 popupmsgwin_deftimerms          [60000] // время, в течении которого всплывающее окно сообщений висит на экране (в миллисекундах)
+	{ UiValueList::vPopUpMsgWinTransparency, "popupmsgwin_transparency", T_INT32 }, // @v12.7.1 popupmsgwin_transparency        [75] // 0..100 прозрачность всплывающего окна сообщений
+	{ UiValueList::vPopUpMsgWinDefTimerMs, "popupmsgwin_deftimerms", T_INT32 }, // @v12.7.1 popupmsgwin_deftimerms          [60000] // время, в течении которого всплывающее окно сообщений висит на экране (в миллисекундах)
 	{ UiValueList::vPopUpMsgWinMaxWidthToParentRel, "popupmsgwin_maxwidthtoparentrel", T_DOUBLE }, // @v12.7.1 popupmsgwin_maxwidthtoparentrel [2] // Максимальное отношение ширины окна к ширине родительского окна
-	{ UiValueList::vPopUpMsgWinMaxWrapLines, "popupmsgwin_maxwraplines", T_INT32 },        // @v12.7.1 popupmsgwin_maxwraplines        [10] // Максимальное количество выводимых строк, на которое разбивается длинная строка
+	{ UiValueList::vPopUpMsgWinMaxWrapLines, "popupmsgwin_maxwraplines", T_INT32 }, // @v12.7.1 popupmsgwin_maxwraplines        [10] // Максимальное количество выводимых строк, на которое разбивается длинная строка
+	{ UiValueList::vPopUpHintTimerMs, "popuphint_timerms", T_INT32 }, // @v12.7.6 [10000] // время, в течении которого всплывающее подсказка висит на экране (в миллисекундах)
+	{ UiValueList::vPopUpImgHintTimerMs, "popupimghint_timerms", T_INT32 }, // @v12.7.6 [10000] // время, в течении которого всплывающее изображение висит на экране (в миллисекундах) 
 };
 	
 SJson * UiValueList::ToJsonObj() const

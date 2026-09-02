@@ -6964,8 +6964,7 @@ int MessagePersonBirthDay(TDialog * pDlg, PPID psnID)
 			SString msg_buf, fmt_buf;
 			PPLoadText(PPTXT_CLIBIRTHDAY, fmt_buf);
 			PPFormat(fmt_buf, &msg_buf, name_buf.cptr(), (int)(getcurdate_().year() - dob.year()));
-			PPTooltipMessage(msg_buf, 0, pDlg->H(), 20000, GetColorRef(SClrPink),
-				SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus/*|SMessageWindow::fLargeText*/);
+			PPTooltipMessage(msg_buf, 0, pDlg->H(), 20000, GetColorRef(SClrPink), SMessageWindow::fStdNotification);
 			ok = 1;
 		}
 	}

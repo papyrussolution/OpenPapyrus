@@ -4538,8 +4538,7 @@ void CheckPaneDialog::ViewStoragePlaces(PPID goodsId)
 				out_msg.Cat(loc_name);
 			}
 			if(out_msg.Len()) {
-				PPTooltipMessage(out_msg, 0, H(), 20000, GetColorRef(SClrCyan),
-					SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
+				PPTooltipMessage(out_msg, 0, H(), 20000, GetColorRef(SClrCyan), SMessageWindow::fStdLargeNotification);
 			}
 			else
 				SMessageWindow::DestroyByParent(H());
@@ -4993,8 +4992,7 @@ static void FASTCALL InformCashNoteAndDelivery(HWND hParentWnd, const PosPayment
 		msg_buf.Cat(temp_buf).CatDiv(':', 2).Cat(rBlk.NoteAmt, SFMT_MONEY).CR();
 		PPGetSubStr(words, PPCDY_CHANGE, temp_buf);
 		msg_buf.Cat(temp_buf).CatDiv(':', 2).Cat(rBlk.DeliveryAmt, SFMT_MONEY).CR();
-		p_win->Open(msg_buf, 0, hParentWnd, 0, 10000, GetColorRef(SClrCyan),
-			SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText, 0);
+		p_win->Open(msg_buf, 0, hParentWnd, 0, 10000, GetColorRef(SClrCyan), SMessageWindow::fStdLargeNotification, 0);
 	}
 }
 
@@ -7468,8 +7466,7 @@ int CheckPaneDialog::ProcessPhnSvc(int mode)
 				if(ringing_line.NotEmpty()) {
 					SMessageWindow * p_win = new SMessageWindow;
 					if(p_win) {
-						p_win->Open(ringing_line, 0, H(), 0, 10000, GetColorRef(SClrCadetblue),
-							SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus, 0);
+						p_win->Open(ringing_line, 0, H(), 0, 10000, GetColorRef(SClrCadetblue), SMessageWindow::fStdNotification, 0);
 					}
 				}
 			}
@@ -7635,8 +7632,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 						if(checkdate(device_dtm.d) && labs(diffdatetimesec(now_dtm, device_dtm)) >= 60) {
 							PPLoadText(PPTXT_DEVICETIMEDIFFROMSYS, fmt_buf);
 							PPFormat(fmt_buf, &msg_buf, device_dtm);
-							PPTooltipMessage(msg_buf, 0, H(), 20000, GetColorRef(SClrTomato),
-								SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
+							PPTooltipMessage(msg_buf, 0, H(), 20000, GetColorRef(SClrTomato), SMessageWindow::fStdLargeNotification);
 						}
 					}
 				}
@@ -7786,8 +7782,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					if(p_win) {
 						SString msg_buf;
 						PPLoadText(PPTXT_CHKPAN_UHTTORDER, msg_buf);
-						p_win->Open(msg_buf, 0, H(), 0, 10000, GetColorRef(SClrCornsilk),
-							SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus, 0);
+						p_win->Open(msg_buf, 0, H(), 0, 10000, GetColorRef(SClrCornsilk), SMessageWindow::fStdNotification, 0);
 					}
 				}
 			}
@@ -10050,8 +10045,7 @@ int CheckPaneDialog::RemoveRow()
 	else if(dest == eomPopup) {
 		PPGetMessage(mfError, (errCode < 0) ? PPErrCode : errCode, pAddedMsg, 1, err_msg);
 		SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления //
-		PPTooltipMessage(err_msg, 0, H(), 20000, GetColorRef(SClrRed),
-			SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
+		PPTooltipMessage(err_msg, 0, H(), 20000, GetColorRef(SClrRed), SMessageWindow::fStdLargeNotification);
 	}
 	return 0;
 }
@@ -10066,8 +10060,7 @@ int CheckPaneDialog::RemoveRow()
 		}
 		if(msg_buf.NotEmpty()) {
 			SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления //
-			PPTooltipMessage(msg_buf, 0, H(), 20000, GetColorRef(SClrOrange),
-				SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fOpaque);
+			PPTooltipMessage(msg_buf, 0, H(), 20000, GetColorRef(SClrOrange), SMessageWindow::fStdNotification|SMessageWindow::fOpaque);
 		}
 	}
 	return 1;
@@ -12358,8 +12351,7 @@ int CPosProcessor::Backend_AcceptSCard(PPID scardID, const SCardSpecialTreatment
 						SString msg_buf;
 						PPLoadText(PPTXT_SCARDISAUTOACTIVATED, temp_buf.Z());
 						msg_buf.Printf(temp_buf, sc_rec.Code);
-						PPTooltipMessage(msg_buf, 0, hWnd, 10000, GetColorRef(SClrOrange),
-							SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
+						PPTooltipMessage(msg_buf, 0, hWnd, 10000, GetColorRef(SClrOrange), SMessageWindow::fStdLargeNotification);
 						*/
 					}
 					else {
@@ -12593,8 +12585,7 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 								SString msg_buf;
 								if(cr == 2) {
 									msg_buf.Printf(PPLoadTextS(PPTXT_SCARDISAUTOACTIVATED, temp_buf), sc_rec.Code);
-									PPTooltipMessage(msg_buf, 0, H(), 10000, GetColorRef(SClrOrange),
-										SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
+									PPTooltipMessage(msg_buf, 0, H(), 10000, GetColorRef(SClrOrange), SMessageWindow::fStdLargeNotification);
 								}
 								else if(CSt.Flags & CSt.fBirthday) {
 									if(CSt.OwnerID) {
@@ -12607,8 +12598,7 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 												if(tag_item.GetDate(&dob_dt)) {
 													PPLoadText(PPTXT_CLIBIRTHDAY, temp_buf);
 													PPFormat(temp_buf, &msg_buf, psn_rec.Name, (getcurdate_().year() - dob_dt.year()));
-													PPTooltipMessage(msg_buf, 0, H(), 10000, GetColorRef(SClrPink),
-														SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
+													PPTooltipMessage(msg_buf, 0, H(), 10000, GetColorRef(SClrPink), SMessageWindow::fStdLargeNotification);
 												}
 											}
 										}
@@ -13126,8 +13116,7 @@ void CheckPaneDialog::SetInput(const char * pStr)
 				// PPTXT_CHKPAN_GIFTNOTAMT "Для получения подарка '%s'\nосталось купить товар '%s' на сумму %.2lf";
 				PPLoadText((pGift->Pot.Amount > 0.0) ? PPTXT_CHKPAN_GIFTNOTEAMT : PPTXT_CHKPAN_GIFTNOTE, fmt_buf);
 				msg_buf.Printf(fmt_buf, pGift->Pot.Name.cptr(), goods_name.cptr(), pGift->Pot.Deficit);
-				p_win->Open(msg_buf, 0, H(), 0, 30000, GetColorRef(SClrAquamarine),
-					SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus, 0);
+				p_win->Open(msg_buf, 0, H(), 0, 30000, GetColorRef(SClrAquamarine), SMessageWindow::fStdNotification, 0);
 			}
 		}
 	}
@@ -14338,8 +14327,7 @@ int CheckPaneDialog::PrintCashReports()
 						if(done) {
 							//PPTXT_CHZNPMSVRADDRHASBEENRESET        "Адрес сервера разрешительного режима чзн был успешно сброшен"
 							PPLoadText(PPTXT_CHZNPMSVRADDRHASBEENRESET, temp_buf);
-							PPTooltipMessage(temp_buf, 0, H(), 10000, GetColorRef(SClrGreen),
-								SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
+							PPTooltipMessage(temp_buf, 0, H(), 10000, GetColorRef(SClrGreen), SMessageWindow::fStdLargeNotification);
 						}
 						else if(err) {
 							MessageError(-1, 0, eomPopup);
@@ -14347,8 +14335,7 @@ int CheckPaneDialog::PrintCashReports()
 						else {
 							//PPTXT_CHZNPMSVRADDRRESET_NOTDONE       "Адрес сервера разрешительного режима чзн либо не задан"
 							PPLoadText(PPTXT_CHZNPMSVRADDRRESET_NOTDONE, temp_buf);
-							PPTooltipMessage(temp_buf, 0, H(), 10000, GetColorRef(SClrCoral),
-								SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
+							PPTooltipMessage(temp_buf, 0, H(), 10000, GetColorRef(SClrCoral), SMessageWindow::fStdLargeNotification);
 						}
 					}
 					break;

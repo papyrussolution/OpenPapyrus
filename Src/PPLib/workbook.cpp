@@ -1680,11 +1680,9 @@ int PPObjWorkbook::RemoveAll()
 										if(_f.At(0, file_name) > 0) {
 											SFileFormat ff;
 											ff.Identify(file_name, &file_ext);
-											::SetActiveWindow(APPL->H_MainWnd); // @v11.3.2 Без этого вызова окно редактора открывалось как модальное
+											::SetActiveWindow(APPL->H_MainWnd); // Без этого вызова окно редактора открывалось как модальное
 											if(SImageBuffer::IsSupportedFormat(ff)) {
-												PPTooltipMessage(rec.Name, file_name, 0/*pBrw->hWnd*/, 5000, 0, SMessageWindow::fTextAlignLeft|
-													SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow|
-													SMessageWindow::fLargeText|SMessageWindow::fShowOnCenter|SMessageWindow::fPreserveFocus);
+												PPTooltipMessage(rec.Name, file_name, 0, 5000, 0, SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow|SMessageWindow::fLargeText|SMessageWindow::fShowOnCenter|SMessageWindow::fPreserveFocus);
 											}
 											else if(oneof4(ff, SFileFormat::Html, SFileFormat::Txt, SFileFormat::TxtUtf8, SFileFormat::TxtAscii) || file_ext.IsEqiAscii("vm")) {
 												PPViewTextBrowser(file_name, rec.Name, "html", TOOLBAR_TEXTBROWSER_WB_HTML);

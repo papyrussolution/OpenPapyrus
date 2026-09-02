@@ -3125,7 +3125,7 @@ dialog DLG_TRANSPCFG [vertical title: "@cfg_transp" size: (580, 250) minsize: (5
 	}
 }
 
-dialog DLG_GDSTYP [vertical title: "@goods_type" size: (640, 550) minsize: (640, 550) padding: 4 ] { // @v12.5.5
+dialog DLG_GDSTYP [vertical title: "@goods_type" size: (640, 570) minsize: (640, 570) padding: 4 ] { // @v12.5.5
 	view [horizontal width: bycontainer height: 40] {
 		view [horizontal growfactor: 1 height: bycontainer] {
 			input CTL_GDSTYP_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@appellation" ] string[48];
@@ -3150,7 +3150,7 @@ dialog DLG_GDSTYP [vertical title: "@goods_type" size: (640, 550) minsize: (640,
 				combobox CTLSEL_GDSTYP_DISCOUNT [tabstop width: bycontainer height: 21 margin: 4 label: "@goodstype_amtdscnt" cblinesymb: CTL_GDSTYP_DISCOUNT];
 				combobox CTLSEL_GDSTYP_CVAT [tabstop width: bycontainer height: 21 margin: 4 label: "@goodstype_amtcvat" cblinesymb: CTL_GDSTYP_CVAT];
 			}
-			input CTL_GDSTYP_STKTLR [design: B size: (68, 21) margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6 label: "@goodstype_stocktolerance"] double;
+			input CTL_GDSTYP_STKTLR [design: B size: (70, 21) margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 6 label: "@goodstype_stocktolerance"] double;
 		}
 		view [vertical growfactor: 1 height: bycontainer] {
 			checkcluster CTL_GDSTYP_FLAGS [tabstop width: bycontainer margin: 4] {
@@ -3175,6 +3175,12 @@ dialog DLG_GDSTYP [vertical title: "@goods_type" size: (640, 550) minsize: (640,
 				combobox CTLSEL_GDSTYP_CHZNPT [tabstop width: bycontainer height: 21 margin: 4 label: "@goodstype_chznprodtype" cblinesymb: CTL_GDSTYP_CHZNPT ];
 			}
 		}
+	}
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal width: 400 height: bycontainer] {
+			input CTL_GDSTYP_CHZNSOFTMODEDT [design: B size: (70, 21) margin: 4 tabstop fmtf: (dmy) label: "@goodstype_chznsoftmodebefore"] date supplement datecalbutton(CTLCAL_GDSTYP_CHZNSOFTMODEDT);
+		}
+		view [horizontal growfactor: 1 height: bycontainer] {} // @stub
 	}
 	view [horizontal width: bycontainer height: 30 margin_right: 12 alignitems: end justifycontent: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: (4, 4, 8, 4) defaultitem command: cmOK];
@@ -5512,13 +5518,14 @@ dialog DLG_USR [vertical title: "@user" size: (440, 465) minsize: (440, 465) pad
 	}
 }
 
-dialog DLG_LAUNCHAPP [vertical title: "@launchappparam" size: (435, 335) minsize: (435, 335) padding: 4 justifycontent: spacebetween] {
-	input CTL_LAUNCHAPP_APP [width: bycontainer height: 21 margin: 4 tabstop label: "@launchappparam_app"] string[255] supplement filebrowsebutton(CTLBRW_LAUNCHAPP_APP);
+dialog DLG_LAUNCHAPP [vertical title: "@launchappparam" size: (435, 350) minsize: (435, 350) padding: 4 justifycontent: spacebetween] {
+	input CTL_LAUNCHAPP_APP [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@launchappparam_app"] string[255] supplement filebrowsebutton(CTLBRW_LAUNCHAPP_APP);
+	statictext CTL_LAUNCHAPP_ST_INFO [width: bycontainer height: 21 margin: (4, 1, 4, 4) staticedge];
 	//button CTLBRW_LAUNCHAPP_APP [title: "@{launchappparam_appselbutton}..." tabstop size: (63, 21)  command: cmNone];
 	input CTL_LAUNCHAPP_PARAMS [width: bycontainer height: 21 margin: 4 tabstop label: "@launchappparam_arg"] string[255];
-	checkbox [title: "@launchappparam_fwait" width: bycontainer(80) height: 16 margin: 4];
+	checkbox CTL_LAUNCHAPP_FLAGS [title: "@launchappparam_fwait" width: bycontainer(80) height: 16 margin: 4];
 	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: (4, 4, 4, 4) justifycontent: spacebetween] {
-		checkbox [title: "@launchappparam_fremote" width: bycontainer(60) height: 16 margin: 4];
+		checkbox CTL_LAUNCHAPP_REMOTE [title: "@launchappparam_fremote" width: bycontainer(60) height: 16 margin: 4];
 		input CTL_LAUNCHAPP_SERVER [width: bycontainer height: 21 margin: 4 tabstop label: "@launchappparam_wmiserver"] string[64];
 		view [horizontal width: bycontainer height: 45] {
 			input CTL_LAUNCHAPP_USER [growfactor: 1 height: 21 margin: 4 tabstop label: "@launchappparam_userlogin"] string[32];

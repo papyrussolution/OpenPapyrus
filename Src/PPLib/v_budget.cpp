@@ -1695,8 +1695,7 @@ int PPViewBudget::OnExecBrowser(PPViewBrowser * pBrw)
 							SString buf;
 							BudgetItemTbl::Rec rec;
 							if(ObjBudg.ItemsTbl.Search(id, &rec) > 0 && sstrlen(rec.Memo))
-								PPTooltipMessage(rec.Memo, 0, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
-									SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+								PPTooltipMessage(rec.Memo, 0, pBrw->H(), 10000, 0, SMessageWindow::fStdOnMouseOptions);
 						}
 					}
 					ok = 1;

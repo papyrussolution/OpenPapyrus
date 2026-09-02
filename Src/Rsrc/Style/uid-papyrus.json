@@ -11,7 +11,9 @@
 		"popupmsgwin_transparency": 75,
 		"popupmsgwin_deftimerms": 60000,
 		"popupmsgwin_maxwidthtoparentrel": 2,
-		"popupmsgwin_maxwraplines": 10
+		"popupmsgwin_maxwraplines": 10,
+		"popuphint_timerms": 10000,
+		"popupimghint_timerms": 10000
 	},
 	"font_list": [
 		{
@@ -154,6 +156,8 @@
 			"grid_gridhorz": "#C0C0C0",
 			"grid_gridvert": "#909090",
 			"popupmsgwin_bg": "#FFF794",
+			"popuphint_bg": "#F0F4F8",
+			"popupimghint_bg": "#F0F4F8",
 			"ccheck_junk_bg": "#orange",
 			"ccheck_junk_fg": "#black",
 			"ccheck_imported_bg": "#palegreen",

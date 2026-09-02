@@ -1874,9 +1874,11 @@ int SupplAgtDialog::EditExchangeCfg()
 				Data.Z();
 			SetupPPObjCombo(this, CTLSEL_SUPLEXCHCFG_GGRP,  PPOBJ_GOODSGROUP, Data.GoodsGrpID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR, 0); // @v12.3.7 OLW_WORDSELECTOR
 			SetupPPObjCombo(this, CTLSEL_SUPLEXCHCFG_STYLO, PPOBJ_STYLOPALM,  Data.Fb.StyloPalmID, OLW_CANSELUPLEVEL, 0);
-			for(PPID op_id = 0; EnumOperations(0, &op_id, &op_kind) > 0;)
-				if(oneof2(op_kind.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GENERIC))
+			for(PPID op_id = 0; EnumOperations(0, &op_id, &op_kind) > 0;) {
+				if(oneof2(op_kind.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GENERIC)) {
 					op_list.add(op_id);
+				}
+			}
 			// SetupOprKindCombo(this, CTLSEL_SUPLEXCHCFG_OP, Data.OpID, 0, &op_list, OPKLF_OPLIST);
 			// SetupPPObjCombo(p_dlg, CTLSEL_SUPLEXCHCFG_TECH, PPOBJ_GOODSGROUP, Data.GGrpID, 0, 0);
 			{

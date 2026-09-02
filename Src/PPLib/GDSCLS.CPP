@@ -1,5 +1,5 @@
 // GDSCLS.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -179,14 +179,18 @@ int PPObjGoodsClass::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int repla
 		THROW(ProcessObjRefInArray(PPOBJ_GOODSTAX, &p_pack->Rec.DefTaxGrpID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_GOODSTYPE, &p_pack->Rec.DefGoodsTypeID, ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_GOODSGROUP, &p_pack->Rec.DefGrpID, ary, replace));
-		if(IS_DYN_OBJTYPE(p_pack->PropKind.ItemsListID))
+		if(IS_DYN_OBJTYPE(p_pack->PropKind.ItemsListID)) {
 			THROW(ProcessObjRefInArray(PPOBJ_DYNAMICOBJS, &p_pack->PropKind.ItemsListID, ary, replace));
-		if(IS_DYN_OBJTYPE(p_pack->PropGrade.ItemsListID))
+		}
+		if(IS_DYN_OBJTYPE(p_pack->PropGrade.ItemsListID)) {
 			THROW(ProcessObjRefInArray(PPOBJ_DYNAMICOBJS, &p_pack->PropGrade.ItemsListID, ary, replace));
-		if(IS_DYN_OBJTYPE(p_pack->PropAdd.ItemsListID))
+		}
+		if(IS_DYN_OBJTYPE(p_pack->PropAdd.ItemsListID)) {
 			THROW(ProcessObjRefInArray(PPOBJ_DYNAMICOBJS, &p_pack->PropAdd.ItemsListID, ary, replace));
-		if(IS_DYN_OBJTYPE(p_pack->PropAdd2.ItemsListID))
+		}
+		if(IS_DYN_OBJTYPE(p_pack->PropAdd2.ItemsListID)) {
 			THROW(ProcessObjRefInArray(PPOBJ_DYNAMICOBJS, &p_pack->PropAdd2.ItemsListID, ary, replace));
+		}
 	}
 	else
 		ok = -1;
@@ -887,8 +891,9 @@ int PPObjGoodsClass::Browse(void * extraPtr)
 	int    ok = 1;
 	if(CheckRights(PPR_READ)) {
 		TDialog * dlg = new GdsClsView(this);
-		if(CheckDialogPtrErr(&dlg))
+		if(CheckDialogPtrErr(&dlg)) {
 			ExecViewAndDestroy(dlg);
+		}
 		else
 			ok = 0;
 	}

@@ -1388,8 +1388,7 @@ void PPDesktop::Unadvise()
 									}
 								}
 							}
-							PPTooltipMessage(msg_buf, 0, p_desk->H(), 30000, clr, SMessageWindow::fTextAlignLeft|
-								SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fTopmost|SMessageWindow::fShowOnRUCorner);
+							PPTooltipMessage(msg_buf, 0, p_desk->H(), 30000, clr, SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fTopmost|SMessageWindow::fShowOnRUCorner);
 						}
 					}
 				}

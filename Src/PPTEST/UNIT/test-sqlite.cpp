@@ -700,6 +700,7 @@ int SQLite_OneWriterManyReaders_ProcessBodyFunc(const SQLite_OneWriterManyReader
 		THROW_SL(f_in.IsValid());
 		{
 			StringSet ss; // Набор тестовых строк для вставки в базу данных
+			StringSet ss_written;
 			LocalStateBinderyCore instance(SConstructorTest, rP.DbPath);
 			THROW(instance.IsValid());
 			{
@@ -764,6 +765,27 @@ int SQLite_OneWriterManyReaders_ProcessBodyFunc(const SQLite_OneWriterManyReader
 							break;
 						case opRead:
 							{
+								TSCollection <LocalStateBinderyCore::SerialEntry> s;
+								instance.GetStateSerial(ident, &s);
+								bool   is_eq = true;
+								uint   ssp_written = 0;
+								for(uint i = 0; is_eq && i < s.getCount(); i++) {
+									const LocalStateBinderyCore::SerialEntry * p_entry = s.at(i);
+									is_eq = false;
+									if(ss_written.get(&ssp_written, temp_buf)) {
+										if(p_entry) {
+											const  size_t bl = p_entry->Buf.GetAvailableSize();
+											SString & r_s_buf = SLS.AcquireRvlStr();
+											r_s_buf.CatN(p_entry->Buf.GetBufC(p_entry->Buf.GetRdOffs()), bl);
+											if(r_s_buf == temp_buf) {
+												is_eq = true;
+											}
+										}
+									}
+								}
+								if(!is_eq) {
+									; // @todo @msg
+								}
 							}
 							break;
 						case opWrite:
@@ -772,7 +794,13 @@ int SQLite_OneWriterManyReaders_ProcessBodyFunc(const SQLite_OneWriterManyReader
 									if(ss.get(&ssp_write, temp_buf)) {
 										PPID   state_id = 0;
 										buf_to_write.Z().Write(temp_buf.cptr(), temp_buf.Len());
-										//instance.RegisterState(&state_id, ident, buf_to_write);
+										int r = instance.RegisterState(&state_id, ident, buf_to_write, 1);
+										if(r) {
+											ss_written.add(temp_buf);
+										}
+										else {
+											;
+										}
 									}
 									else {
 										done = true;

@@ -1056,7 +1056,7 @@ ROD_TAG PP_RCDATA {
 	133, "@{rtag_gua_chzntspioturl}\0",       "CHZNTSPIOTURL\0",      "GLOBALUSER\0", "STRING\0" // @v12.5.11 Адрес компьютера, на котором установлен модуль тс-пиот для проверки марок честный знак 
 	134, "@{rtag_lot_tecroutestage}\0",       "TECROUTESTAGE\0",      "LOT\0",        "STRING\0" // @v12.6.2 Последний завершенный этап технологического маршрута для лота в производстве 
 	135, "@{rtag_lot_tecrouteassignment}\0",  "TECROUTEASSIGNMENT\0", "LOT\0",        "STRING\0" // @v12.6.5 Параметры лота, определяющие прохождение его по технологическому маршруту. Могут содержать ид маршрута и ид финального продукта
-
+	//136, "@{rtag_goods_semichznmarked}\0",    "GOODSSEMIMARKED\0",    "GOODS\0",      "DATE\0",  // @v12.7.6 Товар подлежит chzn-маркировке, но чтобы продать оставшиеся немаркированные остатки допусткается отказ от сканирования марки
 	//#define PPTAG_LOC_VETIS_REGIONGUID  99L // @v11.0.10 ВЕТИС-идент региона локации (склад или адрес доставки) // в терминах ВЕТИС - region GUID (не UUID)
 	// 40, "ФСРАР код товара\0",             "FSRARGOODSCODE\0",    "GOODS\0",      "STRING\0"
 	// @postponed 80, "@{rtag_locvetisentityguid}\0",       "LOCVETISENTITYGUID\0", "LOCATION\0",   "UUID\0"

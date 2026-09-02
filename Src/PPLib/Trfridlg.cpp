@@ -3155,8 +3155,7 @@ IMPL_HANDLE_EVENT(SelLotBrowser)
 							SString err_msg;
 							PPGetMessage(mfError, PPERR_SELLSPLDSERIALSDISABLED, r_temp_buf, 1, err_msg);
 							SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления //
-							PPTooltipMessage(err_msg, 0, H(), 20000, GetColorRef(SClrRed),
-								SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);							
+							PPTooltipMessage(err_msg, 0, H(), 20000, GetColorRef(SClrRed), SMessageWindow::fStdLargeNotification);
 							do_exit = false;
 						}
 					}

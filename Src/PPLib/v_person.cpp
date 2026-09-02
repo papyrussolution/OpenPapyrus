@@ -144,9 +144,7 @@ int ViewPersonInfoBySCard(const char * pCode)
 					}
 				}
 			}
-			PPTooltipMessage(buf, img_path, 0/*pBrw->hWnd*/, 5000, 0, SMessageWindow::fTextAlignLeft|
-				SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow|
-				SMessageWindow::fLargeText|SMessageWindow::fShowOnCenter|SMessageWindow::fPreserveFocus);
+			PPTooltipMessage(buf, img_path, 0, 5000, 0, SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow|SMessageWindow::fLargeText|SMessageWindow::fShowOnCenter|SMessageWindow::fPreserveFocus);
 			ok = 1;
 		}
 	}
@@ -155,11 +153,11 @@ int ViewPersonInfoBySCard(const char * pCode)
 //
 //
 //
-/*static*/IMPL_CMPMEMBFUNC(PPViewPerson, PPViewPerson_InternalViewItem_ByName, i1, i2, void * pExtraData)
+/*static*/IMPL_CMPMEMBFUNC(PPViewPerson, PPViewPerson_InternalViewItem_ByName, i1, i2)
 {
-	int   si = 0;
-	const PPViewPerson::InternalViewItem * p1 = static_cast<const PPViewPerson::InternalViewItem *>(i1);
-	const PPViewPerson::InternalViewItem * p2 = static_cast<const PPViewPerson::InternalViewItem *>(i2);
+	int    si = 0;
+	const  PPViewPerson::InternalViewItem * p1 = static_cast<const PPViewPerson::InternalViewItem *>(i1);
+	const  PPViewPerson::InternalViewItem * p2 = static_cast<const PPViewPerson::InternalViewItem *>(i2);
 	if(pExtraData) {
 		PPViewPerson * p_view = static_cast<PPViewPerson *>(pExtraData);
 		SString & r_nm1 = SLS.AcquireRvlStr();
@@ -4211,15 +4209,9 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 								r = 1;
 							}
 							if(r > 0 || has_images) {
-								SString img_path;
-								if(has_images) {
-									ObjLinkFiles link_files(PPOBJ_PERSON);
-									link_files.Load(hdr.ID, 0L);
-									link_files.At(0, img_path);
+								if(pBrw->ShowImageHint(SObjID(PPOBJ_PERSON, hdr.ID), buf) > 0) {
+									hover_done = true;
 								}
-								PPTooltipMessage(buf, img_path, pBrw->H(), 10000, 0, SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|
-									SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
-								hover_done = true;
 							}
 							if(!hover_done) {
 								pBrw->ShowCellStyleHint(row, col);

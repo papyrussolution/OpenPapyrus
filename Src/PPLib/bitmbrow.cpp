@@ -3273,9 +3273,7 @@ int ImportStyloScannerEntriesForBillPacket(PPBillPacket & rBp, PPLotExtCodeConta
 		for(uint ssp = 0; msg_list.get(&ssp, temp_buf);) {
 			msg_buf.Cat(temp_buf).CR();
 		}
-		PPTooltipMessage(msg_buf, 0, 0, 20000, GetColorRef(SClrLightgreen),
-			SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fChildWindow|
-			SMessageWindow::fTextAlignLeft);
+		PPTooltipMessage(msg_buf, 0, 0, 20000, GetColorRef(SClrLightgreen), SMessageWindow::fStdNotification|SMessageWindow::fChildWindow|SMessageWindow::fTextAlignLeft);
 	}*/
 	return ok;
 }
@@ -3686,9 +3684,7 @@ IMPL_HANDLE_EVENT(ValidateLotXCodeListDialog)
 						SString info_buf;
 						CodeInfoList.EntryToStr(cilidx, 0, info_buf);
 						SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления //
-						PPTooltipMessage(info_buf, 0, H(), 20000, GetColorRef(SClrSnow),
-							SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|
-							SMessageWindow::fUtf8|SMessageWindow::fTextAlignLeft|SMessageWindow::fShowOnCursor);
+						PPTooltipMessage(info_buf, 0, H(), 20000, GetColorRef(SClrSnow), SMessageWindow::fStdNotification|SMessageWindow::fUtf8|SMessageWindow::fTextAlignLeft|SMessageWindow::fShowOnCursor);
 						PopupInfoIdx = item_idx+1;
 					}
 				}
@@ -4456,16 +4452,26 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 				SPoint2S point = *static_cast<SPoint2S *>(event.message.infoPtr);
 				if(ItemByPoint(point, &col, &row)) {
 					SString temp_buf;
-					const long tooltip_flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
-						SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;								
 					if(ProblemsList.GetText(row, temp_buf) > 0) {
-						PPTooltipMessage(temp_buf, 0, H(), 10000, 0, tooltip_flags);
+						PPTooltipMessage(temp_buf, 0, H(), 10000, 0, SMessageWindow::fStdOnMouseOptions);
 						hover_done = true;
 					}
 					if(!hover_done) {
 						if(col >= 0) {
 							if(GetCellStyleDescription(row, col, temp_buf) > 0) {
-								PPTooltipMessage(temp_buf, 0, H(), 10000, 0, tooltip_flags);
+								 // @v12.7.6 {
+								const  UiDescription * p_uid = SLS.GetUiDescription();
+								int    hint_timeout = 10000;
+								{
+									int   uid_hint_timeout = 0;
+									if(p_uid->VList.Get(UiValueList::vPopUpHintTimerMs, uid_hint_timeout) && checkirange(uid_hint_timeout, 1, 3600000)) {
+										hint_timeout = uid_hint_timeout;
+									}
+								}
+								const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+								SColor color_bg = UiDescription::GetColorR(p_uid, p_cs, "popuphint_bg", SColor(0xF0, 0xF4, 0xF8));
+								// } @v12.7.6 
+								PPTooltipMessage(temp_buf, 0, H(), hint_timeout, color_bg, SMessageWindow::fStdOnMouseOptions);
 							}
 						}
 					}
@@ -5429,10 +5435,20 @@ IMPL_HANDLE_EVENT(CompleteBrowser)
 			if(ItemByPoint(point, &col, &row)) {
 				if(col >= 0) {
 					SString temp_buf;
-					const long tooltip_flags = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
-						SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow;								
 					if(GetCellStyleDescription(row, col, temp_buf) > 0) {
-						PPTooltipMessage(temp_buf, 0, H(), 10000, 0, tooltip_flags);
+							// @v12.7.6 {
+						const  UiDescription * p_uid = SLS.GetUiDescription();
+						int    hint_timeout = 10000;
+						{
+							int   uid_hint_timeout = 0;
+							if(p_uid->VList.Get(UiValueList::vPopUpHintTimerMs, uid_hint_timeout) && checkirange(uid_hint_timeout, 1, 3600000)) {
+								hint_timeout = uid_hint_timeout;
+							}
+						}
+						const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+						SColor color_bg = UiDescription::GetColorR(p_uid, p_cs, "popuphint_bg", SColor(0xF0, 0xF4, 0xF8));
+						// } @v12.7.6 
+						PPTooltipMessage(temp_buf, 0, H(), hint_timeout, color_bg, SMessageWindow::fStdOnMouseOptions);
 					}
 				}
 			}

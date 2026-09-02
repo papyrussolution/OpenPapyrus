@@ -18,7 +18,7 @@
 	}
 */
 const int ec_curve_name_id = NID_X9_62_prime256v1;
-const long __DefMqbConsumeTimeout = 5000; // @v11.4.3 5000-->10000 // @v11.4.5 10000-->5000
+const long __DefMqbConsumeTimeout = 5000;
 /*
 	RESERVED COMMANDS:
 		test
@@ -7304,7 +7304,7 @@ int PPStyloQInterchange::MakeIndexingRequestCommand(const StyloQCore::StoragePac
 		js.Insert("service", p_js_svc);
 		Stq_CmdStat_MakeRsrv_Response::RegisterOid(pStat, SObjID(PPOBJ_STYLOQBINDERY, pOwnPack->Rec.ID));
 	}
-	js.InsertString("uuid", temp_buf.Z().Cat(rDocUuid, S_GUID::fmtIDL)); // @v11.4.5
+	js.InsertString("uuid", temp_buf.Z().Cat(rDocUuid, S_GUID::fmtIDL));
 	{
 		PPIDArray goodsgrp_id_list;
 		PPIDArray brand_id_list;

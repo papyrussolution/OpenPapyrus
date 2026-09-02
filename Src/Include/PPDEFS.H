@@ -1489,6 +1489,7 @@
 #define PPTAG_GUA_CHZNTSPIOTURL        133L // @v12.5.11 Адрес компьютера, на котором установлен модуль тс-пиот для проверки марок честный знак 
 #define PPTAG_LOT_TECROUTESTAGE        134L // @v12.6.2  Последний завершенный этап технологического маршрута для лота в производстве
 #define PPTAG_LOT_TECROUTEASSIGNMENT   135L // @v12.6.5  Параметры лота, определяющие прохождение его по технологическому маршруту. Могут содержать ид маршрута и ид финального продукта
+//#define PPTAG_GOODS_SEMICHZNMARKED     136L // @v12.7.6  Товар подлежит chzn-маркировке, но чтобы продать оставшиеся немаркированные остатки допусткается отказ от сканирования марки
 //
 // Зарезервированные идентификаторы глобальных учетных записей
 //
@@ -4077,6 +4078,8 @@
 	#define CTL_GDSTYP_STKTLR            (18 + WINDOWS_ID_BIAS)
 	#define CTL_GDSTYP_CHZNPT            (19 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GDSTYP_CHZNPT         (20 + WINDOWS_ID_BIAS)
+	#define CTL_GDSTYP_CHZNSOFTMODEDT    (21 + WINDOWS_ID_BIAS)
+	#define CTLCAL_GDSTYP_CHZNSOFTMODEDT (22 + WINDOWS_ID_BIAS)
 #define DLG_QUOT                  277 // Котировка
 #define DLG_QUOTNEW               291 // Новая котировка
 	#define CTL_QUOT_GGRP                (1 + WINDOWS_ID_BIAS)
@@ -9211,13 +9214,15 @@
 	#define CTL_ARGOODSCODE_AR           (7 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ARGOODSCODE_AR        (8 + WINDOWS_ID_BIAS)
 #define DLG_LAUNCHAPP            1003
-	#define CTL_LAUNCHAPP_APP                (1 + WINDOWS_ID_BIAS)
-	#define CTLBRW_LAUNCHAPP_APP             (2 + WINDOWS_ID_BIAS)
-	#define CTL_LAUNCHAPP_PARAMS             (3 + WINDOWS_ID_BIAS)
-	#define CTL_LAUNCHAPP_FLAGS              (4 + WINDOWS_ID_BIAS)
-	#define CTL_LAUNCHAPP_SERVER		 (5 + WINDOWS_ID_BIAS)
-	#define CTL_LAUNCHAPP_USER		 (6 + WINDOWS_ID_BIAS)
-	#define CTL_LAUNCHAPP_PWD		 (7 + WINDOWS_ID_BIAS)
+	#define CTL_LAUNCHAPP_APP            (1 + WINDOWS_ID_BIAS)
+	#define CTLBRW_LAUNCHAPP_APP         (2 + WINDOWS_ID_BIAS)
+	#define CTL_LAUNCHAPP_PARAMS         (3 + WINDOWS_ID_BIAS)
+	#define CTL_LAUNCHAPP_FLAGS          (4 + WINDOWS_ID_BIAS)
+	#define CTL_LAUNCHAPP_SERVER         (5 + WINDOWS_ID_BIAS)
+	#define CTL_LAUNCHAPP_USER           (6 + WINDOWS_ID_BIAS)
+	#define CTL_LAUNCHAPP_PWD            (7 + WINDOWS_ID_BIAS)
+	#define CTL_LAUNCHAPP_REMOTE         (8 + WINDOWS_ID_BIAS) // @v12.7.6
+	#define CTL_LAUNCHAPP_ST_INFO        (9 + WINDOWS_ID_BIAS) // @v12.7.6
 #define DLG_C_LINKBILL           1004 // CC_LBILL Проверка связанных документов
 	#define CTL_C_LINKBILL_LOG           (1 + WINDOWS_ID_BIAS)
 	#define CTL_C_LINKBILL_FLAGS         (2 + WINDOWS_ID_BIAS)

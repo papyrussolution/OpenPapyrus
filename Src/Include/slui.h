@@ -1362,6 +1362,8 @@ public:
 		vPopUpMsgWinDefTimerMs,          // @v12.7.1 popupmsgwin_deftimerms          [60000] // время, в течении которого всплывающее окно сообщений висит на экране (в миллисекундах)
 		vPopUpMsgWinMaxWidthToParentRel, // @v12.7.1 popupmsgwin_maxwidthtoparentrel [2] // Максимальное отношение ширины окна к ширине родительского окна
 		vPopUpMsgWinMaxWrapLines,        // @v12.7.1 popupmsgwin_maxwraplines        [10] // Максимальное количество выводимых строк, на которое разбивается длинная строка
+		vPopUpHintTimerMs,               // @v12.7.6 popuphint_timerms               [10000] // время, в течении которого всплывающее подсказка висит на экране (в миллисекундах)
+		vPopUpImgHintTimerMs,            // @v12.7.6 popupimghint_timerms            [10000] // время, в течении которого всплывающее изображение висит на экране (в миллисекундах) 
 	};
 	union ValueUnion {
 		ValueUnion();
@@ -5655,6 +5657,10 @@ public:
 		fMaxImgSize        = 0x00008000, // Максимальный размер окна для подробного отображения картинки
 		fShowOnRUCorner    = 0x00010000, // Отображать окно в правом верхнем углу
 		fUtf8              = 0x00020000, // @v12.7.0 Текст передается в кодировке utf8
+		
+		fStdOnMouseOptions    = fShowOnCursor|fCloseOnMouseLeave|fTextAlignLeft|fOpaque|fSizeByText|fChildWindow, // @v12.7.6
+		fStdNotification      = fTopmost|fSizeByText|fPreserveFocus, // @v12.7.6
+		fStdLargeNotification = fTopmost|fSizeByText|fPreserveFocus|fLargeText, // @v12.7.6
 	};
 	//
 	// Descr: Разрушает все окна сообщений, которые имеют родительское окно parent.

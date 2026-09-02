@@ -3863,10 +3863,10 @@ int PPViewCCheck::RemoveAll()
 
 void PPViewCCheck::ViewTotal()
 {
-	TDialog * dlg = 0;
+	TDialog * dlg = new TDialog(DLG_CCHECKTOTAL);
 	CCheckTotal total;
 	CalcTotal(&total);
-	if(CheckDialogPtrErr(&(dlg = new TDialog(DLG_CCHECKTOTAL)))) {
+	if(CheckDialogPtrErr(&dlg)) {
 		dlg->setCtrlLong(CTL_CCHECKTOTAL_COUNT,    total.Count);
 		dlg->setCtrlReal(CTL_CCHECKTOTAL_QTTY,     total.Qtty);
 		dlg->setCtrlReal(CTL_CCHECKTOTAL_AMOUNT,   total.Amount);
@@ -3885,7 +3885,8 @@ void PPViewCCheck::ViewTotal()
 int PPViewCCheck::AddItem()
 {
 	if(!Filt.Grp) {
-		int  to_view = 0, close_imm = 0;
+		int    to_view = 0;
+		int    close_imm = 0;
 		if(CsObj.CheckRights(CSESSRT_ADDCHECK))
 			to_view = 1;
 		// Допускается работа с кассовой панелью (в ограниченом режиме: можно создать отложенный чек, но нельзя чек провести)
@@ -3899,8 +3900,8 @@ int PPViewCCheck::AddItem()
 				int    r = cmOK;
 				PPCashMachine * p_cm = PPCashMachine::CreateInstance(cn_id), * p_cm_ext = 0;
 				if(p_cm) {
-					PPSyncCashNode  scn;
-					PPObjCashNode   cn_obj;
+					PPSyncCashNode scn;
+					PPObjCashNode cn_obj;
 					if(cn_obj.GetSync(cn_id, &scn) > 0) {
 						LDATE  dt = ZERODATE;
 						if(scn.Flags & CASHF_NOMODALCHECKVIEW)

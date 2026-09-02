@@ -1,5 +1,5 @@
 // SLTESTAPP.CPP
-// Copyright (c) A.Sobolev 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Тестовое приложение для отработки функций запуска и управления системными процессами
 //
@@ -182,6 +182,8 @@ int main(int argc, char * argv[], char * envp[])
 	SString out_buf;
 	SString policypath;
 	SString report_file_name;
+	SString func_to_exec; // @v12.7.6 Имя функции, которую следует запустить.
+	SString func_to_exec_arg; // @v12.7.6 Аргумент функции, которую следует запустить.
 	WsCtl_ClientPolicy policy;
 	PPGetFilePath(PPPATH_BIN, "sltestapp-report.txt", report_file_name);
 	SFile f_rep(report_file_name, SFile::mWrite);
@@ -199,8 +201,39 @@ int main(int argc, char * argv[], char * envp[])
 			temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 			out_buf.Z().Tab().Cat(temp_buf).CR();
 			slfprintf_stderr(out_buf);
-			if(temp_buf.IsEqiAscii("policypath") && (i+1) < argc) {
-				policypath = argv[++i];
+			bool   arg_is_done = false;
+			if(!arg_is_done) {
+				const char * p_arg = "policypath";
+				const size_t arg_len = sstrlen(p_arg);
+				if(temp_buf.HasPrefixIAscii(p_arg)) {
+					if(temp_buf.IsEqiAscii(p_arg)) {
+						if((i+1) < argc) {
+							policypath = argv[++i];
+						}
+						arg_is_done = true;
+					}
+					else if(temp_buf.C(arg_len) == ':') {
+						temp_buf.Sub(arg_len+1, temp_buf.Len(), policypath);
+					}
+				}
+			}
+			if(!arg_is_done) {
+				const char * p_arg = "execfunc";
+				if(temp_buf.IsEqiAscii(p_arg)) { // @v12.7.6
+					if((i+1) < argc) {
+						func_to_exec = argv[++i];
+					}
+					arg_is_done = true;
+				}
+			}
+			if(!arg_is_done) {
+				const char * p_arg = "execfuncarg";
+				if(temp_buf.IsEqiAscii(p_arg)) { // @v12.7.6
+					if((i+1) < argc) {
+						func_to_exec_arg = argv[++i];
+					}
+					arg_is_done = true;
+				}
 			}
 		}
 	}
@@ -332,6 +365,11 @@ int main(int argc, char * argv[], char * envp[])
 			}
 		}
 	}
+	// @v12.7.6 {
+	if(func_to_exec.NotEmpty()) {
+		
+	}
+	// } @v12.7.6 
 	slfprintf_stderr("Press [Enter] to finish...\n");
 	getchar();
 	return result;
