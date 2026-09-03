@@ -979,16 +979,19 @@ int PPObjArticle::EditDialog(ArticleDlgData * pData)
 	ArticleDialog * dlg = 0;
 	PPObjAccSheet acs_obj;
 	THROW(acs_obj.Search(pData->Rec.AccSheetID, &acs_rec) > 0);
-	if(pData->Options & ArticleDlgData::fAssocAccnt)
+	if(pData->Options & ArticleDlgData::fAssocAccnt) {
 		dlg_id = DLG_ARTICLEACC;
-	else if(acs_rec.Flags & ACSHF_USEALIASSUBST)
+	}
+	else if(acs_rec.Flags & ACSHF_USEALIASSUBST) {
 		dlg_id = DLG_ARTICLE2;
+	}
 	else if(pData->Options & ArticleDlgData::fAllowUpdLinkObj && acs_rec.Assoc && PPMaster) {
 		dlg_id = DLG_ARTICLE_RL;
 		sel_linkobj = 1;
 	}
-	else
+	else {
 		dlg_id = DLG_ARTICLE;
+	}
 	THROW(CheckDialogPtr(&(dlg = new ArticleDialog(dlg_id, pData))));
 	dlg->enableCommand(cmOK, CheckRights(PPR_MOD));
 	dlg->setCtrlLong(CTL_ARTICLE_ID, pData->Rec.ID);

@@ -4721,6 +4721,8 @@ public:
 	SString & Utf8ToUpper();
 	SString & ToUpper();
 	SString & ToLower();
+	SString & ToUpperAscii(); // @v12.7.7
+	SString & ToLowerAscii(); // @v12.7.7
 	SString & ToUpper1251();
 	SString & ToLower1251();
 	SString & FASTCALL SetCase(int ccas);
@@ -12865,7 +12867,6 @@ int STDCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags);
 #define SNTOK_CHZN_GENERAL              64 // @v12.6.5  Код можно трактовать как маркировку честного знака (в любом из вариантов). Часто совмещен с одним из иных варантов SNTOK_CHZN_XXX
 #define SNTOK_RU_LICPLATE               65 // @v12.7.4  Автомобильный номер (российский) @construction 
 #define SNTOK_WININTERNALCMD            66 // @v12.7.6  Внутренняя команда windows 
-#define SNTOK_WININTERNALCMD_CF         67 // @v12.7.6  Внутренняя команда windows (control flow) - т.е. команды, управляющие потоком исполнения - if, for, exit etc)
 
 #define SNTOKSEQ_DEC                0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR             0x00000002 // a-z

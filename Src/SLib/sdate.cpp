@@ -3146,7 +3146,7 @@ SString & SUniTime_Internal::TimeToStr(long fmt, SString & rBuf) const // @v12.6
 			*p++ = ' ';
 			*p++ = ((tz < 0) ? '+' : '-');
 			tz = abs(tz);
-			sprintf(p, "%02d%02d", tz / 60, tz % 60);
+			sprintf(p, "%02d:%02d", tz / 60, tz % 60); // @v12.7.7 @fix "%02d%02d"-->"%02d:%02d"
 		}
 	}
 	_commfmt(fmt, buf);

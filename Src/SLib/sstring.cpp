@@ -2677,6 +2677,18 @@ SString & SString::ToLower()
 	return *this;
 }
 
+SString & SString::ToUpperAscii() // @v12.7.7
+{
+	strupr_ascii(P_Buf);
+	return *this;
+}
+
+SString & SString::ToLowerAscii() // @v12.7.7
+{
+	strlwr_ascii(P_Buf);
+	return *this;
+}
+
 SString & SString::ToUpper1251()
 {
 	strupr1251(P_Buf);

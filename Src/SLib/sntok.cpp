@@ -100,7 +100,6 @@ static const SIntToSymbTabEntry SNTokSymb_List[] = {
 	{ SNTOK_SSCC, "sscc" }, // @v12.4.5
 	{ SNTOK_RU_LICPLATE, "ru-license-plate" }, // @v12.7.4
 	{ SNTOK_WININTERNALCMD, "win-internal-cmd" }, // @v12.7.6
-	{ SNTOK_WININTERNALCMD_CF, "win-internal-cf-cmd" }, // @v12.7.6
 };
 
 SNaturalToken::SNaturalToken() : ID(0), Prob(0.0f), Count(0)
@@ -380,6 +379,7 @@ template <class T> bool IsRuLicPlate(const T & rText, const T & rSet)
 
 int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat)
 {
+	//Temp
 	int    ok = 1;
 	uint32 h = 0;
 	rIb.Init(pToken, len);
@@ -798,7 +798,18 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 				}
 			}
 			if(h & SNTOKSEQ_LAT) { // @v12.7.6
-				// SNTOK_WININTERNALCMD SNTOK_WININTERNALCMD_CF
+				if(toklen >= 2 && toklen <= 10) {
+					// @fixme Это способ идентификации токена очень медленный (облагает "налогом" все ascii-токены) - надо как-то оптимизировать
+					static const char * p_win_internal_cmd_list =
+						",ASSOC,ATTRIB,BREAK,CALL,CD,CHCP,CHDIR,CLS,CMD,COLOR,COPY,DATE,DEL,DIR,DPATH,ECHO,ENDLOCAL,ERASE,EXIT,FOR,FTYPE,"
+						"GOTO,GRAFTABL,HELP,IF,LABEL,MD,MKDIR,MKLINK,MODE,MORE,MOVE,PATH,PAUSE,POPD,PROMPT,PUSHD,RD,REM,REN,RENAME,RMDIR,SET,SETLOCAL,SHIFT,SORT,START,SUBST,TIME,"
+						"TITLE,TYPE,VER,VERIFY,VOL,XCOPY,";
+					rIb.Temp.Z().CatChar(',').Cat(reinterpret_cast<const char *>(pToken)).ToUpperAscii().CatChar(',');
+					const char * p = strstr(p_win_internal_cmd_list, rIb.Temp.cptr());
+					if(p) {
+						rResultList.AddTok(SNTOK_WININTERNALCMD, 0.4f, 0);
+					}
+				}
 			}
 			if(h & SNTOKSEQ_DEC) {
 				rIb.F &= ~ImplementBlock::fRuLicPlateSet; // @v12.7.4

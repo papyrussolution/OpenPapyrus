@@ -10190,6 +10190,9 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName, StringSet &
 				}
 				{
 					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION));
+					//PPHSC_RU_CONSIGNORDIRECTION_NORM   "УкНормПрвз" // @v12.7.7 Указания в отношении выполнения норм перевозки (для выполнения фитосанитарных, санитарных, карантинных, таможенных и прочих требований, установленных законодательством Российской Федерации)
+					//PPHSC_RU_ABSENCE               "Отсутствует"
+					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_CONSIGNORDIRECTION_NORM), G.GetToken_Ansi(PPHSC_RU_ABSENCE)); // @v12.7.7
 					{
 						//PPHSC_RU_CONSIGNORDIRECTION_REDIR  "СвПА" // Сведения о процедуре переадресовки
 						//PPHSC_RU_CONSIGNORDIRECTION_REDIRCONTACT "КонтПА"

@@ -1558,6 +1558,25 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					}
 				}
 			}
+			{ // @v12.7.7
+				tr.Run((const uchar *)"DiR", -1, nta.Z(), &nts); 
+				SLCHECK_LT(0.0f, nta.Has(SNTOK_WININTERNALCMD));
+				tr.Run((const uchar *)"VER", -1, nta.Z(), &nts); 
+				SLCHECK_LT(0.0f, nta.Has(SNTOK_WININTERNALCMD));
+				tr.Run((const uchar *)"verIfy", -1, nta.Z(), &nts); 
+				SLCHECK_LT(0.0f, nta.Has(SNTOK_WININTERNALCMD));
+				tr.Run((const uchar *)"verIfy", -1, nta.Z(), &nts); 
+				SLCHECK_LT(0.0f, nta.Has(SNTOK_WININTERNALCMD));
+				tr.Run((const uchar *)"ren", -1, nta.Z(), &nts); 
+				SLCHECK_LT(0.0f, nta.Has(SNTOK_WININTERNALCMD));
+				tr.Run((const uchar *)"renamE", -1, nta.Z(), &nts); 
+				SLCHECK_LT(0.0f, nta.Has(SNTOK_WININTERNALCMD));
+				//
+				tr.Run((const uchar *)",ren,", -1, nta.Z(), &nts); 
+				SLCHECK_EQ(0.0f, nta.Has(SNTOK_WININTERNALCMD));
+				tr.Run((const uchar *)"vir", -1, nta.Z(), &nts); 
+				SLCHECK_EQ(0.0f, nta.Has(SNTOK_WININTERNALCMD));
+			}
 		}
 		{
 			// @v12.6.1

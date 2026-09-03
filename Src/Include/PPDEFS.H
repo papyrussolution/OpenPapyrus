@@ -2402,6 +2402,7 @@
 	#define CTL_ARTICLE_LINKOBJ          (12 + WINDOWS_ID_BIAS)
 	#define CTLSEL_ARTICLE_LINKOBJ       (13 + WINDOWS_ID_BIAS)
 	#define CTL_ARTICLE_ID               (14 + WINDOWS_ID_BIAS)
+	#define CTL_ARTICLE_CMD_CLEARAGREEMENT (15 + WINDOWS_ID_BIAS)
 #define DLG_ACCOUNT                58 // Балансовый счет
 #define DLG_ACCREGISTER            59 // Бухгалтерский регистр
 	#define CTL_ACCOUNT_NUMBER           (1 + WINDOWS_ID_BIAS)

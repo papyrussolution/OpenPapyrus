@@ -7834,3 +7834,34 @@ dialog DLG_PSNFLT [vertical title: "@personfilt" size: (770, 385) minsize: (770,
 		}
 	}
 }
+
+dialog DLG_ARTICLE__ [vertical title: "@{obj_article}" size: (575, 295) minsize: (575, 295) padding: 4 justifycontent: spacebetween] { // @v12.7.7 @construction
+	view [horizontal width: bycontainer height: 40] {
+		input CTL_ARTICLE_SHEETNAME [growfactor: 2 height: 21 margin: 4 tabstop label: "@accsheet"] string[48];
+		input CTL_ARTICLE_NUMBER [growfactor: 1 height: 21 margin: 4 tabstop label: "@number"] int32;
+		input CTL_ARTICLE_ID [size: (75, 21) margin: 4 readonly fmtf: (nozero) label: "@id"] int32;
+	}
+	input CTL_ARTICLE_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@appellation"] string[128];
+	//input CTL_ARTICLE_ACCESS [size: (60, 21)  tabstop label: "@article_accesslevel"] int16;
+	view [horizontal width: bycontainer height: 30] {
+		checkbox CTL_ARTICLE_CLOSED [title: "@article_closed" tabstop size: (100, 21) margin: 4];
+		checkbox CTL_ARTICLE_FLAGS [title: "@stop" tabstop size: (100, 21) margin: 4];
+	}
+	view [horizontal width: bycontainer height: 90] {
+		framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4 alignitems: center] {
+			view [horizontal width: bycontainer growfactor: 1] {
+				button STDCTL_AGREEMENTBUTTON [title: "@but_agreement" tabstop size: (128, 21) margin: (4, 4, 2, 4) command: cmAgreement];
+				imageview CTL_ARTICLE_AGTISEMPTY [size: (23, 21) margin: (2, 4, 4, 4)];
+			}
+			button CTL_ARTICLE_CMD_CLEARAGREEMENT [title: "@article_clearagt" tabstop size: (128, 21) margin: (4, 4, 2, 4) command: cmClearAgreement];
+		}
+		view [horizontal growfactor: 1 height: bycontainer justifycontent: start alignitems: end] {
+			button STDCTL_MORE [title: "@linkobject" tabstop size: (128, 21) margin: 4 command: cmaMore];
+		}
+		view [horizontal growfactor: 1 height: bycontainer margin_right: 12 justifycontent: end alignitems: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+	//framebox [origin: (8, 163) size: (173, 81) ];
+}
