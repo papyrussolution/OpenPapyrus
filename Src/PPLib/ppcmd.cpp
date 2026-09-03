@@ -5089,7 +5089,47 @@ private:
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
-		if(event.isClusterClk(CTL_LAUNCHAPP_FLAGS)) {
+		if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_LAUNCHAPP_APP)) {
+			SString temp_buf;
+			SString info_buf;
+			getCtrlString(CTL_LAUNCHAPP_APP, temp_buf);
+			if(temp_buf.NotEmptyS()) {
+				SNaturalTokenArray nta;
+				temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+				Tr.Run(temp_buf, nta, 0);
+				if(nta.Has(SNTOK_WININTERNALCMD)) {
+					info_buf.CatDivIfNotEmpty(' ', 0).Cat("windows-internal-command");
+				}
+				{
+					if(fileExists(temp_buf)) {
+						info_buf.CatDivIfNotEmpty(' ', 0).Cat("file-name");
+					}
+					else if(SFile::IsDir(temp_buf)) {
+						info_buf.CatDivIfNotEmpty(' ', 0).Cat("directory");
+					}
+				}
+				const  int winsvc_status = WinService::GetStatus(temp_buf);
+				if(winsvc_status > 0) {
+					info_buf.CatDivIfNotEmpty(' ', 0).Cat("windows-service");
+					const  char * p_status_text = 0;
+					switch(winsvc_status) {
+						case WinService::svcstStopped: p_status_text = "stopped"; break;
+						case WinService::svcstStartPending: p_status_text = "start_pending"; break;
+						case WinService::svcstStopPending: p_status_text = "stop_pending"; break;
+						case WinService::svcstRunning: p_status_text = "running"; break;
+						case WinService::svcstContinuePending: p_status_text = "continue_pending"; break;
+						case WinService::svcstPausePending: p_status_text = "pause_pending"; break;
+						case WinService::svcstPaused: p_status_text = "paused"; break;
+					}
+					if(p_status_text) {
+						info_buf.Space().CatParStr(p_status_text);
+					}
+				}
+			}
+			setCtrlString(CTL_LAUNCHAPP_ST_INFO, info_buf);
+			clearEvent(event);
+		}
+		else if(event.isClusterClk(CTL_LAUNCHAPP_FLAGS)) {
 			GetClusterData(CTL_LAUNCHAPP_FLAGS, &Data.Flags);
 			SetupCtrls();
 			clearEvent(event);
@@ -5108,6 +5148,7 @@ private:
 		setCtrlReadOnly(CTL_LAUNCHAPP_USER, !is_remote_);
 		setCtrlReadOnly(CTL_LAUNCHAPP_PWD, !is_remote_);
 	}
+	STokenRecognizer Tr;
 };
 
 PrcssrOuterProcessExecution::PrcssrOuterProcessExecution()
@@ -5142,72 +5183,10 @@ int PrcssrOuterProcessExecution::Run()
 			::ShellExecuteW(0, L"open", app_name_u, NULL, NULL, SW_SHOWNORMAL);
 		}
 		else {
-			const char * p_internal_cml_list[] = {
-				"BREAK",
-				"EXIT",
-				"FOR",
-				"GOTO",
-				"IF",
-				"LABEL",
-				"REM",
-				"SET",
-				"START",
-
-				"ASSOC",
-				"ATTRIB",
-				"CALL",
-				"CD",
-				"CHCP",
-				"CHDIR",
-				"CLS",
-				"COLOR",
-				"COPY",
-				"DATE",
-				"DEL",
-				"DIR",
-				"DPATH",
-				"ECHO",
-				"ENDLOCAL",
-				"ERASE",
-				"FTYPE",
-				"GRAFTABL",
-				"HELP",
-				"MD",
-				"MKDIR",
-				"MKLINK",
-				"MODE",
-				"MORE",
-				"MOVE",
-				"PATH",
-				"PAUSE",
-				"POPD",
-				"PROMPT",
-				"PUSHD",
-				"RD",
-				"REN",
-				"RENAME",
-				"RMDIR",
-				"SETLOCAL",
-				"SHIFT",
-				"SORT",
-				"SUBST",
-				"TIME",
-				"TITLE",
-				"TYPE",
-				"VER",
-				"VERIFY",
-				"VOL",
-				"XCOPY",
-				"CMD",
-			};
-			bool    is_internal_cmd = false;
-			{
-				for(uint i = 0; !is_internal_cmd && i < SIZEOFARRAY(p_internal_cml_list); i++) {
-					if(P.AppNameUtf8.IsEqiAscii(p_internal_cml_list[i]))
-						is_internal_cmd = true;
-				}
-			}
-			if(is_internal_cmd) {
+			STokenRecognizer tr;
+			SNaturalTokenArray nta;
+			tr.Run(P.AppNameUtf8, nta, 0);
+			if(nta.Has(SNTOK_WININTERNALCMD)) {
 				// Пока самый наипростейший способ запуска внутренней команды
 				temp_buf = P.AppNameUtf8;
 				if(P.CmdLineUtf8.NotEmpty()) {
@@ -5216,41 +5195,56 @@ int PrcssrOuterProcessExecution::Run()
 				system(temp_buf); // Работает, но @todo модифицировать SlProcess так что бы он мог запускать внутренние команды
 			}
 			else {
-				SFileFormat ff;
-				if(!fileExistsU(app_name_u)) {
-					if(SlProcess::FindFullPathByProcessFileName(P.AppNameUtf8, temp_buf)) {
-						app_name_u.CopyFromUtf8(temp_buf);
-					}
-				}
-				THROW(fileExistsU(app_name_u));
-				const int fir = ff.Identify(P.AppNameUtf8, 0);
-				if(fir == 3 && ff == SFileFormat::Exe) {
-					SlProcess::Result prc_result;
-					SlProcess prc;
-					prc.SetPath(app_name_u);
-					SFsPath ps(P.AppNameUtf8);
-					ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
-					if(temp_buf.NotEmpty())
-						prc.SetWorkingDir(temp_buf);
-					if(P.CmdLineUtf8.NotEmpty()) {
-						StringSet ss_arg;
-						SlProcess::SplitCmdLine(P.CmdLineUtf8, 0, ss_arg);
-						for(uint ssp = 0; ss_arg.get(&ssp, temp_buf);) {
-							prc.AddArg(temp_buf);
+				const  int winsvc_status = WinService::GetStatus(P.AppNameUtf8);
+				if(winsvc_status > 0) {
+					if(P.CmdLineUtf8.IsEqiUtf8("start") || P.CmdLineUtf8.IsEqiUtf8("run")) {
+						if(winsvc_status == WinService::svcstStopped) {
+							WinService::Start(P.AppNameUtf8);
 						}
 					}
-					if(prc.Run(&prc_result)) {
-						ok = 1;
+					else if(P.CmdLineUtf8.IsEqiUtf8("stop")) {
+						if(winsvc_status != WinService::svcstStopped) {
+							WinService::Stop(P.AppNameUtf8);
+						}
 					}
 				}
 				else {
-					SStringU param_u;
-					const  wchar_t * p_param = 0;
-					if(P.CmdLineUtf8.NotEmpty()) {
-						param_u.CopyFromUtf8(P.CmdLineUtf8);
-						p_param = param_u.ucptr();
+					SFileFormat ff;
+					if(!fileExistsU(app_name_u)) {
+						if(SlProcess::FindFullPathByProcessFileName(P.AppNameUtf8, temp_buf)) {
+							app_name_u.CopyFromUtf8(temp_buf);
+						}
 					}
-					::ShellExecuteW(0, L"open", app_name_u, p_param, NULL, SW_SHOWNORMAL);
+					THROW(fileExistsU(app_name_u));
+					const int fir = ff.Identify(P.AppNameUtf8, 0);
+					if(fir == 3 && ff == SFileFormat::Exe) {
+						SlProcess::Result prc_result;
+						SlProcess prc;
+						prc.SetPath(app_name_u);
+						SFsPath ps(P.AppNameUtf8);
+						ps.Merge(SFsPath::fDrv|SFsPath::fDir, temp_buf);
+						if(temp_buf.NotEmpty())
+							prc.SetWorkingDir(temp_buf);
+						if(P.CmdLineUtf8.NotEmpty()) {
+							StringSet ss_arg;
+							SlProcess::SplitCmdLine(P.CmdLineUtf8, 0, ss_arg);
+							for(uint ssp = 0; ss_arg.get(&ssp, temp_buf);) {
+								prc.AddArg(temp_buf);
+							}
+						}
+						if(prc.Run(&prc_result)) {
+							ok = 1;
+						}
+					}
+					else {
+						SStringU param_u;
+						const  wchar_t * p_param = 0;
+						if(P.CmdLineUtf8.NotEmpty()) {
+							param_u.CopyFromUtf8(P.CmdLineUtf8);
+							p_param = param_u.ucptr();
+						}
+						::ShellExecuteW(0, L"open", app_name_u, p_param, NULL, SW_SHOWNORMAL);
+					}
 				}
 			}
 		}

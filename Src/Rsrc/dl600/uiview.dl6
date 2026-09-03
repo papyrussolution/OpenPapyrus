@@ -7835,7 +7835,7 @@ dialog DLG_PSNFLT [vertical title: "@personfilt" size: (770, 385) minsize: (770,
 	}
 }
 
-dialog DLG_ARTICLE__ [vertical title: "@{obj_article}" size: (575, 295) minsize: (575, 295) padding: 4 justifycontent: spacebetween] { // @v12.7.7 @construction
+dialog DLG_ARTICLE_ [vertical title: "@{obj_article}" size: (575, 295) minsize: (575, 295) padding: 4 justifycontent: spacebetween] { // @v12.7.7 @construction
 	view [horizontal width: bycontainer height: 40] {
 		input CTL_ARTICLE_SHEETNAME [growfactor: 2 height: 21 margin: 4 tabstop label: "@accsheet"] string[48];
 		input CTL_ARTICLE_NUMBER [growfactor: 1 height: 21 margin: 4 tabstop label: "@number"] int32;
@@ -7851,7 +7851,7 @@ dialog DLG_ARTICLE__ [vertical title: "@{obj_article}" size: (575, 295) minsize:
 		framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4 alignitems: center] {
 			view [horizontal width: bycontainer growfactor: 1] {
 				button STDCTL_AGREEMENTBUTTON [title: "@but_agreement" tabstop size: (128, 21) margin: (4, 4, 2, 4) command: cmAgreement];
-				imageview CTL_ARTICLE_AGTISEMPTY [size: (23, 21) margin: (2, 4, 4, 4)];
+				statictext CTL_ARTICLE_AGTISEMPTY [bitmap size: (23, 21) margin: (2, 4, 4, 4)];
 			}
 			button CTL_ARTICLE_CMD_CLEARAGREEMENT [title: "@article_clearagt" tabstop size: (128, 21) margin: (4, 4, 2, 4) command: cmClearAgreement];
 		}

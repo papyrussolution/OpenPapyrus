@@ -828,7 +828,7 @@ void ArticleDialog::SetEmptyAgreementInd()
 		if((P_Data->P_CliAgt && ArObj.HasClientAgreement(ar_id)) || (P_Data->P_SupplAgt && ArObj.HasSupplAgreement(ar_id)))
 			bmp_id = IDB_GREEN;
 	}
-	SetCtrlBitmap(CTL_ARTICLE_AGTISEMPTY, bmp_id);
+	SetCtrlBitmap(CTL_ARTICLE_AGTISEMPTY, bmp_id); // SS_BITMAP
 }
 //
 //

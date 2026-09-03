@@ -1031,7 +1031,7 @@ void TDialog::DisableClusterItems(uint ctlID, const LongArray & rItemIdxList /* 
 	}
 }
 
-int TDialog::SetClusterItemText(uint ctlID, int itemNo /* 0.. */, const char * pText)
+int TDialog::SetClusterItemText(uint ctlID, int itemNo/*0..*/, const char * pText)
 {
 	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
 	return p_clu ? p_clu->SetText(itemNo, pText) : 0;
@@ -1042,8 +1042,19 @@ int TDialog::SetCtrlBitmap(uint ctlID, uint bmID)
 	int    ok = 0;
 	HBITMAP h_bm = APPL->FetchBitmap(bmID);
 	if(h_bm) {
-		::SendDlgItemMessageW(H(), ctlID, STM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_bm));
-		ok = 1;
+		TView * p_view = getCtrlView(ctlID);
+		if(TView::IsSubSign(p_view, TV_SUBSIGN_STATIC) || TView::IsSubSign(p_view, TV_SUBSIGN_IMAGEVIEW)) {
+			HWND   hw = p_view->getHandle();
+			if(hw) {
+				long   style = TView::SGetWindowStyle(hw);
+				if(!(style & SS_BITMAP)) {
+					style |= SS_BITMAP;
+					TView::SetWindowProp(hw, GWL_STYLE, reinterpret_cast<void *>(style));
+				}
+				::SendMessageW(hw, STM_SETIMAGE, IMAGE_BITMAP, reinterpret_cast<LPARAM>(h_bm));
+				ok = 1;
+			}
+		}
 	}
 	return ok;
 }
@@ -1063,9 +1074,11 @@ int TDialog::SetupInputLine(uint ctlID, TYPEID typ, long format)
 void TDialog::SetupSpin(uint ctlID, uint buddyCtlID, int low, int upp, int cur)
 {
 	HWND   hw = H();
-	::SendDlgItemMessageW(hw, ctlID, UDM_SETBUDDY, reinterpret_cast<WPARAM>(GetDlgItem(hw, buddyCtlID)), 0);
-	::SendDlgItemMessageW(hw, ctlID, UDM_SETRANGE, 0, MAKELONG(upp, low));
-	::SendDlgItemMessageW(hw, ctlID, UDM_SETPOS, 0, MAKELONG(cur, 0));
+	if(hw) {
+		::SendDlgItemMessageW(hw, ctlID, UDM_SETBUDDY, reinterpret_cast<WPARAM>(GetDlgItem(hw, buddyCtlID)), 0);
+		::SendDlgItemMessageW(hw, ctlID, UDM_SETRANGE, 0, MAKELONG(upp, low));
+		::SendDlgItemMessageW(hw, ctlID, UDM_SETPOS, 0, MAKELONG(cur, 0));
+	}
 }
 //
 //

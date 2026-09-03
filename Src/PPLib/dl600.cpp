@@ -1970,7 +1970,7 @@ int DlContext::TypeCast(DLSYMBID srcTyp, DLSYMBID destTyp, int cvt, const void *
 	uint   pos_dest = 0;
 	if(srcTyp == destTyp) {
 		if(cvt) {
-			if(te_src.T.IsZStr(0)) {
+			if(te_src.T.IsZStr(static_cast<size_t *>(0))) {
 				SString * p_dest_str = *static_cast<SString **>(pDestData);
 				const SString * p_src_str = *static_cast<const SString * const *>(pSrcData);
 				*p_dest_str = *p_src_str;

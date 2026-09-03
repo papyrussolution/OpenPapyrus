@@ -3195,7 +3195,7 @@ public:
 		AddClusterAssoc(CTL_UICFG_FLAGS, 11, UserInterfaceSettings::fExtGoodsSelHideGenerics);
 		AddClusterAssoc(CTL_UICFG_FLAGS, 12, UserInterfaceSettings::fPollVoipService);
 		AddClusterAssoc(CTL_UICFG_FLAGS, 13, UserInterfaceSettings::fStringHistoryDisabled);
-		AddClusterAssoc(CTL_UICFG_FLAGS, 14, UserInterfaceSettings::fDateTimePickerBefore1124); // @v11.2.6
+		AddClusterAssoc(CTL_UICFG_FLAGS, 14, UserInterfaceSettings::fDateTimePickerBefore1124);
 		INVERSEFLAG(Data.Flags, UserInterfaceSettings::fDontExitBrowserByEsc);
 		SetClusterData(CTL_UICFG_FLAGS, Data.Flags);
 		// @v12.4.9 {
@@ -8222,7 +8222,13 @@ void PPDialogConstructor::InsertControlItems(TWindow * pW, DlContext & rCtx, con
 					if(stage == insertctrlstageMain) {
 						TRect  rc;
 						const  uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
-						uint   spc_flags = (ui_flags & UiItemKind::fStaticEdge) ? TStaticText::spcfStaticEdge : 0;
+						uint   spc_flags = 0;
+						if(ui_flags & UiItemKind::fStaticEdge)
+							spc_flags |= TStaticText::spcfStaticEdge;
+						// @v12.7.6 {
+						if(ui_flags & UiItemKind::fBitmap)
+							spc_flags |= TStaticText::spcfBitmap;
+						// } @v12.7.6
 						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);
 						TStaticText * p_ctl = new TStaticText(rc, spc_flags, ctl_text);
 						pW->InsertCtlWithCorrespondingNativeItem(p_ctl, item_id, 0, /*extraPtr*/0);
@@ -8493,7 +8499,11 @@ void PPDialogConstructor::InsertControlItems(TWindow * pW, DlContext & rCtx, con
 					if(stage == insertctrlstageMain) {
 						TRect  rc;
 						const  uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
-						const  uint spc_flags = (ui_flags & UiItemKind::fStaticEdge) ? TImageView::spcfStaticEdge : 0; // @v12.6.9
+						uint   spc_flags = 0; 
+						if(ui_flags & UiItemKind::fStaticEdge) // @v12.6.9
+							spc_flags |= TImageView::spcfStaticEdge;
+						if(ui_flags & UiItemKind::fBitmap) // @v12.7.6
+							spc_flags |= TImageView::spcfBitmap;
 						SString img_symb;
 						rCtx.GetConst_String(p_scope, DlScope::cuifImageSymb, img_symb);
 						rCtx.GetConst_String(p_scope, DlScope::cuifCtrlText, ctl_text);

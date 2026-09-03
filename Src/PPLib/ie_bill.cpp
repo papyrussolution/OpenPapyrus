@@ -8761,12 +8761,10 @@ int DocNalogRu_Generator::GetPhones(const PPPersonPacket * pPsnPack, const PPLoc
 	if(ss_.IsCountGreaterThan(0)) {
 		ss_.sortAndUndup();
 		{
-			PPTokenRecognizer trgn_;
 			SNaturalTokenArray nta;
-			PPTokenRecognizer trgn;
 			for(uint ssp = 0; ss_.get(&ssp, temp_buf);) {
 				temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Utf8ToLower();
-				trgn.Run(temp_buf.ucptr(), static_cast<int>(temp_buf.Len()), nta, 0);
+				Trgn.Run(temp_buf.ucptr(), static_cast<int>(temp_buf.Len()), nta, 0);
 				if(nta.Has(SNTOK_PHONE)) {
 					PPEAddr::Phone::NormalizeStr(temp_buf, 0, phone_buf);
 					phone_buf.Transf(CTRANSF_UTF8_TO_INNER);
@@ -10277,7 +10275,22 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName, StringSet &
 					THROW_PP_S(tr_obj.Get(freight.ShipID, &tr_pack) > 0, PPERR_ETRNEXP_TRANSPORTNEEDED, bill_text); // @v12.7.2 @fix Search-->Get
 					{
 						SXml::WNode n3(G.P_X, G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_TRANSP));
-						n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_REGN), G.EncText(temp_buf = tr_pack.Rec.Code));
+						{
+							SString lic_plate;
+							temp_buf = tr_pack.Rec.Code;
+							// @v12.7.6 {
+							SNaturalTokenArray nta;
+							SNaturalTokenStat nts;
+							G.Trgn.Run(temp_buf.ucptr(), static_cast<int>(temp_buf.Len()), nta, &nts);
+							if(nta.Has(SNTOK_RU_LICPLATE)) {
+								G.Trgn.NormalizeToken(temp_buf.ucptr(), static_cast<int>(temp_buf.Len()), nts, SNTOK_RU_LICPLATE, lic_plate);
+							}
+							else {
+								lic_plate = temp_buf;
+							}
+							// } @v12.7.6 
+							n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_REGN), G.EncText(lic_plate));
+						}
 						n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_OWNST), "1");
 						{
 							SXml::WNode n4(G.P_X, G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_VPARAMS));
@@ -10286,6 +10299,7 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName, StringSet &
 									temp_buf = tr_pack.Rec.Descr;
 								else
 									temp_buf = tr_pack.Rec.Name;
+								temp_buf.Strip();
 								n4.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_TYPE), G.EncText(temp_buf));
 							}
 							{
@@ -10296,6 +10310,7 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName, StringSet &
 								if(temp_buf.IsEmpty()) {
 									temp_buf = "UNKN";
 								}
+								temp_buf.Strip();
 								n4.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_MODEL), G.EncText(temp_buf));
 							}
 							{

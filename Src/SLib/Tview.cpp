@@ -831,9 +831,17 @@ static HMENU _CtlIdForCreateWindow(uint ctlId) { return reinterpret_cast<HMENU>(
 				case TV_SUBSIGN_STATIC:
 					{
 						TStaticText * p_ctl = static_cast<TStaticText *>(pV);
+						const  uint spc_flags = p_ctl->GetSpcFlags();
 						pV->Parent = hw_parent;
-						const  DWORD style = WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS|SS_LEFT;
-						const  DWORD ex_style = (p_ctl->GetSpcFlags() & TStaticText::spcfStaticEdge) ? WS_EX_STATICEDGE : 0;
+						DWORD  style = WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS|SS_LEFT;
+						DWORD  ex_style = (spc_flags & TStaticText::spcfStaticEdge) ? WS_EX_STATICEDGE : 0;
+						// @v12.7.7 {
+						if(spc_flags & TStaticText::spcfBitmap) {
+							style |= SS_BITMAP;
+							style &= ~(SS_NOTIFY|WS_CLIPSIBLINGS);
+							ex_style |= WS_EX_NOPARENTNOTIFY;
+						}
+						// } @v12.7.7 
 						hw = ::CreateWindowExW(ex_style, L"STATIC", 0, style, pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, 
 							hw_parent, _CtlIdForCreateWindow(ctl_id), TProgram::GetInst(), 0);
 						if(hw) {
@@ -847,10 +855,17 @@ static HMENU _CtlIdForCreateWindow(uint ctlId) { return reinterpret_cast<HMENU>(
 				case TV_SUBSIGN_IMAGEVIEW: // @v12.3.3
 					{
 						TImageView * p_ctl = static_cast<TImageView *>(pV);
+						const  uint spc_flags = p_ctl->GetSpcFlags();
 						pV->Parent = hw_parent;
-						const  DWORD style = WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS|SS_LEFT|SS_NOTIFY; // @v12.6.9 SS_NOTIFY
-						// @v12.6.9 const  DWORD ex_style = WS_EX_STATICEDGE;
-						const  DWORD ex_style = (p_ctl->GetSpcFlags() & TImageView::spcfStaticEdge) ? WS_EX_STATICEDGE : 0; // @v12.6.9
+						DWORD  style = WS_VISIBLE|WS_CHILD|WS_CLIPSIBLINGS|SS_LEFT|SS_NOTIFY; // @v12.6.9 SS_NOTIFY
+						DWORD  ex_style = (spc_flags & TImageView::spcfStaticEdge) ? WS_EX_STATICEDGE : 0; // @v12.6.9
+						// @v12.7.7 {
+						if(spc_flags & TImageView::spcfBitmap) {
+							style |= SS_BITMAP;
+							style &= ~(SS_NOTIFY|WS_CLIPSIBLINGS);
+							ex_style |= WS_EX_NOPARENTNOTIFY;
+						}
+						// } @v12.7.7 
 						hw = ::CreateWindowExW(ex_style, L"STATIC", 0, style, pV->ViewOrigin.x, pV->ViewOrigin.y, pV->ViewSize.x, pV->ViewSize.y, 
 							hw_parent, _CtlIdForCreateWindow(ctl_id), TProgram::GetInst(), 0);
 						if(hw) {

@@ -215,7 +215,7 @@ uint DlContext::AllocStackType(DLSYMBID typeID, TypeEntry * pTe)
 	TypeEntry te;
 	SearchTypeID(typeID, 0, &te);
 	ASSIGN_PTR(pTe, te);
-	if(te.T.IsZStr(0)) {
+	if(te.T.IsZStr()) {
 		SString * p_s = StP.Alloc(0);
 		sp = S.Alloc(sizeof(p_s));
 		void * ptr = S.GetPtr(sp);
@@ -858,7 +858,7 @@ static int FASTCALL __FillRecBuf(const DlScope * pScope, char * pRecBuf)
 		for(uint i = 0; p_scope->EnumFields(&i, &fld);) {
 			const size_t sz = fld.T.GetBinSize();
 			memcpy(pRecBuf+offset, p_scope->GetDataC(i-1), sz);
-			if(fld.T.IsZStr(0)) {
+			if(fld.T.IsZStr()) {
 				(temp_buf = pRecBuf+offset).Transf(CTRANSF_INNER_TO_OUTER);
 				strnzcpy(pRecBuf+offset, temp_buf, sz);
 			}
@@ -1043,7 +1043,7 @@ int DlRtm::FillXmlBuf(const DlScope * pScope, xmlTextWriter * pWriter, StringSet
 			}
 			else {
 				fld.GetFieldDataFromBuf(buf, p_scope->GetDataC(0), fp);
-				if(fld.T.IsZStr(0)) {
+				if(fld.T.IsZStr()) {
 					if(oneof2(cp, cpANSI, cp1251))
 						buf.Transf(CTRANSF_INNER_TO_OUTER);
 					else if(oneof2(cp, cpOEM, cp866))
@@ -1366,7 +1366,7 @@ int DlRtm::Helper_PutScopeToJson(const DlScope * pScope, SJson * pJsonObj, int c
 		for(uint i = 0; p_scope->EnumFields(&i, &fld);) {
 			const void * p_rec_data = p_scope->GetDataC(0);
 			temp_buf.Z();
-			if(fld.T.IsZStr(0))	{
+			if(fld.T.IsZStr())	{
 				fld.GetFieldDataFromBuf(temp_buf, p_rec_data, fp);
 				if(cp == cpUTF8)
 					temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
@@ -1459,7 +1459,7 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 												descr_fld_found = true;
 											}
 											//fld.GetFieldDataFromBuf(buf, p_scope->GetDataC(0), fp);
-											if(_temp_fld.T.IsZStr(0)) {
+											if(_temp_fld.T.IsZStr()) {
 											}
 											else {
 											}

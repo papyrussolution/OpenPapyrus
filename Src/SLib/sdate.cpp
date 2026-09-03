@@ -3137,13 +3137,14 @@ SString & SUniTime_Internal::TimeToStr(long fmt, SString & rBuf) const // @v12.6
 			if(_no_div) { // @v12.6.6
 				sprintf(buf + sstrlen(buf), "%03d", MSc);
 			}
-			else
+			else {
 				sprintf(buf + sstrlen(buf), ".%03d", MSc);
+			}
 		}
 		if(fmt & TIMF_TIMEZONE) {
 			int    tz = gettimezone();
 			char * p = buf + sstrlen(buf);
-			*p++ = ' ';
+			// @v12.7.7 *p++ = ' ';
 			*p++ = ((tz < 0) ? '+' : '-');
 			tz = abs(tz);
 			sprintf(p, "%02d:%02d", tz / 60, tz % 60); // @v12.7.7 @fix "%02d%02d"-->"%02d:%02d"

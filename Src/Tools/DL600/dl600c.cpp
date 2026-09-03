@@ -762,6 +762,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		occfLabelHeight     = 0x10000000, // @v12.3.9
 		occfTextAlign       = 0x20000000, // @v12.5.3 
 		occfOwnerDraw       = 0x40000000, // @v12.6.4 
+		occfBitmap          = 0x80000000, // @v12.7.7 
 	};
 	enum {
 		occsLeft         = 0x0001,
@@ -793,6 +794,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 		{ UiItemKind::fTextAlignLeft,   occfTextAlign, "text_align_left" },   // @v12.5.3 ES_LEFT
 		{ UiItemKind::fTextAlignRight,  occfTextAlign, "text_align_right" },  // @v12.5.3 ES_RIGHT
 		{ UiItemKind::fTextAlignCenter, occfTextAlign, "text_align_center" }, // @v12.5.3 ES_CENTER
+		{ UiItemKind::fBitmap, occfBitmap, "bitmap" }, // @v12.7.7 SS_BITMAP
 	};
 	struct AlignmentEntry {
 		uint16 * P_Var;
@@ -2824,7 +2826,8 @@ DLSYMBID DlContext::SetDeclTypeMod(DLSYMBID ofTyp, int mod /* STypEx::modXXX */,
 	if(t_of.Mod == 0) {
 		t = t_of;
 		if(mod == STypEx::modArray) {
-			uint   _len = 0, _prec = 0;
+			uint   _len = 0;
+			uint   _prec = 0;
 			int    is_dec_dim = GetDecimalDim(arrayDim, &_len, &_prec);
 			int    _t = GETSTYPE(t.Typ);
 			int    _is_pure = t.IsPure();

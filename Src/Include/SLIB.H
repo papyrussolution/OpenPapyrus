@@ -3509,8 +3509,11 @@ struct STypEx { // @persistent @size=16
 	void   Init();
 	bool   IsPure() const;
 	bool   FASTCALL IsEq(const STypEx &) const;
-	bool   FASTCALL IsZStr(size_t * pLen) const;
-	bool   FASTCALL IsWZStr(size_t * pLen) const;
+	bool   FASTCALL IsZStr() const;
+	bool   FASTCALL IsZStr(uint32 * pLen) const;
+	bool   FASTCALL IsZStr(uint64 * pLen) const;
+	bool   FASTCALL IsWZStr(uint32 * pLen) const;
+	bool   FASTCALL IsWZStr(uint64 * pLen) const;
 	bool   FASTCALL IsRaw(size_t * pLen) const;
 	size_t GetBinSize() const;
 	TYPEID GetDbFieldType() const;
@@ -12951,7 +12954,7 @@ public:
 	//   Введена для обработки частных случаев, например: SNTOK_PHONE, SNTOK_RU_LICPLATE и подобных.
 	// Attention: Функция не пытается идентифицировать pToken как tok с целью верификации. То есть, 
 	//   если вызывающая функция ранее этого не сделала, то результат может быть непредсказуемым.
-	// ARG(pToken IN): указатель на строке токена
+	// ARG(pToken IN): указатель на строку токена
 	// ARG(len IN): длина токена. Если (len < 0), то предполагается, что длина токена равна sstrlen(pToken).
 	// ARG(rStat IN): статистика, полученная в результате предыдущего анализа токена функцией Run(). Эта статистика
 	//   может понадобиться для правильной интерпретации символов токена дабы правильно их нормализовать.

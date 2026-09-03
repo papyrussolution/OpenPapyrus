@@ -231,9 +231,11 @@ bool FASTCALL STypEx::IsEq(const STypEx & s) const
 	return false;
 }
 
-bool FASTCALL STypEx::IsZStr(size_t * pLen) const
+bool FASTCALL STypEx::IsZStr() const { return (IsPure() && GETSTYPE(Typ) == S_ZSTRING); }
+
+bool FASTCALL STypEx::IsZStr(uint32 * pLen) const
 {
-	if(IsPure() && GETSTYPE(Typ) == S_ZSTRING) {
+	if(IsZStr()) {
 		ASSIGN_PTR(pLen, GETSSIZE(Typ));
 		return true;
 	}
@@ -241,7 +243,27 @@ bool FASTCALL STypEx::IsZStr(size_t * pLen) const
 		return false;
 }
 
-bool FASTCALL STypEx::IsWZStr(size_t * pLen) const
+bool FASTCALL STypEx::IsZStr(uint64 * pLen) const
+{
+	if(IsZStr()) {
+		ASSIGN_PTR(pLen, GETSSIZE(Typ));
+		return true;
+	}
+	else
+		return false;
+}
+
+bool FASTCALL STypEx::IsWZStr(uint32 * pLen) const
+{
+	if(IsPure() && GETSTYPE(Typ) == S_WZSTRING) {
+		ASSIGN_PTR(pLen, GETSSIZE(Typ)/sizeof(wchar_t));
+		return true;
+	}
+	else
+		return false;
+}
+
+bool FASTCALL STypEx::IsWZStr(uint64 * pLen) const
 {
 	if(IsPure() && GETSTYPE(Typ) == S_WZSTRING) {
 		ASSIGN_PTR(pLen, GETSSIZE(Typ)/sizeof(wchar_t));

@@ -60145,6 +60145,8 @@ public:
 	};
 	DocNalogRu_Base();
 	const  SString & FASTCALL GetToken_Utf8(long tokId);
+
+	PPTokenRecognizer Trgn; // @v12.7.7
 protected:
 	SString & FASTCALL Helper_GetToken(long tokId);
 	TokenSymbHashTable TsHt;

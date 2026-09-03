@@ -3801,6 +3801,7 @@ struct UiItemKind { // @transient
 		fTextAlignLeft   = 0x0200, // @v12.5.3 for inputline текст выравнивается по левому краю
 		fTextAlignRight  = 0x0400, // @v12.5.3 for inputline текст выравнивается по правому краю
 		fTextAlignCenter = fTextAlignLeft|fTextAlignRight, // @v12.5.3 for inputline текст выравнивается по центру
+		fBitmap          = 0x0800, // @v12.7.7 SS_BITMAP
 	};
 
 	static int  GetTextList(StrAssocArray & rList);
@@ -4224,7 +4225,8 @@ private:
 class TImageView : public TView {
 public:
 	enum {
-		spcfStaticEdge = 0x0001 // Элемент обрамлен явно выраженной рамкой
+		spcfStaticEdge = 0x0001, // Элемент обрамлен явно выраженной рамкой
+		spcfBitmap     = 0x0002, // @v12.7.7 Элемент содержит изображение в формате BMP
 	};
 	TImageView(const TRect & rBounds, uint spcFlags, const char * pFigSymb);
 	~TImageView();
@@ -4386,6 +4388,7 @@ public:
 	enum {
 		spcfStaticEdge       = 0x0001, // Элемент обрамлен явно выраженной рамкой
 		spcfRightAlignedText = 0x0002, // @v12.7.0 Текст выравнивается по правому краю (иначе - по левому) 
+		spcfBitmap           = 0x0004, // @v12.7.7 Элемент содержит изображение в формате BMP
 	};
 	TStaticText(const TRect & rBounds, uint spcFlags, const char * pText);
 	const SString & GetRawText() const { return Text; }
