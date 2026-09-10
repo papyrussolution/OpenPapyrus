@@ -672,10 +672,10 @@ IMPL_HANDLE_EVENT(BillFiltDialog)
 		const  PPID prev_op_id = Data.OpID;
 		getCtrlData(CTLSEL_BILLFLT_OPRKIND, &Data.OpID);
 		if(getCtrlView(CTLSEL_BILLFLT_OBJECT)) {
-			PPID   acc_sheet_id = 0;
-			PPID   acc_sheet2_id = 0;
-			GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, &acc_sheet2_id);
-			setupAccSheet(acc_sheet_id, acc_sheet2_id);
+			PPID   acs_id = 0;
+			PPID   acs2_id = 0;
+			GetOpCommonAccSheet(Data.OpID, &acs_id, &acs2_id);
+			setupAccSheet(acs_id, acs2_id);
 		}
 		if(Data.OpID != prev_op_id) {
 			const  PPID op_type_id = GetOpType(Data.OpID, 0);
@@ -2441,20 +2441,21 @@ int PPViewBill::WriteOffDraft(PPID id)
 				PPViewGoodsOpAnalyze goa_view;
 				P_BObj->P_OpObj->GetDraftExData(op_id, &doe);
 				GetOpData(op_id, &op_rec);
-				if(op_rec.AccSheetID == GetSupplAccSheet())
+				if(op_rec.AccSheetID == GetSupplAccSheet()) {
 					goa_filt.Flags |= GoodsOpAnalyzeFilt::fTradePlanObjAsSuppl;
+				}
 				goa_filt.OpGrpID = GoodsOpAnalyzeFilt::ogSelected;
 				goa_filt.OpID    = doe.WrOffOpID;
 				for(uint i = 0; i < bill_rec_list.getCount(); i++) {
 					const BillTbl::Rec & r_bill_rec = *static_cast<const BillTbl::Rec *>(bill_rec_list.at(i));
-					PPID   acc_sheet_id = 0;
+					PPID   acs_id = 0;
 					goa_filt.AddTradePlanBillID(r_bill_rec.ID);
 					if(!goa_filt.Period.low || goa_filt.Period.low > r_bill_rec.Dt)
 						goa_filt.Period.low = r_bill_rec.Dt;
 					if(!goa_filt.Period.upp || goa_filt.Period.upp < r_bill_rec.DueDate)
 						goa_filt.Period.upp = r_bill_rec.DueDate;
-					if(GetArticleSheetID(ar_id, &acc_sheet_id) > 0) {
-						if(acc_sheet_id == GetAgentAccSheet())
+					if(GetArticleSheetID(ar_id, &acs_id) > 0) {
+						if(acs_id == GetAgentAccSheet())
 							goa_filt.AgentID = ar_id;
 					}
 					if(goa_filt.AgentID == 0 && goa_filt.ObjectID == 0) {
@@ -5439,7 +5440,8 @@ int PPViewBill::UpdateAttributes()
 	if(Filt.OpID)
 		GetOpCommonAccSheet(Filt.OpID, obj_sheet_id ? 0 : &obj_sheet_id, &obj_sheet2_id);
 	THROW(GetBillIDList(&ary));
-	THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_UPDBLIST))));
+	dlg = new TDialog(DLG_UPDBLIST);
+	THROW(CheckDialogPtrErr(&dlg));
 	SetupArCombo(dlg, CTLSEL_UPDBLIST_PAYER,   ua.PayerID,   OLW_CANINSERT, GetSellAccSheet(),  sacfDisableIfZeroSheet);
 	SetupArCombo(dlg, CTLSEL_UPDBLIST_AGENT,   ua.AgentID,   OLW_CANINSERT, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 	SetupArCombo(dlg, CTLSEL_UPDBLIST_OBJECT,  ua.ObjectID,  OLW_CANINSERT, obj_sheet_id,       sacfDisableIfZeroSheet);
@@ -5895,7 +5897,7 @@ static int SCardInfoDlg(PPSCardPacket & rScPack, PPID * pOpID, long flags, int w
 	PPIDArray op_list, op_type_list;
 	PPOprKind opr_kind;
 	PPObjAccSheet acs_obj;
-	PPAccSheet acs_rec;
+	PPAccSheet2 acs_rec;
 	PPObjPerson psn_obj;
 	PPPersonPacket psn_pack;
 	PPObjSCard sc_obj;
@@ -7051,13 +7053,11 @@ int PPALDD_GoodsBillBase::InitData(PPFilt & rFilt, long rsrv)
 	MEMSZERO(H);
 	if(op_rec.PrnFlags & OPKF_PRT_NBILLN)
 		H.Code[0] = 0;
-	else if(bill_f & BILLF_PRINTINVOICE && p_pack->Ext.InvoiceCode[0])
-		STRNSCPY(H.Code, p_pack->Ext.InvoiceCode);
-	else
-		STRNSCPY(H.Code, p_pack->Rec.Code);
-	// @v11.1.12 strip(STRNSCPY(H.Memo, p_pack->Rec.Memo));
-	strip(STRNSCPY(H.Memo, p_pack->SMemo)); // @v11.1.12
-	H.Dt = (bill_f & BILLF_PRINTINVOICE && p_pack->Ext.InvoiceDate) ? p_pack->Ext.InvoiceDate : p_pack->Rec.Dt;
+	else {
+		STRNSCPY(H.Code, p_pack->GetInvoiceCode(bill_f & BILLF_PRINTINVOICE));
+	}
+	strip(STRNSCPY(H.Memo, p_pack->SMemo));
+	H.Dt = p_pack->GetInvoiceDate(bill_f & BILLF_PRINTINVOICE);
 	H.OprKindID  = p_pack->Rec.OpID;
 	H.ObjectID   = object_id;
 	H.PayerID    = p_pack->Ext.PayerID;
@@ -7562,13 +7562,11 @@ int PPALDD_GoodsBillDispose::InitData(PPFilt & rFilt, long rsrv)
 	MEMSZERO(H);
 	if(op_rec.PrnFlags & OPKF_PRT_NBILLN)
 		H.Code[0] = 0;
-	else if(bill_f & BILLF_PRINTINVOICE && p_pack->Ext.InvoiceCode[0])
-		STRNSCPY(H.Code, p_pack->Ext.InvoiceCode);
-	else
-		STRNSCPY(H.Code, p_pack->Rec.Code);
-	// @v11.1.12 strip(STRNSCPY(H.Memo, p_pack->Rec.Memo));
-	strip(STRNSCPY(H.Memo, p_pack->SMemo)); // @v11.1.12
-	H.Dt = (bill_f & BILLF_PRINTINVOICE && p_pack->Ext.InvoiceDate) ? p_pack->Ext.InvoiceDate : p_pack->Rec.Dt;
+	else {
+		STRNSCPY(H.Code, p_pack->GetInvoiceCode(bill_f & BILLF_PRINTINVOICE));
+	}
+	strip(STRNSCPY(H.Memo, p_pack->SMemo));
+	H.Dt = p_pack->GetInvoiceDate(bill_f & BILLF_PRINTINVOICE);
 	H.OprKindID  = p_pack->Rec.OpID;
 	H.ObjectID   = ar_id;
 	H.PayerID    = p_pack->Ext.PayerID;
@@ -7592,7 +7590,7 @@ int PPALDD_GoodsBillDispose::InitData(PPFilt & rFilt, long rsrv)
 		H.DlvrReq    = main_org_id;
 		H.DlvrLocID  = p_pack->Rec.LocID;
 		H.ConsignorReq = main_org_id;
-		if(ar_id)
+		if(ar_id) {
 			if(PPObjLocation::ObjToWarehouse(ar_id)) {
 				H.RcvrID    = main_org_id;
 				H.RcvrReq   = main_org_id;
@@ -7611,6 +7609,7 @@ int PPALDD_GoodsBillDispose::InitData(PPFilt & rFilt, long rsrv)
 				}
 				H.RcvrReq = H.RcvrID;
 			}
+		}
 	}
 	else if(optype == PPOPT_DRAFTRECEIPT || bill_f & BILLF_GRECEIPT ||
 		(oneof3(optype, PPOPT_ACCTURN, PPOPT_PAYMENT, PPOPT_CHARGE) && op_rec.PrnFlags & OPKF_PRT_INCINVC)) {

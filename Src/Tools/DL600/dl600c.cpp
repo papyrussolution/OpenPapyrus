@@ -1215,7 +1215,7 @@ int DlContext::ApplyBrakPropList(DLSYMBID scopeID, const CtmToken * pViewKind, D
 						occurence_margin |= occsRight;
 					}
 				}
-				else if(prop_key == "margin_botton") {
+				else if(prop_key == "margin_bottom") { // @v12.7.7 @fix "margin_botton"-->"margin_bottom"
 					const float fv = p_prop->Value.GetFloat(0);
 					if(!(fv >= -32000.0f && fv <= 32000.0f)) {
 						unterm_errcode = PPERR_DL6_PROP_MARGINRANGEVIOL;

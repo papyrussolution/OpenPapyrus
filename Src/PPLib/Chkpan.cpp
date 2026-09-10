@@ -7644,8 +7644,8 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				if(p_dc->Src == TDrawCtrlData::cScrollBar) {
 					int ctl_id = GetDlgCtrlID(p_dc->H_Ctl);
 					if(ctl_id && oneof2(ctl_id, MAKE_BUTTON_ID(CTL_CHKPAN_GRPLIST, 1), MAKE_BUTTON_ID(CTL_CHKPAN_GDSLIST, 1))) {
-						::SendMessage(::GetDlgItem(H(), CTL_CHKPAN_ARROW_UP),   BM_SETSTYLE, BS_BITMAP, TRUE);
-						::SendMessage(::GetDlgItem(H(), CTL_CHKPAN_ARROW_DOWN), BM_SETSTYLE, BS_BITMAP, TRUE);
+						::SendMessageW(::GetDlgItem(H(), CTL_CHKPAN_ARROW_UP),   BM_SETSTYLE, BS_BITMAP, TRUE);
+						::SendMessageW(::GetDlgItem(H(), CTL_CHKPAN_ARROW_DOWN), BM_SETSTYLE, BS_BITMAP, TRUE);
 					}
 				}
 				else {
@@ -12136,7 +12136,7 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 				{
 					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 					if(p_dc && getCtrlHandle(CTL_SCARDVIEW_SALDO) == p_dc->H_Ctl) {
-						const double saldo = getCtrlReal(CTL_SCARDVIEW_SALDO);
+						const  double saldo = getCtrlReal(CTL_SCARDVIEW_SALDO);
 						::SetBkMode(p_dc->H_DC, TRANSPARENT);
 						::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
 						int  br_ident = brRed; // default color

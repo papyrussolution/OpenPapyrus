@@ -1164,9 +1164,10 @@ int Helper_EditSCardFilt(SCardFilt * pFilt, int cascade)
 		if(cascade)
 			dlg->ToCascade();
 		if(dlg->setDTS(pFilt)) {
-			while(ok <= 0 && ExecView(dlg) == cmOK)
+			while(ok <= 0 && ExecView(dlg) == cmOK) {
 				if(dlg->getDTS(pFilt))
 					ok = 1;
+			}
 		}
 		else
 			ok = 0;

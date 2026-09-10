@@ -1,5 +1,5 @@
 // OBJEVENT.CPP
-// Copyright (c) A.Sobolev 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 2020, 2021, 2022, 2024, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -888,14 +888,30 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	if(pBrw && pData && pStyle) {
 		const  BrowserDef * p_def = pBrw->getDef();
 		if(col >= 0 && col < p_def->getCountI()) {
-			const BroColumn & r_col = p_def->at(col);
-			const PPViewEvent::BrwItem * p_hdr = static_cast<const PPViewEvent::BrwItem *>(pData);
+			const  BroColumn & r_col = p_def->at(col);
+			const  PPViewEvent::BrwItem * p_hdr = static_cast<const PPViewEvent::BrwItem *>(pData);
 			if(r_col.OrgOffs == 3) { // Status
+				int    tcelhld = 0;
 				switch(p_hdr->Status) {
-					case PPEventCore::statusActual:   pStyle->Color = GetColorRef(SClrLightgreen); break;
-					case PPEventCore::statusViewed:   pStyle->Color = GetColorRef(SClrOrange); break;
-					case PPEventCore::statusArchived: pStyle->Color = GetColorRef(SClrSnow); break;
-					default: pStyle->Color = GetColorRef(SClrGrey); break;
+					case PPEventCore::statusActual:   
+						pStyle->Color = GetColorRef(SClrLightgreen); 
+						tcelhld = TCELHLD_EVENT_STATUS_ACTUAL;
+						break;
+					case PPEventCore::statusViewed:   
+						pStyle->Color = GetColorRef(SClrOrange); 
+						tcelhld = TCELHLD_EVENT_STATUS_VIEWED;
+						break;
+					case PPEventCore::statusArchived: 
+						pStyle->Color = GetColorRef(SClrSnow); 
+						tcelhld = TCELHLD_EVENT_STATUS_ARCHIVED;
+						break;
+					default: 
+						pStyle->Color = GetColorRef(SClrGrey); 
+						tcelhld = TCELHLD_EVENT_STATUS_UNDEF;
+						break;
+				}
+				if(tcelhld && paintAction == BrowserWindow::paintQueryDescription) {
+					pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, tcelhld, SLS.AcquireRvlStr()));
 				}
 				ok = 1;
 			}
@@ -903,8 +919,12 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 				if(p_hdr->EventSubscrID) {
 					PPObjEventSubscription es_obj(0);
 					PPEventSubscriptionPacket es_pack;
-					if(es_obj.Fetch(p_hdr->EventSubscrID, &es_pack) && !es_pack.Rec.NotifColor.IsEmpty())
+					if(es_obj.Fetch(p_hdr->EventSubscrID, &es_pack) && !es_pack.Rec.NotifColor.IsEmpty()) {
 						ok = pStyle->SetRightFigCircleColor(static_cast<COLORREF>(es_pack.Rec.NotifColor));
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_EVENT_SUBSCRCUSTOMCOLOR, SLS.AcquireRvlStr()));
+						}
+					}
 				}
 			}
 		}
@@ -1073,6 +1093,12 @@ int PPViewEvent::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				SArray * p_array = new SArray(*P_DsList);
 				p_def->setArray(p_array, 0, 0);
 				ok = 1;
+			}
+		}
+		else if(ppvCmd == PPVCMD_MOUSEHOVER) { // @v12.7.7
+			if(pBrw) {
+				pBrw->ShowCellStyleHint();
+				ok = -1;
 			}
 		}
 	}

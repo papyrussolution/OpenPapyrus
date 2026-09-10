@@ -579,7 +579,7 @@ private:
 class PPDS_CrrAccSheet : public PPDeclStruc {
 public:
 	PPDS_CrrAccSheet() : PPDeclStruc() {}
-	PPAccSheet Data;
+	PPAccSheet2 Data;
 private:
 	virtual int InitData(Ido op, void * dataPtr, long addedParam);
 	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);

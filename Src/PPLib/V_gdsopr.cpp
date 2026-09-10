@@ -470,13 +470,13 @@ public:
 	{
 		RVALUEPTR(Data, pData);
 		int    ok = 1;
-		PPID   acc_sheet_id = 0;
+		PPID   acs_id = 0;
 		PPID   parent_grp_id = 0;
 		PPObjGoods goods_obj;
 		SetPeriodInput(this, CTL_BILLFLT_PERIOD, Data.Period);
 		SetupOpCombo();
-		GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, 0);
-		SetupAccSheet(Data.AccSheetID ? Data.AccSheetID : acc_sheet_id);
+		GetOpCommonAccSheet(Data.OpID, &acs_id, 0);
+		SetupAccSheet(Data.AccSheetID ? Data.AccSheetID : acs_id);
 		goods_obj.GetParentID(Data.GoodsGrpID, &parent_grp_id);
 		GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel, reinterpret_cast<void *>(parent_grp_id));
 		setGroupData(ctlgroupGoodsFilt, &gf_rec);
@@ -970,13 +970,13 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzFiltDialog)
 {
 	WLDialog::handleEvent(event);
 	if(event.isCbSelected(CTLSEL_BILLFLT_OPRKIND)) {
-		PPID prev_op_id = Data.OpID;
+		const  PPID prev_op_id = Data.OpID;
 		getCtrlData(CTLSEL_BILLFLT_OPRKIND, &Data.OpID);
 		Data.Object2 = (Data.OpID != prev_op_id) ? 0 : Data.Object2;
 		if(getCtrlView(CTLSEL_BILLFLT_OBJECT)) {
-			PPID   acc_sheet_id = 0;
-			GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, 0);
-			SetupAccSheet(acc_sheet_id);
+			PPID   acs_id = 0;
+			GetOpCommonAccSheet(Data.OpID, &acs_id, 0);
+			SetupAccSheet(acs_id);
 			if(IsIntrExpndOp(Data.OpID))
 				disableCtrl(CTL_BILLFLT_INTRREVAL, false);
 			else {
@@ -987,7 +987,7 @@ IMPL_HANDLE_EVENT(GoodsOpAnlzFiltDialog)
 		SetupCtrls(Data.Flags);
 	}
 	else if(event.isCmd(cmClusterClk)) {
-		const uint ctl_id = event.getCtlID();
+		const  uint ctl_id = event.getCtlID();
 		if(ctl_id == CTL_BILLFLT_OPRSET)
 			ReplyOprGrpChanged();
 		else if(ctl_id == CTL_BILLFLT_DIFFBYPRICE) {

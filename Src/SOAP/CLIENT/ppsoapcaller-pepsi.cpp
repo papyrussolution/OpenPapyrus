@@ -441,7 +441,7 @@ extern "C" __declspec(dllexport) SString * iSalesPutTransferStatus(PPSoapClientS
 					case iSalesTransferStatus::ifcOrder: temp_buf = "ORDS"; break;
 					case iSalesTransferStatus::ifcInvoice: temp_buf = "DOCL"; break;
 					case iSalesTransferStatus::ifcReceipt: temp_buf = "DOCS"; break;
-					case iSalesTransferStatus::ifcReturnReq: temp_buf = "VDOC"; break; // @v10.8.12
+					case iSalesTransferStatus::ifcReturnReq: temp_buf = "VDOC"; break;
 					default: temp_buf.Z(); break;
 				}
 				if(temp_buf.NotEmpty()) {
@@ -597,7 +597,7 @@ extern "C" __declspec(dllexport) SString * iSalesPutStockCounting(PPSoapClientSe
 			ZFREE(p_item->PRODS->PROD);
 		}
 	}
-	if(param.stockCountingList) // @v10.8.7
+	if(param.stockCountingList)
 		ZFREE(param.stockCountingList->WAR);
 	return p_result;
 }
@@ -701,7 +701,7 @@ extern "C" __declspec(dllexport) SString * iSalesPutPrices(PPSoapClientSession &
 	return p_result;
 }
 
-static const long PepsiMoneyFormat = MKSFMTD(0, 8, NMBF_DECCOMMA|NMBF_NOTRAILZ|NMBF_OMITEPS); // @v9.8.0 NMBF_OMITEPS // @v10.3.12 (0, 13)-->(0, 8)
+static const long PepsiMoneyFormat = MKSFMTD(0, 8, NMBF_DECCOMMA|NMBF_NOTRAILZ|NMBF_OMITEPS);
 
 extern "C" __declspec(dllexport) SString * iSalesPutBills(PPSoapClientSession & rSess, const char * pUser, const char * pPassw,
 	const TSCollection <iSalesBillPacket> * pItems, uint maxItems)

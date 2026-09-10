@@ -3253,15 +3253,15 @@ int SynchronizeObjects(PPID dest)
 		PPWaitStart();
 		ObjSyncCore & r_sync = *DS.GetTLA().P_ObjSync;
 		PPObjLocation loc_obj;
-		PPObjGoods    gobj;
-		PPObjPerson   pobj;
-		PPObjArticle  part;
-		PPObjAccount  pact;
-		PPObjQCert    qcobj;
-		PPObjSCard    scobj;
-		PPObjProject  prj_obj;
-		PPObjPrjTask  todo_obj;
-		PPObjWorld    world_obj;
+		PPObjGoods goods_obj;
+		PPObjPerson psn_obj;
+		PPObjArticle ar_obj;
+		PPObjAccount acc_obj;
+		PPObjQCert qc_obj;
+		PPObjSCard scobj;
+		PPObjProject prj_obj;
+		PPObjPrjTask todo_obj;
+		PPObjWorld world_obj;
 		PPObjCSession cses_obj;
 		PPObjTSession tses_obj;
 		PPObjProcessor prc_obj;
@@ -3322,15 +3322,17 @@ int SynchronizeObjects(PPID dest)
 					ref_obj_list.add(PPOBJ_USR);
 					ref_obj_list.add(PPOBJ_USRGRP);
 				}
-				for(PPID dyn_obj_type = 0; PPRef->EnumItems(PPOBJ_DYNAMICOBJS, &dyn_obj_type) > 0;)
+				for(PPID dyn_obj_type = 0; PPRef->EnumItems(PPOBJ_DYNAMICOBJS, &dyn_obj_type) > 0;) {
 					ref_obj_list.addUnique(dyn_obj_type);
-				for(uint i = 0; i < ref_obj_list.getCount(); i++)
+				}
+				for(uint i = 0; i < ref_obj_list.getCount(); i++) {
 					THROW(SyncRefObj(&r_sync, ref_obj_list.get(i), dest));
+				}
 			}
-			THROW(SyncTblObj(&r_sync, part.P_Tbl,      PPOBJ_ARTICLE,    dest));
+			THROW(SyncTblObj(&r_sync, ar_obj.P_Tbl,    PPOBJ_ARTICLE,    dest));
 			THROW(SyncTblObj(&r_sync, world_obj.P_Tbl, PPOBJ_WORLD,      dest));
 			THROW(SyncTblObj(&r_sync, loc_obj.P_Tbl,   PPOBJ_LOCATION,   dest));
-			THROW(SyncTblObj(&r_sync, pobj.P_Tbl,      PPOBJ_PERSON,     dest));
+			THROW(SyncTblObj(&r_sync, psn_obj.P_Tbl,   PPOBJ_PERSON,     dest));
 			THROW(SyncTblObj(&r_sync, scobj.P_Tbl,     PPOBJ_SCARD,      dest));
 			if(!(param.Flags & SelfSyncParam::fDontSyncBills)) {
 				THROW(SyncTblObj(&r_sync, p_bobj->P_Tbl, PPOBJ_BILL, dest));
@@ -3338,10 +3340,10 @@ int SynchronizeObjects(PPID dest)
 					THROW(SyncTblObj(&r_sync, &p_bobj->trfr->Rcpt, PPOBJ_LOT, dest));
 				}
 			}
-			THROW(SyncTblObj(&r_sync, qcobj.P_Tbl,    PPOBJ_QCERT,   dest));
+			THROW(SyncTblObj(&r_sync, qc_obj.P_Tbl,    PPOBJ_QCERT,   dest));
 			THROW(SyncTblObj(&r_sync, prj_obj.P_Tbl,  PPOBJ_PROJECT, dest));
 			THROW(SyncTblObj(&r_sync, todo_obj.P_Tbl, PPOBJ_PRJTASK, dest));
-			THROW(SyncGoodsObjs(&r_sync, gobj.P_Tbl, dest));
+			THROW(SyncGoodsObjs(&r_sync, goods_obj.P_Tbl, dest));
 			THROW(SyncTblObj(&r_sync, cses_obj.P_Tbl, PPOBJ_CSESSION, dest));
 			THROW(SyncTblObj(&r_sync, prc_obj.P_Tbl,  PPOBJ_PROCESSOR, dest));
 			THROW(SyncTblObj(&r_sync, tec_obj.P_Tbl,  PPOBJ_TECH,      dest));

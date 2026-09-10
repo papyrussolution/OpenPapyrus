@@ -36,7 +36,7 @@ int STDCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID _a
 			p_grp = new ArticleCtrlGroup(0, 0, ctlID, 0, _accSheetID);
 			dlg->addGroup(ctlID, p_grp);
 		}
-		ok = SetupPPObjCombo(dlg, ctlID, PPOBJ_ARTICLE, id, flags, /*(void *)accSheetID*/&filt);
+		ok = SetupPPObjCombo(dlg, ctlID, PPOBJ_ARTICLE, id, flags, &filt);
 		if(ok)
 			dlg->SetupWordSelector(ctlID, new PersonSelExtra(_accSheetID, 0), id, 2, 0);
 	}
@@ -48,18 +48,18 @@ int STDCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID _a
 int FASTCALL GetArticleSheetID(PPID arID, PPID * pAccSheetID, PPID * pLnkObjID)
 {
 	int    ok = -1;
-	PPID   acc_sheet_id = 0;
+	PPID   acs_id = 0;
 	PPID   lnk_obj_id = 0;
 	if(arID) {
 		PPObjArticle ar_obj;
 		ArticleTbl::Rec rec;
 		ok = ar_obj.Fetch(arID, &rec);
 		if(ok > 0) {
-			acc_sheet_id = rec.AccSheetID;
+			acs_id = rec.AccSheetID;
 			lnk_obj_id = rec.ObjID;
 		}
 	}
-	ASSIGN_PTR(pAccSheetID, acc_sheet_id);
+	ASSIGN_PTR(pAccSheetID, acs_id);
 	ASSIGN_PTR(pLnkObjID, lnk_obj_id);
 	return ok;
 }
@@ -67,14 +67,14 @@ int FASTCALL GetArticleSheetID(PPID arID, PPID * pAccSheetID, PPID * pLnkObjID)
 PPID FASTCALL ObjectToPerson(PPID objID, PPID * pAccSheetID)
 {
 	PPID   result_id = 0;
-	PPID   acc_sheet_id = 0;
+	PPID   acs_id = 0;
 	PPID   lnk_obj_id = 0;
-	if(objID && GetArticleSheetID(objID, &acc_sheet_id, &lnk_obj_id) > 0) {
+	if(objID && GetArticleSheetID(objID, &acs_id, &lnk_obj_id) > 0) {
 		PPObjAccSheet acs_obj;
 		PPAccSheet2 acs_rec;
-		result_id = (acs_obj.Fetch(acc_sheet_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON) ? lnk_obj_id : 0;
+		result_id = (acs_obj.Fetch(acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON) ? lnk_obj_id : 0;
 	}
-	ASSIGN_PTR(pAccSheetID, acc_sheet_id);
+	ASSIGN_PTR(pAccSheetID, acs_id);
 	return result_id;
 }
 
@@ -85,9 +85,9 @@ int FASTCALL GetArticleName(PPID arID, SString & rBuf)
 	if(arID) {
 		PPObjArticle ar_obj;
 		ArticleTbl::Rec rec;
-		if((ok = ar_obj.Fetch(arID, &rec)) > 0) {
+		ok = ar_obj.Fetch(arID, &rec);
+		if(ok > 0) {
 			rBuf = rec.Name;
-			ok = 1;
 		}
 		else
 			ideqvalstr(arID, rBuf);
@@ -108,11 +108,6 @@ int GetArticleText(PPID arID, PPArticleType artyp, SString & rBuf)
 	else
 		rBuf.Z();
 	return ok;
-}
-
-int GetSupplText(PPID supplID, SString & rBuf)
-{
-	return GetArticleText(supplID, artypSuppl, rBuf);
 }
 //
 //
@@ -164,6 +159,7 @@ int PPObjArticle::IsPacketEq(const PPArticlePacket & rS1, const PPArticlePacket 
 	CMP_MEMB(AccessLevel);
 	CMP_MEMB(Closed);
 	CMP_MEMB(Flags);
+	CMP_MEMB(ParentID); // @v12.7.7
 #undef CMP_MEMBS
 #undef CMP_MEMB
 	if(rS1.Assoc != rS2.Assoc)
@@ -286,10 +282,8 @@ private:
 	int    OnExitResult;
 	int    IsFound;
 	char * P_Buf;
-	//PPID   Assoc;
-	//PPID   GroupID;
 	DBQuery * P_Query;
-	PPAccSheet AcsRec;
+	PPAccSheet2 AcsRec;
  	PPObjArticle ArObj;
 	ArticleTbl::Rec Rec;
 	StrAssocArray CandidateList;
@@ -491,7 +485,7 @@ int ArticleAutoAddDialog::save()
 void ArticleAutoAddDialog::init(PPID sheetID)
 {
 	//int    r;
-	//PPAccSheet acs_rec;
+	//PPAccSheet2 acs_rec;
 	THROW(SearchObject(PPOBJ_ACCSHEET, sheetID, &AcsRec) > 0);
 	Rec.Clear();
 	Rec.AccSheetID = sheetID;
@@ -568,16 +562,18 @@ IMPL_HANDLE_EVENT(ArticleAutoAddDialog)
 //
 static int EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 {
-	#define GRP_ALS 1
-	#define GRP_ACC 2
-
 	class SubstAliasDialog : public TDialog {
+		enum {
+			ctlgroupAls = 1,
+			ctlgroupAcc = 2,
+		};
 		DECL_DIALOG_DATA(LAssoc);
+		const PPArticlePacket * P_Pack;
 	public:
 		SubstAliasDialog(const PPArticlePacket * pPack) : TDialog(DLG_ALSSUBST), P_Pack(pPack)
 		{
-			addGroup(GRP_ALS, new AcctCtrlGroup(CTL_ALSSUBST_ALS, 0, CTLSEL_ALSSUBST_ALSNAME, 0));
-			addGroup(GRP_ACC, new AcctCtrlGroup(CTL_ALSSUBST_ACC, 0, CTLSEL_ALSSUBST_ACCNAME, 0));
+			addGroup(ctlgroupAls, new AcctCtrlGroup(CTL_ALSSUBST_ALS, 0, CTLSEL_ALSSUBST_ALSNAME, 0));
+			addGroup(ctlgroupAcc, new AcctCtrlGroup(CTL_ALSSUBST_ACC, 0, CTLSEL_ALSSUBST_ACCNAME, 0));
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -587,7 +583,7 @@ static int EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 				acc_rec.AcctId.ac = Data.Key;
 				acc_rec.AccSheetID = P_Pack->Rec.AccSheetID;
 				acc_rec.AccSelParam = ACY_SEL_ALIAS;
-				setGroupData(GRP_ALS, &acc_rec);
+				setGroupData(ctlgroupAls, &acc_rec);
 			}
 			{
 				AcctCtrlGroup::Rec acc_rec;
@@ -599,7 +595,7 @@ static int EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 				// то следует использовать конструкцию (1000+P_Pack->Rec.AccSheetID) вместо ACY_SEL_BALOBAL.
 				//
 				acc_rec.AccSelParam = ACY_SEL_BALOBAL;
-				setGroupData(GRP_ACC, &acc_rec);
+				setGroupData(ctlgroupAcc, &acc_rec);
 			}
 			return 1;
 		}
@@ -608,11 +604,11 @@ static int EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 			int    ok = 1;
 			uint   sel = 0;
 			AcctCtrlGroup::Rec acc_rec;
-			getGroupData(GRP_ALS, &acc_rec);
+			getGroupData(ctlgroupAls, &acc_rec);
 			Data.Key = acc_rec.AcctId.ac;
 			sel = CTL_ALSSUBST_ALS;
 			THROW_PP(Data.Key, PPERR_ACCALIASNEEDED);
-			getGroupData(GRP_ACC, &acc_rec);
+			getGroupData(ctlgroupAcc, &acc_rec);
 			Data.Val = acc_rec.AcctId.ac;
 			sel = CTL_ALSSUBST_ACC;
 			THROW_PP(Data.Val, PPERR_ACCNEEDED);
@@ -620,36 +616,45 @@ static int EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 			CATCHZOKPPERRBYDLG
 			return ok;
 		}
-	private:
-		const PPArticlePacket * P_Pack;
 	};
 	DIALOG_PROC_BODY_P1(SubstAliasDialog, pPack, pData);
 }
 //
 //
 //
-#define GRP_ASSCACC 1
-
 class ArticleDialog : public PPListDialog {
 public:
+	enum {
+		ctlgroupAsscAcc = 1
+	};
 	ArticleDialog(uint rezID, ArticleDlgData * aData) : PPListDialog(rezID, CTL_ARTICLE_ALIASSUBST), P_Data(aData), AccSheetFounded(0), AgtFlags(0)
 	{
-		PPObjArticle arobj;
+		PPObjAccSheet acs_obj;
 		SetEmptyAgreementInd();
 		if(aData->Options & ArticleDlgData::fAssocAccnt) {
 			AcctCtrlGroup::Rec acc_rec;
 			AcctCtrlGroup * p_ac_grp = new AcctCtrlGroup(CTL_ARTICLE_ACC, 0, CTLSEL_ARTICLE_ACCNAME, 0);
-			addGroup(GRP_ASSCACC, p_ac_grp);
+			addGroup(ctlgroupAsscAcc, p_ac_grp);
 			acc_rec.AcctId.ac   = P_Data->Rec.ObjID;
-			setGroupData(GRP_ASSCACC, &acc_rec);
+			setGroupData(ctlgroupAsscAcc, &acc_rec);
 		}
-		if(SearchObject(PPOBJ_ACCSHEET, P_Data->Rec.AccSheetID, &AccSheetRec) > 0) {
-			if(P_Data->Rec.AccSheetID == GetSupplAccSheet() && AccSheetRec.Flags & ACSHF_USESUPPLAGT)
+		if(acs_obj.Search(P_Data->Rec.AccSheetID, &AcsRec) > 0) {
+			if(P_Data->Rec.AccSheetID == GetSupplAccSheet() && AcsRec.Flags & ACSHF_USESUPPLAGT)
 				AgtFlags |= ACSHF_USESUPPLAGT;
-			else if(P_Data->Rec.AccSheetID == GetSellAccSheet() || AccSheetRec.Flags & ACSHF_USECLIAGT)
+			else if(P_Data->Rec.AccSheetID == GetSellAccSheet() || AcsRec.Flags & ACSHF_USECLIAGT)
 				AgtFlags |= ACSHF_USECLIAGT;
 			AccSheetFounded = 1;
 		}
+		// @v12.7.7 {
+		{
+			if(AccSheetFounded && AcsRec.Flags & ACSHF_HIERARCHY) {
+				SetupArCombo(this, CTLSEL_ARTICLE_PARENT, P_Data->Rec.ParentID, OLW_CANSELUPLEVEL, AcsRec.ID, sacfDisableIfZeroSheet);
+			}
+			else {
+				SetChildLayoutExcludedStatus(FindLayoutBySymb("LO_PARENTARTICLE"));
+			}
+		}
+		// } @v12.7.7 
 		setCtrlData(CTL_ARTICLE_NUMBER, &P_Data->Rec.Article);
 		setCtrlData(CTL_ARTICLE_ACCESS, &P_Data->Rec.AccessLevel);
 		setCtrlUInt16(CTL_ARTICLE_CLOSED, BIN(P_Data->Rec.Closed));
@@ -661,8 +666,12 @@ public:
 		setCtrlReadOnly(CTL_ARTICLE_NAME, LOGIC(P_Data->Options & ArticleDlgData::fDisableName));
 		if(!P_Data->Rec.ObjID || !P_Data->Rec.AccSheetID || !AccSheetFounded)
 			enableCommand(cmaMore, false);
-		enableCommand(cmAgreement, AgtFlags & (ACSHF_USESUPPLAGT|ACSHF_USECLIAGT));
-		enableCommand(cmClearAgreement, (AgtFlags & (ACSHF_USESUPPLAGT|ACSHF_USECLIAGT)) && arobj.CheckRights(ARTRT_CLIAGT));
+		{
+			const  bool is_agt_enabled = LOGIC(AgtFlags & (ACSHF_USESUPPLAGT|ACSHF_USECLIAGT));
+			enableCommand(cmAgreement, is_agt_enabled);
+			enableCommand(cmClearAgreement, is_agt_enabled && ArObj.CheckRights(ARTRT_CLIAGT));
+			showCtrl(CTL_ARTICLE_AGTISEMPTY, is_agt_enabled); // @v12.7.7
+		}
 		updateList(-1);
 	}
 private:
@@ -688,7 +697,7 @@ private:
 			if(obj_id) {
 				getCtrlString(CTL_ARTICLE_NAME, name);
 				if(name.Strip().IsEmpty()) {
-					if(GetObjectName(AccSheetRec.Assoc, obj_id, name) > 0)
+					if(GetObjectName(AcsRec.Assoc, obj_id, name) > 0)
 						setCtrlString(CTL_ARTICLE_NAME, name);
 				}
 			}
@@ -708,13 +717,14 @@ private:
 	ArticleDlgData * P_Data;
 	int    AccSheetFounded;
 	long   AgtFlags;
-	PPAccSheet AccSheetRec;
+	PPAccSheet2 AcsRec;
 	PPObjArticle ArObj;
 };
 
 int ArticleDialog::setupList()
 {
-	PPID   alias_id = 0, acc_id = 0;
+	PPID   alias_id = 0;
+	PPID   acc_id = 0;
 	SString sub;
 	PPObjAccount acc_obj;
 	for(uint i = 0; P_Data->EnumAliasSubst(&i, &alias_id, &acc_id) > 0;) {
@@ -736,28 +746,30 @@ int ArticleDialog::setupList()
 	return 1;
 }
 
-int ArticleDialog::addItem(long * /*pPos*/, long * pID)
+int ArticleDialog::addItem(long */*pPos*/, long * pID)
 {
+	int    ok = -1;
 	LAssoc alias_subst;
 	if(EditAliasSubst(P_Data, &alias_subst) > 0) {
 		if(P_Data->AddAliasSubst(alias_subst.Key, alias_subst.Val)) {
 			*pID = alias_subst.Key;
-			return 1;
+			ok = 1;
 		}
 		else
-			return PPErrorZ();
+			ok = PPErrorZ();
 	}
-	else
-		return -1;
+	return ok;
 }
 
 int ArticleDialog::editItem(long pos, long /*id*/)
 {
 	LAssoc alias_subst;
 	uint   p = static_cast<uint>(pos);
-	if(P_Data->EnumAliasSubst(&p, &alias_subst.Key, &alias_subst.Val) > 0)
-		if(EditAliasSubst(P_Data, &alias_subst) > 0)
+	if(P_Data->EnumAliasSubst(&p, &alias_subst.Key, &alias_subst.Val) > 0) {
+		if(EditAliasSubst(P_Data, &alias_subst) > 0) {
 			return P_Data->UpdateAliasSubst(alias_subst.Key, alias_subst.Val) ? 1 : PPErrorZ();
+		}
+	}
 	return -1;
 }
 
@@ -769,10 +781,10 @@ int ArticleDialog::delItem(long pos, long id)
 
 void ArticleDialog::editObject()
 {
-	if(P_Data->Rec.AccSheetID && AccSheetFounded && AccSheetRec.Assoc) {
-		if(EditPPObj(AccSheetRec.Assoc, P_Data->Rec.ObjID) > 0) {
+	if(P_Data->Rec.AccSheetID && AccSheetFounded && AcsRec.Assoc) {
+		if(EditPPObj(AcsRec.Assoc, P_Data->Rec.ObjID) > 0) {
 			SString obj_name;
-			if(GetObjectName(AccSheetRec.Assoc, P_Data->Rec.ObjID, obj_name) > 0)
+			if(GetObjectName(AcsRec.Assoc, P_Data->Rec.ObjID, obj_name) > 0)
 				setCtrlString(CTL_ARTICLE_NAME, obj_name);
 		}
 	}
@@ -781,8 +793,8 @@ void ArticleDialog::editObject()
 void ArticleDialog::editClientAgreement()
 {
 	int    ok = -1;
-	int    agt_kind = -1;
-	THROW(agt_kind = PPObjArticle::GetAgreementKind(&P_Data->Rec));
+	const  int agt_kind = PPObjArticle::GetAgreementKind(&P_Data->Rec);
+	THROW(agt_kind);
 	if(agt_kind > 0) {
 		if(agt_kind == 1) {
 			PPClientAgreement cli_agt_rec;
@@ -828,7 +840,7 @@ void ArticleDialog::SetEmptyAgreementInd()
 		if((P_Data->P_CliAgt && ArObj.HasClientAgreement(ar_id)) || (P_Data->P_SupplAgt && ArObj.HasSupplAgreement(ar_id)))
 			bmp_id = IDB_GREEN;
 	}
-	SetCtrlBitmap(CTL_ARTICLE_AGTISEMPTY, bmp_id); // SS_BITMAP
+	SetCtrlBitmap(CTL_ARTICLE_AGTISEMPTY, bmp_id);
 }
 //
 //
@@ -847,7 +859,7 @@ int PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 		int    setDTS(const ArticleTbl::Rec * pRec, const PPIDArray * pAry)
 		{
 			int    ok = 1;
-			Rec = *pRec;
+			RVALUEPTR(Rec, pRec);
 			Data.P_List = pAry ? new PPIDArray(*pAry) : new PPIDArray;
 			THROW_MEM(Data.P_List);
 			setCtrlData(CTL_ARTICLE_NUMBER, &Rec.Article);
@@ -861,8 +873,9 @@ int PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 		}
 		int    getDTS(ArticleTbl::Rec * pRec, PPIDArray * pAry)
 		{
-			int    ok = 0, r = 1;
-			PPObjArticle arobj;
+			int    ok = 0;
+			int    r = 1;
+			PPObjArticle ar_obj;
 			long   new_art_no = Rec.Article;
 			getCtrlData(CTL_ARTICLE_NUMBER, &new_art_no);
 			getCtrlData(CTL_ARTICLE_ACCESS, &Rec.AccessLevel);
@@ -870,7 +883,7 @@ int PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 			getCtrlData(CTL_ARTICLE_NAME,   Rec.Name);
 			if(*strip(Rec.Name) == 0)
 				PPErrorByDialog(this, CTL_ARTICLE_NAME, PPERR_NAMENEEDED);
-			else if(new_art_no != Rec.Article && (r = arobj.GetFreeArticle(&new_art_no, Rec.AccSheetID)) > 0) {
+			else if(new_art_no != Rec.Article && (r = ar_obj.GetFreeArticle(&new_art_no, Rec.AccSheetID)) > 0) {
 				setCtrlData(CTL_ARTICLE_NUMBER, &Rec.Article);
 				PPErrorByDialog(this, CTL_ARTICLE_NUMBER, PPERR_DUPARTICLE);
 			}
@@ -904,14 +917,15 @@ int PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 				Data.TitleStrID = PPTXT_SELARTICLES;
 				if(!ListToListDialog(&Data))
 					PPErrorZ();
-				enableCommand(cmAgreement, 0);
+				enableCommand(cmAgreement, false);
 				clearEvent(event);
 			}
 		}
 		ArticleTbl::Rec Rec;
 		ListToListData  Data;
 	};
-	int    ok = -1, valid = 0;
+	int    ok = -1;
+	int    valid = 0;
 	Reference * p_ref(PPRef);
 	uint   i;
 	GrpArticleDialog * dlg = 0;
@@ -932,10 +946,12 @@ int PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 		THROW(P_Tbl->GetListByGroup(ar_rec.ID, &oa_ary));
 		oa_ary.sort();
 	}
-	THROW(CheckDialogPtr(&(dlg = new GrpArticleDialog())));
+	dlg = new GrpArticleDialog();
+	THROW(CheckDialogPtr(&dlg));
 	THROW(dlg->setDTS(&ar_rec, &oa_ary));
-	while(!valid && ExecView(dlg) == cmOK)
+	while(!valid && ExecView(dlg) == cmOK) {
 		valid = dlg->getDTS(&ar_rec, &oa_ary);
+	}
 	if(valid) {
 		ar_rec.ObjID = -ar_rec.Article;
 		PPTransaction tra(1);
@@ -974,8 +990,8 @@ int PPObjArticle::EditDialog(ArticleDlgData * pData)
 	int    valid_data = 0;
 	int    sel_linkobj = 0;
 	uint   dlg_id = 0;
-	long   old_ar_no = pData->Rec.Article;
-	PPAccSheet acs_rec;
+	const  long preserve_ar_no = pData->Rec.Article;
+	PPAccSheet2 acs_rec;
 	ArticleDialog * dlg = 0;
 	PPObjAccSheet acs_obj;
 	THROW(acs_obj.Search(pData->Rec.AccSheetID, &acs_rec) > 0);
@@ -992,7 +1008,8 @@ int PPObjArticle::EditDialog(ArticleDlgData * pData)
 	else {
 		dlg_id = DLG_ARTICLE;
 	}
-	THROW(CheckDialogPtr(&(dlg = new ArticleDialog(dlg_id, pData))));
+	dlg = new ArticleDialog(dlg_id, pData);
+	THROW(CheckDialogPtr(&dlg));
 	dlg->enableCommand(cmOK, CheckRights(PPR_MOD));
 	dlg->setCtrlLong(CTL_ARTICLE_ID, pData->Rec.ID);
 	dlg->setCtrlData(CTL_ARTICLE_SHEETNAME, acs_rec.Name);
@@ -1012,21 +1029,26 @@ int PPObjArticle::EditDialog(ArticleDlgData * pData)
 		dlg->GetClusterData(CTL_ARTICLE_FLAGS, &pData->Rec.Flags);
 		if(pData->Options & ArticleDlgData::fAssocAccnt) {
 			AcctCtrlGroup::Rec acc_rec;
-			dlg->getGroupData(GRP_ASSCACC, &acc_rec);
+			dlg->getGroupData(ArticleDialog::ctlgroupAsscAcc, &acc_rec);
 			pData->Rec.ObjID = acc_rec.AcctId.ac;
 		}
 		dlg->getCtrlData(CTL_ARTICLE_NAME,   pData->Rec.Name);
 		if(*strip(pData->Rec.Name) == 0)
 			PPErrorByDialog(dlg, CTL_ARTICLE_NAME, PPERR_NAMENEEDED);
-		else if(old_ar_no != pData->Rec.Article && (r = GetFreeArticle(&pData->Rec.Article, pData->Rec.AccSheetID)) > 0) {
-			dlg->setCtrlData(CTL_ARTICLE_NUMBER, &old_ar_no);
+		else if(preserve_ar_no != pData->Rec.Article && (r = GetFreeArticle(&pData->Rec.Article, pData->Rec.AccSheetID)) > 0) {
+			dlg->setCtrlLong(CTL_ARTICLE_NUMBER, preserve_ar_no);
 			PPErrorByDialog(dlg, CTL_ARTICLE_NUMBER, PPERR_DUPARTICLE);
 		}
-		else if(!r)
+		else if(!r) {
 			PPError();
-		else if(pData->Rec.AccessLevel < LConfig.AccessLevel)
+		}
+		else if(pData->Rec.AccessLevel < LConfig.AccessLevel) {
 			PPErrorByDialog(dlg, CTL_ARTICLE_ACCESS, PPERR_TOOHIGHACCS);
+		}
 		else {
+			if(acs_rec.Flags & ACSHF_HIERARCHY) { // @v12.7.7
+				dlg->getCtrlData(CTLSEL_ARTICLE_PARENT, &pData->Rec.ParentID);
+			}
 			if(sel_linkobj) {
 				pData->Rec.ObjID = dlg->getCtrlLong(CTLSEL_ARTICLE_LINKOBJ);
 				SString obj_name;
@@ -1066,7 +1088,7 @@ int PPObjArticle::Edit(PPID * pID, void * extraPtr /*sheetID*/)
 		else {
 			if(pack.Assoc) {
 				THROW_PP(oneof6(pack.Assoc, PPOBJ_PERSON, PPOBJ_LOCATION,
-					PPOBJ_ACCOUNT_PRE9004, PPOBJ_ACCOUNT2, PPOBJ_GLOBALUSERACC, PPOBJ_PROCESSOR), PPERR_INVACCSHEETASSOC); // @v11.3.12 PPOBJ_PROCESSOR
+					PPOBJ_ACCOUNT_PRE9004, PPOBJ_ACCOUNT2, PPOBJ_GLOBALUSERACC, PPOBJ_PROCESSOR), PPERR_INVACCSHEETASSOC);
 				if(!oneof2(pack.Assoc, PPOBJ_ACCOUNT_PRE9004, PPOBJ_ACCOUNT2)) {
 					GetObjectName(pack.Assoc, pack.Rec.ObjID, temp_buf.Z());
 					STRNSCPY(pack.Rec.Name, temp_buf);
@@ -1087,7 +1109,7 @@ int PPObjArticle::Edit(PPID * pID, void * extraPtr /*sheetID*/)
 	return ok ? r : 0;
 }
 
-int PPObjArticle::AutoFill(const PPAccSheet * pAccSheetRec)
+int PPObjArticle::AutoFill(const PPAccSheet2 * pAccSheetRec)
 {
 	ArticleAutoAddDialog * dlg = new ArticleAutoAddDialog(pAccSheetRec->ID);
 	int    r = dlg->GetResult();
@@ -1103,7 +1125,7 @@ int PPObjArticle::NewArticle(PPID * pID, long sheetID)
 	bool   done = false;
 	PPID   obj_id = 0;
 	PPObject * ppobj = 0;
-	PPAccSheet acs_rec;
+	PPAccSheet2 acs_rec;
 	ArticleDlgData  pack;
 	THROW(SearchObject(PPOBJ_ACCSHEET, sheetID, &acs_rec) > 0);
 	pack.Rec.AccSheetID = sheetID;
@@ -1111,7 +1133,9 @@ int PPObjArticle::NewArticle(PPID * pID, long sheetID)
 	THROW(GetFreeArticle(&pack.Rec.Article, sheetID));
 	if(oneof3(pack.Assoc, 0, PPOBJ_ACCOUNT_PRE9004, PPOBJ_ACCOUNT2)) {
 		pack.Options &= ~ArticleDlgData::fDisableName;
-		pack.Options |= ArticleDlgData::fAssocAccnt;
+		if(pack.Assoc != 0) { // @v12.7.7 @condition
+			pack.Options |= ArticleDlgData::fAssocAccnt;
+		}
 		THROW(cm = EditDialog(&pack));
 		if(pack.Assoc == 0)
 			pack.Rec.ObjID = pack.Rec.Article;
@@ -1191,7 +1215,7 @@ TLP_IMPL(PPObjArticle, ArticleCore, P_Tbl);
 PPObjArticle::PPObjArticle(void * extraPtr) : PPObject(PPOBJ_ARTICLE), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	ImplementFlags |= implStrAssocMakeList;
+	ImplementFlags |= implStrAssocMakeList|implTreeSelectorByHierFact; // @v12.7.7 implTreeSelectorByHierFact
 	RVALUEPTR(CurrFilt, static_cast<ArticleFilt *>(ExtraPtr));
 }
 
@@ -1205,19 +1229,16 @@ int PPObjArticle::Search(PPID id, void * b) { return SearchByID(P_Tbl, Obj, id, 
 int PPObjArticle::GetFreeArticle(long * pID, long accSheetID)
 { 
 	assert(pID != 0);
-	// @v11.2.4 {
 	// Если статья не ассоциирована с объектом, то в новой записи ObjID будет равно Article по-этому надо
 	// проверить свободен ли соответствующий номер по ключу ArticleTbl::Key3
 	bool check_surr_obj_ref = false;
 	if(*pID == 0) {
 		PPObjAccSheet acs_obj;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		if(acs_obj.Search(accSheetID, &acs_rec) > 0 && acs_rec.Assoc == 0)
 			check_surr_obj_ref = true;
 	}
-	// } @v11.2.4 
 	int r = P_Tbl->SearchFreeNum(accSheetID, pID); 
-	// @v11.2.4 {
 	if(r) {
 		while(check_surr_obj_ref) { 
 			ArticleTbl::Key3 k3;
@@ -1231,7 +1252,6 @@ int PPObjArticle::GetFreeArticle(long * pID, long accSheetID)
 				check_surr_obj_ref = false;
 		}
 	}
-	// } @v11.2.4
 	return r;
 }
 
@@ -1245,7 +1265,7 @@ int PPObjArticle::GetFreeArticle(long * pID, long accSheetID)
 	}
 	if(ok < 0) {
 		PPObjAccSheet acs_obj;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		if(acs_obj.Fetch(accSheetID, &acs_rec) > 0) {
 			reg_type_id = acs_rec.CodeRegTypeID;
 			if(reg_type_id > 0)
@@ -1267,13 +1287,15 @@ int PPObjArticle::SearchByRegCode(PPID accSheetID, PPID regTypeID, const char * 
 	PPIDArray psn_list;
 	PPObjPerson psn_obj;
 	ArticleTbl::Rec ar_rec;
-	if(psn_obj.GetListByRegNumber(regTypeID, 0, pRegCode, psn_list) > 0)
-		for(uint i = 0; ok < 0 && i < psn_list.getCount(); i++)
+	if(psn_obj.GetListByRegNumber(regTypeID, 0, pRegCode, psn_list) > 0) {
+		for(uint i = 0; ok < 0 && i < psn_list.getCount(); i++) {
 			if(P_Tbl->SearchObjRef(accSheetID, psn_list.get(i), &ar_rec) > 0) {
 				ASSIGN_PTR(pID, ar_rec.ID);
 				ASSIGN_PTR(pRec, ar_rec);
 				ok = 1;
 			}
+		}
+	}
 	return ok;
 }
 
@@ -1292,11 +1314,12 @@ int PPObjArticle::GetByLocationList(PPID accSheetID, const PPIDArray * pLocList,
 			}
 		}
 		else {
-			PPAccSheet acs_rec;
+			PPAccSheet2 acs_rec;
 			PPObjAccSheet acs_obj;
 			for(SEnum en = acs_obj.P_Ref->EnumByIdxVal(PPOBJ_ACCSHEET, 1, link_obj_type); en.Next(&acs_rec) > 0;) {
-				if(acs_rec.Assoc == link_obj_type)
+				if(acs_rec.Assoc == link_obj_type) {
 					THROW(GetByLocationList(acs_rec.ID, pLocList, pArList)); // @recursion
+				}
 			}
 		}
 	}
@@ -1320,7 +1343,7 @@ int PPObjArticle::GetByPersonList(PPID accSheetID, const PPIDArray * pPsnList, P
 		}
 		else {
 			PPObjAccSheet acs_obj;
-			PPAccSheet acs_rec;
+			PPAccSheet2 acs_rec;
 			for(SEnum en = acs_obj.P_Ref->EnumByIdxVal(PPOBJ_ACCSHEET, 1, link_obj_type); en.Next(&acs_rec) > 0;) {
 				if(acs_rec.Assoc == link_obj_type)
 					THROW(GetByPersonList(acs_rec.ID, pPsnList, pArList)); // @recursion
@@ -1355,7 +1378,7 @@ int PPObjArticle::GetByProcessor(PPID accSheetID, PPID prcID, PPIDArray * pArLis
 	CALLPTRMEMB(pArList, Z());
 	if(prcID) {
 		PPObjAccSheet acs_obj;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		if(accSheetID) {
 			if(acs_obj.Fetch(accSheetID, &acs_rec) > 0 && acs_rec.Assoc == link_obj_type) {
 				ArticleTbl::Rec ar_rec;
@@ -1530,7 +1553,7 @@ int PPObjArticle::GetPacket(PPID id, PPArticlePacket * pPack)
 		if(ok > 0) {
 			LAssocArray alias_subst;
 			PPObjAccSheet acs_obj;
-			PPAccSheet acs_rec;
+			PPAccSheet2 acs_rec;
 			if(acs_obj.Fetch(pPack->Rec.AccSheetID, &acs_rec) > 0) {
 				pPack->Assoc = acs_rec.Assoc;
 				if(acs_rec.Flags & ACSHF_USESUPPLAGT || pPack->Rec.AccSheetID == GetSupplAccSheet()) {
@@ -1557,28 +1580,35 @@ int PPObjArticle::GetPacket(PPID id, PPArticlePacket * pPack)
 	return ok;
 }
 
-StrAssocArray * PPObjArticle::MakeStrAssocList(void * extraPtr /*accSheetID-->(ArticleFilt*)*/ )
+StrAssocArray * PPObjArticle::MakeStrAssocList(void * extraPtr/*accSheetID-->(ArticleFilt*)*/)
 {
-//#define DO_GET_NAME_FROM_CACHE // Вариант с раздельным извлечением строк (значительно медленнее прямого метода)q
+//#define DO_GET_NAME_FROM_CACHE // Вариант с раздельным извлечением строк (значительно медленнее прямого метода)
 	StrAssocArray * p_list = 0;
 	PROFILE_START
 	const  ArticleFilt * p_filt = &CurrFilt;
 	const  PPID acs_id = p_filt ? labs(p_filt->AccSheetID) : 0;
+	SString temp_buf;
 	ArticleTbl::Key2 k2;
-	PPObjAccSheet acc_sheet_obj;
-	PPAccSheet acs_rec;
+	PPObjAccSheet acs_obj;
+	PPAccSheet2 acs_rec;
 	ArticleTbl::Rec ar_rec;
 	PPSupplAgreement suppl_agt;
 	DBQ  * dbq = 0;
+	bool   is_hier = false; // @v12.7.7 Если true, то список статей иерархический
+	PPIDArray folder_id_list; // @v12.7.7 Список идентификаторов родительских статей (они обязательно должны попасть в списко не зависимо от параметров фильтрации)
 	ArticleTbl * p_tbl = P_Tbl;
 	BExtQuery q(p_tbl, 2);
 	THROW_MEM(p_list = new StrAssocArray);
-	if(acs_id)
-		THROW(acc_sheet_obj.Fetch(acs_id, &acs_rec) > 0);
+	if(acs_id) {
+		THROW(acs_obj.Fetch(acs_id, &acs_rec) > 0);
+		if(acs_rec.Flags & ACSHF_HIERARCHY) { // @v12.7.7
+			is_hier = true;
+		}
+	}
 #ifdef DO_GET_NAME_FROM_CACHE
 	q.select(p_tbl->ID, p_tbl->ObjID, 0L);
 #else
-	q.select(p_tbl->ID, p_tbl->Name, p_tbl->ObjID, p_tbl->Flags, 0L);
+	q.select(p_tbl->ID, p_tbl->Name, p_tbl->ObjID, p_tbl->Flags, p_tbl->ParentID, 0L); // @v12.7.7 p_tbl->ParentID
 #endif // DO_GET_NAME_FROM_CACHE
 	if(acs_id)
 		dbq = & (p_tbl->AccSheetID == acs_id);
@@ -1592,23 +1622,53 @@ StrAssocArray * PPObjArticle::MakeStrAssocList(void * extraPtr /*accSheetID-->(A
 	for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
 		const  PPID ar_id = p_tbl->data.ID;
 		p_tbl->CopyBufTo(&ar_rec);
-		int   do_skip = 0;
+		bool   do_skip = false;
 		if(p_filt) {
 			if(p_filt->Flags & ArticleFilt::fNonGenericOnly && ar_rec.Flags & ARTRF_GROUP)
-				do_skip = 1;
+				do_skip = true;
 			else if(p_filt->Flags & ArticleFilt::fWithIxParamOnly)
-				do_skip = (GetSupplAgreement(ar_rec.ID, &suppl_agt, 0) > 0 && !suppl_agt.Ep.IsEmpty()) ? 0 : 1;
+				do_skip = (GetSupplAgreement(ar_rec.ID, &suppl_agt, 0) > 0 && !suppl_agt.Ep.IsEmpty()) ? false : true;
 		}
 		if(!do_skip) {
 #ifdef DO_GET_NAME_FROM_CACHE
 			if(Fetch(ar_id, &ar_rec) > 0) {
-				THROW_SL(p_list->AddFast(ar_id, ar_rec.Name));
+				if(is_hier) { // @v12.7.7
+					THROW_SL(p_list->Add(ar_id, ar_rec.ParentID, ar_rec.Name));
+					folder_id_list.addnz(ar_rec.ParentID);
+				}
+				else {
+					THROW_SL(p_list->AddFast(ar_id, ar_rec.Name));
+				}
 			}
 #else
-			THROW_SL(p_list->AddFast(ar_id, ar_rec.Name));
+			if(is_hier) { // @v12.7.7
+				THROW_SL(p_list->Add(ar_id, ar_rec.ParentID, ar_rec.Name));
+				folder_id_list.addnz(ar_rec.ParentID);
+			}
+			else {
+				THROW_SL(p_list->AddFast(ar_id, ar_rec.Name));
+			}
 #endif // DO_GET_NAME_FROM_CACHE
 		}
 	}
+	// @v12.7.7 {
+	if(folder_id_list.getCount()) {
+		folder_id_list.sortAndUndup();
+		for(uint i = 0; i < folder_id_list.getCount(); i++) {
+			const  PPID parent_id = folder_id_list.get(i);
+			if(!p_list->Search(parent_id)) {
+				if(Fetch(parent_id, &ar_rec) > 0) {
+					THROW_SL(p_list->AddFast(ar_rec.ID, ar_rec.Name));
+				}
+				else {
+					temp_buf.Z().Cat("Folder").Space().CatChar('#').Cat(parent_id);
+					THROW_SL(p_list->AddFast(parent_id, temp_buf));
+				}
+			}
+		}
+	}
+	p_list->SortByTextInTreeOrder();
+	// } @v12.7.7 
 	CATCH
 		ZDELETE(p_list);
 	ENDCATCH
@@ -1634,10 +1694,7 @@ int PPObjArticle::Browse(void * extraPtr /*(ArticleFilt *)*/)
 //
 //
 //
-const char * PPObjArticle::GetNamePtr()
-{
-	return P_Tbl->data.Name;
-}
+const char * PPObjArticle::GetNamePtr() { return P_Tbl->data.Name; }
 
 int PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
@@ -1658,8 +1715,8 @@ int PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					break;
 				case PPOBJ_PERSON:
 				case PPOBJ_LOCATION:
-				case PPOBJ_GLOBALUSERACC: // @v11.3.12 @fix
-				case PPOBJ_PROCESSOR: // @v11.3.12
+				case PPOBJ_GLOBALUSERACC:
+				case PPOBJ_PROCESSOR:
 					{
 						PPID   ar_id = 0;
 						int    r = SearchAssocObjRef(_obj, _id, 0, 0, &ar_id);
@@ -1727,15 +1784,14 @@ int PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			{
 				const  PPID person_id = _id;
 				const  PPID kind_id = reinterpret_cast<long>(extraPtr);
-
-				PPID   sheet_id = 0;
-				PPAccSheet acs_rec;
+				PPID   acs_id = 0;
+				PPAccSheet2 acs_rec;
 				PPObjAccSheet as_obj;
-				while(ok == DBRPL_OK && as_obj.EnumItems(&sheet_id, &acs_rec) > 0) {
+				while(ok == DBRPL_OK && as_obj.EnumItems(&acs_id, &acs_rec) > 0) {
 					if(acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == kind_id && acs_rec.Flags & ACSHF_AUTOCREATART) {
-						if(P_Tbl->SearchObjRef(sheet_id, person_id) < 0) {
+						if(P_Tbl->SearchObjRef(acs_id, person_id) < 0) {
 							PPID   ar_id = 0;
-							if(!CreateObjRef(&ar_id, sheet_id, person_id, 0, 0))
+							if(!CreateObjRef(&ar_id, acs_id, person_id, 0, 0))
 								ok = DBRPL_ERROR;
 						}
 					}
@@ -1743,7 +1799,7 @@ int PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			}
 			break;
 		case DBMSG_OBJNAMEUPDATE:
-			if(oneof3(_obj, PPOBJ_PERSON, PPOBJ_LOCATION, PPOBJ_PROCESSOR)) { // @v11.3.12 PPOBJ_PROCESSOR
+			if(oneof3(_obj, PPOBJ_PERSON, PPOBJ_LOCATION, PPOBJ_PROCESSOR)) {
 				int    r;
 				PPID   acs_id = 0;
 				while((r = SearchAssocObjRef(_obj, _id, &acs_id, 0, 0)) > 0 && (r = _UpdateName(static_cast<const char *>(extraPtr))) != 0)
@@ -1767,7 +1823,7 @@ int PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				ok = ReplyObjectCreated(_obj, _id);
 			}
 			break;
-		case DBMSG_PROCESSORADDED: // @v11.3.12
+		case DBMSG_PROCESSORADDED:
 			if(_obj == PPOBJ_PROCESSOR) {
 				ok = ReplyObjectCreated(_obj, _id);
 			}
@@ -1779,20 +1835,21 @@ int PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 int PPObjArticle::SearchAssocObjRef(PPID _obj, PPID _id, PPID * pAccSheetID, PPID kind, PPID * pID)
 {
 	int    r;
-	PPID   acc_sheet_id = DEREFPTRORZ(pAccSheetID);
-	PPAccSheet acs_rec;
+	PPID   acs_id = DEREFPTRORZ(pAccSheetID);
+	PPAccSheet2 acs_rec;
 	PPObjAccSheet as_obj;
 	ASSIGN_PTR(pID, 0);
-	while((r = as_obj.EnumItems(&acc_sheet_id, &acs_rec)) > 0)
+	while((r = as_obj.EnumItems(&acs_id, &acs_rec)) > 0) {
 		if(acs_rec.Assoc == _obj && (!kind || acs_rec.ObjGroup == kind)) {
 			ArticleTbl::Rec rec;
-			if((r = P_Tbl->SearchObjRef(acc_sheet_id, _id, &rec)) >= 0) {
+			if((r = P_Tbl->SearchObjRef(acs_id, _id, &rec)) >= 0) {
 				if(r > 0)
 					ASSIGN_PTR(pID, rec.ID);
 				break;
 			}
 		}
-	ASSIGN_PTR(pAccSheetID, acc_sheet_id);
+	}
+	ASSIGN_PTR(pAccSheetID, acs_id);
 	return r;
 }
 
@@ -1801,7 +1858,7 @@ int PPObjArticle::AddSimple(PPID * pID, PPID accSheetID, const char * pName, lon
 	int    ok = 1;
 	ArticleTbl::Rec rec;
 	PPObjAccSheet acs_obj;
-	PPAccSheet acs_rec;
+	PPAccSheet2 acs_rec;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1829,7 +1886,7 @@ int PPObjArticle::CreateObjRef(PPID * pID, PPID accSheetID, PPID objID, long ar,
 	SString temp_buf;
 	ArticleTbl::Rec rec;
 	PPObjAccSheet acs_obj;
-	PPAccSheet acs_rec;
+	PPAccSheet2 acs_rec;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1861,7 +1918,7 @@ int PPObjArticle::_ProcessSearch(int r, PPID id)
 
 int PPObjArticle::ReplyObjectCreated(PPID objType, PPID objID)
 {
-	PPAccSheet acs_rec;
+	PPAccSheet2 acs_rec;
 	PPObjAccSheet acs_obj;
 	for(PPID acs_id = 0; acs_obj.EnumItems(&acs_id, &acs_rec) > 0;) {
 		if(acs_rec.Assoc == objType && acs_rec.Flags & ACSHF_AUTOCREATART) {
@@ -1898,11 +1955,11 @@ int PPObjArticle::ReplyPersonReplace(PPID dest, PPID src)
 {
 	int    ok = DBRPL_OK;
 	int    r;
-	PPID   acc_sheet_id = 0;
+	PPID   acs_id = 0;
 	PPID   dest_ar_id = 0;
 	PersonTbl::Rec psnr;
-	while((r = SearchAssocObjRef(PPOBJ_PERSON, dest, &acc_sheet_id, 0, &dest_ar_id)) > 0) {
-		if((r = P_Tbl->SearchObjRef(acc_sheet_id, src)) > 0) {
+	while((r = SearchAssocObjRef(PPOBJ_PERSON, dest, &acs_id, 0, &dest_ar_id)) > 0) {
+		if((r = P_Tbl->SearchObjRef(acs_id, src)) > 0) {
 			THROW(ReplyArticleReplace(dest_ar_id, P_Tbl->data.ID) != DBRPL_ERROR);
 		}
 		else if(r < 0) {
@@ -2079,14 +2136,15 @@ int PPObjArticle::GetMainOrgAsSuppl(PPID * pID, int processAbsense, int use_ta)
 {
 	int    ok = 1;
 	PPID   i;
-	const  PPID   acs_id = GetSupplAccSheet();
+	const  PPID acs_id = GetSupplAccSheet();
 	THROW(acs_id);
 	THROW(GetMainOrgID(&i) > 0);
 	{
 		int    r = P_Tbl->SearchObjRef(acs_id, i);
 		THROW(r);
-		if(r > 0)
+		if(r > 0) {
 			*pID = P_Tbl->data.ID;
+		}
 		else if(r) {
 			if(processAbsense) {
 				THROW(CreateObjRef(pID, acs_id, i, 0, use_ta));
@@ -2141,7 +2199,7 @@ SString & PPObjArticle::MakeCodeString(const ArticleTbl::Rec * pRec, long option
 	rBuf.Cat(pRec->Name);
 	if(options & 0x0001) {
 		PPObjAccSheet acs_obj;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		rBuf.CatDiv('-', 1);
 		if(acs_obj.Fetch(pRec->AccSheetID, &acs_rec) > 0)
 			rBuf.Cat(acs_rec.Name);
@@ -2160,7 +2218,7 @@ int PPObjArticle::CheckPersonPacket(const PPPersonPacket * pPack, PPIDArray * pA
 		GetByPersonList(0, &id_list, &ar_id_list);
 		if(ar_id_list.getCount()) {
 			PPObjAccSheet acs_obj;
-			PPAccSheet acs_rec;
+			PPAccSheet2 acs_rec;
 			for(uint i = 0; i < ar_id_list.getCount(); i++) {
 				ArticleTbl::Rec ar_rec;
 				const  PPID id = ar_id_list.get(i);
@@ -2188,7 +2246,7 @@ int PPObjArticle::CheckObject(const ArticleTbl::Rec * pRec, SString * pMsgBuf)
 	int    ok = 1;
 	SString ar_buf;
 	PPObjAccSheet acs_obj;
-	PPAccSheet acs_rec;
+	PPAccSheet2 acs_rec;
 	THROW_INVARG(pRec);
 	MakeCodeString(pRec, 0x0001, ar_buf);
 	THROW_PP(acs_obj.Fetch(pRec->AccSheetID, &acs_rec) > 0, PPERR_AR_INVACCSHEET);
@@ -2222,7 +2280,7 @@ int PPObjArticle::CheckObject(const ArticleTbl::Rec * pRec, SString * pMsgBuf)
 		THROW_PP(gua_obj.Search(pRec->ObjID, &gua_rec) > 0, PPERR_AR_HANGLINK_GUA);
 		THROW_PP(sstreq(gua_rec.Name, pRec->Name), PPERR_AR_UNEQNAME_GUA);
 	}
-	else if(acs_rec.Assoc == PPOBJ_PROCESSOR) { // @v11.3.12
+	else if(acs_rec.Assoc == PPOBJ_PROCESSOR) {
 		PPObjProcessor prc_obj;
 		ProcessorTbl::Rec prc_rec;
 		THROW_PP(prc_obj.Search(pRec->ObjID, &prc_rec) > 0, PPERR_AR_HANGLINK_PRC);
@@ -2351,7 +2409,7 @@ void FASTCALL PPObjArticle::Dirty(PPID id)
 	ArticleTbl::Rec rec;
 	if(Fetch(id, &rec) > 0 && rec.ObjID) {
 		PPObjAccSheet acc_sheet_obj;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		if(acc_sheet_obj.Fetch(rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_LOCATION) {
 			PPObjLocation loc_obj;
 			loc_obj.Dirty(rec.ObjID);

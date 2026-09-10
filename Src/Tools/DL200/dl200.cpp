@@ -1461,7 +1461,7 @@ int DL2_Acc::GetAcc(char ** ptr, int isCorr, int substAr)
 		while(isasciialnum(*p) || *p == '.')
 			acc_number[ap++] = *p++;
 		acc_number[ap] = 0;
-		strnzcpy(p_code, strip(acc_number), sizeof(Code)); // @v10.3.4 @fix STRNSCPY(ptr)-->strnzcpy(ptr)
+		strnzcpy(p_code, strip(acc_number), sizeof(Code));
 	}
 	while(i < 3)
 		tok[i++] = -1;

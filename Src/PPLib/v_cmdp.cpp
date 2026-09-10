@@ -207,7 +207,7 @@ private:
 		if(P_Box) {
 			THROW_MEM(p_list = new StrAssocArray);
 			THROW(Data.GetCommandList(p_list, 0));
-			THROW_MEM(p_def = new StdTreeListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify, 0));
+			THROW_MEM(p_def = new StdTreeListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify));
 			P_Box->setDef(p_def);
 			P_Box->Draw_();
 			ok = 1;
@@ -863,7 +863,7 @@ int EditCommandGroupSingle(PPCommandGroup * pData)
 			if(P_Box) {
 				THROW_MEM(p_list = new StrAssocArray);
 				THROW(Data.GetCommandList(p_list, 0));
-				THROW_MEM(p_def = new StdTreeListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify, 0));
+				THROW_MEM(p_def = new StdTreeListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify));
 				P_Box->setDef(p_def);
 				P_Box->Draw_();
 				ok = 1;

@@ -551,8 +551,8 @@ int GoodsValRestrDialog::EditItem(ObjRestrictItem & rItem)
 #define GRP_ARTICLE 1
 
 	int    ok = -1;
-	TDialog * dlg = 0;
-	THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_GVRBAR))));
+	TDialog * dlg = new TDialog(DLG_GVRBAR);
+	THROW(CheckDialogPtrErr(&dlg));
 	dlg->addGroup(GRP_ARTICLE, new ArticleCtrlGroup(CTLSEL_GVRBAR_ACS, 0, CTLSEL_GVRBAR_AR, 0, 0));
 	{
 		PPID   acs_id = 0;

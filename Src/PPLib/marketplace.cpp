@@ -4832,7 +4832,7 @@ PPID PPMarketplaceInterface_Wildberries::CreateBuyer(const Sale * pSaleEntry, in
 				const PPID acs_id = op_rec.AccSheetID;
 				if(acs_id) {
 					PPObjAccSheet acs_obj;
-   					PPAccSheet acs_rec;
+   					PPAccSheet2 acs_rec;
 					PPID   ar_id = 0;
 					PPID   psn_id = 0;
 					if(acs_obj.Fetch(acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON) {

@@ -50,15 +50,13 @@
 		#endif
 	#endif
 #endif
-// @v10.9.3 #include <libxml/nanohttp.h>
-// @v10.9.3 #include <libxml/nanoftp.h>
 /* #define VERBOSE_FAILURE */
 /* #define DEBUG_EXTERNAL_ENTITIES */
 /* #define DEBUG_INPUT */
 #ifdef DEBUG_INPUT
-	#define MINLEN 64 // @v10.8.0 40-->64
+	#define MINLEN 64
 #else
-	#define MINLEN 8192 // @v10.8.0 4000-->8192
+	#define MINLEN 8192
 #endif
 /*
  * Input I/O callback sets

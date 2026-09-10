@@ -323,21 +323,21 @@ static int GetDefaultPaymPeriod(const PPBillPacket * pPack, int * pDays)
 	int    ok = -1;
 	PPID   client_id = 0;
 	int    paym_period = 1; // Срок оплаты по документу (в днях), взятый из соглашения //
-	PPObjArticle arobj;
+	PPObjArticle ar_obj;
 	ArticleTbl::Rec ar_rec;
-	if(arobj.Fetch(pPack->Rec.Object, &ar_rec) > 0)
+	if(ar_obj.Fetch(pPack->Rec.Object, &ar_rec) > 0)
 		client_id = ar_rec.ID;
 	else
 		ar_rec.Clear();
-	const  int    agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
+	const  int agt_kind = PPObjArticle::GetAgreementKind(&ar_rec);
 	if(agt_kind == 1) {
 		PPClientAgreement ca_rec;
-		if(arobj.GetClientAgreement(client_id, ca_rec, 1) > 0)
+		if(ar_obj.GetClientAgreement(client_id, ca_rec, 1) > 0)
 			paym_period = ca_rec.DefPayPeriod;
 	}
 	else if(agt_kind == 2) {
 		PPSupplAgreement sa_rec;
-		if(arobj.GetSupplAgreement(client_id, &sa_rec, 1) > 0)
+		if(PPObjArticle::GetSupplAgreement(client_id, &sa_rec, 1) > 0)
 			paym_period = sa_rec.DefPayPeriod;
 	}
 	if(paym_period > 0)
@@ -2641,7 +2641,7 @@ int PPBillPacket::SetupObject(PPID arID, SetupObjectBlock & rRet)
 			}
 			if(!(rRet.Flags & SetupObjectBlock::fLightweightMode)) { // @v12.6.0 @condition
 				if(rRet.PsnID) {
-					PPAccSheet acs_rec;
+					PPAccSheet2 acs_rec;
 					PPObjAccSheet acs_obj;
 					assert(rRet.AcsID); // Коль скоро rRet.PsnID != 0, то его мы получили методом PreprocessArContext() из arID. Мы не могли его получить, не получив "живого" rRet.AcsID!
 					const  PPID restrict_psn_kind = (acs_obj.Fetch(rRet.AcsID, &acs_rec) > 0) ? acs_rec.ObjGroup : 0;
@@ -3387,19 +3387,21 @@ int PPBillPacket::CreateBlank2(PPID opID, LDATE dt, PPID locID, int use_ta)
 int PPBillPacket::CreateBlankByFilt(PPID opID, const BillFilt * pFilt, int use_ta)
 {
 	int    ok = 1;
-	PPID   single_loc_id = pFilt->LocList.GetSingle();
+	const  PPID single_loc_id = pFilt->LocList.GetSingle();
 	PPOprKind2 op_rec;
 	THROW(_CreateBlank(NZOR(opID, pFilt->OpID), 0L, single_loc_id, 0, use_ta));
 	if(pFilt->Period.upp)
 		Rec.Dt = pFilt->Period.upp;
 	if(Rec.OpID && GetOpData(Rec.OpID, &op_rec) > 0) {
-		PPID acc_sheet_id = 0;
-		if(pFilt->ObjectID && GetArticleSheetID(pFilt->ObjectID, &acc_sheet_id) > 0)
+		PPID   acc_sheet_id = 0;
+		if(pFilt->ObjectID && GetArticleSheetID(pFilt->ObjectID, &acc_sheet_id) > 0) {
 			if(acc_sheet_id == op_rec.AccSheetID)
 				Rec.Object = pFilt->ObjectID;
-		if(pFilt->Object2ID && GetArticleSheetID(pFilt->Object2ID, &acc_sheet_id) > 0)
+		}
+		if(pFilt->Object2ID && GetArticleSheetID(pFilt->Object2ID, &acc_sheet_id) > 0) {
 			if(acc_sheet_id == op_rec.AccSheet2ID)
 				Rec.Object2 = pFilt->Object2ID;
+		}
 	}
 	if(single_loc_id)
 		Rec.LocID = single_loc_id;
@@ -3407,9 +3409,10 @@ int PPBillPacket::CreateBlankByFilt(PPID opID, const BillFilt * pFilt, int use_t
 		Rec.CurID = pFilt->CurID;
 	Ext.PayerID = pFilt->PayerID;
 	Ext.AgentID = pFilt->AgentID;
-	if(oneof2(OpTypeID, PPOPT_ACCTURN, PPOPT_PAYMENT))
-		if(pFilt->AmtRange.low == pFilt->AmtRange.upp && pFilt->AmtRange.low > 0)
+	if(oneof2(OpTypeID, PPOPT_ACCTURN, PPOPT_PAYMENT)) {
+		if(pFilt->AmtRange.low == pFilt->AmtRange.upp && pFilt->AmtRange.low > 0.0)
 			Rec.Amount = pFilt->AmtRange.low;
+	}
 	CATCHZOK
 	return ok;
 }
@@ -3600,8 +3603,8 @@ int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontI
 			Rec.Flags |= BILLF_GRECEIPT;
 		if(OpTypeID == PPOPT_GOODSRECEIPT) {
 			if(AccSheetID == 0) {
-				PPObjArticle arobj;
-				THROW(arobj.GetMainOrgAsSuppl(&Rec.Object, 0, use_ta));
+				PPObjArticle ar_obj;
+				THROW(ar_obj.GetMainOrgAsSuppl(&Rec.Object, 0, use_ta));
 			}
 		}
 		if(op_rec.ExtFlags & OPKFX_AUTOGENUUID)
@@ -3839,9 +3842,19 @@ int PPBillPacket::GetSyncStatus()
 	return SyncStatus;
 }
 
+const  char * FASTCALL PPBillPacket::GetInvoiceCode(int extraCondition) const // @v12.7.7 
+{
+	return (extraCondition && !isempty(Ext.InvoiceCode)) ? Ext.InvoiceCode : Rec.Code;
+}
+
+LDATE  FASTCALL PPBillPacket::GetInvoiceDate(int extraCondition) const // @v12.7.7 
+{
+	return (extraCondition && checkdate(Ext.InvoiceDate)) ? Ext.InvoiceDate : Rec.Dt;
+}
+
 int FASTCALL PPBillPacket::SetTPointer(int pos)
 {
-	if((pos >= 0 && pos < (int)Lots.getCount()) || pos == -1) {
+	if((pos >= 0 && pos < Lots.getCountI()) || pos == -1) {
 		Lots.setPointer(static_cast<uint>(pos));
 		return 1;
 	}

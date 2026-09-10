@@ -236,7 +236,7 @@ public:
 		if(acc_rec.AccSheetID) {
 			GetClusterData(CTL_ACCANLZ_TRNOVR, &Data.Flags);
 			PPObjAccSheet acs_obj;
-			PPAccSheet acs_rec;
+			PPAccSheet2 acs_rec;
 			if(acs_obj.Fetch(acc_rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON) {
 				GetClusterData(CTL_ACCANLZ_TRNOVR, &Data.Flags);
 				if(Data.Flags & AccAnlzFilt::fTrnovrBySheet || acc_rec.AcctId.ar)
@@ -421,7 +421,7 @@ private:
 	void   SetupSubstRelCombo()
 	{
 		PPObjAccSheet acs_obj;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		AcctCtrlGroup::Rec acg_rec;
 		getGroupData(ctlgroupAcc, &acg_rec);
 		if(acg_rec.AccSheetID && acs_obj.Fetch(acg_rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON) {
@@ -478,11 +478,11 @@ int PPViewAccAnlz::EditSupplTrnovrFilt(AccAnlzFilt * pFilt)
 	int    ok = -1;
 	int    valid_data = 0;
 	int    search;
-	PPAccSheet acc_sheet_rec;
+	PPAccSheet2 acs_rec;
 	TDialog * dlg = 0;
 	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_SPLTOFLT))));
-	THROW(P_BObj->atobj->ConvertAcct(&CConfig.SupplAcct, 0 /*@curID*/, &pFilt->AcctId, &pFilt->AccSheetID));
-	THROW(search = SearchObject(PPOBJ_ACCSHEET, pFilt->AccSheetID, &acc_sheet_rec));
+	THROW(P_BObj->atobj->ConvertAcct(&CConfig.SupplAcct, 0/*@curID*/, &pFilt->AcctId, &pFilt->AccSheetID));
+	THROW(search = SearchObject(PPOBJ_ACCSHEET, pFilt->AccSheetID, &acs_rec));
 	THROW_PP(search > 0, PPERR_INVACCSUPPL);
 	dlg->SetupCalPeriod(CTLCAL_SPLTOFLT_PERIOD, CTL_SPLTOFLT_PERIOD);
 	SetPeriodInput(dlg, CTL_SPLTOFLT_PERIOD, pFilt->Period);
@@ -1224,7 +1224,7 @@ bool PPViewAccAnlz::IsDedicatedRestEvaluationNeeded() const
 		//
 		int    is_person_rel = 0;
 		ArticleTbl::Rec ar_rec;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		TSVector <AcctRelTbl::Rec> acr_list;
 		THROW(P_TmpATTbl = CreateTempATFile());
 		THROW(AccObj.Fetch(Filt.AccID, &acc_rec) > 0);
@@ -2529,7 +2529,7 @@ int PPALDD_Article::InitData(PPFilt & rFilt, long rsrv)
 			H.Stop    = BIN(rec.Flags & ARTRF_STOPBILL);
 			STRNSCPY(H.Name, rec.Name);
 			PPObjAccSheet acc_sheet_obj;
-			PPAccSheet acs_rec;
+			PPAccSheet2 acs_rec;
 			if(acc_sheet_obj.Fetch(rec.AccSheetID, &acs_rec) > 0) {
 				H.LinkObjType = acs_rec.Assoc;
 				if(acs_rec.Assoc == PPOBJ_PERSON)
@@ -2953,7 +2953,7 @@ int PPALDD_AccSheet::InitData(PPFilt & rFilt, long rsrv)
 	else {
 		MEMSZERO(H);
 		PPObjAccSheet acs_obj;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		if(acs_obj.Fetch(rFilt.ID, &acs_rec) > 0) {
 		   	H.ID = acs_rec.ID;
 			STRNSCPY(H.Name, acs_rec.Name);

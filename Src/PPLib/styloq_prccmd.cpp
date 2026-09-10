@@ -940,7 +940,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 				PPObjTSession tses_obj;
 				PPObjArticle ar_obj;
 				PPObjAccSheet acs_obj;
-				PPAccSheet acs_rec;
+				PPAccSheet2 acs_rec;
 				PPIDArray tec_candidate_list;
 				ProcessorTbl::Rec prc_rec;
 				TechTbl::Rec tec_rec;
@@ -1144,7 +1144,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 					PPBillPacket ex_bpack_; // Пакет документа, найденный по UUID
 					PPBillPacket * p_bpack = 0; // Указатель на пакет, который буде сохраняться в БД (&bpack || &ex_bpack)
 					PPObjAccSheet acs_obj;
-					PPAccSheet acs_rec;
+					PPAccSheet2 acs_rec;
 					ObjTagItem tag_item;
 					ObjTagList tag_list;
 					BillTbl::Rec ex_bill_rec;

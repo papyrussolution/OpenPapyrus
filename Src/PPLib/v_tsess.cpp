@@ -2037,10 +2037,7 @@ int PPViewTSessLine::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 				{
 					const  PPID tses_id = (TranslateBrwHdr(pHdr, &hdr) && hdr.TSesID) ? hdr.TSesID : Filt.TSesList.GetSingle();
 					if(tses_id) {
-						ok = AddCompletion(tses_id); // @v10.8.10
-						/* @v10.8.10 ok = TSesObj.CompleteSession(tses_id, 1);
-						if(!ok)
-							PPError();*/
+						ok = AddCompletion(tses_id);
 					}
 				}
 				break;

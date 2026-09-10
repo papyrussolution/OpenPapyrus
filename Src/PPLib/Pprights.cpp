@@ -1528,7 +1528,7 @@ int FastEditRightsDlg::setupGrpUsrList()
 		THROW_SL(p_list->Add(p_pack->Secur.ID, (p_pack->Secur.Tag == PPOBJ_USR) ? p_pack->Secur.ParentID : 0, temp_buf));
 	}
 	p_lbx = static_cast<SmartListBox *>(getCtrlView(CTL_EDITRHTS_GRPUSRLIST));
-	p_grp_usr_def = new StdTreeListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify|lbtFocNotify|lbtSelNotify, 0);
+	p_grp_usr_def = new StdTreeListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify|lbtFocNotify|lbtSelNotify);
 	THROW_MEM(p_grp_usr_def);
 	p_lbx->setDef(p_grp_usr_def);
 	p_lbx->P_Def->go(0);

@@ -556,16 +556,16 @@ PPCommandFolder & FASTCALL PPCommandFolder::operator = (const PPCommandFolder & 
 static int _GetIdList(const PPCommandItem * pItem, long parentID, void * extraPtr)
 {
 	if(pItem)
-		static_cast<PPIDArray *>(extraPtr)->add(pItem->GetID()); // @v10.9.3 addUnique-->add
+		static_cast<PPIDArray *>(extraPtr)->add(pItem->GetID());
 	return 1;
 }
 
 long PPCommandFolder::GetUniqueID() const
 {
 	PPIDArray id_list;
-	id_list.add(ID); // @v10.9.3 addUnique-->add
+	id_list.add(ID);
 	Enumerate(_GetIdList, 0, &id_list);
-	id_list.sortAndUndup(); // @v10.9.3 sort-->sortAndUndup
+	id_list.sortAndUndup();
 	return id_list.getLast() + 1;
 }
 
@@ -1504,7 +1504,7 @@ int PPCommandGroup::Read2(const void * pHandler, const long rwFlag)
 	SString temp_buf;
 	assert(pHandler);
 	THROW(pHandler);
-	Type = cmdgrpcUndef; // @v10.9.3
+	Type = cmdgrpcUndef;
 	if(rwFlag == PPCommandMngr::fRWByXml) {
 		const xmlNode * p_parent_node = static_cast<const xmlNode *>(pHandler);
 		if(SXml::IsName(p_parent_node, "CommandGroup")) {
@@ -1750,7 +1750,6 @@ int PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFlag)
 				assert(p_item);
 				THROW(p_item);
 				if(p_item->IsKind(PPCommandItem::kGroup)) {
-					//PPCommandGroup cg = *static_cast<const PPCommandGroup *>(p_item->Dup());
 					const PPCommandGroup * p_cg = static_cast<const PPCommandGroup *>(p_item);
 					if(p_cg->Uuid.ToStr(S_GUID::fmtIDL, guid_str)) {
 						path.Z().Cat(XmlDirPath).SetLastSlash().Cat(guid_str).DotCat("xml");
@@ -1759,17 +1758,14 @@ int PPCommandMngr::Save__2(const PPCommandGroup * pCmdGrp, const long rwFlag)
 							xmlTextWriterSetIndent(p_xml_writer, 1);
 							xmlTextWriterSetIndentTab(p_xml_writer);
 							SXml::WDoc _doc(p_xml_writer, cpUTF8);
-							THROW(p_cg->Write2(p_xml_writer, rwFlag)); // @erik v10.6.6
+							THROW(p_cg->Write2(p_xml_writer, rwFlag)); // @erik
 						}
 					}
 				}
-				// @sobolev @v10.7.6 {
 				else if(p_item->IsKind(PPCommandItem::kFolder)) {
 					const PPCommandFolder * p_cf = static_cast<const PPCommandFolder *>(p_item);
-					// @v11.0.0 SXml::WDoc _doc(p_xml_writer, cpUTF8);
 					THROW(p_cf->Write2(p_xml_writer, rwFlag));
 				}
-				// } @sobolev @v10.7.6 
 				xmlFreeTextWriter(p_xml_writer);
 				p_xml_writer = 0;
 			}
@@ -1805,7 +1801,6 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 			const int  is_locked = BIN(fileExists(lock_path) && SFile::IsOpenedForWriting(lock_path));
 			if(!is_locked) {
 				SFile f(lock_path, SFile::mWrite);
-				// @v10.7.6 f.Close();
 				PPCommandGroup cg_from_bin;
 				if(F_Obsolete.IsValid()) {
 					int64  fsz = 0;
@@ -1868,7 +1863,7 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 							xmlNode * p_root = xmlDocGetRootElement(p_doc);
 							if(p_root && SXml::IsName(p_root, "CommandGroup")) {
 								if(temp_command_group.Read2(p_root, rwFlag)) {
-									if(isempty(pDbSymb) || temp_command_group.DbSymb.IsEqNC(pDbSymb) || temp_command_group.DbSymb.IsEqiAscii("undefined")) { // @v10.9.3
+									if(isempty(pDbSymb) || temp_command_group.DbSymb.IsEqNC(pDbSymb) || temp_command_group.DbSymb.IsEqiAscii("undefined")) {
 										const int addr = pCmdGrp->Add(-1, &temp_command_group);
 										//p_temp_command_group = 0;
 									}
@@ -1919,8 +1914,9 @@ int PPCommandMngr::Load__2(PPCommandGroup * pCmdGrp, const char * pDbSymb, const
 	}
 	CATCH
 		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
-		if(fileExists(lock_path)) // @v10.9.3 @fix !fileExists-->fileExists
+		if(fileExists(lock_path)) {
 			SFile::Remove(lock_path);
+		}
 		ok = 0;
 	ENDCATCH
 	xmlFreeDoc(p_doc);

@@ -509,8 +509,8 @@ void * TWindow::messageToCtrl(ushort ctlID, ushort cmd, void *ptr) { return TVie
 int TWindow::setSmartListBoxOption(uint ctlID, uint option)
 {
 	int    ok = 1;
-	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(ctlID));
-	if(TView::IsSubSign(p_list, TV_SUBSIGN_LISTBOX)) {
+	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlViewEnsureSubsign(ctlID, TV_SUBSIGN_LISTBOX));
+	if(p_list) {
 		CALLPTRMEMB(p_list->P_Def, SetOption(option, 1));
 	}
 	else
@@ -745,8 +745,8 @@ int STDCALL TWindow::getCtrlString(uint ctlID, SString & rS)
 	char   temp_buf[1024];
 	char * p_temp = temp_buf;
 	int    is_temp_allocated = 0;
-	TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(ctlID));
-	if(TView::IsSubSign(p_il, TV_SUBSIGN_INPUTLINE)) {
+	TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctlID, TV_SUBSIGN_INPUTLINE));
+	if(p_il) {
 		size_t max_len = p_il->GetMaxLen();
 		if(max_len > sizeof(temp_buf)) {
 			p_temp = static_cast<char *>(SAlloc::M(max_len+32));
@@ -1318,7 +1318,7 @@ int TWindow::Helper_SetChildLayoutExcludedStatus(const void * pTopProcessedLayou
 	return ok;
 }
 
-int TWindow::SetChildLayoutExcludedStatus(SUiLayout * pLo) // @v12.7.1 @construction
+int TWindow::SetChildLayoutExcludedStatus(SUiLayout * pLo) // @v12.7.1
 {
 	int    ok = -1;
 	if(pLo && P_Lfc) {

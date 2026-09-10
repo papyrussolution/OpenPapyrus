@@ -903,7 +903,8 @@ int PPObjBill::GetAlternateArticle(PPID arID, PPID sheetID, PPID * pAltArID)
 {
 	int    ok = -1;
 	PPObjAccSheet acs_obj;
-	PPAccSheet main_acs_rec, alt_acs_rec;
+	PPAccSheet2 main_acs_rec;
+	PPAccSheet2 alt_acs_rec;
 	ArticleTbl::Rec ar_rec;
 	ASSIGN_PTR(pAltArID, 0L);
 	THROW(acs_obj.Fetch(sheetID, &alt_acs_rec) > 0); // shr

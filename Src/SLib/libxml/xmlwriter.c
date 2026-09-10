@@ -1,17 +1,13 @@
-/*
- * xmlwriter.c: XML text writer implementation
- *
- * For license and disclaimer see the license and disclaimer of
- * libxml2.
- *
- * alfred@mickautsch.de
- */
+// xmlwriter.c
+// XML text writer implementation
+// For license and disclaimer see the license and disclaimer of libxml2.
+// alfred@mickautsch.de
+//
 #include <slib-internal.h>
 #pragma hdrstop
 
 #ifdef LIBXML_WRITER_ENABLED
 #include <libxml/xmlwriter.h>
-// @v10.6.5 #include "save.h"
 
 #define B64LINELEN 72
 #define B64CRLF "\r\n"

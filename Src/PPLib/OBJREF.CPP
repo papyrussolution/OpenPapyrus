@@ -3200,10 +3200,7 @@ int PPObjSysAction::Search(PPID id, void * pRec)
 	return ok;
 }
 
-const char * PPObjSysAction::GetNamePtr()
-{
-	return NameBuf.cptr();
-}
+const char * PPObjSysAction::GetNamePtr() { return NameBuf.cptr(); }
 
 StrAssocArray * PPObjSysAction::MakeStrAssocList(void * extraPtr)
 {
@@ -3259,10 +3256,7 @@ int PPObjGtaAction::Search(PPID id, void * pRec)
 	return ok;
 }
 
-const char * PPObjGtaAction::GetNamePtr()
-{
-	return NameBuf.cptr();
-}
+const char * PPObjGtaAction::GetNamePtr() { return NameBuf.cptr(); }
 
 StrAssocArray * PPObjGtaAction::MakeStrAssocList(void * extraPtr)
 {

@@ -105,7 +105,7 @@ DBFS_SMUKM_GOODS_EXPORT PP_RCDATA {
 //
 // Структура DBF-файла для экспорта в драйвер PETROVICH
 //
-DBFS_PETROVICHEXPORT PP_RCDATA {
+/* @v12.7.7 DBFS_PETROVICHEXPORT PP_RCDATA {
 	7,
 	"PRIHOD\0",         "C", 25, 0,
 	"CODE\0",           "C", 13, 0,
@@ -114,7 +114,7 @@ DBFS_PETROVICHEXPORT PP_RCDATA {
 	"DIVNUM\0",         "C",  1, 0,
 	"SH_CODE\0",        "C", 13, 0,
 	"RES\0",            "N", 11, 3
-};
+};*/
 //
 // Структура DBF-файла для печати этикеток товаров и ценников
 //
@@ -744,7 +744,7 @@ ROD_OPRTYPE PP_RCDATA {
 	19, "@{roptype_agreement}\0",
 	20, "@{roptype_correction}\0",
 	21, "@{roptype_drafttransit}\0",
-	22, "@{roptype_draftquotreq}\0", // @v10.5.7
+	22, "@{roptype_draftquotreq}\0",
 };
 //
 // Зарезервированные записи объекта PPOBJ_BNKACCTYPE

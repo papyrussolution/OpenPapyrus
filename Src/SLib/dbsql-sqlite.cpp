@@ -263,6 +263,7 @@ int SSqliteDbProvider::GetFileStat(const char * pFileName/*регистр символов важе
 		if(options & DbProvider::openfMainThread) {
 			sqlite3_exec(h, "PRAGMA journal_mode=WAL", 0, 0, 0);
 			sqlite3_exec(h, "PRAGMA synchronous=NORMAL", 0, 0, 0);
+			sqlite3_exec(h, "PRAGMA busy_timeout=20000", 0, 0, 0); // @v12.7.7 время в миллисекундах
 		}
 		const int ccr = sqlite3_create_collation(h, P_CollationSymb, SQLITE_UTF8, nullptr, SQLite_CmpCollationUtf8);
 		{

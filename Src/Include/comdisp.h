@@ -1,5 +1,5 @@
 // COMDISP.H
-// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2013, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025
+// Copyright (c) V.Nasonov, A.Starodub 2003, 2004, 2006, 2007, 2013, 2017, 2018, 2019, 2020, 2021, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #ifndef __COMDISP_H // {
@@ -74,9 +74,7 @@ private:
 	HRESULT HRes;
 };
 
-// @v10.2.2 #define ASSIGN_ID_BY_NAME(p_interface, name) (p_interface ? p_interface->AssignIDByName(#name, name) : 0)
-#define ASSIGN_ID_BY_NAME(p_interface, name) p_interface->AssignIDByName(#name, name) // @v10.2.2 Менее безопасный вариант, зато более быстрый и экономный.
-	// Вызывающая функция должна сама проверить условие (p_interface != 0)
+#define ASSIGN_ID_BY_NAME(p_interface, name) p_interface->AssignIDByName(#name, name) // Не очень безопасный вариант, зато более быстрый и экономный. Вызывающая функция должна сама проверить условие (p_interface != 0)
 
 int GetExcelCellCoordA1(long row, long col, SString & rBuf);
 //

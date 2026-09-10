@@ -806,7 +806,7 @@ SCardSeriesFilt::SCardSeriesFilt() : ParentID(0), Flags(0), SpecialTreatment(0)
 
 PPObjSCardSeries::PPObjSCardSeries(void * extraPtr) : PPObjReference(PPOBJ_SCARDSERIES, extraPtr), P_ScObj(0)
 {
-	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
+	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 }
 
 PPObjSCardSeries::~PPObjSCardSeries()
@@ -3645,7 +3645,8 @@ int PPObjSCard::EditDialog(PPSCardPacket * pPack, long flags)
 		if(pack.Rec.SeriesID) {
 			THROW(ser_obj.GetPacket(pack.Rec.SeriesID, &scs_pack) > 0);
 		}
-		THROW(CheckDialogPtrErr(&(dlg = new SCardDialog(flags))));
+		dlg = new SCardDialog(flags);
+		THROW(CheckDialogPtrErr(&dlg));
 		THROW(dlg->setDTS(&pack, &scs_pack));
 		while(ok < 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(&pack)) {

@@ -407,20 +407,6 @@ int SSystemCredentialRead(SSystemCredential & rParam, SBinaryChunk & rData)
 	}
 	return ok;
 }
-
-// Пример использования:
-/*void ConfigureAutoLogin() 
-{
-	SaveMasterPassword(L"Centrigo", L"Ваш_мастер_пароль");
-}
-
-void GetAutoLoginPassword() 
-{
-	std::wstring password = LoadMasterPassword(L"Centrigo");
-	if(!password.empty()) {
-		// Использовать пароль для разблокировки хранилища
-	}
-}*/
 #endif // } 0 @v12.7.0 @construction
 //
 //

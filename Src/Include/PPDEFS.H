@@ -1502,12 +1502,12 @@
 // Нумерация строк совпадает с нумерацией типов аппаратов.
 //
 #define PPCMT_OKA500          1L // ОКА 500.1
-#define PPCMT_EL92AQ          2L // Электроника-92-Аквариус-Ф (И.Николаев)
-#define PPCMT_ECR930          4L // ЭКР-4110
+// @v12.7.7 #define PPCMT_EL92AQ          2L // Электроника-92-Аквариус-Ф (И.Николаев)
+// @v12.7.7 #define PPCMT_ECR930          4L // ЭКР-4110
 #define PPCMT_SMUKM30         5L // IPC-POS (СуперМаг УКМ Сервис-Плюс)
 #define PPCMT_SYNCSYM         6L // Эмулятор синхронного кассового аппарата
-#define PPCMT_PETROVICH       7L // PETROVICH (Ладога-Ф, Электроника-92, ЭКР-3102Ф)
-#define PPCMT_AMC200          8L // АМС-200Ф (Драйвер ЗАО Шанс)
+// @v12.7.7 #define PPCMT_PETROVICH       7L // PETROVICH (Ладога-Ф, Электроника-92, ЭКР-3102Ф)
+// @v12.7.7 #define PPCMT_AMC200          8L // АМС-200Ф (Драйвер ЗАО Шанс)
 #define PPCMT_CRUKM           9L // Кристалл-УКМ (ООО Кристалл-Сервис)
 #define PPCMT_CRCSHSRV       10L // Кристалл-Кассовый сервер
 #define PPCMT_SHTRIHFRF      11L // Штрих-ФР
@@ -1537,7 +1537,7 @@
 #define PPBCPT_ELTRON        3L // Zebra-Eltron (EPL2)
 #define PPBCPT_WINDOWS       4L // Стандартный Windows-принтер с отчетов из CrystalReports
 //
-// Типы электронных весов (@v3.0.0)
+// Типы электронных весов
 // Наименования типов хранятся в ресурсах строк в группе PPTXT_SCLT.
 // Нумерация строк совпадает с нумерацией типов аппаратов.
 //
@@ -1554,7 +1554,7 @@
 #define PPSCLT_EXPORTTOFILE  11L // Экспорт в файл
 #define PPSCLT_SHTRIHCE      12L // Штрих PC200 CE
 //
-// Типы дисплеев покупателей (@v4.7.6)
+// Типы дисплеев покупателей
 // Наименования типов хранятся в ресурсах строк в группе PPTXT_CUSTDISP.
 // Нумерация строк совпадает с нумерацией типов аппаратов.
 //
@@ -2047,7 +2047,7 @@
 #define cmPersonList             1175 // Кнопка списка персоналий
 #define cmGuaList                1176 //
 #define cmTotal                  1177 //
-#define cmAutoFill               1178 // @v10.8.12 ранее была локальной относительно DLG_GDSLST (теперь используется и в других диалогах)
+#define cmAutoFill               1178 // 
 #define cmCopyToClipboardSpc     1179 // Специальное копирование в буфер обмена
 #define cmConfigure              1180 //
 #define cmQueryToken             1181 //
@@ -2403,6 +2403,9 @@
 	#define CTLSEL_ARTICLE_LINKOBJ       (13 + WINDOWS_ID_BIAS)
 	#define CTL_ARTICLE_ID               (14 + WINDOWS_ID_BIAS)
 	#define CTL_ARTICLE_CMD_CLEARAGREEMENT (15 + WINDOWS_ID_BIAS)
+	#define CTL_ARTICLE_PARENT           (16 + WINDOWS_ID_BIAS) // @v12.7.7 
+	#define CTLSEL_ARTICLE_PARENT        (17 + WINDOWS_ID_BIAS) // @v12.7.7 
+	#define CTL_ARTICLE_VIEW_PARENT      (18 + WINDOWS_ID_BIAS) // @v12.7.7 Именованная область для программного сокрытия //
 #define DLG_ACCOUNT                58 // Балансовый счет
 #define DLG_ACCREGISTER            59 // Бухгалтерский регистр
 	#define CTL_ACCOUNT_NUMBER           (1 + WINDOWS_ID_BIAS)
@@ -6220,6 +6223,7 @@
 	#define CTL_SCARDFLT_EXPIRY          (17 + WINDOWS_ID_BIAS)
 	#define CTLCAL_SCARDFLT_EXPIRY       (18 + WINDOWS_ID_BIAS)
 	#define CTL_SCARDFLT_WOOWNER         (19 + WINDOWS_ID_BIAS)
+	#define CTL_SCARDFLT_CMD_EXCLUDEOWNERSCFILT (20 + WINDOWS_ID_BIAS)
 
 #define DLG_SCSERIESVIEW          532 // Список серий пластиковых карт
 #define DLG_ARTICLEACC            533 // Аналитическая статья, ассоциированная со счетом
@@ -11085,7 +11089,13 @@
 	#define CTL_UPDFREIGHT_SHPF       (7 + WINDOWS_ID_BIAS)
 	#define CTL_UPDFREIGHT_CAPT       (8 + WINDOWS_ID_BIAS)
 	#define CTLSEL_UPDFREIGHT_CAPT    (9 + WINDOWS_ID_BIAS)
-	#define CTL_UPDFREIGHT_FLAGS      (10 + WINDOWS_ID_BIAS) // @v11.2.10
+	#define CTL_UPDFREIGHT_FLAGS      (10 + WINDOWS_ID_BIAS)
+	#define CTL_UPDFREIGHT_CAPT2      (11 + WINDOWS_ID_BIAS) // @v12.7.7
+	#define CTLSEL_UPDFREIGHT_CAPT2   (12 + WINDOWS_ID_BIAS) // @v12.7.7
+	#define CTL_UPDFREIGHT_AGENT      (13 + WINDOWS_ID_BIAS) // @v12.7.7
+	#define CTLSEL_UPDFREIGHT_AGENT   (14 + WINDOWS_ID_BIAS) // @v12.7.7
+	#define CTL_UPDFREIGHT_ISSLOC     (15 + WINDOWS_ID_BIAS) // @v12.7.7
+	#define CTLSEL_UPDFREIGHT_ISSLOC  (16 + WINDOWS_ID_BIAS) // @v12.7.7
 #define DLG_CVTCIPHER             1312
 	#define CTL_CVTCIPHER_DB          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CVTCIPHER_DB       (2 + WINDOWS_ID_BIAS)
@@ -12468,6 +12478,7 @@
 #define PPMSG_INFORMATION         103
 #define PPSTR_INFORMATION         PPMSG_INFORMATION
 #define PPSTR_TCELHLD             104 // @v12.7.5 Table Cell HighLight Description
+#define PPSTR_CTLUSTTD            105 // @v12.7.7 Control User's State Description
 //
 // Another strings classes
 //

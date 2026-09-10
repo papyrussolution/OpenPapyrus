@@ -823,16 +823,16 @@ PPID GetSupplAccSheet()
 PPID GetSellAccSheet()
 {
 	const  PPCommConfig & r_ccfg = CConfig;
-	PPID   acc_sheet_id = 0;
+	PPID   acs_id = 0;
 	if(r_ccfg.SellAccSheet == 0) {
 		PPOprKind2 opk;
-		acc_sheet_id = GetOpData(PPOPK_SELL, &opk) ? opk.AccSheetID : 0;
+		acs_id = GetOpData(PPOPK_SELL, &opk) ? opk.AccSheetID : 0;
 	}
 	else
-		acc_sheet_id = r_ccfg.SellAccSheet;
-	if(!acc_sheet_id)
+		acs_id = r_ccfg.SellAccSheet;
+	if(!acs_id)
 		PPSetError(PPERR_UNDEFCLIACCSHEET);
-	return acc_sheet_id;
+	return acs_id;
 }
 
 PPID GetSellPersonKind()
@@ -841,7 +841,7 @@ PPID GetSellPersonKind()
     const  PPID acs_id = GetSellAccSheet();
     if(acs_id) {
 		PPObjAccSheet acs_obj;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		if(acs_obj.Fetch(acs_id, &acs_rec) > 0) {
 			if(acs_rec.Assoc == PPOBJ_PERSON) {
 				pk_id = acs_rec.ObjGroup;
@@ -860,7 +860,7 @@ PPID GetAgentAccSheet()
 	}
 	else if(r_tla.AgentAccSheetID == 0) {
 		PPObjAccSheet acs_obj;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		for(SEnum en = acs_obj.P_Ref->Enum(PPOBJ_ACCSHEET, 0); !agent_acs_id && en.Next(&acs_rec) > 0;) {
 			if(acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_AGENT)
 				agent_acs_id = acs_rec.ID;
@@ -1965,9 +1965,6 @@ void FormatSubstDate(SubstGrpDate sgd, LDATE dt, char * pBuf, size_t bufLen, lon
 	long   format = (fmt) ? fmt : DATF_DMY|DATF_CENTURY;
 	decodedate(&d, &m, &y, &dt);
 	if(sgd == sgdMonth) {
-		//p = p + sstrlen(getMonthText(m, MONF_SHORT | MONF_OEM, temp));
-		//*p++ = ' ';
-		//itoa(y, p, 10);
 		SGetMonthText(m, MONF_SHORT|MONF_OEM, temp_buf);
 		temp_buf.Space().Cat(y);
 		STRNSCPY(temp, temp_buf);
@@ -2276,7 +2273,7 @@ SString & CDECL PPFormatS(int textGroup, int textCode, SString * pBuf, ...)
 	return *pBuf;
 }
 
-int WaitForExists(const char * pPath, int whileExists /* = 1 */, int notifyTimeout /* = 5000 */)
+int WaitForExists(const char * pPath, int whileExists/*=1*/, int notifyTimeout/*=5000*/)
 {
 	int    ok = 1;
 	int    stop = 0;
@@ -5229,4 +5226,12 @@ int TestRestic()
 		rifc.GetEntryList(rp, 0, 0);
 	}
 	return ok;
+}
+//
+// Descr: Тестовая функция для запуска из приложения slia 
+//
+extern "C" __declspec(dllexport) int SLIA_TestFunc(const char * pArg)
+{
+	printf("Function sliaTestFunc(%s) called!\n", NZOR(pArg, ""));
+	return 1;
 }

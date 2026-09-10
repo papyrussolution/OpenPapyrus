@@ -324,7 +324,7 @@ TLP_IMPL(PPObjWorkbook, WorkbookCore, P_Tbl);
 PPObjWorkbook::PPObjWorkbook(void * extraPtr) : PPObject(PPOBJ_WORKBOOK), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
+	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 }
 
 PPObjWorkbook::~PPObjWorkbook()

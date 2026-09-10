@@ -841,7 +841,7 @@ ObjTagFilt & ObjTagFilt::Z()
 
 PPObjTag::PPObjTag(void * extraPtr) : PPObjReference(PPOBJ_TAG, extraPtr)
 {
-	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
+	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 }
 
 PPObjTag::~PPObjTag()

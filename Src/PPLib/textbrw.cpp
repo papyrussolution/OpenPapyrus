@@ -1555,7 +1555,7 @@ int SScEditorBase::SetLexer(const char * pLexerName)
 			}
 			if(sstreq(pLexerName, "cpp")) {
 				//width = NppParameters::getInstance()->_dpiManager.scaleX(100) >= 150 ? 18 : 14;
-				//CallFunc(SCI_SETMARGINWIDTHN, 2/*folding*/, 14); // @v10.2.0
+				//CallFunc(SCI_SETMARGINWIDTHN, 2/*folding*/, 14);
 				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold"), reinterpret_cast<intptr_t>("1"));
 				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold.compact"), reinterpret_cast<intptr_t>("0"));
 				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("fold.comment"), reinterpret_cast<intptr_t>("1"));
@@ -1563,7 +1563,6 @@ int SScEditorBase::SetLexer(const char * pLexerName)
 				// Disable track preprocessor to avoid incorrect detection.
 				// In the most of cases, the symbols are defined outside of file.
 				CallFunc(SCI_SETPROPERTY, reinterpret_cast<WPARAM>("lexer.cpp.track.preprocessor"), reinterpret_cast<intptr_t>("0"));
-				// @v11.1.12 {
 				CallFunc(SCI_SETMARGINWIDTHN, scmargeFolder, 0);
 				CallFunc(SCI_SETMARGINTYPEN,  scmargeFolder, SC_MARGIN_SYMBOL);
 				CallFunc(SCI_SETMARGINMASKN,  scmargeFolder, SC_MASK_FOLDERS);
@@ -1579,7 +1578,6 @@ int SScEditorBase::SetLexer(const char * pLexerName)
 				CallFunc(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERSUB, SC_MARK_EMPTY);
 				CallFunc(SCI_MARKERDEFINE, SC_MARKNUM_FOLDERTAIL, SC_MARK_EMPTY);
 				CallFunc(SCI_SETFOLDFLAGS, 16, 0); // 16 Draw line below if not expande
-				// } @v11.1.12 
 			}
 			ok = 1;
 		}

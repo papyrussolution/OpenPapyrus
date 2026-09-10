@@ -1143,8 +1143,8 @@ static int PPLoginDialog(PPLoginDialogParam & rParam)
 				}
 				else {
 					if(!(R_P.Flags & PPLoginDialogParam::fDisableStqQrLogin) && StqSvcDbMap.getCount()) { // @v11.6.9 (!(R_P.Flags & PPLoginDialogParam::fDisableStqQrLogin) &&)
-						TImageView * p_iv = static_cast<TImageView *>(getCtrlView(CTL_LOGIN_QR));
-						if(TView::IsSubSign(p_iv, TV_SUBSIGN_IMAGEVIEW)) {
+						TImageView * p_iv = static_cast<TImageView *>(getCtrlViewEnsureSubsign(CTL_LOGIN_QR, TV_SUBSIGN_IMAGEVIEW));
+						if(p_iv) {
 							SString inv_text;
 							const  PPID dbid = getCtrlLong(CTLSEL_LOGIN_DB);
 							PPStyloQInterchange::StopStyloQServer();

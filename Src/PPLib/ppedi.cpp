@@ -6803,16 +6803,10 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter * pX,
 	}
 	{
 		SXml::WNode n_b(_doc, "invoice"); // <despatchAdvice number="DES003" date="2014-02-07" status="Original">
-		if(rBp.Ext.InvoiceCode[0])
-			temp_buf = rBp.Ext.InvoiceCode;
-		else {
-			// @v11.1.12 BillCore::GetCode(temp_buf = rBp.Rec.Code);
-			temp_buf = rBp.Rec.Code; // @v11.1.12 
-		}
-		temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+		(temp_buf = rBp.GetInvoiceCode(1)).Transf(CTRANSF_INNER_TO_UTF8);
 		n_b.PutAttrib("number", temp_buf);
-		assert(checkdate(rBp.Rec.Dt)); // @v11.2.12
-		temp_buf.Z().Cat(ValidDateOr(rBp.Ext.InvoiceDate, rBp.Rec.Dt), DATF_ISO8601CENT);
+		assert(checkdate(rBp.Rec.Dt));
+		temp_buf.Z().Cat(rBp.GetInvoiceDate(), DATF_ISO8601CENT);
 		n_b.PutAttrib("date", temp_buf);
 		n_b.PutAttrib("status", "Original");
 		{
@@ -6825,8 +6819,7 @@ int EdiProviderImplementation_Kontur::Write_OwnFormat_INVOIC(xmlTextWriter * pX,
 		{
 			//<despatchIdentificator number="DES003" date="2014-02-07"/>
 			SXml::WNode n_i(_doc, "despatchIdentificator");
-			// @v11.1.12 n_i.PutAttrib("number", BillCore::GetCode(temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
-			n_i.PutAttrib("number", (temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8)); // @v11.1.12 
+			n_i.PutAttrib("number", (temp_buf = rBp.Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
 			n_i.PutAttrib("date", temp_buf.Z().Cat(rBp.Rec.Dt, DATF_ISO8601CENT));
 		}
 		if(rBp.BTagL.GetItemStr(PPTAG_BILL_EDIRECADVRCV, temp_buf) > 0 && temp_buf.NotEmpty()) {

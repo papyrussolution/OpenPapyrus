@@ -2733,7 +2733,8 @@ int PPCCheckImporter::Select(PPCCheckImpExpParam * pParam, int isImport, bool no
 		}
 		else {
 			SString sect;
-			THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_RUNIE_CC_IMP))));
+			dlg = new TDialog(DLG_RUNIE_CC_IMP);
+			THROW(CheckDialogPtrErr(&dlg));
 			SetupStrAssocCombo(dlg, CTLSEL_RUNIECC_CFG, list, id, 0, 0, 0);
 			//SetupPPObjCombo(dlg, CTLSEL_IEGOODS_LOC, PPOBJ_LOCATION, loc_id, 0, 0);
 			while(ok < 0 && ExecView(dlg) == cmOK) {

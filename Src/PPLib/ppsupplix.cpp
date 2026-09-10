@@ -6669,8 +6669,7 @@ int SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollectio
 							is_own_order = 1;
 					}
 					if(!is_own_order) {
-						// @v11.1.12 BillCore::GetCode(inner_order_code = ord_rec.Code);
-						inner_order_code = ord_rec.Code; // @v11.1.12 
+						inner_order_code = ord_rec.Code;
 					}
 				}
 			}
@@ -6689,7 +6688,7 @@ int SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollectio
 				SfaHeinekenInvoice * p_new_entry = rList.CreateNewItem();
 				THROW_SL(p_new_entry);
 				p_new_entry->Code = bill_code;
-				p_new_entry->Dt = ValidDateOr(pack.Ext.InvoiceDate, pack.Rec.Dt);
+				p_new_entry->Dt = pack.GetInvoiceDate(1);
 				if(is_own_order) {
 					// TSCollection <SfaHeinekenOrderDelivery> OrderList; // Если доставка по заказу из системы Jeans
 					SfaHeinekenInvoice::OrderDelivery * p_o = p_new_entry->OrderList.CreateNewItem();

@@ -7593,7 +7593,7 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportClients(const SBinaryCh
 		ArticleFilt ar_filt;
 		ArticleViewItem ar_item;
 		PPObjAccSheet acc_sheet_obj;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		PPOprKind2 op_rec;
 		PersonTbl::Rec psn_rec; // @v11.8.1
 		//StyloQBlobInfo blob_info;
@@ -12756,8 +12756,8 @@ int PPStyloQInterchange::ExecuteInvitationDialog(InterchangeParam & rData)
 		StQInvDialog(const char * pInvitation) : TDialog(DLG_STQINV), Invitation(pInvitation)
 		{
 			assert(Invitation.NotEmpty());
-			TImageView * p_iv = static_cast<TImageView *>(getCtrlView(CTL_STQINV_QR));
-			if(TView::IsSubSign(p_iv, TV_SUBSIGN_IMAGEVIEW)) {
+			TImageView * p_iv = static_cast<TImageView *>(getCtrlViewEnsureSubsign(CTL_STQINV_QR, TV_SUBSIGN_IMAGEVIEW));
+			if(p_iv) {
 				HWND h_iv = p_iv->getHandle();
 				if(h_iv) {
 					RECT img_rect;

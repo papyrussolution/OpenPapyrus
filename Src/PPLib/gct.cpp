@@ -760,7 +760,8 @@ int PPALDD_GoodsTurnovr::InitData(PPFilt & rFilt, long rsrv)
 	INIT_PPVIEW_ALDD_DATA_U(GoodsTrnovr, rsrv);
 	GetLocationName(p_filt->LocList.GetSingle(), loc_name);
 	loc_name.CopyTo(H.FltLocName, sizeof(H.FltLocName));
-	GetSupplText(p_filt->SupplID, name_buf);
+	// @v12.7.7 GetSupplText(p_filt->SupplID, name_buf);
+	GetArticleText(p_filt->SupplID, artypSuppl, name_buf); // @v12.7.7
 	name_buf.CopyTo(H.FltSupplName, sizeof(H.FltSupplName));
 	H.FltBeg = p_filt->Period.low;
 	H.FltEnd = p_filt->Period.upp;

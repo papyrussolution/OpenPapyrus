@@ -242,7 +242,7 @@ int PPViewAccount::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			temp_buf.Z();
 			if(p_item->AccSheetID) {
 				PPObjAccSheet acs_obj;
-				PPAccSheet acs_rec;
+				PPAccSheet2 acs_rec;
 				if(acs_obj.Fetch(p_item->AccSheetID, &acs_rec) > 0)
 					temp_buf = acs_rec.Name;
 				else

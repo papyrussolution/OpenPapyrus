@@ -347,8 +347,7 @@ turtle_comparison:
  */
 #ifdef WITH_TIM_SORT
 #define SORT_NAME libxml_domnode
-// @v10.5.8 #define SORT_TYPE xmlNodePtr
-typedef xmlNode * SORT_TYPE; // @v10.5.8
+typedef xmlNode * SORT_TYPE;
 /**
  * wrap_cmp:
  * @x: a node

@@ -328,8 +328,9 @@ IMPL_HANDLE_EVENT(BankingOrderDialog)
 			return;
 	}
 	else if(TVBROADCAST && TVCMD == cmChangedFocus && TVINFOVIEW) {
-		if(event.isCtlEvent(CTL_BNKPAYM_VATRATE) || event.isCtlEvent(CTL_BNKPAYM_AMOUNT))
+		if(event.isCtlEvent(CTL_BNKPAYM_VATRATE) || event.isCtlEvent(CTL_BNKPAYM_AMOUNT)) {
 			setupVAT();
+		}
 		else if(event.isCtlEvent(CTL_BNKPAYM_VATSUM)) {
 			long   vat_rate = getCtrlLong(CTL_BNKPAYM_VATRATE);
 			double amount  = getCtrlReal(CTL_BNKPAYM_AMOUNT);
@@ -348,7 +349,7 @@ int BankingOrderDialog::setupBnkAcc(int payerOrRcvr, PPID bnkAccID)
 {
 	int    ok = 1;
 	uint   bnk_ctl = (payerOrRcvr == 0) ? CTL_BNKPAYM_PAYERBNK : CTL_BNKPAYM_RCVRBNK;
-	int * p_valid_code = (payerOrRcvr == 0) ? &PayerValidCode : &RcvrValidCode;
+	int  * p_valid_code = (payerOrRcvr == 0) ? &PayerValidCode : &RcvrValidCode;
 	SString bnk_name;
 	ASSIGN_PTR(p_valid_code, 0);
 	if(bnkAccID) {
@@ -1118,7 +1119,7 @@ BillDialog::BillDialog(uint dlgID, PPBillPacket * pPack, int isEdit) : PPListDia
 	showLinkFilesList();
 	{
 		PPObjAccSheet acs_obj;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		SETFLAG(Flags, fCheckAgreement, (acs_obj.Fetch(op_rec.AccSheetID, &acs_rec) > 0 && (acs_rec.Flags & (ACSHF_USECLIAGT|ACSHF_USESUPPLAGT))));
 	}
 	setSmartListBoxOption(CTL_BILL_LNKFILELIST, lbtExtMenu);
@@ -1149,7 +1150,7 @@ void BillDialog::SetupAgreementButton()
 			}
 		}
 	}
-	enableCommand(cmAgreement, do_enable);
+	enableCommand(cmAgreement, LOGIC(do_enable));
 }
 
 int BillDialog::EditAgreement()
@@ -1254,7 +1255,7 @@ int BillDialog::editPaymOrder(int forceUpdateRcvr)
 		if(!order.RcvrKindID) {
 			PPOprKind2 op_rec;
 			PPObjAccSheet acs_obj;
-			PPAccSheet acs_rec;
+			PPAccSheet2 acs_rec;
 			GetOpData(P_Pack->Rec.OpID, &op_rec);
 			if(acs_obj.IsAssoc(op_rec.AccSheetID, PPOBJ_PERSON, &acs_rec) > 0)
 				order.RcvrKindID = acs_rec.ObjGroup;
@@ -2330,14 +2331,96 @@ IMPL_HANDLE_EVENT(BillDialog)
 			case cmToDo: // @v12.4.7 @construction
 				EditLinkedToDo(); // @see comment to BillDialog::EditLinkedToDo()
 				break;
+			case cmInputUpdated: // @v12.7.7
+				{
+					const  uint ctl_id = event.getCtlID();
+					TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+					if(p_il) {
+						SString temp_buf;
+						SString msg_buf;
+						uint64 _state = 0;
+						uint   msg_id = 0;
+						if(ctl_id == CTL_BILL_PAYDATE) {
+							if(GetDateAndDueDate()) {
+								const  LDATE paymdate = getCtrlDate(ctl_id);
+									//CTLUSTTD_BILL_PAYMDATE_UNDEFORINV     "Дата срока оплаты по документу не определена либо имеет недопустимое значение"
+									//CTLUSTTD_BILL_PAYMDATE_NOTMATCHTOAGT  "Дата срока оплаты по документу не соответсвует периоду оплаты из соглашения"
+								if(!checkdate(paymdate)) {
+									_state = 2;
+									msg_id = CTLUSTTD_BILL_PAYMDATE_UNDEFORINV;
+								}
+								else if(PaymTerm >= 0) {
+									const  LDATE new_paymdate = P_Pack->CalcDefaultPayDate(PaymTerm, PayDateBase);
+									if(paymdate != new_paymdate) {
+										_state = 3;
+										msg_id = CTLUSTTD_BILL_PAYMDATE_NOTMATCHTOAGT;
+										PPLoadString(PPSTR_CTLUSTTD, msg_id, temp_buf);
+										msg_buf.Printf(temp_buf, PaymTerm);
+									}
+								}
+							}
+						}
+						else if(ctl_id == CTL_BILL_DOC) {
+							const int ss = P_Pack->GetSyncStatus();
+							if(ss > 0) {
+								msg_id = CTLUSTTD_BILL_SYNCED;
+								_state = 1;
+							}
+						}
+						else
+							return;
+						{
+							if(!msg_buf.NotEmpty() && msg_id) {
+								PPLoadString(PPSTR_CTLUSTTD, msg_id, msg_buf);
+							}
+							if(p_il->SetIndicatorState(_state, msg_buf) > 0) {
+								drawCtrl(ctl_id);
+							}
+						}
+					}
+					else
+						return;
+				}
+				break;
 			case cmCtlColor:
 				{
+					bool   local_done = false;
+					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
+					if(p_dc) {
+						uint   ctl_id = CTL_BILL_PAYDATE;
+						uint64 _state = 0;
+						TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+						if(p_il && getCtrlHandle(ctl_id) == p_dc->H_Ctl) {
+							if(p_il->GetIndicatorState(&_state, 0) && _state) {
+								::SetBkMode(p_dc->H_DC, TRANSPARENT);
+								::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
+								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushIllPaymDate));
+								local_done = true;
+							}
+						}
+						else {
+							ctl_id = CTL_BILL_DOC;
+							p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+							if(p_il && getCtrlHandle(ctl_id) == p_dc->H_Ctl) {
+								if(p_il->GetIndicatorState(&_state, 0) && _state) {
+									::SetBkMode(p_dc->H_DC, TRANSPARENT);
+									p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushSynced));
+									local_done = true;
+								}
+							}
+						}
+					}
+					if(local_done) {
+						clearEvent(event);
+					}
+					else 
+						return;
+					/*
 					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 					if(p_dc) {
 						if(getCtrlHandle(CTL_BILL_PAYDATE) == p_dc->H_Ctl) {
 							if(PaymTerm >= 0) {
-								// @v12.1.12 getCtrlData(CTL_BILL_DATE, &P_Pack->Rec.Dt);
-								if(GetDateAndDueDate()) { // @v12.1.12 
+								if(GetDateAndDueDate()) {
 									const LDATE paymdate = getCtrlDate(CTL_BILL_PAYDATE);
 									const LDATE new_paymdate = P_Pack->CalcDefaultPayDate(PaymTerm, PayDateBase);
 									if(!paymdate || paymdate != new_paymdate) {
@@ -2365,6 +2448,21 @@ IMPL_HANDLE_EVENT(BillDialog)
 						}
 						else
 							return;
+					}*/
+				}
+				break;
+			case cmMouseHoverCtrl: // @v12.7.7
+				{
+					const  uint ctl_id = event.getCtlID();
+					if(oneof2(ctl_id, CTL_BILL_PAYDATE, CTL_BILL_DOC)) {
+						TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+						if(p_il) {
+							uint64 _state = 0;
+							SString descr_buf;
+							if(p_il->GetIndicatorState(&_state, &descr_buf) && descr_buf.NotEmptyS()) {
+								PPShowCtrlIndicatorHint(descr_buf);
+							}
+						}
 					}
 				}
 				break;
@@ -2396,8 +2494,9 @@ IMPL_HANDLE_EVENT(BillDialog)
 				break;
 			*/
 			case kbF2:
-				if(LConfig.Cash)
+				if(LConfig.Cash) {
 					CalcDiff(getCtrlReal(CTL_BILL_AMOUNT), 0);
+				}
 				else {
 					const uint ctl_id = GetCurrId();
 					switch(ctl_id) {
@@ -3239,9 +3338,11 @@ double BillDialog::CalcAmounts()
 	amt_list.Get(PPAMT_MAIN, P_Pack->Rec.CurID, &result_amount);
 	if(P_Pack->Rec.Flags & BILLF_ADVANCEREP && P_Pack->P_AdvRep)
 		P_Pack->P_AdvRep->ExpAmount = result_amount;
-	if((vw = getCtrlView(CTL_BILL_AMOUNT)) != 0 && vw->IsInState(sfDisabled))
+	vw = getCtrlView(CTL_BILL_AMOUNT);
+	if(vw && vw->IsInState(sfDisabled))
 		setCtrlReal(CTL_BILL_AMOUNT, result_amount);
-	if((vw = getCtrlView(CTL_BILL_ADV_TOUT)) != 0 && vw->IsInState(sfDisabled)) {
+	vw = getCtrlView(CTL_BILL_ADV_TOUT);
+	if(vw && vw->IsInState(sfDisabled)) {
 		setCtrlReal(CTL_BILL_ADV_TOUT, result_amount);
 		setupAdvanceRepTotal(P_Pack->P_AdvRep);
 	}

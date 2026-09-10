@@ -916,21 +916,15 @@ int PosPaymentBlock::EditDialog2()
 				const UiDescription * p_uid = SLS.GetUiDescription();
 				const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 				{
-					SColor _color;
-					if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
-						_color = SClrCoral; 
+					SColor _color = UiDescription::GetColorR(p_uid, p_cs, "invalid_value_input_bg", SClrCoral);
 					Ptb.SetBrush(brushInvalid, SPaintObj::bsSolid, _color, 0);
 				}
 				{
-					SColor _color;
-					if(!p_cs || !p_cs->Get("eaddr_phone_input_bg", &p_uid->ClrList, _color))
-						_color = SClrAqua; 
+					SColor _color = UiDescription::GetColorR(p_uid, p_cs, "eaddr_phone_input_bg", SClrAqua);
 					Ptb.SetBrush(brushEAddrPhone, SPaintObj::bsSolid, _color,  0);
 				}
 				{
-					SColor _color;
-					if(!p_cs || !p_cs->Get("eaddr_email_input_bg", &p_uid->ClrList, _color))
-						_color = SClrCadetblue; 
+					SColor _color = UiDescription::GetColorR(p_uid, p_cs, "eaddr_email_input_bg", SClrCadetblue);
 					Ptb.SetBrush(brushEAddrEmail, SPaintObj::bsSolid, _color,  0);
 				}
 			}
@@ -988,23 +982,16 @@ int PosPaymentBlock::EditDialog2()
 			}
 			else
 				showCtrl(CTL_CPPAYM_USEBONUS, false);
-			/* @v11.3.6 
-			showCtrl(CTL_CPPAYM_ALTCASHREG, (Data.AltCashReg >= 0));
-			if(Data.AltCashReg >= 0)
-				setCtrlUInt16(CTL_CPPAYM_ALTCASHREG, BIN(Data.AltCashReg == 1));
-			*/
-			// @v11.3.6 {
 			showCtrl(CTL_CPPAYM_ALTCASHREG, LOGIC(Data.Flags & PosPaymentBlock::fAltCashRegEnabled)); 
 			if(Data.Flags & PosPaymentBlock::fAltCashRegEnabled)
 				setCtrlUInt16(CTL_CPPAYM_ALTCASHREG, BIN(Data.Flags & PosPaymentBlock::fAltCashRegUse));
-			if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) { // @v11.3.7
+			if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) {
 				//Data.BuyersEAddr.SetIfEmpty(DS.GetConstTLA().PaperlessCheque_FakeEAddr);
 				if(Data.EAddr.IsEmpty())
 					Data.EAddr.SetEMail(DS.GetConstTLA().PaperlessCheque_FakeEAddr);
 				setCtrlString(CTL_CPPAYM_EADDR, Data.EAddr.EAddr);
 				setCtrlUInt16(CTL_CPPAYM_PAPERLESS, BIN(Data.Flags & PosPaymentBlock::fPaperless));
 			}
-			// } @v11.3.6
 			updateList(-1);
 			return 1;
 		}
@@ -1016,16 +1003,10 @@ int PosPaymentBlock::EditDialog2()
 			val = R2(getCtrlReal(CTL_CPPAYM_BNKAMT));
 			Data.CcPl.Set(CCAMTTYP_BANK, val);
 			Data.CcPl.Normalize();
-			/* @v11.3.6 
-			if(Data.AltCashReg >= 0) {
-				uint16 v = getCtrlUInt16(CTL_CPPAYM_ALTCASHREG);
-				Data.AltCashReg = BIN(v == 1);
-			}*/
-			// @v11.3.6 {
 			uint16 v = (Data.Flags & PosPaymentBlock::fAltCashRegEnabled) ? getCtrlUInt16(CTL_CPPAYM_ALTCASHREG) : 0;
 			SETFLAG(Data.Flags, PosPaymentBlock::fAltCashRegUse, v == 1);
 			Data.SetBuyersEAddr(0, 0);
-			if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) { // @v11.3.7
+			if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) {
 				SString eaddr_buf;
 				getCtrlString(CTL_CPPAYM_EADDR, eaddr_buf);
 				const int eaddr_status = GetEAddrStatus(eaddr_buf);
@@ -1042,10 +1023,9 @@ int PosPaymentBlock::EditDialog2()
 					Data.Flags &= ~PosPaymentBlock::fPaperless;
 				}
 			}
-			else { // @v11.3.7
+			else {
 				Data.Flags &= ~PosPaymentBlock::fPaperless;
 			}
-			// } @v11.3.6 
 			// @v12.0.6 {
 			if(Data.Flags & PosPaymentBlock::fCashlessBypassEqEnabled)
 				GetClusterData(CTL_CPPAYM_CASHLESSBPEQ, &Data.Flags);
@@ -1104,7 +1084,6 @@ int PosPaymentBlock::EditDialog2()
 					else if(event.isClusterClk(CTL_CPPAYM_USEBONUS)) {
 						ToggleBonusAvailability(LOGIC(getCtrlUInt16(CTL_CPPAYM_USEBONUS)), false/*force*/);
 					}
-					// @v11.3.12 {
 					else if(event.isKeyDown(GetSwitchKey(0))) {
 						const CheckPaymMethod k = static_cast<CheckPaymMethod>(GetClusterData(CTL_CPPAYM_KIND));
 						if(k == cpmCash)
@@ -1114,7 +1093,6 @@ int PosPaymentBlock::EditDialog2()
 						else if(k == cpmIncorpCrd)
 							SetupKind(cpmCash);
 					}
-					// } @v11.3.12 
 					else if(TVCMD == cmCtlColor) {
 						TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 						if(p_dc && getCtrlHandle(CTL_CPPAYM_EADDR) == p_dc->H_Ctl) {

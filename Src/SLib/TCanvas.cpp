@@ -13,7 +13,7 @@
 //
 typedef BOOL (STDAPICALLTYPE * ProcDllSetLayeredWindowAttributes)(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags);
 
-int SetWindowTransparent(HWND hWnd, int transparent/*0..100*/)
+int SetWindowTransparency(HWND hWnd, int transparency/*0..100*/)
 {
 	int    ok = 0;
 	const  long  exstyle = TView::SGetWindowExStyle(hWnd);
@@ -21,7 +21,7 @@ int SetWindowTransparent(HWND hWnd, int transparent/*0..100*/)
 	ProcDllSetLayeredWindowAttributes proc = reinterpret_cast<ProcDllSetLayeredWindowAttributes>(lib.GetProcAddr("SetLayeredWindowAttributes"));
 	if(proc) {
 		TView::SetWindowProp(hWnd, GWL_EXSTYLE, reinterpret_cast<void *>(exstyle|WS_EX_LAYERED));
-   		proc(hWnd, 0, (255 * transparent) / 100, LWA_ALPHA);
+   		proc(hWnd, 0, (255 * transparency) / 100, LWA_ALPHA);
 		ok = 1;
 	}
 	return ok;

@@ -296,8 +296,8 @@ static SPtrHandle DuplicateAccessToken(SPtrHandle & rH, LPCSTR file, int line)
 /*static*/bool SlProcess::EnablePrivilege(HANDLE hToken, const wchar_t * pPrivSymb)
 {
 	TOKEN_PRIVILEGES tp; // token privileges
-	LUID luid;
-	bool do_close_token = false;
+	LUID  luid;
+	bool  do_close_token = false;
 	if(!hToken) {
 		if(!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken)) {
 			//Log(StrFormat(L"Failed to open process to enable privilege %s", privilegeStr), false);

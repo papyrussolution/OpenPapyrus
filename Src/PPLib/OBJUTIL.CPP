@@ -629,7 +629,8 @@ int PPObject::CreateReservedObjects(long flags)
 	PPWaitStart();
 	PPGetObjTypeList(&obj_type_list, 0);
     {
-    	uint   p1 = 0, p2 = 0;
+    	uint   p1 = 0;
+		uint   p2 = 0;
     	if(obj_type_list.lsearch(PPOBJ_PERSONKIND, &p1) && obj_type_list.lsearch(PPOBJ_ACCSHEET, &p2)) {
 			if(p1 > p2)
 				obj_type_list.swap(p1, p2);
@@ -681,7 +682,7 @@ int PPObject::CreateReservedObjects(long flags)
 			PPID   intr_rcpt_op_id = 0;
 			{
 				PPObjAccSheet acs_obj;
-				PPAccSheet acs_rec;
+				PPAccSheet2 acs_rec;
 				for(PPID acs_id = 0; acs_obj.EnumItems(&acs_id, &acs_rec) > 0;) {
 					if(acs_rec.Assoc == PPOBJ_LOCATION)
 						loc_acs_list.add(acs_rec.ID);
@@ -936,10 +937,14 @@ ListBoxDef * PPObject::Selector(ListBoxDef * pOrgDef, long flags, void * extraPt
 				p_def = pOrgDef;
 			}
 			else {
-				if(ImplementFlags & implTreeSelector)
-					p_def = new StdTreeListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData, MKSTYPE(S_ZSTRING, 128));
-				else
-					p_def = new StrAssocListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData);
+				uint   lbdef_options = lbtDblClkNotify|lbtFocNotify|lbtDisposeData;
+				const  bool is_tree = ((ImplementFlags & implTreeSelectorByHierFact && p_list->IsHirarchical()) || (ImplementFlags & implTreeSelector));
+				if(is_tree) {
+					p_def = new StdTreeListBoxDef(p_list, lbdef_options);
+				}
+				else {
+					p_def = new StrAssocListBoxDef(p_list, lbdef_options);
+				}
 				if(!p_def)
 					PPSetErrorNoMem();
 			}

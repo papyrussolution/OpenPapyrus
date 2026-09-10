@@ -5073,6 +5073,22 @@ int PPObjTSession::GetSerialListByGoodsID(PPID goodsID, PPID locID, SVector * pL
 	return (pList->getCount() ? 1 : -1);
 }
 
+PPObjTSession::SerialByGoodsListItem::SerialByGoodsListItem() : LotID(0), TSessID(0), Qtty(0.0)
+{
+	Serial[0] = 0;
+	Text[0] = 0;
+}
+		
+PPObjTSession::SerialByGoodsListItem & PPObjTSession::SerialByGoodsListItem::Z()
+{
+	LotID = 0;
+	TSessID = 0;
+	Qtty = 0.0;
+	Serial[0] = 0;
+	Text[0] = 0;
+	return *this;
+}
+
 int PPObjTSession::SelectSerialByGoods(PPID goodsID, PPID locID, SerialByGoodsListItem * pItem)
 {
 	int    ok = -1;

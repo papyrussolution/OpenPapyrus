@@ -227,7 +227,7 @@ int BudgetItemCore::PutItems(BudgetItemsList * pItems, int useTa)
 
 PPObjBudget::PPObjBudget(void * extraPtr) : PPObjReference(PPOBJ_BUDGET, extraPtr)
 {
-	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
+	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 	PPLoadText(PPTXT_WEEKS,    StrWeeks);
 	PPLoadText(PPTXT_MONTHES,  StrMonthes);
 	PPLoadText(PPTXT_QUARTS,   StrQuarts);

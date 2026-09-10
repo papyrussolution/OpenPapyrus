@@ -888,7 +888,7 @@ SStrGroup::SStrGroup()
 	Pool.add("$"); // zero index - is empty string
 }
 
-SStrGroup::SStrGroup(const SStrGroup & rS) : Pool(rS.Pool) // @v10.3.4
+SStrGroup::SStrGroup(const SStrGroup & rS) : Pool(rS.Pool)
 {
 }
 

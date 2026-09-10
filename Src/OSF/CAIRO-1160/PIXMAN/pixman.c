@@ -24,11 +24,7 @@
 pixman_implementation_t * global_implementation;
 
 #ifdef TOOLCHAIN_SUPPORTS_ATTRIBUTE_CONSTRUCTOR
-static void __attribute__((constructor)) pixman_constructor(void)
-{
-	global_implementation = _pixman_choose_implementation();
-}
-
+static void __attribute__((constructor)) pixman_constructor() { global_implementation = _pixman_choose_implementation(); }
 #endif
 
 typedef struct operator_info_t operator_info_t;
@@ -593,20 +589,16 @@ static boolint color_to_pixel(const pixman_color_t * color, uint32 * pixel, pixm
 	}
 	if(PIXMAN_FORMAT_TYPE(format) == PIXMAN_TYPE_RGBA)
 		c = ((c & 0xff000000) >> 24) | (c << 8);
-
 	if(format == PIXMAN_a1)
 		c = c >> 31;
 	else if(format == PIXMAN_a8)
 		c = c >> 24;
-	else if(format == PIXMAN_r5g6b5 ||
-	    format == PIXMAN_b5g6r5)
+	else if(format == PIXMAN_r5g6b5 || format == PIXMAN_b5g6r5)
 		c = convert_8888_to_0565(c);
-
 #if 0
 	printf("color: %x %x %x %x\n", color->alpha, color->red, color->green, color->blue);
 	printf("pixel: %x\n", c);
 #endif
-
 	*pixel = c;
 	return TRUE;
 }
@@ -652,36 +644,26 @@ PIXMAN_EXPORT boolint pixman_image_fill_boxes(pixman_op_t op, pixman_image_t * d
 		c.green = 0;
 		c.blue = 0;
 		c.alpha = 0;
-
 		color = &c;
-
 		op = PIXMAN_OP_SRC;
 	}
-
 	if(op == PIXMAN_OP_SRC) {
 		uint32 pixel;
-
 		if(color_to_pixel(color, &pixel, dest->bits.format)) {
 			pixman_region32_t fill_region;
 			int n_rects, j;
 			pixman_box32_t * rects;
-
 			if(!pixman_region32_init_rects(&fill_region, boxes, n_boxes))
 				return FALSE;
-
 			if(dest->common.have_clip_region) {
-				if(!pixman_region32_intersect(&fill_region,
-				    &fill_region,
-				    &dest->common.clip_region))
+				if(!pixman_region32_intersect(&fill_region, &fill_region, &dest->common.clip_region))
 					return FALSE;
 			}
-
 			rects = pixman_region32_rectangles(&fill_region, &n_rects);
 			for(j = 0; j < n_rects; ++j) {
 				const pixman_box32_t * rect = &(rects[j]);
 				pixman_fill(dest->bits.bits, dest->bits.rowstride, PIXMAN_FORMAT_BPP(dest->bits.format),
-				    rect->x1, rect->y1, rect->x2 - rect->x1, rect->y2 - rect->y1,
-				    pixel);
+				    rect->x1, rect->y1, rect->x2 - rect->x1, rect->y2 - rect->y1, pixel);
 			}
 			pixman_region32_fini(&fill_region);
 			return TRUE;
@@ -717,10 +699,7 @@ PIXMAN_EXPORT boolint pixman_image_fill_boxes(pixman_op_t op, pixman_image_t * d
  *
  * Return value: the encoded version.
  **/
-PIXMAN_EXPORT int pixman_version(void)
-{
-	return PIXMAN_VERSION;
-}
+PIXMAN_EXPORT int pixman_version() { return PIXMAN_VERSION; }
 
 /**
  * pixman_version_string:
@@ -733,11 +712,7 @@ PIXMAN_EXPORT int pixman_version(void)
  *
  * Return value: a string containing the version.
  **/
-PIXMAN_EXPORT const char * pixman_version_string(void)
-{
-	return PIXMAN_VERSION_STRING;
-}
-
+PIXMAN_EXPORT const char * pixman_version_string() { return PIXMAN_VERSION_STRING; }
 /**
  * pixman_format_supported_source:
  * @format: A pixman_format_code_t format
@@ -750,8 +725,7 @@ PIXMAN_EXPORT const char * pixman_version_string(void)
  **/
 PIXMAN_EXPORT boolint pixman_format_supported_source(pixman_format_code_t format)
 {
-	switch(format)
-	{
+	switch(format) {
 		/* 32 bpp formats */
 		case PIXMAN_a2b10g10r10:
 		case PIXMAN_x2b10g10r10:
@@ -832,38 +806,21 @@ PIXMAN_EXPORT boolint pixman_format_supported_destination(pixman_format_code_t f
 	/* YUV formats cannot be written to at the moment */
 	if(format == PIXMAN_yuy2 || format == PIXMAN_yv12)
 		return FALSE;
-
 	return pixman_format_supported_source(format);
 }
 
-PIXMAN_EXPORT boolint pixman_compute_composite_region(pixman_region16_t * region,
-    pixman_image_t * src_image,
-    pixman_image_t * mask_image,
-    pixman_image_t * dest_image,
-    int16 src_x,
-    int16 src_y,
-    int16 mask_x,
-    int16 mask_y,
-    int16 dest_x,
-    int16 dest_y,
-    uint16 width,
-    uint16 height)
+PIXMAN_EXPORT boolint pixman_compute_composite_region(pixman_region16_t * region, pixman_image_t * src_image,
+    pixman_image_t * mask_image, pixman_image_t * dest_image, int16 src_x, int16 src_y, int16 mask_x, int16 mask_y,
+    int16 dest_x, int16 dest_y, uint16 width, uint16 height)
 {
 	pixman_region32_t r32;
 	boolint retval;
-
 	pixman_region32_init(&r32);
-
-	retval = _pixman_compute_composite_region32(
-		&r32, src_image, mask_image, dest_image,
-		src_x, src_y, mask_x, mask_y, dest_x, dest_y,
-		width, height);
-
+	retval = _pixman_compute_composite_region32(&r32, src_image, mask_image, dest_image, src_x, src_y, mask_x, mask_y, dest_x, dest_y, width, height);
 	if(retval) {
 		if(!pixman_region16_copy_from_region32(region, &r32))
 			retval = FALSE;
 	}
-
 	pixman_region32_fini(&r32);
 	return retval;
 }

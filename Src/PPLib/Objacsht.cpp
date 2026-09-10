@@ -21,7 +21,7 @@ PPAccSheet2 & PPAccSheet2::Z()
 }
 
 class AccSheetDialog : public TDialog {
-	DECL_DIALOG_DATA(PPAccSheet);
+	DECL_DIALOG_DATA(PPAccSheet2);
 public:
 	AccSheetDialog() : TDialog(DLG_ACCSHEET)
 	{
@@ -32,8 +32,8 @@ public:
 		setCtrlLong(CTL_ACCSHEET_ID, Data.ID);
 		setCtrlData(CTL_ACCSHEET_NAME, Data.Name);
 		setCtrlData(CTL_ACCSHEET_SYMB, Data.Symb);
-		setupAssoc();
-		checkLink();
+		SetupAssoc();
+		CheckLink();
 		SetupPPObjCombo(this, CTLSEL_ACCSHEET_REGTYPE, PPOBJ_REGISTERTYPE, Data.CodeRegTypeID, 0, 0);
 		return 1;
 	}
@@ -45,8 +45,7 @@ public:
 			ok = PPErrorByDialog(this, CTL_ACCSHEET_NAME, PPERR_NAMENEEDED);
 		else {
 			getCtrlData(CTL_ACCSHEET_SYMB, Data.Symb);
-			// @v11.3.12 GetClusterData(CTL_ACCSHEET_ASSOC, &Data.Assoc);
-			Data.Assoc = getCtrlLong(CTLSEL_ACCSHEET_ASSCOBJ); // @v11.3.12
+			Data.Assoc = getCtrlLong(CTLSEL_ACCSHEET_ASSCOBJ);
 			if(Data.Assoc == 0) {
 				GetClusterData(CTL_ACCSHEET_FLAGS, &Data.Flags);
 				Data.Flags &= ~ACSHF_AUTOCREATART;
@@ -73,42 +72,39 @@ public:
 					Data.Flags |= ACSHF_USESUPPLAGT;
 			}
 			getCtrlData(CTLSEL_ACCSHEET_REGTYPE, &Data.CodeRegTypeID);
-			*pData = Data;
+			ASSIGN_PTR(pData, Data);
 		}
 		return ok;
 	}
 private:
-	DECL_HANDLE_EVENT;
-	int    setupAssoc();
-	PPID   groupObjType() const { return (Data.Assoc == PPOBJ_PERSON) ? PPOBJ_PERSONKIND : 0; }
-	void   getAssocData();
-	void   checkLink();
+	DECL_HANDLE_EVENT
+	{
+		TDialog::handleEvent(event);
+		if(event.isCbSelected(CTLSEL_ACCSHEET_ASSCOBJ)) {
+			const  PPID preserve_assoc = Data.Assoc;
+			Data.Assoc = getCtrlLong(CTLSEL_ACCSHEET_ASSCOBJ);
+			if(Data.Assoc != preserve_assoc) {
+				SETFLAG(Data.Flags, ACSHF_AUTOCREATART, oneof2(Data.Assoc, PPOBJ_PERSON, PPOBJ_LOCATION));
+				Data.ObjGroup = 0;
+				SetupAssoc();
+			}
+			clearEvent(event);
+		}
+	}
+	int    SetupAssoc();
+	PPID   GetGroupObjType() const { return (Data.Assoc == PPOBJ_PERSON) ? PPOBJ_PERSONKIND : 0; }
+	void   CheckLink();
 };
 
-IMPL_HANDLE_EVENT(AccSheetDialog)
-{
-	TDialog::handleEvent(event);
-	if(event.isCbSelected(CTLSEL_ACCSHEET_ASSCOBJ)) {
-		const  PPID preserve_assoc = Data.Assoc;
-		Data.Assoc = getCtrlLong(CTLSEL_ACCSHEET_ASSCOBJ);
-		if(Data.Assoc != preserve_assoc) {
-			SETFLAG(Data.Flags, ACSHF_AUTOCREATART, oneof2(Data.Assoc, PPOBJ_PERSON, PPOBJ_LOCATION));
-			Data.ObjGroup = 0;
-			setupAssoc();
-		}
-		clearEvent(event);
-	}
-}
-
-void AccSheetDialog::checkLink()
+void AccSheetDialog::CheckLink()
 {
 	if(!DS.CheckExtFlag(ECF_AVERAGE) || !PPMaster) {
 		PPID   tmp_id = 0;
 		ArticleFilt ar_filt;
 		ar_filt.AccSheetID = Data.ID;
 		ar_filt.Ft_Closed = 0;
-		PPObjArticle arobj(&ar_filt/*(void *)Data.ID*/);
-		const int r = arobj.GetFreeArticle(&tmp_id, Data.ID);
+		PPObjArticle ar_obj(&ar_filt);
+		const  int r = ar_obj.GetFreeArticle(&tmp_id, Data.ID);
 		if(!r)
 			PPError();
 		else {
@@ -118,17 +114,18 @@ void AccSheetDialog::checkLink()
 	}
 }
 
-int AccSheetDialog::setupAssoc()
+int AccSheetDialog::SetupAssoc()
 {
 	PPIDArray assc_objtype_list;
-	if(Data.Assoc == PPOBJ_ACCOUNT_PRE9004)
+	if(Data.Assoc == PPOBJ_ACCOUNT_PRE9004) {
 		Data.Assoc = PPOBJ_ACCOUNT2;
+	}
 	assc_objtype_list.addzlist(PPOBJ_PERSON, PPOBJ_LOCATION, PPOBJ_ACCOUNT2, PPOBJ_GLOBALUSERACC, PPOBJ_PROCESSOR, 0L);
 	SetupObjListCombo(this, CTLSEL_ACCSHEET_ASSCOBJ, Data.Assoc, &assc_objtype_list);
 	{
 		bool   disable_combo = true;
 		if(Data.Assoc == PPOBJ_PERSON) {
-			SetupPPObjCombo(this, CTLSEL_ACCSHEET_GROUP, groupObjType(), Data.ObjGroup, OLW_CANINSERT, 0);
+			SetupPPObjCombo(this, CTLSEL_ACCSHEET_GROUP, GetGroupObjType(), Data.ObjGroup, OLW_CANINSERT, 0);
 			disable_combo = false;
 		}
 		else if(Data.Assoc == PPOBJ_LOCATION) { // @v12.1.5
@@ -143,7 +140,19 @@ int AccSheetDialog::setupAssoc()
 	}
 	AddClusterAssoc(CTL_ACCSHEET_FLAGS, 0, ACSHF_AUTOCREATART);
 	AddClusterAssoc(CTL_ACCSHEET_FLAGS, 1, ACSHF_USEALIASSUBST);
+	AddClusterAssoc(CTL_ACCSHEET_FLAGS, 2, ACSHF_HIERARCHY); // @v12.7.7
 	SetClusterData(CTL_ACCSHEET_FLAGS, Data.Flags);
+	DisableClusterItem(CTL_ACCSHEET_FLAGS, 0, Data.Assoc == 0); // @v12.7.7
+	DisableClusterItem(CTL_ACCSHEET_FLAGS, 2, Data.Assoc != 0); // @v12.7.7
+	// @v12.7.7 {
+	if(Data.Assoc != PPOBJ_PERSON) {
+		Data.Flags &= ~(ACSHF_USECLIAGT|ACSHF_USESUPPLAGT);
+		disableCtrl(CTL_ACCSHEET_AGTKIND, true);
+	}
+	else {
+		disableCtrl(CTL_ACCSHEET_AGTKIND, false);
+	}
+	// } @v12.7.7 
 	ushort v = (Data.Flags & ACSHF_USECLIAGT) ? 1 : ((Data.Flags & ACSHF_USESUPPLAGT) ? 2 : 0);
 	setCtrlData(CTL_ACCSHEET_AGTKIND, &v);
 	return 1;
@@ -158,16 +167,16 @@ PPObjAccSheet::PPObjAccSheet(void * extraPtr) : PPObjReference(PPOBJ_ACCSHEET, e
 /*virtual*/int PPObjAccSheet::MakeReserved(long flags)
 {
 	int    ok = -1;
+	SString temp_buf;
+	PPAccSheet2 acs_rec;
     if(flags & mrfInitializeDb) {
 		long    _count = 0;
-		PPAccSheet acs_rec;
 		{
 			for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&acs_rec) > 0;) {
 				_count++;
 			}
 		}
         if(_count == 0) {
-			SString temp_buf;
 			const  PPID zero_id = 0;
 			{
 				acs_rec.Z();
@@ -204,14 +213,48 @@ PPObjAccSheet::PPObjAccSheet(void * extraPtr) : PPObjReference(PPOBJ_ACCSHEET, e
 			}
         }
     }
+	if(flags & mrfPersonalFinance) { // @v12.7.7
+		{
+			const  char * p_symb = "rPSNACSEXPCAT";
+			PPID   _id = 0;
+			if(SearchBySymb(p_symb, &_id, &acs_rec) > 0) {
+				;
+			}
+			else {
+				acs_rec.Z();
+				PPLoadString("accsheet_reserved_expcat", temp_buf);
+				STRNSCPY(acs_rec.Name, temp_buf);
+				STRNSCPY(acs_rec.Symb, p_symb);
+				acs_rec.Flags |= ACSHF_HIERARCHY;
+				THROW(StoreItem(PPOBJ_ACCSHEET, 0, &acs_rec, 1));
+				ok = 1;
+			}
+		}
+		{
+			const char * p_symb = "rPSNACSINCCAT";
+			PPID   _id = 0;
+			if(SearchBySymb(p_symb, &_id, &acs_rec) > 0) {
+				;
+			}
+			else {
+				acs_rec.Z();
+				PPLoadString("accsheet_reserved_inccat", temp_buf);
+				STRNSCPY(acs_rec.Name, temp_buf);
+				STRNSCPY(acs_rec.Symb, p_symb);
+				acs_rec.Flags |= ACSHF_HIERARCHY;
+				THROW(StoreItem(PPOBJ_ACCSHEET, 0, &acs_rec, 1));
+				ok = 1;
+			}
+		}		
+	}
     CATCHZOK
     return ok;
 }
 
-int PPObjAccSheet::IsAssoc(PPID acsID, PPID objType, PPAccSheet * pRec)
+int PPObjAccSheet::IsAssoc(PPID acsID, PPID objType, PPAccSheet2 * pRec)
 {
 	int    ok = -1;
-	PPAccSheet acs_rec;
+	PPAccSheet2 acs_rec;
 	if(Fetch(acsID, &acs_rec) > 0) {
 		ASSIGN_PTR(pRec, acs_rec);
 		if(acs_rec.Assoc == objType)
@@ -222,7 +265,7 @@ int PPObjAccSheet::IsAssoc(PPID acsID, PPID objType, PPAccSheet * pRec)
 
 int PPObjAccSheet::IsLinkedToMainOrg(PPID acsID)
 {
-	PPAccSheet acs_rec;
+	PPAccSheet2 acs_rec;
 	return BIN(acsID && Fetch(acsID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup == PPPRK_MAIN);
 }
 
@@ -231,13 +274,14 @@ int PPObjAccSheet::Edit(PPID * pID, void * extraPtr)
 	int    ok = 1;
 	int    r = cmCancel;
 	int    valid_data = 0;
-	PPAccSheet rec;
+	PPAccSheet2 rec;
 	AccSheetDialog * dlg = 0;
 	THROW(CheckRightsModByID(pID));
 	if(*pID) {
 		THROW(Search(*pID, &rec) > 0);
 	}
-	THROW(CheckDialogPtr(&(dlg = new AccSheetDialog)));
+	dlg = new AccSheetDialog();
+	THROW(CheckDialogPtr(&dlg));
 	dlg->setDTS(&rec);
 	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		if(dlg->getDTS(&rec)) {
@@ -344,11 +388,11 @@ int PPObjAccSheet::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCont
 	int    ok = 1;
 	if(p && p->Data)
 		if(stream == 0) {
-			PPAccSheet * p_rec = static_cast<PPAccSheet *>(p->Data);
+			PPAccSheet2 * p_rec = static_cast<PPAccSheet2 *>(p->Data);
 			if(*pID == 0) {
 				PPID   same_id = 0;
-				if(P_Ref->SearchSymb(Obj, &same_id, p_rec->Name, offsetof(PPAccSheet, Name)) > 0) {
-					PPAccSheet same_rec;
+				if(P_Ref->SearchSymb(Obj, &same_id, p_rec->Name, offsetof(PPAccSheet2, Name)) > 0) {
+					PPAccSheet2 same_rec;
 					if(Search(same_id, &same_rec) > 0 && same_rec.Assoc == p_rec->Assoc) {
 						if(same_rec.ObjGroup == p_rec->ObjGroup) {
 							ASSIGN_PTR(pID, same_id);
@@ -389,7 +433,7 @@ int PPObjAccSheet::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace
 {
 	int    ok = 1;
 	if(p && p->Data) {
-		PPAccSheet * p_rec = static_cast<PPAccSheet *>(p->Data);
+		PPAccSheet2 * p_rec = static_cast<PPAccSheet2 *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_REGISTERTYPE, &p_rec->CodeRegTypeID, ary, replace));
 		if(p_rec->Assoc == PPOBJ_PERSON) {
 			THROW(ProcessObjRefInArray(PPOBJ_PERSONKIND, &p_rec->ObjGroup, ary, replace));
@@ -425,7 +469,7 @@ int AccSheetCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraDat
 	int    ok = 1;
 	AccSheetData * p_cache_rec = static_cast<AccSheetData *>(pEntry);
 	PPObjAccSheet as_obj;
-	PPAccSheet rec;
+	PPAccSheet2 rec;
 	if(as_obj.Search(id, &rec) > 0) {
 		p_cache_rec->BinArID  = rec.BinArID;
 		p_cache_rec->CodeRegTypeID = rec.CodeRegTypeID;
@@ -441,7 +485,7 @@ int AccSheetCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraDat
 
 void AccSheetCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPAccSheet * p_data_rec = static_cast<PPAccSheet *>(pDataRec);
+	PPAccSheet2 * p_data_rec = static_cast<PPAccSheet2 *>(pDataRec);
 	const AccSheetData * p_cache_rec = static_cast<const AccSheetData *>(pEntry);
 	p_data_rec->Z();
 	p_data_rec->Tag   = PPOBJ_ACCSHEET;
@@ -455,4 +499,4 @@ void AccSheetCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) c
 }
 // }
 
-IMPL_OBJ_FETCH(PPObjAccSheet, PPAccSheet, AccSheetCache);
+IMPL_OBJ_FETCH(PPObjAccSheet, PPAccSheet2, AccSheetCache);

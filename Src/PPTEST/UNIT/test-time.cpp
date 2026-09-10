@@ -185,44 +185,6 @@ SLTEST_R(LDATE)
 		}
 	}
 	{
-		SString mon_buf;
-		for(i = 1; i <= 12; i++) {
-			/*
-				#define MONF_SHORT     0x0001 // Сокращенная форма
-				#define MONF_CASENOM   0x0002 // Полная форма (именительный падеж)
-				#define MONF_CASEGEN   0x0004 // Полная форма (родительный падеж)
-				#define MONF_OEM       0x0080 // OEM-coding
-			*/
-#if 0 // @v10.4.5 {
-			char  txt_mon[128];
-			{
-				long fmt = MONF_SHORT;
-				getMonthText(i, fmt, txt_mon);
-				SGetMonthText(i, fmt, mon_buf);
-				SLCHECK_EQ(mon_buf, txt_mon);
-			}
-			{
-				long fmt = MONF_CASENOM;
-				getMonthText(i, fmt, txt_mon);
-				SGetMonthText(i, fmt, mon_buf);
-				SLCHECK_EQ(mon_buf, txt_mon);
-			}
-			{
-				long fmt = MONF_CASEGEN;
-				getMonthText(i, fmt, txt_mon);
-				SGetMonthText(i, fmt, mon_buf);
-				SLCHECK_EQ(mon_buf, txt_mon);
-			}
-			{
-				long fmt = MONF_CASENOM|MONF_OEM;
-				getMonthText(i, fmt, txt_mon);
-				SGetMonthText(i, fmt, mon_buf);
-				SLCHECK_EQ(mon_buf, txt_mon);
-			}
-#endif // } 0 @v10.4.5
-		}
-	}
-	{
 		SLCHECK_EQ(DiffTime_(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), SUOM_HOUR), 0L);
 		SLCHECK_EQ(DiffTime_(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), SUOM_MINUTE), 0L);
 		SLCHECK_EQ(DiffTime_(encodetime(12, 1, 11, 27), encodetime(12, 1, 11, 27), SUOM_SECOND), 0L);

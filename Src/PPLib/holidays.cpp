@@ -31,7 +31,7 @@
 	else if(y == 0) { // calendar date
 		SString temp_buf;
 		SGetMonthText(m, MONF_SHORT|MONF_OEM, temp_buf);
-		rBuf.Cat(d).Space().Cat(/*getMonthText(m, MONF_SHORT|MONF_OEM, temp_buf)*/temp_buf);
+		rBuf.Cat(d).Space().Cat(temp_buf);
 	}
 	else // simple date
 		rBuf.Cat(dt, DATF_DMY);

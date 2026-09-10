@@ -96,12 +96,12 @@ public:
 	}
 	DECL_DIALOG_SETDTS()
 	{
-		Data = *pData;
+		RVALUEPTR(Data, pData);
 		ushort v = 0;
 		PPIDArray op_list;
 		PPIDArray gen_op_list;
 		PPOprKind2 op_rec;
-		PPID   acc_sheet_id = 0;
+		PPID   acs_id = 0;
 		PPID   op_id = 0;
 		SetPeriodInput(this, CTL_FRGHTFLT_PERIOD, Data.BillPeriod);
 		SetPeriodInput(this, CTL_FRGHTFLT_SHIPMPERIOD, Data.ShipmPeriod);
@@ -121,8 +121,8 @@ public:
 			}
 		}
 		SetupOprKindCombo(this, CTLSEL_FRGHTFLT_OP, Data.OpID, 0, &op_list, OPKLF_OPLIST);
-		GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, 0);
-		setupAccSheet(acc_sheet_id);
+		GetOpCommonAccSheet(Data.OpID, &acs_id, 0);
+		setupAccSheet(acs_id);
 		SetupPPObjCombo(this, CTLSEL_FRGHTFLT_LOC, PPOBJ_LOCATION, Data.LocID, 0);
 		SetupPPObjCombo(this, CTLSEL_FRGHTFLT_SHIP, PPOBJ_TRANSPORT, Data.ShipID, OLW_WORDSELECTOR);
 		SetupPPObjCombo(this, CTLSEL_FRGHTFLT_PORT, PPOBJ_WORLD, Data.PortID, OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
@@ -196,10 +196,10 @@ IMPL_HANDLE_EVENT(FreightFiltDialog)
 	}
 	else if(event.isCbSelected(CTLSEL_FRGHTFLT_OP)) {
 		if(getCtrlView(CTLSEL_FRGHTFLT_OBJECT)) {
-			PPID   acc_sheet_id = 0;
+			PPID   acs_id = 0;
 			getCtrlData(CTLSEL_FRGHTFLT_OP, &Data.OpID);
-			GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, 0);
-			setupAccSheet(acc_sheet_id);
+			GetOpCommonAccSheet(Data.OpID, &acs_id, 0);
+			setupAccSheet(acs_id);
 		}
 		if(!Data.OpID) {
 			Data.Flags &= ~(FreightFilt::fUseCargoParam);
@@ -744,6 +744,9 @@ int PPViewFreight::UpdateFeatures()
     const  PPID tr_type = PPTRTYP_CAR;
     PPID   ship_id = 0;
 	PPID   captain_id = 0;
+	PPID   captain2_id = 0;
+	PPID   agent_id = 0;
+	PPID   port_of_loading = 0;
     long   shipm_flag_mode = -1;
 	enum {
 		fSetPortOfDischargeByTrunkPt = 0x0001
@@ -755,8 +758,18 @@ int PPViewFreight::UpdateFeatures()
     THROW(CheckDialogPtr(&dlg));
 	SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_TR, PPOBJ_TRANSPORT, ship_id, OLW_CANINSERT|OLW_WORDSELECTOR, reinterpret_cast<void *>(tr_type));
 	SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_CAPT, PPOBJ_PERSON, captain_id, OLW_CANINSERT/*|OLW_LOADDEFONOPEN*/, reinterpret_cast<void *>(PPPRK_CAPTAIN));
-	dlg->SetupCalDate(CTLCAL_UPDFREIGHT_ISSDT, CTL_UPDFREIGHT_ISSDT);
-	dlg->SetupCalDate(CTLCAL_UPDFREIGHT_ARRDT, CTL_UPDFREIGHT_ARRDT);
+	// @v12.7.7 {
+	SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_CAPT2, PPOBJ_PERSON, captain2_id, OLW_CANINSERT/*|OLW_LOADDEFONOPEN*/, reinterpret_cast<void *>(PPPRK_CAPTAIN)); 
+	SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_AGENT, PPOBJ_PERSON, agent_id, OLW_CANINSERT|OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_VESSELSAGENT));
+	{
+		PPIDArray worldobj_kind_list;
+		worldobj_kind_list.addzlist(WORLDOBJ_CITY, WORLDOBJ_CITYAREA, 0L);
+		SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_ISSLOC, PPOBJ_WORLD, port_of_loading, OLW_CANINSERT|OLW_CANSELUPLEVEL|OLW_WORDSELECTOR,
+			PPObjWorld::MakeExtraParam(worldobj_kind_list, 0, 0));
+	}
+	// } @v12.7.7 
+	// @v12.7.7 (dl600) dlg->SetupCalDate(CTLCAL_UPDFREIGHT_ISSDT, CTL_UPDFREIGHT_ISSDT);
+	// @v12.7.7 (dl600) dlg->SetupCalDate(CTLCAL_UPDFREIGHT_ARRDT, CTL_UPDFREIGHT_ARRDT);
 	dlg->setCtrlData(CTL_UPDFREIGHT_ISSDT, &issue_date);
 	dlg->setCtrlData(CTL_UPDFREIGHT_ARRDT, &arrival_date);
 	dlg->AddClusterAssocDef(CTL_UPDFREIGHT_SHPF,  0, -1);
@@ -768,17 +781,24 @@ int PPViewFreight::UpdateFeatures()
 	if(ExecView(dlg) == cmOK) {
 		ship_id = dlg->getCtrlLong(CTLSEL_UPDFREIGHT_TR);
 		captain_id = dlg->getCtrlLong(CTLSEL_UPDFREIGHT_CAPT);
+		// @v12.7.7 {
+		captain2_id = dlg->getCtrlLong(CTLSEL_UPDFREIGHT_CAPT2);
+		agent_id = dlg->getCtrlLong(CTLSEL_UPDFREIGHT_AGENT);
+		port_of_loading = dlg->getCtrlLong(CTLSEL_UPDFREIGHT_ISSLOC);
+		// } @v12.7.7 
         issue_date = dlg->getCtrlDate(CTL_UPDFREIGHT_ISSDT);
         arrival_date = dlg->getCtrlDate(CTL_UPDFREIGHT_ARRDT);
         shipm_flag_mode = dlg->GetClusterData(CTL_UPDFREIGHT_SHPF);
 		dlg->GetClusterData(CTL_UPDFREIGHT_FLAGS, &_flags);
-        if(ship_id || captain_id || checkdate(issue_date) || checkdate(arrival_date) || oneof2(shipm_flag_mode, 0, 1) || (_flags & fSetPortOfDischargeByTrunkPt)) {
+        if(ship_id || captain_id || captain2_id || agent_id || port_of_loading || checkdate(issue_date) || 
+			checkdate(arrival_date) || oneof2(shipm_flag_mode, 0, 1) || (_flags & fSetPortOfDischargeByTrunkPt)) {
 			PPIDArray bill_list;
 			PPWaitStart();
 			{
 				FreightViewItem item;
-				for(InitIteration(OrdByDefault); NextIteration(&item) > 0;)
+				for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 					bill_list.add(item.BillID);
+				}
 			}
 			bill_list.sortAndUndup();
 			for(uint i = 0; i < bill_list.getCount(); i++) {
@@ -797,6 +817,20 @@ int PPViewFreight::UpdateFeatures()
 							freight.CaptainID = captain_id;
 							do_update |= 1;
 						}
+						// @v12.7.7 {
+						if(captain2_id && freight.Captain2ID != captain2_id) {
+							freight.Captain2ID = captain2_id;
+							do_update |= 1;
+						}
+						if(agent_id && freight.AgentID != agent_id) {
+							freight.AgentID = agent_id;
+							do_update |= 1;
+						}
+						if(port_of_loading && freight.PortOfLoading != port_of_loading) {
+							freight.PortOfLoading = port_of_loading;
+							do_update |= 1;
+						}
+						// } @v12.7.7 
                         if(checkdate(issue_date) && freight.IssueDate != issue_date) {
 							freight.IssueDate = issue_date;
 							do_update |= 1;
@@ -819,7 +853,6 @@ int PPViewFreight::UpdateFeatures()
                     }
 					{
 						PPID   dlvr_loc_id = 0; // @v12.1.11
-						// @v11.2.10 {
 						if(_flags & fSetPortOfDischargeByTrunkPt && P_BObj->GetDlvrAddrID(bill_rec, &freight, &dlvr_loc_id) > 0) {
 							assert(dlvr_loc_id);
 							const PPID preserver_port_of_discharge = freight.PortOfDischarge;
@@ -831,7 +864,6 @@ int PPViewFreight::UpdateFeatures()
 								}
 							}
 						}
-						// } @v11.2.10 
 					}
                     if(do_update) {
 						int    bill_updated = 0;

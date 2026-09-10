@@ -3762,7 +3762,7 @@ int PrcssrDebtRate::Run()
 	PPWaitStart();
 	if(P.AccSheetID) {
 		PPObjAccSheet acs_obj;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		if(P.Flags & PrcssrDebtRate::Param::fGatherPaymDelayStat) {
 			if(IsThereDebtRateLic) {
 				THROW(GatherPaymDelayStat(&logger, 1));

@@ -2863,6 +2863,30 @@ TCELHLD_TIMESERIES_STAKE_STAKE_SHORT  "Разрешены только коро�
 TCELHLD_TIMESERIES_FOREX              "Инструмент относится к рынку FOREX"
 TCELHLD_TIMESERIES_STOCK              "Инструмент относится к рынку акций"
 TCELHLD_TIMESERIES_CRYPTO             "Инструмент относится к рынку крипто-валют"
+
+TCELHLD_EVENT_STATUS_ACTUAL           "Событие актуально"
+TCELHLD_EVENT_STATUS_VIEWED           "Событие просмотрено"
+TCELHLD_EVENT_STATUS_ARCHIVED         "Событие архивировано"
+TCELHLD_EVENT_STATUS_UNDEF            "Статус события не определен"
+TCELHLD_EVENT_SUBSCRCUSTOMCOLOR       "Настраиваемый цвет подписки на событие"
+
+[105] // @v12.7.7 PPSTR_CTLUSTTD Control User's State Description
+CTLUSTTD_RULICPLATE_VALID             "Государственный номер автомобиля - допустимое значение"
+CTLUSTTD_RULICPLATE_INVALID           "Недопустимое значение государственного номер автомобиля"
+CTLUSTTD_BANKACCOUNT_VALID            "Номер банковского счета - допустимое значение"
+CTLUSTTD_BANKACCOUNT_INVALID          "Недопустимое значение номера банковского счета"
+CTLUSTTD_RUINN_VALID                  "ИНН - допустимое значение" 
+CTLUSTTD_RUINN_INVALID                "Недопустимое значение ИНН" 
+CTLUSTTD_RUKPP_VALID                  "КПП - допустимое значение"  
+CTLUSTTD_RUKPP_INVALID                "Недопустимое значение КПП" 
+CTLUSTTD_RUOKPO_VALID                 "ОКПО - допустимое значение"
+CTLUSTTD_RUOKPO_INVALID               "Недопустимое значение ОКПО" 
+CTLUSTTD_RUBIC_VALID                  "БИК (банковский идентификатор) - допустимое значение"
+CTLUSTTD_RUBIC_INVALID                "Недопустимое значение БИК (банковского идентификатора)"
+
+CTLUSTTD_BILL_PAYMDATE_UNDEFORINV     "Дата срока оплаты по документу не определена либо имеет недопустимое значение"
+CTLUSTTD_BILL_PAYMDATE_NOTMATCHTOAGT  "Дата срока оплаты по документу не соответствует периоду оплаты из соглашения (%d дней)"
+CTLUSTTD_BILL_SYNCED                  "Документ синхронизирован с другими разделами базы данных"
 									
 [110] // Наименования типов объектов данных
 1    "@{config}"
@@ -6327,6 +6351,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_addrlist                        "6,R,@id;24,L,@city;60,L,@address;16,L,@code" // DLG_ADDRLIST
 @lbt_arcodelist                      "48,L,@article;16,L,@code;8,R,@qtty" // DLG_ARGCODELIST
 @lbt_araliasesubst                   "20,L,@accountalias;38,L,@account" // DLG_ARTICLE2
+@lbt_articlealssubst                 "20,L,@accountalias;38,L,@account"
 @lbt_autonewprice                    "56,L,@ware;10,R,@price;15,R,@{newprice};15,R,@difference" // DLG_AUTONEWP
 @lbt_bnkacclist                      "48,L,@bank;28,L,@account"                                 // DLG_BACCLST
 @lbt_bankacclist                     "48,L,@bank;28,L,@account"
@@ -6394,7 +6419,6 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_csessamtlist                    "50,L,@appellation;15,R,@amount"
 @lbt_mobclmnlist                     "20,L,Zone;20,L,@{datafieldname};40,L,@text;15,L,@total"
 @lbt_draftwroff                      "40,L,@draftwroffentry_op;30,L,@draftwroffentry_loc"
-@lbt_articlealssubst                 "20,L,@accountalias;38,L,@account"
 @lbt_aturntempllist                  "13,L,@debit;13,L,@credit;45,L,@formula"
 @lbt_gbasket                         "56,L,@ware;10,R,@qtty;8,R,@price;10,R,@amount"
 @lbt_billvataxlist                   "17,L,@vatrate;22,R,@intermcost;22,R,@intermprice"
@@ -6431,7 +6455,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @globalservice_aptekaru              "@{brand_aptekaru}" // @v12.2.0
 
 @papyrusversion                      "Версия Papyrus"
-@testapp_path                        "Тестовое Приложение" // @v11.8.2 Подкаталог рабочего каталога ppy, в котором размещается тестовое приложение SlTestApp.exe
+@testapp_path                        "Тестовое Приложение" // @v11.8.2 Подкаталог рабочего каталога ppy, в котором размещается тестовое приложение (SlTestApp.exe)slia.exe
 @from                                "От"
 @to                                  "До"
 @etc_neut                            "Другое"
@@ -10036,6 +10060,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @accsheet_acshf_usealiassubst             "Использует подстановку алиасов счетов"
 @accsheet_acshf_usecliagt                 "Соглашения с покупателями"
 @accsheet_acshf_usesupplagt               "Соглашения с поставщиками"
+@accsheet_acshf_hierarchy                 "Допускаются иерархические статьи" // @v12.7.7
 @accsheet_assoc                           "Ассоциированный объект"
 @accsheet_binar                           "Статья сброса остатков"
 @accsheet_coderegtype                     "Тип регистра для поиска"
@@ -10045,6 +10070,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @accsheet_objgroup                        "Группа ассоциации"
 @accsheet_symb                            "@{symbol}"
 @accsheet_tag                             "@{tag}"
+@accsheet_reserved_expcat                 "Категории персональных расходов" // @v12.7.7
+@accsheet_reserved_inccat                 "Категории персональных доходов"  // @v12.7.7
 @accturn_amount                           "@{amount}"
 @accturn_bill                             "Идентификатор документа"
 @accturn_billcode                         "@{billno}"
@@ -10262,6 +10289,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @article_clearagt                         "Очистить соглашение" // command
 @article_aliassubst                       "Подстановка алиаса счета"
 @article_selection_linkobj                "Выбор связанного объекта" // generic
+@article_parent                           "Родительская статья" // @v12.7.7
 
 @assetwroffgrp                            "Группа списания основных средства"
 @assetwroffgrp_tag                        "@{tag}"

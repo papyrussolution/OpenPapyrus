@@ -1205,6 +1205,7 @@
     <ClCompile Include="..\PPLib\Bpakcore.cpp" />
     <ClCompile Include="..\PPLib\calendar.cpp" />
     <ClCompile Include="..\PPLib\CCHECK.CPP" />
+    <ClCompile Include="..\PPLib\centrigo.cpp" />
     <ClCompile Include="..\PPLib\chkinpsn.cpp" />
     <ClCompile Include="..\PPLib\Chkpan.cpp" />
     <ClCompile Include="..\PPLib\chzn.cpp" />

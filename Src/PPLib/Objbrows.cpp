@@ -74,7 +74,7 @@ static ListBoxDef * __ListBoxDefFactory(PPID objType, StrAssocArray * pList, voi
 	PPObject * p_obj = GetPPObject(objType, extraPtr);
 	ListBoxDef * p_def = 0;
 	if(p_obj && p_obj->GetImplementFlags() & PPObject::implTreeSelector)
-		p_def = new StdTreeListBoxDef(pList, lbtDisposeData|lbtDblClkNotify, 0);
+		p_def = new StdTreeListBoxDef(pList, lbtDisposeData|lbtDblClkNotify);
 	else
 		p_def = new StrAssocListBoxDef(pList, lbtDisposeData|lbtDblClkNotify);
 	delete p_obj;

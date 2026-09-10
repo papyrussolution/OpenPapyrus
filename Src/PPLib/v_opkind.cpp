@@ -371,7 +371,7 @@ int PPViewOprKind::MakeEntry(const PPOprKind & rOpRec, OprKindBrwItem & rEntry)
 		accept_op = (accept_op && (rOpRec.Flags & OPKF_RECKON));
 	if(accept_op) {
 		SString temp_buf;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		rEntry.ID = rOpRec.ID;
 		STRNSCPY(rEntry.Name, rOpRec.Name);
 		STRNSCPY(rEntry.Symb, rOpRec.Symb);

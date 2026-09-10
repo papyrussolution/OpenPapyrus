@@ -379,7 +379,7 @@ public:
 		SetupTimePicker(this, CTL_TSESS_FNTM, CTLTM_TSESS_FNTM);
 		PrcTechCtrlGroup * p_grp = new PrcTechCtrlGroup(CTLSEL_TSESS_PRC, CTLSEL_TSESS_TECH, CTL_TSESS_ST_GOODS, CTLSEL_TSESS_OBJ, CTLSEL_TSESS_OBJ2, cmSelTechByGoods, cmCreateGoods);
 		if(p_grp) {
-			if(TView::IsSubSign(getCtrlView(CTLSEL_TSESS_GSTRUC), TV_SUBSIGN_COMBOBOX)) {
+			if(getCtrlViewEnsureSubsign(CTLSEL_TSESS_GSTRUC, TV_SUBSIGN_COMBOBOX)) {
 				p_grp->SetGoodsStrucCtlsel(CTLSEL_TSESS_GSTRUC);
 			}
 			addGroup(ctlgroupPrcTech, p_grp);

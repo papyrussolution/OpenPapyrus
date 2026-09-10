@@ -2592,7 +2592,7 @@ DL6_IC_CONSTRUCTION_EXTRA(PPObjAccSheet, DL6ICLS_PPObjAccSheet_VTab, PPObjAccShe
 //
 // Interface IPapyrusObject implementation
 //
-static void FASTCALL FillAccSheetRec(const PPAccSheet * pInner, SPpyO_AccSheet * pOuter)
+static void FASTCALL FillAccSheetRec(const PPAccSheet2 * pInner, SPpyO_AccSheet * pOuter)
 {
 	SString temp_buf;
 	#define FLD(f) pOuter->f = pInner->f
@@ -2612,7 +2612,7 @@ int32 DL6ICLS_PPObjAccSheet::Search(int32 id, PPYOBJREC rec)
 	int    ok = 0;
 	PPObjAccSheet * p_obj = static_cast<PPObjAccSheet *>(ExtraPtr);
 	if(p_obj) {
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		ok = p_obj->Fetch(id, &acs_rec);
 		FillAccSheetRec(&acs_rec, static_cast<SPpyO_AccSheet *>(rec));
 	}
@@ -2625,7 +2625,7 @@ int32 DL6ICLS_PPObjAccSheet::SearchByName(SString & text, int32 kind, int32 extr
 	int    ok = 0;
 	PPObjAccSheet * p_obj = static_cast<PPObjAccSheet *>(ExtraPtr);
 	if(p_obj) {
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		PPID   id = 0;
 		ok = p_obj->SearchByName(text, &id, &acs_rec);
 		FillAccSheetRec(&acs_rec, static_cast<SPpyO_AccSheet *>(rec));
@@ -2638,7 +2638,7 @@ SString & DL6ICLS_PPObjAccSheet::GetName(int32 id)
 {
 	PPObjAccSheet * p_obj = static_cast<PPObjAccSheet *>(ExtraPtr);
 	if(p_obj) {
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		if(p_obj->Fetch(id, &acs_rec) > 0)
 			RetStrBuf = acs_rec.Name;
 		else
@@ -2817,7 +2817,7 @@ int32 DL6ICLS_PPObjArticle::Update(int32 id, int32 flags, PPYOBJREC rec)
 	PPArticlePacket pack;
 	SString temp_buf;
 	PPObjAccSheet acs_obj;
-	PPAccSheet acs_rec;
+	PPAccSheet2 acs_rec;
 	THROW(p_obj);
 	SPpyO_Article * p_rec = static_cast<SPpyO_Article *>(rec);
 	THROW_PP_S(p_rec->RecTag == ppoArticle, PPERR_INVSTRUCTAG, "ppoArticle");
@@ -5084,8 +5084,7 @@ static void FASTCALL FillBillRec(const PPBillPacket * pInner, SPpyO_Bill * pOute
         temp_buf = pInner->Rec.Code;
 		temp_buf.CopyToOleStr(&pOuter->Code);
 	}
-	// @v11.1.12 (temp_buf = pInner->Rec.Memo).CopyToOleStr(&pOuter->Memo);
-	(temp_buf = pInner->SMemo).CopyToOleStr(&pOuter->Memo); // @v11.1.12
+	(temp_buf = pInner->SMemo).CopyToOleStr(&pOuter->Memo);
 #undef FLD
 	//
 	// Дополнительные поля документа
@@ -5160,8 +5159,7 @@ static void FASTCALL FillBillPacket(const SPpyO_Bill * pInner, PPBillPacket * pO
 		temp_buf.CopyTo(pOuter->Rec.Code, sizeof(pOuter->Rec.Code));
 	temp_buf.CopyFromOleStr(pInner->Memo);
 	if(temp_buf.Len() || fillNotZero == 0) {
-		// @v11.1.12 temp_buf.CopyTo(pOuter->Rec.Memo, sizeof(pOuter->Rec.Memo));
-		pOuter->SMemo = temp_buf; // @v11.1.12
+		pOuter->SMemo = temp_buf;
 	}
 	#undef FLD
 	// Дополнительные поля документа

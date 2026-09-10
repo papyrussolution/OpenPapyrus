@@ -88,13 +88,13 @@ public:
 	DECL_DIALOG_SETDTS()
 	{
 		ushort v;
-		PPID   acc_sheet_id = 0;
+		PPID   acs_id = 0;
 		long   qk_sel_extra = 1;
 		PPID   new_qk_id = 0;
 		SString temp_buf;
 		RVALUEPTR(Data, pData);
 		QkObj.Classify(Data.QuotKindID, &QuotCls);
-		QkSpc.GetDefaults(QuotCls, Data.QuotKindID, &acc_sheet_id, &new_qk_id, &qk_sel_extra);
+		QkSpc.GetDefaults(QuotCls, Data.QuotKindID, &acs_id, &new_qk_id, &qk_sel_extra);
 		SETIFZ(Data.QuotKindID, new_qk_id);
 		AddClusterAssocDef(CTL_QUOTUPD_WHAT, 0, PPQuot::clsGeneral);
 		AddClusterAssoc(CTL_QUOTUPD_WHAT, 1, PPQuot::clsSupplDeal);
@@ -115,7 +115,7 @@ public:
 		{
 			ArticleCtrlGroup::Rec ar_grp_rec(0, 0, &Data.ArList);
 			ArticleCtrlGroup * p_ar_grp = static_cast<ArticleCtrlGroup *>(getGroup(ctlgroupAr));
-			p_ar_grp->SetAccSheet(acc_sheet_id);
+			p_ar_grp->SetAccSheet(acs_id);
 			setGroupData(ctlgroupAr, &ar_grp_rec);
 		}
 		AddClusterAssocDef(CTL_QUOTUPD_HOW, 0, QuotUpdFilt::byLots);
@@ -155,12 +155,6 @@ public:
 		setCtrlString(CTL_QUOTUPD_PCT, temp_buf);
 		temp_buf.Z().Cat(Data.QuotValPeriod, 1);
 		setStaticText(CTL_QUOTUPD_ST_VALEXT, temp_buf);
-		/* @v10.5.9
-		// @erik v10.5.8 { 
-		AddClusterAssoc(CTL_QUOTUPD_TEST, 0, QuotUpdFilt::fTest);
-		SetClusterData(CTL_QUOTUPD_TEST, Data.Flags);
-		// } @erik 
-		*/
 		return 1;
 	}
 	DECL_DIALOG_GETDTS()
@@ -280,12 +274,12 @@ void QuotUpdDialog::setupQuot()
 #if 0 // @v11.4.2 {
 void QuotUpdDialog::GetQuotKindDefaults(int quotCls, PPID qkID, PPID * pAcsID, PPID * pDefQkID, long * pQkSelExtra)
 {
-	PPID   acc_sheet_id = 0;
+	PPID   acs_id = 0;
 	long   qk_sel_extra = 1;
 	PPID   new_qk_id = qkID;
 	switch(/*QuotCls*/quotCls) { // @v11.4.1 @fix QuotCls-->quotCls
 		case PPQuot::clsSupplDeal:
-			acc_sheet_id = GetSupplAccSheet();
+			acs_id = GetSupplAccSheet();
 			qk_sel_extra = QuotKindFilt::fSupplDeal;
 			if(!oneof3(new_qk_id, QkSpc.SupplDealID, QkSpc.SupplDevDnID, QkSpc.SupplDevUpID))
 				new_qk_id = QkSpc.SupplDealID;
@@ -302,14 +296,14 @@ void QuotUpdDialog::GetQuotKindDefaults(int quotCls, PPID qkID, PPID * pAcsID, P
 			{
 				PPQuotKind2 qk_rec;
 				if(new_qk_id && QkObj.Fetch(new_qk_id, &qk_rec) > 0 && qk_rec.AccSheetID)
-					acc_sheet_id = qk_rec.AccSheetID;
+					acs_id = qk_rec.AccSheetID;
 				else
-					acc_sheet_id = GetSellAccSheet();
+					acs_id = GetSellAccSheet();
 				qk_sel_extra = 1;
 			}
 			break;
 	}
-	ASSIGN_PTR(pAcsID, acc_sheet_id);
+	ASSIGN_PTR(pAcsID, acs_id);
 	ASSIGN_PTR(pDefQkID, new_qk_id);
 	ASSIGN_PTR(pQkSelExtra, qk_sel_extra);
 }

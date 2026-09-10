@@ -471,7 +471,6 @@ int PPObjStaffList::PutPostPacket(PPID * pID, PPPsnPostPacket * pPack, int use_t
 					THROW(P_Ref->GetPropArray(PPOBJ_PERSONPOST, *pID, PSNPPPRP_AMTLIST, &org_list));
 					if(!org_list.IsEq(pPack->Amounts)) {
 						was_updated = 1;
-						// @v10.3.0 (never used) was_list_updated = 1;
 						THROW(P_Ref->PutPropArray(PPOBJ_PERSONPOST, *pID, SLPPRP_AMTLIST, &pPack->Amounts, 0));
 					}
 				}

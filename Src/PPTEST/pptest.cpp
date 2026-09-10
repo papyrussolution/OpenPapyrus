@@ -1072,7 +1072,7 @@ int GenerateGoodsBills()
 	// для генератора
 	const RngType * p_type = 0;
 	RandNumbGen generator;
-	int mu = 100;     //переменная для генератора по показательному з-ну
+	int    mu = 100;     //переменная для генератора по показательному з-ну
 	//для введения кол-ва документов
 	SString title, inp_title;
 	SString msg_buf;
@@ -1084,9 +1084,10 @@ int GenerateGoodsBills()
 	GoodsOpAnalyzeFilt goods_flt;
 	GoodsOpAnalyzeViewItem goods_item;
 	PPIDArray goods_list;
-	int count = 0;    //кол-во док-тов в выборке по фильру по товарам
+	int    count = 0;    //кол-во док-тов в выборке по фильру по товарам
 	// для массива контрагентов
-	PPID acc_sheet_id = 0, acc_sheet2_id = 0; //таблица статей
+	PPID   acc_sheet_id = 0;
+	PPID   acc_sheet2_id = 0; //таблица статей
 	PPIDArray contragent_list; //масииви контрагентов
 	long contragent_count = 0; //количество контрагентов
 	PPObjArticle ar_obj;

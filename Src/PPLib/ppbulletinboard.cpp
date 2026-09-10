@@ -1309,10 +1309,9 @@ int TimeSeriesCache::FindOptimalStrategyForStake(const LDATETIME & rDtm, const d
 					scsb_reverse.Criterion |= PPObjTimeSeries::StrategyContainer::selcritfSkipLong;
 					scsb_reverse.Criterion &= ~PPObjTimeSeries::StrategyContainer::selcritfSkipShort;
 				}
-				// @v10.7.10 scsb_reverse.ChaosFactor = scsb.ChaosFactor;
-				scsb_reverse.DevPtCount = Cfg.E.LocalDevPtCount; // @v10.7.1
-				scsb_reverse.LDMT_Factor = Cfg.E.LDMT_Factor; // @v10.7.1
-				scsb_reverse.MainTrendMaxErrRel = Cfg.E.MainTrendMaxErrRel; // @v10.7.2
+				scsb_reverse.DevPtCount = Cfg.E.LocalDevPtCount;
+				scsb_reverse.LDMT_Factor = Cfg.E.LDMT_Factor;
+				scsb_reverse.MainTrendMaxErrRel = Cfg.E.MainTrendMaxErrRel;
 				scsb_reverse.P_Ts = &r_blk.T_; // @v10.7.1
 				scsb_reverse.LastTrendIdx = scsb.LastTrendIdx;
 				r_blk.Strategies.SelectS2(scsb_reverse);

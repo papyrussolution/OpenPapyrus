@@ -3451,7 +3451,6 @@ int TrfrAnlzFiltDialog::setDTS(const TrfrAnlzFilt * pData)
 	RVALUEPTR(Data, pData);
 	ushort v;
 	PPIDArray types;
-	PPID   acc_sheet_id = 0;
 	SetPeriodInput(this, CTL_GTO_PERIOD, Data.Period);
 	SetPeriodInput(this, CTL_GTO_LOTPERIOD, Data.LotsPeriod);
 	SetPeriodInput(this, CTL_GTO_DUEPERIOD, Data.DueDatePeriod);
@@ -4683,7 +4682,7 @@ public:
 			SetupObjTagCombo(this, CTLSEL_ALCREPCFG_MITAG, Data.ManufImpTagID, 0, &ot_filt);
 		}
 		SetupPPObjCombo(this, CTLSEL_ALCREPCFG_IMPPSNK, PPOBJ_PERSONKIND, Data.E.ImporterPersonKindID, 0);
-		SetupArCombo(this, CTLSEL_ALCREPCFG_SPLAGT, Data.E.SupplAgentID, 0, GetAgentAccSheet(), sacfDisableIfZeroSheet); // @v11.0.8
+		SetupArCombo(this, CTLSEL_ALCREPCFG_SPLAGT, Data.E.SupplAgentID, 0, GetAgentAccSheet(), sacfDisableIfZeroSheet);
 		if(Data.LotManufTagList.getCount() > 1) {
 			disableCtrl(CTLSEL_ALCREPCFG_MNFTAG, true);
 		}

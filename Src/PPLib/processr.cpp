@@ -500,7 +500,7 @@ TLP_IMPL(PPObjProcessor, ProcessorCore, P_Tbl);
 PPObjProcessor::PPObjProcessor(void * extraPtr) : PPObject(PPOBJ_PROCESSOR), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
+	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 }
 
 PPObjProcessor::~PPObjProcessor()

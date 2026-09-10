@@ -2614,7 +2614,7 @@ int PPDS_CrrQuotKind::TransferField(long fldID, Tfd dir, uint * pIter, SString &
 			{
 				SString buf;
 				if(dir == tfdDataToBuf) {
-					PPAccSheet acs_rec;
+					PPAccSheet2 acs_rec;
 					if(ACCSObj.Search(Data.AccSheetID, &acs_rec) > 0)
 						buf = acs_rec.Name;
 				}
@@ -3788,7 +3788,7 @@ int PPDS_CrrArticle::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTransmCo
 	int    ok = -1;
 	if(pData) {
 		if(fldID == DSF_CRRARTICLE_ACCSHEET) {
-			PPAccSheet item = static_cast<const PPDS_CrrAccSheet *>(pData)->Data;
+			PPAccSheet2 item = static_cast<const PPDS_CrrAccSheet *>(pData)->Data;
 			Data.AccSheetID = item.ID;
 			ok = 1;
 		}
@@ -3816,7 +3816,7 @@ int PPDS_CrrArticle::CreateListItem(long fldID, uint * pIter, PPDeclStruc * pDat
 	int    ok = -1;
 	long assoc = 0;
 	if(Data.AccSheetID) {
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		AccSheetObj.Fetch(Data.AccSheetID, &acs_rec);
 		assoc = acs_rec.Assoc;
 	}
@@ -3858,7 +3858,7 @@ int PPDS_CrrAccSheet::InitData(Ido op, void * dataPtr, long addedParam)
 		MEMSZERO(Data);
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *static_cast<const PPAccSheet *>(dataPtr);
+			Data = *static_cast<const PPAccSheet2 *>(dataPtr);
 		else if(addedParam) {
 			if(Obj.Fetch(addedParam, &Data) > 0)
 				ok = 1;
@@ -3871,7 +3871,7 @@ int PPDS_CrrAccSheet::InitData(Ido op, void * dataPtr, long addedParam)
 	else if(op == idoAccept) {
 		if(sstrlen(Data.Name) || sstrlen(Data.Symb)) {
 			PPID   id = 0;
-			PPAccSheet rec;
+			PPAccSheet2 rec;
 			if((*strip(Data.Symb) != 0 && Obj.SearchBySymb(Data.Symb, &id, &rec) > 0) ||
 				(*strip(Data.Name) != 0 && Obj.SearchByName(Data.Name, &id, &rec) > 0)
 			) {
@@ -4135,7 +4135,7 @@ int PPDS_CrrAccount::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTransmCo
 				ok = 0;
 		}
 		else if(fldID == DSF_CRRACCOUNT_ACCSHEET) {
-			PPAccSheet item = static_cast<const PPDS_CrrAccSheet *>(pData)->Data;
+			PPAccSheet2 item = static_cast<const PPDS_CrrAccSheet *>(pData)->Data;
 			Data.Rec.AccSheetID = item.ID;
 			ok = 1;
 		}
@@ -4785,7 +4785,7 @@ int PPDS_CrrOprKindEntry::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTra
 	int    ok = -1;
 	if(pData) {
 		if(oneof2(fldID, DSF_CRROPRKINDENTRY_ACCSHEET, DSF_CRROPRKINDENTRY_ACCSHEET2)) {
-			PPAccSheet item = ((PPDS_CrrAccSheet *)pData)->Data;
+			PPAccSheet2 item = ((PPDS_CrrAccSheet *)pData)->Data;
 			if(fldID == DSF_CRROPRKINDENTRY_ACCSHEET)
 				Data.AccSheetID = item.ID;
 			else

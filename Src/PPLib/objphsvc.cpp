@@ -618,8 +618,8 @@ int FASTCALL PhnSvcChannelStatusPool::Add(const PhnSvcChannelStatus & rStatus)
 	AddS(rStatus.EffConnectedLineName, &item.EffConnectedLineNameP);
 	AddS(rStatus.Application, &item.ApplicationP);
 	AddS(rStatus.Data, &item.DataP);
-	AddS(rStatus.BridgeId, &item.BridgeIdP); // @v10.0.02
-	AddS(rStatus.IdentifiedCallerName, &item.IdentifiedCallerNameP); // @v10.0.01
+	AddS(rStatus.BridgeId, &item.BridgeIdP);
+	AddS(rStatus.IdentifiedCallerName, &item.IdentifiedCallerNameP);
 	insert(&item);
 	return ok;
 }
@@ -651,8 +651,8 @@ int FASTCALL PhnSvcChannelStatusPool::Get(uint idx, PhnSvcChannelStatus & rStatu
 		GetS(r_item.EffConnectedLineNameP, rStatus.EffConnectedLineName);
 		GetS(r_item.ApplicationP, rStatus.Application);
 		GetS(r_item.DataP, rStatus.Data);
-		GetS(r_item.BridgeIdP, rStatus.BridgeId); // @v10.0.02
-		GetS(r_item.IdentifiedCallerNameP, rStatus.IdentifiedCallerName); // @v10.0.01
+		GetS(r_item.BridgeIdP, rStatus.BridgeId);
+		GetS(r_item.IdentifiedCallerNameP, rStatus.IdentifiedCallerName);
 	}
 	else
 		ok = 0;
@@ -803,7 +803,7 @@ int AsteriskAmiClient::GetChannelList(const char * pChannelName, PhnSvcChannelSt
 								cnl_status.Application = val_buf;
 							else if(key_buf == "data")
 								cnl_status.Data = val_buf;
-							else if(key_buf == "bridgeid") // @v10.0.02
+							else if(key_buf == "bridgeid")
 								cnl_status.BridgeId = val_buf;
 						}
 						if(do_insert)
@@ -925,7 +925,7 @@ int AsteriskAmiClient::GetChannelStatus(const char * pChannelName, PhnSvcChannel
 							cnl_status.Application = val_buf;
 						else if(key_buf == "data")
 							cnl_status.Data = val_buf;
-						else if(key_buf == "bridgeid") // @v10.0.02
+						else if(key_buf == "bridgeid")
 							cnl_status.BridgeId = val_buf;
 					}
 					if(do_insert)

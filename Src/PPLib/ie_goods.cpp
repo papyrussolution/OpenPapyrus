@@ -935,7 +935,7 @@ int GoodsImpExpDialog::setDTS(const PPGoodsImpExpParam * pData)
 	ImpExpParamDialog::setDTS(&Data);
 	{
 		PPObjAccSheet acs_obj;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		const  PPID acs_id = (acs_obj.Fetch(Data.AccSheetID, &acs_rec) > 0) ? Data.AccSheetID : GetSupplAccSheet();
 		setCtrlString(CTL_IMPEXPGOODS_SUBCODE, Data.SubCode);
 		SetupPPObjCombo(this, CTLSEL_IMPEXPGOODS_ACS, PPOBJ_ACCSHEET, acs_id, 0, 0);
@@ -1128,7 +1128,8 @@ int SelectGoodsImportCfgs(PPGoodsImpExpParam * pParam, int import)
 			}
 		#endif
 		// } конец
-		THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_IEGOODS))));
+		dlg = new TDialog(DLG_IEGOODS);
+		THROW(CheckDialogPtrErr(&dlg));
 		SetupStrAssocCombo(dlg, CTLSEL_IEGOODS_CFG, list, id, 0, 0, 0);
 		SetupPPObjCombo(dlg, CTLSEL_IEGOODS_LOC, PPOBJ_LOCATION, loc_id, 0, 0);
 		while(ok < 0 && ExecView(dlg) == cmOK) {
@@ -1214,7 +1215,7 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 					SFileFormat ff;
 					const int fir = ff.Identify(img_path, &ext_buf);
 					if(oneof2(fir, 2, 3)) { // Принимаем только идентификацию по сигнатуре
-						if(SImageBuffer::IsSupportedFormat(ff)) { // @v11.3.7 SFileFormat::Webp
+						if(SImageBuffer::IsSupportedFormat(ff)) {
 							if(!ext_buf.NotEmptyS()) {
 								SFileFormat::GetExt(ff, ext_buf);
 							}

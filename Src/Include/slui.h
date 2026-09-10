@@ -344,6 +344,7 @@ struct TEvent {
 	TEvent & setWinCmd(uint uMsg, WPARAM wParam, LPARAM lParam);
 	uint getCtlID() const;
 	bool FASTCALL isCmd(uint cmd) const;
+	bool FASTCALL isBroadcast(uint cmd) const; // @v12.7.7
 	bool FASTCALL isKeyDown(uint keyCode) const;
 	bool FASTCALL isCtlEvent(uint ctlID) const;
 	bool FASTCALL isCbSelected(uint ctlID) const;
@@ -2705,6 +2706,12 @@ public:
 	TView * GetCurrentView() const { return P_Current; }
 	TView * GetLastView() const { return P_Last; }
 	TView * FASTCALL getCtrlView(ushort ctl); // @v12.3.7 moved from TWindow
+	//
+	// Descr: Ищет управляющий элемент с идентификатором ctlId и проверяет имеет ли он subsign.
+	//   То есть, эта функция заменяет вызов:
+	//   TView * p_view = TView::IsSubSign(getCtrlView(ctlId), subsign) ? getCtrlView(ctlId) : 0;
+	//
+	TView * FASTCALL getCtrlViewEnsureSubsign(ushort ctlId, uint subsign); // @v12.7.7
 	const TView * FASTCALL getCtrlViewC(ushort ctl) const; // @v12.3.7 moved from TWindow
 	const TView * FASTCALL getCtrlViewByHandleC(/*HWND*/void * pHandle) const; // @v12.5.7
 	void   redraw();
@@ -3815,6 +3822,22 @@ struct UiItemKind { // @transient
 	SString Text;
 	TView * P_Cls;
 };
+//
+// Descr: Структура для фиксации текущего состояния управляющего элемента (для начала, TInputLine) с целью
+//   специального отображения этого состояния и вывода подсказки о смысле этого специального отображения.
+//
+struct CtrlIndicatorState { // @v12.7.7
+	CtrlIndicatorState();
+	bool   IsUndef() const;
+	bool   FASTCALL IsEq(const CtrlIndicatorState & rS) const;
+	CtrlIndicatorState & Z();
+
+	uint64 State;  // Перечисляемое значение состояния. Возможные величины и их смысл - (почти)полностью во власти окна, которому принадлежит элемент. 
+		// Значение 0 считается неопределенным!
+	uint64 Color;
+	uint   Flags;
+	SString Descr;
+};
 
 class TDialog : public TWindow {
 	friend class PPDialogConstructor; // @v12.3.6 Этот класс получает доступ к внутренним полям и методам TDialog поскольку это необходимо
@@ -4057,9 +4080,7 @@ private:
 	int    FKind; // fkXXX
 	long   State; // @v12.5.5
 	struct SizingBlock {
-		SizingBlock() : P_SizingLo(0), H_ParentWindow(0), CurrentPosition(-1)
-		{
-		}
+		SizingBlock();
 		SPoint2S StartPt; // @v12.5.5 Точка начала изменения размера (State & stSizing)
 		int    CurrentPosition;
 		SUiLayout * P_SizingLo; // @v12.5.5 @notowned Лейаут, размер которого будет изменять этот экземпляр (если IsConsistentSizeBar())		
@@ -4143,6 +4164,15 @@ public:
 	//   false - error
 	//
 	bool   GetDateRange(long strtoperiodFlags, DateRange * pData);
+	//
+	// Descr: Устанавливает значение пользовательского индикатора состояния поля.
+	// Returns: 
+	//   >0 - после вызова функции состояние изменилось
+	//   <0 - после вызова функции состояние НЕ изменилось
+	//    0 - error (состояние НЕ изменилось)
+	//
+	int    SetIndicatorState(uint64 state, const char * pDescrUt8); // @v12.7.7
+	int    GetIndicatorState(uint64 * pState, SString * pDescr) const; // @v12.7.7
 
 	struct Statistics {
 		enum {
@@ -4189,6 +4219,7 @@ protected:
 		double TmSqSum;
 	};
 	InputStat Stat;
+	CtrlIndicatorState IndSt; // @v12.7.7
 	SString Data;
 	
 	ComboBox * P_Combo;
@@ -4307,16 +4338,14 @@ private:
 
 class TCluster : public TView {
 public:
-	static constexpr float DefItemHeight       = 16.0f; // Высота одного элемента кластера в пикселях по умолчанию
-	static constexpr float DefItemVerticalGap  = 2.0;  // Расстояние по вертикали между элементами (от нижней границы верхнего до верхней нижнего). При вертикальной раскладке.
-	static constexpr float DefClusterPaddigTop = 16.0f; // Расстояние по вертикали от верхней границы кластера до верхней кромки первого элемента. 
-	static constexpr float DefClusterPaddigBottom = 8.0f; // Расстояние по вертикали от нижней границы кластера до нижней кромки последнего элемента.
-	static constexpr float DefClusterPaddigLeft = 8.0f; // Расстояние по горизонтали от левой границы кластера до левой кромки первого элемента. 
+	static constexpr float DefItemHeight          = 16.0f; // Высота одного элемента кластера в пикселях по умолчанию
+	static constexpr float DefItemVerticalGap     =  2.0f; // Расстояние по вертикали между элементами (от нижней границы верхнего до верхней нижнего). При вертикальной раскладке.
+	static constexpr float DefClusterPaddigTop    = 16.0f; // Расстояние по вертикали от верхней границы кластера до верхней кромки первого элемента. 
+	static constexpr float DefClusterPaddigBottom =  8.0f; // Расстояние по вертикали от нижней границы кластера до нижней кромки последнего элемента.
+	static constexpr float DefClusterPaddigLeft   =  8.0f; // Расстояние по горизонтали от левой границы кластера до левой кромки первого элемента. 
 
 	struct Item {
-		Item() : Flags(0), AssociatedValue(0)
-		{
-		}
+		Item();
 		enum {
 			fDefaultRadioButton = 0x0001 // Если установлен, то этот элемент radio-cluster'а является default'нтым
 		};
@@ -4345,7 +4374,7 @@ public:
 	int    SetText(int pos, const char * pText);
 	void   AddItem(int item, const char * pText, const TRect * pRect);
 	void   deleteItem(int);
-	void   disableItem(int pos /* 0.. */, bool disable);
+	void   disableItem(int pos/*0..*/, bool disable);
 	bool   IsItemEnabled(int item) const; // item = номер элемента в списке 0..
 	void   deleteAll();
 	bool   IsChecked(uint itemIdx) const;  // item = (ushort)GetWindowLong(hWnd, GWL_ID);
@@ -4540,7 +4569,7 @@ private:
 	uint32 Sign;               // Подпись экземпляра класса. Используется для идентификации порожденных классов и инвалидных экземпляров
 	long   CFlags;
 	SCodepage Cp;              // @v12.5.5 Кодовая страница, используемая для хранения строк. Если Cp == cpUndef, то подразумевается cpOEM
-	SBaseBuffer UserData;      //
+	SBaseBuffer UserData;
 	LAssocArray ImageAssoc;    // Список ид элементов и ассоциированных с ним id иконок
 	LAssocArray ImageIdxAssoc; // Список ид элементов и ассоциированных с ним индексов картинок содержащихся в HIMAGELIST
 	struct ColorItem {
@@ -4593,7 +4622,7 @@ class StdTreeListBoxDef : public ListBoxDef {
 public:
 	friend class SmartListBox;
 
-	StdTreeListBoxDef(StrAssocArray * pList, uint aOptions, TYPEID);
+	StdTreeListBoxDef(StrAssocArray * pList, uint aOptions); // @v12.7.7 элиминирован последний аргумент (TYPEID typ)
 	~StdTreeListBoxDef();
 	virtual void   setViewHight(int);
 	virtual void   getScrollData(long * pScrollDelta, long * pScrollPos);
@@ -4617,9 +4646,7 @@ public:
 	bool   FASTCALL HasChildren(long id) const;
 	int    GetListByParent(long parentId, LongArray & rList) const;
 	int    GetParent(long child, long * pParent) const;
-	//int    GetChildList(long parentId, LongArray * pChildList);
 protected:
-	//void   setupView();
 	int    Helper_CreateTree();
 	int    Helper_AddTreeItem(uint idx, UintHashTable & rAddedIdxList, uint32 * pPos);
 private:
@@ -4673,11 +4700,6 @@ public:
 	bool   FASTCALL HasChildren(long id) const;
 	int    GetListByParent(long parentId, LongArray & rList) const;
 	int    GetParent(long child, long * pParent) const;
-	//int    GetChildList(long parentId, LongArray * pChildList);
-protected:
-	//void   setupView();
-	//int    Helper_CreateTree();
-	//int    Helper_AddTreeItem(uint idx, UintHashTable & rAddedIdxList, uint32 * pPos);
 private:
 	StrAssocTree * P_SaList;
 	struct TreeItem {
@@ -4686,7 +4708,6 @@ private:
 		void * H;
 		uint   P;
 	};
-	//STree  T;
 	struct Item {
 		long   Id;
 		long   ParentId;
@@ -4877,7 +4898,7 @@ private:
 	// Descr: Варианты автоматического расчета ширины колонок 
 	//
 	enum {
-		auotocalccolszNo = 0, // Нет
+		auotocalccolszNo         = 0, // Нет
 		auotocalccolszNominal    = 1, // Пропорционально номинальным значениям ширины (заданным в ресурсе)
 		auotocalccolszContent    = 2, // Пропорционально содержимому колонок
 		auotocalccolszLogContent = 3, // Пропорционально логарифму содержимого колонок
@@ -5006,8 +5027,7 @@ private:
 ListWindow * CreateListWindow(DBQuery & rQuery, uint options);
 ListWindow * CreateListWindow(SArray * pAry, uint options, TYPEID);
 ListWindow * CreateListWindow(StrAssocArray * pAry, uint options, TView * pLinkView = 0);
-// @v11.2.5 ListWindow * CreateListWindow(uint sz, uint options);
-ListWindow * CreateListWindow_Simple(uint options); // @v11.2.5
+ListWindow * CreateListWindow_Simple(uint options);
 // WordSelector * CreateWordSelector(StrAssocArray * pAry, uint optons, UiWordSel_Helper * pHelper);
 
 class ComboBoxInputLine : public TInputLine {
@@ -5122,10 +5142,10 @@ struct TDrawCtrlData {
 		// для отрисовки управляющего элемента
 };
 
-int SetWindowTransparent(HWND hWnd, int transparent /*0..100*/);
+int    SetWindowTransparency(HWND hWnd, int transparency/*0..100*/);
 
-BOOL    CALLBACK ListSearchDialogProc(HWND, UINT, WPARAM, LPARAM);
-BOOL    CALLBACK PropertySheetDialogProc(HWND, UINT, WPARAM, LPARAM);
+BOOL   CALLBACK ListSearchDialogProc(HWND, UINT, WPARAM, LPARAM);
+BOOL   CALLBACK PropertySheetDialogProc(HWND, UINT, WPARAM, LPARAM);
 //
 // Toolbar
 // There's a mine born by Osolotkin, 2000

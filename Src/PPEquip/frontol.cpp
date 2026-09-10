@@ -27,7 +27,7 @@ public:
 protected:
 	PPID   StatID;
 private:
-	int    IsXPos(const PPAsyncCashNode & rCn) const { return BIN(rCn.DrvVerMajor >= 10); }
+	bool   IsXPos(const PPAsyncCashNode & rCn) const { return (rCn.DrvVerMajor >= 10); }
 	int    ConvertWareList(const char * pImpPath);
 	long   ModifDup(long cashNo, long chkNo);
 	int    ImportFiles();
@@ -250,7 +250,7 @@ int ACS_FRONTOL::ExportData(int updOnly)
 	const  int  check_dig = BIN(GetGoodsCfg().Flags & GCF_BCCHKDIG);
 	const  bool is_vatfree = (cnobj.IsNodeVatFree(NodeID) > 0);
 	THROW(GetNodeData(&cn_data) > 0);
-	const int is_xpos = IsXPos(cn_data);
+	const  bool is_xpos = IsXPos(cn_data);
 	if(cn_data.DrvVerMajor > 3 || (cn_data.DrvVerMajor == 3 && cn_data.DrvVerMinor >= 4))
 		p_load_symb = "#";
 	//
@@ -955,94 +955,102 @@ int ACS_FRONTOL::ImportFiles()
 	SETIFZQ(last_date, plusdate(getcurdate_(), 2));
 	first_date = plusdate(first_date, -1);
 	last_date  = plusdate(last_date, 1);
-	if(r_eq_cfg.FtpAcctID)
+	if(r_eq_cfg.FtpAcctID) {
 		THROW(obj_acct.Get(r_eq_cfg.FtpAcctID, &acct));
+	}
 	{
 		PPAlbatrossConfig alb_cfg;
-		if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0 && alb_cfg.Hdr.MailAccID)
+		if(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0 && alb_cfg.Hdr.MailAccID) {
 			THROW_PP(obj_acct.Get(alb_cfg.Hdr.MailAccID, &mac_rec) > 0, PPERR_UNDEFMAILACC);
-	}
-	for(uint i = 0, set_no = 0; ImpPaths.get(&i, imp_path); set_no++) {
-		if(imp_path.HasPrefixIAscii(p_ftp_flag)) {
-			SString ftp_path, ftp_path_flag, ftp_dir, file_name;
-			SFsPath sp;
-			imp_path.ShiftLeft(sstrlen(p_ftp_flag));
-			if(!ftp_connected) {
-				THROW(ftp.Init());
-				THROW(ftp.Connect(&acct));
-				ftp_connected = 1;
-			}
-			{
-				SFsPath sp(imp_path);
-				sp.Merge(0, SFsPath::fNam|SFsPath::fExt, ftp_dir);
-				sp.Split(PathRpt);
-				sp.Merge(0, SFsPath::fDrv|SFsPath::fDir, file_name);
-				(ftp_path = ftp_dir).SetLastSlash().Cat(file_name);
-				sp.Split(PathFlag);
-				sp.Merge(0, SFsPath::fDrv|SFsPath::fDir|SFsPath::fExt, file_name);
-				(ftp_path_flag = ftp_dir).SetLastSlash().Cat(file_name);
-			}
-			MakeTempFileName(dir_in, "front", "txt", path_rpt);
-			// path_rpt = PathRpt;
-			for(double j = 0; j < timeouts_c; j++) {
-				if(ftp.SafeGet(path_rpt, ftp_path, 0, 0, 0) > 0) {
-					ftp.SafeDelete(ftp_path, 0);
-					if(ImportedFiles.Len())
-						ImportedFiles.Semicol();
-					ImportedFiles.Cat(path_rpt);
-					ok = 1;
-					break;
-				}
-				else
-					SDelay(delay_quant);
-			}
 		}
-		else if(imp_path.HasPrefixIAscii(p_email_flag)) {
-			if(mac_rec.ID) {
-				uint   i;
-				PPIDArray msg_list;
-				long   mailbox_count = 0, mailbox_size = 0;
-				int    msg_n = 0;
-				IterCounter msg_counter;
-				SString wait_msg;
-				SString temp_fname;
-				SString dest_fname;
-				mail.Init(&mac_rec);
-				mac_rec.GetExtField(MAEXSTR_RCVSERVER, wait_msg);
-				PPWaitMsg(PPSTR_TEXT, PPTXT_WTMAILCONNECTION, wait_msg);
-				if(!mail_connected) {
-					THROW(mail.Connect());
-					THROW(mail.Login());
-					mail_connected = 1;
+	}
+	{
+		SString ftp_path;
+		SString ftp_path_flag;
+		SString ftp_dir;
+		SString file_name;
+		for(uint i = 0, set_no = 0; ImpPaths.get(&i, imp_path); set_no++) {
+			if(imp_path.HasPrefixIAscii(p_ftp_flag)) {
+				imp_path.ShiftLeft(sstrlen(p_ftp_flag));
+				if(!ftp_connected) {
+					THROW(ftp.Init());
+					THROW(ftp.Connect(&acct));
+					ftp_connected = 1;
 				}
-				THROW(mail.GetStat(&mailbox_count, &mailbox_size));
-				PPLoadText(PPTXT_CHECKINMAILFORPPY, wait_msg);
-				for(msg_n = 1; msg_n <= mailbox_count; msg_n++) {
-					SMailMessage msg;
-					if(mail.GetMsgInfo(msg_n, &msg) > 0)
-						if(msg.Flags & SMailMessage::fFrontol)
-							msg_list.add(msg_n);
-					PPWaitPercent(msg_n, mailbox_count, wait_msg);
+				{
+					SFsPath sp(imp_path);
+					sp.Merge(0, SFsPath::fNam|SFsPath::fExt, ftp_dir);
+					sp.Split(PathRpt);
+					sp.Merge(0, SFsPath::fDrv|SFsPath::fDir, file_name);
+					(ftp_path = ftp_dir).SetLastSlash().Cat(file_name);
+					sp.Split(PathFlag);
+					sp.Merge(0, SFsPath::fDrv|SFsPath::fDir|SFsPath::fExt, file_name);
+					(ftp_path_flag = ftp_dir).SetLastSlash().Cat(file_name);
 				}
-				msg_counter.Init(msg_list.getCount());
-				for(i = 0; i < msg_list.getCount(); i++) {
-					SMailMessage msg;
-					PPMakeTempFileName(0, "msg", temp_fname);
-					msg_counter.Increment();
-					THROW(mail.GetMsg(msg_list.at(i), &msg, temp_fname, RcvMailCallback, msg_counter));
-					{
-						MakeTempFileName(dir_in, "front", "txt", path_rpt);
-						THROW(mail.SaveAttachment(temp_fname, PathRpt, dir_in));
-						(temp_fname = dir_in).SetLastSlash().Cat(PathRpt);
-						rename(temp_fname, path_rpt);
+				MakeTempFileName(dir_in, "front", "txt", path_rpt);
+				// path_rpt = PathRpt;
+				for(double j = 0; j < timeouts_c; j++) {
+					if(ftp.SafeGet(path_rpt, ftp_path, 0, 0, 0) > 0) {
+						ftp.SafeDelete(ftp_path, 0);
+						if(ImportedFiles.Len())
+							ImportedFiles.Semicol();
 						ImportedFiles.Cat(path_rpt);
-						THROW(mail.DeleteMsg(msg_list.at(i)));
+						ok = 1;
+						break;
+					}
+					else
+						SDelay(delay_quant);
+				}
+			}
+			else if(imp_path.HasPrefixIAscii(p_email_flag)) {
+				if(mac_rec.ID) {
+					uint   i;
+					PPIDArray msg_list;
+					long   mailbox_count = 0;
+					long   mailbox_size = 0;
+					int    msg_n = 0;
+					IterCounter msg_counter;
+					SString wait_msg;
+					SString temp_fname;
+					SString dest_fname;
+					mail.Init(&mac_rec);
+					mac_rec.GetExtField(MAEXSTR_RCVSERVER, wait_msg);
+					PPWaitMsg(PPSTR_TEXT, PPTXT_WTMAILCONNECTION, wait_msg);
+					if(!mail_connected) {
+						THROW(mail.Connect());
+						THROW(mail.Login());
+						mail_connected = 1;
+					}
+					THROW(mail.GetStat(&mailbox_count, &mailbox_size));
+					PPLoadText(PPTXT_CHECKINMAILFORPPY, wait_msg);
+					for(msg_n = 1; msg_n <= mailbox_count; msg_n++) {
+						SMailMessage msg;
+						if(mail.GetMsgInfo(msg_n, &msg) > 0)
+							if(msg.Flags & SMailMessage::fFrontol)
+								msg_list.add(msg_n);
+						PPWaitPercent(msg_n, mailbox_count, wait_msg);
+					}
+					msg_counter.Init(msg_list.getCount());
+					for(i = 0; i < msg_list.getCount(); i++) {
+						SMailMessage msg;
+						PPMakeTempFileName(0, "msg", temp_fname);
+						msg_counter.Increment();
+						THROW(mail.GetMsg(msg_list.at(i), &msg, temp_fname, RcvMailCallback, msg_counter));
+						{
+							MakeTempFileName(dir_in, "front", "txt", path_rpt);
+							THROW(mail.SaveAttachment(temp_fname, PathRpt, dir_in));
+							(temp_fname = dir_in).SetLastSlash().Cat(PathRpt);
+							rename(temp_fname, path_rpt);
+							ImportedFiles.Cat(path_rpt);
+							THROW(mail.DeleteMsg(msg_list.at(i)));
+						}
 					}
 				}
 			}
+			else {
+				THROW(QueryFile(set_no, imp_path));
+			}
 		}
-		else
-			THROW(QueryFile(set_no, imp_path));
 	}
 	{
 		const char * p_prefix = "slp";
@@ -1241,8 +1249,9 @@ int ACS_FRONTOL::GetZRepList(const char * pPath, _FrontolZRepArray * pZRepList)
 					if(CS.data.Temporary)
 						THROW(CS.ResetTempSessTag(sess_id, 0));
 				}
-				else
+				else {
 					THROW(CS.CreateSess(&sess_id, NodeID, cash_no, nsmena, dtm, 0));
+				}
 				SessAry.addUnique(sess_id);
 				//zrep_ary.Add(cash_no, nsmena, &(pos = 0));
 				{
@@ -1637,13 +1646,15 @@ int ACS_FRONTOL::ConvertWareList(const char * pImpPath)
 
 int ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
 {
-	int    ok = 1, notify_timeout = NZOR(ImpExpTimeout, 5000);
-	const  int is_xpos = IsXPos(Acn);
+	int    ok = 1;
+	int    notify_timeout = NZOR(ImpExpTimeout, 5000);
+	const  bool is_xpos = IsXPos(Acn);
 	SString imp_path(pImpPath);
 	SString exp_path;
 	SString path_rpt;
 	SString path_flag;
-	LDATE  first_date = ChkRepPeriod.low, last_date = ChkRepPeriod.upp;
+	LDATE  first_date = ChkRepPeriod.low;
+	LDATE  last_date = ChkRepPeriod.upp;
 	SETIFZ(last_date, plusdate(getcurdate_(), 2));
 	first_date = plusdate(first_date, -1);
 	last_date  = plusdate(last_date, 1);
@@ -1651,9 +1662,10 @@ int ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
 	{
 		{
 			int exp_path_found = 0;
-			for(uint j = 0, n = 0; !exp_path_found && ExpPaths.get(&j, exp_path); n++)
+			for(uint j = 0, n = 0; !exp_path_found && ExpPaths.get(&j, exp_path); n++) {
 				if(n == setNo)
 					exp_path_found = 1;
+			}
 			if(!exp_path_found)
 				exp_path = imp_path;
 		}
@@ -1676,14 +1688,14 @@ int ACS_FRONTOL::QueryFile(uint setNo, const char * pImpPath)
 				query_file.WriteLine(buf);
 				query_file.Close();
 				//
-				// Задержка для Windows Vist (and above) чтобы убедиться что файл на сетевом диске виден
+				// Задержка для Windows Vista (and above) чтобы убедиться что файл на сетевом диске виден
 				//
 				while(!fileExists(tmp_name)) {
 					SDelay(50);
 				}
 				SFile::Rename(tmp_name, path_flag);
 				//
-				// Задержка для Windows Vist (and above) чтобы убедиться что файл на сетевом диске виден
+				// Задержка для Windows Vista (and above) чтобы убедиться что файл на сетевом диске виден
 				//
 				while(!fileExists(path_flag)) {
 					SDelay(50);

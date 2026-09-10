@@ -67,6 +67,11 @@ int PPObjAccount::ParseString(const char * pStr, int tok[])
 	return 1;
 }
 
+/*virtual*/int PPObjAccount::MakeReserved(long flags) // @v12.7.7
+{
+	return -1;
+}
+
 int PPObjAccount::AddCurRecord(const PPAccount * pBaseRec, PPID curID)
 {
 	PPAccount cur_acc_rec = *pBaseRec;

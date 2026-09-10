@@ -599,7 +599,7 @@ PPID CDECL SelectOprKind(uint opklFlags, PPID linkOpID, ...)
 //
 PPObjOprKind::PPObjOprKind(void * extraPtr) : PPObjReference(PPOBJ_OPRKIND, extraPtr)
 {
-	// @v11.1.11 (@construction) ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
+	// @v11.1.11 (@construction) ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 }
 
 /*static*/int PPObjOprKind::GetATTemplList(PPID opID, PPAccTurnTemplArray * pList)
@@ -1359,7 +1359,7 @@ int PPObjOprKind::GetGenericAccTurnForRegisterOp(PPID * pID, int use_ta) // @v12
 		}
         if(_count == 0) {
 			PPObjAccSheet acs_obj;
-			PPAccSheet acs_rec;
+			PPAccSheet2 acs_rec;
 			PPIDArray acs_id_list;
 			{
 				ReservedOpCreateBlock blk;
@@ -4016,14 +4016,14 @@ bool FASTCALL IsOpBelongTo(PPID testOpID, PPID anotherOpID)
 int STDCALL GetOpCommonAccSheet(PPID opID, PPID * pAccSheetID, PPID * pAccSheet2ID)
 {
 	int    ok = -1;
-	PPID   acc_sheet_id = 0;
-	PPID   acc_sheet2_id = 0;
+	PPID   acs_id = 0;
+	PPID   acs2_id = 0;
 	PPOprKind2 op_rec;
 	if(GetOpData(opID, &op_rec)) {
 		if(op_rec.AccSheet2ID)
-			acc_sheet2_id = op_rec.AccSheet2ID;
+			acs2_id = op_rec.AccSheet2ID;
 		if(op_rec.AccSheetID || GetOpData(op_rec.LinkOpID, &op_rec) > 0)
-			acc_sheet_id = op_rec.AccSheetID;
+			acs_id = op_rec.AccSheetID;
 		else if(op_rec.OpTypeID == PPOPT_GENERIC) {
 		   	PPIDArray op_list;
 			GetGenericOpList(opID, &op_list);
@@ -4031,25 +4031,25 @@ int STDCALL GetOpCommonAccSheet(PPID opID, PPID * pAccSheetID, PPID * pAccSheet2
 				PPID   tmp_acc_sheet_id = 0;
 				PPID   tmp_acc_sheet2_id = 0;
 				GetOpCommonAccSheet(op_list.at(i), &tmp_acc_sheet_id, &tmp_acc_sheet2_id); // @recursion
-				if(acc_sheet2_id >= 0) {
-					if(acc_sheet2_id == 0)
-						acc_sheet2_id = tmp_acc_sheet2_id;
-					else if(tmp_acc_sheet2_id && tmp_acc_sheet2_id != acc_sheet2_id)
-						acc_sheet2_id = -1;
+				if(acs2_id >= 0) {
+					if(acs2_id == 0)
+						acs2_id = tmp_acc_sheet2_id;
+					else if(tmp_acc_sheet2_id && tmp_acc_sheet2_id != acs2_id)
+						acs2_id = -1;
 				}
-				if(acc_sheet_id >= 0) {
-					if(acc_sheet_id == 0)
-						acc_sheet_id = tmp_acc_sheet_id;
-					else if(tmp_acc_sheet_id && tmp_acc_sheet_id != acc_sheet_id)
-						acc_sheet_id = -1;
+				if(acs_id >= 0) {
+					if(acs_id == 0)
+						acs_id = tmp_acc_sheet_id;
+					else if(tmp_acc_sheet_id && tmp_acc_sheet_id != acs_id)
+						acs_id = -1;
 				}
 			}
 		}
 	}
-	if(acc_sheet_id > 0)
+	if(acs_id > 0)
 		ok = 1;
-	ASSIGN_PTR(pAccSheetID,  (acc_sheet_id > 0  ? acc_sheet_id  : 0L));
-	ASSIGN_PTR(pAccSheet2ID, (acc_sheet2_id > 0 ? acc_sheet2_id : 0L));
+	ASSIGN_PTR(pAccSheetID,  (acs_id > 0  ? acs_id  : 0L));
+	ASSIGN_PTR(pAccSheet2ID, (acs2_id > 0 ? acs2_id : 0L));
 	return ok;
 }
 

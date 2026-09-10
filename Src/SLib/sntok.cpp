@@ -1231,6 +1231,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					size_t _offs = 0;
 					if(pToken[_offs++] == '0') {
 						bool   is_chzn_cigitem = true;
+						const  bool is_lead_01 = (pToken[0] == '0' && pToken[1] == '1'); // @v12.7.7
 						while(_offs < 14) {
 							if(!isdec(pToken[_offs]))
 								is_chzn_cigitem = false;
@@ -1238,7 +1239,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 						}
 						// @v12.6.11 {
 						// Если после 01GTIN идет "21" то это - не сигареты, а, скорее всего, суррогатный код чзн содержащий GTIN(01) и SERIAL(21)
-						if(is_chzn_cigitem && (pToken[16] == '2' && pToken[17] == '1')) {
+						if(is_chzn_cigitem && (is_lead_01 && pToken[16] == '2' && pToken[17] == '1')) { // @v12.7.7 (is_lead_01 &&)
 							is_chzn_cigitem = false;
 						}
 						// } @v12.6.11 

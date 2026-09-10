@@ -47,18 +47,20 @@ int CurTransBillDialog::recalcAmounts(uint masterCtlID)
 	double out_amt = getCtrlReal(CTL_BILL_OUTCTAMOUNT);
 	double ct_rate = getCtrlReal(CTL_BILL_CTRATE);
 	if(masterCtlID == CTL_BILL_AMOUNT) {
-		if(in_amt > 0.0)
+		if(in_amt > 0.0) {
 			if(out_amt != 0.0)
 				ct_rate = R6(out_amt / in_amt);
 			else if(ct_rate != 0.0)
 				out_amt = R2(in_amt * ct_rate);
+		}
 	}
 	else if(masterCtlID == CTL_BILL_OUTCTAMOUNT) {
-		if(out_amt > 0)
+		if(out_amt > 0) {
 			if(in_amt != 0.0)
 				ct_rate = R6(out_amt / in_amt);
 			else if(ct_rate != 0.0)
 				in_amt = R2(out_amt / ct_rate);
+		}
 	}
 	else if(masterCtlID == CTL_BILL_CTRATE) {
 		if(ct_rate > 0.0) {

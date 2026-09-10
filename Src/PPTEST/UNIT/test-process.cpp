@@ -590,145 +590,158 @@ SLTEST_R(ReadWriteLock)
 	}
 	return ok;
 }
-
 /*
 	HKEY_LOCAL_MACHINE --> MACHINE
 	HKEY_CURRENT_USER  --> CURRENT_USER
 */
-
 SLTEST_R(SlProcess)
 {
 	bool   use_appcontainer = false;
 	SString temp_buf;
-	SString path;
+	SString slia_path;
 	SString working_dir;
 	SString policy_path;
-	SlProcess p;
 	SlProcess::Result result;
 	SlProcess::AppContainer ac;
 	WsCtl_ClientPolicy policy;
 	SString path_in(GetSuiteEntry()->InPath);
-	PPGetPath(PPPATH_BIN, path);
-	path.SetLastSlash().Cat("..").SetLastSlash().Cat(PPLoadStringS("testapp_path", temp_buf).Transf(CTRANSF_INNER_TO_UTF8));
-	working_dir = path;
-	path.SetLastSlash().Cat("SlTestApp.exe");
-	temp_buf = path;
-	SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot, path);
-	SLCHECK_NZ(p.SetPath(path));
-	p.SetFlags(SlProcess::fNewConsole);
-
-	p.SetWorkingDir(working_dir);
-
-	p.AddArg("param1");
-	p.AddArg(temp_buf.Z().CatQStr("param2 with spaces"));
-	p.AddArg(temp_buf.Z().CatQStr("параметр3 с пробелами и русскими буквами"));
-	if(pathValid(path_in, 1)) {
-		p.AddArg(temp_buf.Z().Cat("policypath"));
-		p.AddArg(temp_buf.Z().CatQStr(path_in));
+	PPGetPath(PPPATH_BIN, slia_path);
+	slia_path.SetLastSlash().Cat("..").SetLastSlash().Cat(PPLoadStringS("testapp_path", temp_buf).Transf(CTRANSF_INNER_TO_UTF8));
+	working_dir = slia_path;
+	slia_path.SetLastSlash().Cat("slia.exe"); // @v12.7.7 "SlTestApp.exe"-->"slia.exe"
+	temp_buf = slia_path;
+	SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot, slia_path);
+	{ // @v12.7.7
+		SlProcess p;
+		SLCHECK_NZ(p.SetPath(slia_path));
+		p.SetWorkingDir(working_dir);
+		p.AddArg("execfunc:SLIA_TestFunc"); // SLIA_TestFunc defined at pputil.cpp
+		p.AddArg("\"execfuncarg:arg of sliaTestFunc (with spaces!)\"");
+		const int run_result = p.Run(&result);
+		SLCHECK_NZ(run_result);
 	}
-	//
 	{
-		bool policy_is_ok = false;
-		(temp_buf = path_in).SetLastSlash().Cat("wsctl-policy.json");
-		SJson * p_js = SJson::ParseFile(temp_buf);
-		if(p_js) {
-			if(policy.FromJsonObj(p_js)) {
-				policy.Resolve();
-				policy_is_ok = true;
+		SlProcess p;
+		SLCHECK_NZ(p.SetPath(slia_path));
+		p.SetFlags(SlProcess::fNewConsole);
+
+		p.SetWorkingDir(working_dir);
+
+		p.AddArg("param1");
+		p.AddArg(temp_buf.Z().CatQStr("param2 with spaces"));
+		p.AddArg(temp_buf.Z().CatQStr("параметр3 с пробелами и русскими буквами"));
+		if(pathValid(path_in, 1)) {
+			p.AddArg(temp_buf.Z().Cat("policypath"));
+			p.AddArg(temp_buf.Z().CatQStr(path_in));
+		}
+		//
+		{
+			bool policy_is_ok = false;
+			(temp_buf = path_in).SetLastSlash().Cat("wsctl-policy.json");
+			SJson * p_js = SJson::ParseFile(temp_buf);
+			if(p_js) {
+				if(policy.FromJsonObj(p_js)) {
+					policy.Resolve();
+					policy_is_ok = true;
+				}
+				ZDELETE(p_js);
 			}
-			ZDELETE(p_js);
 		}
-	}
-	//
-	if(use_appcontainer) {
-		SLCHECK_NZ(ac.Create("Test-App-Container-2"));
-		SLCHECK_NZ(ac.AllowPath(path_in, 0));
-		SLCHECK_NZ(ac.AllowPath(working_dir, 0));
-		{
-			/*
-				MACHINE\Software\Papyrus
-				CURRENT_USER\Software\Papyrus
-			*/
-			// "CLASSES_ROOT", "CURRENT_USER", "MACHINE", and "USERS
-			//WinRegKey test_key(HKEY_CURRENT_USER, PPConst::WrKey_SlTestApp, 0);
+		//
+		if(use_appcontainer) {
+			SLCHECK_NZ(ac.Create("Test-App-Container-2"));
+			SLCHECK_NZ(ac.AllowPath(path_in, 0));
+			SLCHECK_NZ(ac.AllowPath(working_dir, 0));
+			{
+				/*
+					MACHINE\Software\Papyrus
+					CURRENT_USER\Software\Papyrus
+				*/
+				// "CLASSES_ROOT", "CURRENT_USER", "MACHINE", and "USERS
+				//WinRegKey test_key(HKEY_CURRENT_USER, PPConst::WrKey_SlTestApp, 0);
 		
-			temp_buf.Z().Cat("CURRENT_USER").SetLastSlash().Cat(/*PPConst::WrKey_SlTestApp*/"Software\\Papyrus");
-			SLCHECK_NZ(ac.AllowRegistry(temp_buf, WinRegKey::regkeytypWow64_32, 0));
+				temp_buf.Z().Cat("CURRENT_USER").SetLastSlash().Cat(/*PPConst::WrKey_SlTestApp*/"Software\\Papyrus");
+				SLCHECK_NZ(ac.AllowRegistry(temp_buf, WinRegKey::regkeytypWow64_32, 0));
 
-			temp_buf.Z().Cat("MACHINE").SetLastSlash().Cat(/*PPConst::WrKey_SlTestApp*/"Software\\Papyrus");
-			SLCHECK_NZ(ac.AllowRegistry(temp_buf, WinRegKey::regkeytypWow64_32, 0));
+				temp_buf.Z().Cat("MACHINE").SetLastSlash().Cat(/*PPConst::WrKey_SlTestApp*/"Software\\Papyrus");
+				SLCHECK_NZ(ac.AllowRegistry(temp_buf, WinRegKey::regkeytypWow64_32, 0));
+			}
+			p.SetAppContainer(&ac);
 		}
-		p.SetAppContainer(&ac);
-	}
-	if(policy.SysUser.NotEmpty()) {
-		p.SetImpersUser(policy.SysUser, policy.SysPassword);
-		p.SetFlags(SlProcess::fLogonWithProfile);
-	}
-	{
-		p.SetFlags(SlProcess::fCaptureStdOut|SlProcess::fCaptureStdErr);
-	}
-	const int run_result = p.Run(&result);
-	SLCHECK_NZ(run_result);
-	if(run_result) {
+		if(policy.SysUser.NotEmpty()) {
+			p.SetImpersUser(policy.SysUser, policy.SysPassword);
+			p.SetFlags(SlProcess::fLogonWithProfile);
+		}
 		{
-			const wchar_t * p_named_pipe_name = L"\\\\.\\pipe\\sltestapp-pipe";
-			SIntHandle h_pipe;
-			bool do_exit = false;
-			do {
-				h_pipe = ::CreateFileW(p_named_pipe_name, GENERIC_READ|GENERIC_WRITE, 0/*no sharing*/,
-					NULL/*default security attributes*/, OPEN_EXISTING/*opens existing pipe*/, 0/*default attributes*/, NULL/*no template file*/);
-				if(!h_pipe) {
-					if(GetLastError() == ERROR_PIPE_BUSY) {
-						boolint w_ok = WaitNamedPipeW(p_named_pipe_name, 20000);
-						if(!w_ok) {
+			p.SetFlags(SlProcess::fCaptureStdOut|SlProcess::fCaptureStdErr);
+		}
+		const int run_result = p.Run(&result);
+		SLCHECK_NZ(run_result);
+		if(run_result) {
+			{
+				// @v12.7.7 const  wchar_t * p_named_pipe_name = L"\\\\.\\pipe\\sltestapp-pipe";
+				// @v12.7.7 {
+				SStringU named_pipe_name;
+				STestSuite::GetTestAppNamedPipe(named_pipe_name);
+				// } @v12.7.7
+				SIntHandle h_pipe;
+				bool do_exit = false;
+				do {
+					h_pipe = ::CreateFileW(named_pipe_name, GENERIC_READ|GENERIC_WRITE, 0/*no sharing*/,
+						NULL/*default security attributes*/, OPEN_EXISTING/*opens existing pipe*/, 0/*default attributes*/, NULL/*no template file*/);
+					if(!h_pipe) {
+						if(GetLastError() == ERROR_PIPE_BUSY) {
+							boolint w_ok = WaitNamedPipeW(named_pipe_name, 20000);
+							if(!w_ok) {
+								do_exit = true;
+							}
+						}
+						else {
 							do_exit = true;
 						}
 					}
-					else {
-						do_exit = true;
-					}
-				}
-			} while(!h_pipe && !do_exit);
-			if(!!h_pipe) {
-				DWORD pipe_mode = PIPE_READMODE_MESSAGE; 
-				boolint _ok = ::SetNamedPipeHandleState(h_pipe, &pipe_mode/*new pipe mode*/, NULL/*don't set maximum bytes*/, NULL/*don't set maximum time*/);
-				if(_ok) {
-					STempBuffer wr_buf(1024);
-					STempBuffer rd_buf(1024);
-					SString message("Hello, Named Pipe!");
-					DWORD wr_size = 0;
-					boolint wr_ok = WriteFile(h_pipe, message.cptr(), message.Len32()+1, &wr_size, NULL/*not overlapped*/);
-					if(wr_ok) {
-						do {
-							DWORD rd_size = 0;
-							boolint rd_ok = ReadFile(h_pipe, rd_buf, rd_buf.GetSize32(), &rd_size, NULL/*not overlapped*/);
-							if(rd_ok) {
-								;
-							}
-							else {
-								if(GetLastError() == ERROR_MORE_DATA) {
-									
+				} while(!h_pipe && !do_exit);
+				if(!!h_pipe) {
+					DWORD pipe_mode = PIPE_READMODE_MESSAGE; 
+					boolint _ok = ::SetNamedPipeHandleState(h_pipe, &pipe_mode/*new pipe mode*/, NULL/*don't set maximum bytes*/, NULL/*don't set maximum time*/);
+					if(_ok) {
+						STempBuffer wr_buf(1024);
+						STempBuffer rd_buf(1024);
+						SString message("Hello, Named Pipe!");
+						DWORD wr_size = 0;
+						boolint wr_ok = WriteFile(h_pipe, message.cptr(), message.Len32()+1, &wr_size, NULL/*not overlapped*/);
+						if(wr_ok) {
+							do {
+								DWORD rd_size = 0;
+								boolint rd_ok = ReadFile(h_pipe, rd_buf, rd_buf.GetSize32(), &rd_size, NULL/*not overlapped*/);
+								if(rd_ok) {
+									;
 								}
-							}
-						} while(false);
+								else {
+									if(GetLastError() == ERROR_MORE_DATA) {
+									
+									}
+								}
+							} while(false);
+						}
 					}
 				}
 			}
+			/*if(result.F_StdOut) {
+				char out_line[1024];
+				while(fgets(out_line, sizeof(out_line)-1, result.F_StdOut)) {
+					(temp_buf = out_line).Strip().Chomp();
+					SetInfo(temp_buf);
+				}
+			}*/
+			/*if(result.F_StdErr) {
+				char out_line[1024];
+				while(fgets(out_line, sizeof(out_line)-1, result.F_StdErr)) {
+					(temp_buf = out_line).Strip().Chomp();
+					SetInfo(temp_buf);
+				}
+			}*/
 		}
-		/*if(result.F_StdOut) {
-			char out_line[1024];
-			while(fgets(out_line, sizeof(out_line)-1, result.F_StdOut)) {
-				(temp_buf = out_line).Strip().Chomp();
-				SetInfo(temp_buf);
-			}
-		}*/
-		/*if(result.F_StdErr) {
-			char out_line[1024];
-			while(fgets(out_line, sizeof(out_line)-1, result.F_StdErr)) {
-				(temp_buf = out_line).Strip().Chomp();
-				SetInfo(temp_buf);
-			}
-		}*/
 	}
 	//
 	if(use_appcontainer) {

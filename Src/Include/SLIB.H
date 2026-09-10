@@ -1466,6 +1466,7 @@ public:
 	static constexpr const char * P_WrKey_BrwUserSetting = "Software\\Papyrus\\Table2"; // Пользовательские параметры таблиц (BrowserWindow)
 	static constexpr const char * P_WrKey_Prefix_SobolevEngineering = "Software\\SobolevEngineering"; // @v12.3.10 HKEY_CURRENT_USER
 	static constexpr const char * P_WrKey_UiStorableUserParams = "Software\\Papyrus\\UI\\StorableUserParams"; // @v12.7.2 HKEY_CURRENT_USER
+	static constexpr const char * P_NamedPipe_TestApp      = "\\\\.\\pipe\\sltestapp-pipe"; // @v12.7.7
 	static constexpr const wchar_t * WinClsName_Desktop    = L"PPYDESKTOPWINDOW"; // @v12.3.8
 	static constexpr const wchar_t * WinClsName_TextEditor = L"STextBrowser"; // @v12.3.8
 	static constexpr const wchar_t * WinClsName_TimeChunkBrowser = L"STimeChunkBrowser"; // @v12.3.8
@@ -5540,7 +5541,7 @@ char * STDCALL strnzcpy(char * pDest, const SString & rSrc, size_t maxlen);
 // Returns:
 //   pDest
 //
-char * STDCALL sstrncat(char * pDest, size_t destSize, const char * pSrc); // @v11.0.0
+char * STDCALL sstrncat(char * pDest, size_t destSize, const char * pSrc);
 wchar_t * STDCALL  strnzcpy(wchar_t * pDest, const wchar_t * pSrc, size_t maxlen);
 char    * FASTCALL sstrcpy(char * pDest, const char * pSrc);
 uchar   * FASTCALL sstrcpy(uchar * pDest, const uchar * pSrc);
@@ -9459,6 +9460,10 @@ public:
 	//   0 - массивы не равны
 	//
 	bool   FASTCALL IsEq(const StrAssocArray & src) const;
+	//
+	// Descr: Возвращает true если список содержит иерархию
+	//
+	bool   IsHirarchical() const; // @v12.7.7
 	uint   getCount() const { return LAssocArray::count; }
 	uint   getPointer() const;
 	uint   setPointer(uint p);
@@ -9636,7 +9641,7 @@ protected:
 private:
 	int    Helper_RemoveRecursion(long parentId, LongArray & rRecurList, LongArray & rPassedList, LongArray * pBadList);
 	void   Helper_SortByTextInTreeOrder(long parentId, StrAssocArray & rTempList);
-	LAssocArray * P_ParentIndex; // @v11.2.3 @transient Индекс родительских элементов для ускорения сортировки
+	LAssocArray * P_ParentIndex; // @transient Индекс родительских элементов для ускорения сортировки
 };
 //
 //
@@ -20556,6 +20561,9 @@ private:
 //
 class STestSuite {
 public:
+	static SString & GetTestAppNamedPipe(SString & rBuf); // @v12.7.7
+	static SStringU & GetTestAppNamedPipe(SStringU & rBuf); // @v12.7.7
+
 	struct Benchmark {
 		MemHeapTracer::Stat HeapBefore;
 		MemHeapTracer::Stat HeapAfter;
@@ -20918,9 +20926,9 @@ struct BdtTestItem {
 
 extern "C" typedef STestCase * (*FN_SLTEST_FACTORY)(STestSuite * pSuite);
 //
-// Descr: Функция, которая может быть вызвана тестовым приложением SlTestApp в ответ на аргумент execfunc
+// Descr: Функция, которая может быть вызвана тестовым приложением (SlTestApp)slia в ответ на аргумент execfunc
 //
-extern "C" typedef int (*FN_SLTEST_APPFUNC)(const char * pArg); // @v12.7.6
+extern "C" typedef int (*FN_SLIA_APPFUNC)(const char * pArg); // @v12.7.6
 
 // @v11.7.7 SLTEST_CHECK_XXX-->SLCHECK_XXX
 #define SLCHECK_NZ(v)                _check_nz(!!(v), #v)

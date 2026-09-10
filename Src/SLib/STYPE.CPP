@@ -345,9 +345,9 @@ TYPEID FASTCALL IsSTypeName(SStrScan & rScan)
 	static const TypeName TypeNameList[] = {
 		{0, "undefined,undef", "Не определенный"},
 		{MKSTYPE(S_ZSTRING, 0), "string,zstring,char,C",  "Строка"},
-		{MKSTYPE(S_INT64, 8),   "int64,integer,long long,__int64", "Целое"}, // @v10.6.3
-		{MKSTYPE(S_INT, 8),     "int64,integer,long long,__int64", "Целое"}, // @v10.6.3
-		{MKSTYPE(S_UINT, 8),    "uint64,unsigned long long", "Целое без знака"}, // @v10.6.3
+		{MKSTYPE(S_INT64, 8),   "int64,integer,long long,__int64", "Целое"},
+		{MKSTYPE(S_INT, 8),     "int64,integer,long long,__int64", "Целое"},
+		{MKSTYPE(S_UINT, 8),    "uint64,unsigned long long", "Целое без знака"},
 		{MKSTYPE(S_INT, 1),     "int8",                   "Целое"},
 		{MKSTYPE(S_INT, 2),     "int16,short",            "Целое"},
 		{MKSTYPE(S_INT, 4),     "int32,integer,long,int", "Целое"},

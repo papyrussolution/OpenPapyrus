@@ -2873,7 +2873,8 @@ IMPL_HANDLE_EVENT(ReplacePersonDialog)
 	PPObjPerson psn_obj;
 	ReplacePersonDialog * dlg = 0;
 	THROW(psn_obj.CheckRights(PSNRT_UNITE, 0));
-	THROW(CheckDialogPtrErr(&(dlg = new ReplacePersonDialog(0))));
+	dlg = new ReplacePersonDialog(0);
+	THROW(CheckDialogPtrErr(&dlg));
 	param.SrcID = srcID;
 	param.SrcKindID = srcKindID;
 	dlg->setDTS(&param);
@@ -2910,14 +2911,14 @@ IMPL_HANDLE_EVENT(ReplacePersonDialog)
 /*static*/int PPObjPerson::ReplaceDlvrAddr(PPID srcID)
 {
 	int    ok = -1;
-	//PPID   dest_id = 0, src_id = srcID;
 	ReplacePersonParam param;
 	param.Flags |= param.fAddress;
 	param.SrcID = srcID;
 	PPObjPerson psn_obj;
 	ReplacePersonDialog * dlg = 0;
 	THROW(psn_obj.CheckRights(PSNRT_UNITEADDR, 0));
-	THROW(CheckDialogPtrErr(&(dlg = new ReplacePersonDialog(1))));
+	dlg = new ReplacePersonDialog(1);
+	THROW(CheckDialogPtrErr(&dlg));
 	dlg->setDTS(&param);
 	while(ExecView(dlg) == cmOK) {
 		if(!dlg->getDTS(&param))
@@ -3861,7 +3862,7 @@ void PPObjPerson::GetSubstText(PPID id, PPID dlvrLocID, SubstParam * pParam, SSt
 			GetObjectName(PPOBJ_PRSNCATEGORY, id, rBuf);
 		else if(pParam->Sgp == sgpAccSheet) {
 			PPObjAccSheet acs_obj;
-			PPAccSheet acs_rec;
+			PPAccSheet2 acs_rec;
 			if(acs_obj.Fetch(id, &acs_rec) > 0)
 				rBuf = acs_rec.Name;
 		}

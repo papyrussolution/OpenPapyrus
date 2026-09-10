@@ -4170,7 +4170,7 @@ void PPScalePacket::SetSysParams(uint _getNumTries, uint _getDelay, uint _putNum
 
 PPObjScale::PPObjScale(void * extraPtr) : PPObjReference(PPOBJ_SCALE, extraPtr)
 {
-	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
+	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 }
 
 int PPObjScale::Browse(void * extraPtr) { return RefObjView(this, PPDS_CRRSCALE, 0); }
@@ -4938,7 +4938,7 @@ int PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 					int    is_wp = 0;
 					int    to_export = 1;
 					int    r2 = -1;
-					RetailExtrItem  rtl_ext_item;
+					RetailExtrItem rtl_ext_item;
 					ScalePLU plu;
 					plu.GoodsID = gr_item.GoodsID;
 					goods_obj.P_Tbl->GetGoodsCodeInAltGrp(gr_item.GoodsID, pack.Rec.AltGoodsGrp, &plu.GoodsNo);
@@ -4948,8 +4948,8 @@ int PPObjScale::PrepareData(PPID id, long flags, PPLogger * pLogger)
 						is_wp = 1;
 					}
 					else if(barcode_kind == 1) {
-			#define PETROVICH_GOODS_ID_BIAS 0 // Same as in Petrovi.cpp // @v6.3.4 200-->0
-						sprintf(barcode, "%s%05ld", wp, gr_item.GoodsID+PETROVICH_GOODS_ID_BIAS);
+						// @v12.7.7 #define PETROVICH_GOODS_ID_BIAS 0 // Same as in Petrovi.cpp // @v6.3.4 200-->0
+						sprintf(barcode, "%s%05ld", wp, gr_item.GoodsID/*+PETROVICH_GOODS_ID_BIAS*/);
 						is_wp = 1;
 					}
 					else {

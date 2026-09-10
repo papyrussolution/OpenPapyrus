@@ -2142,12 +2142,14 @@ table Article {            // size=160
 	int16  AccessLevel;    // @unused Уровень доступа
 	int16  Closed;         //
 	long   Flags;          //
-	raw    Reserve2[8];    // @reserve
+	long   ParentID;       // @v12.7.7 
+	raw    Reserve2[4];    // @reserve // @v12.7.7 [8]-->[4]
 index:
 	ID (unique);
 	AccSheetID, Article  (unique mod);
 	AccSheetID, Name acs (dup mod);
 	AccSheetID, ObjID    (unique mod);
+	// @todo Добавить индекс ParentID, Name acs (dup mod);
 file:
 	"article.btr";
 	acstable = "rusncase.alt";

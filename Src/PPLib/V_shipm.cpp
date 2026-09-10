@@ -1,5 +1,5 @@
 // V_SHIPM.CPP
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2024, 2025
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2024, 2025, 2026
 // @codepage UTF-8
 // Анализ отгрузки товаров
 //
@@ -113,13 +113,15 @@ int PPViewShipmAnalyze::EditBaseFilt(PPBaseFilt * pFilt)
 			WLDialog::handleEvent(event);
 			if(event.isCbSelected(CTLSEL_SHANLZFLT_OPRKIND)) {
 				if(getCtrlView(CTLSEL_SHANLZFLT_OBJECT)) {
-					PPID   acc_sheet_id = 0;
+					PPID   acs_id = 0;
 					PPOprKind2 opk;
 					getCtrlData(CTLSEL_SHANLZFLT_OPRKIND, &Data.OpID);
-					if(GetOpData(Data.OpID, &opk))
-						if(opk.AccSheetID || GetOpData(opk.LinkOpID, &opk))
-							acc_sheet_id = opk.AccSheetID;
-					setupAccSheet(acc_sheet_id);
+					if(GetOpData(Data.OpID, &opk)) {
+						if(opk.AccSheetID || GetOpData(opk.LinkOpID, &opk)) {
+							acs_id = opk.AccSheetID;
+						}
+					}
+					setupAccSheet(acs_id);
 				}
 				clearEvent(event);
 			}

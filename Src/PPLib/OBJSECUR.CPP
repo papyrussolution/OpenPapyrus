@@ -136,7 +136,7 @@ PPObjSecur::PPObjSecur(PPID aObj, void * extraPtr) : PPObjReference(aObj, extraP
 {
 	if(Obj == PPOBJ_USR)
 		FiltProc = UsrListFilt;
-	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
+	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 }
 
 int PPObjSecur::AssignImages(ListBoxDef * pDef)

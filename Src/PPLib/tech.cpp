@@ -166,7 +166,7 @@ int PPObjTech::ForceUndupCode(PPID id, SString & rBuf)
 PPObjTech::PPObjTech(void * extraPtr) : PPObject(PPOBJ_TECH), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
+	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 }
 
 PPObjTech::~PPObjTech()

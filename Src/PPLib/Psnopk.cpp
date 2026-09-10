@@ -547,7 +547,7 @@ int PsnOpKindView::CopyList(PPID parentID, StrAssocArray * pSrc, StrAssocArray *
 
 PPObjPsnOpKind::PPObjPsnOpKind(void * extraPtr) : PPObjReference(PPOBJ_PERSONOPKIND, extraPtr)
 {
-	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
+	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 	if(extraPtr)
 		CurrFilt = *static_cast<const PsnOpKindFilt *>(extraPtr);
 }

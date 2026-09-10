@@ -68,31 +68,30 @@ InventoryDialog::InventoryDialog(uint rezID, PPObjBill * pBObj, PPBillPacket * p
 		LocationFilt loc_filt(LOCTYP_WAREPLACE, 0, P_Data->Rec.LocID);
 		SetupLocationCombo(this, CTLSEL_BILL_STRGLOC, strg_loc_id, OLW_CANSELUPLEVEL, &loc_filt);
 	}
-	// @v11.1.12 setCtrlData(CTL_BILL_MEMO,   P_Data->Rec.Memo);
-	setCtrlString(CTL_BILL_MEMO,   P_Data->SMemo); // @v11.1.12
+	setCtrlString(CTL_BILL_MEMO,   P_Data->SMemo);
 	setCtrlReal(CTL_BILL_AMOUNT, P_Data->GetAmount());
 	setCtrlData(CTL_BILL_SELEXSGOODS, &selExistsGoodsOnly);
-	disableCtrls(1, CTL_BILL_AMOUNT, CTL_BILL_STOCKAMT, 0);
+	disableCtrls(1, CTL_BILL_AMOUNT, CTL_BILL_STOCKAMT, 0); 
 	SetupCalDate(CTLCAL_BILL_DATE, CTL_BILL_DATE);
 	SetupCalDate(CTLCAL_BILL_DUEDATE, CTL_BILL_DUEDATE);
-
-	PPInventoryOpEx  inv_op_ex;
-	P_BObj->P_OpObj->FetchInventoryData(P_Data->Rec.OpID, &inv_op_ex);
-	int    substr_idx = (inv_op_ex.Flags & INVOPF_ZERODEFAULT) ? 0 : 1;
-	PPGetSubStr(PPTXT_INVENTEXTINFO, substr_idx, temp_buf);
-	setStaticText(CTL_BILL_EXTINFO, temp_buf);
 	{
-		temp_buf.Z().Cat(op_pack.Rec.Name).CatDiv(';', 1);
-		CatObjectName(PPOBJ_LOCATION, P_Data->Rec.LocID, temp_buf);
-		setTitle(temp_buf);
+		PPInventoryOpEx  inv_op_ex;
+		P_BObj->P_OpObj->FetchInventoryData(P_Data->Rec.OpID, &inv_op_ex);
+		int    substr_idx = (inv_op_ex.Flags & INVOPF_ZERODEFAULT) ? 0 : 1;
+		PPGetSubStr(PPTXT_INVENTEXTINFO, substr_idx, temp_buf);
+		setStaticText(CTL_BILL_EXTINFO, temp_buf);
+		{
+			temp_buf.Z().Cat(op_pack.Rec.Name).CatDiv(';', 1);
+			CatObjectName(PPOBJ_LOCATION, P_Data->Rec.LocID, temp_buf);
+			setTitle(temp_buf);
+		}
+		{
+			GetObjectName(PPOBJ_BILLSTATUS, P_Data->Rec.StatusID, temp_buf);
+			setStaticText(CTL_BILL_STATUS, temp_buf);
+		}
+		enableCommand(cmInvWriteOff, !(inv_op_ex.Flags & INVOPF_INVBYCLIENT));
+		enableCommand(cmInvRollback, !(inv_op_ex.Flags & INVOPF_INVBYCLIENT));
 	}
-	{
-		GetObjectName(PPOBJ_BILLSTATUS, P_Data->Rec.StatusID, temp_buf);
-		setStaticText(CTL_BILL_STATUS, temp_buf);
-	}
-	enableCommand(cmInvWriteOff, !(inv_op_ex.Flags & INVOPF_INVBYCLIENT));
-	enableCommand(cmInvRollback, !(inv_op_ex.Flags & INVOPF_INVBYCLIENT));
-	//
 	setupPosition();
 	DefaultRect = getRect();
 	showLinkFilesList();

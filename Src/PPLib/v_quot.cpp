@@ -31,7 +31,7 @@ int QuotFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 				SetBranchObjIdListFilt(offsetof(QuotFilt_v4, LocList));
 				Init(1, 0);
 			}
-			char   ReserveStart[32]; // @anchor @v10.1.2
+			char   ReserveStart[32]; // @anchor
 			int32  InitOrder;        // @anchor Порядок сортировки
 			int32  QkCls;            // Класс вида котировки
 			DateRange Period;        // (quot2) Период значений
@@ -39,16 +39,16 @@ int QuotFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 			PPID   QTaID;            // (quot2) ИД транзакции изменения котировки
 			PPID   SellerID;         // ->Article.ID Продавец
 			PPID   SellerLocWorldID; // ->World.ID Ид элемента World, которому должна принадлежать локация LocID
-			PPID   BrandID;          //
-			PPID   LocID;            //
-			PPID   QuotKindID;       //
-			PPID   CurID;            //
-			PPID   ArID;             //
+			PPID   BrandID;
+			PPID   LocID;
+			PPID   QuotKindID;
+			PPID   CurID;
+			PPID   ArID;
 			PPID   GoodsGrpID;       // if !0, тогда это поле ограничивает перебор товаров только указанной группой
 			PPID   GoodsID;          // if !0, то строки развернуты либо по складам, либо по клиентам, либо по видам котировок
 			RealRange Val;           // Диапазон значений котировки (0..0 - игнорируется)
 			long   Flags;            // @flags
-			SubstGrpGoods Sgg;       // @v10.1.2
+			SubstGrpGoods Sgg;
 			long   Reserve;          // @anchor Заглушка для отмера "плоского" участка фильтра
 			ObjIdListFilt LocList;   // Список складов
 		};
@@ -467,7 +467,7 @@ int PPViewQuot::CreateCrosstab(int useTa)
 	Crosstab * p_prev_ct = P_Ct;
 	P_Ct = 0;
 	if(Filt.Flags & QuotFilt::fCrosstab) {
-		uint   fld_pos = 4+2; // Quot1 // @v10.1.3 @fix +2
+		uint   fld_pos = 4+2; // Quot1
 		DBField quot_fld;
 		SString temp_buf;
 		DBFieldList total_list;
@@ -1816,11 +1816,11 @@ int PPViewQuot::AddItem(PPID * pGoodsID)
 int PPViewQuot::EditItem(const BrwHdr * pHdr, int simple)
 {
 	int    ok = -1;
-	PPID   acc_sheet_id = 0;
+	PPID   acs_id = 0;
 	if(Filt.QuotKindID) {
 		PPQuotKindPacket qk_pack;
 		if(QkObj.Fetch(Filt.QuotKindID, &qk_pack) > 0)
-			acc_sheet_id = qk_pack.Rec.AccSheetID;
+			acs_id = qk_pack.Rec.AccSheetID;
 	}
 	if(pHdr->GoodsID) {
 		if(Filt.Sgg) {
@@ -1851,8 +1851,9 @@ int PPViewQuot::EditItem(const BrwHdr * pHdr, int simple)
 				}
 			}
 		}
-		else
-			ok = GObj.EditQuotations(pHdr->GoodsID, pHdr->LocID, Filt.CurID, pHdr->ArticleID, Filt.QkCls, 0, acc_sheet_id);
+		else {
+			ok = GObj.EditQuotations(pHdr->GoodsID, pHdr->LocID, Filt.CurID, pHdr->ArticleID, Filt.QkCls, 0, acs_id);
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -1860,7 +1861,8 @@ int PPViewQuot::EditItem(const BrwHdr * pHdr, int simple)
 
 int PPViewQuot::Transmit(const BrwHdr * /*pHdr*/)
 {
-	int    ok = -1, sync_cmp = 1;
+	int    ok = -1;
+	int    sync_cmp = 1;
 	ObjTransmitParam param;
 	PPObjectTransmit * p_ot = 0;
 	if(ObjTransmDialog(DLG_OBJTRANSM, &param) > 0) {

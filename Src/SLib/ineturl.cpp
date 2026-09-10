@@ -348,9 +348,9 @@ static const SIntToSymbTabEntry InetUrlSchemeList[] = {
 	{ InetUrl::prot_p_PapyrusServer, "" },         // #37 private PapyrusServer
 	{ InetUrl::protAMQP,         "amqp" },     // #38
 	{ InetUrl::protAMQPS,        "amqps" },    // #39
-	{ InetUrl::prot_p_MYSQL,     "mysql" },    // #40 private // @v10.9.2
-	{ InetUrl::prot_p_SQLITE,    "sqlite" },   // #41 private // @v10.9.2
-	{ InetUrl::prot_p_ORACLE,    "oracle" },   // #42 private // @v10.9.2
+	{ InetUrl::prot_p_MYSQL,     "mysql" },    // #40 private
+	{ InetUrl::prot_p_SQLITE,    "sqlite" },   // #41 private
+	{ InetUrl::prot_p_ORACLE,    "oracle" },   // #42 private
 	{ InetUrl::protGit,          "git" },      // #43
 };
 

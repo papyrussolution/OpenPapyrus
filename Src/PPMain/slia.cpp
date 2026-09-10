@@ -1,12 +1,12 @@
-// SLTESTAPP.CPP
+// SLIA.CPP // @v12.7.7 "SLTESTAPP.CPP"-->"SLIA.CPP"
 // Copyright (c) A.Sobolev 2023, 2024, 2025, 2026
 // @codepage UTF-8
-// Тестовое приложение для отработки функций запуска и управления системными процессами
+// Внутреннее приложение для выполнения специальных вызовов в отдельных процессах, а также для отработки функций запуска и управления системными процессами
 //
 #include <pp.h>
 #include <wsctl.h>
 
-const char * P_NamedPipeName = "\\\\.\\pipe\\sltestapp-pipe";
+// @v12.7.7 static const char * P_NamedPipeName = "\\\\.\\pipe\\sltestapp-pipe";
 
 class PipeServer : public SlThread_WithStartupSignal { // @construction
 	static constexpr uint32 BufSize = 1024;
@@ -73,9 +73,11 @@ public:
 			SIntHandle H_Pipe;
 			AppBlock * P_AppBlk;
 		};
+		SStringU named_pipe_name;
+		STestSuite::GetTestAppNamedPipe(named_pipe_name);
 		uint _call_count = 0;
 		for(bool do_exit = false; !do_exit;) {
-			SIntHandle h_pipe = ::CreateNamedPipeA(P_NamedPipeName, PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE/*message type pipe*/|PIPE_READMODE_MESSAGE |   // message-read mode 
+			SIntHandle h_pipe = ::CreateNamedPipeW(named_pipe_name, PIPE_ACCESS_DUPLEX, PIPE_TYPE_MESSAGE/*message type pipe*/|PIPE_READMODE_MESSAGE |   // message-read mode 
 			  PIPE_WAIT/*blocking mode*/, PIPE_UNLIMITED_INSTANCES/*max. instances*/, BufSize/*output buffer size*/, BufSize/*input buffer size*/,
 			  0/*client time-out*/, NULL/*default security attribute*/);                    
 			if(!h_pipe) {
@@ -175,7 +177,8 @@ private:
 int main(int argc, char * argv[], char * envp[])
 {
 	int    result = 0;
-	SLS.Init("SlTestApp", 0);
+	// @v12.7.7 SLS.Init("slia", 0); // @v12.7.7 "SlTestApp"-->"slia"
+	DS.Init(PPSession::internalappUtility, PPSession::fInitPaths, 0, 0); // @v12.7.7 
 	SIntHandle h_pipe;
 	SString temp_buf;
 	SStringU temp_buf_u;
@@ -187,7 +190,7 @@ int main(int argc, char * argv[], char * envp[])
 	WsCtl_ClientPolicy policy;
 	PPGetFilePath(PPPATH_BIN, "sltestapp-report.txt", report_file_name);
 	SFile f_rep(report_file_name, SFile::mWrite);
-	(out_buf = "SlTestApp: тестовое приложение").Transf(CTRANSF_UTF8_TO_INNER).CR();
+	(out_buf = "slia: internal appication for Papyrus").CR();
 	slfprintf_stderr(out_buf);
 	if(argc == 1) {
 		slfprintf_stderr("There aren't cmdline args\n");
@@ -214,25 +217,40 @@ int main(int argc, char * argv[], char * envp[])
 					}
 					else if(temp_buf.C(arg_len) == ':') {
 						temp_buf.Sub(arg_len+1, temp_buf.Len(), policypath);
+						arg_is_done = true;
 					}
 				}
 			}
 			if(!arg_is_done) {
 				const char * p_arg = "execfunc";
-				if(temp_buf.IsEqiAscii(p_arg)) { // @v12.7.6
-					if((i+1) < argc) {
-						func_to_exec = argv[++i];
+				const size_t arg_len = sstrlen(p_arg);
+				if(temp_buf.HasPrefixIAscii(p_arg)) {
+					if(temp_buf.IsEqiAscii(p_arg)) { // @v12.7.6
+						if((i+1) < argc) {
+							func_to_exec = argv[++i];
+						}
+						arg_is_done = true;
 					}
-					arg_is_done = true;
+					else if(temp_buf.C(arg_len) == ':') {
+						temp_buf.Sub(arg_len+1, temp_buf.Len(), func_to_exec);
+						arg_is_done = true;
+					}
 				}
 			}
 			if(!arg_is_done) {
 				const char * p_arg = "execfuncarg";
-				if(temp_buf.IsEqiAscii(p_arg)) { // @v12.7.6
-					if((i+1) < argc) {
-						func_to_exec_arg = argv[++i];
+				const size_t arg_len = sstrlen(p_arg);
+				if(temp_buf.HasPrefixIAscii(p_arg)) {
+					if(temp_buf.IsEqiAscii(p_arg)) { // @v12.7.6
+						if((i+1) < argc) {
+							func_to_exec_arg = argv[++i];
+						}
+						arg_is_done = true;
 					}
-					arg_is_done = true;
+					else if(temp_buf.C(arg_len) == ':') {
+						temp_buf.Sub(arg_len+1, temp_buf.Len(), func_to_exec_arg);
+						arg_is_done = true;
+					}
 				}
 			}
 		}
@@ -258,6 +276,8 @@ int main(int argc, char * argv[], char * envp[])
 	}
 	//
 	{
+		SString named_pipe_name;
+		STestSuite::GetTestAppNamedPipe(named_pipe_name);
 		{ // pipe server
 			struct AppBlock : public PipeServer::AppBlock {
 				AppBlock() : PipeServer::AppBlock()
@@ -267,13 +287,13 @@ int main(int argc, char * argv[], char * envp[])
 				uint8 Dummy[64];
 			};
 			AppBlock * p_app_blk = new AppBlock();
-			PipeServer * p_psrv = new PipeServer(P_NamedPipeName, p_app_blk);
+			PipeServer * p_psrv = new PipeServer(named_pipe_name, p_app_blk);
 			if(p_psrv)
 				p_psrv->Start(true);
 		}
 		SDelay(500);
 		{ // pipe client
-			PipeClient * p_pcli = new PipeClient(P_NamedPipeName);
+			PipeClient * p_pcli = new PipeClient(named_pipe_name);
 			if(p_pcli)
 				p_pcli->Start(true);
 		}
@@ -367,7 +387,22 @@ int main(int argc, char * argv[], char * envp[])
 	}
 	// @v12.7.6 {
 	if(func_to_exec.NotEmpty()) {
-		
+		//extern "C" typedef int (*FN_SLIA_APPFUNC)(const char * pArg); // @v12.7.6
+		int  fr = 0;
+		FN_SLIA_APPFUNC f = reinterpret_cast<FN_SLIA_APPFUNC>(GetProcAddress(SLS.GetHInst(), SLS.AcquireRvlStr().Cat(func_to_exec)));
+		if(f) {
+			fr = f(func_to_exec_arg);
+			if(fr) {
+				result = 0;
+			}
+			else {
+				result = -1;
+			}
+		}
+		else {
+			slfprintf_stderr("Function '%s' is not found\n", func_to_exec.cptr());
+			result = -1;
+		}
 	}
 	// } @v12.7.6 
 	slfprintf_stderr("Press [Enter] to finish...\n");

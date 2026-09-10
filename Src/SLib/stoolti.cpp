@@ -312,7 +312,7 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 				}
 			}
 			// } @v12.7.1 
-			SetWindowTransparent(HWnd, transp);
+			SetWindowTransparency(HWnd, transp);
 		}
 		if(Flags & SMessageWindow::fChildWindow) {
 			const  long win_flags = TView::SGetWindowStyle(HWnd);

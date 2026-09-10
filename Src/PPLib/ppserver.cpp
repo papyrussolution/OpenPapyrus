@@ -1665,7 +1665,7 @@ int CPosNodeBlock::ResolveCrit_ArByPerson(int subcriterion, const SString & rArg
 		case scCode:
 			if(acs_id) {
 				PPObjAccSheet acs_obj;
-				PPAccSheet acs_rec;
+				PPAccSheet2 acs_rec;
 				if(acs_obj.Fetch(acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
 					PPObjPersonKind pk_obj;
 					PPPersonKind pk_rec;

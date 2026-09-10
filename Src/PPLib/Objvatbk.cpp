@@ -2169,7 +2169,7 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 						if(vat_from_reckon) {
 							int    r;
 							int    r2;
-							bill_code = reckon_pack.Ext.InvoiceCode[0] ? reckon_pack.Ext.InvoiceCode : reckon_pack.Rec.Code;
+							bill_code = reckon_pack.GetInvoiceCode(1);
 							const  double mult = paym_pack.GetBaseAmount() / reckon_pack.GetBaseAmount();
 							reckon_pack.Rec.Amount = BR2(paym_pack.Rec.Amount);
 							{
@@ -2254,25 +2254,20 @@ int PPViewVatBook::MRBB(PPID billID, BillTbl::Rec * pPaymRec, const TaxAmountIDs
 			if(!checkdate(_rcpt_dt))
 				_rcpt_dt = pack.Rec.Dt;
 			if(!checkdate(_invc_dt)) {
-				_invc_dt = pack.Ext.InvoiceDate ? pack.Ext.InvoiceDate : pack.Rec.Dt;
+				_invc_dt = pack.GetInvoiceDate(1);
 			}
 			rec.ArID   = r_cfg.CheckFlag(pack.Rec.OpID, VATBCfg::fByExtObj) ? pack.Rec.Object2 : pack.Rec.Object;
 			rec.Ar2ID  = pack.Rec.Object2;
 			rec.LocID  = pack.Rec.LocID;
 			if(bill_code.NotEmpty())
-				bill_code.CopyTo(rec.Code, sizeof(rec.Code));
-			else if(pack.Ext.InvoiceCode[0])
-				STRNSCPY(rec.Code, pack.Ext.InvoiceCode);
+				STRNSCPY(rec.Code, bill_code);
 			else
-				STRNSCPY(rec.Code, pack.Rec.Code);
+				STRNSCPY(rec.Code, pack.GetInvoiceCode(1));
 			if(pack.OpTypeID == PPOPT_CORRECTION) {
 				STRNSCPY(rec.CBillCode, pack.Rec.Code);
 				rec.CBillDt = pack.Rec.Dt;
 				if(pack.P_LinkPack) {
-					if(pack.P_LinkPack->Ext.InvoiceCode[0])
-						STRNSCPY(rec.Code, pack.P_LinkPack->Ext.InvoiceCode);
-					else
-						STRNSCPY(rec.Code, pack.P_LinkPack->Rec.Code);
+					STRNSCPY(rec.Code, pack.P_LinkPack->GetInvoiceCode(1));
 					_invc_dt = pack.P_LinkPack->Rec.Dt;
 					if(checkdate(pack.P_LinkPack->Ext.InvoiceDate)) {
 						if(r_cfg.Flags & VATBCfg::hfD_InvcDate)

@@ -1041,7 +1041,7 @@ int Backend_SelectObjectBlock::Parse(const char * pStr)
 		{ cMatrix,        "MATRIX"  },
 		{ cMatrixLoc,     "MATRIXLOC" },
 		{ cPassive,       "PASSIVE" },
-		{ cGeneric,       "GENERIC" }, // @v10.7.7
+		{ cGeneric,       "GENERIC" },
 		{ cAndFlags,      "ANDFLAGS" },
 		{ cNotFlags,      "NOTFLAGS" },
 		{ cPeriod,        "PERIOD" },
@@ -1308,7 +1308,7 @@ struct LocalSelectorDescr {
 					PPObjTag tag_obj;
 					PPObjectTag2 tag_rec;
 					if(rSdEntry.TagID && tag_obj.Fetch(rSdEntry.TagID, &tag_rec) > 0) {
-						TagID = tag_rec.ID; // @v10.7.9
+						TagID = tag_rec.ID;
 						Crit.Dot().Cat(tag_rec.Symb);
 					}
 					Part = "text";
@@ -1336,7 +1336,7 @@ struct LocalSelectorDescr {
 				SJson * p_jsel_val = SJson::CreateObj();
 				StrAssocArray::Item _val = Values.Get(j);
 				p_jsel_val->InsertString("ID", temp_buf.Z().Cat(_val.Id));
-				p_jsel_val->InsertString("Txt", (temp_buf = _val.Txt).Transf(CTRANSF_INNER_TO_OUTER).Escape()); // @v10.7.7 Escape()
+				p_jsel_val->InsertString("Txt", (temp_buf = _val.Txt).Transf(CTRANSF_INNER_TO_OUTER).Escape());
 				p_jsel_val->InsertString("PID", temp_buf.Z().Cat(_val.ParentId));
 				named_id_list.add(_val.Id);
 				if(_val.ParentId)
@@ -1915,7 +1915,6 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 								}
 							}
 						}
-						// @v10.7.9 {
 						{
 							PPObjTag tag_obj;
 							for(uint i = 0, n = sdescr_list.getCount(); i < n; i++) {
@@ -1946,7 +1945,6 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 								}
 							}
 						}
-						// } @v10.7.9 
 						{
 							for(uint i = 0, n = sdescr_list.getCount(); i < n; i++) {
 								const LocalSelectorDescr * p_sdescr = sdescr_list.at(i);
@@ -4486,7 +4484,7 @@ int Backend_SelectObjectBlock::ResolveCrit_ArByPerson(int subcriterion, const SS
 		case scCode:
 			if(acs_id) {
 				PPObjAccSheet acs_obj;
-				PPAccSheet acs_rec;
+				PPAccSheet2 acs_rec;
 				if(acs_obj.Fetch(acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
 					PPObjPersonKind pk_obj;
 					PPPersonKind pk_rec;

@@ -34,7 +34,7 @@ private:
 	{
 		int    ok = -1;
 		if(P_Box) {
-			P_Box->setDef(new StdTreeListBoxDef(new StrAssocArray(R_Data), lbtDisposeData|lbtDblClkNotify|lbtFocNotify|lbtSelNotify, 0));
+			P_Box->setDef(new StdTreeListBoxDef(new StrAssocArray(R_Data), lbtDisposeData|lbtDblClkNotify|lbtFocNotify|lbtSelNotify));
 			P_Box->Draw_();
 			ok = 1;
 		}

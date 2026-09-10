@@ -367,15 +367,18 @@ int PPObjRegister::CheckUniqueNumber(const RegisterTbl::Rec * pRec, const Regist
 {
 	PPID   id = 0;
 	RegisterTbl::Rec out_rec;
-	if(PPObjRegisterType::IsDupRegType(pRec->RegTypeID))
+	if(PPObjRegisterType::IsDupRegType(pRec->RegTypeID)) {
 		return 1;
+	}
 	else if(P_Tbl->SearchByNumber(&id, pRec->RegTypeID, pRec->Serial, pRec->Num, &out_rec) > 0) {
 		if(pRec->ID == 0 || pRec->ID != out_rec.ID) {
 			if(out_rec.ObjID) {
-				if(objID && out_rec.ObjType == objType && out_rec.ObjID == objID)
+				if(objID && out_rec.ObjType == objType && out_rec.ObjID == objID) {
 					return 1;
-				else
+				}
+				else {
 					PPSetAddedMsgObjName(out_rec.ObjType, out_rec.ObjID);
+				}
 			}
 			return PPSetErrorPreserveAddendum(PPERR_DUPREGNUMBER);
 		}
@@ -528,58 +531,72 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 		{
 			Data.Clear();
 			RegOrgKind = 0;
-			ValidCode = -1;
 			SetupCalDate(CTLCAL_REG_DATE, CTL_REG_DATE);
 			SetupCalDate(CTLCAL_REG_EXPIRY, CTL_REG_EXPIRY);
 			{
 				const UiDescription * p_uid = SLS.GetUiDescription();
 				const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 				{
-					SColor _color;
-					if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
-						_color = SClrCoral; 
+					SColor _color = UiDescription::GetColorR(p_uid, p_cs, "invalid_value_input_bg", SClrCoral);
 					Ptb.SetBrush(brushInvalidNumber, SPaintObj::bsSolid, _color, 0);
 				}
 				{
-					SColor _color;
-					if(!p_cs || !p_cs->Get("valid_value_input_bg", &p_uid->ClrList, _color))
-						_color = SClrAqua; 
+					SColor _color = UiDescription::GetColorR(p_uid, p_cs, "valid_value_input_bg", SClrAqua);
 					Ptb.SetBrush(brushValidNumber,   SPaintObj::bsSolid, _color,  0);
 				}
 			}
 		}
 		int  ValidateNumber()
 		{
-			SString temp_buf;
-			getCtrlString(CTL_REG_NUMBER, temp_buf);
-			int    prev = ValidCode;
-			//
-			STokenRecognizer tr;
-			SNaturalTokenStat nts;
-			SNaturalTokenArray nta;
-			tr.Run(temp_buf, nta.Z(), &nts); 
-			//
-			if(Data.RegTypeID == PPREGT_TPID) {
-				ValidCode = (nta.Has(SNTOK_RU_INN) > 0.0f);
+			int    result = 0;
+			const  uint ctl_id = CTL_REG_NUMBER;
+			TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+			if(p_il) {
+				SString temp_buf;
+				getCtrlString(ctl_id, temp_buf);
+				int    valid_code = -1;
+				int    msg_id = 0;
+				SNaturalTokenStat nts;
+				SNaturalTokenArray nta;
+				Trg.Run(temp_buf, nta.Z(), &nts); 
+				if(Data.RegTypeID == PPREGT_TPID) {
+					valid_code = BIN(nta.Has(SNTOK_RU_INN) > 0.0f);
+					msg_id = valid_code ? CTLUSTTD_RUINN_VALID : CTLUSTTD_RUINN_INVALID;
+				}
+				else if(Data.RegTypeID == PPREGT_KPP) {
+					valid_code = BIN(nta.Has(SNTOK_RU_KPP) > 0.0f);
+					msg_id = valid_code ? CTLUSTTD_RUKPP_VALID : CTLUSTTD_RUKPP_INVALID;
+				}
+				else if(Data.RegTypeID == PPREGT_OKPO) {
+					valid_code = BIN(nta.Has(SNTOK_RU_OKPO) > 0.0f);
+					msg_id = valid_code ? CTLUSTTD_RUOKPO_VALID : CTLUSTTD_RUOKPO_INVALID;
+				}
+				else if(Data.RegTypeID == PPREGT_BIC) {
+					valid_code = BIN(nta.Has(SNTOK_RU_BIC) > 0.0f); 
+					msg_id = valid_code ? CTLUSTTD_RUBIC_VALID : CTLUSTTD_RUBIC_INVALID;
+				}
+				else if(Data.RegTypeID == PPREGT_BNKCORRACC) {
+					SString bic;
+					if(P_RegAry)
+						P_RegAry->GetRegNumber(PPREGT_BIC, bic);
+					else if(P_PsnPack)
+						P_PsnPack->GetRegNumber(PPREGT_BIC, bic);
+					valid_code = BIN(CheckCorrAcc(temp_buf, bic));
+					msg_id = valid_code ? CTLUSTTD_BANKACCOUNT_VALID : CTLUSTTD_BANKACCOUNT_INVALID;
+				}
+				{
+					uint64 _state = 0;
+					temp_buf.Z();
+					if(valid_code >= 0) {
+						_state = static_cast<int>(valid_code)+1;
+						if(msg_id)
+							PPLoadString(PPSTR_CTLUSTTD, msg_id, temp_buf);
+					}
+					if(p_il->SetIndicatorState(_state, temp_buf) > 0)
+						result = 1;
+				}
 			}
-			else if(Data.RegTypeID == PPREGT_KPP) {
-				ValidCode = (nta.Has(SNTOK_RU_KPP) > 0.0f);
-			}
-			else if(Data.RegTypeID == PPREGT_OKPO) {
-				ValidCode = (nta.Has(SNTOK_RU_OKPO) > 0.0f);
-			}
-			else if(Data.RegTypeID == PPREGT_BIC) {
-				ValidCode = (nta.Has(SNTOK_RU_BIC) > 0.0f); 
-			}
-			else if(Data.RegTypeID == PPREGT_BNKCORRACC) {
-				SString bic;
-				if(P_RegAry)
-					P_RegAry->GetRegNumber(PPREGT_BIC, bic);
-				else if(P_PsnPack)
-					P_PsnPack->GetRegNumber(PPREGT_BIC, bic);
-				ValidCode = CheckCorrAcc(temp_buf, bic);
-			}
-			return (ValidCode != prev);
+			return result;
 		}
 		enum {
 			dummyFirst = 1,
@@ -598,8 +615,8 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 						PPError();
 					}
 					else {
-						PPRegisterType2 rt_rec;
 						PPObjRegisterType rt_obj;
+						PPRegisterType2 rt_rec;
 						SString numb;
 						getCtrlString(CTL_REG_NUMBER, numb);
 						if(!numb.NotEmptyS()) {
@@ -625,10 +642,11 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 					}
 					ValidateNumber();
 				}
-				else if(TVCMD == cmInputUpdated) {
-					uint   ctl_id = event.getCtlID();
+				else if(event.isCmd(cmInputUpdated)) {
+					const  uint ctl_id = event.getCtlID();
 					if(oneof2(ctl_id, CTL_REG_NUMBER, CTL_REG_SERIALNO)) {
-						SString data_buf, temp_buf;
+						SString data_buf;
+						SString temp_buf;
 						getCtrlString(ctl_id, data_buf);
 						if(data_buf.NotEmptyS())
 							temp_buf.Cat(data_buf.Len());
@@ -639,14 +657,34 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 					else
 						return;
 				}
-				else if(TVCMD == cmCtlColor) {
+				else if(event.isCmd(cmCtlColor)) {
 					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
-					if(p_dc && ValidCode >= 0 && getCtrlHandle(CTL_REG_NUMBER) == p_dc->H_Ctl) {
-						::SetBkMode(p_dc->H_DC, TRANSPARENT);
-						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get((ValidCode > 0) ? brushValidNumber : brushInvalidNumber));
+					if(p_dc && getCtrlHandle(CTL_REG_NUMBER) == p_dc->H_Ctl) {
+						TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(CTL_REG_NUMBER, TV_SUBSIGN_INPUTLINE));
+						if(p_il) {
+							uint64 _state = 0;
+							if(p_il->GetIndicatorState(&_state, 0)) {
+								::SetBkMode(p_dc->H_DC, TRANSPARENT);
+								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get((_state == 2) ? brushValidNumber : brushInvalidNumber));
+								clearEvent(event);
+							}
+						}
 					}
 					else
 						return;
+				}
+				else if(event.isCmd(cmMouseHoverCtrl)) { // @v12.7.7
+					const  uint ctl_id = event.getCtlID();
+					if(ctl_id == CTL_REG_NUMBER) {
+						TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+						if(p_il) {
+							uint64 _state = 0;
+							SString descr_buf;
+							if(p_il->GetIndicatorState(&_state, &descr_buf) && descr_buf.NotEmptyS()) {
+								PPShowCtrlIndicatorHint(descr_buf);
+							}
+						}
+					}
 				}
 				else
 					return;
@@ -730,8 +768,8 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 		const  PPPersonPacket * P_PsnPack;
 		const  PPLocationPacket * P_LocPack;
 		PPID   RegOrgKind;
-		int    ValidCode;
 		SPaintToolBox Ptb;
+		STokenRecognizer Trg;
 	};
 	int    ok = -1;
 	RegisterDialog * dlg = 0;
@@ -753,13 +791,14 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 		dlg->setDTS(pRec);
 		if(!CheckRightsModByID(&pRec->ID))
 			DisableOKButton(dlg);
-		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;)
+		for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 			if(dlg->getDTS(pRec)) {
 				if(CheckUniqueNumber(pRec, pRegList, /*NZOR(outerObjType, PPOBJ_PERSON)*/pRec->ObjType, pRec->ObjID))
 					ok = valid_data = 1;
 				else
 					PPError();
 			}
+		}
 	}
 	else
 		ok = 0;
@@ -852,22 +891,18 @@ int PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 {
 	class BankAccountDialog : public TDialog {
 	public:
-		BankAccountDialog() : TDialog(DLG_BACCT), ValidAcc(-1)
+		BankAccountDialog() : TDialog(DLG_BACCT)
 		{
 			SetupCalDate(CTLCAL_BACCT_OPENDATE, CTL_BACCT_OPENDATE);
 			{
 				const UiDescription * p_uid = SLS.GetUiDescription();
 				const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 				{
-					SColor _color;
-					if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
-						_color = SClrCoral; 
+					SColor _color = UiDescription::GetColorR(p_uid, p_cs, "invalid_value_input_bg", SClrCoral);
 					Ptb.SetBrush(brushInvalidNumber, SPaintObj::bsSolid, _color, 0);
 				}
 				{
-					SColor _color;
-					if(!p_cs || !p_cs->Get("valid_value_input_bg", &p_uid->ClrList, _color))
-						_color = SClrAqua; 
+					SColor _color = UiDescription::GetColorR(p_uid, p_cs, "valid_value_input_bg", SClrAqua);
 					Ptb.SetBrush(brushValidNumber,   SPaintObj::bsSolid, _color,  0);
 				}
 			}
@@ -883,9 +918,9 @@ int PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 					BIC = reg_rec.Num;
 			}
 			setCtrlString(CTL_BACCT_BIC, BIC);
-			SString data_buf;
-			getCtrlString(CTL_BACCT_ACCT, data_buf);
-			ValidAcc = BIN(CheckBnkAcc(data_buf, BIC));
+			if(ValidateAccount()) {
+				drawCtrl(CTL_BACCT_ACCT);
+			}
 		}
 	private:
 		DECL_HANDLE_EVENT
@@ -895,39 +930,64 @@ int PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 				SetupBIC();
 			}
 			else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_BACCT_ACCT)) {
-				SString data_buf, temp_buf;
-				getCtrlString(CTL_BACCT_ACCT, data_buf);
-				setStaticText(CTL_BACCT_ACCTLEN, temp_buf.Cat(data_buf.Strip().Len()));
-				int    prev_valid = ValidAcc;
-				ValidAcc = BIN(CheckBnkAcc(data_buf, BIC));
-				if(ValidAcc != prev_valid)
+				if(ValidateAccount())
 					drawCtrl(CTL_BACCT_ACCT);
 			}
 			else if(TVCMD == cmCtlColor) {
 				TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
-				if(p_dc && ValidAcc >= 0 && getCtrlHandle(CTL_BACCT_ACCT) == p_dc->H_Ctl) {
-					if(ValidAcc > 0) {
-						::SetBkMode(p_dc->H_DC, TRANSPARENT);
-						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushValidNumber));
-					}
-					else {
-						::SetBkMode(p_dc->H_DC, TRANSPARENT);
-						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushInvalidNumber));
+				if(p_dc && getCtrlHandle(CTL_BACCT_ACCT) == p_dc->H_Ctl) {
+					TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(CTL_BACCT_ACCT, TV_SUBSIGN_INPUTLINE));
+					if(p_il) {
+						uint64 _state = 0;
+						if(p_il->GetIndicatorState(&_state, 0)) {
+							::SetBkMode(p_dc->H_DC, TRANSPARENT);
+							p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get((_state == 2) ? brushValidNumber : brushInvalidNumber));
+							clearEvent(event);
+						}
 					}
 				}
 				else
 					return;
 			}
+			else if(event.isCmd(cmMouseHoverCtrl)) { // @v12.7.7
+				const  uint ctl_id = event.getCtlID();
+				if(ctl_id == CTL_BACCT_ACCT) {
+					TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+					if(p_il) {
+						uint64 _state = 0;
+						SString descr_buf;
+						if(p_il->GetIndicatorState(&_state, &descr_buf) && descr_buf.NotEmptyS()) {
+							PPShowCtrlIndicatorHint(descr_buf);
+						}
+					}
+				}
+			}
 			else
 				return;
 			clearEvent(event);
+		}
+		int    ValidateAccount()
+		{
+			int    result = 0;
+			const  uint ctl_id = CTL_BACCT_ACCT;
+			TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+			if(p_il) {
+				SString temp_buf;
+				SString data_buf;
+				getCtrlString(ctl_id, data_buf);
+				const  bool is_acc_valid = LOGIC(CheckBnkAcc(data_buf, BIC));
+				const  uint64 _state = static_cast<int>(is_acc_valid)+1;
+				PPLoadString(PPSTR_CTLUSTTD, (is_acc_valid ? CTLUSTTD_BANKACCOUNT_VALID : CTLUSTTD_BANKACCOUNT_INVALID), temp_buf);
+				if(p_il->SetIndicatorState(_state, temp_buf) > 0)
+					result = 1;
+			}
+			return result;
 		}
 		enum {
 			dummyFirst = 1,
 			brushValidNumber,
 			brushInvalidNumber
 		};
-		int    ValidAcc;
 		SString BIC;
 		SPaintToolBox Ptb;
 	};
@@ -938,7 +998,7 @@ int PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 	if(CheckDialogPtrErr(&dlg)) {
 		SetupPersonCombo(dlg, CTLSEL_BACCT_BANK, rec.BankID, OLW_CANINSERT, (PPID)PPPRK_BANK, 0);
 		SetupPPObjCombo(dlg, CTLSEL_BACCT_ACCTYPE, PPOBJ_BNKACCTYPE, rec.AccType, OLW_CANINSERT, 0);
-		dlg->setCtrlData(CTL_BACCT_ACCT,     rec.Acct);
+		dlg->setCtrlData(CTL_BACCT_ACCT, rec.Acct);
 		dlg->setCtrlData(CTL_BACCT_OPENDATE, &rec.OpenDate);
 		dlg->AddClusterAssoc(CTL_BACCT_FLAGS, 0, PREGF_BACC_PREFERRED/*BACCTF_PREFERRED*/);
 		dlg->SetClusterData(CTL_BACCT_FLAGS, rec.Flags);

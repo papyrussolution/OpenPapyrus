@@ -17,9 +17,8 @@ IMPLEMENT_PPFILT_FACTORY(StaffList); StaffListFilt::StaffListFilt() : PPBaseFilt
 int StaffListFilt::Init(int fullyDestroy, long extraData)
 {
 	PPBaseFilt::Init(fullyDestroy, extraData);
-	if(extraData)
-		if(GetMainEmployerID(&OrgID) && extraData > 0)
-			DivID = extraData;
+	if(GetMainEmployerID(&OrgID) && extraData > 0)
+		DivID = extraData;
 	return 1;
 }
 //
@@ -1033,7 +1032,7 @@ int FastEditSumByDivDlg::SetupDivList()
 	if(p_lb) {
 		StrAssocArray * p_div_list = MakeDivList();
 		if(p_div_list) {
-			ListBoxDef * p_def = new StdTreeListBoxDef(p_div_list, lbtDblClkNotify|lbtFocNotify|lbtSelNotify|lbtDisposeData, MKSTYPE(S_ZSTRING, 64));
+			ListBoxDef * p_def = new StdTreeListBoxDef(p_div_list, lbtDblClkNotify|lbtFocNotify|lbtSelNotify|lbtDisposeData);
 			for(uint i = 0; i < p_div_list->getCount(); i++) {
 				long img_id = 0;
 				DivType divt;

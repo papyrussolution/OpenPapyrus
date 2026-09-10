@@ -1580,8 +1580,9 @@ int SString::Wrap(uint maxLen, SString & rHead, SString & rTail) const
 //
 size_t FASTCALL SnapUpSize(size_t i)
 {
-	if(i <= 12) // @v10.8.0 (i < 12)-->(i <= 12)
+	if(i <= 12) {
 		i = 12;
+	}
 	else {
 		size_t j = i;
 		// Assumes your system is at least 32 bits, and your string is
@@ -5012,7 +5013,7 @@ bool FASTCALL SStringU::IsEq(const SStringU & rS) const
 					case 3: return (P_Buf[0] == rS.P_Buf[0] && P_Buf[1] == rS.P_Buf[1] && P_Buf[2] == rS.P_Buf[2]);
 					case 4: return (PTR64(P_Buf)[0] == PTR64(rS.P_Buf)[0]);
 					case 8: return (PTR64(P_Buf)[0] == PTR64(rS.P_Buf)[0] && PTR64(P_Buf)[1] == PTR64(rS.P_Buf)[1]);
-					default: return (memcmp(P_Buf, rS.P_Buf, len*sizeof(*P_Buf)) == 0); // @v10.7.1 @fix len-->len*sizeof(*P_Buf)
+					default: return (memcmp(P_Buf, rS.P_Buf, len*sizeof(*P_Buf)) == 0);
 				}
 			}
 			else
@@ -5025,8 +5026,8 @@ bool FASTCALL SStringU::IsEq(const SStringU & rS) const
 
 bool FASTCALL SStringU::IsEq(const wchar_t * pS) const
 {
-	const size_t len = Len();
-	const size_t len2 = sstrlen(pS);
+	const  size_t len = Len();
+	const  size_t len2 = sstrlen(pS);
 	if(len == len2) {
 		if(!len)
 			return true;
@@ -5039,7 +5040,7 @@ bool FASTCALL SStringU::IsEq(const wchar_t * pS) const
 					case 3: return (P_Buf[0] == pS[0] && P_Buf[1] == pS[1] && P_Buf[2] == pS[2]);
 					case 4: return (PTR64C(P_Buf)[0] == PTR64C(pS)[0]);
 					case 8: return (PTR64C(P_Buf)[0] == PTR64C(pS)[0] && PTR64C(P_Buf)[1] == PTR64C(pS)[1]);
-					default: return (memcmp(P_Buf, pS, len*sizeof(*P_Buf)) == 0); // @v10.7.1 @fix len-->len*sizeof(*P_Buf)
+					default: return (memcmp(P_Buf, pS, len*sizeof(*P_Buf)) == 0);
 				}
 			}
 			else
@@ -6278,7 +6279,7 @@ void FASTCALL SFsPath::Split(const char * pPath)
 	size_t p = rPath.Len();
 	if(p) {
 		while(ok < 0 && p--) {
-			if(rPath.C(p) == '.' && (p == 0 || rPath.C(p-1) != '.') && rPath.C(p+1) != '.') { // @v10.1.7 (&& (p == 0 || rPath.C(p-1) != '.') && rPath.C(p+1) != '.')
+			if(rPath.C(p) == '.' && (p == 0 || rPath.C(p-1) != '.') && rPath.C(p+1) != '.') {
 				if(force) {
 					rPath.Trim(p+1);
 					if(pExt && pExt[0] == '.')

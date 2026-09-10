@@ -10581,7 +10581,7 @@ public:
 			const  PPID acs_from_id = GetSupplAccSheet();
 			const  PPID acs_to_id = GetSellAccSheet();
 			PPObjAccSheet acs_obj;
-			PPAccSheet acs_rec;
+			PPAccSheet2 acs_rec;
 			if(acs_obj.Fetch(acs_from_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
 				SetupPersonCombo(this, CTLSEL_VETDOCFLT_FROMP, Data.FromPersonID, 0, acs_rec.ObjGroup, 1);
 			}
@@ -12657,7 +12657,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 		const int  side = (objToMatch == otmTo) ? 1 : 0;
 		PPMatchPersonBlock mb;
 		const  PPID acs_id = (objToMatch == otmTo) ? GetSellAccSheet() : GetSupplAccSheet();
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		{
 			Reference * p_ref(PPRef);
 			const  PPID enterprise_id = (side == 1) ? rRec.ToEnterpriseID : rRec.FromEnterpriseID;

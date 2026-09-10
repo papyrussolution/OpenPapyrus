@@ -40,7 +40,7 @@ POSITION_TYPE_BUY	0
 POSITION_TYPE_SELL	1
 */
 
-static const int TsStakeEnvironment_CurrentVersion = 2; // @v10.5.4 1-->2
+static const int TsStakeEnvironment_CurrentVersion = 2;
 
 TsStakeEnvironment::TerminalInfo::TerminalInfo() : GmtOffset(0)
 {

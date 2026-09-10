@@ -969,9 +969,8 @@ void QuantityCtrlGroup::SetupQuantity(TDialog * pDlg, uint master, int readFlds)
 			pDlg->setCtrlString(CtlPacks, packs_buf);
 			pDlg->setCtrlReal(CtlQtty, Data.Qtty);
 			if(master) {
-				TInputLine * p_il = static_cast<TInputLine *>(pDlg->getCtrlView(master));
-				if(TView::IsSubSign(p_il, TV_SUBSIGN_INPUTLINE))
-					p_il->selectAll(0);
+				TInputLine * p_il = static_cast<TInputLine *>(pDlg->getCtrlViewEnsureSubsign(master, TV_SUBSIGN_INPUTLINE));
+				CALLPTRMEMB(p_il, selectAll(0));
 			}
 		}
 		LockUpdByInput = 0;

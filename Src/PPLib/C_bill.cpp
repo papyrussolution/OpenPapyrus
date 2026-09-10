@@ -582,7 +582,8 @@ private:
 		TDialog::handleEvent(event);
 		if(event.isCbSelected(CTLSEL_ABSBILL_OP)) {
 			if(getCtrlView(CTLSEL_ABSBILL_OBJECT)) {
-				PPID   acc_sheet_id = 0, acc_sheet2_id = 0;
+				PPID   acc_sheet_id = 0;
+				PPID   acc_sheet2_id = 0;
 				getCtrlData(CTLSEL_ABSBILL_OP, &Data.OpID);
 				GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, &acc_sheet2_id);
 				SetupArCombo(this, CTLSEL_ABSBILL_OBJECT, Data.ObjectID, 0, acc_sheet_id, sacfDisableIfZeroSheet|sacfNonGeneric);

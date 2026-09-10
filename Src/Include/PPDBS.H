@@ -3774,7 +3774,8 @@ public:
 		int16  AccessLevel;
 		int16  Closed;
 		int32  Flags;
-		uint8  Reserve2[8]; // raw
+		int32  ParentID;
+		uint8  Reserve2[4]; // raw
 	} data;
 	struct Key0 {
 		int32  ID;
@@ -3799,6 +3800,7 @@ public:
 	DBField AccessLevel;
 	DBField Closed;
 	DBField Flags;
+	DBField ParentID;
 	DBField Reserve2;
 };
 #pragma pack(pop)

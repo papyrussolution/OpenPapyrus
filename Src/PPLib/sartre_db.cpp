@@ -1,5 +1,5 @@
 // SARTRE_DB.CPP
-// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025
+// Copyright (c) A.Sobolev 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1443,15 +1443,7 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 		cfg.MaxLockObjs = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_MAXLOCKOBJS, &ini_val) > 0) ? (uint)ini_val : SKILOBYTE(512);
 	}
 	cfg.LogBufSize = (ini_file.GetDataSize(PPINISECT_CONFIG, PPINIPARAM_SARTREDB_LOGBUFSIZE, &ini_val) > 0) ? (uint)ini_val : SMEGABYTE(8);
-	//cfg.CacheSize   = (flags & oReadOnly) ? SMEGABYTE(128) : SMEGABYTE(512+512); // @v10.1.5 512-->512+512
-	//cfg.CacheCount  = 1; // @v9.6.4 20-->
-	//cfg.MaxLockers  = (flags & oReadOnly) ? SKILOBYTE(64) : SKILOBYTE(512); // @v9.6.2 20000-->256*1024 // @v10.0.01 256-->512
-	//cfg.MaxLocks    = (flags & oReadOnly) ? SKILOBYTE(32) : SKILOBYTE(512); // @v9.6.4 // @v10.0.01 128-->256 // @v10.0.12 256-->512
-	//cfg.MaxLockObjs = (flags & oReadOnly) ? SKILOBYTE(32) : SKILOBYTE(512); // @v9.6.4 // @v10.0.01 128-->256 // @v10.0.12 256-->512
-	//cfg.LogBufSize  = SMEGABYTE(8);
-	//cfg.LogFileSize = 256*1024*1024;
-	//cfg.LogSubDir = "LOG";
-	cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove/*|cfg.fLogInMemory*/); // @v9.6.6 // @v10.0.01 /*cfg.fLogNoSync*/
+	cfg.Flags |= (cfg.fLogNoSync|cfg.fLogAutoRemove/*|cfg.fLogInMemory*/);
 	//
 	Flags |= (flags & (oReadOnly|oWriteStatOnClose|oExclusive));
 	//
@@ -1475,7 +1467,7 @@ int SrDatabase::Open(const char * pDbPath, long flags)
 		}
 		{
 			SString err_file_name;
-			SLS.GetLogPath(err_file_name); // @v10.7.9
+			SLS.GetLogPath(err_file_name);
 			if(!SFile::IsDir(err_file_name))
 				err_file_name = pDbPath;
 			err_file_name.SetLastSlash().Cat("bdberr.log");
@@ -1783,42 +1775,7 @@ int SrDatabase::SetSimpleWordFlexiaModel(LEXID wordID, const SrWordForm & rWf, i
 		//
 		THROW(ResolveWordForm(rWf, &base_form_id));
 		assert(base_form_id != 0);
-		ok = SetSimpleWordFlexiaModel_Express(wordID, base_form_id, &result_wa_id); // @v10.0.01
-		/* @v10.0.01
-		{
-			//
-			// Находим или создаем модель по содержанию и получаем ее идентификатор
-			//
-			SrFlexiaModel fm;
-			SrFlexiaModel::Item fmi;
-			fmi.WordFormID = wa.BaseFormID;
-			fm.Add(fmi);
-			fm.Normalize();
-			THROW(r = P_GrT->Search(&fm, &wa.FlexiaModelID));
-			if(r < 0)
-				THROW(P_GrT->Add(&fm, &wa.FlexiaModelID));
-		}
-		{
-			assert(wa.BaseFormID);
-			assert(wa.FlexiaModelID);
-			int32   wa_id = 0;
-			TSVector <SrWordAssoc> wa_list;
-			P_WaT->Search(wordID, wa_list);
-			for(uint i = 0; !wa_id && i < wa_list.getCount(); i++) {
-				const SrWordAssoc & r_wa = wa_list.at(i);
-				if(r_wa.WordID == wa.WordID && r_wa.BaseFormID == wa.BaseFormID && r_wa.FlexiaModelID == wa.FlexiaModelID) {
-					wa_id = r_wa.ID;
-				}
-			}
-			if(wa_id)
-				ok = 2;
-			else {
-				THROW(r = P_WaT->Add(&wa.Normalize(), &wa_id));
-				ok = 1;
-			}
-			result_wa_id = wa_id;
-		}
-		*/
+		ok = SetSimpleWordFlexiaModel_Express(wordID, base_form_id, &result_wa_id);
 	}
 	CATCHZOK
 	ASSIGN_PTR(pResultWaId, result_wa_id);

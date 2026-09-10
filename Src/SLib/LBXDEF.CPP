@@ -486,7 +486,7 @@ int StrAssocListBoxDef::addItem(long id, const char * pStr, long * pPos)
 //
 // StdTreeListBoxDef
 //
-StdTreeListBoxDef::StdTreeListBoxDef(StrAssocArray * pList, uint aOptions, TYPEID t) : ListBoxDef(aOptions, t), T(sizeof(TreeItem)), P_SaList(0)
+StdTreeListBoxDef::StdTreeListBoxDef(StrAssocArray * pList, uint aOptions) : ListBoxDef(aOptions, MKSTYPE(S_ZSTRING, 252)), T(sizeof(TreeItem)), P_SaList(0)
 {
 	SetCapability(ListBoxDef::cTree|ListBoxDef::cFullInMem, SlConst::ListBoxDefSignature_STDTREE);
 	setArray(pList);

@@ -275,7 +275,7 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 	SETFLAGBYSAMPLE(Flags, fHideGeneric, flags);
 	SETFLAGBYSAMPLE(Flags, fForceMatrixUsage, flags);
 	LocID = r_cfg.Location;
-	MEMSZERO(SerialData);
+	// @v12.7.7 @ctr MEMSZERO(SerialData);
 	P_List = static_cast<SmartListBox *>(getCtrlView(CTL_EXTGSEL_LIST));
 	showCtrl(CTL_EXTGSEL_MTX_IND, false);
 	showCtrl(CTL_EXTGSEL_INFO, false);
@@ -686,7 +686,7 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 				PPObjBill::SelectLotParam slp(goods_id, LocID, 0, PPObjBill::SelectLotParam::fNotEmptySerial);
 				slp.Period.Set(ZERODATE, getcurdate_());
 				if(BillObj->SelectLot2(slp) > 0) {
-					MEMSZERO(SerialData);
+					SerialData.Z();
 					SerialData.LotID = slp.RetLotID;
 					STRNSCPY(SerialData.Serial, slp.RetLotSerial);
 					if(IsInState(sfModal)) {
@@ -738,7 +738,7 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 int ExtGoodsSelDialog::setDTS(TIDlgInitData * pTidi)
 {
 	int    ok = -1;
-	MEMSZERO(SerialData);
+	SerialData.Z();
 	if(pTidi) {
 		if(Flags & fSelectModifMode && pTidi->ModifMode)
 			setCtrlLong(CTLSEL_EXTGSEL_MODIFMODE, pTidi->ModifMode);

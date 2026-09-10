@@ -916,6 +916,27 @@ static bool FASTCALL CheckEscKey(int cmd)
 	return PeekMessage(&msg, 0, WM_KEYDOWN, WM_KEYDOWN, cmd ? PM_NOREMOVE : PM_REMOVE) ? (msg.wParam == VK_ESCAPE) : false;
 }
 
+int PPShowCtrlIndicatorHint(const char * pText) // @v12.7.7
+{
+	int    ok = -1;
+	if(!isempty(pText)) {
+		const  UiDescription * p_uid = SLS.GetUiDescription(); // @v12.7.6
+		int    hint_timeout = 10000;
+		{
+			int   uid_hint_timeout = 0;
+			if(p_uid->VList.Get(UiValueList::vPopUpHintTimerMs, uid_hint_timeout) && checkirange(uid_hint_timeout, 1, 3600000)) {
+				hint_timeout = uid_hint_timeout;
+			}
+		}
+		const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+		SColor color_bg = UiDescription::GetColorR(p_uid, p_cs, "popuphint_bg", SColor(0xF0, 0xF4, 0xF8));
+		long   o = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fTopmost;
+		PPTooltipMessage(pText, 0, /*H()*/0, hint_timeout, color_bg, o);
+		ok = 1;
+	}
+	return ok;
+}
+
 int PPCheckUserBreak()
 {
 	int    ok = 1;

@@ -568,7 +568,8 @@ int ViewFiltPool()
 		SString db_symb;
 		THROW_PP(p_dbdict->GetDbSymb(db_symb), PPERR_DBSYMBUNDEF);
 		THROW(mngr.LoadPool2(db_symb, &pool, false));
-		THROW(CheckDialogPtrErr(&(dlg = new FiltPoolDialog(&mngr, &pool))));
+		dlg = new FiltPoolDialog(&mngr, &pool);
+		THROW(CheckDialogPtrErr(&dlg));
 		while(ExecView(dlg) == cmOK) {
 			if(mngr.SavePool2(&pool)) {
 				ok = 1;

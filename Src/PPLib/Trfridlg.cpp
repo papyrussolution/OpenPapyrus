@@ -90,7 +90,7 @@ private:
 		stGoodsByPrice    = 0x0002, // Признак выбора товара по цене
 		stAllowSupplSel   = 0x0004, // Позволяет выбор поставщика
 		stGoodsFixed      = 0x0008, // Фиксированный товар (выбран до входа в диалог)
-		stWasCostInput    = 0x0010,
+		stWasCostInput    = 0x0010, // Значение цены поступления в новой строке приходного документа отличается от такой же цены предыдущего лота
 		stLockQttyAutoUpd = 0x0020  // Блокировка автоматического пересчета полей количества/емкость упаковки/количество упаковок
 	};
 	long   St;
@@ -2558,8 +2558,8 @@ void TrfrItemDialog::setQuotSign()
 		text.CatChar('q');
 	if(Item.Flags & PPTFR_PRICEWOTAXES)
 		text.CatChar('_');
-	if(P_BObj->Cfg.Flags & BCF_SIGNDIFFLOTCOST && OpTypeID == PPOPT_GOODSRECEIPT)
-		if(Item.RByBill == 0) {
+	if(P_BObj->Cfg.Flags & BCF_SIGNDIFFLOTCOST && OpTypeID == PPOPT_GOODSRECEIPT) {
+		if(!Item.RByBill) {
 			ReceiptTbl::Rec lot_rec;
 			if(::GetCurGoodsPrice(Item.GoodsID, Item.LocID, GPRET_INDEF, 0, &lot_rec) > 0) {
 				getCtrlCost();
@@ -2567,6 +2567,7 @@ void TrfrItemDialog::setQuotSign()
 				setCtrlCost();
 			}
 		}
+	}
 	setStaticText(CTL_LOT_QUOTSIGN, text);
 }
 

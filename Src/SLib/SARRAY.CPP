@@ -2564,6 +2564,8 @@ int FASTCALL StrAssocArray::Copy(const StrAssocArray & rS)
 	return 1;
 }
 
+bool StrAssocArray::IsHirarchical() const { return (ParentList.getCount() > 0); } // @v12.7.7
+
 bool FASTCALL StrAssocArray::IsEq(const StrAssocArray & s) const
 {
 	bool   ok = false;

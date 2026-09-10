@@ -1406,9 +1406,8 @@ backtrack:
 	SString path;
 	SString temp_path;
 	SStringU temp_buf_u;
-	// @v11.2.12 (temp_path = pPath).SetLastSlash().ReplaceChar('/', '\\');
 	// @v11.8.4 SFsPath::npfCompensateDotDot
-	SFsPath::NormalizePath(pPath, SFsPath::npfKeepCase|SFsPath::npfCompensateDotDot, temp_path).SetLastSlash(); // @v11.2.12 
+	SFsPath::NormalizePath(pPath, SFsPath::npfKeepCase|SFsPath::npfCompensateDotDot, temp_path).SetLastSlash();
 	const char * p = temp_path;
 	do {
 		if(*p == '\\') {
@@ -2787,7 +2786,6 @@ int SFile::ReadLine(SString & rBuf, uint flags)
 						}
 						else {
 							p = static_cast<const char *>(smemchr(LB.vptr(), 0x0D, act_size)); // @v11.7.0 memchr-->smemchr
-							// @v10.4.1 @fix 
 							if(p) {
 								char * p_to_update = const_cast<char *>(p);
 								if(p_to_update[1] == 0x0A)
@@ -2818,13 +2816,11 @@ int SFile::ReadLine(SString & rBuf, uint flags)
 			CALLEXCEPT_S(SLERR_INVALIDSFILTYP);
 			break;
 	}
-	// @v11.4.3 {
 	assert(ok == 1);
 	if(flags & rlfChomp)
 		rBuf.Chomp();
 	if(flags & rlfStrip)
 		rBuf.Strip();
-	// } @v11.4.3 
 	CATCHZOK
 	return ok;
 }
@@ -3275,7 +3271,6 @@ int FileFormatRegBase::GetMime(int id, SString & rMime) const
 			rMime.Slash().Cat(r_temp_buf);
 			ok = 1;
 		}
-		// @v10.2.12 @fix break;
 	}
 	return ok;
 }
@@ -3664,10 +3659,12 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 									if(oneof4(c, ' ', '\t', '\x0D', '\x0A')) {
                                         j++;
 									}
-									else if(entry_sign.CmpL(sign_buf+j, 1) == 0) // @v10.0.02 @fix sign_buf-->sign_buf+j
+									else if(entry_sign.CmpL(sign_buf+j, 1) == 0) {
 										r = 1;
-									else
+									}
+									else {
 										r = 0;
+									}
 								}
 								if(r) {
 									candid_by_sign.addUnique(entry.FmtId);

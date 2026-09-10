@@ -17,7 +17,7 @@ GoodsGroupTotal::GoodsGroupTotal() : MaxLevel(0), Count(0), AltCount(0), FoldCou
 
 PPObjGoodsGroup::PPObjGoodsGroup(void * extraPtr) : PPObjGoods(PPOBJ_GOODSGROUP, PPGDSK_GROUP, extraPtr)
 {
-	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
+	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 }
 
 /*static*/int PPObjGoodsGroup::IsAlt(PPID id) { return id ? PPObjGoodsGroup().IsAltGroup(id) : -1; }
@@ -1643,7 +1643,7 @@ int PPObjTransport::Browse(void * extraPtr)
 class TransportDialog : public TDialog {
 	DECL_DIALOG_DATA(PPTransportPacket);
 public:
-	explicit TransportDialog(uint dlgID) : TDialog(dlgID), LockAutoName(0), ValidMainLicPlate(-1)
+	explicit TransportDialog(uint dlgID) : TDialog(dlgID), LockAutoName(0)
 	{
 		PPObjTransport::ReadConfig(&Cfg);
 		// @v12.7.4 {
@@ -1737,15 +1737,34 @@ private:
 		}
 		else if(event.isCmd(cmCtlColor)) {
 			TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
-			if(p_dc && ValidMainLicPlate >= 0 && getCtrlHandle(CTL_TRANSPORT_CODE) == p_dc->H_Ctl) {
-				::SetBkMode(p_dc->H_DC, TRANSPARENT);
-				p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get((ValidMainLicPlate > 0) ? brushValidNumber : brushInvalidNumber));
-				clearEvent(event);
+			if(p_dc && getCtrlHandle(CTL_TRANSPORT_CODE) == p_dc->H_Ctl) {
+				TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(CTL_TRANSPORT_CODE, TV_SUBSIGN_INPUTLINE));
+				if(p_il) {
+					uint64 _state = 0;
+					if(p_il->GetIndicatorState(&_state, 0)) {
+						::SetBkMode(p_dc->H_DC, TRANSPARENT);
+						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get((_state == 2) ? brushValidNumber : brushInvalidNumber));
+						clearEvent(event);
+					}
+				}
 			}
 			else
 				return;
 		}
 		// } @v12.7.4 
+		else if(event.isCmd(cmMouseHoverCtrl)) { // @v12.7.7
+			const  uint ctl_id = event.getCtlID();
+			if(ctl_id == CTL_TRANSPORT_CODE) {
+				TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+				if(p_il) {
+					uint64 _state = 0;
+					SString descr_buf;
+					if(p_il->GetIndicatorState(&_state, &descr_buf) && descr_buf.NotEmptyS()) {
+						PPShowCtrlIndicatorHint(descr_buf);
+					}
+				}
+			}
+		}
 		else if(!LockAutoName && Cfg.NameTemplate.NotEmpty()) {
 			if(event.isCbSelected(CTLSEL_TRANSPORT_MODEL) || event.isCbSelected(CTLSEL_TRANSPORT_OWNER) ||
 				event.isCbSelected(CTLSEL_TRANSPORT_CAPTAIN) ||
@@ -1760,15 +1779,24 @@ private:
 	}
 	int  ValidateLicPlate(uint ctlId)
 	{
+		int    result = 0;
 		SString temp_buf;
-		getCtrlString(ctlId, temp_buf);
-		const  int prev = ValidMainLicPlate;
-		SNaturalTokenStat nts;
-		SNaturalTokenArray nta;
-		Trg.Run(temp_buf, nta.Z(), &nts); 
-		//
-		ValidMainLicPlate = (nta.Has(SNTOK_RU_LICPLATE) > 0.0f);
-		return (ValidMainLicPlate != prev);
+		TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctlId, TV_SUBSIGN_INPUTLINE));
+		if(p_il) {
+			getCtrlString(ctlId, temp_buf);
+			SNaturalTokenStat nts;
+			SNaturalTokenArray nta;
+			Trg.Run(temp_buf, nta.Z(), &nts); 
+			//
+			const   bool is_licplate = (nta.Has(SNTOK_RU_LICPLATE) > 0.0f);
+			//CTLUSTTD_RULICPLATE_VALID             "Государственный номер автомобиля - допустимое значение"
+			//CTLUSTTD_RULICPLATE_INVALID           "Недопустимое значение государственного номер автомобиля"				
+			const  uint64 _state = static_cast<int>(is_licplate)+1;
+			PPLoadString(PPSTR_CTLUSTTD, (is_licplate ? CTLUSTTD_RULICPLATE_VALID : CTLUSTTD_RULICPLATE_INVALID), temp_buf);
+			if(p_il->SetIndicatorState(_state, temp_buf) > 0)
+				result = 1;
+		}
+		return result;
 	}
 	void   Helper_GetDTS()
 	{
@@ -1790,7 +1818,6 @@ private:
 		Data.Rec.Flags = static_cast<int16>(GetClusterData(CTL_TRANSPORT_FLAGS));
 	}
 	int    LockAutoName;
-	int    ValidMainLicPlate; // @v12.7.4
 	PPTransportConfig Cfg;
 	PPObjTransport TrObj;
 	STokenRecognizer Trg; // @v12.7.4

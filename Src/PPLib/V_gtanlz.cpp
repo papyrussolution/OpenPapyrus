@@ -51,7 +51,7 @@ int PPViewGoodsTaxAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 		DECL_DIALOG_SETDTS()
 		{
 			RVALUEPTR(Data, pData);
-			PPID   acc_sheet_id = 0;
+			PPID   acs_id = 0;
 			PPIDArray types;
 			ushort v = 0;
 			SetPeriodInput(this, CTL_GDSGRPRLZ_PERIOD,  Data.Period);
@@ -59,8 +59,8 @@ int PPViewGoodsTaxAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			SetupPPObjCombo(this, CTLSEL_GDSGRPRLZ_LOC, PPOBJ_LOCATION, Data.LocID, 0, 0);
 			types.addzlist(PPOPT_GOODSRECEIPT, PPOPT_GOODSEXPEND, PPOPT_GOODSRETURN, PPOPT_GOODSREVAL, PPOPT_GOODSMODIF, PPOPT_PAYMENT, PPOPT_GENERIC, 0L);
 			SetupOprKindCombo(this, CTLSEL_GDSGRPRLZ_OP, Data.OpID, 0, &types, 0);
-			GetOpCommonAccSheet(Data.OpID, &(acc_sheet_id = 0), 0);
-			setupAccSheet(acc_sheet_id);
+			GetOpCommonAccSheet(Data.OpID, &(acs_id = 0), 0);
+			setupAccSheet(acs_id);
 			GoodsFiltCtrlGroup::Rec gf_rec(Data.GoodsGrpID, 0, 0, GoodsCtrlGroup::enableSelUpLevel);
 			setGroupData(ctlgroupGoodsFilt, &gf_rec);
 			AddClusterAssoc(CTL_GDSGRPRLZ_FLAGS, 0, GoodsTaxAnalyzeFilt::fNozeroExciseOnly);
@@ -142,10 +142,10 @@ int PPViewGoodsTaxAnalyze::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			WLDialog::handleEvent(event);
 			if(event.isCbSelected(CTLSEL_GDSGRPRLZ_OP)) {
 				if(getCtrlView(CTLSEL_GDSGRPRLZ_OBJ)) {
-					PPID   acc_sheet_id = 0;
+					PPID   acs_id = 0;
 					getCtrlData(CTLSEL_GDSGRPRLZ_OP, &Data.OpID);
-					GetOpCommonAccSheet(Data.OpID, &acc_sheet_id, 0);
-					setupAccSheet(acc_sheet_id);
+					GetOpCommonAccSheet(Data.OpID, &acs_id, 0);
+					setupAccSheet(acs_id);
 				}
 			}
 			else if(event.isClusterClk(CTL_GDSGRPRLZ_CCL))

@@ -617,7 +617,8 @@ int PPObjBill::UpdateOpCounter(PPBillPacket * pPack)
 	PPObjOpCounter opc_obj;
 	THROW_INVARG(pPack);
 	THROW(opc_obj.CheckRights(PPR_MOD));
-	THROW(CheckDialogPtrErr(&(dlg = new TDialog(DLG_UPDCNTR))));
+	dlg = new TDialog(DLG_UPDCNTR);
+	THROW(CheckDialogPtrErr(&dlg));
 	if(GetOpData(pPack->Rec.OpID, &op_rec) > 0) {
 		PPID   cntr_id = op_rec.OpCounterID;
 		PPOpCounterPacket opc_pack;
@@ -2607,7 +2608,7 @@ int PPObjBill::AddGoodsBill(PPID * pBillID, const AddBlock * pBlk)
 			if(op_rec.ExtFlags & OPKFX_SETCTXAGENT && (op_rec.Flags & OPKF_USEEXT || op_rec.OpTypeID == PPOPT_PAYMENT)) {
 				const PPID agent_acs_id = GetAgentAccSheet();
 				PPObjAccSheet acs_obj;
-				PPAccSheet acs_rec;
+				PPAccSheet2 acs_rec;
 				if(agent_acs_id && acs_obj.Fetch(agent_acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON && acs_rec.ObjGroup) {
 					PPID   user_psn_id = 0;
 					if(PPObjPerson::GetCurUserPerson(&user_psn_id, 0) > 0) {
@@ -4860,8 +4861,8 @@ int PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
 			// Определяем балансовый счет основных средств
 			//
 			AcctID accid;
-			PPID   acc_sheet_id = 0;
-			if(atobj->ConvertAcct(&CConfig.AssetAcct, 0 /*@curID*/, &accid, &acc_sheet_id) > 0)
+			PPID   acs_id = 0;
+			if(atobj->ConvertAcct(&CConfig.AssetAcct, 0 /*@curID*/, &accid, &acs_id) > 0)
 				pCard->AssetAcctID = accid;
 
 			int    op_code = 0;
@@ -5434,7 +5435,8 @@ int PPObjBill::SelectQuotKind(PPBillPacket * pPack, const PPTransferItem * pTi, 
 						SString sub;
 						SmartListBox * p_lbx = 0;
 						StringSet ss(SLBColumnDelim);
-						THROW(CheckDialogPtrErr(&(dlg = new QuotKindSelDialog())));
+						dlg = new QuotKindSelDialog();
+						THROW(CheckDialogPtrErr(&dlg));
  						p_lbx = static_cast<SmartListBox *>(dlg->getCtrlView(CTL_SELQUOT_LIST));
 						THROW(SetupStrListBox(p_lbx));
 						qks_list.sort(PTR_CMPFUNC(PcharNoCase));
@@ -10221,16 +10223,10 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 							}
 							break;
 						case PPSYM_INVOICEDATE:
-							if(checkdate(pk->Ext.InvoiceDate))
-								subst_buf.Cat(pk->Ext.InvoiceDate, DATF_DMY);
-							else
-								subst_buf.Cat(pk->Rec.Dt, DATF_DMY);
+							subst_buf.Cat(pk->GetInvoiceDate(1), DATF_DMY);
 							break;
 						case PPSYM_INVOICENO:
-							if(pk->Ext.InvoiceCode[0])
-								subst_buf = pk->Ext.InvoiceCode;
-							else
-								subst_buf = pk->Rec.Code;
+							subst_buf = pk->GetInvoiceCode(1);
 							break;
 						case PPSYM_AMOUNT: subst_buf.Cat(pk->GetAmount(), MKSFMTD(0, 0, NMBF_TRICOMMA)); break;
 						case PPSYM_LOCCODE:
@@ -10785,7 +10781,7 @@ int PPObjBill::GetDlvrAddrID(const BillTbl::Rec & rBillRec, const PPFreight * pF
 		ArticleTbl::Rec ar_rec;
 		if(ArObj.Fetch(rBillRec.Object, &ar_rec) > 0 && ar_rec.ObjID) {
 			PPObjAccSheet acs_obj;
-			PPAccSheet acs_rec;
+			PPAccSheet2 acs_rec;
 			if(acs_obj.Fetch(ar_rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_LOCATION) {
 				result = ar_rec.ObjID;
 				ok = 2;
@@ -10838,20 +10834,20 @@ PPObjBill::ExportParticipantIdentBlock & PPObjBill::ExportParticipantIdentBlock:
 	return *this;
 }
 
-int PPObjBill::MakeExportParticipantIdentBlock(const PPBillPacket & rBp, ExportParticipantIdentBlock & rBlk) // @v12.6.9
+void PPObjBill::MakeExportParticipantIdentBlock(const PPBillPacket & rBp, ExportParticipantIdentBlock & rBlk) // @v12.6.9
 {
-	int    ok = 1;
 	rBlk.Z();
-	const  PPID main_org_id = GetMainOrgID();
-	THROW(main_org_id);
+	rBlk.MainOrgID = GetMainOrgID(); // @v12.7.7
+	rBlk.ContactorPsnID = ObjectToPerson(rBp.Rec.Object, 0); // @v12.7.7
+	// @v12.7.7 THROW(main_org_id);
 	if(rBp.OpTypeID == PPOPT_CORRECTION) {
 		const  bool is_exp_correction = rBp.IsExpCorrection();
 		if(is_exp_correction) {
-			rBlk.SupplPsnID = main_org_id;
-			rBlk.BuyerPsnID = ObjectToPerson(rBp.Rec.Object, 0);
+			rBlk.SupplPsnID = rBlk.MainOrgID;
+			rBlk.BuyerPsnID = rBlk.ContactorPsnID;
 			rBlk.ConsigneePsnID = rBlk.BuyerPsnID;
 			rBlk.ConsigneeLocID = rBp.GetDlvrAddrID();
-			rBlk.ConsignorPsnID = main_org_id;
+			rBlk.ConsignorPsnID = rBlk.MainOrgID;
 			rBlk.ConsignorLocID = rBp.Rec.LocID;
 		}
 		else { // supplier correction
@@ -10861,28 +10857,28 @@ int PPObjBill::MakeExportParticipantIdentBlock(const PPBillPacket & rBp, ExportP
 	else if(oneof3(rBp.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER)) {
 		PPID   ar2_main_org_id = 0;
 		if(IsIntrExpndOp(rBp.Rec.OpID)) {
-			rBlk.ConsigneePsnID = main_org_id;
+			rBlk.ConsigneePsnID = rBlk.MainOrgID;
 			rBlk.ConsigneeLocID = PPObjLocation::ObjToWarehouse(rBp.Rec.Object);
-			rBlk.SupplPsnID = main_org_id;
+			rBlk.SupplPsnID = rBlk.MainOrgID;
 			rBlk.BuyerPsnID = rBlk.ConsigneePsnID;
-			rBlk.ConsignorPsnID = main_org_id;
+			rBlk.ConsignorPsnID = rBlk.MainOrgID;
 			rBlk.ConsignorLocID = rBp.Rec.LocID;
 			rBlk.Flags |= ExportParticipantIdentBlock::fIntrExpend;
 		}
 		else {
-			rBlk.ConsigneePsnID = ObjectToPerson(rBp.Rec.Object, 0);
+			rBlk.ConsigneePsnID = rBlk.ContactorPsnID;
 			rBlk.ConsigneeLocID = rBp.GetDlvrAddrID();
-			rBlk.SupplPsnID = main_org_id;
+			rBlk.SupplPsnID = rBlk.MainOrgID;
 			rBlk.BuyerPsnID = rBlk.ConsigneePsnID;
-			rBlk.ConsignorPsnID = main_org_id;
+			rBlk.ConsignorPsnID = rBlk.MainOrgID;
 			rBlk.ConsignorLocID = rBp.Rec.LocID;
 		}
 	}
 	else if(oneof2(rBp.OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
 		//wb_type = wbtInvcToMe;
-		rBlk.ConsigneePsnID = main_org_id;
+		rBlk.ConsigneePsnID = rBlk.MainOrgID;
 		rBlk.ConsigneeLocID = rBp.Rec.LocID;
-		rBlk.SupplPsnID = ObjectToPerson(rBp.Rec.Object, 0);
+		rBlk.SupplPsnID = rBlk.ContactorPsnID;
 		rBlk.BuyerPsnID = rBlk.ConsigneePsnID;
 		rBlk.ConsignorPsnID = rBlk.SupplPsnID;
 		rBlk.ConsignorLocID = rBp.GetDlvrAddrID();
@@ -10895,18 +10891,18 @@ int PPObjBill::MakeExportParticipantIdentBlock(const PPBillPacket & rBp, ExportP
 			GetOpData(op_rec.LinkOpID, &link_op_rec);
 			if(link_op_rec.OpTypeID == PPOPT_GOODSRECEIPT) {
 				//wb_type = wbtRetFromMe;
-				rBlk.SupplPsnID = main_org_id;
-				rBlk.ConsigneePsnID = ObjectToPerson(rBp.Rec.Object, 0);
+				rBlk.SupplPsnID = rBlk.MainOrgID;
+				rBlk.ConsigneePsnID = rBlk.ContactorPsnID;
 				rBlk.ConsigneeLocID = rBp.GetDlvrAddrID();
 				rBlk.BuyerPsnID = rBlk.ConsigneePsnID;
-				rBlk.ConsignorPsnID = main_org_id;
+				rBlk.ConsignorPsnID = rBlk.MainOrgID;
 				rBlk.ConsignorLocID = rBp.Rec.LocID;
 			}
 			else if(link_op_rec.OpTypeID == PPOPT_GOODSEXPEND) {
 				//wb_type = wbtRetToMe;
-				rBlk.ConsigneePsnID = main_org_id;
+				rBlk.ConsigneePsnID = rBlk.MainOrgID;
 				rBlk.ConsigneeLocID = rBp.Rec.LocID;
-				rBlk.SupplPsnID = ObjectToPerson(rBp.Rec.Object, 0);
+				rBlk.SupplPsnID = rBlk.ContactorPsnID;
 				rBlk.BuyerPsnID = rBlk.ConsigneePsnID;
 				rBlk.ConsignorPsnID = rBlk.SupplPsnID;
 				rBlk.ConsignorLocID = rBp.GetDlvrAddrID();
@@ -10930,8 +10926,6 @@ int PPObjBill::MakeExportParticipantIdentBlock(const PPBillPacket & rBp, ExportP
 			}
 		}
 	}
-	CATCHZOK
-	return ok;
 }
 
 int PPObjBill::Helper_ExportBnkOrderList(const ListForExport & rList, const char * pSection, StringSet * pResultFileList, PPLogger & rLogger)

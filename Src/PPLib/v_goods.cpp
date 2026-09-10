@@ -2832,19 +2832,24 @@ int PPViewGoods::AddGoodsFromBasket()
 
 int PPViewGoods::AddItem(GoodsListDialog ** ppDlgPtr, PPViewBrowser * pBrw, PPID * pID)
 {
-	int    ok = -1, ta = 0, r;
+	int    ok = -1;
+	int    ta = 0;
+	int    r;
 	PPID   id = 0;
 	ASSIGN_PTR(pID, 0);
 	GoodsListDialog * dlg = 0;
 	if(IsAltFltGroup() || IsGenGoodsFlt()) {
 		if(!GObj.CheckFlag(Filt.GrpID, GF_DYNAMIC)) {
 			if(ppDlgPtr == 0 || *ppDlgPtr == 0) {
-				THROW(CheckDialogPtrErr(&(dlg = new GoodsListDialog(0))));
+				dlg = new GoodsListDialog(0);
+				THROW(CheckDialogPtrErr(&dlg));
 			}
-			else
+			else {
 				dlg = *ppDlgPtr;
+			}
 			ASSIGN_PTR(ppDlgPtr, 0);
-			if((r = ExecView(dlg)) == cmOK || r == cmAutoFill) {
+			r = ExecView(dlg);
+			if(oneof2(r, cmOK, cmAutoFill)) {
 				if(r == cmAutoFill) {
 					ASSIGN_PTR(ppDlgPtr, dlg);
 					if(IsAltFltGroup()) {
@@ -2946,8 +2951,8 @@ int PPViewGoods::AddItem(GoodsListDialog ** ppDlgPtr, PPViewBrowser * pBrw, PPID
 		}
 	}
 	else {
-		PPID   grp_id = (Filt.GrpID > 0 && !(Filt.Flags & GoodsFilt::fGenGoods)) ? Filt.GrpID : 0;
-		PPID   cls_id = Filt.Ep.GdsClsID;
+		const   PPID grp_id = (Filt.GrpID > 0 && !(Filt.Flags & GoodsFilt::fGenGoods)) ? Filt.GrpID : 0;
+		const   PPID cls_id = Filt.Ep.GdsClsID;
 		if(GObj.Edit(&(id = 0), gpkndGoods, grp_id, cls_id, 0) == cmOK) {
 			THROW(UpdateTempTable(id, pBrw));
 			ASSIGN_PTR(pID, id);

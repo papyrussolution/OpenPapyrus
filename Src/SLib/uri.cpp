@@ -1,7 +1,7 @@
 // URI.CPP
 // uriparser - RFC 3986 URI parsing library
 // Copyright(C) 2007, Weijia Song <songweijia@gmail.com>, Sebastian Pipping <webmaster@hartwork.org> All rights reserved.
-// Adopted to SLIB by A.Sobolev 2010..2021, 2023, 2025
+// Adopted to SLIB by A.Sobolev 2010..2021, 2023, 2025, 2026
 // 
 #include <slib-internal.h>
 #pragma hdrstop
@@ -2425,7 +2425,7 @@ const char * FASTCALL UriParserState::StopSyntax(const char * pErrorPos)
 {
 	CALLPTRMEMB(P_Uri, Destroy());
 	P_ErrorPos = pErrorPos;
-	SLS.SetAddedMsgString(pErrorPos); // @v10.3.10
+	SLS.SetAddedMsgString(pErrorPos);
 	ErrorCode = SLERR_URI_SYNTAX;
 	return 0;
 }

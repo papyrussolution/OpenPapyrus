@@ -631,7 +631,7 @@ PPObjCashNode::SelFilt::SelFilt() : LocID(0), SyncGroup(0), OnlyGroups(-1), Pare
 
 PPObjCashNode::PPObjCashNode(void * extraPtr) : PPObjReference(PPOBJ_CASHNODE, extraPtr)
 {
-	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
+	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 }
 
 int PPObjCashNode::DeleteObj(PPID id)
@@ -1334,8 +1334,7 @@ int DivGrpAsscListDialog::setupList()
 		else if(gg_obj.Fetch(p_item->GrpID, &gg_rec) > 0)
 			STRNSCPY(sub, gg_rec.Name);
 		else {
-			// @v10.3.0 (always true) if(p_item->GrpID != 0)
-				PotentialyInvalid = 1;
+			PotentialyInvalid = 1;
 			ltoa(p_item->GrpID, sub, 10);
 		}
 		StringSet ss(SLBColumnDelim);
@@ -2360,15 +2359,11 @@ public:
 			const UiDescription * p_uid = SLS.GetUiDescription();
 			const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 			{
-				SColor _color;
-				if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
-					_color = SClrCoral; 
+				SColor _color = UiDescription::GetColorR(p_uid, p_cs, "invalid_value_input_bg", SClrCoral);
 				Ptb.SetBrush(brushInvalidPath, SPaintObj::bsSolid, _color, 0);
 			}
 			{
-				SColor _color;
-				if(!p_cs || !p_cs->Get("valid_value_input_bg", &p_uid->ClrList, _color))
-					_color = SClrAqua; 
+				SColor _color = UiDescription::GetColorR(p_uid, p_cs, "valid_value_input_bg", SClrAqua);
 				Ptb.SetBrush(brushValidPath,   SPaintObj::bsSolid, _color,  0);
 			}
 		}
@@ -2423,7 +2418,7 @@ IMPL_HANDLE_EVENT(AsyncCashNodeDialog)
 					if(input_buf.NotEmpty()) {
 						StringSet ss(';', input_buf);
 						for(uint ssp = 0; local_result != 0 && ss.get(&ssp, temp_buf);) {
-							temp_buf.Strip().RmvLastSlash().Transf(CTRANSF_INNER_TO_OUTER); // @v11.0.0 Transf(CTRANSF_INNER_TO_OUTER)
+							temp_buf.Strip().RmvLastSlash().Transf(CTRANSF_INNER_TO_OUTER);
 							local_result = (SFile::IsDir(temp_buf) || fileExists(temp_buf)) ? 1 : 0;
 						}
 					}
@@ -2529,8 +2524,8 @@ int PPObjCashNode::EditAsync(PPAsyncCashNode * pACN)
 	PPIDArray test_log_num_list;
 	SString temp_buf;
 	PPObjLocation loc_obj;
-	AsyncCashNodeDialog * dlg = 0;
-	THROW(CheckDialogPtr(&(dlg = new AsyncCashNodeDialog(pACN))));
+	AsyncCashNodeDialog * dlg = new AsyncCashNodeDialog(pACN);
+	THROW(CheckDialogPtr(&dlg));
 	dlg->setCtrlData(CTL_CASHN_NAME, pACN->Name);
 	dlg->setCtrlData(CTL_CASHN_SYMB, pACN->Symb);
 	dlg->setCtrlLong(CTL_CASHN_ID, pACN->ID);

@@ -567,6 +567,17 @@ STestSuite::Entry::Entry() : BmrList(sizeof(Benchmark)), MaxCount(0), SuccCount(
 //
 //
 //
+/*static*/SString & STestSuite::GetTestAppNamedPipe(SString & rBuf) // @v12.7.7
+{
+	return (rBuf = SlConst::P_NamedPipe_TestApp);
+}
+
+/*static*/SStringU & STestSuite::GetTestAppNamedPipe(SStringU & rBuf) // @v12.7.7
+{
+	rBuf.CopyFromUtf8Strict(SlConst::P_NamedPipe_TestApp, sstrlen(SlConst::P_NamedPipe_TestApp));
+	return rBuf;
+}
+
 STestSuite::STestSuite(uint flags) : Flags(flags), CurIdx(0), P_List(new TSCollection <Entry>)
 {
 }

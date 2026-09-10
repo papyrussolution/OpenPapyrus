@@ -26,7 +26,7 @@ int InternetAccountFilter(void * pData, void * extraPtr)
 
 PPObjInternetAccount::PPObjInternetAccount(void * extraPtr) : PPObjReference(PPOBJ_INTERNETACCOUNT, extraPtr)
 {
-	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
+	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 	FiltProc = InternetAccountFilter;
 }
 

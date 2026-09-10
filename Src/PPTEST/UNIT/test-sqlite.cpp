@@ -674,151 +674,75 @@ SLTEST_R(SQLite)
 
 // @v12.7.5 @construction {
 
-struct SQLite_OneWriterManyReaders_Param {
-	SQLite_OneWriterManyReaders_Param() : CountOfWorkers(0), WorkerIdent(0)
-	{
-	}
-	bool   IsValid() const
-	{
-		return (DbPath.NotEmpty() && WorkerIdent > 0 && CountOfWorkers > 0 && WorkerIdent <= CountOfWorkers);
-	}
-	uint   CountOfWorkers;
-	uint   WorkerIdent;
-	SString DbPath;
-};
-
-int SQLite_OneWriterManyReaders_ProcessBodyFunc(const SQLite_OneWriterManyReaders_Param & rP)
+SLTEST_R(SQLite_OneWriterManyReaders) 
 {
-	int    ok = 1;
-	THROW(rP.IsValid());
+	//SLIA_PPTest_SQLite_OneWriterManyReaders
+	SString temp_buf;
+	SString mime_buf;
+	SString slia_path;
+	SString working_dir;
+	SString db_file_name;
+	const  uint max_recs_count = 4000;
+	const  uint count_of_workers = 4;
+	const  bool run_debug_session = false;
+	PPGetPath(PPPATH_BIN, slia_path);
+	working_dir = slia_path;
+	slia_path.SetLastSlash().Cat("slia.exe");
+	temp_buf = slia_path;
+	SFsPath::NormalizePath(temp_buf, SFsPath::npfCompensateDotDot, slia_path);
+	//
+	SLS.QueryPath("testroot", db_file_name);
+	(db_file_name = GetSuiteEntry()->OutPath).SetLastSlash().Cat("SQLite").SetLastSlash().Cat("test-SQLite_OneWriterManyReaders-db"); // Без расширения!
+    const SString db_path(db_file_name);
 	{
-		SString temp_buf;
-		SString test_file_path;
-		PPGetPath(PPPATH_TESTROOT, test_file_path);
-		test_file_path.SetLastSlash().Cat("data").SetLastSlash().Cat("ts-eurusd.csv");
-		SFile f_in(test_file_path, SFile::mRead);
-		THROW_SL(f_in.IsValid());
-		{
-			StringSet ss; // Набор тестовых строк для вставки в базу данных
-			StringSet ss_written;
-			LocalStateBinderyCore instance(SConstructorTest, rP.DbPath);
-			THROW(instance.IsValid());
-			{
-				uint   line_n = 0;
-				while(f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-					line_n++;
-					if(temp_buf.NotEmpty()) {
-						if((line_n % rP.CountOfWorkers) == rP.WorkerIdent || ((line_n % rP.CountOfWorkers) == 0 && rP.WorkerIdent == rP.CountOfWorkers)) {
-							ss.add(temp_buf);
-						}
-					}
-				}
-				THROW(ss.IsCountGreaterThan(99));
-			}
-			{
+		SFile::RemoveDir(db_path); // Если каталог базы данных уже существует - удаляем
+		LocalStateBinderyCore instance(SConstructorTest, db_path);
+		THROW(SLCHECK_NZ(instance.IsValid()));
+		// здесь деструктор грохнет instance - он нам больше не нужен
+	}
+	if(run_debug_session) {
+		PPTest_SQLite_OneWriterManyReaders_Block blk;
+		blk.MaxRecsCount = 1000;
+		blk.CountOfWorkers = 1;
+		blk.WorkerIdent = 1;
+		blk.DbPath = db_path;
+		THROW(blk.DoProcess(true));
+	}
+	else {
+		HANDLE process_h_list[256];
+		uint   process_h_list_count = 0;
+		for(uint i = 1; i <= count_of_workers; i++) {
+			SlProcess p;
+			PPTest_SQLite_OneWriterManyReaders_Block blk;
+			blk.MaxRecsCount = max_recs_count;
+			blk.CountOfWorkers = count_of_workers;
+			blk.WorkerIdent = i;
+			blk.DbPath = db_path;
+			if(blk.ToJson(temp_buf)) {
+				mime_buf.EncodeMime64(temp_buf.cptr(), temp_buf.Len());
 				//
-				// Действия одной фазы цикла
-				//
-				enum {
-					opDummy = 1, // холостой ход (просто delay)
-					opRead  = 2,
-					opWrite = 3,
-				};
-				LongArray scheme; // Список действий, исполняемых в течении цикла
-				const  uint dummy_timeout = 100 + SLS.GetTLA().Rg.GetUniformIntPos(500);
-				{
-					const  uint dummy_op_count = 2 + SLS.GetTLA().Rg.GetUniformIntPos(10);
-					const  uint read_op_count = 1 + SLS.GetTLA().Rg.GetUniformIntPos(3);
-					const  uint write_op_count = 1;
-					{
-						for(uint i = 0; i < dummy_op_count; i++) {
-							scheme.add(opDummy);
-						}
-					}
-					{
-						for(uint i = 0; i < read_op_count; i++) {
-							scheme.add(opRead);
-						}
-					}
-					{
-						for(uint i = 0; i < write_op_count; i++) {
-							scheme.add(opWrite);
-						}
-					}
-					scheme.shuffle();
-				}
-				const  uint items_to_write = 10; // Количество элементов, которые будут внесены в бд за один цикл записи
-				uint   items_written = 0;
-				uint   cycle_n = 0;
-				uint   ssp_write = 0; // Указатель на очередную строку ss для записи в instance
-				SBuffer buf_to_write;
-				SBuffer buf_to_read;
-				LocalStateBinderyCore::StateIdent ident;
-				ident.Kind = LocalStateBinderyCore::kInput;
-				ident.Subj = rP.WorkerIdent;
-				ident.Symb = "Test_SQLite_OneWriterManyReaders";
-				for(bool done = false; !done; cycle_n++) {
-					const  int op = scheme.get(cycle_n % scheme.getCount());
-					switch(op) {
-						case opDummy:
-							SDelay(dummy_timeout);
-							break;
-						case opRead:
-							{
-								TSCollection <LocalStateBinderyCore::SerialEntry> s;
-								instance.GetStateSerial(ident, &s);
-								bool   is_eq = true;
-								uint   ssp_written = 0;
-								for(uint i = 0; is_eq && i < s.getCount(); i++) {
-									const LocalStateBinderyCore::SerialEntry * p_entry = s.at(i);
-									is_eq = false;
-									if(ss_written.get(&ssp_written, temp_buf)) {
-										if(p_entry) {
-											const  size_t bl = p_entry->Buf.GetAvailableSize();
-											SString & r_s_buf = SLS.AcquireRvlStr();
-											r_s_buf.CatN(p_entry->Buf.GetBufC(p_entry->Buf.GetRdOffs()), bl);
-											if(r_s_buf == temp_buf) {
-												is_eq = true;
-											}
-										}
-									}
-								}
-								if(!is_eq) {
-									; // @todo @msg
-								}
-							}
-							break;
-						case opWrite:
-							{
-								for(uint i = 0; !done && i < items_to_write; i++) {
-									if(ss.get(&ssp_write, temp_buf)) {
-										PPID   state_id = 0;
-										buf_to_write.Z().Write(temp_buf.cptr(), temp_buf.Len());
-										int r = instance.RegisterState(&state_id, ident, buf_to_write, 1);
-										if(r) {
-											ss_written.add(temp_buf);
-										}
-										else {
-											;
-										}
-									}
-									else {
-										done = true;
-									}
-								}
-							}
-							break;
-					}
+				p.SetFlags(SlProcess::fNewConsole);
+				p.SetPath(slia_path);
+				p.SetWorkingDir(working_dir);
+				p.AddArg("execfunc:SLIA_PPTest_SQLite_OneWriterManyReaders"); // SLIA_PPTest_SQLite_OneWriterManyReaders defined at ppdbutil.cpp
+				p.AddArg(temp_buf.Z().Cat("execfuncarg").Colon().Cat(mime_buf));
+				SlProcess::Result result;
+				const int run_result = p.Run(&result);
+				SLCHECK_NZ(run_result);
+				if(run_result) {
+					process_h_list[process_h_list_count++] = result.HProcess;
+					result.HProcess = 0; // Важно! иначе деструктор SlProcess::Result грохнет этот дескриптор
 				}
 			}
 		}
+		::WaitForMultipleObjects(process_h_list_count, process_h_list, TRUE/*bWaitAll*/, INFINITE);
+		for(uint hi = 0; hi < process_h_list_count; hi++) {
+			::CloseHandle(process_h_list[hi]);
+		}
 	}
-	CATCHZOK
-	return ok;
-}
-
-SLTEST_R(SQLite_OneWriterManyReaders) 
-{
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
 	return CurrentStatus;
 }
 // } @v12.7.5

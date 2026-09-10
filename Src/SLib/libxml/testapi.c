@@ -13936,8 +13936,7 @@ static int test_xmlSAXParseEntity() {
 			des_filepath(n_filename, filename, 1);
 			xmlResetLastError();
 			if(mem_base != xmlMemBlocks()) {
-				printf("Leak of %d blocks found in xmlSAXParseEntity",
-				    xmlMemBlocks() - mem_base);
+				printf("Leak of %d blocks found in xmlSAXParseEntity", xmlMemBlocks() - mem_base);
 				test_ret++;
 				printf(" %d", n_sax);
 				printf(" %d", n_filename);
@@ -13981,8 +13980,7 @@ static int test_xmlSAXParseFile()
 				des_int(n_recovery, recovery, 2);
 				xmlResetLastError();
 				if(mem_base != xmlMemBlocks()) {
-					printf("Leak of %d blocks found in xmlSAXParseFile",
-					    xmlMemBlocks() - mem_base);
+					printf("Leak of %d blocks found in xmlSAXParseFile", xmlMemBlocks() - mem_base);
 					test_ret++;
 					printf(" %d", n_sax);
 					printf(" %d", n_filename);

@@ -12,9 +12,7 @@
 #define DYN_LINK_CMT(t) _Register_##t()
 
 // @v12.3.9 DECLARE_CMT(EL92AQ);
-// @v10.4.5 DECLARE_CMT(AMC100);
 DECLARE_CMT(SMUKM30);
-// @v10.4.5 DECLARE_CMT(AMC200);
 DECLARE_CMT(SYNCSYM);
 DECLARE_CMT(CRUKM);
 DECLARE_CMT(CRCSHSRV);
@@ -95,9 +93,7 @@ int PPCashMachine::SyncOrAsync(int cashID, int & rS)
 	int    s = 0; // @vmiller
 	if(P_RegData == 0) {
 		// @v12.3.9 DYN_LINK_CMT(EL92AQ);
-		// @v10.4.5 DYN_LINK_CMT(AMC100);
 		DYN_LINK_CMT(SMUKM30);
-		// @v10.4.5 DYN_LINK_CMT(AMC200);
 		DYN_LINK_CMT(SYNCSYM);
 		DYN_LINK_CMT(CRUKM);
 		DYN_LINK_CMT(CRCSHSRV);
@@ -1176,7 +1172,8 @@ int PPCashMachine::SyncPrintIncasso()
 	TDialog * dlg = 0;
 	CmLocking cml(NodeRec);
 	THROW(cml);
-	THROW(CheckDialogPtrErr(&(dlg = new TDialog(SLS.CheckUiFlag(sluifUseLargeDialogs) ? DLG_INCASSO_L : DLG_INCASSO))));
+	dlg = new TDialog(SLS.CheckUiFlag(sluifUseLargeDialogs) ? DLG_INCASSO_L : DLG_INCASSO);
+	THROW(CheckDialogPtrErr(&dlg));
 	dlg->setCtrlReal(CTL_INCASSO_SUM,  sum);
 	dlg->setCtrlUInt16(CTL_INCASSO_TYPE, v);
 	while(ok <= 0 && ExecView(dlg) == cmOK) {

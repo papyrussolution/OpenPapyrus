@@ -117,6 +117,55 @@ static const ChZnProductTypeToOfficial ChZnProductTypeToOfficialList[] = {
 	return result;
 }
 
+static uint MinMarks(uint itemQtty, uint minPackage, uint markCount)
+{
+	uint   result = 0;
+	if(minPackage > 0) {
+		uint   rem = itemQtty;
+		uint   level_size = (itemQtty / minPackage) * minPackage;
+		SETMAX(level_size, 4); // Не думаю, что может быть больше 4-х уровней упаковки (но лучше это параметром или внешней константой задать)
+		while(rem > 0) {
+			uint _count = rem / level_size;
+			result += _count;
+			rem %= level_size;
+			level_size /= minPackage;
+		}
+	}
+	else
+		result = itemQtty;
+	return result;
+}
+
+/*static*/int PPChZnPrcssr::EstimateQuantityAdequacy(uint itemQtty, uint minPackage, uint markCount)
+{
+	if(markCount == itemQtty) // всё поштучно — OK
+		return 1; 
+	else if(minPackage <= 1) // упаковка тривиальна, марок должно быть == Q
+		return -50; 
+	else if(markCount > itemQtty) // марок больше товара
+		return -100; 
+	else if(markCount == 0) // марок нет вообще
+		return -75; 
+	else {
+		// --- Точная проверка ---
+		const uint d = itemQtty - markCount;    // суммарная 'экономия' марок
+		const uint P = minPackage;
+		// Минимальное число упаковок, совместимое с mod P:
+		//   каждая упаковка kP экономит (kP - 1) ≡ (P-1) ≡ -1 (mod P)
+		//   сумма экономий d = P·K - m  ⇒  m ≡ -d (mod P)
+		const uint r = d % P;
+		const uint m_min = (r > 0) ? (P - r) : P;
+		// Максимальное число упаковок:
+		//   каждая экономит ≥ P-1, значит m·(P-1) ≤ d
+		//   и, конечно, m ≤ N (на каждую упаковку нужна марка)
+		const uint m_max = smin(markCount, d / (P - 1));
+		if(m_min > m_max)
+			return -30; // невозможно разложить
+		else
+			return 1; // OK
+	}
+}
+
 class ChZnInterface {
 public:
 	enum {

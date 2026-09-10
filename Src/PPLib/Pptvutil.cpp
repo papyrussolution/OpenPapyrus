@@ -17,7 +17,7 @@ TWindow * PPApp::FindPhonePaneDialog()
 	return 0;
 }
 
-bool FASTCALL GetModelessStatus(bool outerModeless) { return outerModeless; }
+bool   FASTCALL GetModelessStatus(bool outerModeless) { return outerModeless; }
 TView * ValidView(TView * pView) { return APPL->validView(pView); }
 ushort FASTCALL ExecView(TWindow * pView) { return pView ? APPL->P_DeskTop->execView(pView) : cmError; }
 ushort FASTCALL ExecView(TBaseBrowserWindow * pView) { return pView ? APPL->P_DeskTop->execView(pView) : cmError; }
@@ -1022,7 +1022,7 @@ int SetupTreeListBox(TDialog * dlg, uint ctl, StrAssocArray * pData, uint fl, ui
 	SmartListBox * p_box = static_cast<SmartListBox *>(dlg->getCtrlView(ctl));
 	if(p_box) {
 		p_box->ViewOptions |= lbfl;
-		StdTreeListBoxDef * p_def = new StdTreeListBoxDef(pData, NZOR(fl, (lbtDisposeData|lbtDblClkNotify)), 0);
+		StdTreeListBoxDef * p_def = new StdTreeListBoxDef(pData, NZOR(fl, (lbtDisposeData|lbtDblClkNotify)));
 		if(p_def == 0)
 			ok = PPSetErrorNoMem();
 		else {
@@ -1316,7 +1316,7 @@ int Lst2LstObjDialog::setupRightTList()
 		THROW_SL(p_list->Add(id, parent_id, name_buf));
 	}
 	p_list->SortByText();
-	p_def = new StdTreeListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify, 0);
+	p_def = new StdTreeListBoxDef(p_list, lbtDisposeData|lbtDblClkNotify);
 	THROW_MEM(p_def);
 	p_r_lbx->setDef(p_def);
 	p_r_lbx->P_Def->go(0);
@@ -1389,7 +1389,7 @@ int Lst2LstObjDialog::setupLeftList()
 		}
 		// } @v12.7.0 
 		if(Data.Flags & ListToListData::fIsTreeList)
-			p_def = new StdTreeListBoxDef(p_data, lbd_options, 0);
+			p_def = new StdTreeListBoxDef(p_data, lbd_options);
 		else
 			p_def = new StrAssocListBoxDef(p_data, lbd_options);
 	}
@@ -1421,7 +1421,7 @@ bool Lst2LstObjDialog::IsSelectionByTagEnabled(PPID * pRealObjType)
 			const ArticleFilt * p_ar_filt = static_cast<const ArticleFilt *>(Data.ExtraPtr);
 			if(p_ar_filt->AccSheetID) {
 				PPObjAccSheet acs_obj;
-				PPAccSheet acs_rec;
+				PPAccSheet2 acs_rec;
 				if(acs_obj.Fetch(p_ar_filt->AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON) {
 					real_obj_type = PPOBJ_PERSON;
 					yes = true;	
@@ -1465,11 +1465,11 @@ int Lst2LstObjDialog::SelectByTag()
 			assert(real_obj_type);
 			TagFilt tag_filt;
 			if(EditTagFilt(real_obj_type, &tag_filt) > 0) {
-				PPID acs_id = 0;
-				PPAccSheet acs_rec;
+				PPID   acs_id = 0;
+				PPAccSheet2 acs_rec;
 				if(Data.ObjType == PPOBJ_ARTICLE) {
 					if(Data.ExtraPtr) {
-						const ArticleFilt * p_ar_filt = static_cast<const ArticleFilt *>(Data.ExtraPtr);
+						const  ArticleFilt * p_ar_filt = static_cast<const ArticleFilt *>(Data.ExtraPtr);
 						if(p_ar_filt->AccSheetID) {
 							PPObjAccSheet acs_obj;
 							if(acs_obj.Fetch(p_ar_filt->AccSheetID, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_PERSON) {
@@ -1547,15 +1547,13 @@ int Lst2LstObjDialog::addItem()
 	int    ok = 1;
 	SmartListBox * p_view = GetLeftList();
 	LongArray sel_list;
-	uint sc = GetLeftSelectionList(&sel_list);
-	//
-	//if(p_view && p_view->getCurID(&id) && id && !Data.P_List->lsearch(id)) {
-	if(p_view && sel_list.getCount()) {
+	const  uint sc = p_view ? GetLeftSelectionList(&sel_list) : 0;
+	if(sel_list.getCount()) {
 		for(uint i = 0; i < sel_list.getCount(); i++) {
-			PPID id = sel_list.get(i);
+			const  PPID id = sel_list.get(i);
 			if(id > 0) {
 				if(Data.Flags & ListToListData::fIsTreeList) {
-					THROW(Helper_AddItemRecursive(id, (StdTreeListBoxDef *)p_view->P_Def));
+					THROW(Helper_AddItemRecursive(id, static_cast<StdTreeListBoxDef *>(p_view->P_Def)));
 				}
 				else {
 					THROW(Data.P_List->add(id));
@@ -1577,8 +1575,8 @@ int FASTCALL Lst2LstObjDialog::Helper_RemoveItemRecursive(PPID id, StdTreeListBo
 		LongArray child_list;
 		THROW_SL(pDef->GetListByParent(id, child_list));
 		for(uint i = 0; i < child_list.getCount(); i++) {
-			int r;
-			THROW(r = Helper_RemoveItemRecursive(child_list.get(i), pDef)); // @recursion
+			const  int r = Helper_RemoveItemRecursive(child_list.get(i), pDef); // @recursion
+			THROW(r); 
 			if(r > 0)
 				ok = 1;
 		}
@@ -1689,8 +1687,10 @@ int GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf)
 	int    ini_sect_id = PPAbstractDevice::GetDrvIniSectByDvcClass(dvcClass, &str_id, 0);
 	if(ini_sect_id) {
 		int    idx = 0;
-		//uint   old_dev_count = 0;
-		SString line_buf, item_buf, id_buf, txt_buf;
+		SString line_buf;
+		SString item_buf;
+		SString id_buf;
+		SString txt_buf;
 		SString path;
 		PPGetFilePath(PPPATH_BIN, "ppdrv.ini", path);
 		PPIniFile ini_file(path);
@@ -1711,7 +1711,8 @@ int GetDeviceTypeName(uint dvcClass, PPID deviceTypeID, SString & rBuf)
 			}
 		}
 		if(ok < 0 && GetStrFromDrvIni(ini_file, ini_sect_id, deviceTypeID, /*old_dev_count*/PPCMT_FIRST_DYN_DVC, line_buf)) {
-			SString symbol, drv_name;
+			SString symbol;
+			SString drv_name;
 			int    drv_impl = 0;
 			if(PPAbstractDevice::ParseRegEntry(line_buf, symbol, drv_name, path, &drv_impl)) {
 				rBuf = drv_name;
@@ -1868,7 +1869,7 @@ int STDCALL SetupStrAssocTreeCombo(TWindow * dlg, uint ctlID, const StrAssocArra
 		const  uint options = ownerDrawListBox ? (lbtOwnerDraw|lbtDisposeData|lbtDblClkNotify) : (lbtDisposeData|lbtDblClkNotify);
 		StrAssocArray * p_list = new StrAssocArray(rList);
 		THROW_MEM(p_list);
-		THROW_MEM(p_lw = new ListWindow(new StdTreeListBoxDef(p_list, options, MKSTYPE(S_ZSTRING, 128)), 0));
+		THROW_MEM(p_lw = new ListWindow(new StdTreeListBoxDef(p_list, options), 0));
 		p_cb->setListWindow(p_lw, initID);
 	}
 	CATCHZOK
@@ -3442,8 +3443,8 @@ void SpecialInputCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 {
 	if(P_Ad) {
 		if(TVCMD == cmIdle) {
-			TView * p_il = pDlg->getCtrlView(CtlId);
-			if(TView::IsSubSign(p_il, TV_SUBSIGN_INPUTLINE)) {
+			TView * p_il = pDlg->getCtrlViewEnsureSubsign(CtlId, TV_SUBSIGN_INPUTLINE);
+			if(p_il) {
 				if(RdTimer.Check(0) && !p_il->IsInState(sfDisabled|sfReadOnly)) {
 					P_Ad->RunCmd("LISTEN", Out.Z());
 					SString temp_buf;
@@ -3952,10 +3953,10 @@ PersonSelExtra::PersonSelExtra(PPID accSheetID, PPID personKindID) : WordSel_Ext
 		InhRegTypeList.sort();
 	}
 	if(AccSheetID > 0 && PersonKindID == 0) {
-		PPAccSheet acct_rec;
-		PPObjAccSheet acct_obj;
-		if(acct_obj.Fetch(AccSheetID, &acct_rec) > 0)
-			SrchRegTypeID = acct_rec.CodeRegTypeID;
+		PPAccSheet2 acs_rec;
+		PPObjAccSheet acs_obj;
+		if(acs_obj.Fetch(AccSheetID, &acs_rec) > 0)
+			SrchRegTypeID = acs_rec.CodeRegTypeID;
 	}
 	if(PersonKindID > 0) {
 		PPPersonKind psnk_rec;
@@ -8445,10 +8446,10 @@ void PPDialogConstructor::InsertControlItems(TWindow * pW, DlContext & rCtx, con
 					break;
 				case UiItemKind::kTreeListbox: 
 					if(stage == insertctrlstageMain) {
-						TRect rc;
-						const uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
+						TRect  rc;
+						const  uint gnrr = SUiLayoutParam::GetNominalRectWithDefaults(&lp, rc, 60.0f, 60.0f);
 						SString column_description;
-						StdTreeListBoxDef * p_lb_def = new StdTreeListBoxDef(0, lbtDisposeData|lbtDblClkNotify, 0);
+						StdTreeListBoxDef * p_lb_def = new StdTreeListBoxDef(0, lbtDisposeData|lbtDblClkNotify);
 						SmartListBox * p_lb = new SmartListBox(rc, p_lb_def, true/*is_tree*/);
 						if(p_lb) {
 							//LldState |= lldsDefBailed;

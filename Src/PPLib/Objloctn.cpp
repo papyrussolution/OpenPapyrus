@@ -413,7 +413,7 @@ void PPObjLocation::InitInstance(SCtrSpecial sctr, void * extraPtr)
 {
 	Sctr = sctr;
 	TLP_OPEN(P_Tbl);
-	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
+	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 	P_CurrFilt = 0;
 	P_WObj = 0;
 	P_RegObj = 0;
@@ -3726,7 +3726,7 @@ uint PPObjLocation::GetWarehouseList(PPIDArray * pList, bool * pHasRestrictions)
 		const  PPID loc_acs_id = LConfig.LocAccSheetID;
 		if(GetArticleSheetID(arID, &acs_id, &lnk_obj_id) > 0 && acs_id == loc_acs_id) {
 			PPObjAccSheet acs_obj;
-			PPAccSheet acs_rec;
+			PPAccSheet2 acs_rec;
 			if(acs_obj.Fetch(acs_id, &acs_rec) > 0 && acs_rec.Assoc == PPOBJ_LOCATION) {
 				ASSIGN_PTR(pAcsID, acs_id);
 				const int is_enabled = ignoreRights ? 1 : ObjRts.CheckLocID(lnk_obj_id, 0);

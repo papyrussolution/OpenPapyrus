@@ -1,20 +1,13 @@
-/*
- * xmlsave.c: Implemetation of the document serializer
- *
- * See Copyright for the status of this software.
- *
- * daniel@veillard.com
- */
+// xmlsave.c
+// Implemetation of the document serializer
+// See Copyright for the status of this software.
+// daniel@veillard.com
+//
 #include <slib-internal.h>
 #pragma hdrstop
 #include <libxml\xmlsave.h>
-
-#ifdef LIBXML_OUTPUT_ENABLED
-#endif /* LIBXML_OUTPUT_ENABLED */
 //
 #define MAX_INDENT 60
-
-// @v10.6.5 #include "save.h"
 // 
 // XHTML detection
 // 

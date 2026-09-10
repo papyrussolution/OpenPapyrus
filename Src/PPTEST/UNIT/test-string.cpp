@@ -844,22 +844,19 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					//SLCHECK_NZ(satof(p_text, &v_satof));
 					//SLCHECK_EQ(v_satof, v_atof);
 
-					const char * p_end = 0;
-					int erange = 0;
-					//SLCHECK_NZ(dconvstr_scan(p_text, &p_end, &v_satof, &erange));
-					v_satof = satof(p_text); // @v10.7.9 dconvstr_scan-->satof
+					const  char * p_end = 0;
+					int    erange = 0;
+					v_satof = satof(p_text);
 					SLCHECK_EQ(v_satof, v_atof);
 				}
 				SString atof_buf;
 				for(uint j = 0; j < F.RandomRealList.getCount(); j++) {
 					atof_buf.Z().Cat(F.RandomRealList.at(j), MKSFMTD(0, 20, NMBF_NOTRAILZ));
 					double v_satof;
-					const double v_atof = atof(atof_buf);
-					const char * p_end = 0;
-					int erange = 0;
-					//SLCHECK_NZ(dconvstr_scan(atof_buf, &p_end, &v_satof, &erange));
-					v_satof = satof(atof_buf); // @v10.7.9 dconvstr_scan-->satof
-					//SLCHECK_NZ(satof(atof_buf, &v_satof));
+					const  double v_atof = atof(atof_buf);
+					const  char * p_end = 0;
+					int    erange = 0;
+					v_satof = satof(atof_buf);
 					SLCHECK_EQ(v_satof, v_atof);
 				}
 			}

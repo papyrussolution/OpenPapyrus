@@ -4905,7 +4905,7 @@ class PPObjWorkbook_Pre813 : public PPObjReference {
 public:
 	explicit PPObjWorkbook_Pre813(void * extraPtr = 0) : PPObjReference(PPOBJ_WORKBOOK_PRE813, extraPtr)
 	{
-		ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
+		ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 	}
 	int    GetPacket(PPID id, PPWorkbookPacket_Pre813 * pPack);
 	int    RemovePacket(PPID id, int use_ta);

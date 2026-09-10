@@ -1422,7 +1422,10 @@ int PPObjPerson::Import(int specKind, int use_ta)
 {
 	int    ok = 1;
 	IterCounter cntr;
-	SString in_file_name, file_name, temp_buf, wait_msg;
+	SString in_file_name;
+	SString file_name;
+	SString temp_buf;
+	SString wait_msg;
 	int    codetohex = 0;
 	PPIDArray kind_list;
 	PPID   status_id = 0;
@@ -1434,7 +1437,7 @@ int PPObjPerson::Import(int specKind, int use_ta)
 	else
 		sect = PPINISECT_IMP_PERSON;
 	FILE * rel_file = 0;
-	PPObjArticle arobj;
+	PPObjArticle ar_obj;
 	PPObjWorld w_obj;
 	PPObjPersonStatus ps_obj;
 	PPObjRegisterType rt_obj;
@@ -1538,9 +1541,9 @@ int PPObjPerson::Import(int specKind, int use_ta)
 			PPObjRegisterType::GetByCode(temp_buf.Strip(), &reg_type_id);
 			if(reg_type_id == 0) {
 				if(specKind == PPPRK_SUPPL) {
-					PPID acc_sheet_id = GetSupplAccSheet();
-					PPAccSheet acs_rec;
-					if(SearchObject(PPOBJ_ACCSHEET, acc_sheet_id, &acs_rec) > 0)
+					const  PPID acs_id = GetSupplAccSheet();
+					PPAccSheet2 acs_rec;
+					if(SearchObject(PPOBJ_ACCSHEET, acs_id, &acs_rec) > 0)
 						reg_type_id = acs_rec.CodeRegTypeID;
 				}
 			}
@@ -1561,12 +1564,12 @@ int PPObjPerson::Import(int specKind, int use_ta)
 						else
 							pack.Rec.Status = NZOR(status_id, PPPRS_LEGAL);
 						pack.Kinds.copy(kind_list);
-						if(rec.get(fldn_vatfree, temp_buf, 1))
+						if(rec.get(fldn_vatfree, temp_buf, 1)) {
 							if(temp_buf.ToLong() == 1 || temp_buf.IsEqiAscii("Yes") || temp_buf.IsEqiAscii("Y"))
 								pack.Rec.Flags |= PSNF_NOVATAX;
+						}
 						rec.get(fldn_memo, temp_buf);
-						// @v11.1.12 temp_buf.Strip().CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
-						pack.SMemo = temp_buf.Strip(); // @v11.1.12
+						pack.SMemo = temp_buf.Strip();
 						if(reg_type_id) {
 							rec.get(fldn_code, temp_buf);
 							if(codetohex) {

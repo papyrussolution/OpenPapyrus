@@ -136,7 +136,7 @@ int FASTCALL GetCliBnkSections(StringSet * pSectNames, int kind, PPCliBnkImpExpP
 		for(uint p = 0; all_sections.get(&p, section);)
 			if(!section.IsEqiAscii(all_fields_name)) {
 				param.OtrRec.Clear();
-				param.HdrOtrRec.Clear(); // @v10.1.11 @fix
+				param.HdrOtrRec.Clear();
 				if(param.ReadIni(&ini_file, section, 0)) {
 					if((kind == 1 && param.Direction == 0) || (kind == 2 && param.Direction == 1) || kind == 0)
 						pSectNames->add(section);
@@ -411,8 +411,9 @@ static int ResolveAssocCollision(SVector * pA, const BankStmntItem * pItem)
 			PPObjPerson psn_obj;
 			PersonTbl::Rec r;
 			for(uint i = 0; P_A->enumItems(&i, (void **)&p_a);) {
-				if(p_a->P_Item->OpID == opID && psn_obj.Fetch(p_a->PersonID, &r) > 0) // @v10.3.12 Search-->Fetch
+				if(p_a->P_Item->OpID == opID && psn_obj.Fetch(p_a->PersonID, &r) > 0) {
 					persons.Add(p_a->PersonID, r.Name);
+				}
 			}
 			PPID   s = persons.getCount() ? persons.Get(0).Id : 0;
 			SetupStrAssocCombo(this, CTLSEL_ASCRES_PERSON, persons, s, 0);
@@ -676,8 +677,9 @@ int ClientBankImportDef::ImportAll()
 			//we know best association - this is a best_assoc[0]
 			{
 				const  Assoc * p_assoc = static_cast<const Assoc *>(best_assoc.at(0));
-				PPID   obj2_ar_id = 0, agent_id = 0;
-				PPAccSheet acs_rec2;
+				PPID   obj2_ar_id = 0;
+				PPID   agent_id = 0;
+				PPAccSheet2 acs_rec2;
 				PPOprKind2 op_rec;
 				if(op_obj.Search(p_assoc->P_Item->OpID, &op_rec) > 0 && op_rec.AccSheet2ID && acc_sheet_obj.Fetch(op_rec.AccSheet2ID, &acs_rec2) > 0) {
 					if(acs_rec2.Assoc == PPOBJ_PERSON) {
@@ -911,7 +913,7 @@ int Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBillID, P
 				STRNSCPY(data_buf.DebtBillCode, debt_rec.Code);
 			}
 		}
-		data_buf.FormalPurpose = p_order->FormalPurpose; // @v10.7.11
+		data_buf.FormalPurpose = p_order->FormalPurpose;
 		PPSetAddedMsgString(P.FileName);
 		THROW(P_ImEx->AppendRecord(&data_buf, sizeof(data_buf)));
 		AcceptedCount++;
@@ -1142,7 +1144,7 @@ int SetupCliBnkAssoc()
 			uint   i;
 			PPOprKind2 op_rec;
 			PPObjAccSheet acs_obj;
-			PPAccSheet acs_rec;
+			PPAccSheet2 acs_rec;
 			SString temp_buf;
 			SVector cfg(sizeof(BankStmntAssocItem));
 			BankStmntAssocItem * p_assoc_item;

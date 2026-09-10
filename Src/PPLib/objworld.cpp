@@ -360,7 +360,7 @@ TLP_IMPL(PPObjWorld, WorldTbl, P_Tbl);
 PPObjWorld::PPObjWorld(void * extraPtr) : PPObject(PPOBJ_WORLD), ExtraPtr(extraPtr)
 {
 	TLP_OPEN(P_Tbl);
-	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
+	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 }
 
 PPObjWorld::~PPObjWorld()
@@ -1596,10 +1596,7 @@ int PPObjWorld::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 
 IMPL_DESTROY_OBJ_PACK(PPObjWorld, PPWorldPacket);
 
-const char * PPObjWorld::GetNamePtr()
-{
-	return P_Tbl->data.Name;
-}
+const char * PPObjWorld::GetNamePtr() { return P_Tbl->data.Name; }
 //
 // @todo Срочно!!!
 //

@@ -1525,9 +1525,9 @@ private:
 //
 class PPDbqFuncPool {
 public:
-	static int IdEmpty;             //
-	static int IdBillDebt;          //
-	static int IdCQtty;             //
+	static int IdEmpty;
+	static int IdBillDebt;
+	static int IdCQtty;
 	static int IdTrfrPrice;         // (fldOpID, fldCost, fldPrice, fldDiscount)
 	static int IdObjNameBillStatus; // (fldBillStatusID)
 	static int IdObjNameOprKind;    // (fldOpID)
@@ -1640,11 +1640,11 @@ public:
 	static int IdBillDate;          // (billID) Дата документа по его идентификатору
 	static int IdUnxText;           // (fldObjType, fldObjID, fldTxtProp)
 	static int IdIsTxtUuidEq;       // (fldUUID_s, GUID) Определяет эквивалентность строкового представления GUID значению второго аргумента
-	static int IdArIsCatPerson;     // @v11.1.9 (fldArticle, personCategoryID) Определяет соотносится ли статья fldArticle с персоналией, имеющей категорию personCategoryID
-	static int IdObjMemoPerson;     // @v11.1.12 (fldPersonID)
-	static int IdObjMemoPersonEvent; // @v11.1.12 (fldPersonEventID)
-	static int IdTechCapacity;      // @v11.3.10 (fldPrcID, fldCapacity)
-	static int IdTSessBillLinkTo;   // @v11.6.12 (fldBillID)
+	static int IdArIsCatPerson;     // (fldArticle, personCategoryID) Определяет соотносится ли статья fldArticle с персоналией, имеющей категорию personCategoryID
+	static int IdObjMemoPerson;     // (fldPersonID)
+	static int IdObjMemoPersonEvent; // (fldPersonEventID)
+	static int IdTechCapacity;      // (fldPrcID, fldCapacity)
+	static int IdTSessBillLinkTo;   // (fldBillID)
 	static int IdTSessBillLinkTo_Text; // @v11.6.12 (fldBillID)
 	static int IdBillMemoSubStr;    // @v11.7.4 (fldBillID, const char *) Определяет, содержит ли примечание к документу заданную подстроку
 	static int IdBillAmount;        // @v12.1.0 (fldBillID, amountType)
@@ -2130,6 +2130,7 @@ private:
 	int   RegisterInMemState(PPID id, int64 uedTm, const StateIdent & rIdent, SBuffer & rRawData);
 	const InMemStateEntry * SearchInMemState(const StateIdent & rIdent, uint * pPos) const;
 	const InMemSerialEntry * SearchInMemSerial(const StateIdent & rIdent, uint * pPos);
+	ued_t AdjustTime(int kind, ued_t uedTime);
 };
 //
 // PPMsgLog
@@ -3927,7 +3928,7 @@ struct PPSecur2 {          // @persistent @store(Reference2Tbl+)
 	char   Name[48];       // @name @!refname
 	char   Symb[20];       // @unused
 	char   Password[40];   // (USER only) Пароль (зашифрован и свернут в строку кодировкой MIME64)
-	LDATE  ExpiryDate;     // 
+	LDATE  ExpiryDate;
 	PPID   UerID;          // Исключение прав доступа для PPOBJ_USR
 	long   UerFlags;       // Флаги исключений прав доступа для PPOBJ_USREXCLRIGHTS
 	uint32 Crc;            // Контрольная сумма для гарантии того, что запись не была создана либо изменена вне сервисов системы.
@@ -4099,15 +4100,15 @@ struct PPBarcodeStruc2 {   // @persistent @store(Reference2Tbl+)
 		spcNone     = 0,
 		spcUhttSync = 1 // Шаблон кодов для синхронизации с Universe-HTT
 	};
-	long   Tag;            // Const=PPOBJ_BCODESTRUC
-	long   ID;             // @id
-	char   Name[48];       // @name
-	char   Templ[20];      // Шаблон
-	char   Reserve[56];    // @reserve 
-	long   Speciality;     // Специальное назначение шаблона
-	long   Flags;          // @flags
-	long   Reserve1;       // @reserve
-	long   Reserve2;       // @reserve
+	long   Tag;         // Const=PPOBJ_BCODESTRUC
+	long   ID;          // @id
+	char   Name[48];    // @name
+	char   Templ[20];   // Шаблон
+	char   Reserve[56]; // @reserve 
+	long   Speciality;  // Специальное назначение шаблона
+	long   Flags;       // @flags
+	long   Reserve1;    // @reserve
+	long   Reserve2;    // @reserve
 };
 //
 // @ModuleDecl(QuotationCore)
@@ -4642,29 +4643,29 @@ public:
 	};
 	char   ReserveStart[12]; // @anchor
 	DateRange FiltQuotPeriod; // Фильтрующий критерий периода для значений котировок
-	PPID   GoodsID;          //
+	PPID   GoodsID;
 	DateRange QuotValPeriod; // Период, устанавливаемый в значения котировок
-	PPID   QuotKindID;       //
-	PPID   GoodsGrpID;       //
-	PPID   ArticleID;        //
+	PPID   QuotKindID;
+	PPID   GoodsGrpID;
+	PPID   ArticleID;
 	PPID   RegisterOpID;     // Вид драфт-операции для создания документа, фиксирующего список товаров,
 		// для которых изменилось значение котировки.
-	int    ByWhat;           //
-	long   Flags;            //
-	long   EvTokID;          //
-	long   QuotFlags;        //
-	double QuotVal;          //
+	int    ByWhat;
+	long   Flags;
+	long   EvTokID;
+	long   QuotFlags;
+	double QuotVal;
 	// доп. условия для изменения котировок
 	// (у данного товара на данном складе должна быть котировка с ук. ценой) {
-	PPID   AdvOptQuotKindID; //
-	PPID   AdvOptLocID;      //
-	double AdvOptQuot;       //
+	PPID   AdvOptQuotKindID;
+	PPID   AdvOptLocID;
+	double AdvOptQuot;
 	// } доп. условия для изменения котировок
 	long   Reserve;          // @anchor Заглушка для отмера "плоского" участка фильтра
-	ObjIdListFilt LocList;   //
-	ObjIdListFilt EventList; //
-	ObjIdListFilt ArList;    //
-	SString Formula;         //
+	ObjIdListFilt LocList;
+	ObjIdListFilt EventList;
+	ObjIdListFilt ArList;
+	SString Formula;
 	//
 private:
 	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
@@ -4763,9 +4764,9 @@ struct PPGoodsConfig { // @persistent @store(PropertyTbl)
 	PPID   Prop;               // Const=PPPRP_GOODSCFG
 	char   BarCodeLen[32];     // Список допустимых длин штрих-кодов напр.: "7,11"
 	char   WghtPrefix[12];     // Префикс к штрих-коду весового товара
-	long   Flags;              //
+	long   Flags;
 	PPID   DefUnitID;          // ->Ref(PPOBJ_UNIT)
-	PPID   DefPckgTypeID;      //
+	PPID   DefPckgTypeID;
 	int16  MinUniqBcLen;       // Мин длина штрих-кода по которому допускается идентифицировать товар при передаче между разделами БД
 	int16  ACGI_Threshold;     // Количество дней с даты последнего прихода товара, в течении которых еще следует
 		// загружать полностью израсходованный товар на кассы при полной загрузке (0 = infinity)
@@ -8849,7 +8850,8 @@ public:
 	//
 	enum {
 		mrfInitializeDb      = 0x0001, // Функция MakeReserved должна создать объекты для пустой базы данных.
-		mrfCreateMqbDefaults = 0x0002  // @v11.0.10 Функция MakeReserved должна по возможности создать зарезервированные объекты для брокера сообщений
+		mrfCreateMqbDefaults = 0x0002, // Функция MakeReserved должна по возможности создать зарезервированные объекты для брокера сообщений
+		mrfPersonalFinance   = 0x0004, // @v12.7.7 Создавать зарезервированные объекты для управления персональными финансами
 	};
 	static int CreateReservedObjects(long flags);
 	static SString & GetAcceptMsg(PPID objType, PPID objID, int upd, SString & rBuf);
@@ -9077,10 +9079,12 @@ public:
 
 	enum {
 		// @v12.7.5 (unused) implTaggedStrMakeList = 0x0001, // Класс реализует виртуальную функцию TaggedStringArray * PPObject::MakeList_(long)
-		implStrAssocMakeList  = 0x0002, // Класс реализует виртуальную функцию StrAssocArray * PPObject::MakeSStrAssocList(long)
-		implTreeSelector      = 0x0004, // Класс реализует метод MakeSStrAssocList, возвращающий
+		implStrAssocMakeList       = 0x0002, // Класс реализует виртуальную функцию StrAssocArray * PPObject::MakeSStrAssocList(long)
+		implTreeSelector           = 0x0004, // Класс реализует метод MakeSStrAssocList, возвращающий
 			// древовидный список (функции Selector и UpdateSelector должна инициализировать StdTreeListBoxDef).
-		implCharry    = 0x0008  // Объект поддерживает обмен по CHARRY
+		implCharry                 = 0x0008, // Объект поддерживает обмен по CHARRY
+		implTreeSelectorByHierFact = 0x0010, // @v12.7.7 Похоже на implTreeSelector, но инициализация древовидного списка происходит лишь в случае,
+			// если результирующий списко действительно содержит иерархию. 
 	};
 	long   GetImplementFlags() const { return ImplementFlags; }
 
@@ -12629,6 +12633,18 @@ public:
 	//     <0 - документ не синхронизирован
 	//
 	int    GetSyncStatus();
+	//
+	// Descr: Возвращает указатель на актуальный номер счет-фактуры документа. Общее правило таково:
+	//   Если !isempty(Ext.InvoiceCode), то Ext.InvoiceCode, иначе - Rec.Code. Аргумент extraCondition немного меняет правило (see below)
+	// ARG(extraCondition IN): Если (extraCondition != 0 && !isempty(Ext.InvoiceCode)), то номер счет-фактуры - Ext.InvoiceCode, иначе - Rec.Code
+	//
+	const  char * FASTCALL GetInvoiceCode(int extraCondition = 1) const; // @v12.7.7 
+	//
+	// Descr: Возвращает актуальную дату счет-фактуры документа. Общее правило таково:
+	//   Если checkdate(Ext.InvoceDate), то Ext.InvoceDate, иначе Rec.Dt. Аргумент extraCondition немного меняет правило (see below)
+	// ARG(extraCondition IN): Если (extraCondition != 0 && checkdate(Ext.InvoceDate)), то номер счет-фактуры - Ext.InvoceDate, иначе - Rec.Dt
+	//
+	LDATE  FASTCALL GetInvoiceDate(int extraCondition = 1) const; // @v12.7.7 
 	int    FASTCALL EnumTItems(uint *, PPTransferItem **) const;
 	int    GetNextPLU(TiIter * pI, long * pPLU, SString & rObjAsscName);
 	//
@@ -17831,9 +17847,9 @@ class PPEventCore : public EventTbl {
 public:
 	enum {
 		statusUndef    = 0,
-		statusActual   = 1,
-		statusViewed   = 2,
-		statusArchived = 3
+		statusActual   = 1, // Событие актуально
+		statusViewed   = 2, // Событие просмотрено
+		statusArchived = 3  // Событие архивировано
 	};
 	struct Packet {
 		Packet();
@@ -21538,6 +21554,7 @@ private:
 #define ACSHF_USECLIAGT     0x0002L // Использует соглашения с клиентами
 #define ACSHF_USEALIASSUBST 0x0004L // Использует подстановку алиасов счетов
 #define ACSHF_USESUPPLAGT   0x0008L // Использует соглашения с поставщиками
+#define ACSHF_HIERARCHY     0x0010L // @v12.7.7 Статьи, привазанные к статье могут образовывать иерархию (только если нет связанного объекта) 
 
 struct PPAccSheet2 {       // @persistent @store(Reference2Tbl+)
 	PPAccSheet2();
@@ -21560,11 +21577,11 @@ class PPObjAccSheet : public PPObjReference {
 public:
 	explicit PPObjAccSheet(void * extraPtr = 0);
 	virtual int  Edit(PPID * pID, void * extraPtr);
-	int    FASTCALL Fetch(PPID id, PPAccSheet * pRec);
+	int    FASTCALL Fetch(PPID id, PPAccSheet2 * pRec);
 	//
 	// Descr: возвращает >0 если таблица статей acsID ассоциирована с объектами типа objType.
 	//
-	int    IsAssoc(PPID acsID, PPID objType, PPAccSheet *);
+	int    IsAssoc(PPID acsID, PPID objType, PPAccSheet2 *);
 	int    IsLinkedToMainOrg(PPID acsID);
 private:
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
@@ -22688,12 +22705,14 @@ public:
 	int    BelongTo(PPID acctID, PPID parentID);
 	int    GetListByAccSheet(PPID accSheetID, PPIDArray & rList);
 	int    LockFRR(PPID accID, LDATE dt, int doUnlock);
+	int    CreateSpecialReservedObject(); // @v12.7.7
 private:
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
+	virtual int  MakeReserved(long flags); // @v12.7.7
 	int    AddCurRecord(const PPAccount * pBaseRec, PPID curID);
 public:
 	virtual StrAssocArray * MakeStrAssocList(void * extraPtr /*acySelType*/);
@@ -25547,13 +25566,13 @@ private:
 };
 
 struct GStrucRecurItem { // @flat
-	PPGoodsStrucItem Item; //
-	PPID   LastLotID;      //
-	double Qtty;           //
-	double Price;          //
-	double Sum;            //
-	int    Level;          //
-	int    HasInner;       // Признак того, что элемент имеет вложенную структуру
+	PPGoodsStrucItem Item;
+	PPID   LastLotID;
+	double Qtty;
+	double Price;
+	double Sum;
+	int    Level;
+	int    HasInner; // Признак того, что элемент имеет вложенную структуру
 };
 
 class GStrucIterator {
@@ -30013,7 +30032,7 @@ struct PPArticlePacket {
 	int    RemoveAliasSubst(PPID accAliasID);
 
 	ArticleTbl::Rec Rec;         // Заголовочная запись
-	long   Assoc;                // @transient PPAccSheet(Rec.AccSheetID).Assoc
+	long   Assoc;                // @transient PPAccSheet2(Rec.AccSheetID).Assoc
 	PPClientAgreement * P_CliAgt;   // Соглашение с клиентом
 	PPSupplAgreement  * P_SupplAgt; // Соглашение с поставщиком
 	int    DontUpdateAliasSubst; // @transient Признак того, что функция PPObjArticle::PutPacket
@@ -30101,7 +30120,7 @@ public:
 	int    PutPacket(PPID *, PPArticlePacket *, int use_ta);
 	int    SerializePacket(int dir, PPArticlePacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 	int    GetFreeArticle(long * pID, long accSheetID);
-	int    AutoFill(const PPAccSheet *);
+	int    AutoFill(const PPAccSheet2 *);
 	int    EditDialog(ArticleDlgData *);
 	int    EditGrpArticle(PPID * pID, PPID sheetID);
 	int    NewArticle(PPID * pID, long sheetID);
@@ -30150,6 +30169,7 @@ private:
 	int    _ProcessSearch(int, PPID id);
 	int    _UpdateName(const char * pNewName);
 	int    Helper_PutAgreement(PPID id, PPArticlePacket * pPack);
+	int    Helper_MakeHierarchicalStrAssocList(PPID parentID, const ArticleFilt * pFilt, StrAssocArray * pList);
 
 	void * ExtraPtr;
 	ArticleFilt CurrFilt;
@@ -36267,6 +36287,8 @@ public:
 		enum {
 			fIntrExpend = 0x0001
 		};
+		PPID   MainOrgID; // @v12.7.7
+		PPID   ContactorPsnID; // @v12.7.7
 		PPID   SupplPsnID;
 		PPID   BuyerPsnID;
 		PPID   ConsignorPsnID;
@@ -36278,8 +36300,11 @@ public:
 		int    EgaisWayBillType;
 		uint   Flags;
 	};
-
-	int   MakeExportParticipantIdentBlock(const PPBillPacket & rBp, ExportParticipantIdentBlock & rBlk); // @v12.6.9
+	//
+	// Note: Функция намеренно не возвращает никаких значений. Успешность ее отработки можно оценить лишь по 
+	//   факту заполненности тех или иных полей блока ExportParticipantIdentBlock.
+	//
+	void   MakeExportParticipantIdentBlock(const PPBillPacket & rBp, ExportParticipantIdentBlock & rBlk); // @v12.6.9
 	//
 	// Descr: Список идентификаторов документов для экспорта с дополнительными факторами
 	//
@@ -39285,6 +39310,8 @@ public:
 	//
 	int    SelectBySerial(SelectBySerialParam * pParam);
 	struct SerialByGoodsListItem { // @flat
+		SerialByGoodsListItem();
+		SerialByGoodsListItem & Z();
 		PPID   LotID;
 		PPID   TSessID;
 		double Qtty;
@@ -41136,17 +41163,17 @@ private:
 		// для последующего позиционирования курсора в таблице заказов.
 	double InSaldo;           // For debt card
 	void * P_IterState;       // Сохраняемое состояние итератора
-	IterOrder TempOrder;      //
-	PPObjLocation LocObj;     //
-	PPObjArticle  ArObj;      //
-	PPObjGoods    GObj;       //
-	PPObjPerson   PsnObj;     //
-	PPObjBill    * P_BObj;    //
-	TempBillTbl  * P_TempTbl; //
-	TempOrderTbl * P_TempOrd; //
-	PPIDArray OpList;         //
-	PPIDArray LocList_;       //
-	PPIDArray GoodsList;      // Список идентификаторов товаров, которые должны содержаться в документах выборки (в каждом документе хотя бы один из товаров)
+	IterOrder TempOrder;
+	PPObjLocation LocObj;
+	PPObjArticle ArObj;
+	PPObjGoods GObj;
+	PPObjPerson PsnObj;
+	PPObjBill * P_BObj;
+	TempBillTbl * P_TempTbl;
+	TempOrderTbl * P_TempOrd;
+	PPIDArray OpList;
+	PPIDArray LocList_;
+	PPIDArray GoodsList; // Список идентификаторов товаров, которые должны содержаться в документах выборки (в каждом документе хотя бы один из товаров)
 	struct ArFilterBlock { // @v11.9.6 Блок фильтрации по полю BillTbl::Object
 		// Важно: Списки InclList и ExclList содержат идентификаторы персоналий, а не аналитических статей!
 		ArFilterBlock();
@@ -41190,20 +41217,20 @@ public:
 			// самостоятельно пытается выбрать существующие связанные документы и при неоднозначности предоставляет выбор пользователю
 	};
 	uint8  ReserveStart[32]; // @anchor
-	PPID   BillID;           //
+	PPID   BillID;
 	int32  Kind__;           // PPTXT_LINKBILLVIEWKINDS
 	long   Flags;            // @flags
 	long   ReserveEnd;       // @anchor
 };
 
 struct LinkedBillViewItem : public BillTbl::Rec {
-	double Payment;    //
-	double Rest;       //
+	double Payment;
+	double Rest;
 	int16  LinkKind;   // 1 - link, 2 - pool, 3 - writeoff link
 	int16  Pad;        // @alignment
 	PPID   LinkBillID__; // @v10.3.2 @fix LinkBillID-->LinkBillID__ (дублирует BillTbl::Rec::LinkBillID)
-	PPID   RcknBillID; //
-	char   _Memo[512]; //
+	PPID   RcknBillID;
+	char   _Memo[512];
 };
 
 class PPViewLinkedBill : public PPView {
@@ -41889,7 +41916,7 @@ private:
 	int    GetRec(const void * pHdr, LotExtCodeTbl::Rec & rRec);
 	int    CheckDupCode(const LotExtCodeTbl::Rec & rRec);
 
-	LotExtCodeCore Tbl; // @v10.2.9 LotExtCodeTbl-->LotExtCodeCore
+	LotExtCodeCore Tbl;
 	LotExtCodeFilt Filt;
 	PPObjBill * P_BObj;
 };
@@ -43609,9 +43636,9 @@ public:
 	enum {
 		f2CalcPrognosis = 0x00000001, // Рассчитывать прогноз продаж (специальная форма диалога фильтра и отчета)
 		f2CostByQuot    = 0x00000002, // Котировку трактовать как цены поступления
-		f2RetailPrice   = 0x00000004, // @v10.3.2 Цены реализации рассчитывать по правилам, применяемым для определения розничных цен
-		f2BelowOneRest  = 0x00000008, // @v11.4.6 Показывать только те позиции, остаток которых менее 1.0
-		f2FractRest     = 0x00000010  // @v11.4.6 Показывать только дробные остатки  
+		f2RetailPrice   = 0x00000004, // Цены реализации рассчитывать по правилам, применяемым для определения розничных цен
+		f2BelowOneRest  = 0x00000008, // Показывать только те позиции, остаток которых менее 1.0
+		f2FractRest     = 0x00000010  // Показывать только дробные остатки  
 	};
 	//
 	// Descr: Опции экспорта Universe-HTT
@@ -46388,7 +46415,7 @@ struct CCheckViewItem : public CCheckTbl::Rec { // @transient // @flat
 	double G_PctPart;      // Процентаня доля группировке в общей выборке по сумме чеков
 	double G_Qtty;         // Суммарное количество торговых единиц товаров в группировке
 	long   G_SkuCount;     // Суммарное количество (различных) товаров в группировке
-	long   G_LinesCount;   // Суммарное количество чековых строк в группировке // @v10.8.0 double->long
+	long   G_LinesCount;   // Суммарное количество чековых строк в группировке
 	long   CashNodeID;     //
 	long   LinesCount;     // Количество строк в чеке (инициализируется только если в фильтре установлен флаг fInitLinesCount
 	long   LinkCheckID;    // Связанный чек (обычно, чек заказа)
@@ -57941,6 +57968,7 @@ public:
 	static bool FASTCALL GetOfficialCategorySymb(int officialId, SString & rSymb);
 	static int  FASTCALL GetOfficialCatogoryId(const char * pOfficialSymb);
 	static uint FASTCALL GetCategoryIdByOfficialSymb(const char * pOfficialSymb);
+	static int  EstimateQuantityAdequacy(uint itemQtty, uint minPackage, uint markCount);
 
 	explicit PPChZnPrcssr(PPLogger * pOuterLogger);
 	~PPChZnPrcssr();
@@ -58332,19 +58360,19 @@ public:
 // Округление скидки
 //
 enum {
-	fDisRoundNo,           // Округления нет
-	fDisRoundDef,          // До ближайшего
-	fDisRoundUp,           // В большую сторону
-	fDisRoundDown          // В меньшую сторону
+	fDisRoundNo,   // Округления нет
+	fDisRoundDef,  // До ближайшего
+	fDisRoundUp,   // В большую сторону
+	fDisRoundDown  // В меньшую сторону
 };
 //
 // Descr: Методы оплаты чека
 //
 enum CheckPaymMethod {
-	cpmUndef     = 0,      // Неопределенный
-	cpmCash      = 1,      // Наличными
-	cpmBank      = 2,      // Банковская платежная карта
-	cpmIncorpCrd = 3       // Корпоративная кредитная карта
+	cpmUndef     = 0,  // Неопределенный
+	cpmCash      = 1,  // Наличными
+	cpmBank      = 2,  // Банковская платежная карта
+	cpmIncorpCrd = 3   // Корпоративная кредитная карта
 };
 //
 //
@@ -58455,7 +58483,7 @@ public:
 		orfMergeChecks             = 0x00020000, // CSESSOPRT_MERGECHK
 		orfEscChkLineBeforeOrder   = 0x00040000, // CSESSOPRT_ESCCLINEBORD
 		orfReprnUnfCc              = 0x00080000, // CSESSOPRT_REPRNUNFCC
-		orfArbitraryDiscount       = 0x00100000  // @v11.0.9 CSESSOPRT_ARBITRARYDISC
+		orfArbitraryDiscount       = 0x00100000  // CSESSOPRT_ARBITRARYDISC
 	};
 	struct ExtCcData {
 		enum {
@@ -58502,13 +58530,13 @@ public:
 	//
 	//
 	enum {
-		cdispcmdClear = 1,         // Очищает дисплей. Дополнительные параметры не используются.
-		cdispcmdText,              // Выводит текстовое сообщение. iVal - идентификатор текста.
-		cdispcmdCurrentItem,       // Выводит информацию о текущей введенной чек позиции. Дополнительные параметры не используются.
-		cdispcmdCurrentGiftItem,   // Выводит информацию о текущей введенной чек подарочной позиции. Дополнительные параметры не используются.
-		cdispcmdTotal,             // Выводит информацию об общей сумме покупки. rv1 - значение суммы
-		cdispcmdTotalDiscount,     // Выводит информацию о скидки по чеку. rv1 - процентное значение скидки, rv2 - абсолютное значение скидки.
-		cdispcmdChange             // Выводит информацию о полученной сумме и сдаче. rv1 - полученная сумма, rv2 - сдача
+		cdispcmdClear = 1,       // Очищает дисплей. Дополнительные параметры не используются.
+		cdispcmdText,            // Выводит текстовое сообщение. iVal - идентификатор текста.
+		cdispcmdCurrentItem,     // Выводит информацию о текущей введенной чек позиции. Дополнительные параметры не используются.
+		cdispcmdCurrentGiftItem, // Выводит информацию о текущей введенной чек подарочной позиции. Дополнительные параметры не используются.
+		cdispcmdTotal,           // Выводит информацию об общей сумме покупки. rv1 - значение суммы
+		cdispcmdTotalDiscount,   // Выводит информацию о скидки по чеку. rv1 - процентное значение скидки, rv2 - абсолютное значение скидки.
+		cdispcmdChange           // Выводит информацию о полученной сумме и сдаче. rv1 - полученная сумма, rv2 - сдача
 	};
 	//
 	// Идентификаторы текстовых строк, выводимых на дисплее покупателя командой cdispcmdText
@@ -60352,6 +60380,7 @@ public:
 	//   #diadoc    - провайдер DIADOC
 	//   #nomarks   - экспортировать документ так, словно в нем нет и не должно быть марок // @v12.5.10
 	//   #autopiter - портал AUTOPITER (еще этих тут не хватало, блядь: у них особые требования к номеру заказа в документе) // @v12.5.12
+	//   #ptz_borodinskiy - придирчивый клиент клиента (спец требования по этрн) // @v12.7.7
 	//
 	static void GetNotchList(const PPBillPacket & rBp, StringSet & rSs);
 
@@ -60386,13 +60415,14 @@ public:
 	uint   State;
 	const  PPBillImpExpParam & R_P;
 	const  PPBillPacket & R_Bp;
+	PPObjBill::ExportParticipantIdentBlock EpiBlk; // @v12.7.7
 
 	PPObjAccSheet AcsObj;
 	PPOprKind2 OpRec;
 	PPOprKind2 LinkOpRec;
 	PPID   DtoPersonID;  // PPOBJ_PERSON Провайдер обмена данными
-	PPID   MainOrgID;    // PPOBJ_PERSON
-	PPID   ContragentID; // PPOBJ_PERSON
+	// @v12.7.7 (EpiBlk) PPID   MainOrgID;    // PPOBJ_PERSON
+	// @v12.7.7 (EpiBlk) PPID   ContragentID; // PPOBJ_PERSON
 	SString AgtCode;
 	LDATE  AgtDate;
 	LDATE  AgtExpiry;
@@ -61482,21 +61512,21 @@ public:
 
 		// C534
 		char   PaymConditionCode[4]; // E4439 Payment conditions code
-				// 1 Direct payment. An assigned invoice has been paid by the buyer to the factor.
-				// 10 Irrevocable documentary credit. Written undertaking by a bank to pay a seller against stipulated documents that cannot be amended or cancelled without the consent of all parties involved.
-				// 	GS1 Description: Payment is made using an irrevocable documentary credit.
-				// 15 Irrevocable letter of credit-confirmed. Letter of credit that cannot be cancelled or amended without agreement by all the parties involved, and carries the endorsement of both the issuing bank and its correspondent, guaranteeing payment of all drafts written against.
-				// 	GS1 Description: Payment is made using an irrevocable letter of credit confirmed.
-				// 17 Revocable letter of credit. Letter of credit that can be cancelled or amended at any time by the issuing bank.
-				// 	GS1 Description: Payment is made using an revocable letter of credit.
-				// 19 Irrevocable letter of credit unconfirmed. Letter of credit that cannot be cancelled or amended before a specific date without agreement by all the parties involved, and carries no guarantee that a correspondent will honour drafts presented for payment.
-				// 	GS1 Description: Payment is made using an irrevocable letter of credit unconfirmed.
-				// 30 Other collection. Self explanatory. Notes: This code value will be removed effective with directory D.04B.
-				// 34 Seller to advise buyer. Payment conditions to be advised by the seller to the buyer.
-				// 35 Documents through banks. Also known as 'documents against presentation', the documents are sent to a bank, and the buyer obtains the documents by paying the invoice amount to the bank.
-				// 	GS1 Description: Payment is made using documents passed through the banks.
-				// 65 Reverse factoring. Condition of payment to suppliers in which a third party (for example, a bank) manages the payments that one company has to make to its suppliers.
-				// OA Open account (GS1 Temporary Code). Open account payment terms.
+			// 1 Direct payment. An assigned invoice has been paid by the buyer to the factor.
+			// 10 Irrevocable documentary credit. Written undertaking by a bank to pay a seller against stipulated documents that cannot be amended or cancelled without the consent of all parties involved.
+			// 	GS1 Description: Payment is made using an irrevocable documentary credit.
+			// 15 Irrevocable letter of credit-confirmed. Letter of credit that cannot be cancelled or amended without agreement by all the parties involved, and carries the endorsement of both the issuing bank and its correspondent, guaranteeing payment of all drafts written against.
+			// 	GS1 Description: Payment is made using an irrevocable letter of credit confirmed.
+			// 17 Revocable letter of credit. Letter of credit that can be cancelled or amended at any time by the issuing bank.
+			// 	GS1 Description: Payment is made using an revocable letter of credit.
+			// 19 Irrevocable letter of credit unconfirmed. Letter of credit that cannot be cancelled or amended before a specific date without agreement by all the parties involved, and carries no guarantee that a correspondent will honour drafts presented for payment.
+			// 	GS1 Description: Payment is made using an irrevocable letter of credit unconfirmed.
+			// 30 Other collection. Self explanatory. Notes: This code value will be removed effective with directory D.04B.
+			// 34 Seller to advise buyer. Payment conditions to be advised by the seller to the buyer.
+			// 35 Documents through banks. Also known as 'documents against presentation', the documents are sent to a bank, and the buyer obtains the documents by paying the invoice amount to the bank.
+			// 	GS1 Description: Payment is made using documents passed through the banks.
+			// 65 Reverse factoring. Condition of payment to suppliers in which a third party (for example, a bank) manages the payments that one company has to make to its suppliers.
+			// OA Open account (GS1 Temporary Code). Open account payment terms.
 			// 
 		char   PaymGaranteeMeansCode[4];  // E4431 Payment guarantee means code
 		char   PaymMeansCode[4];          // E4461 Payment means code
@@ -63993,11 +64023,6 @@ int    PPUnchainDatabase(const char * pPassword);
 //
 int    PPCheckDatabaseChain();
 //
-// Некоторые файловые расширения используемые в системе
-//
-// @v11.8.4 #define PPSEXT     ".PPS" // Файлы передачи данных между разделами БД
-// @v11.8.4 #define CHARRYEXT  ".CHY" // Файлы charry
-//
 // Path and file fuctions
 //
 int    FASTCALL PPGetPath(PPID pathID, SString & rBuf);
@@ -64069,12 +64094,6 @@ PPID   GetAgentAccSheet();
 //
 int    FASTCALL IsSupplVATFree(PPID articleID); // @>>ArticleCache::IsSupplVatFree
 bool   FASTCALL IsLotVATFree(const ReceiptTbl::Rec & rLotRec);
-//
-// Descr: GetSupplText если suppl != 0 возвращает строку вида "Поставщик: XXX" и
-//   код возврата > 0. В противном случае - пустую строку и код < 0.
-//   Используется при печати отчетов.
-//
-int    GetSupplText(PPID suppl, SString & rBuf);
 int    FASTCALL GetCommConfig(PPCommConfig &);
 int    FASTCALL SetCommConfig(const PPCommConfig *, int use_ta);
 //
@@ -64271,7 +64290,7 @@ enum {
 	sacfNonGeneric           = 0x0004  // Исключить выбор группирующих статей
 };
 
-int    STDCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID accSheetID, long /*disableIfZeroSheet*/sacf /*= 0*/);
+int    STDCALL SetupArCombo(TDialog * dlg, uint ctlID, PPID id, uint flags, PPID accSheetID, long sacf);
 	// @>>SetupPPObjCombo
 int    SetupAmtTypeCombo(TDialog *, uint ctl, PPID id, uint flags, long options, PPIDArray * pInclList);
 int    SetupCurrencyCombo(TDialog *, uint ctl, PPID id, uint /*flags*/, int asSymb, PPIDArray * pInclList);
@@ -64465,6 +64484,7 @@ void   FASTCALL PPWaitDate(LDATE);
 //   отрицательного - (-1). Если Esc не была нажата - (1).
 //
 int    PPCheckUserBreak();
+int    PPShowCtrlIndicatorHint(const char * pText); // @v12.7.7
 int    SetupComboByBuddyList(TDialog * pDlg, uint ctlCombo, const ObjIdListFilt & rList);
 //
 // Descr: Устанавливает список баз данных в комбо-бокс ctl диалога dlg.
@@ -64844,6 +64864,24 @@ public:
 	
 	int    _Case_TaxEvaluation(); // Это будет первой задачей для нашего амбициозного субпроекта PPTestDbInfrastructure :)
 private:
+};
+//
+// Descr: Специализированный класс для отладки и тестирования работы нескольких процессов с одной БД SQLite
+//
+class PPTest_SQLite_OneWriterManyReaders_Block { // @v12.7.7
+public:
+	PPTest_SQLite_OneWriterManyReaders_Block();
+	bool   IsValid() const;
+	PPTest_SQLite_OneWriterManyReaders_Block & Z();
+	int    ToJson(SString & rResult) const;
+	int    FromJson(const char * pJson);
+	//
+	int    DoProcess(bool useConsole) const;
+	//
+	uint   MaxRecsCount;    // Максимальное число записей, считываемое из исходного файла
+	uint   CountOfWorkers;  // Общее количество процессов, задействованных в тесте
+	uint   WorkerIdent;     // [1..CountOfWorkers] Идентификатор конкретного процесса, которому передается это блок
+	SString DbPath;
 };
 //
 // Descr: Возвращает минимальный множитель, цены кратные которому
@@ -65443,22 +65481,22 @@ int Convert8800();
 int ConvertWorkbook813();
 int Convert8910();
 // @v9.0.4 int Convert9003();
-int Convert9004(); // @v9.0.4
-int Convert9108(); // @v9.1.8
-int Convert9214(); // @v9.2.14
-int Convert9400(); // @v9.4.0
-int Convert9811(); // @v9.8.11
+int Convert9004();
+int Convert9108();
+int Convert9214();
+int Convert9400();
+int Convert9811();
 int ConvertSCardSeries9809(); // @v9.8.9 (objscard.cpp)
-// @10.2.9 int Convert10012(); // @v10.0.12
-int Convert10209(); // @10.2.9
-int Convert10507(); // @v10.5.7 Scale
-int Convert10702(); // @v10.7.2 projects and todo
+// @10.2.9 int Convert10012();
+int Convert10209();
+int Convert10507(); // Scale
+int Convert10702(); // projects and todo
 int Convert10703(); // @erik @v10.7.2 desktops
-int Convert10903(); // @v10.9.3
-int Convert10905(); // @v10.9.5 EgaisRefA
-int Convert11004(); // @v11.0.4 TSessLine
-int Convert11112(); // @v11.1.12 Bill
-int Convert11200(); // @v11.2.0 Соглашения с клиентами
+int Convert10903(); //
+int Convert10905(); // EgaisRefA
+int Convert11004(); // TSessLine
+int Convert11112(); // Bill
+int Convert11200(); // Соглашения с клиентами
 int Convert12000(); // @v12.0.0 Регистры (увеличились длины серии и номера регистра)
 int Convert12005(); // @v12.0.5 SCardOp (добавлены поля CtAmount & CtRest для количественного учета)
 int Convert12207(); // @v12.2.7 VATBook (добавлены дополнительные поля для новых ставок НДС, увеличены длины номеров документов, перестроен порядок полей)

@@ -2229,8 +2229,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 	if(event.isCmd(cmOK))
 		getBarcode();
 	TDialog::handleEvent(event);
-	if((TVBROADCAST && TVCMD == cmChangedFocus && event.isCtlEvent(CTL_GOODS_NAME)) ||
-		(TVKEYDOWN && TVKEY == kbF2 && isCurrCtlID(CTL_GOODS_NAME))) {
+	if((TVBROADCAST && TVCMD == cmChangedFocus && event.isCtlEvent(CTL_GOODS_NAME)) || (TVKEYDOWN && TVKEY == kbF2 && isCurrCtlID(CTL_GOODS_NAME))) {
 		SString abbr;
 		if(getCtrlString(CTL_GOODS_ABBR, abbr) && abbr.Strip().IsEmpty()) {
 			getCtrlString(CTL_GOODS_NAME, abbr);
@@ -2240,7 +2239,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 			return;
 	}
 	else if(event.isCbSelected(CTLSEL_GOODS_CLS)) {
-		PPID   gc_id = getCtrlLong(CTLSEL_GOODS_CLS);
+		const  PPID gc_id = getCtrlLong(CTLSEL_GOODS_CLS);
 		PPObjGoodsClass gc_obj;
 		PPGdsClsPacket gc_pack;
 		if(gc_obj.Fetch(gc_id, &gc_pack) > 0) {

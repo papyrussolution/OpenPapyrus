@@ -159,9 +159,9 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 	long   Tag;            // Const=PPOBJ_ARTICLE
 	long   ArtID;          // ->Article.ID
 	long   PropID;         // Const=ARTPRP_CLIAGT2 // @v11.2.0 ARTPRP_CLIAGT-->ARTPRP_CLIAGT2
-	long   Flags;          //
-	LDATE  BegDt;          //
-	LDATE  Expiry;         //
+	long   Flags;
+	LDATE  BegDt;
+	LDATE  Expiry;
 	double MaxCredit;      // Максимальный кредит
 	double MaxDscnt;       // Максимальная скидка в %% (>= 100% - неограниченная)
 	double Dscnt;          // Обычная скидка в %%
@@ -175,8 +175,8 @@ struct _PPClientAgt {      // @persistent @store(PropertyTbl) @#{size=PROPRECFIX
 	float  PriceRoundPrec; // Точность округления окончательной цены в документах
 	int16  RetLimPrd;      // Период ограничения доли возвратов от суммы товарооборота
 	uint16 RetLimPart;     // Макс доля возвратов от суммы товарооборота за период RetLimPrd (в промилле)
-	long   PaymDateBase;   // 
-	long   EdiPrvID;       // 
+	long   PaymDateBase;
+	long   EdiPrvID;
 	char   Code2[24];      // @v10.2.9 Вместо Code[12]
 	uint16 DefDuePeriodHour; // @v11.4.8
 };
@@ -886,13 +886,13 @@ int PPObjArticle::EditAgreement(PPID arID)
 /*static*/int PPObjArticle::DefaultClientAgreement()
 {
 	int    ok = 1;
-	PPObjArticle arobj;
+	PPObjArticle ar_obj;
 	PPClientAgreement agt;
 	THROW(CheckCfgRights(PPCFGOBJ_CLIENTDEAL, PPR_MOD, 0));
-	THROW(arobj.CheckRights(ARTRT_CLIAGT));
-	THROW(arobj.GetClientAgreement(0, agt));
-	if(arobj.EditClientAgreement(&agt) > 0) {
-		THROW(arobj.PutClientAgreement(0, &agt, 1));
+	THROW(ar_obj.CheckRights(ARTRT_CLIAGT));
+	THROW(ar_obj.GetClientAgreement(0, agt));
+	if(ar_obj.EditClientAgreement(&agt) > 0) {
+		THROW(ar_obj.PutClientAgreement(0, &agt, 1));
 	}
 	CATCHZOKPPERR
 	return ok;
@@ -2006,13 +2006,14 @@ int SupplAgtDialog::EditExchangeCfg()
 /*static*/int PPObjArticle::DefaultSupplAgreement()
 {
 	int    ok = 1;
-	PPObjArticle arobj;
+	PPObjArticle ar_obj;
 	PPSupplAgreement agt;
 	THROW(CheckCfgRights(PPCFGOBJ_SUPPLDEAL, PPR_MOD, 0));
-	THROW(arobj.CheckRights(ARTRT_CLIAGT));
-	THROW(arobj.GetSupplAgreement(0, &agt, 0));
-	if(arobj.EditSupplAgreement(&agt) > 0)
-		THROW(arobj.PutSupplAgreement(0, &agt, 1));
+	THROW(ar_obj.CheckRights(ARTRT_CLIAGT));
+	THROW(ar_obj.GetSupplAgreement(0, &agt, 0));
+	if(ar_obj.EditSupplAgreement(&agt) > 0) {
+		THROW(ar_obj.PutSupplAgreement(0, &agt, 1));
+	}
 	CATCHZOKPPERR
 	return ok;
 }
@@ -2021,7 +2022,7 @@ int SupplAgtDialog::EditExchangeCfg()
 {
 	int    ok = -1;
 	PPObjAccSheet acs_obj;
-	PPAccSheet acs_rec;
+	PPAccSheet2 acs_rec;
 	THROW_INVARG(pArRec);
 	THROW(acs_obj.Fetch(pArRec->AccSheetID, &acs_rec) > 0);
 	/* @v12.6.0
@@ -2073,7 +2074,7 @@ int PPALDD_Agreement::InitData(PPFilt & rFilt, long rsrv)
 		ArticleTbl::Rec  ar_rec;
 		PPObjArticle * p_ar_obj = static_cast<PPObjArticle *>(Extra[0].Ptr);
 		if(p_ar_obj->Search(rFilt.ID, &ar_rec) > 0) {
-			PPAccSheet acs_rec;
+			PPAccSheet2 acs_rec;
 			PPObjAccSheet acc_sheet_obj;
 			if(acc_sheet_obj.Fetch(ar_rec.AccSheetID, &acs_rec) > 0) {
 				PPClientAgreement  cli_agt;

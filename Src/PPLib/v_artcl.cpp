@@ -129,7 +129,7 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 	ZDELETE(P_DebtDimList);
 	if(Filt.Flags & (ArticleFilt::fShowAgreement|ArticleFilt::fCheckObj|ArticleFilt::fWithIxParamOnly)) { // @v12.4.12 ArticleFilt::fWithIxParamOnly
 		PPObjAccSheet acs_obj;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		AgtProp = 0; // ARTPRP_CLIAGT2, ARTPRP_SUPPLAGT
 		if(Filt.Flags & (ArticleFilt::fShowAgreement|ArticleFilt::fWithIxParamOnly)) { // @v12.4.12 ArticleFilt::fWithIxParamOnly
 			if(acs_obj.Fetch(Filt.AccSheetID, &acs_rec) > 0) {
@@ -305,7 +305,7 @@ int PPViewArticle::Init_(const PPBaseFilt * pBaseFilt)
 int PPViewArticle::InitIteration()
 {
 	int    ok = 1;
-	PPAccSheet acs_rec;
+	PPAccSheet2 acs_rec;
 	DBQ  * dbq = 0;
 	union {
 		ArticleTbl::Key0 k0;
@@ -501,7 +501,7 @@ int PPViewArticle::RecoverLinkObjects()
 	int    ok = -1;
 	if(Filt.AccSheetID) {
 		PPObjAccSheet acs_obj;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		if(acs_obj.Search(Filt.AccSheetID, &acs_rec) > 0) {
 			if(acs_rec.Assoc == PPOBJ_LOCATION) {
 				PPObjLocation loc_obj;
@@ -542,7 +542,7 @@ int PPViewArticle::EditLinkObject(PPID arID)
 	ArticleTbl::Rec rec;
 	if(ArObj.Fetch(arID, &rec) > 0 && rec.ObjID && rec.AccSheetID) {
 		PPObjAccSheet acs_obj;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		if(acs_obj.Fetch(rec.AccSheetID, &acs_rec) > 0 && acs_rec.Assoc) {
 			ok = EditPPObj(acs_rec.Assoc, rec.ObjID);
 		}
@@ -890,7 +890,7 @@ DBQuery * PPViewArticle::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	if(ArObj.P_Tbl) {
 		DBE  * dbe_stop = 0;
 		DBQ  * dbq = 0;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 		THROW(ArObj.CheckRights(PPR_READ));
 		THROW(CheckTblPtr(a = new ArticleTbl(ArObj.P_Tbl->GetName())));
 		dbe_stop = & flagtoa(a->Flags, ARTRF_STOPBILL, stop_subst.Get(PPTXT_AR_STOP));

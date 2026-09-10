@@ -5,6 +5,22 @@
 #include <slib-internal.h>
 #pragma hdrstop
 #include <ppbrow.h>
+
+CtrlIndicatorState::CtrlIndicatorState() : State(0ULL), Color(0ULL), Flags(0)
+{
+}
+	
+bool CtrlIndicatorState::IsUndef() const { return (State == 0ULL); }
+bool FASTCALL CtrlIndicatorState::IsEq(const CtrlIndicatorState & rS) const { return (State == rS.State && Color == rS.Color && Flags == rS.Flags && Descr == rS.Descr); }
+
+CtrlIndicatorState & CtrlIndicatorState::Z()
+{
+	State = 0ULL;
+	Color = 0ULL;
+	Flags = 0;
+	Descr.Z();
+	return *this;
+}
 //
 // TStaticText
 //
@@ -99,15 +115,12 @@ IMPL_HANDLE_EVENT(TLabel)
 //
 //
 //
-bool TFrame::IsConsistentSizeBar() const
+TFrame::SizingBlock::SizingBlock() : P_SizingLo(0), H_ParentWindow(0), CurrentPosition(-1)
 {
-	return (FKind & fkSizeBar && P_Owner);
 }
 
-int TFrame::GetSizingDirection() const
-{
-	return IsConsistentSizeBar() ? ((State & stSizingVertical) ? DIREC_VERT : DIREC_HORZ) : DIREC_UNKN;
-}
+bool TFrame::IsConsistentSizeBar() const { return (FKind & fkSizeBar && P_Owner); }
+int  TFrame::GetSizingDirection() const { return IsConsistentSizeBar() ? ((State & stSizingVertical) ? DIREC_VERT : DIREC_HORZ) : DIREC_UNKN; }
 
 int TFrame::DragSizingState(const SPoint2S & rCurrentClientPoint)
 {
@@ -1014,6 +1027,22 @@ void TInputLine::InputStat::CheckIn()
 			else
 				p_view->OnMouseWheel((short)HIWORD(wParam));
 			break;
+		// @v12.7.7 {
+		case WM_MOUSEMOVE:
+			if(p_view)
+				p_view->RegisterMouseTracking(1, 500);
+			break;
+		case WM_MOUSEHOVER:
+			if(p_view) {
+				p_view->setState(sfHover, true);
+				TView::messageCommand(p_view->P_Owner, cmMouseHoverCtrl, p_view);
+			}
+			break;
+		case WM_MOUSELEAVE:
+			if(p_view)
+				p_view->setState(sfHover, false);
+			break;
+		// } @v12.7.7 
 		case WM_SETFOCUS:
 		case WM_KILLFOCUS:
 			if(p_view->IsInState(sfMsgToParent))
@@ -1606,6 +1635,28 @@ void TInputLine::setState(uint newState, bool enable)
 	// } @v12.3.7 
 }
 
+int TInputLine::SetIndicatorState(uint64 state, const char * pDescrUt8) // @v12.7.7
+{
+	const  uint64 preserve_state = IndSt.State;
+	SString & r_preserve_descr = SLS.AcquireRvlStr();
+	r_preserve_descr = pDescrUt8;
+	if(state == 0) {
+		IndSt.Z();
+	}
+	else {
+		IndSt.State = state;
+		IndSt.Descr = pDescrUt8;
+	}
+	return BIN(IndSt.State != preserve_state || r_preserve_descr != IndSt.Descr);
+}
+
+int TInputLine::GetIndicatorState(uint64 * pState, SString * pDescr) const // @v12.7.7
+{
+	ASSIGN_PTR(pState, IndSt.State);
+	ASSIGN_PTR(pDescr, IndSt.Descr);
+	return (IndSt.State == 0) ? 0 : 1;
+}
+
 int TInputLine::GetStatistics(Statistics * pStat) const
 {
 	int    ok = 1;
@@ -1693,6 +1744,10 @@ int ComboBoxInputLine::TransmitData(int dir, void * pData)
 //
 // TCluster
 //
+TCluster::Item::Item() : Flags(0), AssociatedValue(0)
+{
+}
+
 static BOOL CALLBACK ClusterDialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	TCluster * p_view = static_cast<TCluster *>(TView::GetWindowUserData(hWnd));
@@ -2466,19 +2521,23 @@ void ComboBox::search(const char * pFirstLetter, int srchMode)
 	if((srchMode & ~srchFlags) == srchFirst) {
 		if(pFirstLetter) {
 			if(*pFirstLetter == 0x08) {
-				size_t x = SearchPattern.Len();
+				const  size_t x = SearchPattern.Len();
 				SearchPattern.Trim(x ? x-1 : 0);
 			}
-			else
+			else {
 				SearchPattern.Cat(pFirstLetter);
-			if(SearchPattern.C(0) != '*' || SearchPattern.C(1) != 0)
+			}
+			if(SearchPattern.C(0) != '*' || SearchPattern.C(1) != 0) {
 				r = search(SearchPattern, SrchFunc, (SearchPattern.C(0) == '*') ? srchNext : srchFirst);
+			}
 		}
 	}
-	else if((srchMode & ~srchFlags) == srchNext && SearchPattern.NotEmpty())
+	else if((srchMode & ~srchFlags) == srchNext && SearchPattern.NotEmpty()) {
 		r = search(SearchPattern, SrchFunc, srchNext);
-	if(r >= 0)
+	}
+	if(r >= 0) {
 		Draw_();
+	}
 }
 
 void FASTCALL ComboBox::setDef(ListBoxDef * pDef)
@@ -2756,14 +2815,12 @@ IMPL_HANDLE_EVENT(TImageView)
 
 void TImageView::SetOuterFigure(SDrawFigure * pFig)
 {
-	HWND hw = getHandle(); // @v11.3.4
+	HWND    hw = getHandle();
 	DELETEANDASSIGN(P_Fig, pFig);
-	// @v11.3.4 {
 	if(hw) {
 		::InvalidateRect(hw, 0, /*erase=*/TRUE);
 		::UpdateWindow(hw);
 	}
-	// } @v11.3.4 
 }
 
 int TImageView::TransmitData(int dir, void * pData)
@@ -2827,8 +2884,7 @@ int TToolTip::AddTool(ToolItem & rItem)
 		ti.hinst = SLS.GetHInst();
 		ti.uId = _cur_count+1; //++Counter;
 		if(rItem.Text.NotEmpty()) {
-			//ti.lpszText = const_cast<TCHAR *>(SUcSwitch(rItem.Text)); // @badcast // @unicodeproblem
-			ti.lpszText = const_cast<char *>(rItem.Text.cptr()); // @badcast // @unicodeproblem
+			ti.lpszText = const_cast<char *>(rItem.Text.cptr()); // @badcast
 		}
 		if(rItem.R.IsEmpty() && rItem.H) {
 			GetClientRect(rItem.H, &ti.rect);
@@ -2837,7 +2893,7 @@ int TToolTip::AddTool(ToolItem & rItem)
 			ti.rect = static_cast<RECT>(rItem.R);
 		}
 		ti.lParam = rItem.Param;
-		::SendMessageW(H, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&ti)); // @unicodeproblem
+		::SendMessageW(H, TTM_ADDTOOLA, 0, reinterpret_cast<LPARAM>(&ti));
 	}
 	else
 		ok = 0;

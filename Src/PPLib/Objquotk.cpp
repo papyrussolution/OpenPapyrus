@@ -212,12 +212,12 @@ int FASTCALL PPObjQuotKind::Special::GetCategory(PPID qkID) const
 
 void PPObjQuotKind::Special::GetDefaults(int quotCls, PPID qkID, PPID * pAcsID, PPID * pDefQkID, long * pQkSelExtra) const
 {
-	PPID   acc_sheet_id = 0;
+	PPID   acs_id = 0;
 	long   qk_sel_extra = 1;
 	PPID   new_qk_id = qkID;
 	switch(quotCls) {
 		case PPQuot::clsSupplDeal:
-			acc_sheet_id = GetSupplAccSheet();
+			acs_id = GetSupplAccSheet();
 			qk_sel_extra = QuotKindFilt::fSupplDeal;
 			if(!oneof3(new_qk_id, SupplDealID, SupplDevDnID, SupplDevUpID))
 				new_qk_id = SupplDealID;
@@ -235,14 +235,14 @@ void PPObjQuotKind::Special::GetDefaults(int quotCls, PPID qkID, PPID * pAcsID, 
 				PPObjQuotKind qk_obj;
 				PPQuotKindPacket qk_pack;
 				if(new_qk_id && qk_obj.Fetch(new_qk_id, &qk_pack) > 0 && qk_pack.Rec.AccSheetID)
-					acc_sheet_id = qk_pack.Rec.AccSheetID;
+					acs_id = qk_pack.Rec.AccSheetID;
 				else
-					acc_sheet_id = GetSellAccSheet();
+					acs_id = GetSellAccSheet();
 				qk_sel_extra = 1;
 			}
 			break;
 	}
-	ASSIGN_PTR(pAcsID, acc_sheet_id);
+	ASSIGN_PTR(pAcsID, acs_id);
 	ASSIGN_PTR(pDefQkID, new_qk_id);
 	ASSIGN_PTR(pQkSelExtra, qk_sel_extra);
 }

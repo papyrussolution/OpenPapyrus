@@ -196,7 +196,7 @@ void PPCycleArray::formatCycle(LDATE dt, char * pBuf, size_t bufLen) const
 			if(dt.day() == 1) {
 				SString month_txt;
 				SGetMonthText(dt.month(), MONF_SHORT, month_txt);
-				temp_buf.Cat(/*getMonthText(dt.month(), MONF_SHORT, month_txt)*/month_txt).Space().Cat(dt.year());
+				temp_buf.Cat(month_txt).Space().Cat(dt.year());
 			}
 			else
 				temp_buf.Cat(pos+1).Cat("-й мес");

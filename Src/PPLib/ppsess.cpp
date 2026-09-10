@@ -316,12 +316,9 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 			ENTER_CRITICAL_SECTION
 			int timer_expired = BIN(!p_timer2 ||p_timer2->Check(0));
 			if(timer_expired) {
-				// @v11.2.6 UserInterfaceSettings ui_cfg;
 				ZDELETE(p_timer2);
 				upd_available = 0;
-				// @v11.2.6 ui_cfg.Restore();
-				// @v11.2.6 if(ui_cfg.Flags & UserInterfaceSettings::fUpdateReminder) {
-				if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fUpdateReminder) { // @v11.2.6
+				if(APPL->GetUiSettings().Flags & UserInterfaceSettings::fUpdateReminder) {
 					if(PPUhttClient::ViewNewVerList(0) > 0)
 						upd_available = 1;
 				}

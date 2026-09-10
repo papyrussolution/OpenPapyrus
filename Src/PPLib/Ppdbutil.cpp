@@ -266,6 +266,29 @@ int LocalStateBinderyCore::RegisterInMemState(PPID id, int64 uedTm, const StateI
 	return ok;
 }
 
+ued_t LocalStateBinderyCore::AdjustTime(int kind, ued_t uedTime)
+{
+	ued_t result = uedTime;
+	LocalStateBinderyTbl::Key1 k1;
+	k1.Kind = kind;
+	k1.UedTm = uedTime;
+	while(result != 0ULL && P_Tbl->search(1, &k1, spEq)) {
+		SUniTime_Internal uti;
+		if(UED::_GetRaw_Time(/*uedTime*/P_Tbl->data.UedTm, uti)) {
+			if(uti.Increment(1, SUOM_MSECOND)) {
+				result = UED::_SetRaw_Time(UED_META_TIME_MSEC, uti);
+				k1.Kind = kind;
+				k1.UedTm = result;
+			}
+			else
+				result = 0;
+		}
+		else
+			result = 0;
+	}
+	return result;
+}
+
 int LocalStateBinderyCore::RegisterState(PPID * pID, const StateIdent & rIdent, SBuffer & rRawData, int use_ta)
 {
 	int    ok = 1;
@@ -278,7 +301,7 @@ int LocalStateBinderyCore::RegisterState(PPID * pID, const StateIdent & rIdent, 
 		constexpr int64 ued_meta_time = UED_META_TIME_MSEC;
 		SUniTime_Internal uti;
 		uti.SetCurrent();
-		const  uint64 now_ued_time = UED::_SetRaw_Time(ued_meta_time, uti);
+		const  ued_t  now_ued_time(UED::_SetRaw_Time(ued_meta_time, uti));
 		const  size_t size_to_write = rRawData.GetAvailableSize();
 		LocalStateBinderyTbl::Rec & r_tbl_rec = P_Tbl->data;
 		if(use_ta) {
@@ -290,8 +313,11 @@ int LocalStateBinderyCore::RegisterState(PPID * pID, const StateIdent & rIdent, 
 		//PPTransaction tra(use_ta);
 		//THROW(tra);
 		if(IsStateSerial(rIdent.Kind)) {
+			ued_t ued_time = AdjustTime(rIdent.Kind, now_ued_time);
+			THROW(ued_time); // @todo @err
+			//
 			r_tbl_rec.Clear();
-			r_tbl_rec.UedTm = now_ued_time;
+			r_tbl_rec.UedTm = ued_time;
 			r_tbl_rec.Kind = rIdent.Kind;
 			r_tbl_rec.Subject = rIdent.Subj;
 			STRNSCPY(r_tbl_rec.Symb, rIdent.Symb);
@@ -3673,6 +3699,8 @@ public:
 	static bool AreTaRecsEq(const TestTa01Tbl::Rec & rRec1, const TestTa01Tbl::Rec & rRec2);
 	static bool AreRefRecsEq(const TestRef01Tbl::Rec & rRec1, const TestRef01Tbl::Rec & rRec2);
 	static bool AreRefRecsEq(const TestRef02Tbl::Rec & rRec1, const TestRef02Tbl::Rec & rRec2);
+	//
+
 private:
 	int    GenerateString(char * pBuf, size_t maxLen);
 	int    CreateTa(int use_ta);
@@ -3774,8 +3802,8 @@ int PrcssrTestDb::InitParam(Param * pParam)
 	if(pParam) {
 		pParam->Flags = 0;
 		pParam->NumTaSeries = 100;
-		pParam->WordsFileName = 0;
-		pParam->LogFileName = 0;
+		pParam->WordsFileName.Z();
+		pParam->LogFileName.Z();
 	}
 	return 1;
 }
@@ -4516,6 +4544,260 @@ int PrcssrTestDb::Run()
 			PPGetLastErrorMessage(1, err_msg_buf);
 			LogMessage(msg_buf.Printf("Error execution of PrcssrTestDb::CreateTa(): %s", err_msg_buf.cptr()));
 			ok = 0;
+		}
+	}
+	return ok;
+}
+//
+//
+//
+PPTest_SQLite_OneWriterManyReaders_Block::PPTest_SQLite_OneWriterManyReaders_Block() : MaxRecsCount(0), CountOfWorkers(0), WorkerIdent(0)
+{
+}
+	
+bool PPTest_SQLite_OneWriterManyReaders_Block::IsValid() const
+{
+	return (DbPath.NotEmpty() && MaxRecsCount > 0 && WorkerIdent > 0 && CountOfWorkers > 0 && WorkerIdent <= CountOfWorkers);
+}
+	
+PPTest_SQLite_OneWriterManyReaders_Block & PPTest_SQLite_OneWriterManyReaders_Block::Z()
+{
+	MaxRecsCount = 0;
+	CountOfWorkers = 0;
+	WorkerIdent = 0;
+	DbPath.Z();
+	return *this;
+}
+
+int PPTest_SQLite_OneWriterManyReaders_Block::ToJson(SString & rResult) const
+{
+	rResult.Z();
+	int    ok = 0;
+	SJson * p_js = SJson::CreateObj();
+	if(p_js) {
+		p_js->InsertUInt("MaxRecsCount", MaxRecsCount);
+		p_js->InsertUInt("CountOfWorkers", CountOfWorkers);
+		p_js->InsertUInt("WorkerIdent", WorkerIdent);
+		{
+			rResult = DbPath; // Используем rResult как временный буфер
+			p_js->InsertString("DbPath", rResult.Escape());
+		}
+		ok = p_js->ToStr(rResult);
+	}
+	delete p_js;
+	return ok;
+}
+
+int PPTest_SQLite_OneWriterManyReaders_Block::FromJson(const char * pJson)
+{
+	Z();
+	int    ok = 0;
+	SJson * p_js = 0;
+	if(!isempty(pJson)) {
+		p_js = SJson::Parse(pJson);
+		if(SJson::IsObject(p_js)) {
+			for(const SJson * p_cur = p_js->P_Child; p_cur; p_cur = p_cur->P_Next) {
+				if(p_cur->Text.IsEqiAscii("MaxRecsCount")) {
+					MaxRecsCount = p_cur->P_Child->Text.ToULong();
+				}
+				else if(p_cur->Text.IsEqiAscii("CountOfWorkers")) {
+					CountOfWorkers = p_cur->P_Child->Text.ToULong();
+				}
+				else if(p_cur->Text.IsEqiAscii("WorkerIdent")) {
+					WorkerIdent = p_cur->P_Child->Text.ToULong();
+				}
+				else if(p_cur->Text.IsEqiAscii("DbPath")) {
+					(DbPath = p_cur->P_Child->Text).Unescape();
+				}
+			}
+			ok = IsValid();
+		}
+	}
+	delete p_js;
+	return ok;
+}
+
+int PPTest_SQLite_OneWriterManyReaders_Block::DoProcess(bool useConsole) const
+{
+	int    ok = 1;
+	if(useConsole) {
+		printf("Process %u/%u is running! DbPath=%s\n", WorkerIdent, CountOfWorkers, DbPath.cptr());
+	}
+	THROW(IsValid());
+	{
+		SString temp_buf;
+		SString msg_buf;
+		SString test_file_path;
+		PPGetPath(PPPATH_TESTROOT, test_file_path);
+		test_file_path.SetLastSlash().Cat("data").SetLastSlash().Cat("ts-eurusd.csv");
+		SFile f_in(test_file_path, SFile::mRead);
+		THROW_SL(f_in.IsValid());
+		{
+			StringSet ss; // Набор тестовых строк для вставки в базу данных
+			StringSet ss_written;
+			LocalStateBinderyCore instance(SConstructorTest, DbPath);
+			uint   chunk_count = 0; // Количество строк, подлежащих обработке
+			THROW(instance.IsValid());
+			{
+				uint   line_n = 0;
+				while(chunk_count < MaxRecsCount && f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+					line_n++;
+					if(temp_buf.NotEmpty()) {
+						chunk_count++;
+						if((line_n % CountOfWorkers) == WorkerIdent || ((line_n % CountOfWorkers) == 0 && WorkerIdent == CountOfWorkers)) {
+							ss.add(temp_buf);
+						}
+					}
+				}
+				THROW(ss.IsCountGreaterThan(99));
+			}
+			{
+				//
+				// Действия одной фазы цикла
+				//
+				enum {
+					opDummy = 1, // холостой ход (просто delay)
+					opRead  = 2,
+					opWrite = 3,
+				};
+				LongArray scheme; // Список действий, исполняемых в течении цикла
+				const  uint dummy_timeout = 100 + SLS.GetTLA().Rg.GetUniformIntPos(500);
+				{
+					const  uint dummy_op_count = 2 + SLS.GetTLA().Rg.GetUniformIntPos(10);
+					const  uint read_op_count = 1 + SLS.GetTLA().Rg.GetUniformIntPos(3);
+					const  uint write_op_count = 1;
+					{
+						for(uint i = 0; i < dummy_op_count; i++) {
+							scheme.add(opDummy);
+						}
+					}
+					{
+						for(uint i = 0; i < read_op_count; i++) {
+							scheme.add(opRead);
+						}
+					}
+					{
+						for(uint i = 0; i < write_op_count; i++) {
+							scheme.add(opWrite);
+						}
+					}
+					scheme.shuffle();
+				}
+				const  uint items_to_write = 10; // Количество элементов, которые будут внесены в бд за один цикл записи
+				const  uint ss_count = ss.getCount();
+				uint   items_written = 0;
+				uint   cycle_n = 0;
+				uint   ssp_write = 0; // Указатель на очередную строку ss для записи в instance
+				SBuffer buf_to_write;
+				SBuffer buf_to_read;
+				LocalStateBinderyCore::StateIdent ident;
+				ident.Kind = LocalStateBinderyCore::kInput;
+				ident.Subj = WorkerIdent;
+				ident.Symb = "Test_SQLite_OneWriterManyReaders";
+				for(bool done = false; !done; cycle_n++) {
+					const  int op = scheme.get(cycle_n % scheme.getCount());
+					switch(op) {
+						case opDummy:
+							if(useConsole)
+								printf("Process %u/%u: DUMMY phase\n", WorkerIdent, CountOfWorkers);
+							SDelay(dummy_timeout);
+							break;
+						case opRead:
+							{
+								if(useConsole)
+									printf("Process %u/%u: READING phase\n", WorkerIdent, CountOfWorkers);
+								TSCollection <LocalStateBinderyCore::SerialEntry> s;
+								instance.GetStateSerial(ident, &s);
+								bool   is_eq = true;
+								uint   ssp_written = 0;
+								for(uint i = 0; is_eq && i < s.getCount(); i++) {
+									const LocalStateBinderyCore::SerialEntry * p_entry = s.at(i);
+									is_eq = false;
+									//if(ss_written.get(&ssp_written, temp_buf)) {
+									{
+										if(p_entry) {
+											const  size_t bl = p_entry->Buf.GetAvailableSize();
+											SString & r_s_buf = SLS.AcquireRvlStr();
+											r_s_buf.CatN(p_entry->Buf.GetBufC(p_entry->Buf.GetRdOffs()), bl);
+											if(ss_written.search(r_s_buf, 0, 0)) {
+												is_eq = true;
+											}
+											/*if(r_s_buf == temp_buf) {
+												is_eq = true;
+											}*/
+										}
+									}
+								}
+								if(!is_eq) {
+									if(useConsole)
+										printf("Process %u/%u: read result comparing fault\n", WorkerIdent, CountOfWorkers);
+									; // @todo @msg
+								}
+							}
+							break;
+						case opWrite:
+							{
+								if(useConsole)
+									printf("Process %u/%u: WRITING phase\n", WorkerIdent, CountOfWorkers);
+								for(uint i = 0; !done && i < items_to_write; i++) {
+									if(ss.get(&ssp_write, temp_buf)) {
+										PPID   state_id = 0;
+										buf_to_write.Z().Write(temp_buf.cptr(), temp_buf.Len());
+										int r = instance.RegisterState(&state_id, ident, buf_to_write, 1);
+										if(r) {
+											ss_written.add(temp_buf);
+											items_written++;
+										}
+										else {
+											for(uint tryi = 0; !r && tryi < 5; tryi++) {
+												SDelay(250);
+												state_id = 0;
+												buf_to_write.Z().Write(temp_buf.cptr(), temp_buf.Len());
+												r = instance.RegisterState(&state_id, ident, buf_to_write, 1);
+												if(r) {
+													ss_written.add(temp_buf);
+													items_written++;
+												}
+											}
+											if(!r) {
+												if(useConsole) {
+													PPGetLastErrorMessage(1, msg_buf);
+													printf("Process %u/%u: writing error: %s\n", WorkerIdent, CountOfWorkers, NZOR(msg_buf.cptr(), ""));
+												}
+											}
+										}
+									}
+									else {
+										done = true;
+									}
+								}
+								if(useConsole)
+									printf("\t%u/%u items are written\n", items_written, ss_count);
+							}
+							break;
+					}
+				}
+			}
+		}
+	}
+	CATCHZOK
+	if(useConsole)
+		printf("Process %u/%u is finished with result %d!\n", WorkerIdent, CountOfWorkers, ok);
+	return ok;
+}
+
+extern "C" __declspec(dllexport) int SLIA_PPTest_SQLite_OneWriterManyReaders(const char * pArg)
+{
+	int    ok = 0;
+	if(!isempty(pArg)) {
+		SString temp_buf;
+		SBinaryChunk bc;
+		if(bc.FromMime64(pArg)) {
+			temp_buf.CatN(static_cast<const char *>(bc.PtrC()), bc.Len());
+			PPTest_SQLite_OneWriterManyReaders_Block blk;
+			if(blk.FromJson(temp_buf)) {
+				ok = blk.DoProcess(true/*useConsole*/);
+			}
 		}
 	}
 	return ok;

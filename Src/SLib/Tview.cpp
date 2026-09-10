@@ -1809,9 +1809,10 @@ TEvent & TEvent::setWinCmd(uint uMsg, WPARAM wParam, LPARAM lParam)
 	return *this;
 }
 
-uint TEvent::getCtlID() const { return message.infoView->GetId(); }
+uint TEvent::getCtlID() const { return message.infoView ? message.infoView->GetId() : 0; } // @v12.7.7 @fix проверка на message.infoView
 bool FASTCALL TEvent::isCtlEvent(uint ctlID) const { return message.infoView->TestId(ctlID); }
 bool FASTCALL TEvent::isCmd(uint cmd) const { return (what == evCommand && message.command == cmd); }
+bool FASTCALL TEvent::isBroadcast(uint cmd) const { return (what == evBroadcast && message.command == cmd); } // @v12.7.7
 bool FASTCALL TEvent::isKeyDown(uint keyCode) const { return (what == evKeyDown && keyDown.keyCode == keyCode); }
 bool FASTCALL TEvent::isCbSelected(uint ctlID) const { return (what == evCommand && message.command == cmCBSelected && message.infoView->TestId(ctlID)); }
 bool FASTCALL TEvent::isClusterClk(uint ctlID) const { return (what == evCommand && message.command == cmClusterClk && message.infoView->TestId(ctlID)); }
@@ -2210,4 +2211,10 @@ const TView * FASTCALL TViewGroup::getCtrlViewC(ushort ctlID) const // @v12.3.7 
 	return 0;
 }
 
-TView * FASTCALL TViewGroup::getCtrlView(ushort ctlID) { return const_cast<TView *>(getCtrlViewC(ctlID)); } // @v12.3.7 moved from TWindow
+TView * FASTCALL TViewGroup::getCtrlView(ushort ctlId) { return const_cast<TView *>(getCtrlViewC(ctlId)); } // @v12.3.7 moved from TWindow
+
+TView * FASTCALL TViewGroup::getCtrlViewEnsureSubsign(ushort ctlId, uint subsign) // @v12.7.7
+{
+	TView * p_view = const_cast<TView *>(getCtrlViewC(ctlId));
+	return TView::IsSubSign(p_view, subsign) ? p_view : 0;
+}

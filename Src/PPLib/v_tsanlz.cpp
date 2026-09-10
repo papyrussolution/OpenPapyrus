@@ -1,5 +1,5 @@
 // V_TSANLZ.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -837,8 +837,7 @@ int PPViewTSessAnlz::Init_(const PPBaseFilt * pBaseFilt)
 					fact_hours -= sess_rec.StTm.hour();
 					fact_hours += sess_rec.FinTm ? sess_rec.FinTm.hour() : 24;
 					const double part = fdivi(fact_hours, plan_hours);
-					PlanList.Scale(part); // @v10.8.10
-					/* @v10.8.10 for(i = 0; i < PlanList.getCount(); i++) PlanList.at(i).Val *= part; */
+					PlanList.Scale(part);
 				}
 			}
 		}
@@ -1271,7 +1270,7 @@ int PPALDD_TSessAnlz::NextIteration(PPIterID iterId)
 	STRNSCPY(I.DtText,        item.DtText);
 	if(item.PrcID == MAXLONG) {
 		SString temp_buf;
-		temp_buf.CatCharN(255, sizeof(I.Intrn_PrcName)-1); // @v10.5.3 'я'-->255
+		temp_buf.CatCharN(255, sizeof(I.Intrn_PrcName)-1);
 		STRNSCPY(I.Intrn_PrcName, temp_buf);
 	}
 	else

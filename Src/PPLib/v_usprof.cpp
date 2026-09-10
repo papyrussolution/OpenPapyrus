@@ -46,7 +46,7 @@ public:
 					db_pos = i+1;
 			}
 		}
-		db_list.SortByText(); // @v10.9.10
+		db_list.SortByText();
 		for(i = PPUPRF_LOGIN; i < PPUPRF_LAST; i++) {
 			PPLoadString(PPSTR_USRPROFILEFUNCNAM, i, temp_buf);
 			if(temp_buf.NotEmptyS())

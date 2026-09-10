@@ -109,7 +109,7 @@
 			MENUITEM "@cmd_personreltype",				cmPersonRelType
 			MENUITEM "@cmd_personrel",					cmPersonRel
 			MENUITEM "@cmd_taxsystemkind",	            cmTaxSystemKind
-			MENUITEM "@addressbook",                    cmAddressBook // @v10.7.6
+			MENUITEM "@addressbook",                    cmAddressBook
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_scardseries",				cmSCardSeries
 			MENUITEM "@cmd_scard",						cmSCard
@@ -316,17 +316,13 @@
 			POPUP "@cmdpu_import" {
 				MENUITEM "@cmd_importgoodsgrp",				cmImportGoodsGrp
 				MENUITEM "@cmd_importgoods",				cmImportGoods
-				// @v10.1.2 MENUITEM "@cmd_importgoodsold",				cmImportGoodsOld
 				MENUITEM "@cmd_importsr25",					cmImportSR25
 				MENUITEM "@cmd_importsuprware",				cmImportSuprWare
 				MENUITEM "@cmd_importcountry",				cmImportCountry
 				MENUITEM "@cmd_importquot2",				cmImportQuot2
-				// @v10.1.2 MENUITEM "@cmd_importquot",					cmImportQuot
 				MENUITEM "@cmd_importperson2",				cmImportPerson2
-				// @v10.1.2 MENUITEM "@cmd_importperson",				cmImportPerson
 				MENUITEM "@cmd_importsuppl",				cmImportSuppl
 				MENUITEM "@cmd_importscard2",				cmImportSCard2
-				// @v10.1.2 MENUITEM "@cmd_importscard",				cmImportSCard
 				MENUITEM "@cmd_importbanks",				cmImportBanks
 				MENUITEM "@cmd_importkladr",				cmImportKLADR
 				MENUITEM "@cmd_importtodofromvcal",			cmImportTodoFromVCal
@@ -350,9 +346,8 @@
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_importposrefs",                  cmImportPosRefs
 			MENUITEM SEPARATOR
-			// @v9.2.1 MENUITEM "@cmd_supplgoodsimport",				cmSupplGoodsImport
 			MENUITEM "@cmd_supplinterchange",				cmSupplInterchange
-			MENUITEM "@cmd_vetisinerchange",                cmVetisInterchange // @v10.1.2
+			MENUITEM "@cmd_vetisinerchange",                cmVetisInterchange
 			MENUITEM "@cmd_marketplaceinterchange",         cmMarketplaceInterchange // @v12.1.3
 			MENUITEM "@cmd_aptekaruinterchange",            cmAptekaRuInterchange // @v12.2.2
 			MENUITEM "@view_wbpublicgoods",                 cmWbPublicGoods // @v12.4.1 Импорт товаров с маркетплейса Wildberries
@@ -417,7 +412,7 @@
 		MENUITEM "@cmd_viewordlots",						cmViewOrdLots
 		MENUITEM "@cmd_trfranalyze",						cmTrfrAnalyze
 		MENUITEM "@cmd_shipmanalyze"						cmShipmAnalyze
-		MENUITEM "@cmd_quotereqanalyze"						cmQuoteReqAnalyze // @v10.5.7
+		MENUITEM "@cmd_quotereqanalyze"						cmQuoteReqAnalyze
 		MENUITEM "@cmd_priceanlz",							cmPriceAnlz
 		MENUITEM "@cmd_goodsrest",							cmGoodsRest
 		POPUP "@cmdpu_settlementsdebtncred" {
@@ -476,9 +471,7 @@
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_albatroscfg",					cmAlbatrosCfg
 			MENUITEM "@cmd_inetconncfg",					cmInetConnCfg
-			// @v10.7.11 MENUITEM "@cmd_mailacct",						cmMailAcct
-			// @v10.7.11 MENUITEM "@cmd_ftpacct",						cmFTPAcct
-			MENUITEM "@cmd_interchangeaccounts"             cmMailAcct // @v10.7.11
+			MENUITEM "@cmd_interchangeaccounts"             cmMailAcct
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_vatbooksellcfg",					cmVATBookSellCfg
 		   	MENUITEM "@cmd_vatbookbuycfg",					cmVATBookBuyCfg
@@ -520,11 +513,6 @@
 		POPUP "@cmdpu_ui" {
 			MENUITEM "@cmd_userinterfacecfg",               cmUserInterfaceCfg
 			MENUITEM "@cmd_seldesktop",						cmSelDesktop
-			// @v10.9.3 MENUITEM SEPARATOR
-			// @v10.9.3 MENUITEM "@cmd_editdesktops",					cmEditDesktops
-			// @v10.9.3 MENUITEM SEPARATOR
-			// @v10.9.3 MENUITEM "@cmd_editmenus",						cmEditMenus
-			// @v10.9.3 MENUITEM "@cmd_editmenusfromfile",				cmEditMenusFromFile
 			MENUITEM "@cmd_usermenu",                       cmUserMenu
 			MENUITEM SEPARATOR
 			MENUITEM "@cmd_editpaintcloths",                cmEditPaintCloths
@@ -534,7 +522,7 @@
 		MENUITEM "@cmd_updatepassword",						cmUpdatePassword
 		MENUITEM "@cmd_activeuserslist",					cmActiveUsersList
 		MENUITEM "@cmd_viewsysj",							cmViewSysJ
-		MENUITEM "@cmd_events",                             cmEvents // @v10.9.1
+		MENUITEM "@cmd_events",                             cmEvents
 		MENUITEM "@cmd_viewlogsmon",						cmViewLogsMon
 		MENUITEM "@cmd_viewcheckopj",						cmViewCheckOpJ
 		MENUITEM "@cmd_userprofile",						cmUserProfile

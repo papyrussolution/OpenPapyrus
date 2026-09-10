@@ -288,7 +288,7 @@ static int StyloPalmListFilt(void * pRec, void * extraPtr)
 PPObjStyloPalm::PPObjStyloPalm(void * extraPtr) : PPObjReference(PPOBJ_STYLOPALM, extraPtr)
 {
 	FiltProc = StyloPalmListFilt;
-	ImplementFlags |= (implStrAssocMakeList | implTreeSelector);
+	ImplementFlags |= (implStrAssocMakeList|implTreeSelector);
 }
 
 StrAssocArray * PPObjStyloPalm::MakeStrAssocList(void * extraPtr)
@@ -942,7 +942,7 @@ int PPObjStyloPalm::ResolveClientID(const char * pInTblPath, PPID inID, PPID * p
 {
 	int    ok = -1;
 	PPID   acsh_id = GetSellAccSheet();
-	PPAccSheet acs_rec;
+	PPAccSheet2 acs_rec;
 	PPObjArticle ar_obj;
 	ArticleTbl::Rec ar_rec;
 	if(inID > 0) {
@@ -3675,7 +3675,7 @@ int PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock & rBlk
 		ar_filt.AccSheetID = acsID;
 		ArticleViewItem ar_item;
 		PPObjAccSheet acc_sheet_obj;
-		PPAccSheet acs_rec;
+		PPAccSheet2 acs_rec;
 
 		THROW(acc_sheet_obj.Fetch(acsID, &acs_rec) > 0);
 		PPLoadText(PPTXT_WAIT_PALMEXPCLI, wait_msg);

@@ -2447,7 +2447,6 @@ private:
 			Data.ScndSCardID = 0;
 		}
 		if(opID && PokObj.GetPacket(opID, &pok_pack) > 0) {
-			// @v10.3.0 (never used) int    disable_taglist = 0;
 			PsnEventDialog::Param param;
 			PsnEventDialog::GetParam(opID, &param);
 			{
