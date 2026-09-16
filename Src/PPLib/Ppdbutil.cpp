@@ -137,6 +137,28 @@ LocalStateBinderyCore::~LocalStateBinderyCore()
 	delete P_DbP;
 }
 
+bool LocalStateBinderyCore::IsCurrentDatabaseInstance() const // @v12.7.8
+{
+	SString db_code;
+	LocalStateBinderyCore::MakeCurrentDatabaseCode(db_code);
+	return (DbCode == db_code);
+}
+
+/*static*/SString & LocalStateBinderyCore::MakeCurrentDatabaseCode(SString & rBuf)
+{
+	rBuf.Z();
+	{
+		const  DbProvider * p_dict = CurDict;
+		if(p_dict && p_dict->GetDbSymb(rBuf) && rBuf.NotEmptyS()) {
+			rBuf.Insert(0, "db-");
+		}
+		else {
+			rBuf = "oodb";
+		}
+	}
+	return rBuf;
+}
+
 int LocalStateBinderyCore::OpenDatabase(const char * pPath)
 {
 	int    ok = 1;
@@ -145,12 +167,28 @@ int LocalStateBinderyCore::OpenDatabase(const char * pPath)
 	PPThreadLocalArea & r_tla = DS.GetTLA();
 	SString temp_buf;
 	SString data_path;
+	SString db_code;
 	if(!isempty(pPath)) {
 		data_path = pPath;
 	}
 	else {
-		PPGetPath(PPPATH_LOCAL, data_path);
-		THROW_SL(SFile::IsDir(data_path));
+		LocalStateBinderyCore::MakeCurrentDatabaseCode(db_code); // @v12.7.8
+		GetKnownFolderPath(UED_FSKNOWNFOLDER_ROAMING_APP_DATA, data_path);
+		if(SFile::IsDir(data_path)) {
+			const char * p_app_name = SLS.GetAppName();
+			if(!isempty(p_app_name)) {
+				data_path.SetLastSlash().Cat(p_app_name);
+			}
+			data_path.SetLastSlash().Cat(db_code);
+			if(SFile::CreateDir(data_path)) {
+				;
+			}
+			else
+				data_path.Z();
+		}
+		THROW(SFile::IsDir(data_path));
+		//PPGetPath(PPPATH_LOCAL, data_path);
+		//THROW_SL(SFile::IsDir(data_path));
 		data_path.SetLastSlash().Cat("StateBindery");
 	}
 	THROW_SL(SFile::CreateDir(data_path));
@@ -173,6 +211,7 @@ int LocalStateBinderyCore::OpenDatabase(const char * pPath)
 			P_Tbl = new LocalStateBinderyTbl(0, P_DbP);
 		}
 	}
+	DbCode = db_code; // @v12.7.8
 	CATCHZOK
 	return ok;
 }
@@ -3934,14 +3973,12 @@ int PrcssrTestDb::CreateTa(int use_ta)
 				P_Ta->CopyBufFrom(&rec, sizeof(rec));
 				LogGenRec(P_Ta);
 			}
-			if(p_bei) {
-				THROW_DB(p_bei->insert(&rec));
-			}
-			else
-				THROW_DB(P_Ta->insertRecBuf(&rec));
+			const  int r = p_bei ? p_bei->insert(&rec) : P_Ta->insertRecBuf(&rec);
+			THROW_DB(r);
 		}
-		if(p_bei)
+		if(p_bei) {
 			THROW_DB(p_bei->flash());
+		}
 		TaCount += count;
 		THROW(tra.Commit());
 	}
@@ -4551,17 +4588,18 @@ int PrcssrTestDb::Run()
 //
 //
 //
-PPTest_SQLite_OneWriterManyReaders_Block::PPTest_SQLite_OneWriterManyReaders_Block() : MaxRecsCount(0), CountOfWorkers(0), WorkerIdent(0)
+PPTest_SQLite_OneWriterManyReaders_Block::PPTest_SQLite_OneWriterManyReaders_Block() : Flags(0), MaxRecsCount(0), CountOfWorkers(0), WorkerIdent(0)
 {
 }
 	
 bool PPTest_SQLite_OneWriterManyReaders_Block::IsValid() const
 {
-	return (DbPath.NotEmpty() && MaxRecsCount > 0 && WorkerIdent > 0 && CountOfWorkers > 0 && WorkerIdent <= CountOfWorkers);
+	return (DbPath.NotEmpty() && MaxRecsCount > 0 && (WorkerIdent > 0 || (Flags & fVerifyResult)) && CountOfWorkers > 0 && WorkerIdent <= CountOfWorkers);
 }
 	
 PPTest_SQLite_OneWriterManyReaders_Block & PPTest_SQLite_OneWriterManyReaders_Block::Z()
 {
+	Flags = 0;
 	MaxRecsCount = 0;
 	CountOfWorkers = 0;
 	WorkerIdent = 0;
@@ -4575,6 +4613,7 @@ int PPTest_SQLite_OneWriterManyReaders_Block::ToJson(SString & rResult) const
 	int    ok = 0;
 	SJson * p_js = SJson::CreateObj();
 	if(p_js) {
+		p_js->InsertUInt("Flags", Flags);
 		p_js->InsertUInt("MaxRecsCount", MaxRecsCount);
 		p_js->InsertUInt("CountOfWorkers", CountOfWorkers);
 		p_js->InsertUInt("WorkerIdent", WorkerIdent);
@@ -4597,7 +4636,10 @@ int PPTest_SQLite_OneWriterManyReaders_Block::FromJson(const char * pJson)
 		p_js = SJson::Parse(pJson);
 		if(SJson::IsObject(p_js)) {
 			for(const SJson * p_cur = p_js->P_Child; p_cur; p_cur = p_cur->P_Next) {
-				if(p_cur->Text.IsEqiAscii("MaxRecsCount")) {
+				if(p_cur->Text.IsEqiAscii("Flags")) {
+					Flags = p_cur->P_Child->Text.ToULong();
+				}
+				else if(p_cur->Text.IsEqiAscii("MaxRecsCount")) {
 					MaxRecsCount = p_cur->P_Child->Text.ToULong();
 				}
 				else if(p_cur->Text.IsEqiAscii("CountOfWorkers")) {
@@ -4628,153 +4670,240 @@ int PPTest_SQLite_OneWriterManyReaders_Block::DoProcess(bool useConsole) const
 		SString temp_buf;
 		SString msg_buf;
 		SString test_file_path;
+		StringSet ss; // Набор тестовых строк для вставки в базу данных
 		PPGetPath(PPPATH_TESTROOT, test_file_path);
 		test_file_path.SetLastSlash().Cat("data").SetLastSlash().Cat("ts-eurusd.csv");
 		SFile f_in(test_file_path, SFile::mRead);
 		THROW_SL(f_in.IsValid());
 		{
-			StringSet ss; // Набор тестовых строк для вставки в базу данных
-			StringSet ss_written;
-			LocalStateBinderyCore instance(SConstructorTest, DbPath);
 			uint   chunk_count = 0; // Количество строк, подлежащих обработке
+			LocalStateBinderyCore instance(SConstructorTest, DbPath);
 			THROW(instance.IsValid());
-			{
-				uint   line_n = 0;
-				while(chunk_count < MaxRecsCount && f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-					line_n++;
-					if(temp_buf.NotEmpty()) {
-						chunk_count++;
-						if((line_n % CountOfWorkers) == WorkerIdent || ((line_n % CountOfWorkers) == 0 && WorkerIdent == CountOfWorkers)) {
-							ss.add(temp_buf);
-						}
-					}
-				}
-				THROW(ss.IsCountGreaterThan(99));
-			}
-			{
+			if(Flags & fVerifyResult) {
 				//
-				// Действия одной фазы цикла
+				// Блок окончательной проверки результатов
 				//
-				enum {
-					opDummy = 1, // холостой ход (просто delay)
-					opRead  = 2,
-					opWrite = 3,
-				};
-				LongArray scheme; // Список действий, исполняемых в течении цикла
-				const  uint dummy_timeout = 100 + SLS.GetTLA().Rg.GetUniformIntPos(500);
 				{
-					const  uint dummy_op_count = 2 + SLS.GetTLA().Rg.GetUniformIntPos(10);
-					const  uint read_op_count = 1 + SLS.GetTLA().Rg.GetUniformIntPos(3);
-					const  uint write_op_count = 1;
-					{
-						for(uint i = 0; i < dummy_op_count; i++) {
-							scheme.add(opDummy);
+					uint   line_n = 0;
+					while(chunk_count < MaxRecsCount && f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+						line_n++;
+						if(temp_buf.NotEmpty()) {
+							chunk_count++;
+							if(!WorkerIdent) {
+								ss.add(temp_buf);
+							}
+							else if((line_n % CountOfWorkers) == WorkerIdent || ((line_n % CountOfWorkers) == 0 && WorkerIdent == CountOfWorkers)) {
+								ss.add(temp_buf);
+							}
 						}
 					}
-					{
-						for(uint i = 0; i < read_op_count; i++) {
-							scheme.add(opRead);
-						}
-					}
-					{
-						for(uint i = 0; i < write_op_count; i++) {
-							scheme.add(opWrite);
-						}
-					}
-					scheme.shuffle();
+					THROW(ss.IsCountGreaterThan(99));
 				}
-				const  uint items_to_write = 10; // Количество элементов, которые будут внесены в бд за один цикл записи
-				const  uint ss_count = ss.getCount();
-				uint   items_written = 0;
-				uint   cycle_n = 0;
-				uint   ssp_write = 0; // Указатель на очередную строку ss для записи в instance
-				SBuffer buf_to_write;
-				SBuffer buf_to_read;
-				LocalStateBinderyCore::StateIdent ident;
-				ident.Kind = LocalStateBinderyCore::kInput;
-				ident.Subj = WorkerIdent;
-				ident.Symb = "Test_SQLite_OneWriterManyReaders";
-				for(bool done = false; !done; cycle_n++) {
-					const  int op = scheme.get(cycle_n % scheme.getCount());
-					switch(op) {
-						case opDummy:
-							if(useConsole)
-								printf("Process %u/%u: DUMMY phase\n", WorkerIdent, CountOfWorkers);
-							SDelay(dummy_timeout);
-							break;
-						case opRead:
-							{
-								if(useConsole)
-									printf("Process %u/%u: READING phase\n", WorkerIdent, CountOfWorkers);
-								TSCollection <LocalStateBinderyCore::SerialEntry> s;
-								instance.GetStateSerial(ident, &s);
-								bool   is_eq = true;
-								uint   ssp_written = 0;
-								for(uint i = 0; is_eq && i < s.getCount(); i++) {
-									const LocalStateBinderyCore::SerialEntry * p_entry = s.at(i);
-									is_eq = false;
-									//if(ss_written.get(&ssp_written, temp_buf)) {
-									{
-										if(p_entry) {
-											const  size_t bl = p_entry->Buf.GetAvailableSize();
-											SString & r_s_buf = SLS.AcquireRvlStr();
-											r_s_buf.CatN(p_entry->Buf.GetBufC(p_entry->Buf.GetRdOffs()), bl);
-											if(ss_written.search(r_s_buf, 0, 0)) {
-												is_eq = true;
-											}
-											/*if(r_s_buf == temp_buf) {
-												is_eq = true;
-											}*/
-										}
+				{
+					uint   _worker_ident = 0;
+					TSCollection <LocalStateBinderyCore::SerialEntry> s;
+					if(WorkerIdent == 0) {
+						for(uint wi = 0; wi < CountOfWorkers; wi++) {
+							_worker_ident = wi+1;
+							//
+							LocalStateBinderyCore::StateIdent ident;
+							ident.Kind = LocalStateBinderyCore::kInput;
+							ident.Subj = _worker_ident;
+							ident.Symb = "Test_SQLite_OneWriterManyReaders";
+							//
+							instance.GetStateSerial(ident, &s);
+							bool   is_eq = true;
+							uint   ssp_written = 0;
+							for(uint i = 0; is_eq && i < s.getCount(); i++) {
+								const LocalStateBinderyCore::SerialEntry * p_entry = s.at(i);
+								is_eq = false;
+								if(p_entry) {
+									const  size_t bl = p_entry->Buf.GetAvailableSize();
+									SString & r_s_buf = SLS.AcquireRvlStr();
+									r_s_buf.CatN(p_entry->Buf.GetBufC(p_entry->Buf.GetRdOffs()), bl);
+									if(ss.search(r_s_buf, 0, 0)) {
+										is_eq = true;
 									}
 								}
-								if(!is_eq) {
-									if(useConsole)
-										printf("Process %u/%u: read result comparing fault\n", WorkerIdent, CountOfWorkers);
-									; // @todo @msg
+							}
+							if(!is_eq) {
+								if(useConsole)
+									printf("Process %u/%u: read result comparing fault\n", _worker_ident, CountOfWorkers);
+								ok = 0;
+							}
+						}
+					}
+					else {
+						_worker_ident = WorkerIdent;
+						//
+						LocalStateBinderyCore::StateIdent ident;
+						ident.Kind = LocalStateBinderyCore::kInput;
+						ident.Subj = _worker_ident;
+						ident.Symb = "Test_SQLite_OneWriterManyReaders";
+						//
+						instance.GetStateSerial(ident, &s);
+						bool   is_eq = true;
+						uint   ssp_written = 0;
+						for(uint i = 0; is_eq && i < s.getCount(); i++) {
+							const LocalStateBinderyCore::SerialEntry * p_entry = s.at(i);
+							is_eq = false;
+							if(p_entry) {
+								const  size_t bl = p_entry->Buf.GetAvailableSize();
+								SString & r_s_buf = SLS.AcquireRvlStr();
+								r_s_buf.CatN(p_entry->Buf.GetBufC(p_entry->Buf.GetRdOffs()), bl);
+								if(ss.search(r_s_buf, 0, 0)) {
+									is_eq = true;
 								}
 							}
-							break;
-						case opWrite:
-							{
+						}
+						if(!is_eq) {
+							if(useConsole)
+								printf("Process %u/%u: read result comparing fault\n", _worker_ident, CountOfWorkers);
+							ok = 0;
+						}
+					}
+				}
+			}
+			else {
+				StringSet ss_written;
+				{
+					uint   line_n = 0;
+					while(chunk_count < MaxRecsCount && f_in.ReadLine(temp_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+						line_n++;
+						if(temp_buf.NotEmpty()) {
+							chunk_count++;
+							if((line_n % CountOfWorkers) == WorkerIdent || ((line_n % CountOfWorkers) == 0 && WorkerIdent == CountOfWorkers)) {
+								ss.add(temp_buf);
+							}
+						}
+					}
+					THROW(ss.IsCountGreaterThan(99));
+				}
+				{
+					//
+					// Действия одной фазы цикла
+					//
+					enum {
+						opDummy = 1, // холостой ход (просто delay)
+						opRead  = 2,
+						opWrite = 3,
+					};
+					LongArray scheme; // Список действий, исполняемых в течении цикла
+					const  uint dummy_timeout = 100 + SLS.GetTLA().Rg.GetUniformIntPos(500);
+					{
+						const  uint dummy_op_count = 2 + SLS.GetTLA().Rg.GetUniformIntPos(10);
+						const  uint read_op_count = 1 + SLS.GetTLA().Rg.GetUniformIntPos(3);
+						const  uint write_op_count = 1;
+						{
+							for(uint i = 0; i < dummy_op_count; i++) {
+								scheme.add(opDummy);
+							}
+						}
+						{
+							for(uint i = 0; i < read_op_count; i++) {
+								scheme.add(opRead);
+							}
+						}
+						{
+							for(uint i = 0; i < write_op_count; i++) {
+								scheme.add(opWrite);
+							}
+						}
+						scheme.shuffle();
+					}
+					const  uint items_to_write = 10; // Количество элементов, которые будут внесены в бд за один цикл записи
+					const  uint ss_count = ss.getCount();
+					uint   items_written = 0;
+					uint   cycle_n = 0;
+					uint   ssp_write = 0; // Указатель на очередную строку ss для записи в instance
+					SBuffer buf_to_write;
+					SBuffer buf_to_read;
+					LocalStateBinderyCore::StateIdent ident;
+					ident.Kind = LocalStateBinderyCore::kInput;
+					ident.Subj = WorkerIdent;
+					ident.Symb = "Test_SQLite_OneWriterManyReaders";
+					for(bool done = false; !done; cycle_n++) {
+						const  int op = scheme.get(cycle_n % scheme.getCount());
+						switch(op) {
+							case opDummy:
 								if(useConsole)
-									printf("Process %u/%u: WRITING phase\n", WorkerIdent, CountOfWorkers);
-								for(uint i = 0; !done && i < items_to_write; i++) {
-									if(ss.get(&ssp_write, temp_buf)) {
-										PPID   state_id = 0;
-										buf_to_write.Z().Write(temp_buf.cptr(), temp_buf.Len());
-										int r = instance.RegisterState(&state_id, ident, buf_to_write, 1);
-										if(r) {
-											ss_written.add(temp_buf);
-											items_written++;
+									printf("Process %u/%u: DUMMY phase\n", WorkerIdent, CountOfWorkers);
+								SDelay(dummy_timeout);
+								break;
+							case opRead:
+								{
+									if(useConsole)
+										printf("Process %u/%u: READING phase\n", WorkerIdent, CountOfWorkers);
+									TSCollection <LocalStateBinderyCore::SerialEntry> s;
+									instance.GetStateSerial(ident, &s);
+									bool   is_eq = true;
+									uint   ssp_written = 0;
+									for(uint i = 0; is_eq && i < s.getCount(); i++) {
+										const LocalStateBinderyCore::SerialEntry * p_entry = s.at(i);
+										is_eq = false;
+										//if(ss_written.get(&ssp_written, temp_buf)) {
+										{
+											if(p_entry) {
+												const  size_t bl = p_entry->Buf.GetAvailableSize();
+												SString & r_s_buf = SLS.AcquireRvlStr();
+												r_s_buf.CatN(p_entry->Buf.GetBufC(p_entry->Buf.GetRdOffs()), bl);
+												if(ss_written.search(r_s_buf, 0, 0)) {
+													is_eq = true;
+												}
+												/*if(r_s_buf == temp_buf) {
+													is_eq = true;
+												}*/
+											}
+										}
+									}
+									if(!is_eq) {
+										if(useConsole)
+											printf("Process %u/%u: read result comparing fault\n", WorkerIdent, CountOfWorkers);
+										; // @todo @msg
+									}
+								}
+								break;
+							case opWrite:
+								{
+									if(useConsole)
+										printf("Process %u/%u: WRITING phase\n", WorkerIdent, CountOfWorkers);
+									for(uint i = 0; !done && i < items_to_write; i++) {
+										if(ss.get(&ssp_write, temp_buf)) {
+											PPID   state_id = 0;
+											buf_to_write.Z().Write(temp_buf.cptr(), temp_buf.Len());
+											int r = instance.RegisterState(&state_id, ident, buf_to_write, 1);
+											if(r) {
+												ss_written.add(temp_buf);
+												items_written++;
+											}
+											else {
+												for(uint tryi = 0; !r && tryi < 5; tryi++) {
+													SDelay(250);
+													state_id = 0;
+													buf_to_write.Z().Write(temp_buf.cptr(), temp_buf.Len());
+													r = instance.RegisterState(&state_id, ident, buf_to_write, 1);
+													if(r) {
+														ss_written.add(temp_buf);
+														items_written++;
+													}
+												}
+												if(!r) {
+													if(useConsole) {
+														PPGetLastErrorMessage(1, msg_buf);
+														printf("Process %u/%u: writing error: %s\n", WorkerIdent, CountOfWorkers, NZOR(msg_buf.cptr(), ""));
+													}
+												}
+											}
 										}
 										else {
-											for(uint tryi = 0; !r && tryi < 5; tryi++) {
-												SDelay(250);
-												state_id = 0;
-												buf_to_write.Z().Write(temp_buf.cptr(), temp_buf.Len());
-												r = instance.RegisterState(&state_id, ident, buf_to_write, 1);
-												if(r) {
-													ss_written.add(temp_buf);
-													items_written++;
-												}
-											}
-											if(!r) {
-												if(useConsole) {
-													PPGetLastErrorMessage(1, msg_buf);
-													printf("Process %u/%u: writing error: %s\n", WorkerIdent, CountOfWorkers, NZOR(msg_buf.cptr(), ""));
-												}
-											}
+											done = true;
 										}
 									}
-									else {
-										done = true;
-									}
+									if(useConsole)
+										printf("\t%u/%u items are written\n", items_written, ss_count);
 								}
-								if(useConsole)
-									printf("\t%u/%u items are written\n", items_written, ss_count);
-							}
-							break;
+								break;
+						}
 					}
 				}
 			}

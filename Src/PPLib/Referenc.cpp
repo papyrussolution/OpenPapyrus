@@ -376,10 +376,12 @@ int Reference::UpdateItem(PPID obj, PPID id, const void * b, int logAction/*=1*/
 				else
 					ok = -1;
 			}
-			else if(BTRNFOUND)
+			else if(BTRNFOUND) {
 				ok = (PPSetObjError(PPERR_OBJNFOUND, obj, id), 0);
-			else
+			}
+			else {
 				ok = PPSetErrorDB();
+			}
 		} while(r == 0);
 		THROW(tra.Commit());
 	}

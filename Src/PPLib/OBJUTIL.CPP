@@ -626,194 +626,222 @@ int PPObject::CreateReservedObjects(long flags)
 	// @todo Выдавать на экран список объектов, созданных в результате работы функции
 	int    ok = 1;
 	PPIDArray obj_type_list;
+	PPIniFile ini_file;
+	SString temp_buf;
+	SString db_symb;
+	const  DbProvider * p_dict = CurDict;
 	PPWaitStart();
-	PPGetObjTypeList(&obj_type_list, 0);
-    {
-    	uint   p1 = 0;
-		uint   p2 = 0;
-    	if(obj_type_list.lsearch(PPOBJ_PERSONKIND, &p1) && obj_type_list.lsearch(PPOBJ_ACCSHEET, &p2)) {
-			if(p1 > p2)
-				obj_type_list.swap(p1, p2);
-    	}
-    	p1 = p2 = 0;
-    	if(obj_type_list.lsearch(PPOBJ_ACCSHEET, &p1) && obj_type_list.lsearch(PPOBJ_OPRKIND, &p2)) {
-			if(p1 > p2)
-				obj_type_list.swap(p1, p2);
-    	}
-    }
-	for(uint i = 0; i < obj_type_list.getCount(); i++) {
-		PPObject * p_o = GetPPObject(obj_type_list.at(i), 0);
-		if(p_o) {
-			if(p_o->MakeReserved(flags)) {
-				if(p_o->Obj == PPOBJ_STAFFCAL) {
-					/*
-					// @todo Если в конфигурации персоналий не определен регулярный штатный календарь, то его надо создать (PPSTCAL_REGULAR) и
-					// включить в конфигурацию.
-					//
-					PPPersonConfig psn_cfg;
-					PPObjPerson::ReadConfig(&psn_cfg);
-					if(!psn_cfg.RegStaffCalID) {
+	if(p_dict) {
+		p_dict->GetDbSymb(db_symb);
+		if(db_symb.NotEmpty()) {
+			ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_CENTRIGOCONSTRUCTION_DBSYMBLIST, temp_buf);
+			if(temp_buf.NotEmpty()) {
+				StringSet ss;
+				temp_buf.Tokenize(",; ", ss);
+				for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+					temp_buf.Strip();
+					if(temp_buf.IsEqiAscii(db_symb)) {
+						flags |= mrfPersonalFinance;
+						break;
+					}
+				}
+			}
+		}
+		PPGetObjTypeList(&obj_type_list, 0);
+		{
+    		uint   p1 = 0;
+			uint   p2 = 0;
+    		if(obj_type_list.lsearch(PPOBJ_PERSONKIND, &p1) && obj_type_list.lsearch(PPOBJ_ACCSHEET, &p2)) {
+				if(p1 > p2)
+					obj_type_list.swap(p1, p2);
+    		}
+    		p1 = p2 = 0;
+    		if(obj_type_list.lsearch(PPOBJ_ACCSHEET, &p1) && obj_type_list.lsearch(PPOBJ_OPRKIND, &p2)) {
+				if(p1 > p2)
+					obj_type_list.swap(p1, p2);
+    		}
+			// @v12.7.8 {
+    		p1 = p2 = 0;
+    		if(obj_type_list.lsearch(PPOBJ_ACCSHEET, &p1) && obj_type_list.lsearch(PPOBJ_ACCOUNT2, &p2)) {
+				if(p1 > p2)
+					obj_type_list.swap(p1, p2);
+    		}
+			// } @v12.7.8 
+		}
+		for(uint i = 0; i < obj_type_list.getCount(); i++) {
+			PPObject * p_o = GetPPObject(obj_type_list.at(i), 0);
+			if(p_o) {
+				if(p_o->MakeReserved(flags)) {
+					if(p_o->Obj == PPOBJ_STAFFCAL) {
+						/*
+						// @todo Если в конфигурации персоналий не определен регулярный штатный календарь, то его надо создать (PPSTCAL_REGULAR) и
+						// включить в конфигурацию.
+						//
+						PPPersonConfig psn_cfg;
+						PPObjPerson::ReadConfig(&psn_cfg);
+						if(!psn_cfg.RegStaffCalID) {
 						
-					}
-					*/
-				}
-			}
-			else
-				ok = PPErrorZ();
-			delete p_o;
-		}
-	}
-	if(flags & mrfInitializeDb) {
-		PPObjSecur sec_obj(PPOBJ_CONFIG, 0);
-		PPSecur2 sec_rec;
-		if(sec_obj.Search(PPCFG_MAIN, &sec_rec) > 0) {
-			PPConfig cfg_rec;
-			PPCommConfig comm_cfg;
-			Reference * p_ref(PPRef);
-			PPIDArray loc_acs_list;
-			PPIDArray sell_acs_list;
-			PPIDArray suppl_acs_list;
-			PPIDArray main_org_list;
-			PPIDArray loc_list;
-			PPID   suppl_acs_id = 0;
-			PPID   rcpt_op_id = 0;
-			PPID   purchase_op_id = 0;
-			PPID   retail_op_id = 0;
-			PPID   intr_rcpt_op_id = 0;
-			{
-				PPObjAccSheet acs_obj;
-				PPAccSheet2 acs_rec;
-				for(PPID acs_id = 0; acs_obj.EnumItems(&acs_id, &acs_rec) > 0;) {
-					if(acs_rec.Assoc == PPOBJ_LOCATION)
-						loc_acs_list.add(acs_rec.ID);
-					else if(acs_rec.Assoc == PPOBJ_PERSON) {
-						if(acs_rec.ObjGroup == PPPRK_CLIENT)
-							sell_acs_list.add(acs_rec.ID);
-						else if(acs_rec.ObjGroup == PPPRK_SUPPL)
-							suppl_acs_list.add(acs_rec.ID);
+						}
+						*/
 					}
 				}
-				if(suppl_acs_list.getCount() == 1)
-					suppl_acs_id = suppl_acs_list.get(0);
-			}
-			{
-				PPObjPerson psn_obj;
-				psn_obj.GetListByKind(PPPRK_MAIN, &main_org_list, 0);
-				{
-					LocationTbl::Rec loc_rec;
-					for(SEnum en = psn_obj.LocObj.P_Tbl->Enum(LOCTYP_WAREHOUSE, 0, 0); en.Next(&loc_rec) > 0;) {
-						loc_list.add(loc_rec.ID);
-					}
-				}
-			}
-			{
-				PPObjOprKind op_obj;
-				PPOprKind2 op_rec;
-				if(suppl_acs_id) {
-					if(op_obj.Search(PPOPK_RECEIPT, &op_rec) > 0 && op_rec.AccSheetID == suppl_acs_id) {
-						rcpt_op_id = op_rec.ID;
-					}
-				}
-				if(op_obj.Search(PPOPK_RETAIL, &op_rec) > 0) {
-					retail_op_id = op_rec.ID;
-				}
-				if(op_obj.Search(PPOPK_INTRRECEIPT, &op_rec) > 0) {
-					intr_rcpt_op_id = op_rec.ID;
-				}
-				if(suppl_acs_id) {
-					PPIDArray temp_op_list;
-					PPIDArray candid_list;
-					GetOpList(PPOPT_DRAFTRECEIPT, &temp_op_list);
-					for(uint i = 0; i < temp_op_list.getCount(); i++) {
-						const  PPID temp_op_id = temp_op_list.get(i);
-						if(op_obj.Search(temp_op_id, &op_rec) > 0 && op_rec.AccSheetID == suppl_acs_id)
-							candid_list.add(temp_op_id);
-					}
-					if(candid_list.getCount() == 1)
-						purchase_op_id = candid_list.get(0);
-				}
-			}
-			{
-				int    do_update = 0;
-				int    do_update_comm_cfg = 0;
-				PPTransaction tra(1);
-				THROW(tra);
-				int    r = p_ref->GetConfig(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CFG, &cfg_rec, sizeof(cfg_rec));
-				THROW(r);
-				THROW(GetCommConfig(comm_cfg));
-				if(r < 0) {
-					cfg_rec.Tag   = 0;
-					cfg_rec.ObjID = PPCFG_MAIN;
-					cfg_rec.PropID        = PPPRP_CFG;
-					cfg_rec.AccessLevel   = DEFCFG_ACCESS;
-					cfg_rec.BaseCurID     = DEFCFG_CURRENCY;
-					cfg_rec.RealizeOrder  = DEFCFG_RLZORD;
-					cfg_rec.Menu  = DEFCFG_MENU;
-					cfg_rec.LocAccSheetID = 0;
-					cfg_rec.Location      = 0;
-					cfg_rec.Flags = CFGFLG_UNITEINTRTRFR;
-					do_update = 1;
-				}
-				if(!cfg_rec.LocAccSheetID && loc_acs_list.getCount() == 1) {
-					cfg_rec.LocAccSheetID = loc_acs_list.get(0);
-					do_update = 1;
-				}
-				if(!cfg_rec.MainOrg && main_org_list.getCount() == 1) {
-					cfg_rec.MainOrg = main_org_list.get(0);
-					do_update = 1;
-				}
-				if(!cfg_rec.Location && loc_list.getCount() == 1) {
-					cfg_rec.Location = loc_list.get(0);
-					do_update = 1;
-				}
-				if(!cfg_rec.RealizeOrder) {
-					cfg_rec.RealizeOrder = RLZORD_FIFO;
-					do_update = 1;
-				}
-				//
-				if(!comm_cfg.SellAccSheet && sell_acs_list.getCount() == 1) {
-					comm_cfg.SellAccSheet = sell_acs_list.get(0);
-					do_update_comm_cfg = 1;
-				}
-				if(!comm_cfg.SupplAccSheet && suppl_acs_id) {
-					comm_cfg.SupplAccSheet = suppl_acs_id;
-					do_update_comm_cfg = 1;
-				}
-				{
-					comm_cfg.Flags |= (CCFLG_USEDRAFTBILL|CCFLG_USEGDSCLS|CCFLG_USEHISTBILL|CCFLG_USEHISTGOODS|
-						CCFLG_THROUGHSCARDUNIQ|CCFLG_USECCHECKEXT|CCFLG_USECCHECKLINEEXT|CCFLG_GENLOTONUNLIMORDER|
-						CCFLG_USEARGOODSCODE|CCFLG_LOGCCHECK|CCFLG_RSRVSJ);
-					comm_cfg.Flags2__ |= (CCFLG2_QUOT2|CCFLG2_INDEXEADDR|CCFLG2_SYNCLOT);
-					comm_cfg.IncomeCalcMethod = INCM_BYSHIPMENT;
-					if(rcpt_op_id)
-						comm_cfg.ReceiptOp = rcpt_op_id;
-					if(intr_rcpt_op_id)
-						comm_cfg.IntrReceiptOp = intr_rcpt_op_id;
-					if(retail_op_id)
-						comm_cfg.RetailOp = retail_op_id;
-					if(purchase_op_id)
-						comm_cfg.DraftRcptOp = purchase_op_id;
-					do_update_comm_cfg = 1;
-				}
-				//
-				if(do_update) {
-					THROW(p_ref->SetConfig(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CFG, &cfg_rec, sizeof(cfg_rec)));
-				}
-				if(do_update_comm_cfg) {
-					THROW(SetCommConfig(&comm_cfg, 0));
-				}
-				THROW(tra.Commit());
+				else
+					ok = PPErrorZ();
+				delete p_o;
 			}
 		}
-	}
-	if(flags & mrfCreateMqbDefaults) {
-		PPMqbClient * p_mqbc = 0;
-		PPMqbClient::InitParam mqip;
-		if(PPMqbClient::SetupInitParam(mqip, 0/*vhost*/, 0/*domain*/)) {
-			p_mqbc = PPMqbClient::CreateInstance(mqip);
-			if(p_mqbc) {
-				p_mqbc->DeclarePredefinedExchanges();
-				ZDELETE(p_mqbc);
+		if(flags & mrfInitializeDb) {
+			PPObjSecur sec_obj(PPOBJ_CONFIG, 0);
+			PPSecur2 sec_rec;
+			if(sec_obj.Search(PPCFG_MAIN, &sec_rec) > 0) {
+				PPConfig cfg_rec;
+				PPCommConfig comm_cfg;
+				Reference * p_ref(PPRef);
+				PPIDArray loc_acs_list;
+				PPIDArray sell_acs_list;
+				PPIDArray suppl_acs_list;
+				PPIDArray main_org_list;
+				PPIDArray loc_list;
+				PPID   suppl_acs_id = 0;
+				PPID   rcpt_op_id = 0;
+				PPID   purchase_op_id = 0;
+				PPID   retail_op_id = 0;
+				PPID   intr_rcpt_op_id = 0;
+				{
+					PPObjAccSheet acs_obj;
+					PPAccSheet2 acs_rec;
+					for(PPID acs_id = 0; acs_obj.EnumItems(&acs_id, &acs_rec) > 0;) {
+						if(acs_rec.Assoc == PPOBJ_LOCATION)
+							loc_acs_list.add(acs_rec.ID);
+						else if(acs_rec.Assoc == PPOBJ_PERSON) {
+							if(acs_rec.ObjGroup == PPPRK_CLIENT)
+								sell_acs_list.add(acs_rec.ID);
+							else if(acs_rec.ObjGroup == PPPRK_SUPPL)
+								suppl_acs_list.add(acs_rec.ID);
+						}
+					}
+					if(suppl_acs_list.getCount() == 1)
+						suppl_acs_id = suppl_acs_list.get(0);
+				}
+				{
+					PPObjPerson psn_obj;
+					psn_obj.GetListByKind(PPPRK_MAIN, &main_org_list, 0);
+					{
+						LocationTbl::Rec loc_rec;
+						for(SEnum en = psn_obj.LocObj.P_Tbl->Enum(LOCTYP_WAREHOUSE, 0, 0); en.Next(&loc_rec) > 0;) {
+							loc_list.add(loc_rec.ID);
+						}
+					}
+				}
+				{
+					PPObjOprKind op_obj;
+					PPOprKind2 op_rec;
+					if(suppl_acs_id) {
+						if(op_obj.Search(PPOPK_RECEIPT, &op_rec) > 0 && op_rec.AccSheetID == suppl_acs_id) {
+							rcpt_op_id = op_rec.ID;
+						}
+					}
+					if(op_obj.Search(PPOPK_RETAIL, &op_rec) > 0) {
+						retail_op_id = op_rec.ID;
+					}
+					if(op_obj.Search(PPOPK_INTRRECEIPT, &op_rec) > 0) {
+						intr_rcpt_op_id = op_rec.ID;
+					}
+					if(suppl_acs_id) {
+						PPIDArray temp_op_list;
+						PPIDArray candid_list;
+						GetOpList(PPOPT_DRAFTRECEIPT, &temp_op_list);
+						for(uint i = 0; i < temp_op_list.getCount(); i++) {
+							const  PPID temp_op_id = temp_op_list.get(i);
+							if(op_obj.Search(temp_op_id, &op_rec) > 0 && op_rec.AccSheetID == suppl_acs_id)
+								candid_list.add(temp_op_id);
+						}
+						if(candid_list.getCount() == 1)
+							purchase_op_id = candid_list.get(0);
+					}
+				}
+				{
+					int    do_update = 0;
+					int    do_update_comm_cfg = 0;
+					PPTransaction tra(1);
+					THROW(tra);
+					int    r = p_ref->GetConfig(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CFG, &cfg_rec, sizeof(cfg_rec));
+					THROW(r);
+					THROW(GetCommConfig(comm_cfg));
+					if(r < 0) {
+						cfg_rec.Tag   = 0;
+						cfg_rec.ObjID = PPCFG_MAIN;
+						cfg_rec.PropID        = PPPRP_CFG;
+						cfg_rec.AccessLevel   = DEFCFG_ACCESS;
+						cfg_rec.BaseCurID     = DEFCFG_CURRENCY;
+						cfg_rec.RealizeOrder  = DEFCFG_RLZORD;
+						cfg_rec.Menu  = DEFCFG_MENU;
+						cfg_rec.LocAccSheetID = 0;
+						cfg_rec.Location      = 0;
+						cfg_rec.Flags = CFGFLG_UNITEINTRTRFR;
+						do_update = 1;
+					}
+					if(!cfg_rec.LocAccSheetID && loc_acs_list.getCount() == 1) {
+						cfg_rec.LocAccSheetID = loc_acs_list.get(0);
+						do_update = 1;
+					}
+					if(!cfg_rec.MainOrg && main_org_list.getCount() == 1) {
+						cfg_rec.MainOrg = main_org_list.get(0);
+						do_update = 1;
+					}
+					if(!cfg_rec.Location && loc_list.getCount() == 1) {
+						cfg_rec.Location = loc_list.get(0);
+						do_update = 1;
+					}
+					if(!cfg_rec.RealizeOrder) {
+						cfg_rec.RealizeOrder = RLZORD_FIFO;
+						do_update = 1;
+					}
+					//
+					if(!comm_cfg.SellAccSheet && sell_acs_list.getCount() == 1) {
+						comm_cfg.SellAccSheet = sell_acs_list.get(0);
+						do_update_comm_cfg = 1;
+					}
+					if(!comm_cfg.SupplAccSheet && suppl_acs_id) {
+						comm_cfg.SupplAccSheet = suppl_acs_id;
+						do_update_comm_cfg = 1;
+					}
+					{
+						comm_cfg.Flags |= (CCFLG_USEDRAFTBILL|CCFLG_USEGDSCLS|CCFLG_USEHISTBILL|CCFLG_USEHISTGOODS|
+							CCFLG_THROUGHSCARDUNIQ|CCFLG_USECCHECKEXT|CCFLG_USECCHECKLINEEXT|CCFLG_GENLOTONUNLIMORDER|
+							CCFLG_USEARGOODSCODE|CCFLG_LOGCCHECK|CCFLG_RSRVSJ);
+						comm_cfg.Flags2__ |= (CCFLG2_QUOT2|CCFLG2_INDEXEADDR|CCFLG2_SYNCLOT);
+						comm_cfg.IncomeCalcMethod = INCM_BYSHIPMENT;
+						if(rcpt_op_id)
+							comm_cfg.ReceiptOp = rcpt_op_id;
+						if(intr_rcpt_op_id)
+							comm_cfg.IntrReceiptOp = intr_rcpt_op_id;
+						if(retail_op_id)
+							comm_cfg.RetailOp = retail_op_id;
+						if(purchase_op_id)
+							comm_cfg.DraftRcptOp = purchase_op_id;
+						do_update_comm_cfg = 1;
+					}
+					//
+					if(do_update) {
+						THROW(p_ref->SetConfig(PPOBJ_CONFIG, PPCFG_MAIN, PPPRP_CFG, &cfg_rec, sizeof(cfg_rec)));
+					}
+					if(do_update_comm_cfg) {
+						THROW(SetCommConfig(&comm_cfg, 0));
+					}
+					THROW(tra.Commit());
+				}
+			}
+		}
+		if(flags & mrfCreateMqbDefaults) {
+			PPMqbClient * p_mqbc = 0;
+			PPMqbClient::InitParam mqip;
+			if(PPMqbClient::SetupInitParam(mqip, 0/*vhost*/, 0/*domain*/)) {
+				p_mqbc = PPMqbClient::CreateInstance(mqip);
+				if(p_mqbc) {
+					p_mqbc->DeclarePredefinedExchanges();
+					ZDELETE(p_mqbc);
+				}
 			}
 		}
 	}
@@ -1428,6 +1456,20 @@ static int STDCALL Implement_GetObjectName(PPID objType, PPID objID, SString & r
 					{
 						PPObjAmountType _obj;
 						PPAmountType _rec;
+						if(_obj.Fetch(objID, &_rec) > 0) {
+							_t = _rec.Name;
+							ok = 1;
+						}
+						else {
+							ideqvalstr(objID, _t);
+							ok = -1;
+						}
+					}
+					break;
+				case PPOBJ_GOODSTYPE: // @v12.7.8
+					{
+						PPObjGoodsType _obj;
+						PPGoodsType2 _rec;
 						if(_obj.Fetch(objID, &_rec) > 0) {
 							_t = _rec.Name;
 							ok = 1;
@@ -3495,19 +3537,149 @@ int PrcssrUniFindObj::Run()
 	}*/
 	return ok;
 }
+//
+// @v12.7.8 @construction
+// Descr: Инфраструктура для управления ограничениями на значения атрибутов объектов данных.
+//
+constexpr uint32 ObjAttrRestr_Signature = 0x7A394E11U;
 
-int UniFindObj()
+struct ObjAttrRestr {
+	enum {
+		rfMandatory      = 0x0001, // Атрибут обязательный
+		rfRangeAsTextLen = 0x0002, // RRange определяет границы длины текстового атрибута
+	};
+	ObjAttrRestr();
+	bool   IsConsistent() const { return (this != nullptr && Signature == ObjAttrRestr_Signature); }
+	bool   IsEmpty() const;
+	ObjAttrRestr & Z();
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+	SJson * ToJsonObj() const;
+	bool   FromJsonObj(const SJson * pJs);
+private:
+	uint32 Signature; // Сигнатура для сериализации и версионирования //
+public:
+	TYPEID Typ;   // Тип данных. Является фактором структуры, а не вариабельным параметром. То есть, тип ассоциирован
+		// с полем данных, для которого формируются ограничения. 
+	uint32 Flags; // ObjAttrRestr::rfXXX
+	uint16 RPrec; // Точность представления действительного числа. _FFFF16 - undefined
+	uint16 Reserve2; // @alignment
+	RealRange RRange; // Диапазон допустимых значений для числовой величины. Если ограничиваемая величина целочисленная, 
+		// то границы RRange обрезаются до целого отбрасыванием дробной фракции.
+	DateRange DRange; // Диапазон допустимых дат (разрешены шаблонизированные границы)
+	uint32 SnTok;   // SNTOK_XXX. Если !0, то натуральный токен (SNTOK_XXX), которому должно соответствовать значение
+	ued_t  UedMeta; // UED_META_XXX. Если !0, то UED-мета, которой должна соответствовать величина.
+	SString RegExp; // Регулярное выражение, органичивающее строковое значение //
+};
+
+class ObjAttrRestrList { // @v12.7.8 @construction
+public:
+	enum {
+		rlIgnore      = 0, // Правило игнорируется //
+		rlDiagnose    = 1, // Диагностика при массовой обработке и отображении объектов
+		rlWarnOnStore = 2, // Сообщение при сохранении объекта
+		rlErrOnStoreInteractive = 3, // Запрет сохранения объекта при интерактивном создании/изменении
+		rlErrOnStore  = 4, // Запрет сохранения объекта при любом создании/изменении
+	};
+	struct Item {
+		uint32 AttrId;
+		uint32 RLevel; // ObjAttrRestrList::rlXXX Уровень ограничения //
+		ObjAttrRestr R;
+		uint32 MsgId;
+	};
+
+	ObjAttrRestrList()
+	{
+	}
+	~ObjAttrRestrList()
+	{
+	}
+	uint   GetCount() const { return L.getCount(); }
+	Item * Get(uint i) { return (i < L.getCount()) ? L.at(i) : 0; }
+	const  Item * GetC(uint i) const { return (i < L.getCount()) ? L.at(i) : 0; }
+private:
+	TSCollection <Item> L;
+};
+
+ObjAttrRestr::ObjAttrRestr() : Signature(ObjAttrRestr_Signature), Typ(0), Flags(0), RPrec(_FFFF16), SnTok(0)
 {
-	return PPView::Execute(PPVIEW_UNIFINDOBJ, 0, PPView::exefModeless, 0);
-	/*
-	int    ok = -1;
-	UniFindObjFilt param;
-	PrcssrUniFindObj prcssr;
-	prcssr.InitParam(&param);
-	if(prcssr.EditParam(&param) > 0) {
-		prcssr.Init(&param);
-		prcssr.Run();
+	RRange.Z();
+	DRange.Z();
+}
+
+bool ObjAttrRestr::IsEmpty() const // @construction
+{
+	bool   result = true;
+	if(Flags & rfMandatory) {
+		result = false;
+	}
+	else if(RPrec != _FFFF16) {
+		result = false;
+	}
+	else if(SnTok || !!UedMeta || !RRange.IsZero() || !DRange.IsZero() || RegExp.NotEmpty()) {
+		result = false;
+	}
+	return result;
+}
+	
+ObjAttrRestr & ObjAttrRestr::Z()
+{
+	Signature = ObjAttrRestr_Signature;
+	Typ = 0;
+	Flags = 0;
+	RPrec = 0;
+	SnTok = 0;
+	UedMeta.Z();
+	RRange.Z();
+	DRange.Z();
+	RegExp.Z();
+	return *this;
+}
+	
+int ObjAttrRestr::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	int    ok = 1;
+	uint32 signature = Signature;
+	THROW_SL(pSCtx->Serialize(dir, signature, rBuf));
+	if(dir < 0) {
+		THROW(signature == ObjAttrRestr_Signature); // @todo @err
+	}
+	THROW_SL(pSCtx->Serialize(dir, Typ, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, Flags, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, RPrec, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, RRange.low, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, RRange.upp, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, DRange.low, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, DRange.upp, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, SnTok, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, UedMeta, rBuf));
+	THROW_SL(pSCtx->Serialize(dir, RegExp, rBuf));
+	CATCHZOK
+	return ok;
+}
+
+SJson * ObjAttrRestr::ToJsonObj() const // @construction
+{
+	SJson * p_result = SJson::CreateObj();
+	if(SJson::IsObject(p_result)) {
+		SString temp_buf;
+		if(Typ)
+			p_result->InsertInt("Typ", Typ);
+		if(Flags)
+			p_result->InsertInt("Flags", Flags);
+		if(RPrec != _FFFF16)
+			p_result->InsertUInt("RPrec", RPrec);
+		if(!RRange.IsZero()) {
+			//p_result->InsertDouble("NbLn", NbLine);
+		}
+	}
+	return p_result;
+}
+	
+bool ObjAttrRestr::FromJsonObj(const SJson * pJs) // @construction
+{
+	bool   ok = false;
+	if(SJson::IsObject(pJs)) {
+		//
 	}
 	return ok;
-	*/
 }

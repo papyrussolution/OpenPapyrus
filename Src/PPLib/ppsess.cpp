@@ -1223,6 +1223,9 @@ PPEgaisProcessor * PPThreadLocalArea::GetEgaisProcessor()
 
 LocalStateBinderyCore * PPThreadLocalArea::GetLocalStateBindery() // @v12.5.9
 {
+	if(P_LStB && (!P_LStB->IsValid() || !P_LStB->IsCurrentDatabaseInstance())) {
+		ZDELETE(P_LStB);
+	}
 	if(!P_LStB) {
 		P_LStB = new LocalStateBinderyCore();
 	}

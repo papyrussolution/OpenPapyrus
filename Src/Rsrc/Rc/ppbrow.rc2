@@ -2066,7 +2066,6 @@ browser CASHNODEBILL north(100), 1, 2, "@{poscheck_pl} {%s}", OWNER|GRID, 0
 		CHECKSTAT:   kbCtrlF9,  TBBM_CHECKSTAT,     "Почасовые итоги по выборке чеков\tCtrl-F9"
 	}
 }
-
 //
 //
 //
@@ -2113,6 +2112,7 @@ browser CASHNODEBILL north(100), 1, 2, "@{poscheck_pl} {%s}", OWNER|GRID, 0
 // 38 - Контрактная цена предпочтительного поставщика // @v12.0.8
 // 39 - Наименование складской ячейки или адреса операции ответственного хранения // @v12.4.1
 // 40 - Контрагент операции ответственного хранения // @v12.4.1
+// 41 - Наименование типа товара // @v12.7.8
 //
 browser GOODSITEM_W2 south(73), 1, 1, "@{view_billitem_goods} {%s}", OWNER|GRID, 0
 {

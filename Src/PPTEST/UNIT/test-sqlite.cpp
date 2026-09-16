@@ -672,11 +672,8 @@ SLTEST_R(SQLite)
 	return CurrentStatus;
 }
 
-// @v12.7.5 @construction {
-
-SLTEST_R(SQLite_OneWriterManyReaders) 
+SLTEST_R(SQLite_OneWriterManyReaders) // @v12.7.5
 {
-	//SLIA_PPTest_SQLite_OneWriterManyReaders
 	SString temp_buf;
 	SString mime_buf;
 	SString slia_path;
@@ -702,7 +699,7 @@ SLTEST_R(SQLite_OneWriterManyReaders)
 	}
 	if(run_debug_session) {
 		PPTest_SQLite_OneWriterManyReaders_Block blk;
-		blk.MaxRecsCount = 1000;
+		blk.MaxRecsCount = max_recs_count;
 		blk.CountOfWorkers = 1;
 		blk.WorkerIdent = 1;
 		blk.DbPath = db_path;
@@ -740,9 +737,17 @@ SLTEST_R(SQLite_OneWriterManyReaders)
 			::CloseHandle(process_h_list[hi]);
 		}
 	}
+	{
+		PPTest_SQLite_OneWriterManyReaders_Block blk;
+		blk.MaxRecsCount = max_recs_count;
+		blk.CountOfWorkers = 1;
+		blk.WorkerIdent = 0;
+		blk.DbPath = db_path;
+		blk.Flags |= PPTest_SQLite_OneWriterManyReaders_Block::fVerifyResult;
+		THROW(blk.DoProcess(true));
+	}
 	CATCH
 		CurrentStatus = 0;
 	ENDCATCH
 	return CurrentStatus;
 }
-// } @v12.7.5

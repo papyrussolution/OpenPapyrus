@@ -2290,17 +2290,61 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 	}
 	else if(TVCOMMAND) {
 		switch(TVCMD) {
+			case cmInputUpdated: // @v12.7.8
+				{
+					const  uint ctl_id = event.getCtlID();
+					if(ctl_id == CTL_GOODS_BARCODE) {
+						if(Data.Rec.Kind == PPGDSK_GOODS) {
+							SString temp_buf;
+							TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+							if(p_il) {
+								uint64 _state = 0;
+								getCtrlString(ctl_id, temp_buf);
+								if(temp_buf.NotEmptyS() && Data.Codes.getCount() == 1 && IsInnerBarcodeType(Data.Codes.at(0).BarcodeType, BARCODE_TYPE_PREFERRED)) {
+									_state = 1;
+									PPLoadString(PPSTR_CTLUSTTD, CTLUSTTD_GOODS_SINGLEPREFFEREDBARCODE, temp_buf);
+								}
+								else
+									temp_buf.Z();
+								if(p_il->SetIndicatorState(_state, temp_buf) > 0) {
+									drawCtrl(ctl_id);
+								}
+							}
+						}
+					}
+					else
+						return;
+				}
+				break;
 			case cmCtlColor:
 				{
 					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
-					char   barcode[64];
 					if(p_dc && Data.Rec.Kind == PPGDSK_GOODS) {
-						if(getCtrlHandle(CTL_GOODS_BARCODE) == p_dc->H_Ctl && getCtrlData(CTL_GOODS_BARCODE, barcode)) {
-							if(Data.Codes.getCount() == 1 && IsInnerBarcodeType(Data.Codes.at(0).BarcodeType, BARCODE_TYPE_PREFERRED)) {
-								::SetBkMode(p_dc->H_DC, TRANSPARENT);
-								::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushPriorBarcode));
-								clearEvent(event);
+						if(getCtrlHandle(CTL_GOODS_BARCODE) == p_dc->H_Ctl) {
+							uint64 _state = 0;
+							TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(CTL_GOODS_BARCODE, TV_SUBSIGN_INPUTLINE));
+							if(p_il && p_il->GetIndicatorState(&_state, 0)) {
+								if(_state == 1) {
+									::SetBkMode(p_dc->H_DC, TRANSPARENT);
+									::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
+									p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushPriorBarcode));
+									clearEvent(event);
+								}
+							}
+						}
+					}
+				}
+				break;
+			case cmMouseHoverCtrl: // @v12.7.7
+				{
+					const  uint ctl_id = event.getCtlID();
+					if(ctl_id == CTL_GOODS_BARCODE) {
+						TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+						if(p_il) {
+							uint64 _state = 0;
+							SString descr_buf;
+							if(p_il->GetIndicatorState(&_state, &descr_buf) && descr_buf.NotEmptyS()) {
+								PPShowCtrlIndicatorHint(descr_buf);
 							}
 						}
 					}
@@ -2311,8 +2355,8 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 				break;
 			case cmArGoodsCodeList:
 				{
-					ArGoodsCodeListDialog * dlg = 0;
-					if(CheckDialogPtrErr(&(dlg = new ArGoodsCodeListDialog(Data.Rec.ID, 0)))) {
+					ArGoodsCodeListDialog * dlg = new ArGoodsCodeListDialog(Data.Rec.ID, 0);
+					if(CheckDialogPtrErr(&dlg)) {
 						dlg->setDTS(&Data.ArCodes);
 						if(ExecView(dlg) == cmOK) {
 							dlg->getDTS(&Data.ArCodes);

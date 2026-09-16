@@ -33,7 +33,6 @@ int    TestGlobalServiceAccessibility(); // @v12.3.12 pptest.cpp
 int    RecoverAbsenceTrfr();
 int    PPValidateXml();
 int    OpenPhonePane();
-int    UniFindObj();
 int    TSessionMaintenance();
 void   _CorrectProblem_v12304(); // @v12.4.10
 int    Launch_TFacadeWindow(); // @v12.5.3 @construction
@@ -685,7 +684,7 @@ int PPApp::processCommand(uint cmd)
 		case cmReplaceLikeWorld:     PPObjWorld::UniteMaxLike();        break;
 		case cmReplaceDynamicObj:    PPObject::ReplaceObjInteractive(PPOBJ_DYNAMICOBJS, 0);   break;
 		case cmReplaceBrand:         PPObject::ReplaceObjInteractive(PPOBJ_BRAND, 0); break;
-		case cmUniFindObj:           UniFindObj();                      break;
+		case cmUniFindObj:           PPView::Execute(PPVIEW_UNIFINDOBJ, 0, PPView::exefModeless, 0); break;
 		case cmPrinterCfg:           EditDefaultPrinterCfg();           break;
 		case cmGoodsCfg:             PPObjGoods::EditConfig();          break;
 		case cmPersonCfg:            PPObjPerson::EditConfig();         break;

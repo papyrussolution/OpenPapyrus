@@ -62,6 +62,38 @@ PPAccount::PPAccount()
 {
 	THISZERO();
 }
+
+PPAccount & PPAccount::Z() // @v12.7.8
+{
+	THISZERO();
+	return *this;
+}
+
+bool FASTCALL PPAccount::IsEq(const PPAccount & rS) const
+{
+#define CMP_FLD(f) if((f) != (rS.f)) return false
+	// Поле Tag не сравниваем ибо оно инициализируется автоматически.
+	CMP_FLD(ID);
+	CMP_FLD(MainOrgID);
+	CMP_FLD(CurID);
+	CMP_FLD(ParentID);
+	CMP_FLD(Type);
+	CMP_FLD(Kind);
+	CMP_FLD(Flags);
+	CMP_FLD(OpenDate);
+	CMP_FLD(Frrl_Date);
+	CMP_FLD(Limit);
+	CMP_FLD(Overdraft);
+	CMP_FLD(A);
+	CMP_FLD(AccSheetID);
+#undef CMP_FLD
+	if(!sstreq(Name, rS.Name))
+		return false;
+	else if(!sstreq(Code, rS.Code))
+		return false;
+	else
+		return true;
+}
 //
 // PPAccountPacket
 //
@@ -71,10 +103,15 @@ PPAccountPacket::PPAccountPacket()
 
 PPAccountPacket & PPAccountPacket::Z()
 {
-	MEMSZERO(Rec);
+	Rec.Z();
 	CurList.Z();
 	GenList.clear();
 	return *this;
+}
+
+bool FASTCALL PPAccountPacket::IsEq(const PPAccountPacket & rS) const
+{
+	return (Rec.IsEq(rS.Rec) && CurList.IsEq(&rS.CurList) && GenList.IsEq(rS.GenList));
 }
 //
 // ArticleCore

@@ -478,7 +478,6 @@ static void InitTest()
 		static_assert(sizeof(STypEx) == 16);
 		static_assert(sizeof(CommPortParams) == 6);
 		// 
-		// @v11.2.0 {
 		static_assert(sizeof(SPoint2I) == sizeof(POINT));
 		static_assert(offsetof(SPoint2I, x) == offsetof(POINT, x));
 		static_assert(offsetof(SPoint2I, y) == offsetof(POINT, y));
@@ -491,14 +490,12 @@ static void InitTest()
 				assert(!(ff & 0x08000000));
 			}
 		}
-		// } @v11.2.0
 		static_assert(sizeof(SPoint2F) == 8); // @v12.3.6
 		static_assert(sizeof(SPoint2S) == 4); // @v11.7.0
 		static_assert(sizeof(MACAddr) == 6); // @v11.7.0
 		static_assert(sizeof(KeyDownCommand) == 4); // @v11.7.0
 		static_assert(sizeof(SUiLayout::Result) == (24+sizeof(void *))); // @v11.7.0
 		static_assert(sizeof(SCodepageIdent) == 4); // @v12.4.1
-		// @v11.4.8 {
 		{
 			// Убеждаемся в том, что memset(mem, 0xff, size) заполнит весь отрезок битовыми единицами
 			// Сомнения существуют из-за того, что аргумент функции int а передаем только один байт (0xff).
@@ -507,7 +504,6 @@ static void InitTest()
 			for(uint i = 0; i < sizeof(chunk); i++)
 				assert(chunk[i] == static_cast<uint8>(0xff));
 		}
-		// } @v11.4.8 
 		static_assert(MAX(3.1, 8.5) == 8.5);
 		assert(smax(3.1, 8.5) == 8.5);
 		assert(smax(3.1f, 8.5f) == 8.5f);

@@ -1730,7 +1730,7 @@ private:
 			const  uint ctl_id = event.getCtlID();
 			if(ctl_id == CTL_TRANSPORT_CODE) {
 				if(ValidateLicPlate(ctl_id))
-					drawCtrl(CTL_TRANSPORT_CODE);
+					drawCtrl(ctl_id);
 			}
 			else
 				return;
@@ -2085,7 +2085,7 @@ PPBrandPacket::~PPBrandPacket()
 void PPBrandPacket::Init()
 {
 	LinkFiles.Clear();
-	TagL.Z(); // @v11.2.12
+	TagL.Z();
 }
 
 bool FASTCALL PPBrandPacket::IsEq(const PPBrandPacket & rS) const { return (Rec.IsEq(rS.Rec) && TagL.IsEq(rS.TagL)); }
@@ -2094,7 +2094,7 @@ PPBrandPacket & FASTCALL PPBrandPacket::operator = (const PPBrandPacket & rSrc)
 {
 	memcpy(&Rec, &rSrc.Rec, sizeof(Rec));
 	LinkFiles = rSrc.LinkFiles;
-	TagL = rSrc.TagL; // @v11.2.12
+	TagL = rSrc.TagL;
 	return *this;
 }
 //

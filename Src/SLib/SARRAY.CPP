@@ -4193,9 +4193,11 @@ bool FASTCALL LongArray::IsEq(const LongArray * pS) const
 	if(pS) {
 		const uint c = getCount();
 		if(pS->getCount() == c) {
-			for(uint i = 0; i < c; i++)
-				if(pS->at(i) != at(i))
+			for(uint i = 0; i < c; i++) {
+				if(pS->at(i) != at(i)) {
 					return false;
+				}
+			}
 			return true;
 		}
 	}

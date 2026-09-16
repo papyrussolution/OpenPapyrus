@@ -9,6 +9,7 @@
 // Accessible from EditTransferItem only.
 //
 class TrfrItemDialog : public TDialog {
+	DECL_DIALOG_DATA(PPTransferItem); // @v12.7.8 Item-->Data
 private:
 	enum {
 		ctlgroupQCert = 1,
@@ -18,15 +19,14 @@ private:
 
 	TrfrItemDialog(uint dlgID, PPID opID);
 	int    setDTS(const PPTransferItem * pData);
-	int    getDTS(PPTransferItem *, double * pExtraQtty);
+	int    getDTS(PPTransferItem * pData, double * pExtraQtty);
 	DECL_HANDLE_EVENT;
 	void   selectLot();
 	int    addLotEntry(SArray *, const ReceiptTbl::Rec *);
 	void   replyGoodsGroupSelection();
 	int    replyGoodsSelection(int recurse = 1);
 	void   setupQuantity(uint master, int readFlds);
-	int    getCtrlCost();
-	int    setCtrlCost();
+	bool   GetCtrlCost();
 	void   setupQttyFldPrec();
 	void   SetupCtrls();
 	void   setupCtrlsOnGoodsSelection();
@@ -73,7 +73,8 @@ private:
 	int    isDiscountInSum() const;
 	bool   IsZeroPriceAllowed();
 	int    setupAllQuantity(int byLot);
-	void   setQuotSign();
+	void   SetQuotSign();
+	void   SetupInputState_Price(bool forceRedraw);
 	int    ProcessRevalOnAllLots(const PPTransferItem *);
 
 	PPObjBill * P_BObj;
@@ -81,7 +82,6 @@ private:
 	PPObjGoods GObj;
 	PPObjTag   TagObj;
 	PPBillPacket * P_Pack;
-	PPTransferItem Item;
 	const PPTransferItem * P_OrderItem; // Указатель на строку заказа. Передается извне и не изменяется методами класса.
 	int    ItemNo;
 	int    EditMode;
@@ -90,7 +90,7 @@ private:
 		stGoodsByPrice    = 0x0002, // Признак выбора товара по цене
 		stAllowSupplSel   = 0x0004, // Позволяет выбор поставщика
 		stGoodsFixed      = 0x0008, // Фиксированный товар (выбран до входа в диалог)
-		stWasCostInput    = 0x0010, // Значение цены поступления в новой строке приходного документа отличается от такой же цены предыдущего лота
+		// @v12.7.8 stWasCostInput    = 0x0010, // Значение цены поступления в новой строке приходного документа отличается от такой же цены предыдущего лота
 		stLockQttyAutoUpd = 0x0020  // Блокировка автоматического пересчета полей количества/емкость упаковки/количество упаковок
 	};
 	long   St;
@@ -117,8 +117,8 @@ private:
 	double OrdReserved;    // Зарезервированное количество (OrdReserved <= OrdRest)
 	double MinQtty;        // Минимальное количество, которое может быть введено
 	double MaxQtty;        // Максимальное количество, которое может быть введено
-	double OrgQtty;        // Для корректирующего документа (Item.Flags & PPTFR_CORRECTION) - количество, поступившее в оригинальном документе.
-	double OrgPrice;       // Для корректирующего документа (Item.Flags & PPTFR_CORRECTION) - Чистая цена реализации в оригинальном документе
+	double OrgQtty;        // Для корректирующего документа (Data.Flags & PPTFR_CORRECTION) - количество, поступившее в оригинальном документе.
+	double OrgPrice;       // Для корректирующего документа (Data.Flags & PPTFR_CORRECTION) - Чистая цена реализации в оригинальном документе
 	PPSupplDeal Sd;        // Контрактная цена по поставщику
 	enum {
 		strNoVAT     = 0,
@@ -351,7 +351,7 @@ int EditTransferItem(PPBillPacket & rPack, int itemNo, TIDlgInitData * pInitData
 	p_item->GoodsID   = labs(p_item->GoodsID);
 	dlg->P_OrderItem  = pOrder;
 	THROW(dlg->setDTS(p_item));
-	if(itemNo < 0 && pInitData && pInitData->Quantity >= 0.0 && dlg->Item.Quantity_ == 0.0) {
+	if(itemNo < 0 && pInitData && pInitData->Quantity >= 0.0 && dlg->Data.Quantity_ == 0.0) {
 		uint ctl_set = (r_cfg.Flags & CFGFLG_USEPACKAGE && (pInitData->Quantity == 0.0 || pInitData->Flags & TIDIF_PACKS)) ? CTL_LOT_PACKS : CTL_LOT_QUANTITY;
 		uint ctl_select = (!(r_cfg.Flags & CFGFLG_USEPACKAGE) || (pInitData->Quantity && !(pInitData->Flags & TIDIF_PACKS))) ? CTL_LOT_QUANTITY : CTL_LOT_PACKS;
 		dlg->setCtrlData(ctl_set, &pInitData->Quantity);
@@ -501,7 +501,7 @@ TrfrItemDialog::TrfrItemDialog(uint dlgID, PPID opID) : TDialog(dlgID), OpID(opI
 	}
 }
 
-bool TrfrItemDialog::IsModifPlus() const { return (OpTypeID == PPOPT_GOODSMODIF && (Item.Flags & PPTFR_PLUS)); }
+bool TrfrItemDialog::IsModifPlus() const { return (OpTypeID == PPOPT_GOODSMODIF && (Data.Flags & PPTFR_PLUS)); }
 
 void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 {
@@ -511,21 +511,24 @@ void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 	disableCtrls(1, CTL_LOT_OLDCOST, CTL_LOT_OLDPRICE, CTL_LOT_ASSETEXPL, 0);
 	if(!(r_cfg.Flags & CFGFLG_USEPACKAGE))
 		disableCtrls(1, CTL_LOT_UNITPERPACK, CTL_LOT_PACKS, 0);
-	else if(!(Item.Flags & PPTFR_RECEIPT) && OpTypeID != PPOPT_DRAFTRECEIPT)
+	else if(!(Data.Flags & PPTFR_RECEIPT) && OpTypeID != PPOPT_DRAFTRECEIPT)
 		disableCtrl(CTL_LOT_UNITPERPACK, true);
 	//
 	// Переоценка допускает ввод и цены и скидки (у скидки другое значение)
 	//
-	if(!(Item.Flags & PPTFR_REVAL)) {
+	if(!(Data.Flags & PPTFR_REVAL)) {
 		//
 		// Полагаемся на то, что флаг BILLF_TOTALDISCOUNT может быть установлен
 		// только для операций продажи и возврата товара от покупателя //
 		// Кроме того, продажа по котировке тоже запрешает модификацию
 		// цены реализации и скидки
 		//
-		if(P_Pack->Rec.Flags & BILLF_TOTALDISCOUNT || Item.Flags & PPTFR_QUOT)
-			disableCtrls(1, CTL_LOT_DISCOUNT, CTL_LOT_PRICE, 0);
-		else if(!(Item.Flags & PPTFR_ORDER)) { // Для заказа разрешается менять и цену реализации и скидку
+		if(P_Pack->Rec.Flags & BILLF_TOTALDISCOUNT || Data.Flags & PPTFR_QUOT) {
+			// @v12.7.8 disableCtrls(1, CTL_LOT_DISCOUNT, CTL_LOT_PRICE, 0);
+			setCtrlReadOnly(CTL_LOT_PRICE, true);
+			disableCtrl(CTL_LOT_DISCOUNT, true);
+		}
+		else if(!(Data.Flags & PPTFR_ORDER)) { // Для заказа разрешается менять и цену реализации и скидку
 			//
 			// Флаг конфигурации CFGFLG_DISCOUNTBYSUM запрещает ввод скидки
 			// @v9.2.9 Для заказа разрешается вводить скидку
@@ -538,19 +541,23 @@ void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 			// косвенно генерирует лот, но его цена может отличаться от цены
 			// родительского лота только если установлен флаг CFGFLG_FREEPRICE.
 			//
-			else if(!(Item.Flags & PPTFR_RECEIPT) && !(IsIntrExpndOp(OpID) && r_cfg.Flags & CFGFLG_FREEPRICE))
-				disableCtrl(CTL_LOT_PRICE, true);
+			else if(!(Data.Flags & PPTFR_RECEIPT) && !(IsIntrExpndOp(OpID) && r_cfg.Flags & CFGFLG_FREEPRICE)) {
+				setCtrlReadOnly(CTL_LOT_PRICE, true); // @v12.7.8 disableCtrl-->setCtrlReadOnly
+			}
 		}
 	}
-	if((Item.Flags & PPTFR_ONORDER) || (EditMode && (!(Item.Flags & (PPTFR_RECEIPT|PPTFR_DRAFT)) || !P_BObj->CheckRights(BILLRT_MODGOODS)))) {
+	if((Data.Flags & PPTFR_ONORDER) || (EditMode && (!(Data.Flags & (PPTFR_RECEIPT|PPTFR_DRAFT)) || !P_BObj->CheckRights(BILLRT_MODGOODS)))) {
 		disable_goods = true;
 	}
 	if(OpTypeID == PPOPT_GOODSRETURN) {
 		disable_goods = true;
 		disable_cost = true;
 		disableCtrls(1, CTL_LOT_UNITPERPACK, /* @v12.1.3 CTL_LOT_COST,*/CTL_LOT_LOT, 0);
-		if(Item.Flags & PPTFR_PLUS)
-			disableCtrls(1, CTL_LOT_PRICE, CTL_LOT_DISCOUNT, 0);
+		if(Data.Flags & PPTFR_PLUS) {
+			// @v12.7.8 disableCtrls(1, CTL_LOT_PRICE, CTL_LOT_DISCOUNT, 0);
+			setCtrlReadOnly(CTL_LOT_PRICE, true); // @v12.7.8 
+			disableCtrl(CTL_LOT_DISCOUNT, true); // @v12.7.8 
+		}
 	}
 	else if(IsIntrExpndOp(OpID)) {
 		disable_cost = true; // @v12.1.3 
@@ -560,18 +567,21 @@ void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 		St |= stGoodsFixed;
 		disableCtrls(1, CTLSEL_LOT_GOODSGRP, CTLSEL_LOT_GOODS, 0);
 	}
-	if(!(oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) || IsModifPlus()) || !Item.GoodsID) {
+	if(!(oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) || IsModifPlus()) || !Data.GoodsID) {
 		disableCtrls(1, CTL_LOT_EXPIRY, CTLCAL_LOT_EXPIRY, CTLSEL_LOT_QCERT, 0);
 		setCtrlReadOnly(CTL_LOT_CLB, true);
 		setCtrlReadOnly(CTL_LOT_SERIAL, true);
 	}
 	if(St & stGoodsByPrice) {
-		disableCtrl(CTL_LOT_PRICE, false);
+		setCtrlReadOnly(CTL_LOT_PRICE, false); // @v12.7.8 disableCtrl-->setCtrlReadOnly
 		selectCtrl(CTL_LOT_PRICE);
 	}
-	if(Item.CurID) {
-		if(Item.Flags & PPTFR_SELLING)
-			disableCtrls(1, CTL_LOT_PRICE, CTL_LOT_DISCOUNT, 0);
+	if(Data.CurID) {
+		if(Data.Flags & PPTFR_SELLING) {
+			// @v12.7.8 disableCtrls(1, CTL_LOT_PRICE, CTL_LOT_DISCOUNT, 0);
+			setCtrlReadOnly(CTL_LOT_PRICE, true); // @v12.7.8 
+			disableCtrl(CTL_LOT_DISCOUNT, true); // @v12.7.8 
+		}
 		else {
 			disable_cost = true; // @v12.1.3 
 			// @v12.1.3 disableCtrl(CTL_LOT_COST, true);
@@ -582,10 +592,10 @@ void TrfrItemDialog::SetupCtrls() // Called from TrfrItemDialog::setDTS
 	//
 	// В переоценке количество изменять не допускается //
 	//
-	if(Item.Flags & PPTFR_REVAL) {
-		if(!(Item.Flags & PPTFR_CORRECTION))
+	if(Data.Flags & PPTFR_REVAL) {
+		if(!(Data.Flags & PPTFR_CORRECTION))
 			disableCtrl(CTL_LOT_QUANTITY, true);
-		if(!Item.IsRecomplete()) {
+		if(!Data.IsRecomplete()) {
 			disableCtrl(CTL_LOT_INDEPPHQTTY, true);
 			if(CheckOpFlags(OpID, OPKF_DENYREVALCOST, 0)) {
 				disable_cost = true; // @v12.1.3 
@@ -604,31 +614,31 @@ int TrfrItemDialog::setupAllQuantity(int byLot)
 	int    ok = -1;
 	const  uint i = GetCurrId();
 	if(oneof2(i, CTL_LOT_QUANTITY, CTL_LOT_PACKS) && !getCtrlView(CTL_LOT_QUANTITY)->IsInState(sfDisabled)) {
-		if(Item.Flags & PPTFR_MINUS) {
-			const double preserve_qtty = Item.Quantity_;
+		if(Data.Flags & PPTFR_MINUS) {
+			const  double preserve_qtty = Data.Quantity_;
 			double qtty = 0.0;
-			Item.Quantity_ = 0.0;
+			Data.Quantity_ = 0.0;
 			if(!byLot) {
-				P_Pack->GoodsRest(Item.GoodsID, &Item, ItemNo, &qtty);
+				P_Pack->GoodsRest(Data.GoodsID, &Data, ItemNo, &qtty);
 				setCtrlReal(CTL_LOT_QUANTITY, qtty);
 				ok = 1;
 			}
-			else if(P_Pack->BoundsByLot(Item.LotID, &Item, ItemNo, &qtty, 0)) {
+			else if(P_Pack->BoundsByLot(Data.LotID, &Data, ItemNo, &qtty, 0)) {
 				setCtrlReal(CTL_LOT_QUANTITY, qtty);
 				ok = 1;
 			}
 			else {
-				Item.Quantity_ = preserve_qtty;
+				Data.Quantity_ = preserve_qtty;
 				ok = PPErrorZ();
 			}
 		}
-		else if(Item.Flags & PPTFR_PLUS) {
-			if(IsSourceSerialUsed() && Item.GoodsID) {
+		else if(Data.Flags & PPTFR_PLUS) {
+			if(IsSourceSerialUsed() && Data.GoodsID) {
 				PPIDArray src_goods_id_list;
 				SString source_serial;
 				getCtrlString(CTL_LOT_SOURCESERIAL, source_serial);
 				if(source_serial.NotEmptyS()) {
-					if(GetGoodsListSuitableForSourceSerial(Item.GoodsID, src_goods_id_list) > 0) {
+					if(GetGoodsListSuitableForSourceSerial(Data.GoodsID, src_goods_id_list) > 0) {
 						src_goods_id_list.sortAndUndup();
 						PPIDArray lot_list;
 						P_BObj->SearchLotsBySerialExactly(source_serial, &lot_list);
@@ -655,48 +665,44 @@ int TrfrItemDialog::evaluateBasePrice(double curPrice, double * pBasePrice)
 {
 	int    ok = -1;
 	double base_price = 0.0;
-	if(Item.CurID) {
-		base_price = TR5(curPrice * P_Pack->Amounts.Get(PPAMT_CRATE, Item.CurID));
+	if(Data.CurID) {
+		base_price = TR5(curPrice * P_Pack->Amounts.Get(PPAMT_CRATE, Data.CurID));
 		ok = 1;
 	}
 	ASSIGN_PTR(pBasePrice, base_price);
 	return ok;
 }
 
-int TrfrItemDialog::getCtrlCost()
+bool TrfrItemDialog::GetCtrlCost()
 {
-	double c = Item.Cost;
+	bool   ok = false;
+	double c = Data.Cost;
 	if(getCtrlData(CTL_LOT_COST, &c)) {
-		Item.SetOrgCost(c);
-		return 1;
+		Data.SetOrgCost(c);
+		ok = true;
 	}
-	else
-		return 0;
-}
-
-int TrfrItemDialog::setCtrlCost()
-{
-	return setCtrlReal(CTL_LOT_COST, Item.GetOrgCost());
+	return ok;
 }
 
 void TrfrItemDialog::setupCurPrice()
 {
 	double cur_price = 0.0;
 	double base_price;
-	if(Item.CurID && getCtrlData(CTL_LOT_CURPRICE, &cur_price)) {
+	if(Data.CurID && getCtrlData(CTL_LOT_CURPRICE, &cur_price)) {
 		uint   ctl_id = 0;
 		evaluateBasePrice(cur_price, &base_price);
-		if(Item.Flags & PPTFR_REVAL) {
-			ctl_id = (Item.Flags & PPTFR_SELLING) ? CTL_LOT_PRICE : CTL_LOT_COST;
+		if(Data.Flags & PPTFR_REVAL) {
+			ctl_id = (Data.Flags & PPTFR_SELLING) ? CTL_LOT_PRICE : CTL_LOT_COST;
 		}
-		else if(Item.Flags & PPTFR_SELLING) {
+		else if(Data.Flags & PPTFR_SELLING) {
 			if(LConfig.Flags & CFGFLG_DISCOUNTBYSUM)
 				ctl_id = CTL_LOT_PRICE;
 			else
-				setCtrlReal(CTL_LOT_DISCOUNT, TR5(Item.Price - base_price));
+				setCtrlReal(CTL_LOT_DISCOUNT, TR5(Data.Price - base_price));
 		}
-		else
+		else {
 			ctl_id = CTL_LOT_COST;
+		}
 		if(ctl_id) {
 			setCtrlData(ctl_id, &base_price);
 			setupVaPct();
@@ -707,7 +713,7 @@ void TrfrItemDialog::setupCurPrice()
 void TrfrItemDialog::recalcUnitsToPhUnits()
 {
 	double phuperu;
-	if(Item.GoodsID && GObj.GetPhUPerU(Item.GoodsID, 0, &phuperu) > 0) {
+	if(Data.GoodsID && GObj.GetPhUPerU(Data.GoodsID, 0, &phuperu) > 0) {
 		setCtrlReal(CTL_LOT_QUANTITY, R6(getCtrlReal(CTL_LOT_QUANTITY) / phuperu));
 		setupQuantity(CTL_LOT_QUANTITY, 1);
 	}
@@ -715,19 +721,19 @@ void TrfrItemDialog::recalcUnitsToPhUnits()
 
 void TrfrItemDialog::editQCertData()
 {
-	if(Item.Flags & PPTFR_DRAFT) {
+	if(Data.Flags & PPTFR_DRAFT) {
 		LotQCertDialog * dlg = 0;
 		int    valid_data = 0;
 		LotQCertData lqcd;
 		SString org_clb, serial;
 		if(CheckDialogPtr(&(dlg = new LotQCertDialog(P_BObj)))) {
-			getCtrlData(CTL_LOT_EXPIRY, &Item.Expiry);
-			if(checkdate(Item.Expiry, 1)) {
-				lqcd.LotID   = Item.LotID;
-				lqcd.QCertID = Item.QCert;
-				lqcd.Expiry  = Item.Expiry;
+			getCtrlData(CTL_LOT_EXPIRY, &Data.Expiry);
+			if(checkdate(Data.Expiry, 1)) {
+				lqcd.LotID   = Data.LotID;
+				lqcd.QCertID = Data.QCert;
+				lqcd.Expiry  = Data.Expiry;
 				lqcd.IsInheritedClb = 1;
-				P_BObj->GetClbNumberByLot(Item.LotID, 0, org_clb);
+				P_BObj->GetClbNumberByLot(Data.LotID, 0, org_clb);
 				P_Pack->LTagL.GetString(PPTAG_LOT_SN, ItemNo, serial);
 				org_clb.Strip().CopyTo(lqcd.CLB, sizeof(lqcd.CLB));
 				serial.Strip().CopyTo(lqcd.Serial, sizeof(lqcd.Serial));
@@ -735,10 +741,10 @@ void TrfrItemDialog::editQCertData()
 				while(!valid_data && ExecView(dlg) == cmOK)
 					if(dlg->getDTS(&lqcd)) {
 						valid_data = 1;
-						Item.QCert = lqcd.QCertID;
-						Item.Expiry = lqcd.Expiry;
+						Data.QCert = lqcd.QCertID;
+						Data.Expiry = lqcd.Expiry;
 						P_Pack->LTagL.SetString(PPTAG_LOT_SN, ItemNo, lqcd.Serial);
-						setCtrlData(CTL_LOT_EXPIRY, &Item.Expiry);
+						setCtrlData(CTL_LOT_EXPIRY, &Data.Expiry);
 					}
 			}
 			else
@@ -749,15 +755,15 @@ void TrfrItemDialog::editQCertData()
 		delete dlg;
 	}
 	else
-		ViewQCertDialog(Item.QCert);
+		ViewQCertDialog(Data.QCert);
 }
 
 void TrfrItemDialog::GenerateSerial()
 {
 	if(IsTaggedItem()) {
-		const SString templt(GObj.IsAsset(Item.GoodsID) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt);
+		const SString templt(GObj.IsAsset(Data.GoodsID) ? P_BObj->Cfg.InvSnTemplt : P_BObj->Cfg.SnTemplt);
 		SString serial;
-		if(P_BObj->GetSnByTemplate(P_Pack->Rec.Code, labs(Item.GoodsID), &P_Pack->LTagL/*SnL*/, templt, serial) > 0)
+		if(P_BObj->GetSnByTemplate(P_Pack->Rec.Code, labs(Data.GoodsID), &P_Pack->LTagL/*SnL*/, templt, serial) > 0)
 			setCtrlString(CTL_LOT_SERIAL, serial);
 	}
 }
@@ -766,10 +772,10 @@ void TrfrItemDialog::calcPrice()
 {
 	CalcPriceParam param;
 	param.VaPercent = DS.GetTLA().Lid.VaPercent;
-	if(getCtrlCost() && getCtrlData(CTL_LOT_PRICE, &param.Price) && !getCtrlView(CTL_LOT_PRICE)->IsInState(sfDisabled)) {
-		param.Cost       = Item.Cost;
+	if(GetCtrlCost() && getCtrlData(CTL_LOT_PRICE, &param.Price) && !getCtrlView(CTL_LOT_PRICE)->IsInState(sfDisabled)) {
+		param.Cost       = Data.Cost;
 		param.Dt = P_Pack->Rec.Dt;
-		param.GoodsID    = Item.GoodsID;
+		param.GoodsID    = Data.GoodsID;
 		param.InTaxGrpID = getCtrlLong(CTLSEL_LOT_INTAXGRP);
 		ushort v = getCtrlUInt16(CTL_LOT_NOVAT);
 		SETFLAG(param.Flags, CalcPriceParam::fCostWoVat, v);
@@ -787,22 +793,22 @@ int TrfrItemDialog::setupValuation()
 {
 	int    ok = -1;
 	const PPBillConfig & r_cfg = P_BObj->GetConfig();
-	if(oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) && !Item.RByBill &&
+	if(oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) && !Data.RByBill &&
 		LConfig.Flags & CFGFLG_AUTOQUOT && r_cfg.ValuationQuotKindID && CheckOpFlags(OpID, OPKF_NEEDVALUATION)) {
 		ENTER_CRITICAL_SECTION
 		static int locking = 0;
 		if(!locking) {
 			locking = 1;
-			getCtrlCost();
-			double cost  = Item.Cost;
+			GetCtrlCost();
+			double cost  = Data.Cost;
 			double price = getCtrlReal(CTL_LOT_PRICE);
-			Item.Price = TR5(price);
+			Data.Price = TR5(price);
 			ushort v = 0;
 			if(getCtrlData(CTL_LOT_NOVAT, &v))
-				SETFLAG(Item.Flags, PPTFR_COSTWOVAT, v);
-			if(Item.Valuation(r_cfg, 0, 0) > 0) {
-				setCtrlReal(CTL_LOT_PRICE, Item.Price);
-				disableCtrl(CTL_LOT_PRICE, true);
+				SETFLAG(Data.Flags, PPTFR_COSTWOVAT, v);
+			if(Data.Valuation(r_cfg, 0, 0) > 0) {
+				setCtrlReal(CTL_LOT_PRICE, Data.Price);
+				setCtrlReadOnly(CTL_LOT_PRICE, true); // @v12.7.8 disableCtrl-->setCtrlReadOnly
 				ok = 1;
 			}
 			locking = 0;
@@ -817,7 +823,7 @@ void TrfrItemDialog::SetupSerialWarn()
 	if(getCtrlView(CTL_LOT_ST_SERIALWARN)) {
 		SString temp_buf;
 		getCtrlString(CTL_LOT_SERIAL, temp_buf);
-		if(P_BObj->AdjustSerialForUniq(Item.GoodsID, Item.LotID, 1, temp_buf) > 0)
+		if(P_BObj->AdjustSerialForUniq(Data.GoodsID, Data.LotID, 1, temp_buf) > 0)
 			PPLoadText(PPTXT_NONUNIQLOTSERIAL, temp_buf);
 		else
 			temp_buf.Z();
@@ -866,7 +872,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 		}
 		else if(GoodsGrpID == 0)
 			messageToCtrl(CTLSEL_LOT_GOODSGRP, cmCBActivate, 0);
-		else if(Item.Flags & PPTFR_ONORDER && Item.LotID == 0)
+		else if(Data.Flags & PPTFR_ONORDER && Data.LotID == 0)
 			replyGoodsSelection();
 		// Далее управление передается базовому классу
 	}
@@ -889,9 +895,9 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 				case cmQCert:  editQCertData(); break;
 				case cmLot:    selectLot();     break;
 				case cmOrdLot:
-					if(Item.GoodsID) {
+					if(Data.GoodsID) {
 						LotFilt filt;
-						filt.GoodsID = Item.GoodsID;
+						filt.GoodsID = Data.GoodsID;
 						filt.ClosedTag = 1;
 						filt.Flags |= LotFilt::fOrders;
 						ViewLots(&filt, 1, 0);
@@ -900,13 +906,13 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 				case cmQuot:
 					{
 						const  PPID loc_id = GetQuotLocID();
-						GObj.EditQuotations(Item.GoodsID, loc_id, Item.CurID, 0 /* ArID */, PPQuot::clsGeneral);
+						GObj.EditQuotations(Data.GoodsID, loc_id, Data.CurID, 0/*ArID*/, PPQuot::clsGeneral);
 						setupBaseQuot();
 						setupPriceLimit();
 					}
 					break;
 				case cmVetisMatch:
-					if(Item.Flags & PPTFR_RECEIPT && CConfig.Flags2__ & CCFLG2_USEVETIS && checkdate(P_Pack->Rec.Dt)) {
+					if(Data.Flags & PPTFR_RECEIPT && CConfig.Flags2__ & CCFLG2_USEVETIS && checkdate(P_Pack->Rec.Dt)) {
 						const  PPID suppl_person_id = ObjectToPerson(P_Pack->Rec.Object, 0);
 						if(suppl_person_id) {
 							SString temp_buf;
@@ -930,10 +936,10 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 								//temp_buf.Z().Cat(P_Pack->R)
 								PPObjBill::MakeCodeString(&P_Pack->Rec, 0, temp_buf);
 								SString item_info_buf;
-								GetGoodsName(Item.GoodsID, item_info_buf);
+								GetGoodsName(Data.GoodsID, item_info_buf);
 								double phupu = 0.0;
-								if(GObj.GetPhUPerU(Item.GoodsID, 0, &phupu) > 0 && phupu > 0.0) {
-									item_info_buf.Space().Cat(fabs(Item.Quantity_) * phupu, MKSFMTD_030);
+								if(GObj.GetPhUPerU(Data.GoodsID, 0, &phupu) > 0 && phupu > 0.0) {
+									item_info_buf.Space().Cat(fabs(Data.Quantity_) * phupu, MKSFMTD_030);
 								}
 								temp_buf.CatDiv('-', 1).Cat(item_info_buf);
 								vetis_view.SetOuterTitle(temp_buf);
@@ -944,8 +950,8 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 									if(!!p_result_filt->SelLotUuid && vetis_doc_id) {
 										p_result_filt->SelLotUuid.ToStr(S_GUID::fmtIDL, temp_buf);
 										P_Pack->LTagL.SetString(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf);
-										if(P_Pack->Rec.ID && Item.RByBill > 0 && Item.LotID) {
-											if(!vetis_view.EC.MatchDocument(vetis_doc_id, P_Pack->Rec.ID, Item.RByBill, 1/*fromBill*/, 1))
+										if(P_Pack->Rec.ID && Data.RByBill > 0 && Data.LotID) {
+											if(!vetis_view.EC.MatchDocument(vetis_doc_id, P_Pack->Rec.ID, Data.RByBill, 1/*fromBill*/, 1))
 												PPError();
 										}
 									}
@@ -975,7 +981,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 				case cmLotDim:
 					{
 						PPGdsClsPacket gc_pack;
-						if(Item.GoodsID && GObj.FetchCls(Item.GoodsID, 0, &gc_pack) > 0 && gc_pack.Rec.LotDimCount > 0) {
+						if(Data.GoodsID && GObj.FetchCls(Data.GoodsID, 0, &gc_pack) > 0 && gc_pack.Rec.LotDimCount > 0) {
 							int    skip = 0;
 							ObjTagList tag_list;
 							ObjTagList * p_list = P_Pack->LTagL.Get(ItemNo);
@@ -994,7 +1000,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 								P_Pack->LTagL.Set(ItemNo, &tag_list);
 								if(gc_pack.LotDimQtty_Formula.NotEmpty()) {
 									SString temp_buf;
-									GoodsContext gctx(&Item, P_Pack);
+									GoodsContext gctx(&Data, P_Pack);
 									GoodsContext::Param gcp = gctx.GetParam();
 									if(dim_tagitem.GetStr(temp_buf) > 0 && gcp.LotDim.FromString(temp_buf)) {
 										gctx.SetParam(gcp);
@@ -1010,13 +1016,13 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 					}
 					break;
 				case cmSourceSerial:
-					if(IsSourceSerialUsed() && Item.GoodsID) {
+					if(IsSourceSerialUsed() && Data.GoodsID) {
 						PPIDArray src_goods_id_list;
-						if(GetGoodsListSuitableForSourceSerial(Item.GoodsID, src_goods_id_list) > 0) {
+						if(GetGoodsListSuitableForSourceSerial(Data.GoodsID, src_goods_id_list) > 0) {
 							SString current_serial;
 							getCtrlString(CTL_LOT_SOURCESERIAL, current_serial);
 							src_goods_id_list.sortAndUndup();
-							PPObjBill::SelectLotParam slp(0, Item.LocID, Item.LotID, PPObjBill::SelectLotParam::fNotEmptySerial);
+							PPObjBill::SelectLotParam slp(0, Data.LocID, Data.LotID, PPObjBill::SelectLotParam::fNotEmptySerial);
 							slp.RetLotSerial = current_serial;
 							slp.GoodsList = src_goods_id_list;
 							if(P_BObj->SelectLot2(slp) > 0) {
@@ -1028,20 +1034,23 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 				case cmInputUpdated:
 					if(!(St & stLockQttyAutoUpd)) {
 						St |= stLockQttyAutoUpd;
-						i = TVINFOVIEW->GetId();
-						if(oneof2(i, CTL_LOT_PRICE, CTL_LOT_DISCOUNT)) {
-							//
-							// При изменении поля цены реализации либо скидки необходимо перерисовать его
-							// дабы его цвет изменился (см. ниже cmCtlColor)
-							//
-							drawCtrl(CTL_LOT_PRICE);
+						const  uint ctl_id = event.getCtlID();
+						if(ctl_id == CTL_LOT_PRICE) {
+							SetupInputState_Price(false);
 						}
-						else if(oneof3(i, CTL_LOT_UNITPERPACK, CTL_LOT_PACKS, CTL_LOT_QUANTITY)) {
-							setupQuantity(i, 1);
+						else if(ctl_id == CTL_LOT_DISCOUNT) {
+							SetupInputState_Price(false);
+						}
+						else if(ctl_id == CTL_LOT_VETISIND) { // static text
+							; // @todo
+						}
+						else if(oneof3(ctl_id, CTL_LOT_UNITPERPACK, CTL_LOT_PACKS, CTL_LOT_QUANTITY)) {
+							setupQuantity(ctl_id, 1);
 							setupVatSum();
 						}
-						else if(i == CTL_LOT_SERIAL)
+						else if(ctl_id == CTL_LOT_SERIAL) {
 							SetupSerialWarn();
+						}
 						St &= ~stLockQttyAutoUpd;
 					}
 					break;
@@ -1050,30 +1059,43 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 						// TCanvas
 						TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 						if(p_dc) {
-							if(St & stWasCostInput) {
+							/*if(St & stWasCostInput) {
 								if(getCtrlHandle(CTL_LOT_COST) == p_dc->H_Ctl) {
 									::SetBkMode(p_dc->H_DC, TRANSPARENT);
 									::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
 									p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushChangedCost));
 									clearEvent(event);
 								}
-							}
-							if(getCtrlHandle(CTL_LOT_PRICE) == p_dc->H_Ctl) {
-								if(Item.Flags & PPTFR_QUOT) {
-									::SetBkMode(p_dc->H_DC, TRANSPARENT);
-									p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(P_BObj->CheckRights(BILLOPRT_CANCELQUOT) ? brushQuotedPrice : brushQuotedPriceNoCancel));
-									clearEvent(event);
+							}*/
+							if(getCtrlHandle(CTL_LOT_COST) == p_dc->H_Ctl) {
+								TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(CTL_LOT_COST, TV_SUBSIGN_INPUTLINE));
+								if(p_il) {
+									uint64 _state = 0;
+									if(p_il->GetIndicatorState(&_state, 0)) {
+										if(_state == 1) {
+											::SetBkMode(p_dc->H_DC, TRANSPARENT);
+											::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
+											p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushChangedCost));
+											clearEvent(event);
+										}
+									}
 								}
-								else if(oneof4(OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND, PPOPT_GOODSRECEIPT)) {
-									getCtrlCost();
-									double pc = TR5(Item.Price);
-									double ds = TR5(Item.Discount);
-									getCtrlData(CTL_LOT_PRICE,    &pc);
-									getCtrlData(CTL_LOT_DISCOUNT, &ds);
-									if((pc-ds) < Item.Cost) {
-										::SetBkMode(p_dc->H_DC, TRANSPARENT);
-										p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushPriceBelowCost));
-										clearEvent(event);
+							}
+							else if(getCtrlHandle(CTL_LOT_PRICE) == p_dc->H_Ctl) {
+								TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(CTL_LOT_PRICE, TV_SUBSIGN_INPUTLINE));
+								if(p_il) {
+									uint64 _state = 0;
+									if(p_il->GetIndicatorState(&_state, 0)) {
+										if(oneof2(_state, 1, 2)) {
+											::SetBkMode(p_dc->H_DC, TRANSPARENT);
+											p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get((_state == 1) ? brushQuotedPrice : brushQuotedPriceNoCancel));
+											clearEvent(event);
+										}
+										else if(_state == 3) {
+											::SetBkMode(p_dc->H_DC, TRANSPARENT);
+											p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushPriceBelowCost));
+											clearEvent(event);
+										}
 									}
 								}
 							}
@@ -1084,7 +1106,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 									p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushVetisUuidExists));
 									clearEvent(event);
 								}
-								else if(GObj.CheckFlag(Item.GoodsID, GF_WANTVETISCERT)) {
+								else if(GObj.CheckFlag(Data.GoodsID, GF_WANTVETISCERT)) {
 									p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushVetisUuidAbsence));
 									clearEvent(event);
 								}
@@ -1092,6 +1114,21 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 						}
 					}
 					return;
+				case cmMouseHoverCtrl: // @v12.7.8
+					{
+						const  uint ctl_id = event.getCtlID();
+						if(oneof2(ctl_id, CTL_LOT_COST, CTL_LOT_PRICE)) {
+							TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+							if(p_il) {
+								uint64 _state = 0;
+								SString descr_buf;
+								if(p_il->GetIndicatorState(&_state, &descr_buf) && descr_buf.NotEmptyS()) {
+									PPShowCtrlIndicatorHint(descr_buf);
+								}
+							}
+						}
+					}
+					break;
 				default:
 					return;
 			}
@@ -1109,17 +1146,20 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 				setupQuantity(i, 1);
 				setupVatSum();
 			}
-			else if(i == CTL_LOT_CURPRICE)
+			else if(i == CTL_LOT_CURPRICE) {
 				setupCurPrice();
+			}
 			else if(i == CTL_LOT_COST) {
 				if(setupValuation() <= 0) {
 					if(OpTypeID == PPOPT_GOODSRECEIPT && R5(getCtrlReal(CTL_LOT_PRICE)) == 0.0) {
-						getCtrlCost();
-						if(Item.Cost != 0.0)
+						GetCtrlCost();
+						if(Data.Cost != 0.0) {
 							setupQuotation(0, 0);
+						}
 					}
-					else
-						setQuotSign();
+					else {
+						SetQuotSign();
+					}
 				}
 				setupVatSum();
 				setupVaPct();
@@ -1154,22 +1194,22 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 			if(i == CTL_LOT_QUANTITY)
 				recalcUnitsToPhUnits();
 			else if(i == CTL_LOT_PRICE) {
-				if(Item.GoodsID && GObj.GetPhUPerU(Item.GoodsID, 0, &phuperu) > 0) {
+				if(Data.GoodsID && GObj.GetPhUPerU(Data.GoodsID, 0, &phuperu) > 0) {
 					setCtrlReal(CTL_LOT_PRICE, TR5(getCtrlReal(CTL_LOT_PRICE) * phuperu));
 					setupVaPct();
 				}
 			}
 			else if(i == CTL_LOT_COST) {
-				if(Item.GoodsID && GObj.GetPhUPerU(Item.GoodsID, 0, &phuperu) > 0) {
-					getCtrlCost();
-					Item.SetOrgCost(Item.GetOrgCost() * phuperu);
-					setCtrlCost();
+				if(Data.GoodsID && GObj.GetPhUPerU(Data.GoodsID, 0, &phuperu) > 0) {
+					GetCtrlCost();
+					Data.SetOrgCost(Data.GetOrgCost() * phuperu);
+					setCtrlReal(CTL_LOT_COST, Data.GetOrgCost());
 					setupVaPct();
 				}
 			}
 			else if(i == CTL_LOT_CURPRICE) {
 				double phuperu;
-				if(Item.GoodsID && GObj.GetPhUPerU(Item.GoodsID, 0, &phuperu) > 0) {
+				if(Data.GoodsID && GObj.GetPhUPerU(Data.GoodsID, 0, &phuperu) > 0) {
 					setCtrlReal(CTL_LOT_CURPRICE, TR5(getCtrlReal(CTL_LOT_CURPRICE) * phuperu));
 					setupVaPct();
 					setupCurPrice();
@@ -1178,12 +1218,12 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 		}
 		else if(TVKEY == kbF5) {
 			if(isCurrCtlID(CTL_LOT_PRICE)) {
-				if(Item.Flags & PPTFR_PRICEWOTAXES)
-					CalcTaxPrice(Item.GoodsID, OpID, P_Pack->Rec.Dt, getCtrlReal(CTL_LOT_PRICE));
+				if(Data.Flags & PPTFR_PRICEWOTAXES)
+					CalcTaxPrice(Data.GoodsID, OpID, P_Pack->Rec.Dt, getCtrlReal(CTL_LOT_PRICE));
 			}
 			else if(isCurrCtlID(CTL_LOT_QUANTITY)) {
 				GoodsStockExt gse;
-				if(GObj.GetStockExt(Item.GoodsID, &gse, 1) > 0 && gse.Package > 0.0) {
+				if(GObj.GetStockExt(Data.GoodsID, &gse, 1) > 0 && gse.Package > 0.0) {
 					const double num_pckg = getCtrlReal(CTL_LOT_QUANTITY);
 					setCtrlReal(CTL_LOT_QUANTITY, num_pckg * gse.Package);
 					setupQuantity(CTL_LOT_QUANTITY, 1);
@@ -1205,7 +1245,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 			if(oneof3(i, CTL_LOT_COST, CTL_LOT_PRICE, CTL_LOT_QUANTITY)) {
 				const double _arg = getCtrlReal(i);
 				double result = 0.0;
-				if(PPGoodsCalculator(Item.GoodsID, 0, 1, _arg, &result) > 0 && result > 0) {
+				if(PPGoodsCalculator(Data.GoodsID, 0, 1, _arg, &result) > 0 && result > 0) {
 					setCtrlReal(i, (i == CTL_LOT_QUANTITY) ? R6(result) : TR5(result));
 					if(i == CTL_LOT_QUANTITY)
 						setupQuantity(CTL_LOT_QUANTITY, 1);
@@ -1229,7 +1269,7 @@ int TrfrItemDialog::selectGoodsByBarCode()
 	//if(GObj.SelectGoodsByBarcode(0, P_Pack->Rec.Object, &rec, 0, 0) > 0) {
 	if(GObj.SelectGoodsByBarcode2(blk) > 0) {
 		GoodsGrpID = blk.Rec.ParentID;
-		Item.SetupGoods(blk.Rec.ID, TISG_SETPWOTF);
+		Data.SetupGoods(blk.Rec.ID, TISG_SETPWOTF);
 		setCtrlData(CTLSEL_LOT_GOODSGRP, &GoodsGrpID);
 		setupGoodsList();
 		replyGoodsSelection();
@@ -1242,9 +1282,9 @@ int TrfrItemDialog::setupGoodsListByPrice()
 {
 	int    ok = 1;
 	double _price = getCtrlReal(CTL_LOT_PRICE);
-	if(getCtrlView(CTLSEL_LOT_GOODS) && _price != 0.0 && Item.Price != _price) {
-		Item.Price = _price;
-		StrAssocArray * p_list = GObj.CreateListByPrice(P_Pack->Rec.LocID, Item.Price);
+	if(getCtrlView(CTLSEL_LOT_GOODS) && _price != 0.0 && Data.Price != _price) {
+		Data.Price = _price;
+		StrAssocArray * p_list = GObj.CreateListByPrice(P_Pack->Rec.LocID, Data.Price);
 		ListWindow * p_lw = p_list ? CreateListWindow(p_list, lbtDisposeData|lbtDblClkNotify|lbtFocNotify) : 0;
 		THROW(p_list);
 		THROW_MEM(p_lw);
@@ -1252,7 +1292,7 @@ int TrfrItemDialog::setupGoodsListByPrice()
 		messageToCtrl(CTLSEL_LOT_GOODS, cmCBActivate, 0);
 	}
 	else
-		Item.Price = _price;
+		Data.Price = _price;
 	CATCHZOKPPERR
 	return ok;
 }
@@ -1261,15 +1301,15 @@ int TrfrItemDialog::setupGoodsList()
 {
 	int    ok = 1;
 	Goods2Tbl::Rec goods_rec;
-	if(St & stGoodsFixed && Item.GoodsID && GObj.Fetch(Item.GoodsID, &goods_rec) > 0)
+	if(St & stGoodsFixed && Data.GoodsID && GObj.Fetch(Data.GoodsID, &goods_rec) > 0)
 		SetComboBoxLinkText(this, CTLSEL_LOT_GOODS, goods_rec.Name);
 	else {
 		PPID   grp_id = GoodsGrpID;
 		if(P_Pack->OpTypeID == PPOPT_GOODSORDER && CheckOpFlags(P_Pack->Rec.OpID, OPKF_ORDEXSTONLY))
 			grp_id = -GoodsGrpID;
-		else if(!Item.GoodsID && !(Item.Flags & (PPTFR_ACK|PPTFR_DRAFT)) && (Item.Flags & (PPTFR_MINUS | PPTFR_REVAL)))
+		else if(!Data.GoodsID && !(Data.Flags & (PPTFR_ACK|PPTFR_DRAFT)) && (Data.Flags & (PPTFR_MINUS | PPTFR_REVAL)))
 			grp_id = -GoodsGrpID;
-		ok = SetupPPObjCombo(this, CTLSEL_LOT_GOODS, PPOBJ_GOODS, Item.GoodsID, OLW_LOADDEFONOPEN|OLW_CANINSERT, reinterpret_cast<void *>(grp_id));
+		ok = SetupPPObjCombo(this, CTLSEL_LOT_GOODS, PPOBJ_GOODS, Data.GoodsID, OLW_LOADDEFONOPEN|OLW_CANINSERT, reinterpret_cast<void *>(grp_id));
 	}
 	setupQttyFldPrec();
 	return ok;
@@ -1278,8 +1318,8 @@ int TrfrItemDialog::setupGoodsList()
 void TrfrItemDialog::replyGoodsGroupSelection()
 {
 	getCtrlData(CTLSEL_LOT_GOODSGRP, &GoodsGrpID);
-	Item.SetupGoods(0, 0);
-	Item.QCert   = 0;
+	Data.SetupGoods(0, 0);
+	Data.QCert   = 0;
 	disableCtrl(CTLSEL_LOT_QCERT, true);
 	setupGoodsList();
 	selectCtrl(CTL_LOT_GOODS);
@@ -1288,7 +1328,7 @@ void TrfrItemDialog::replyGoodsGroupSelection()
 
 void TrfrItemDialog::calcOrderRest()
 {
-	if(Item.GoodsID && !CheckOpFlags(OpID, OPKF_NOCALCTIORD)) {
+	if(Data.GoodsID && !CheckOpFlags(OpID, OPKF_NOCALCTIORD)) {
 		int    i = 0;
 		uint   pos = 0;
 		const  PPTransferItem * oi = 0;
@@ -1296,13 +1336,13 @@ void TrfrItemDialog::calcOrderRest()
 			oi = P_OrderItem;
 			i = static_cast<int>(pos);
 		}
-		else if(Item.Flags & PPTFR_ORDER) {
-			oi = &Item;
+		else if(Data.Flags & PPTFR_ORDER) {
+			oi = &Data;
 			i = ItemNo;
 		}
 		else
 			i = -1;
-		P_Pack->GoodsRest(-labs(Item.GoodsID), oi, i, &OrdRest, &OrdReserved);
+		P_Pack->GoodsRest(-labs(Data.GoodsID), oi, i, &OrdRest, &OrdReserved);
 	}
 	else
 		OrdReserved = OrdRest = 0;
@@ -1310,26 +1350,26 @@ void TrfrItemDialog::calcOrderRest()
 
 void TrfrItemDialog::setupQttyFldPrec()
 {
-	TInputLine * il = static_cast<TInputLine *>(getCtrlView(CTL_LOT_QUANTITY));
-	if(Item.GoodsID && il) {
-		uint   prec = GObj.CheckFlag(Item.GoodsID, GF_INTVAL) ? 0 : 6;
-		long   f    = il->getFormat();
+	TInputLine * p_il = static_cast<TInputLine *>(getCtrlView(CTL_LOT_QUANTITY));
+	if(Data.GoodsID && p_il) {
+		const  uint prec = GObj.CheckFlag(Data.GoodsID, GF_INTVAL) ? 0 : 6;
+		long   f = p_il->getFormat();
 		if(SFMTPRC(f) != prec) {
 			SETSFMTPRC(f, prec);
-			il->setFormat(f);
+			p_il->setFormat(f);
 		}
 	}
 }
 
 bool TrfrItemDialog::IsZeroPriceAllowed()
 {
-	return (P_Pack && P_Pack->OpTypeID == PPOPT_DRAFTQUOTREQ) ? true : GObj.IsZeroPriceAllowed(Item.GoodsID);
+	return (P_Pack && P_Pack->OpTypeID == PPOPT_DRAFTQUOTREQ) ? true : GObj.IsZeroPriceAllowed(Data.GoodsID);
 }
 
 int TrfrItemDialog::CheckQuantityForIntVal()
 {
 	const TView * v = getCtrlView(CTL_LOT_QUANTITY);
-	if(v && !v->IsInState(sfDisabled) && GObj.CheckFlag(Item.GoodsID, GF_INTVAL) && ffrac(R6(Item.Quantity_)) != 0.0)
+	if(v && !v->IsInState(sfDisabled) && GObj.CheckFlag(Data.GoodsID, GF_INTVAL) && ffrac(R6(Data.Quantity_)) != 0.0)
 		return PPSetError(PPERR_INTVALUNIT);
 	else
 		return 1;
@@ -1337,7 +1377,7 @@ int TrfrItemDialog::CheckQuantityForIntVal()
 
 bool TrfrItemDialog::IsChZnCtWtEnabled() // @v12.1.4
 {
-	bool result = GObj.IsChZnCtWtGoods(Item.GoodsID);
+	bool result = GObj.IsChZnCtWtGoods(Data.GoodsID);
 	if(result) {
 		PPObjTag tag_obj;
 		PPObjectTag2 tag_rec;
@@ -1392,7 +1432,7 @@ void TrfrItemDialog::setupCtrlsOnGoodsSelection()
 	SString tax_grp_name;
 	Goods2Tbl::Rec goods_rec;
 	setStaticText(CTL_LOT_ST_PHQTTY, 0);
-	if(Item.GoodsID && GObj.Fetch(labs(Item.GoodsID), &goods_rec) > 0) {
+	if(Data.GoodsID && GObj.Fetch(labs(Data.GoodsID), &goods_rec) > 0) {
 		PPUnit unit_rec;
 		if(GObj.FetchUnit(goods_rec.PhUnitID, &unit_rec) > 0)
 			setStaticText(CTL_LOT_ST_PHQTTY, unit_rec.Name);
@@ -1403,12 +1443,12 @@ void TrfrItemDialog::setupCtrlsOnGoodsSelection()
                 allow_dim_button = true;
 		}
 	}
-	showCtrl(CTL_LOT_PHQTTY, !LOGIC(Item.Flags & PPTFR_INDEPPHQTTY));
-	showCtrl(CTL_LOT_INDEPPHQTTY, LOGIC(Item.Flags & PPTFR_INDEPPHQTTY));
+	showCtrl(CTL_LOT_PHQTTY, !LOGIC(Data.Flags & PPTFR_INDEPPHQTTY));
+	showCtrl(CTL_LOT_INDEPPHQTTY, LOGIC(Data.Flags & PPTFR_INDEPPHQTTY));
 	showCtrl(CTL_LOT_PCFORWTQTY, IsChZnCtWtEnabled()); // @v12.1.4
 	showButton(cmLotDim, allow_dim_button);
 	setStaticText(CTL_LOT_ST_GOODSTAXGRP, tax_grp_name);
-	setQuotSign();
+	SetQuotSign();
 }
 
 int TrfrItemDialog::replyGoodsSelection(int recurse)
@@ -1427,31 +1467,31 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 	uint   lot_idx = 0;
 	InheritedLotTagList.Z();
 	Rest = 0.0;
-	Item.Flags &= ~PPTFR_AUTOCOMPL;
-	getCtrlData(CTLSEL_LOT_GOODS, &Item.GoodsID);
-	if(Item.GoodsID == 0) {
+	Data.Flags &= ~PPTFR_AUTOCOMPL;
+	getCtrlData(CTLSEL_LOT_GOODS, &Data.GoodsID);
+	if(!Data.GoodsID) {
 		again = true;
 		CALLEXCEPT_PP(PPERR_USERINPUT);
 	}
-	else if(Item.SetupGoods(Item.GoodsID, TISG_SETPWOTF) <= 0) {
+	else if(Data.SetupGoods(Data.GoodsID, TISG_SETPWOTF) <= 0) {
 		again = true;
 		CALLEXCEPT();
 	}
 	//
 	// Защита от несоответствия лота товару
 	//
-	if(Item.LotID && (P_Trfr->Rcpt.Search(Item.LotID, &lot_rec) <= 0 || labs(lot_rec.GoodsID) != labs(Item.GoodsID)))
-		Item.LotID = 0;
+	if(Data.LotID && (P_Trfr->Rcpt.Search(Data.LotID, &lot_rec) <= 0 || labs(lot_rec.GoodsID) != labs(Data.GoodsID)))
+		Data.LotID = 0;
 	//
 	if(oneof2(op_subtype, OPSUBT_ASSETEXPL, OPSUBT_ASSETRCV)) {
-		if(!GObj.IsAsset(Item.GoodsID)) {
+		if(!GObj.IsAsset(Data.GoodsID)) {
 			again = true;
 			CALLEXCEPT_PP(PPERR_ASSETGOODSNEEDED);
 		}
 	}
 	if(oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
-		const QuotIdent qi(Item.LocID, 0, Item.CurID, P_Pack->Rec.Object);
-		GObj.GetSupplDeal(Item.GoodsID, qi, &Sd, 1);
+		const QuotIdent qi(Data.LocID, 0, Data.CurID, P_Pack->Rec.Object);
+		GObj.GetSupplDeal(Data.GoodsID, qi, &Sd, 1);
 		if(Sd.IsDisabled) {
 			again = true;
 			CALLEXCEPT_PP(PPERR_GOODSRCPTDISABLED);
@@ -1459,19 +1499,19 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 		else
 			suppl_deal_cost = Sd.Cost;
 	}
-	if(!P_Pack->CheckGoodsForRestrictions(ItemNo, Item.GoodsID, Item.GetSign(OpID), 0.0, (PPBillPacket::cgrfAll&~(PPBillPacket::cgrfQtty)), 0)) {
+	if(!P_Pack->CheckGoodsForRestrictions(ItemNo, Data.GoodsID, Data.GetSign(OpID), 0.0, (PPBillPacket::cgrfAll&~(PPBillPacket::cgrfQtty)), 0)) {
 		again = true;
 		CALLEXCEPT();
 	}
-	if(Item.Flags & PPTFR_UNLIM && !(OpTypeID == PPOPT_GOODSRECEIPT)) {
-		const QuotIdent qi(Item.LocID, PPQUOTK_BASE, Item.CurID, P_Pack->Rec.Object);
-		THROW_PP(!(Item.Flags & PPTFR_REVAL), PPERR_REVALONUNLIM);
-		THROW(r = GObj.GetQuot(Item.GoodsID, qi, 0.0, 0.0, &quot));
+	if(Data.Flags & PPTFR_UNLIM && !(OpTypeID == PPOPT_GOODSRECEIPT)) {
+		const QuotIdent qi(Data.LocID, PPQUOTK_BASE, Data.CurID, P_Pack->Rec.Object);
+		THROW_PP(!(Data.Flags & PPTFR_REVAL), PPERR_REVALONUNLIM);
+		THROW(r = GObj.GetQuot(Data.GoodsID, qi, 0.0, 0.0, &quot));
 		if(r < 0) {
 			if(PPMessage(mfConf|mfYes|mfNo, PPCFM_SETUPQUOT) == cmYes) {
-				THROW(r = GObj.EditQuotations(Item.GoodsID, 0, Item.CurID, 0/*ArID*/, PPQuot::clsGeneral));
+				THROW(r = GObj.EditQuotations(Data.GoodsID, 0, Data.CurID, 0/*ArID*/, PPQuot::clsGeneral));
 				if(r > 0) {
-					THROW(GObj.GetQuot(Item.GoodsID, qi, 0L, 0L, &quot) > 0);
+					THROW(GObj.GetQuot(Data.GoodsID, qi, 0L, 0L, &quot) > 0);
 				}
 				else
 					again = true;
@@ -1481,16 +1521,16 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 			if(again)
 				CALLEXCEPT_PP(recurse ? 0 : PPERR_QUOTNEEDED);
 		}
-		if(Item.Flags & PPTFR_MINUS && GObj.CheckFlag(Item.GoodsID, GF_AUTOCOMPL))
-			Item.Flags |= PPTFR_AUTOCOMPL;
+		if(Data.Flags & PPTFR_MINUS && GObj.CheckFlag(Data.GoodsID, GF_AUTOCOMPL))
+			Data.Flags |= PPTFR_AUTOCOMPL;
 		{
 			const double dis = P_Pack->Amounts.Get(PPAMT_PCTDIS, 0L/*@curID*/);
 			if(dis != 0.0)
-				Item.Discount = fdiv100r(dis * quot);
+				Data.Discount = fdiv100r(dis * quot);
 		}
 		Price = quot;
 		dir = 2;        // Don't enumerate lots
-		Item.LotID = 0; // quot.ID; //0;
+		Data.LotID = 0; // quot.ID; //0;
 	}
 	//
 	// В случае прихода товара от поставщика, заказа или подтверждения надо
@@ -1498,56 +1538,56 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 	// чтобы скопировать из него некоторые параметры.
 	//
 	else if(oneof3(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSACK, PPOPT_GOODSORDER) || P_Pack->IsDraft() || IsModifPlus()) {
-		const  PPID  lid = Item.LocID;
-		const  PPID  lot_id = Item.LotID;
+		const  PPID  lid = Data.LocID;
+		const  PPID  lot_id = Data.LotID;
 		const  LDATE sd = MAXDATE;
-		Item.LotID = 0;
+		Data.LotID = 0;
 		dir = 2; // Don't enumerate lots
 		Price = 0.0;
 		if(ItemNo < 0 && IsModifPlus() && P_BObj->GetConfig().Flags & BCF_AUTOCOMPLOUTBYQUOT) {
-			const QuotIdent qi(Item.LocID, PPQUOTK_BASE, Item.CurID, P_Pack->Rec.Object);
-			THROW(r = GObj.GetQuot(Item.GoodsID, qi, 0.0, 0.0, &quot));
+			const QuotIdent qi(Data.LocID, PPQUOTK_BASE, Data.CurID, P_Pack->Rec.Object);
+			THROW(r = GObj.GetQuot(Data.GoodsID, qi, 0.0, 0.0, &quot));
 		}
 		if(ItemNo < 0 && lot_id && OpTypeID == PPOPT_DRAFTEXPEND) {
 			int    ret = 0;
-			Item.LotID = lot_id;
-			THROW(ret = P_BObj->GetSerialNumberByLot(Item.LotID, temp_buf.Z(), 0));
+			Data.LotID = lot_id;
+			THROW(ret = P_BObj->GetSerialNumberByLot(Data.LotID, temp_buf.Z(), 0));
 			if(ret > 0) {
 				THROW(P_Pack->LTagL.SetString(PPTAG_LOT_SN, ItemNo, temp_buf));
 			}
 		}
-		else if(P_Trfr->Rcpt.GetLastLot(Item.GoodsID, -lid, sd, &lot_rec) > 0) {
+		else if(P_Trfr->Rcpt.GetLastLot(Data.GoodsID, -lid, sd, &lot_rec) > 0) {
 			if(OpTypeID == PPOPT_GOODSACK)
 				Price = R5(lot_rec.Price);
 			else
-				Item.LotID = lot_rec.ID;
+				Data.LotID = lot_rec.ID;
 		}
 		else if(OpTypeID == PPOPT_GOODSORDER) {
-			if(P_Trfr->Rcpt.GetLastLot(-labs(Item.GoodsID), -lid, sd, &lot_rec) > 0) {
-				Item.QCert = lot_rec.QCertID;
-				Item.UnitPerPack = lot_rec.UnitPerPack;
+			if(P_Trfr->Rcpt.GetLastLot(-labs(Data.GoodsID), -lid, sd, &lot_rec) > 0) {
+				Data.QCert = lot_rec.QCertID;
+				Data.UnitPerPack = lot_rec.UnitPerPack;
 			}
 			else { // @v12.0.8
-				const QuotIdent qi(Item.LocID, PPQUOTK_BASE, Item.CurID, P_Pack->Rec.Object);
-				THROW(r = GObj.GetQuot(Item.GoodsID, qi, 0.0, 0.0, &quot));
+				const QuotIdent qi(Data.LocID, PPQUOTK_BASE, Data.CurID, P_Pack->Rec.Object);
+				THROW(r = GObj.GetQuot(Data.GoodsID, qi, 0.0, 0.0, &quot));
 			}
 		}
 	}
-	else if(Item.LotID) {
+	else if(Data.LotID) {
 		dir = 2; // Don't enumerate lots
 		Price = 0.0;
 	}
 	else {
-		P_Trfr->Rcpt.GetListOfOpenedLots(-1, Item.GoodsID, Item.LocID, Item.Date, &lot_list);
+		P_Trfr->Rcpt.GetListOfOpenedLots(-1, Data.GoodsID, Data.LocID, Data.Date, &lot_list);
 	}
 	lot_idx = 0;
 	do {
 		if(dir != 2) {
 			if(lot_idx < lot_list.getCount()) {
 				lot_rec = lot_list.at(lot_idx++);
-				Item.LotID = lot_rec.ID;
+				Data.LotID = lot_rec.ID;
 				all_lots_in_pckg = false;
-				if(Item.Flags & PPTFR_MINUS && P_BObj->IsLotInPckg(Item.LotID)) {
+				if(Data.Flags & PPTFR_MINUS && P_BObj->IsLotInPckg(Data.LotID)) {
 					all_lots_in_pckg = true;
 					continue;
 				}
@@ -1556,7 +1596,7 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 					// При выборе товара по цене останавливаемся на том лоте, который имеет выбранную цену.
 					//
 					double p = R5(lot_rec.Price);
-					if(St & stGoodsByPrice && p != Item.Price) {
+					if(St & stGoodsByPrice && p != Data.Price) {
 						Rest = 0.0;
 						continue;
 					}
@@ -1571,53 +1611,53 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 								continue;
 							}
 						}
-						if(P_Pack->OpTypeID == PPOPT_GOODSREVAL && P_Pack->SearchLot(Item.LotID, 0)) {
+						if(P_Pack->OpTypeID == PPOPT_GOODSREVAL && P_Pack->SearchLot(Data.LotID, 0)) {
 							Rest = 0.0;
 							continue;
 						}
 					}
 				}
 			}
-			else if(Item.Flags & PPTFR_RECEIPT)
-				Item.LotID = 0;
+			else if(Data.Flags & PPTFR_RECEIPT)
+				Data.LotID = 0;
 			else if(all_lots_in_pckg) {
 				again = true;
 				CALLEXCEPT_PP(PPERR_ALLLOTSINPCKG);
 			}
-			else if(Item.Flags & PPTFR_MINUS && GObj.CheckFlag(Item.GoodsID, GF_AUTOCOMPL)) {
-				Item.Flags |= PPTFR_AUTOCOMPL;
-				Item.LotID  = 0;
+			else if(Data.Flags & PPTFR_MINUS && GObj.CheckFlag(Data.GoodsID, GF_AUTOCOMPL)) {
+				Data.Flags |= PPTFR_AUTOCOMPL;
+				Data.LotID  = 0;
 			}
 			else {
 				again = true;
-				CALLEXCEPT_PP_S(PPERR_NOGOODS, GetGoodsName(Item.GoodsID, temp_buf));
+				CALLEXCEPT_PP_S(PPERR_NOGOODS, GetGoodsName(Data.GoodsID, temp_buf));
 			}
 		}
-		Item.Price = quot;
-		Item.Cost  = 0.0;
-		Item.Rest_ = 0.0;
+		Data.Price = quot;
+		Data.Cost  = 0.0;
+		Data.Rest_ = 0.0;
 		Rest = 0.0;
-		if(Item.Flags & PPTFR_AUTOCOMPL) {
-			if(P_Trfr->Rcpt.GetLastLot(Item.GoodsID, Item.LocID, MAXDATE, &lot_rec) > 0) {
-				Item.Price = R5(lot_rec.Price);
-				Item.UnitPerPack = lot_rec.UnitPerPack;
+		if(Data.Flags & PPTFR_AUTOCOMPL) {
+			if(P_Trfr->Rcpt.GetLastLot(Data.GoodsID, Data.LocID, MAXDATE, &lot_rec) > 0) {
+				Data.Price = R5(lot_rec.Price);
+				Data.UnitPerPack = lot_rec.UnitPerPack;
 			}
 		}
-		else if(Item.Flags & PPTFR_REVAL) {
-			Item.RevalCost = 0.0;
-			Item.Discount = 0.0;
+		else if(Data.Flags & PPTFR_REVAL) {
+			Data.RevalCost = 0.0;
+			Data.Discount = 0.0;
 		}
 		if(suppl_deal_cost > 0.0) {
 			PPOprKind2 op_rec;
 			if(GetOpData(P_Pack->Rec.OpID, &op_rec) > 0 && op_rec.ExtFlags & OPKFX_USESUPPLDEAL)
-				Item.Cost = suppl_deal_cost;
+				Data.Cost = suppl_deal_cost;
 		}
 		//
 		// Наследуем теги из предыдущего лота данного товара
 		//
-		if(ItemNo < 0 && Item.LotID && Item.Flags & PPTFR_RECEIPT) {
+		if(ItemNo < 0 && Data.LotID && Data.Flags & PPTFR_RECEIPT) {
 			ObjTagList inh_tag_list;
-			P_BObj->GetTagListByLot(Item.LotID, 1, inh_tag_list);
+			P_BObj->GetTagListByLot(Data.LotID, 1, inh_tag_list);
 			const uint tc = inh_tag_list.GetCount();
 			if(tc) {
 				PPObjectTag2 tag_rec;
@@ -1629,11 +1669,11 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 			}
 		}
 		THROW(_SetupLot(false/*dontSetupPriceByLot*/));
-		setCtrlData(CTL_LOT_DISCOUNT, &Item.Discount);
-	} while(dir != 2 && Item.LotID && Rest <= 0.0);
+		setCtrlData(CTL_LOT_DISCOUNT, &Data.Discount);
+	} while(dir != 2 && Data.LotID && Rest <= 0.0);
 	calcOrderRest();
 	setupRest();
-	if(Item.GoodsID) {
+	if(Data.GoodsID) {
 		{
 			const bool enbl_lot_ctrl = (oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT) || IsModifPlus());
 			disableCtrls(!enbl_lot_ctrl, CTL_LOT_EXPIRY, CTLCAL_LOT_EXPIRY, CTLSEL_LOT_QCERT, CTL_LOT_CLB, 0);
@@ -1645,30 +1685,30 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 		setupQttyFldPrec();
 		if(LConfig.Flags & CFGFLG_AUTOQUOT)
 			setupQuotation(0, 1);
-		if((!Item.LotID && (Item.Cost == 0.0 || Item.Price == 0.0)) && (ItemNo < 0 && (Item.Flags & PPTFR_RECEIPT || IsDraftOp(OpID)))) {
+		if((!Data.LotID && (Data.Cost == 0.0 || Data.Price == 0.0)) && (ItemNo < 0 && (Data.Flags & PPTFR_RECEIPT || IsDraftOp(OpID)))) {
 			PPIDArray dyn_gen_list;
 			uint spos = 0;
 			int  analog_found = 0;
 			int  alt_gen_inited = 0;
 			if(P_Pack) {
-				if(P_Pack->SearchGoods(Item.GoodsID, &spos)) {
+				if(P_Pack->SearchGoods(Data.GoodsID, &spos)) {
 					const PPTransferItem & r_ti = P_Pack->ConstTI(spos);
-					Item.Cost = r_ti.Cost;
-					Item.CurPrice = r_ti.CurPrice;
-					Item.Price = r_ti.Price;
-					Item.Discount = r_ti.Discount;
+					Data.Cost = r_ti.Cost;
+					Data.CurPrice = r_ti.CurPrice;
+					Data.Price = r_ti.Price;
+					Data.Discount = r_ti.Discount;
 					analog_found = 1;
 				}
-				else if(GObj.P_Tbl->BelongsToDynGen(Item.GoodsID, 0, &dyn_gen_list) > 0) {
+				else if(GObj.P_Tbl->BelongsToDynGen(Data.GoodsID, 0, &dyn_gen_list) > 0) {
 					alt_gen_inited = 1;
 					for(uint i = 0; i < dyn_gen_list.getCount(); i++) {
 						const  PPID alt_goods_id = dyn_gen_list.get(i);
 						if(P_Pack->SearchGoods(alt_goods_id, &(spos = 0))) {
 							const PPTransferItem & r_ti = P_Pack->ConstTI(spos);
-							Item.Cost = r_ti.Cost;
-							Item.CurPrice = r_ti.CurPrice;
-							Item.Price = r_ti.Price;
-							Item.Discount = r_ti.Discount;
+							Data.Cost = r_ti.Cost;
+							Data.CurPrice = r_ti.CurPrice;
+							Data.Price = r_ti.Price;
+							Data.Discount = r_ti.Discount;
 							analog_found = 1;
 							break;
 						}
@@ -1676,14 +1716,14 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 				}
 			}
 			if(!analog_found) {
-				if(alt_gen_inited || GObj.P_Tbl->BelongsToDynGen(Item.GoodsID, 0, &dyn_gen_list) > 0) {
-					const  PPID lid = Item.LocID;
+				if(alt_gen_inited || GObj.P_Tbl->BelongsToDynGen(Data.GoodsID, 0, &dyn_gen_list) > 0) {
+					const  PPID lid = Data.LocID;
 					for(uint i = 0; i < dyn_gen_list.getCount(); i++) {
 						const  PPID alt_goods_id = dyn_gen_list.get(i);
 						if(P_Trfr->Rcpt.GetLastLot(alt_goods_id, -lid, MAXDATE, &lot_rec) > 0) {
-							Item.Cost = lot_rec.Cost;
-							Item.Price = lot_rec.Price;
-							Item.Discount = 0.0;
+							Data.Cost = lot_rec.Cost;
+							Data.Price = lot_rec.Price;
+							Data.Discount = 0.0;
 							analog_found = 1;
 							break;
 						}
@@ -1691,8 +1731,8 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 				}
 			}
 			if(analog_found) {
-				setCtrlCost();
-				setCtrlReal(CTL_LOT_PRICE, Item.Price);
+				setCtrlReal(CTL_LOT_COST, Data.GetOrgCost());
+				setCtrlReal(CTL_LOT_PRICE, Data.Price);
 			}
 		}
 	}
@@ -1708,8 +1748,8 @@ int TrfrItemDialog::replyGoodsSelection(int recurse)
 		else {
 			if(PPErrCode || !again)
 				PPError();
-			setCtrlLong(CTLSEL_LOT_GOODS, Item.GoodsID = 0);
-			if(again && !(Item.Flags & PPTFR_ONORDER))
+			setCtrlLong(CTLSEL_LOT_GOODS, Data.GoodsID = 0);
+			if(again && !(Data.Flags & PPTFR_ONORDER))
 				messageToCtrl(CTLSEL_LOT_GOODS, cmCBActivate, 0); // Этот вызов приводит к рекурсивному входу в текущую функцию.
 		}
 	ENDCATCH
@@ -1724,71 +1764,71 @@ int TrfrItemDialog::readQttyFld(uint master, uint ctl, double * val)
 
 void TrfrItemDialog::setupQuantity(uint master, int readFlds)
 {
-	if(!(Item.Flags & PPTFR_REVAL) || (Item.Flags & PPTFR_CORRECTION)) {
-		const double prev_qtty = Item.GetEffCorrectionExpQtty();
+	if(!(Data.Flags & PPTFR_REVAL) || (Data.Flags & PPTFR_CORRECTION)) {
+		const double prev_qtty = Data.GetEffCorrectionExpQtty();
 		if(readFlds) {
-			if(Item.Flags & PPTFR_INDEPPHQTTY)
-				getCtrlData(CTL_LOT_INDEPPHQTTY, &Item.WtQtty);
-			THROW(readQttyFld(master, CTL_LOT_UNITPERPACK, &Item.UnitPerPack));
+			if(Data.Flags & PPTFR_INDEPPHQTTY)
+				getCtrlData(CTL_LOT_INDEPPHQTTY, &Data.WtQtty);
+			THROW(readQttyFld(master, CTL_LOT_UNITPERPACK, &Data.UnitPerPack));
 			THROW(readQttyFld(master, CTL_LOT_PACKS,       &NumPacks));
-			THROW(readQttyFld(master, CTL_LOT_QUANTITY,    &Item.Quantity_));
+			THROW(readQttyFld(master, CTL_LOT_QUANTITY,    &Data.Quantity_));
 		}
-		if(Item.UnitPerPack != 0.0) {
-			if(oneof2(master, CTL_LOT_PACKS, CTL_LOT_UNITPERPACK) || (!master && Item.Quantity_ == 0.0 && NumPacks > 0.0)) {
+		if(Data.UnitPerPack != 0.0) {
+			if(oneof2(master, CTL_LOT_PACKS, CTL_LOT_UNITPERPACK) || (!master && Data.Quantity_ == 0.0 && NumPacks > 0.0)) {
 				if(ffrac(NumPacks) == 0.0)
-					Item.Quantity_ = Item.UnitPerPack * NumPacks;
+					Data.Quantity_ = Data.UnitPerPack * NumPacks;
 			}
 			else if(!master || master == CTL_LOT_QUANTITY)
-				NumPacks = Item.Quantity_ / Item.UnitPerPack;
+				NumPacks = Data.Quantity_ / Data.UnitPerPack;
 		}
 		else
 			NumPacks = 0.0;
 		if(master != CTL_LOT_UNITPERPACK)
-			setCtrlReal(CTL_LOT_UNITPERPACK, Item.UnitPerPack);
+			setCtrlReal(CTL_LOT_UNITPERPACK, Data.UnitPerPack);
 		if(master != CTL_LOT_PACKS)
 			setCtrlReal(CTL_LOT_PACKS,       NumPacks);
 		if(master != CTL_LOT_QUANTITY)
-			setCtrlReal(CTL_LOT_QUANTITY,    Item.Quantity_);
-		if(Item.IsCorrectionExp()) {
-			const double eff_qtty = Item.GetEffCorrectionExpQtty();
+			setCtrlReal(CTL_LOT_QUANTITY,    Data.Quantity_);
+		if(Data.IsCorrectionExp()) {
+			const double eff_qtty = Data.GetEffCorrectionExpQtty();
 			Rest -= (prev_qtty - eff_qtty);
-			if(Item.Flags & PPTFR_ONORDER) {
+			if(Data.Flags & PPTFR_ONORDER) {
 				OrdRest -= (prev_qtty - eff_qtty);
 				if(P_OrderItem && P_OrderItem->TFlags & PPTransferItem::tfOrdReserve)
 					OrdReserved -= (prev_qtty - eff_qtty);
 			}
 		}
-		else if(Item.Flags & PPTFR_ORDER) {
-			OrdRest -= (prev_qtty - Item.Quantity_);
-			if(Item.TFlags & PPTransferItem::tfOrdReserve)
-				OrdReserved -= (prev_qtty - Item.Quantity_);
+		else if(Data.Flags & PPTFR_ORDER) {
+			OrdRest -= (prev_qtty - Data.Quantity_);
+			if(Data.TFlags & PPTransferItem::tfOrdReserve)
+				OrdReserved -= (prev_qtty - Data.Quantity_);
 		}
-		else if(Item.Flags & PPTFR_MINUS) {
-			Rest += (prev_qtty - Item.Quantity_);
-			if(Item.Flags & PPTFR_ONORDER) {
-				OrdRest += (prev_qtty - Item.Quantity_);
+		else if(Data.Flags & PPTFR_MINUS) {
+			Rest += (prev_qtty - Data.Quantity_);
+			if(Data.Flags & PPTFR_ONORDER) {
+				OrdRest += (prev_qtty - Data.Quantity_);
 				if(P_OrderItem && P_OrderItem->TFlags & PPTransferItem::tfOrdReserve)
-					OrdReserved += (prev_qtty - Item.Quantity_);
+					OrdReserved += (prev_qtty - Data.Quantity_);
 			}
 		}
 		else
-			Rest -= (prev_qtty - Item.Quantity_);
+			Rest -= (prev_qtty - Data.Quantity_);
 	}
 	else {
-		if(readFlds && Item.IsRecomplete()) {
-			if(Item.Flags & PPTFR_INDEPPHQTTY)
-				getCtrlData(CTL_LOT_INDEPPHQTTY, &Item.WtQtty);
+		if(readFlds && Data.IsRecomplete()) {
+			if(Data.Flags & PPTFR_INDEPPHQTTY)
+				getCtrlData(CTL_LOT_INDEPPHQTTY, &Data.WtQtty);
 		}
 		if(master != CTL_LOT_QUANTITY)
-			setCtrlReal(CTL_LOT_QUANTITY, Item.Qtty());
+			setCtrlReal(CTL_LOT_QUANTITY, Data.Qtty());
 	}
 	{
 		SString phq_txt;
 		double phuperu;
-		if(Item.Flags & PPTFR_INDEPPHQTTY)
-			setCtrlReal(CTL_LOT_INDEPPHQTTY, R6(Item.WtQtty));
-		else if(GObj.GetPhUPerU(Item.GoodsID, 0, &phuperu) > 0)
-			phq_txt.Cat(R6(Item.Qtty() * phuperu), MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ));
+		if(Data.Flags & PPTFR_INDEPPHQTTY)
+			setCtrlReal(CTL_LOT_INDEPPHQTTY, R6(Data.WtQtty));
+		else if(GObj.GetPhUPerU(Data.GoodsID, 0, &phuperu) > 0)
+			phq_txt.Cat(R6(Data.Qtty() * phuperu), MKSFMTD(0, 6, NMBF_NOZERO|NMBF_NOTRAILZ));
 		setStaticText(CTL_LOT_PHQTTY, phq_txt);
 	}
 	setupRest();
@@ -1810,7 +1850,7 @@ void TrfrItemDialog::setupVatSum()
 		if(qtty != 0.0) {
 			if(P_Pack) {
 				GTaxVect gtv;
-				gtv.CalcBPTI(*P_Pack, Item, GTaxVect::GetTaxNominalAmountType(P_Pack->Rec));
+				gtv.CalcBPTI(*P_Pack, Data, GTaxVect::GetTaxNominalAmountType(P_Pack->Rec));
 				vat_sum = gtv.GetValue(GTAXVF_VAT);
 				PPLoadString("vat", out_buf);
 				out_buf.CatDiv(':', 2).Cat(vat_sum, MKSFMTD(0, 4, 0));
@@ -1825,14 +1865,14 @@ void TrfrItemDialog::setupVaPct()
 	if(getCtrlView(CTL_LOT_ST_VAPCT)) {
 		SString out_buf;
 		if(P_BObj->CheckRights(BILLRT_ACCSCOST)) {
-			double pc = TR5(Item.Price);
-			double ds = TR5(Item.Discount);
-			getCtrlCost();
+			double pc = TR5(Data.Price);
+			double ds = TR5(Data.Discount);
+			GetCtrlCost();
 			getCtrlData(CTL_LOT_PRICE,    &pc);
 			getCtrlData(CTL_LOT_DISCOUNT, &ds);
-			if(Item.Cost > 0.0 && (pc - ds) > 0.0) {
+			if(Data.Cost > 0.0 && (pc - ds) > 0.0) {
 				PPLoadString("extrachargepct",  out_buf);
-				out_buf.CatDiv(':', 2).Cat(100.0 * (pc - ds - Item.Cost) / Item.Cost, MKSFMTD(0, 1, 0));
+				out_buf.CatDiv(':', 2).Cat(100.0 * (pc - ds - Data.Cost) / Data.Cost, MKSFMTD(0, 1, 0));
 			}
 			else
 				out_buf.Z();
@@ -1843,8 +1883,8 @@ void TrfrItemDialog::setupVaPct()
 
 int TrfrItemDialog::isDiscountInSum() const
 {
-	return (Item.LotID && (!Item.IsLotRet() || Item.IsCorrectionExp()) &&
-		((LConfig.Flags & CFGFLG_DISCOUNTBYSUM && !(Item.Flags & PPTFR_RECEIPT) && P_Pack->OpTypeID != PPOPT_DRAFTRECEIPT) ||
+	return (Data.LotID && (!Data.IsLotRet() || Data.IsCorrectionExp()) &&
+		((LConfig.Flags & CFGFLG_DISCOUNTBYSUM && !(Data.Flags & PPTFR_RECEIPT) && P_Pack->OpTypeID != PPOPT_DRAFTRECEIPT) ||
 		IsIntrExpndOp(OpID)));
 }
 
@@ -1852,11 +1892,11 @@ void TrfrItemDialog::setupBaseQuot()
 {
 	if(getCtrlView(CTL_LOT_BASEQUOT)) {
 		double q = 0.0;
-		if(Item.GoodsID) {
+		if(Data.GoodsID) {
 			double price = getCtrlReal(CTL_LOT_PRICE);
-			getCtrlCost();
-			const QuotIdent qi(GetQuotLocID(), PPQUOTK_BASE, Item.CurID, 0);
-			GObj.GetQuotExt(Item.GoodsID, qi, Item.Cost, price, &q, 1);
+			GetCtrlCost();
+			const  QuotIdent qi(GetQuotLocID(), PPQUOTK_BASE, Data.CurID, 0);
+			GObj.GetQuotExt(Data.GoodsID, qi, Data.Cost, price, &q, 1);
 		}
 		setCtrlReal(CTL_LOT_BASEQUOT, q);
 	}
@@ -1876,7 +1916,7 @@ void TrfrItemDialog::setupPriceLimit()
 int TrfrItemDialog::setupManuf()
 {
 	int    ok = -1;
-	if(P_Pack && Item.Flags & PPTFR_RECEIPT && getCtrlView(CTLSEL_LOT_MANUF)) {
+	if(P_Pack && Data.Flags & PPTFR_RECEIPT && getCtrlView(CTLSEL_LOT_MANUF)) {
 		const  PPID mnf_lot_tag_id = P_BObj->GetConfig().MnfCountryLotTagID;
 		PPObjectTag2 tag_rec;
 		if(mnf_lot_tag_id && TagObj.Fetch(mnf_lot_tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT && tag_rec.TagEnumID == PPOBJ_PERSON) {
@@ -1896,7 +1936,7 @@ int TrfrItemDialog::setupManuf()
 int TrfrItemDialog::getManuf()
 {
 	int    ok = -1;
-	if(P_Pack && Item.Flags & PPTFR_RECEIPT && getCtrlView(CTLSEL_LOT_MANUF)) {
+	if(P_Pack && Data.Flags & PPTFR_RECEIPT && getCtrlView(CTLSEL_LOT_MANUF)) {
 		const  PPID mnf_lot_tag_id = P_BObj->GetConfig().MnfCountryLotTagID;
 		PPObjectTag2 tag_rec;
 		if(mnf_lot_tag_id && TagObj.Fetch(mnf_lot_tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT && tag_rec.TagEnumID == PPOBJ_PERSON) {
@@ -1934,13 +1974,13 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 	ushort v;
 	SString temp_buf;
 	St |= stLockQttyAutoUpd;
-	Item  = *pItem;
-	Price = Item.Price;
-	setCtrlCost();
+	RVALUEPTR(Data, pItem);
+	Price = Data.Price;
+	setCtrlReal(CTL_LOT_COST, Data.GetOrgCost());
 	SetupCtrls();
-	if(Item.GoodsID) {
+	if(Data.GoodsID) {
 		Goods2Tbl::Rec goods_rec;
-		THROW(GObj.Fetch(Item.GoodsID, &goods_rec) > 0);
+		THROW(GObj.Fetch(Data.GoodsID, &goods_rec) > 0);
 		GoodsGrpID = goods_rec.ParentID;
 	}
 	else {
@@ -1956,86 +1996,87 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 	if(GoodsGrpID)
 		setupGoodsList();
 	if(pItem->Flags & PPTFR_REVAL) {
-		setCtrlReal(CTL_LOT_OLDCOST,  Item.RevalCost);
-		setCtrlReal(CTL_LOT_OLDPRICE, Item.Discount);
+		setCtrlReal(CTL_LOT_OLDCOST,  Data.RevalCost);
+		setCtrlReal(CTL_LOT_OLDPRICE, Data.Discount);
 	}
 	else {
 		if(P_Pack->OpTypeID == PPOPT_CORRECTION) {
 			/*
 			if(P_Pack->P_LinkPack) {
 				uint   _pos = 0;
-				if(P_Pack->P_LinkPack->SearchTI(Item.RByBill, &_pos)) {
+				if(P_Pack->P_LinkPack->SearchTI(Data.RByBill, &_pos)) {
 					const PPTransferItem & r_org_ti = P_Pack->P_LinkPack->ConstTI(_pos);
 					OrgQtty = fabs(r_org_ti.Quantity_);
 					OrgPrice = r_org_ti.NetPrice();
 				}
 			}
 			*/
-			OrgQtty = Item.QuotPrice;
-			OrgPrice = Item.RevalCost;
+			OrgQtty = Data.QuotPrice;
+			OrgPrice = Data.RevalCost;
 			setCtrlReal(CTL_LOT_ORGQTTY, OrgQtty);
 			setCtrlReal(CTL_LOT_OLDPRICE, OrgPrice);
 		}
 		if(isDiscountInSum()) {
-			Item.Price   -= Item.Discount;
-			Item.Discount = 0.0;
+			Data.Price   -= Data.Discount;
+			Data.Discount = 0.0;
 		}
 	}
-	SetupPPObjCombo(this, CTLSEL_LOT_INTAXGRP, PPOBJ_GOODSTAX, Item.LotTaxGrpID, OLW_LOADDEFONOPEN|OLW_CANINSERT, 0);
+	SetupPPObjCombo(this, CTLSEL_LOT_INTAXGRP, PPOBJ_GOODSTAX, Data.LotTaxGrpID, OLW_LOADDEFONOPEN|OLW_CANINSERT, 0);
 	{
 		SString text;
 		PPObjCurrency cur_obj;
 		PPCurrency cur_rec;
-		if(Item.CurID) {
-			if(cur_obj.Fetch(Item.CurID, &cur_rec) > 0)
+		if(Data.CurID) {
+			if(cur_obj.Fetch(Data.CurID, &cur_rec) > 0)
 				text = cur_rec.Symb;
 		}
-		else if(cur_obj.Fetch(LConfig.BaseCurID, &cur_rec) > 0)
+		else if(cur_obj.Fetch(LConfig.BaseCurID, &cur_rec) > 0) {
 			text.CatChar('*').Cat(cur_rec.Symb);
+		}
 		setStaticText(CTL_LOT_CURSYMB, text);
 	}
-	setCtrlData(CTL_LOT_CURPRICE, &Item.CurPrice);
-	v = BIN(Item.Flags & PPTFR_COSTWOVAT);
+	setCtrlData(CTL_LOT_CURPRICE, &Data.CurPrice);
+	v = BIN(Data.Flags & PPTFR_COSTWOVAT);
 	setCtrlData(CTL_LOT_NOVAT, &v);
 	AddClusterAssoc(CTL_LOT_FIXEDMODIFCOST, 0, PPTFR_FIXMODIFCOST);
-	SetClusterData(CTL_LOT_FIXEDMODIFCOST, Item.Flags);
+	SetClusterData(CTL_LOT_FIXEDMODIFCOST, Data.Flags);
 	THROW(_SetupLot(true/*dontSetupPriceByLot*/));
-	setCtrlData(CTL_LOT_DISCOUNT, &Item.Discount);
+	setCtrlData(CTL_LOT_DISCOUNT, &Data.Discount);
 	calcOrderRest();
 	setupRest();
 	setupVatSum();
 	setupVaPct();
 	setupBaseQuot();
 	setupPriceLimit();
-	SetupPPObjCombo(this, CTLSEL_LOT_QCERT, PPOBJ_QCERT, Item.QCert, OLW_LOADDEFONOPEN|OLW_CANINSERT, 0L);
+	SetupPPObjCombo(this, CTLSEL_LOT_QCERT, PPOBJ_QCERT, Data.QCert, OLW_LOADDEFONOPEN|OLW_CANINSERT, 0L);
 	{
-		QCertCtrlGroup::Rec qc_rec(Item.QCert);
+		QCertCtrlGroup::Rec qc_rec(Data.QCert);
 		setGroupData(ctlgroupQCert, &qc_rec);
 	}
 	if(St & stAllowSupplSel)
-		SetupArCombo(this, CTLSEL_LOT_SUPPL, Item.Suppl, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetSupplAccSheet(), sacfNonGeneric);
+		SetupArCombo(this, CTLSEL_LOT_SUPPL, Data.Suppl, OLW_LOADDEFONOPEN|OLW_CANINSERT, GetSupplAccSheet(), sacfNonGeneric);
 	else {
 		showCtrl(CTL_LOT_SUPPL, false);
 		showCtrl(CTLSEL_LOT_SUPPL, false);
 	}
-	if(Item.Flags & PPTFR_RECEIPT) {
-		int    subtyp = GetOpSubType(OpID);
+	if(Data.Flags & PPTFR_RECEIPT) {
+		const  int subtyp = GetOpSubType(OpID);
 		if(oneof2(subtyp, OPSUBT_ASSETRCV, OPSUBT_ASSETMODIF)) {
 			AddClusterAssoc(CTL_LOT_IMMASSETEXPL, 0, PPTFR_ASSETEXPL);
-			SetClusterData(CTL_LOT_IMMASSETEXPL, Item.Flags);
-			if(Item.Quantity_ == 0.0 || Item.Quantity_ == 1.0) {
-				setCtrlReal(CTL_LOT_QUANTITY, Item.Quantity_ = 1.0);
+			SetClusterData(CTL_LOT_IMMASSETEXPL, Data.Flags);
+			if(Data.Quantity_ == 0.0 || Data.Quantity_ == 1.0) {
+				setCtrlReal(CTL_LOT_QUANTITY, Data.Quantity_ = 1.0);
 				disableCtrl(CTL_LOT_QUANTITY, true);
 			}
 		}
 	}
-	if(ItemNo < 0 && Item.GoodsID) {
-		Item.UnitPerPack = 0.0;
+	if(ItemNo < 0 && Data.GoodsID) {
+		Data.UnitPerPack = 0.0;
 		THROW(replyGoodsSelection(0));
 	}
 	else if(OpTypeID == PPOPT_GOODSRECEIPT) {
-		const QuotIdent qi(Item.LocID, 0, Item.CurID, P_Pack->Rec.Object);
-		GObj.GetSupplDeal(Item.GoodsID, qi, &Sd, 1);
+		const  QuotIdent qi(Data.LocID, 0, Data.CurID, P_Pack->Rec.Object);
+		GObj.GetSupplDeal(Data.GoodsID, qi, &Sd, 1);
 	}
 	if(P_Pack) {
 		if(ItemNo >= 0) {
@@ -2064,8 +2105,8 @@ int TrfrItemDialog::setDTS(const PPTransferItem * pItem)
 		showCtrl(CTL_LOT_SOURCESERIAL, false);
 		showButton(cmSourceSerial, false);
 	}
-	if(P_Pack->OpTypeID == PPOPT_DRAFTQUOTREQ && Item.Lbr.ID > 0) {
-		long   seqqrack = CHKXORFLAGS(Item.TFlags, PPTransferItem::tfQrSeqAccepted, PPTransferItem::tfQrSeqRejected);
+	if(P_Pack->OpTypeID == PPOPT_DRAFTQUOTREQ && Data.Lbr.ID > 0) {
+		long   seqqrack = CHKXORFLAGS(Data.TFlags, PPTransferItem::tfQrSeqAccepted, PPTransferItem::tfQrSeqRejected);
 		AddClusterAssocDef(CTL_LOT_SEQQRACK, 0, 0);
 		AddClusterAssoc(CTL_LOT_SEQQRACK, 1, PPTransferItem::tfQrSeqAccepted);
 		AddClusterAssoc(CTL_LOT_SEQQRACK, 2, PPTransferItem::tfQrSeqRejected);
@@ -2084,47 +2125,47 @@ int TrfrItemDialog::CheckQuantityVal(double * pExtraQtty)
 {
 	int    ok = 1;
 	double _rest = 0;
-	const  double _qtty = Item.Quantity_;
+	const  double _qtty = Data.Quantity_;
 	SString msg_buf;
 	*pExtraQtty = 0;
 	THROW_PP(MinQtty <= 0 || fabs(_qtty) >= MinQtty, PPERR_TIMINQTTY);
 	THROW_PP(MaxQtty <= 0 || fabs(_qtty) <= MaxQtty, PPERR_TIMAXQTTY);
-	if(Rest < 0.0 && !(Item.Flags & (PPTFR_UNLIM|PPTFR_AUTOCOMPL|PPTFR_ACK|PPTFR_DRAFT))) {
-		PPObject::SetLastErrObj(PPOBJ_GOODS, labs(Item.GoodsID));
-		THROW_PP(TotalRest >= 0 && OpTypeID != PPOPT_GOODSRETURN && (Item.Flags & PPTFR_MINUS), PPERR_LOTRESTBOUND);
+	if(Rest < 0.0 && !(Data.Flags & (PPTFR_UNLIM|PPTFR_AUTOCOMPL|PPTFR_ACK|PPTFR_DRAFT))) {
+		PPObject::SetLastErrObj(PPOBJ_GOODS, labs(Data.GoodsID));
+		THROW_PP(TotalRest >= 0 && OpTypeID != PPOPT_GOODSRETURN && (Data.Flags & PPTFR_MINUS), PPERR_LOTRESTBOUND);
 		if(PPMessage(mfConf|mfYes|mfCancel, PPCFM_LOTRESTBOUND) == cmYes) {
-			Item.Quantity_ = 0.0;
-			THROW(P_Pack->BoundsByLot(Item.LotID, &Item, ItemNo, &_rest, 0));
-			Item.Quantity_ = R6(_rest);
+			Data.Quantity_ = 0.0;
+			THROW(P_Pack->BoundsByLot(Data.LotID, &Data, ItemNo, &_rest, 0));
+			Data.Quantity_ = R6(_rest);
 			*pExtraQtty   = R6(_qtty - _rest);
 			ok = 2;
 		}
 		else
 			ok = -1;
 	}
-	if(OrdReserved > 0 && P_BObj->Cfg.Flags & BCF_CHECKRESERVEDORDERS && !(Item.Flags & (PPTFR_UNLIM|PPTFR_ACK|PPTFR_DRAFT|PPTFR_ORDER|PPTFR_PLUS))) {
+	if(OrdReserved > 0 && P_BObj->Cfg.Flags & BCF_CHECKRESERVEDORDERS && !(Data.Flags & (PPTFR_UNLIM|PPTFR_ACK|PPTFR_DRAFT|PPTFR_ORDER|PPTFR_PLUS))) {
 		//
 		// Если редактируется существующая строка и количество по ней уменьшается, то не
 		// проверяем нарушение зарезервированного заказа, поскольку такая операция приведет к увеличению
 		// доступного остатка для зарезервированного заказа.
 		//
 		int    skip_rsrv_test = 0;
-		if(Item.BillID && Item.RByBill) {
+		if(Data.BillID && Data.RByBill) {
 			TransferTbl::Rec trfr_rec;
-			if(P_Trfr->SearchByBill(Item.BillID, 0, Item.RByBill, &trfr_rec) > 0) {
+			if(P_Trfr->SearchByBill(Data.BillID, 0, Data.RByBill, &trfr_rec) > 0) {
 				const double org_qtty = fabs(trfr_rec.Quantity);
-				if(fabs(Item.Quantity_) < org_qtty)
+				if(fabs(Data.Quantity_) < org_qtty)
 					skip_rsrv_test = 1;
 			}
 		}
 		if(!skip_rsrv_test) {
-			GetGoodsName(labs(Item.GoodsID), msg_buf.Z());
+			GetGoodsName(labs(Data.GoodsID), msg_buf.Z());
 			THROW_PP_S((TotalRest - OrdReserved) >= 0, PPERR_ORDRESERVEEXHAUSTED, msg_buf.CatDiv(':', 1).Cat(OrdReserved, NMBF_NOTRAILZ));
 		}
 	}
 	{
 		PPBillPacket::CgrRetBlock cgr_ret_blk;
-		int    rc = P_Pack->CheckGoodsForRestrictions(ItemNo, Item.GoodsID, Item.GetSign(OpID), _qtty,
+		int    rc = P_Pack->CheckGoodsForRestrictions(ItemNo, Data.GoodsID, Data.GetSign(OpID), _qtty,
 			PPBillPacket::cgrfShipmControl|PPBillPacket::cgrfQtty|PPBillPacket::cgrfModifCmplmnry, &cgr_ret_blk);
 		THROW(rc);
 		if(rc == 100) {
@@ -2137,7 +2178,7 @@ int TrfrItemDialog::CheckQuantityVal(double * pExtraQtty)
 		}
 	}
 	CATCH
-		Item.Quantity_ = _qtty;
+		Data.Quantity_ = _qtty;
 		ok = 0;
 	ENDCATCH
 	return ok;
@@ -2212,7 +2253,7 @@ int TrfrItemDialog::GetPriceRestrictions(RealRange * pRange)
 	range.SetVal(0.0);
 	PPOprKind2 op_rec;
 	GetOpData(OpID, &op_rec);
-	int    ok = (op_rec.ExtFlags & OPKFX_RESTRICTPRICE) ? P_BObj->GetPriceRestrictions(*P_Pack, Item, ItemNo, &range) : -1;
+	int    ok = (op_rec.ExtFlags & OPKFX_RESTRICTPRICE) ? P_BObj->GetPriceRestrictions(*P_Pack, Data, ItemNo, &range) : -1;
 	ASSIGN_PTR(pRange, range);
 	return ok;
 }
@@ -2223,7 +2264,7 @@ int TrfrItemDialog::CheckPrice()
 	SString msg;
 	const  PPCommConfig & r_ccfg = CConfig;
 	if(OpTypeID == PPOPT_GOODSRECEIPT || (P_Pack->Rec.OpID == r_ccfg.DraftRcptOp && r_ccfg.Flags2__ & CCFLG2_USESDONPURCHOP)) {
-		int    ret = Sd.CheckCost(Item.Cost);
+		int    ret = Sd.CheckCost(Data.Cost);
 		if(!ret) {
 			const int invp_act = DS.GetTLA().InvalidSupplDealQuotAction;
 			if(invp_act == PPSupplAgreement::invpaWarning)
@@ -2236,14 +2277,14 @@ int TrfrItemDialog::CheckPrice()
 	{
 		RealRange range;
 		if(GetPriceRestrictions(&range) > 0) {
-			if(!range.CheckValEps(Item.NetPrice(), 1E-7)) {
+			if(!range.CheckValEps(Data.NetPrice(), 1E-7)) {
 				if(range.low > 0.0) {
 					msg.Z().Cat(range.low, SFMT_MONEY);
-					THROW_PP_S(Item.NetPrice() >= range.low, PPERR_PRICERESTRLOW, msg);
+					THROW_PP_S(Data.NetPrice() >= range.low, PPERR_PRICERESTRLOW, msg);
 				}
 				if(range.upp > 0.0) {
 					msg.Z().Cat(range.upp, SFMT_MONEY);
-					THROW_PP_S(Item.NetPrice() <= range.upp, PPERR_PRICERESTRUPP, msg);
+					THROW_PP_S(Data.NetPrice() <= range.upp, PPERR_PRICERESTRUPP, msg);
 				}
 			}
 		}
@@ -2262,86 +2303,86 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	double neck;
 	double ph_neck;
 	double extra_qtty = 0L;
-	double cur_price = TR5(Item.CurPrice);
-	double ct = TR5(Item.Cost);
-	double pc = TR5(Item.Price);
-	double ds = TR5(Item.Discount);
+	double cur_price = TR5(Data.CurPrice);
+	double ct = TR5(Data.Cost);
+	double pc = TR5(Data.Price);
+	double ds = TR5(Data.Discount);
 	SString clb_number;
 	SString temp_buf;
 	const  int op_subtype = GetOpSubType(OpID);
 	ASSIGN_PTR(pExtraQtty, 0L);
-	if(!(St & stGoodsFixed) || !Item.GoodsID)
-		getCtrlData(sel = CTLSEL_LOT_GOODS, &Item.GoodsID);
-	THROW_PP(Item.GoodsID, PPERR_GOODSNEEDED);
-	THROW(Item.SetupGoods(Item.GoodsID, TISG_SETPWOTF) > 0);
+	if(!(St & stGoodsFixed) || !Data.GoodsID)
+		getCtrlData(sel = CTLSEL_LOT_GOODS, &Data.GoodsID);
+	THROW_PP(Data.GoodsID, PPERR_GOODSNEEDED);
+	THROW(Data.SetupGoods(Data.GoodsID, TISG_SETPWOTF) > 0);
 	sel = CTL_LOT_QUANTITY;
 	setupQuantity(0/*sel*/, 1);
 	THROW(CheckQuantityForIntVal());
-	THROW_PP((Item.Flags & PPTFR_REVAL) || Item.IsCorrectionExp() || oneof2(P_Pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON) || Item.Quantity_ > 0.0, PPERR_QTTYMUSTBEGTZ);
+	THROW_PP((Data.Flags & PPTFR_REVAL) || Data.IsCorrectionExp() || oneof2(P_Pack->Rec.OpID, PPOPK_EDI_STOCK, PPOPK_EDI_SHOPCHARGEON) || Data.Quantity_ > 0.0, PPERR_QTTYMUSTBEGTZ);
 	THROW(r = CheckQuantityVal(&extra_qtty));
 	ASSIGN_PTR(pExtraQtty, extra_qtty);
 	if(r < 0) {
 		no_err_msg = 1;
 		CALLEXCEPT();
 	}
-	else if(Item.IsUnlimWoLot() || (Item.Flags & PPTFR_RECEIPT && !Item.RByBill)) {
-		Item.LotID = 0;
+	else if(Data.IsUnlimWoLot() || (Data.Flags & PPTFR_RECEIPT && !Data.RByBill)) {
+		Data.LotID = 0;
 	}
-	else if(Item.LotID && (Item.Flags & PPTFR_MINUS) && !(Item.Flags & PPTFR_DRAFT)) {
-		if(Item.BillID == 0 || Item.RByBill == 0) {
-			neck    = -fabs(Item.Quantity_);
-			ph_neck = -fabs(Item.WtQtty);
+	else if(Data.LotID && (Data.Flags & PPTFR_MINUS) && !(Data.Flags & PPTFR_DRAFT)) {
+		if(Data.BillID == 0 || Data.RByBill == 0) {
+			neck    = -fabs(Data.Quantity_);
+			ph_neck = -fabs(Data.WtQtty);
 			THROW(IncDateKey(P_Trfr, 1, P_Pack->Rec.Dt, &o));
 			sel = CTL_LOT_QUANTITY;
-			THROW(P_Trfr->UpdateForward(Item.LotID, P_Pack->Rec.Dt, o, 1, &neck, &ph_neck) > 0);
+			THROW(P_Trfr->UpdateForward(Data.LotID, P_Pack->Rec.Dt, o, 1, &neck, &ph_neck) > 0);
 		}
 		else {
-			THROW(r = P_Trfr->SearchByBill(Item.BillID, 0, Item.RByBill, 0));
+			THROW(r = P_Trfr->SearchByBill(Data.BillID, 0, Data.RByBill, 0));
 			if(r > 0) {
-				neck    = -fabs(Item.Quantity_) - P_Trfr->data.Quantity;
-				ph_neck = -fabs(Item.WtQtty) - R6(P_Trfr->data.WtQtty);
+				neck    = -fabs(Data.Quantity_) - P_Trfr->data.Quantity;
+				ph_neck = -fabs(Data.WtQtty) - R6(P_Trfr->data.WtQtty);
 				o    = P_Trfr->data.OprNo;
 				sel = CTL_LOT_QUANTITY;
-				THROW(P_Trfr->UpdateForward(Item.LotID, P_Pack->Rec.Dt, o, 1, &neck, &ph_neck) > 0);
+				THROW(P_Trfr->UpdateForward(Data.LotID, P_Pack->Rec.Dt, o, 1, &neck, &ph_neck) > 0);
 			}
 			else
-				Item.RByBill = 0;
+				Data.RByBill = 0;
 		}
 	}
-	getCtrlCost();
+	GetCtrlCost();
 	getCtrlData(CTL_LOT_PRICE,    &pc);
 	getCtrlData(CTL_LOT_DISCOUNT, &ds);
 	pc = TR5(pc);
 	ds = TR5(ds);
-	if(Item.Flags & PPTFR_RECEIPT && oneof2(op_subtype, OPSUBT_ASSETRCV, OPSUBT_ASSETMODIF)) {
-		GetClusterData(CTL_LOT_IMMASSETEXPL, &Item.Flags);
+	if(Data.Flags & PPTFR_RECEIPT && oneof2(op_subtype, OPSUBT_ASSETRCV, OPSUBT_ASSETMODIF)) {
+		GetClusterData(CTL_LOT_IMMASSETEXPL, &Data.Flags);
 		if(op_subtype != OPSUBT_ASSETMODIF) {
-			pc = Item.Cost; // Цена реализации (балансовая стоимость) для основных средств
+			pc = Data.Cost; // Цена реализации (балансовая стоимость) для основных средств
 				// автомататически равна цене поступлени (если речь не идет о модификации основных средств)
 			ds = 0.0;
 		}
 	}
-	if(Item.CurID) {
+	if(Data.CurID) {
 		double base_price = 0.0;
 		getCtrlData(CTL_LOT_CURPRICE, &cur_price);
 		cur_price = TR5(cur_price);
 		evaluateBasePrice(cur_price, &base_price);
-		if(Item.Flags & PPTFR_SELLING) {
+		if(Data.Flags & PPTFR_SELLING) {
 			pc = base_price;
 			ds = 0.0;
 		}
 		else
-			Item.SetOrgCost(base_price);
+			Data.SetOrgCost(base_price);
 	}
-	if(Item.Flags & PPTFR_UNLIM) {
-		if(OpTypeID == PPOPT_GOODSORDER || Item.Flags & PPTFR_MINUS) {
+	if(Data.Flags & PPTFR_UNLIM) {
+		if(OpTypeID == PPOPT_GOODSORDER || Data.Flags & PPTFR_MINUS) {
 			sel = CTL_LOT_PRICE;
 			THROW_PP(pc > 0.0 || (pc == 0.0 && IsZeroPriceAllowed()), PPERR_INVPRICE);
-			Item.SetZeroCost();
+			Data.SetZeroCost();
 		}
 		else if(OpTypeID != PPOPT_GOODSRETURN) {
 			sel = CTL_LOT_COST;
-			THROW_PP(Item.GetOrgCost() > 0.0, PPERR_INVCOST);
+			THROW_PP(Data.GetOrgCost() > 0.0, PPERR_INVCOST);
 		}
 	}
 	else {
@@ -2352,36 +2393,36 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 		}
 		else if(!IsModifPlus()) {
 			sel = CTL_LOT_COST;
-			THROW_PP(Item.GetOrgCost() >= 0.0, PPERR_INVCOST);
+			THROW_PP(Data.GetOrgCost() >= 0.0, PPERR_INVCOST);
 		}
 	}
-	if(Item.Flags & PPTFR_REVAL) {
-		if(Item.Flags & PPTFR_CORRECTION) {
-			THROW_PP(Item.Cost != Item.RevalCost || Item.Quantity_ != OrgQtty, PPERR_ZEROTICORRECTION);
+	if(Data.Flags & PPTFR_REVAL) {
+		if(Data.Flags & PPTFR_CORRECTION) {
+			THROW_PP(Data.Cost != Data.RevalCost || Data.Quantity_ != OrgQtty, PPERR_ZEROTICORRECTION);
 		}
 		else {
 			//
 			// Если это - не ввод в эксплуатацию объекта основных средств
 			//
-			if(Item.Flags & PPTFR_ASSETEXPL) {
-				pc = Item.Cost;
+			if(Data.Flags & PPTFR_ASSETEXPL) {
+				pc = Data.Cost;
 			}
-			else if(!Item.IsRecomplete()) {
+			else if(!Data.IsRecomplete()) {
 				//
 				// Если изменилась цена поступления, то должен быть указан поставщик
 				//
 				if(!(P_BObj->Cfg.Flags & BCF_ALLOWZSUPPLINCOSTREVAL))
-					THROW_PP(P_Pack->Rec.Object || Item.Cost == Item.RevalCost, PPERR_REVALWOSUPPL);
+					THROW_PP(P_Pack->Rec.Object || Data.Cost == Data.RevalCost, PPERR_REVALWOSUPPL);
 				//
 				// В любом случае должна измениться цена поступления или реализации
 				//
-				THROW_PP(pc != ds || Item.Cost != Item.RevalCost, PPERR_ZEROREVAL);
+				THROW_PP(pc != ds || Data.Cost != Data.RevalCost, PPERR_ZEROREVAL);
 			}
 		}
 	}
 	else {
-		Item.Rest_ = R6(Rest);
-		if(Item.Flags & PPTFR_DRAFT) {
+		Data.Rest_ = R6(Rest);
+		if(Data.Flags & PPTFR_DRAFT) {
 			pc = pc - ds;
 			ds = 0;
 		}
@@ -2390,16 +2431,16 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 				ds = Price - pc;
 				pc = Price;
 			}
-			if(Item.Flags & PPTFR_CORRECTION) {
-				THROW_PP(!feqeps(Item.NetPrice(), pc-ds, 1.0E-6) || Item.Quantity_ != OrgQtty, PPERR_ZEROTICORRECTION);
+			if(Data.Flags & PPTFR_CORRECTION) {
+				THROW_PP(!feqeps(Data.NetPrice(), pc-ds, 1.0E-6) || Data.Quantity_ != OrgQtty, PPERR_ZEROTICORRECTION);
 			}
 		}
 		sel = CTL_LOT_DISCOUNT;
 		THROW_PP(ds <= pc, PPERR_INVDISCOUNT);
 	}
-	Item.CurPrice = TR5(cur_price);
-	Item.Price    = TR5(pc);
-	Item.Discount = TR5(ds);
+	Data.CurPrice = TR5(cur_price);
+	Data.Price    = TR5(pc);
+	Data.Discount = TR5(ds);
 	THROW(CheckPrice());
 	//
 	// @v4.3.7 {
@@ -2407,32 +2448,32 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	// возникшую в предыдущих версиях, когда скидка становилась равной
 	// цене реализации в документах с типом PPOPT_DRAFTRECEIPT.
 	if(P_Pack->OpTypeID == PPOPT_DRAFTRECEIPT)
-		Item.Discount = 0.0;
+		Data.Discount = 0.0;
 	// }
-	getCtrlData(CTLSEL_LOT_QCERT, &Item.QCert);
+	getCtrlData(CTLSEL_LOT_QCERT, &Data.QCert);
 	if(getCtrlView(CTL_LOT_QCERT)) {
 		QCertCtrlGroup::Rec qc_rec;
 		getGroupData(ctlgroupQCert, &qc_rec);
-		Item.QCert = qc_rec.QCertID;
+		Data.QCert = qc_rec.QCertID;
 	}
-	getCtrlData(CTL_LOT_EXPIRY, &Item.Expiry);
-	THROW_SL(checkdate(Item.Expiry, 1));
+	getCtrlData(CTL_LOT_EXPIRY, &Data.Expiry);
+	THROW_SL(checkdate(Data.Expiry, 1));
 	if(St & stAllowSupplSel) {
-		getCtrlData(CTLSEL_LOT_SUPPL, &Item.Suppl);
-		SETFLAG(Item.Flags, PPTFR_FORCESUPPL, Item.Suppl);
+		getCtrlData(CTLSEL_LOT_SUPPL, &Data.Suppl);
+		SETFLAG(Data.Flags, PPTFR_FORCESUPPL, Data.Suppl);
 	}
 	if(IsTaggedItem()) {
 		if(P_Pack->OpTypeID != PPOPT_GOODSORDER) {
 			ushort v = 0;
 			if(getCtrlData(CTL_LOT_NOVAT, &v))
-				SETFLAG(Item.Flags, PPTFR_COSTWOVAT, v);
-			GetClusterData(CTL_LOT_FIXEDMODIFCOST, &Item.Flags);
+				SETFLAG(Data.Flags, PPTFR_COSTWOVAT, v);
+			GetClusterData(CTL_LOT_FIXEDMODIFCOST, &Data.Flags);
 			getCtrlString(CTL_LOT_CLB, clb_number.Z());
 			THROW(P_Pack->LTagL.SetString(PPTAG_LOT_CLB, ItemNo, clb_number));
-			getCtrlData(CTLSEL_LOT_INTAXGRP, &Item.LotTaxGrpID);
+			getCtrlData(CTLSEL_LOT_INTAXGRP, &Data.LotTaxGrpID);
 		}
 		getCtrlString(CTL_LOT_SERIAL, clb_number.Z());
-		P_BObj->AdjustSerialForUniq(Item.GoodsID, Item.LotID, 0, clb_number);
+		P_BObj->AdjustSerialForUniq(Data.GoodsID, Data.LotID, 0, clb_number);
 		THROW(P_Pack->LTagL.SetString(PPTAG_LOT_SN, ItemNo, clb_number));
 		if(IsSourceSerialUsed()) {
 			getCtrlString(CTL_LOT_SOURCESERIAL, temp_buf);
@@ -2455,29 +2496,29 @@ int TrfrItemDialog::getDTS(PPTransferItem * pItem, double * pExtraQtty)
 	}
 	else if(IsIntrExpndOp(P_Pack->Rec.OpID)) {
 		ObjTagList tag_list;
-		P_BObj->GetTagListByLot(Item.LotID, 0/*skipReserveTags*/, tag_list);
+		P_BObj->GetTagListByLot(Data.LotID, 0/*skipReserveTags*/, tag_list);
 		P_Pack->LTagL.Set(ItemNo, tag_list.GetCount() ? &tag_list : 0);
 	}
 	if(P_Pack->OpTypeID == PPOPT_DRAFTEXPEND) {
 		getCtrlString(CTL_LOT_SERIAL, clb_number.Z());
 		THROW(P_Pack->LTagL.SetString(PPTAG_LOT_SN, ItemNo, clb_number));
-		if(P_BObj->GetClbNumberByLot(Item.LotID, 0, clb_number.Z()) > 0) {
+		if(P_BObj->GetClbNumberByLot(Data.LotID, 0, clb_number.Z()) > 0) {
 			THROW(P_Pack->LTagL.SetString(PPTAG_LOT_CLB, ItemNo, clb_number));
 		}
 	}
 	if(getCtrlView(CTL_LOT_SEQQRACK)) {
-		Item.TFlags &= ~(PPTransferItem::tfQrSeqAccepted|PPTransferItem::tfQrSeqRejected);
-		if(P_Pack->OpTypeID == PPOPT_DRAFTQUOTREQ && Item.Lbr.ID > 0) {
+		Data.TFlags &= ~(PPTransferItem::tfQrSeqAccepted|PPTransferItem::tfQrSeqRejected);
+		if(P_Pack->OpTypeID == PPOPT_DRAFTQUOTREQ && Data.Lbr.ID > 0) {
 			long   seqqrack = GetClusterData(CTL_LOT_SEQQRACK);
 			if(seqqrack == PPTransferItem::tfQrSeqAccepted)
-				Item.TFlags |= PPTransferItem::tfQrSeqAccepted;
+				Data.TFlags |= PPTransferItem::tfQrSeqAccepted;
 			else if(seqqrack == PPTransferItem::tfQrSeqRejected)
-				Item.TFlags |= PPTransferItem::tfQrSeqRejected;
+				Data.TFlags |= PPTransferItem::tfQrSeqRejected;
 		}
 	}
 	getManuf();
 	GetChZnCtWt(); // @v12.1.4
-	*pItem = Item;
+	ASSIGN_PTR(pItem, Data);
 	CATCH
 		if(!no_err_msg)
 			PPError();
@@ -2509,19 +2550,19 @@ void TrfrItemDialog::setupRest()
 			c.Trim(p+1);
 		else
 			c.Z();
-		if(!(Item.Flags & PPTFR_UNLIM)) {
+		if(!(Data.Flags & PPTFR_UNLIM)) {
 			c.Space();
-			if(Item.Flags & PPTFR_AUTOCOMPL) {
+			if(Data.Flags & PPTFR_AUTOCOMPL) {
 				PPGetSubStr(Strings, strComplete, temp_buf);
 				c.Cat(temp_buf);
 			}
 			else {
-				P_Pack->GoodsRest(Item.GoodsID, &Item, ItemNo, &TotalRest);
+				P_Pack->GoodsRest(Data.GoodsID, &Data, ItemNo, &TotalRest);
 				if(!(OpTypeID == PPOPT_GOODSORDER)) {
 					if(DS.CheckExtFlag(ECF_TRFRITEMPACK)) {
 						if(Rest < 0)
 							c.CatChar('-');
-						QttyToStr(Rest, Item.UnitPerPack, QTTYF_COMPLPACK|QTTYF_FRACTION|NMBF_NOZERO, qtty_buf);
+						QttyToStr(Rest, Data.UnitPerPack, QTTYF_COMPLPACK|QTTYF_FRACTION|NMBF_NOZERO, qtty_buf);
 						c.Cat(qtty_buf);
 					}
 					else
@@ -2529,7 +2570,7 @@ void TrfrItemDialog::setupRest()
 					if((TotalRest && TotalRest != Rest) || OrdReserved > 0) {
 						c.Space().CatChar('(');
 						if(DS.CheckExtFlag(ECF_TRFRITEMPACK)) {
-							QttyToStr(TotalRest, Item.UnitPerPack, QTTYF_COMPLPACK|QTTYF_FRACTION|NMBF_NOZERO, qtty_buf);
+							QttyToStr(TotalRest, Data.UnitPerPack, QTTYF_COMPLPACK|QTTYF_FRACTION|NMBF_NOZERO, qtty_buf);
 							c.Cat(qtty_buf);
 						}
 						else
@@ -2551,20 +2592,83 @@ void TrfrItemDialog::setupRest()
 	}
 }
 
-void TrfrItemDialog::setQuotSign()
+void TrfrItemDialog::SetupInputState_Price(bool forceRedraw)
+{
+	const  uint ctl_id = CTL_LOT_PRICE;
+	TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+	if(p_il) {
+		SString temp_buf;
+		uint64 _state = 0;
+		if(Data.Flags & PPTFR_QUOT) {
+			if(P_BObj->CheckRights(BILLOPRT_CANCELQUOT)) {
+				_state = 1;
+				PPLoadString(PPSTR_CTLUSTTD, CTLUSTTD_TRFRITEM_PRICEBYQUOT, temp_buf);
+			}
+			else {
+				_state = 2;
+				PPLoadString(PPSTR_CTLUSTTD, CTLUSTTD_TRFRITEM_PRICEBYQUOT_CANTCANCEL, temp_buf);
+			}
+		}
+		else {
+			if(oneof4(OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND, PPOPT_GOODSRECEIPT)) {
+				GetCtrlCost();
+				double pc = TR5(Data.Price);
+				double ds = TR5(Data.Discount);
+				getCtrlData(CTL_LOT_PRICE,    &pc);
+				getCtrlData(CTL_LOT_DISCOUNT, &ds);
+				if((pc-ds) < Data.Cost) {
+					_state = 3;
+					PPLoadString(PPSTR_CTLUSTTD, CTLUSTTD_TRFRITEM_PRICEBELOWCOST, temp_buf);
+				}
+			}
+		}
+		if(p_il->SetIndicatorState(_state, temp_buf) > 0 || forceRedraw) {
+			drawCtrl(ctl_id);
+		}
+	}
+}
+
+void TrfrItemDialog::SetQuotSign()
 {
 	SString text;
-	if(Item.Flags & PPTFR_QUOT)
-		text.CatChar('q');
-	if(Item.Flags & PPTFR_PRICEWOTAXES)
+	SString temp_buf;
+	{
+		if(Data.Flags & PPTFR_QUOT) {
+			text.CatChar('q');
+		}
+		SetupInputState_Price(false);
+	}
+	if(Data.Flags & PPTFR_PRICEWOTAXES) {
 		text.CatChar('_');
+	}
 	if(P_BObj->Cfg.Flags & BCF_SIGNDIFFLOTCOST && OpTypeID == PPOPT_GOODSRECEIPT) {
-		if(!Item.RByBill) {
+		if(!Data.RByBill) {
 			ReceiptTbl::Rec lot_rec;
-			if(::GetCurGoodsPrice(Item.GoodsID, Item.LocID, GPRET_INDEF, 0, &lot_rec) > 0) {
-				getCtrlCost();
-				SETFLAG(St, stWasCostInput, Item.Cost != R5(lot_rec.Cost));
-				setCtrlCost();
+			if(::GetCurGoodsPrice(Data.GoodsID, Data.LocID, GPRET_INDEF, 0, &lot_rec) > 0) {
+				const  uint ctl_id = CTL_LOT_COST;
+				GetCtrlCost();
+				{
+					//SETFLAG(St, stWasCostInput, Data.Cost != R5(lot_rec.Cost));
+					uint64  _state = 0;
+					temp_buf.Z();
+					if(Data.Cost != R5(lot_rec.Cost)) {
+						//St |= stWasCostInput;
+						PPLoadString(PPSTR_CTLUSTTD, CTLUSTTD_TRFRITEM_COSTCHANGED, temp_buf);
+						_state = 1;
+					}
+					else {
+						//St &= ~stWasCostInput;
+					}
+					{ // @v12.7.8
+						TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+						if(p_il) {
+							if(p_il->SetIndicatorState(_state, temp_buf) > 0) {
+								drawCtrl(ctl_id);
+							}
+						}
+					}
+				}
+				setCtrlReal(ctl_id, Data.GetOrgCost());
 			}
 		}
 	}
@@ -2575,54 +2679,54 @@ int TrfrItemDialog::_SetupLot(bool dontSetupPriceByLot)
 {
 	int    ok = 1;
 	uint   fl = 0;
-	if(Item.Flags & PPTFR_CORRECTION && Item.Flags & PPTFR_REVAL) {
+	if(Data.Flags & PPTFR_CORRECTION && Data.Flags & PPTFR_REVAL) {
 		OrgQtty = 0.0;
 	}
 	SString temp_buf;
-	if(Item.UnitPerPack == 0.0) {
+	if(Data.UnitPerPack == 0.0) {
 		GoodsStockExt gse;
-		if(GObj.GetStockExt(labs(Item.GoodsID), &gse) > 0 && gse.Package > 0)
-			Item.UnitPerPack = gse.Package;
+		if(GObj.GetStockExt(labs(Data.GoodsID), &gse) > 0 && gse.Package > 0)
+			Data.UnitPerPack = gse.Package;
 	}
-	if(Item.LotID && !(Item.Flags & PPTFR_AUTOCOMPL)) {
+	if(Data.LotID && !(Data.Flags & PPTFR_AUTOCOMPL)) {
 		ReceiptTbl::Rec lot_rec;
 		double adj_intr_price = 0.0;
-		if(Item.Cost  != 0.0)
+		if(Data.Cost  != 0.0)
 			fl |= TISL_IGNCOST;
-		if(Item.Price != 0.0 || dontSetupPriceByLot) // @v11.7.7
+		if(Data.Price != 0.0 || dontSetupPriceByLot) // @v11.7.7
 			fl |= TISL_IGNPRICE;
-		else if(P_BObj->AdjustIntrPrice(P_Pack, Item.GoodsID, &adj_intr_price) > 0) {
-			Item.Price = adj_intr_price;
+		else if(P_BObj->AdjustIntrPrice(P_Pack, Data.GoodsID, &adj_intr_price) > 0) {
+			Data.Price = adj_intr_price;
 			fl |= TISL_ADJPRICE;
 		}
-		if(Item.Flags & PPTFR_RECEIPT) {
+		if(Data.Flags & PPTFR_RECEIPT) {
 			fl |= (TISL_IGNQCERT|TISL_IGNEXPIRY);
 		}
-		THROW(P_Trfr->Rcpt.Search(Item.LotID, &lot_rec) > 0);
+		THROW(P_Trfr->Rcpt.Search(Data.LotID, &lot_rec) > 0);
 		OrgQtty = lot_rec.Quantity;
-		THROW(Item.SetupLot(Item.LotID, &lot_rec, fl));
+		THROW(Data.SetupLot(Data.LotID, &lot_rec, fl));
 		if(!(fl & TISL_IGNPRICE))
-			Price = Item.Price;
-		if(Item.Flags & PPTFR_REVAL) {
+			Price = Data.Price;
+		if(Data.Flags & PPTFR_REVAL) {
 			// Предварительная попытка разрешить рекомплектацию лотов, которые не были перед этим
 			// скомплектованы. Это оказалось актуально при учете ОС.
-			for(uint pos = 0; P_Pack->SearchLot(Item.LotID, &pos); pos++) {
+			for(uint pos = 0; P_Pack->SearchLot(Data.LotID, &pos); pos++) {
 				THROW_PP(pos == static_cast<uint>(ItemNo), PPERR_DUPLOTREVAL);
 			}
-			if(Item.RevalCost == 0.0)
-				Item.RevalCost = Item.Cost;
-			if(Item.Discount == 0.0)
-				Item.Discount = Item.Price;
-			setCtrlReal(CTL_LOT_OLDCOST,  Item.RevalCost);
-			setCtrlReal(CTL_LOT_OLDPRICE, Item.Discount);
+			if(Data.RevalCost == 0.0)
+				Data.RevalCost = Data.Cost;
+			if(Data.Discount == 0.0)
+				Data.Discount = Data.Price;
+			setCtrlReal(CTL_LOT_OLDCOST,  Data.RevalCost);
+			setCtrlReal(CTL_LOT_OLDPRICE, Data.Discount);
 			setCtrlReal(CTL_LOT_ORGQTTY, OrgQtty);
 			if(GetOpSubType(OpID) == OPSUBT_ASSETEXPL) {
 				ushort v = 0;
-				PPID   lot_id = Item.LotID;
+				PPID   lot_id = Data.LotID;
 				int    op_code = 0;
 				int    in_expl = 0;
 				for(DateIter iter; P_Trfr->EnumAssetOp(&lot_id, &iter, &op_code, 0) > 0;) {
-					if(iter.dt >= Item.Date)
+					if(iter.dt >= Data.Date)
 						break;
 					if(oneof2(op_code, ASSTOPC_RCPTEXPL, ASSTOPC_EXPL))
 						in_expl = 1;
@@ -2631,38 +2735,38 @@ int TrfrItemDialog::_SetupLot(bool dontSetupPriceByLot)
 				}
 				if(in_expl) {
 					// Объект находится в эксплуатации, следовательно это - вывод из эксплуатации
-					Item.Flags |= (PPTFR_ASSETEXPL | PPTFR_MODIF);
+					Data.Flags |= (PPTFR_ASSETEXPL | PPTFR_MODIF);
 					v = 1;
 				}
 				else {
 					// Объект находится вне эксплуатации, следовательно это - ввод в эксплуатацию
-					Item.Flags |= PPTFR_ASSETEXPL;
-					Item.Flags &= ~PPTFR_MODIF;
+					Data.Flags |= PPTFR_ASSETEXPL;
+					Data.Flags &= ~PPTFR_MODIF;
 					v = 0;
 				}
 				setCtrlData(CTL_LOT_ASSETEXPL, &v);
 			}
 		}
-		setCtrlLong(CTLSEL_LOT_SUPPL, Item.Suppl);
-		THROW(P_Pack->BoundsByLot(Item.LotID, &Item, ItemNo, &Rest, 0));
-		if((Item.Flags & PPTFR_RECEIPT) || OpTypeID == PPOPT_DRAFTRECEIPT) {
+		setCtrlLong(CTLSEL_LOT_SUPPL, Data.Suppl);
+		THROW(P_Pack->BoundsByLot(Data.LotID, &Data, ItemNo, &Rest, 0));
+		if((Data.Flags & PPTFR_RECEIPT) || OpTypeID == PPOPT_DRAFTRECEIPT) {
 			getCtrlString(CTL_LOT_CLB, temp_buf.Z());
-			if(!temp_buf.NotEmptyS() && P_BObj->GetClbNumberByLot(Item.LotID, 0, temp_buf) > 0)
+			if(!temp_buf.NotEmptyS() && P_BObj->GetClbNumberByLot(Data.LotID, 0, temp_buf) > 0)
 				setCtrlString(CTL_LOT_CLB, temp_buf);
 		}
 	}
 	else
-	   	Rest = (Item.Flags & (PPTFR_RECEIPT | PPTFR_UNLIM)) ? Item.Quantity_ : 0.0;
-	if(!Item.QCert && Item.GoodsID && !(P_BObj->GetConfig().Flags & BCF_DONTINHQCERT) && (Item.Flags & PPTFR_RECEIPT))
-		P_Trfr->Rcpt.GetLastQCert(labs(Item.GoodsID), Item.Date, Item.LocID, &Item.QCert, 0);
-	setCtrlLong(CTLSEL_LOT_QCERT, Item.QCert);
+	   	Rest = (Data.Flags & (PPTFR_RECEIPT | PPTFR_UNLIM)) ? Data.Quantity_ : 0.0;
+	if(!Data.QCert && Data.GoodsID && !(P_BObj->GetConfig().Flags & BCF_DONTINHQCERT) && (Data.Flags & PPTFR_RECEIPT))
+		P_Trfr->Rcpt.GetLastQCert(labs(Data.GoodsID), Data.Date, Data.LocID, &Data.QCert, 0);
+	setCtrlLong(CTLSEL_LOT_QCERT, Data.QCert);
 	{
-		QCertCtrlGroup::Rec qc_rec(Item.QCert);
+		QCertCtrlGroup::Rec qc_rec(Data.QCert);
 		setGroupData(ctlgroupQCert, &qc_rec);
 	}
-	if(Item.Flags & PPTFR_RECEIPT) {
+	if(Data.Flags & PPTFR_RECEIPT) {
 		P_Pack->LTagL.GetString(PPTAG_LOT_VETIS_UUID, ItemNo, temp_buf);
-		if(temp_buf.NotEmpty() || GObj.CheckFlag(Item.GoodsID, GF_WANTVETISCERT)) {
+		if(temp_buf.NotEmpty() || GObj.CheckFlag(Data.GoodsID, GF_WANTVETISCERT)) {
 			showCtrl(CTL_LOT_VETISIND, true);
 			showCtrl(CTL_LOT_VETISMATCHBUTTON, true);
 		}
@@ -2676,19 +2780,19 @@ int TrfrItemDialog::_SetupLot(bool dontSetupPriceByLot)
 		showCtrl(CTL_LOT_VETISIND, false);
 		showCtrl(CTL_LOT_VETISMATCHBUTTON, false);
 	}
-	enableCommand(cmQCert, (Item.QCert && Item.LotID) || (Item.Flags & PPTFR_DRAFT));
+	enableCommand(cmQCert, (Data.QCert && Data.LotID) || (Data.Flags & PPTFR_DRAFT));
 	setupQuantity(0, 0);
-	setCtrlData(CTL_LOT_EXPIRY, &Item.Expiry);
-	setCtrlCost(); // Установка COST должна предшествовать установке PRICE (следующая строка)
+	setCtrlData(CTL_LOT_EXPIRY, &Data.Expiry);
+	setCtrlReal(CTL_LOT_COST, Data.GetOrgCost()); // Установка COST должна предшествовать установке PRICE (следующая строка)
 	if(fl & TISL_ADJPRICE && isDiscountInSum()) {
-		setCtrlReal(CTL_LOT_PRICE,  Item.NetPrice());
+		setCtrlReal(CTL_LOT_PRICE,  Data.NetPrice());
 		setCtrlReal(CTL_LOT_DISCOUNT, 0.0);
 	}
 	else
-		setCtrlData(CTL_LOT_PRICE,  &Item.Price);
-	setCtrlLong(CTLSEL_LOT_INTAXGRP, Item.LotTaxGrpID);
+		setCtrlData(CTL_LOT_PRICE,  &Data.Price);
+	setCtrlLong(CTLSEL_LOT_INTAXGRP, Data.LotTaxGrpID);
 	{
-		if(Item.Flags & PPTFR_COSTWOVAT)
+		if(Data.Flags & PPTFR_COSTWOVAT)
 			PPLoadString("novat", temp_buf);
 		else
 			temp_buf.Space();
@@ -2696,13 +2800,13 @@ int TrfrItemDialog::_SetupLot(bool dontSetupPriceByLot)
 	}
 	if(getCtrlView(CTL_LOT_LOTINFO)) {
 		ReceiptTbl::Rec lot_rec;
-		if(BillObj->trfr->Rcpt.Search(Item.LotID, &lot_rec) > 0) {
+		if(P_BObj->trfr->Rcpt.Search(Data.LotID, &lot_rec) > 0) {
 			ReceiptCore::MakeCodeString(&lot_rec, 0, temp_buf);
 			setCtrlString(CTL_LOT_LOTINFO, temp_buf);
 		}
 	}
 	SetupInheritedSerial();
-	setQuotSign();
+	SetQuotSign();
 	CATCHZOK
 	return ok;
 }
@@ -2711,10 +2815,10 @@ void TrfrItemDialog::SetupInheritedSerial()
 {
 	if(getCtrlView(CTL_LOT_SERIAL)) {
 		SString serial;
-		if(Item.LotID) {
+		if(Data.LotID) {
 			const int inh_serial = BIN(P_BObj->GetConfig().Flags & BCF_INHSERIAL);
-			if((P_Pack && IsIntrExpndOp(P_Pack->Rec.OpID)) || (Item.Flags & PPTFR_RECEIPT && inh_serial))
-				P_BObj->GetSerialNumberByLot(Item.LotID, serial, 0);
+			if((P_Pack && IsIntrExpndOp(P_Pack->Rec.OpID)) || (Data.Flags & PPTFR_RECEIPT && inh_serial))
+				P_BObj->GetSerialNumberByLot(Data.LotID, serial, 0);
 		}
 		setCtrlString(CTL_LOT_SERIAL, serial);
 	}
@@ -2724,49 +2828,51 @@ PPID TrfrItemDialog::GetQuotLocID() { return IsIntrExpndOp(OpID) ? PPObjLocation
 
 void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 {
-	const PPConfig & r_cfg = LConfig;
+	const  PPConfig & r_cfg = LConfig;
 	if(reset) {
-		if(Item.Flags & PPTFR_QUOT) {
+		if(Data.Flags & PPTFR_QUOT) {
 			if(P_BObj->CheckRights(BILLOPRT_CANCELQUOT, 1)) {
-				Item.SetupQuot(0.0, 0);
-				if(!Item.CurID) {
-					disableCtrl(CTL_LOT_PRICE, false);
-					if(!(r_cfg.Flags & CFGFLG_DISCOUNTBYSUM))
+				Data.SetupQuot(0.0, false);
+				if(!Data.CurID) {
+					setCtrlReadOnly(CTL_LOT_PRICE, false); // @v12.7.8 disableCtrl-->setCtrlReadOnly
+					if(!(r_cfg.Flags & CFGFLG_DISCOUNTBYSUM)) {
 						disableCtrl(CTL_LOT_DISCOUNT, false);
+					}
 					drawCtrl(CTL_LOT_PRICE);
 				}
-				else
+				else {
 					disableCtrl(CTL_LOT_CURPRICE, false);
+				}
 			}
 		}
 	}
-	else if(Item.GoodsID && oneof3(OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
+	else if(Data.GoodsID && oneof3(OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
 		double quot = 0.0;
 		double dis;
 		int    gqr = 0; // Результат извлечения котировки (для правильной обработки нулевого значения котировки)
 		const  PPID loc_id = GetQuotLocID();
 		if(loc_id) {
-			quot = Item.Price;
-			gqr = P_BObj->SelectQuotKind(P_Pack, &Item, ((autoQuot && P_Pack->AgtQuotKindID) ? 0 : 1), &quot);
+			quot = Data.Price;
+			gqr = P_BObj->SelectQuotKind(P_Pack, &Data, ((autoQuot && P_Pack->AgtQuotKindID) ? 0 : 1), &quot);
 			if(gqr > 0) {
 				;
 			}
 			else if(autoQuot) {
 				quot = 0.0;
-				if(Item.CurID) {
-					const QuotIdent qi(loc_id, PPQUOTK_BASE, Item.CurID, P_Pack->Rec.Object);
-					gqr = GObj.GetQuot(Item.GoodsID, qi, 0L, 0L, &quot, 1);
+				if(Data.CurID) {
+					const QuotIdent qi(loc_id, PPQUOTK_BASE, Data.CurID, P_Pack->Rec.Object);
+					gqr = GObj.GetQuot(Data.GoodsID, qi, 0L, 0L, &quot, 1);
 					if(gqr <= 0)
 						quot = 0.0;
 				}
 			}
 		}
-		if(gqr <= 0 && !autoQuot && r_cfg.Flags & CFGFLG_ENABLEFIXDIS && !(Item.Flags & PPTFR_QUOT)) {
+		if(gqr <= 0 && !autoQuot && r_cfg.Flags & CFGFLG_ENABLEFIXDIS && !(Data.Flags & PPTFR_QUOT)) {
 			if(r_cfg.Flags & CFGFLG_DISCOUNTBYSUM)
 				getCtrlData(CTL_LOT_PRICE, &quot);
 			else {
 				getCtrlData(CTL_LOT_DISCOUNT, &dis);
-				quot = Item.Price - dis;
+				quot = Data.Price - dis;
 			}
 			quot = R2(quot);
 		}
@@ -2782,7 +2888,7 @@ void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 			ReceiptTbl::Rec ord_lot_rec;
 			BillTbl::Rec ord_bill_rec;
 			SString edi_channel;
-			if(Item.OrdLotID && P_BObj->trfr->Rcpt.Search(Item.OrdLotID, &ord_lot_rec) > 0) {
+			if(Data.OrdLotID && P_BObj->trfr->Rcpt.Search(Data.OrdLotID, &ord_lot_rec) > 0) {
 				if(P_BObj->Fetch(ord_lot_rec.BillID, &ord_bill_rec) > 0 && ord_bill_rec.EdiOp == PPEDIOP_SALESORDER) {
 					if(PPRef->Ot.GetTagStr(PPOBJ_BILL, ord_bill_rec.ID, PPTAG_BILL_EDICHANNEL, edi_channel) > 0) {
 						if(edi_channel.IsEqiAscii("ISALES-PEPSI")) {
@@ -2806,39 +2912,44 @@ void TrfrItemDialog::setupQuotation(int reset, int autoQuot)
 			}
 			ar_obj.GetClientAgreement(P_Pack->Rec.Object, cliagt, 1);
 			if(cliagt.Flags & AGTF_PRICEROUNDING) {
-				quot = Item.RoundPrice(quot, cliagt.PriceRoundPrec, cliagt.PriceRoundDir,
+				quot = Data.RoundPrice(quot, cliagt.PriceRoundPrec, cliagt.PriceRoundDir,
 					(cliagt.Flags & AGTF_PRICEROUNDVAT) ? PPTransferItem::valfRoundVat : 0);
 			}
-			Item.SetupQuot(quot, 1);
-			if(Item.CurID) {
+			Data.SetupQuot(quot, true);
+			if(Data.CurID) {
 				setCtrlReal(CTL_LOT_CURPRICE, quot);
 				evaluateBasePrice(quot, &quot);
 			}
 			else if(r_cfg.Flags & CFGFLG_DISCOUNTBYSUM)
 				setCtrlReal(CTL_LOT_PRICE, quot);
 			else
-				setCtrlReal(CTL_LOT_DISCOUNT, R2(Item.Price - quot));
-			disableCtrls(1, CTL_LOT_CURPRICE, CTL_LOT_DISCOUNT, CTL_LOT_PRICE, 0);
+				setCtrlReal(CTL_LOT_DISCOUNT, R2(Data.Price - quot));
+			// @v12.7.8 disableCtrls(1, CTL_LOT_CURPRICE, CTL_LOT_DISCOUNT, CTL_LOT_PRICE, 0); 
+			disableCtrl(CTL_LOT_CURPRICE, true); // @v12.7.8 
+			disableCtrl(CTL_LOT_DISCOUNT, true); // @v12.7.8 
+			setCtrlReadOnly(CTL_LOT_PRICE, true); // @v12.7.8 
 		}
 	}
-	else if(Item.GoodsID && oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
-		getCtrlCost();
+	else if(Data.GoodsID && oneof2(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_DRAFTRECEIPT)) {
+		GetCtrlCost();
 		double price = getCtrlReal(CTL_LOT_PRICE);
-		const PPBillConfig & r_cfg = P_BObj->GetConfig();
+		const  PPBillConfig & r_cfg = P_BObj->GetConfig();
 		if(r_cfg.ValuationQuotKindID) {
-			Item.Price = TR5(price);
+			Data.Price = TR5(price);
 			ushort v = 0;
-			if(getCtrlData(CTL_LOT_NOVAT, &v))
-				SETFLAG(Item.Flags, PPTFR_COSTWOVAT, v);
-			if(Item.Valuation(r_cfg, 0, 0) > 0) {
-				setCtrlReal(CTL_LOT_PRICE, Item.Price);
-				disableCtrl(CTL_LOT_PRICE, true);
+			if(getCtrlData(CTL_LOT_NOVAT, &v)) {
+				SETFLAG(Data.Flags, PPTFR_COSTWOVAT, v);
+			}
+			if(Data.Valuation(r_cfg, 0, 0) > 0) {
+				setCtrlReal(CTL_LOT_PRICE, Data.Price);
+				setCtrlReadOnly(CTL_LOT_PRICE, true); // @v12.7.8 disableCtrl-->setCtrlReadOnly
 			}
 		}
-		else if(P_Pack->GetQuotExt(Item, &price) > 0)
+		else if(P_Pack->GetQuotExt(Data, &price) > 0) {
 			setCtrlReal(CTL_LOT_PRICE, price);
+		}
 	}
-	setQuotSign();
+	SetQuotSign();
 }
 //
 //
@@ -2866,8 +2977,9 @@ IMPL_CMPFUNC(SelLotBrowser_Entry_dt_oprno, i1, i2)
 		MEMSZERO(entry);
 		entry.LotID = lot_rec.ID;
 		entry.Dt    = lot_rec.Dt;
-		if(billDate)
+		if(billDate) {
 			THROW(p_bobj->trfr->GetLotPrices(&lot_rec, billDate));
+		}
 		entry.Cost  = p_bobj->CheckRights(BILLRT_ACCSCOST) ? lot_rec.Cost : 0;
 		entry.Price = lot_rec.Price;
 		entry.Qtty  = lot_rec.Quantity;
@@ -3191,30 +3303,31 @@ IMPL_HANDLE_EVENT(SelLotBrowser)
 int TrfrItemDialog::addLotEntry(SArray * pAry, const ReceiptTbl::Rec * pLotRec)
 {
 	double rest = 0.0;
-	return BIN(P_Pack->BoundsByLot(pLotRec->ID, &Item, ItemNo, &rest, 0) && SelLotBrowser::AddItemToArray(pAry, pLotRec, Item.Date, rest));
+	return BIN(P_Pack->BoundsByLot(pLotRec->ID, &Data, ItemNo, &rest, 0) && SelLotBrowser::AddItemToArray(pAry, pLotRec, Data.Date, rest));
 }
 
 void TrfrItemDialog::selectLot()
 {
-	int    r, found = 0;
+	int    r;
+	int    found = 0;
 	uint   s = 0;
 	PPID   op_id = P_Pack->Rec.OpID;
 	DateIter diter;
 	SArray * p_ary = 0;
 	SelLotBrowser * p_brw = 0;
-	PPTransferItem save_item = Item;
+	const  PPTransferItem save_item(Data);
 	ReceiptTbl::Rec * p_lot_rec = &P_Trfr->Rcpt.data;
-	getCtrlData(CTLSEL_LOT_GOODS, &Item.GoodsID);
-	if(!(Item.Flags & PPTFR_AUTOCOMPL)) {
+	getCtrlData(CTLSEL_LOT_GOODS, &Data.GoodsID);
+	if(!(Data.Flags & PPTFR_AUTOCOMPL)) {
 		THROW(p_ary = SelLotBrowser::CreateArray());
-		diter.Init(0, Item.Date);
-		while((r = P_Trfr->Rcpt.EnumLots(Item.GoodsID, Item.LocID, &diter)) > 0) {
+		diter.Init(0, Data.Date);
+		while((r = P_Trfr->Rcpt.EnumLots(Data.GoodsID, Data.LocID, &diter)) > 0) {
 			//
 			// Для некоторых операций отбираем только те лоты, которые поступили от специфицированного поставщика
 			//
 			if(p_lot_rec->SupplID == P_Pack->Rec.Object || (op_id != _PPOPK_SUPPLRET && (P_Pack->OpTypeID != PPOPT_GOODSREVAL || !P_Pack->Rec.Object))) {
 				THROW(addLotEntry(p_ary, p_lot_rec));
-				if(p_lot_rec->ID == Item.LotID) {
+				if(p_lot_rec->ID == Data.LotID) {
 					s = p_ary->getCount()-1;
 					found = 1;
 				}
@@ -3222,14 +3335,14 @@ void TrfrItemDialog::selectLot()
 		}
 		THROW(r);
 		if(!found) {
-			if(Item.LotID && !(Item.Flags & PPTFR_ORDER)) {
-				THROW(P_Trfr->Rcpt.Search(Item.LotID) > 0);
+			if(Data.LotID && !(Data.Flags & PPTFR_ORDER)) {
+				THROW(P_Trfr->Rcpt.Search(Data.LotID) > 0);
 				found = 1;
 			}
-			else if(Item.Flags & PPTFR_ORDER) {
-				if(P_Trfr->Rcpt.GetLastLot(Item.GoodsID, Item.LocID, Item.Date, 0) > 0)
+			else if(Data.Flags & PPTFR_ORDER) {
+				if(P_Trfr->Rcpt.GetLastLot(Data.GoodsID, Data.LocID, Data.Date, 0) > 0)
 					found = 1;
-				else if(P_Trfr->Rcpt.GetLastLot(Item.GoodsID, 0L, Item.Date, 0) > 0)
+				else if(P_Trfr->Rcpt.GetLastLot(Data.GoodsID, 0L, Data.Date, 0) > 0)
 					found = 1;
 			}
 			if(found && !p_ary->lsearch(&p_lot_rec->ID, 0, CMPF_LONG, offsetof(SelLotBrowser::Entry, LotID))) {
@@ -3239,16 +3352,17 @@ void TrfrItemDialog::selectLot()
 		}
 		THROW_MEM(p_brw = new SelLotBrowser(P_BObj, p_ary, s, SelLotBrowser::fShowManufTime));
 		if(ExecView(p_brw) == cmOK) {
-			const SelLotBrowser::Entry * p_sel = static_cast<const SelLotBrowser::Entry *>(p_brw->getCurItem());
-			if(p_sel && p_sel->LotID != Item.LotID && !(Item.Flags & (PPTFR_RECEIPT|PPTFR_CORRECTION))) {
-				Item.LotID = p_sel->LotID;
-				Item.Cost  = 0.0;
-				Item.Price = 0.0;
-				Item.Rest_ = 0.0;
+			const  SelLotBrowser::Entry * p_sel = static_cast<const SelLotBrowser::Entry *>(p_brw->getCurItem());
+			if(p_sel && p_sel->LotID != Data.LotID && !(Data.Flags & (PPTFR_RECEIPT|PPTFR_CORRECTION))) {
+				Data.LotID = p_sel->LotID;
+				Data.Cost  = 0.0;
+				Data.Price = 0.0;
+				Data.Rest_ = 0.0;
 				Rest = 0.0;
-				Item.Expiry = ZERODATE;
-				if(P_Pack->OpTypeID == PPOPT_GOODSREVAL)
-					Item.RevalCost = Item.Discount = 0.0;
+				Data.Expiry = ZERODATE;
+				if(P_Pack->OpTypeID == PPOPT_GOODSREVAL) {
+					Data.RevalCost = Data.Discount = 0.0;
+				}
 				THROW(_SetupLot(false/*dontSetupPriceByLot*/));
 				setupRest();
 			}
@@ -3258,7 +3372,7 @@ void TrfrItemDialog::selectLot()
 		if(p_brw == 0)
 			delete p_ary;
 		PPError();
-		Item = save_item;
+		Data = save_item;
 	ENDCATCH
 	delete p_brw;
 }

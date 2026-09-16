@@ -2077,6 +2077,11 @@ public:
 	LocalStateBinderyCore(SCtrSpecial sctr, const char * pPath); // test-constructor
 	~LocalStateBinderyCore();
 	bool   IsValid() const { return LOGIC(!(State & stError)); }
+	//
+	// Descr: Сопоставляет экземпляр объекта с текущей базой данных и если, он соответствует оной, то возвращает true,
+	//   в противном случае возвращает false.
+	//
+	bool   IsCurrentDatabaseInstance() const;
 	int    Search(PPID id, LocalStateBinderyTbl::Rec * pRec);
 	int    RegisterState(PPID * pID, const StateIdent & rIdent, SBuffer & rRawData, int use_ta);
 	//
@@ -2106,12 +2111,15 @@ private:
 	static bool IsStateIdentEq(const StateIdent & rKey, const StateIdent & rCandidate);
 	static bool SearchSerialEntryPointByID(const TSCollection <SerialEntry> & rList, PPID id, uint * pPos);
 	static bool SearchSerialEntryPointByTm(const TSCollection <SerialEntry> & rList, int64 uedTm, uint * pPos);
+	static SString & MakeCurrentDatabaseCode(SString & rBuf);
 	int    OpenDatabase(const char * pPath);
 
 	enum {
 		stError = 0x0001
 	};
 	uint   State;
+	SString DbCode; // @v12.7.8 Кодовое представление базы данных (или ее отсутствия) для подключения правильного хранилища состояний.
+		// Если подключается хранилище вне контекста базы данных, то DbCode == "oodb"
 	SSqliteDbProvider * P_DbP;
 	LocalStateBinderyTbl * P_Tbl;
 
@@ -2127,10 +2135,10 @@ private:
 	TSCollection <InMemStateEntry> InMemStateList;
 	TSCollection <InMemSerialEntry> InMemSerialList;
 
-	int   RegisterInMemState(PPID id, int64 uedTm, const StateIdent & rIdent, SBuffer & rRawData);
-	const InMemStateEntry * SearchInMemState(const StateIdent & rIdent, uint * pPos) const;
-	const InMemSerialEntry * SearchInMemSerial(const StateIdent & rIdent, uint * pPos);
-	ued_t AdjustTime(int kind, ued_t uedTime);
+	int    RegisterInMemState(PPID id, int64 uedTm, const StateIdent & rIdent, SBuffer & rRawData);
+	const  InMemStateEntry * SearchInMemState(const StateIdent & rIdent, uint * pPos) const;
+	const  InMemSerialEntry * SearchInMemSerial(const StateIdent & rIdent, uint * pPos);
+	ued_t  AdjustTime(int kind, ued_t uedTime);
 };
 //
 // PPMsgLog
@@ -11193,7 +11201,15 @@ public:
 	void   FASTCALL ConvertMoney(TransferTbl::Rec * pRec) const;
 	int    FASTCALL SetupByRec(const TransferTbl::Rec *);
 	int    FASTCALL SetupByRec(const LocTransfTbl::Rec * pTr);
-	int    SetupQuot(double, int set);
+	//
+	// ARG(value IN): Значение устанавливаемой котировки если set == true. При set == false этот аргумент игнорируется.
+	// ARG(set IN): Если set == true, то устанавливается значение котировки равное value. Если set == false, то 
+	//   установленная ранее котировка сбрасывается.
+	// Returns:
+	//   >0 - функция выполнена успешно
+	//   <0 - операция не может быть выполнена. На текущий момент только из-за того, что this - строка корректирующего документа.
+	//
+	int    SetupQuot(double value, bool set);
 	enum {
 		valfRoundVat = 0x0001,
 		valfCalcOnly = 0x0002
@@ -22556,13 +22572,17 @@ public:
 #define ACCK_ACTIVE          1 // Активный балансовый счет
 #define ACCK_PASSIVE         2 // Пассивный балансовый счет
 #define ACCK_AP              3 // Активно-пассивный балансовый счет
+#define ACCK_PA_LIQ        100 // @v12.7.5 Ликвидные средства
 #define ACCK_PA_CASH       101 // @v12.7.5 Наличные
 #define ACCK_PA_BANKCCARD  102 // @v12.7.5 Банковская платежная карта 
 #define ACCK_PA_BANKCHEQ   103 // @v12.7.5 Банковский чековый (текущий) счет
-#define ACCK_PA_DEBT       104 // @v12.7.5 Собственный долг
-#define ACCK_PA_CREDIT     105 // @v12.7.5 Деньги переданые в долг
-#define ACCK_PA_INVESTMENT 106 // @v12.7.5 Инвестиционный или сберегательный счет
-#define ACCK_PA_ISVCACC    107 // @v12.7.5 Счет на каком-либо интернет-сервисе 
+#define ACCK_PA_ISVCACC    200 // @v12.7.5 Счет на каком-либо интернет-сервисе 
+#define ACCK_PA_DEBT       300 // @v12.7.5 Собственный долг
+#define ACCK_PA_CREDIT     400 // @v12.7.5 Деньги переданые в долг
+#define ACCK_PA_INVESTMENT 500 // @v12.7.5 Инвестиционный или сберегательный счет
+#define ACCK_PA_INC        600 // @v12.7.5 Счет доходов
+#define ACCK_PA_EXP        700 // @v12.7.5 Счет расходов
+#define ACCK_PA_CORRECTION 800 // @v12.7.5 Счет коррекции остатков
 //
 // Типы счетов
 //
@@ -22598,6 +22618,9 @@ int FASTCALL GetAcoByGenFlags(long);
 //
 struct PPAccount { // @persistent @flat
 	PPAccount();
+	PPAccount & Z(); // @v12.7.8
+	bool   FASTCALL IsEq(const PPAccount & rS) const;
+
 	long   Tag;         // Const=PPOBJ_ACCOUNT2
 	long   ID;          // @id
 	char   Name[48];
@@ -22607,13 +22630,15 @@ struct PPAccount { // @persistent @flat
 	PPID   CurID;
 	PPID   ParentID;    // ->PPAccount.ID 
 	int16  Type;        // ACY_XXX
-	int16  Kind;        // 
+	int16  Kind;        // ACCK_XXX
 	long   Flags;
 	LDATE  OpenDate;
 	LDATE  Frrl_Date;
 	double Limit;
 	double Overdraft;
 	struct _A_ {
+		bool   FASTCALL operator == (const _A_ & rS) const { return (Sb == rS.Sb && Ac == rS.Ac); }
+		bool   FASTCALL operator != (const _A_ & rS) const { return !(Sb == rS.Sb && Ac == rS.Ac); }
 		//
 		// Важно: Порядок полей именно такой, поскольку в результате счет 20.2 > 20.1
 		//
@@ -22626,6 +22651,7 @@ struct PPAccount { // @persistent @flat
 struct PPAccountPacket {
 	PPAccountPacket();
 	PPAccountPacket & Z();
+	bool   FASTCALL IsEq(const PPAccountPacket & rS) const;
 
 	PPAccount Rec;
 	PPIDArray CurList;
@@ -22705,7 +22731,6 @@ public:
 	int    BelongTo(PPID acctID, PPID parentID);
 	int    GetListByAccSheet(PPID accSheetID, PPIDArray & rList);
 	int    LockFRR(PPID accID, LDATE dt, int doUnlock);
-	int    CreateSpecialReservedObject(); // @v12.7.7
 private:
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
@@ -58703,6 +58728,11 @@ public:
 	int    ExportCTblList(SString & rBuf);
 	int    ExportCCheckList(long ctblId, SString & rBuf);
 	int    ExportModifList(PPID goodsID, SString & rBuf);
+	//
+	// Descr: Отладочный экспорт текущего набора данных в xml-формате.
+	//   Включает вызов ExportCurrentState, ExportCTblList, ExportCCheckList
+	//
+	int    Debug_ExportCurrentDataSet(); // @v12.7.8
 	void   GetTblOrderList(LDATE lastDate, TSVector <CCheckViewItem> & rList);
 	int    AutosaveCheck();
 	CCheckCore & GetCc();
@@ -60245,6 +60275,12 @@ public:
 	//   false - error
 	//
 	bool   WriteIdentifValPair(const char * pNodeName, const char * pIdent, const char * pVal);
+	//
+	// Descr: То же, что и WriteIdentifValPair, только вместо свойства "Значен" используется свойство 
+	//   "Значение" (сцуко, долбоебов в кремле и окрестностях надо срочно в биореактор на метан перерабатывать, они же ничего кроме вреда не приносят,
+	//   хуже колорадских жуков, ей богу).
+	//
+	bool   WriteIdentifValPair2(const char * pNodeName, const char * pIdent, const char * pVal); // @v12.7.8
 	//
 	// ARG(correction IN): Если true, то формирование строк документа будет в варианте корректирующей счет-фактуры. 
 	//   В этой схеме отличаются некоторые теги.
@@ -64878,6 +64914,10 @@ public:
 	//
 	int    DoProcess(bool useConsole) const;
 	//
+	enum {
+		fVerifyResult = 0x0001 // 
+	};
+	uint   Flags;
 	uint   MaxRecsCount;    // Максимальное число записей, считываемое из исходного файла
 	uint   CountOfWorkers;  // Общее количество процессов, задействованных в тесте
 	uint   WorkerIdent;     // [1..CountOfWorkers] Идентификатор конкретного процесса, которому передается это блок

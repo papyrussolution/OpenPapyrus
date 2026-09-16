@@ -3197,9 +3197,10 @@
 	#define CTL_GOODSREST_LOTTAG        (24 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GOODSREST_LOTTAG     (25 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSREST_RTLPRICES     (26 + WINDOWS_ID_BIAS)
-	#define CTL_GOODSREST_ORD           (27 + WINDOWS_ID_BIAS) // @v11.4.6
-	#define CTLSEL_GOODSREST_ORD        (28 + WINDOWS_ID_BIAS) // @v11.4.6
-	#define CTL_GOODSREST_RRANGE        (29 + WINDOWS_ID_BIAS) // @v11.4.6 Диапазон величины остатка
+	#define CTL_GOODSREST_ORD           (27 + WINDOWS_ID_BIAS)
+	#define CTLSEL_GOODSREST_ORD        (28 + WINDOWS_ID_BIAS)
+	#define CTL_GOODSREST_RRANGE        (29 + WINDOWS_ID_BIAS) // Диапазон величины остатка
+	#define CTL_GOODSREST_CMD_ADVOPTIONS (30 + WINDOWS_ID_BIAS) // @v12.7.8
 #define DLG_PRNCASH               136 // Выбор формы кассового ордера
 	#define CTL_PRNCASH_FORM             (1 + WINDOWS_ID_BIAS)
 #define DLG_ATFLT                 137 // Фильтр описи бух. проводок

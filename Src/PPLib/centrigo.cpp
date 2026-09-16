@@ -1232,19 +1232,24 @@ int TFacadeWindow::HandleInputEnter(const SString & rInput)
 			}
 		}
 		else {
-			// @construction @2020226
 			const uint32 fav_nt_list[] =  {
-				SNTOK_GUID, SNTOK_EMAIL, 
+				SNTOK_GUID, SNTOK_EMAIL, SNTOK_PHONE
 			};
 			STokenRecognizer tr;
 			SNaturalTokenArray nta;
 			uint32 fav_nt_id = 0;
+			SString temp_buf;
 			tr.Run(_input.ucptr(), _input.Len(), nta, 0);
 			for(uint i = 0; !fav_nt_id && i < nta.getCount(); i++) {
 				const SNaturalToken & r_nt = nta.at(i);
-				switch(r_nt.ID) {
-					case SNTOK_GUID: fav_nt_id = r_nt.ID; break;
-					case SNTOK_EMAIL: fav_nt_id = r_nt.ID; break;
+				for(uint j = 0; j < SIZEOFARRAY(fav_nt_list); j++) {
+					if(fav_nt_list[j] == r_nt.ID) {
+						r_nt.GetSymb(temp_buf);
+						if(temp_buf.NotEmpty()) {
+							_result_text.CatDivIfNotEmpty(' ', 0).Cat(temp_buf);
+						}
+						break;
+					}
 				}
 			}
 		}
@@ -3063,42 +3068,5 @@ int Launch_TFacadeWindow()
 	int    ok = -1;
 	TFacadeWindow * p_win = new TFacadeWindow();
 	InsertView(p_win);
-	return ok;
-}
-
-int PPObjAccount::CreateSpecialReservedObject() // @v12.7.7
-{
-	/*
-		Зарезервированные символы таблиц аналитических статей
-			- rPSNACSEXPCAT категории расходов. иерархические статьи
-			- rPSNACSINCCAT категории доходов. иерархические статьи 
-		Зарезервированные символы счетов:
-			- rPSNACCEXP расходы. Таблица статей rPSNACSEXPCAT
-			- rPSNACCINC доходы. Таблица статей rPSNACSINCCAT
-			- rPSNACCCOR корректировочный счет, корреспондирующий с проводками выравнивания остатков
-			- rPSNACCLIQ касса (ликвидные активы) - на тот случай, если пользователь просто указывает "расход 520руб" или "приход 2000руб". 
-	*/ 
-	int    ok = -1;
-	SString temp_buf;
-	PPObjAccSheet acs_obj;
-	{
-		PPTransaction tra(1);
-		THROW(tra);
-		{
-			{
-				const char * p_symb = "rPSNACCEXP";
-			}
-			{
-				const char * p_symb = "rPSNACCINC";
-			}
-			{
-				const char * p_symb = "rPSNACCCOR";
-			}
-			{
-				const char * p_symb = "rPSNACCLIQ";
-			}
-		}
-	}
-	CATCHZOK
 	return ok;
 }

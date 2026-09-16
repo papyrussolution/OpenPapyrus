@@ -545,7 +545,7 @@ DRAFTBEER HORECA @v11.9.4
 					// } @v12.0.4 
 				}
 				else if(rS.GetToken(GtinStruc::fldUSPS, &_91) && rS.GetToken(GtinStruc::fldInner1, &_92)) {
-					if(_21.Len() == 13 && _91.Len() == 4/*&& _92.Len() == 44*/) {
+					if(oneof2(_21.Len(), 13, 6) && _91.Len() == 4/*&& _92.Len() == 44*/) { // @v12.7.8 _21.Len()==6
 						rBuf.Cat("01").Cat(_01).Cat("21").Cat(_21).CatChar('\x1D').Cat("91").Cat(_91).CatChar('\x1D').Cat("92").Cat(_92);
 						ok = 2;
 					}
@@ -1876,7 +1876,7 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 			/* @v12.6.9 if(spcprp.ChZnProdTypeList.lsearch(GTCHZNPT_MOTOROIL)) {
 				data_format = SFileFormat::Json;
 			}*/
-			data_format = SFileFormat::Json; // @v12.6.9 Попробуем все грузит в json
+			data_format = SFileFormat::Json; // @v12.6.9 Попробуем все грузить в json
 			if(data_format == SFileFormat::Json) {
 				SJson js(SJson::tOBJECT);
 				js.InsertString("inn", sender_inn);

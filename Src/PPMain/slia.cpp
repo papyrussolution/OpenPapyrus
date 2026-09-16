@@ -404,8 +404,9 @@ int main(int argc, char * argv[], char * envp[])
 			result = -1;
 		}
 	}
-	// } @v12.7.6 
-	slfprintf_stderr("Press [Enter] to finish...\n");
-	getchar();
+	else { // } @v12.7.6 
+		slfprintf_stderr("Press [Enter] to finish...\n");
+		getchar();
+	}
 	return result;
 }

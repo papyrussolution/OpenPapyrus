@@ -2996,9 +2996,9 @@ bool FASTCALL PPBillExt::IsEq(const PPBillExt & rS) const
 		return false;
 	else if(CcID != rS.CcID)
 		return false;
-	else if(GoodsGroupID != rS.GoodsGroupID) // @v11.0.11
+	else if(GoodsGroupID != rS.GoodsGroupID)
 		return false;
-	else if(CliPsnCategoryID != rS.CliPsnCategoryID) // @v11.1.9
+	else if(CliPsnCategoryID != rS.CliPsnCategoryID)
 		return false;
 	else if(stricmp866(InvoiceCode, rS.InvoiceCode) != 0)
 		return false;

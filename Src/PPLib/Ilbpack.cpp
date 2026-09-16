@@ -928,7 +928,7 @@ int PPObjBill::ConvertILTI(ILTI & rIlti, PPBillPacket * pBp, LongArray * pRows, 
 							else
 								ti.Discount = (price > 0.0) ? (ti.Price - price) : 0.0;
 							if(flags & CILTIF_QUOT)
-								ti.SetupQuot(price, 1);
+								ti.SetupQuot(price, true);
 							if(ti.CurID)
 								ti.CurPrice = rIlti.CurPrice;
 							THROW(pBp->InsertRow(&ti, &rows));

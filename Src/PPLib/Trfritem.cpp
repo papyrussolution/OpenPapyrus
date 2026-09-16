@@ -414,9 +414,10 @@ void FASTCALL PPTransferItem::SetupSign(PPID op)
 
 int PPTransferItem::SetupGoods(PPID goodsID, uint flags)
 {
-	int    ok = 1, ac = 0;
+	int    ok = 1;
+	int    ac = 0;
 	GoodsID = goodsID;
-	Flags  &= ~(PPTFR_ODDGOODS | PPTFR_UNLIM);
+	Flags  &= ~(PPTFR_ODDGOODS|PPTFR_UNLIM);
 	if(goodsID) {
 		PPObjGoods gobj;
 		Goods2Tbl::Rec goods_rec;
@@ -435,9 +436,11 @@ int PPTransferItem::SetupGoods(PPID goodsID, uint flags)
 			}
 			if(f & GF_AUTOCOMPL)
 				ac = 1;
-			if(flags & TISG_SETPWOTF)
-				if(((Flags & PPTFR_RECEIPT) || (f & GF_UNLIM)) && !RByBill)
+			if(flags & TISG_SETPWOTF) {
+				if(((Flags & PPTFR_RECEIPT) || (f & GF_UNLIM)) && !RByBill) {
 					SETFLAG(Flags, PPTFR_PRICEWOTAXES, f & GF_PRICEWOTAXES);
+				}
+			}
 		}
 	}
 	else
@@ -585,7 +588,7 @@ double FASTCALL PPTransferItem::CalcAmount(int zeroCost) const
 	return R2(v);
 }
 
-int PPTransferItem::SetupQuot(double quot, int set)
+int PPTransferItem::SetupQuot(double quot, bool set)
 {
 	int    ok = 1;
 	if(Flags & PPTFR_CORRECTION) {
@@ -626,11 +629,11 @@ int PPTransferItem::Valuation(const PPBillConfig & rCfg, int calcOnly, double * 
 	double new_price = 0.0;
 	if(rCfg.ValuationQuotKindID) {
 		double _cost = Cost;
-		const QuotIdent qi(QIDATE(Date), LocID, rCfg.ValuationQuotKindID, 0, Suppl);
+		const  QuotIdent qi(QIDATE(Date), LocID, rCfg.ValuationQuotKindID, 0, Suppl);
 		PPObjGoods goods_obj;
 		const  PPID goods_id = labs(GoodsID);
 		if(rCfg.Flags & BCF_VALUATION_BYCONTRACT && DS.GetConstTLA().SupplDealQuotKindID) {
-			const QuotIdent qic(QIDATE(Date), LocID, DS.GetConstTLA().SupplDealQuotKindID, 0, Suppl);
+			const  QuotIdent qic(QIDATE(Date), LocID, DS.GetConstTLA().SupplDealQuotKindID, 0, Suppl);
 			double c = 0.0;
 			if(goods_obj.GetQuotExt(goods_id, qic, _cost, Price, &c, 1) > 0 && c > 0.0)
 				_cost = c;
@@ -638,12 +641,12 @@ int PPTransferItem::Valuation(const PPBillConfig & rCfg, int calcOnly, double * 
 		int    r = goods_obj.GetQuotExt(goods_id, qi, _cost, Price, &new_price, 1);
 		THROW(r);
 		if(r > 0 && new_price > 0.0) {
-			const long flags = (rCfg.Flags & BCF_VALUATION_RNDVAT) ? PPTransferItem::valfRoundVat : 0;
+			const  long flags = (rCfg.Flags & BCF_VALUATION_RNDVAT) ? PPTransferItem::valfRoundVat : 0;
 			new_price = RoundPrice(new_price, rCfg.ValuationRndPrec, rCfg.ValuationRndDir, flags);
 			if(!calcOnly) {
 				if((Flags & (PPTFR_RECEIPT|PPTFR_UNITEINTR)) || (Flags & PPTFR_DRAFT && Flags & PPTFR_PLUS)) {
 					Price = new_price;
-					Flags |= PPTFR_QUOT;
+					Flags |= PPTFR_QUOT; // @fixme Странное использование флага PPTFR_QUOT. Вроде бы должно быть при этом установлено значение QuotPrice.
 				}
 			}
 			ok = 1;
@@ -687,30 +690,3 @@ void FASTCALL PPTransferItem::ConvertMoney(TransferTbl::Rec * pRec) const
 	pRec->CurPrice = TR5(CurPrice);
 	pRec->QuotPrice = TR5(QuotPrice);
 }
-
-#if 0 // {
-int PPTransferItem::Valuation(PPID quotKindID, double roundPrec, int roundDir, long flags, double * pResult)
-{
-	int    ok = -1;
-	QuotIdent qi(LocID, quotKindID, 0, Suppl);
-	double new_price = 0.0;
-	PPObjGoods goods_obj;
-	int    r = goods_obj.GetQuotExt(GoodsID, &qi, Cost, Price, &new_price, 1);
-	THROW(r);
-	if(r > 0 && new_price > 0.0) {
-		new_price = RoundPrice(new_price, roundPrec, roundDir, flags);
-		if(!(flags & valfCalcOnly)) {
-			if((Flags & (PPTFR_RECEIPT|PPTFR_UNITEINTR)) || (Flags & PPTFR_DRAFT && Flags & PPTFR_PLUS)) {
-				Price = new_price;
-				Flags |= PPTFR_QUOT;
-			}
-		}
-		ok = 1;
-	}
-	else
-		new_price = 0.0;
-	CATCHZOK
-	ASSIGN_PTR(pResult, new_price);
-	return ok;
-}
-#endif // } 0

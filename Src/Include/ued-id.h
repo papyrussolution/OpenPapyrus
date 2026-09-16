@@ -1,6 +1,6 @@
 // UED-ID-TEMP.H
-// version: 19
-// sha256: 5098c3ddca852887af79ab63765553fb4c7468159bf721e05cc353db2bae7a05
+// version: 20
+// sha256: 7bda8802d72dde021fd4de76a7d7af424dec5e8f8aef4891ce316a7a7a648fbc
 //
 #ifndef __UED_ID_H
 #define __UED_ID_H
@@ -2721,7 +2721,6 @@
 	#define UED_ALGORITHMCLASS_SORT                      0x5500000007ULL
 	#define UED_ALGORITHMCLASS_GENERATERANDOMNUMBER      0x5500000008ULL
 #define UED_META_NUMERUS                             0x100000056ULL
-#define UED_META_UNICODE                             0x100000057ULL
 #define UED_META_HASHFUNCTION                        0x100000058ULL
 	#define UED_HASHFUNCTION_CRC8                        0x5800000001ULL
 	#define UED_HASHFUNCTION_CRC16                       0x5800000002ULL

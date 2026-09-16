@@ -1119,6 +1119,48 @@ int CPosProcessor::ExportModifList(PPID goodsID, SString & rBuf)
 	return ok;
 }
 
+int CPosProcessor::Debug_ExportCurrentDataSet() // @v12.7.8
+{
+	int   ok = 1;
+	if(SlDebugMode::CT()) {
+		bool   is_error = false;
+		SString temp_buf;
+		SString file_name;
+		if(ExportCurrentState(temp_buf)) {
+			PPGetFilePath(PPPATH_OUT, "CPosProcessorState.xml", file_name);
+			SFile f_out(file_name, SFile::mWrite);
+			f_out.WriteLine(temp_buf);
+		}
+		else {
+			PPError();
+			is_error = true;
+		}
+		if(ExportCTblList(temp_buf)) {
+			PPGetFilePath(PPPATH_OUT, "CPosCTableList.xml", file_name);
+			SFile f_out(file_name, SFile::mWrite);
+			f_out.WriteLine(temp_buf);
+		}
+		else {
+			PPError();
+			is_error = true;
+		}
+		if(ExportCCheckList(0, temp_buf)) {
+			PPGetFilePath(PPPATH_OUT, "CPosCCheckList.xml", file_name);
+			SFile f_out(file_name, SFile::mWrite);
+			f_out.WriteLine(temp_buf);
+		}
+		else {
+			PPError();
+			is_error = true;
+		}
+		if(is_error)
+			ok = 0;
+	}
+	else
+		ok = -1;
+	return ok;
+}
+
 void CPosProcessor::GetTblOrderList(LDATE lastDate, TSVector <CCheckViewItem> & rList)
 {
 	rList.clear();
@@ -7614,8 +7656,6 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			}
 			return; // Функция ValidateCommand все сделала (включая обработку классами высшей иерархии)
 		}
-		else if(TVCMD == cmInputUpdated)
-			IdleClock = clock(); // Не обрабатываем это сообщение, а лишь прерываем таймаут засыпания //
 		else if(TVCMD == cmModalPostCreate) {
 			if(!(Flags & fNoEdit) && PNP.CnExtFlags & CASHFX_NOTIFYEQPTIMEMISM) {
 				if(InitCashMachine() && P_CM) {
@@ -7638,11 +7678,69 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				}
 			}
 		}
+		else if(TVCMD == cmInputUpdated) {
+			IdleClock = clock(); // Не обрабатываем это сообщение, а лишь прерываем таймаут засыпания //
+			// @v12.7.8 {
+			const  uint ctl_id = event.getCtlID();
+			//CTL_CHKPAN_INFO
+			//CTL_CHKPAN_CAFE_STATUS
+			//CTL_CHKPAN_TOTAL
+			//CTL_CHKPAN_DISCOUNT
+			// } @v12.7.8 
+		}
+		else if(TVCMD == cmMouseHoverCtrl) { // @v12.7.7
+			//
+			// Это блок должен быть согласован с блоком (TVCMD == cmCtlColor)
+			//
+			const  uint ctl_id = event.getCtlID();
+			SString msg_buf;
+			int   msg_id = 0;
+			if(ctl_id == CTL_CHKPAN_INFO) {
+				if(Flags & fError) {
+					msg_id = CTLUSTTD_CHECKPAN_STATE_ERROR; // "Информация о текущей ошибке"	
+				}
+				else if(Flags & fPresent) {
+					msg_id = CTLUSTTD_CHECKPAN_STATE_GIFT; // "Информация о подарке за выбор покупки"
+				}
+			}
+			else if(ctl_id == CTL_CHKPAN_CAFE_STATUS) {
+				if(P.OrderCheckID) {
+					msg_id = CTLUSTTD_CHECKPAN_STATE_BYORDER; // "Обслуживание по заказу"
+				}
+			}
+			else if(ctl_id == CTL_CHKPAN_TOTAL) {
+				for(uint i = 0; i < P.getCount(); i++) {
+					const  CCheckItem & r_item = P.at(i);
+					if(r_item.Flags & cifGift) {
+						msg_id = CTLUSTTD_CHECKPAN_TOTAL_GIFTINCL; // "Сумма учитывает подарок"
+						break;
+					}
+				}
+			}
+			else if(ctl_id == CTL_CHKPAN_DISCOUNT) {
+				for(uint i = 0; i < P.getCount(); i++) {
+					const  CCheckItem & r_item = P.at(i);
+					if(r_item.Flags & cifGift && r_item.Discount != 0.0) {
+						msg_id = CTLUSTTD_CHECKPAN_DISCOUNT_GIFTINCL; // "Скидка учитывает подарок"
+						break;
+					}
+				}
+			}
+			if(msg_id) {
+				PPLoadString(PPSTR_CTLUSTTD, msg_id, msg_buf);
+				if(msg_buf.NotEmptyS()) {
+					PPShowCtrlIndicatorHint(msg_buf);
+				}
+			}
+		}
 		else if(TVCMD == cmCtlColor) {
+			//
+			// Это блок должен быть согласован с блоком (TVCMD == cmMouseHoverCtrl)
+			//
 			TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 			if(p_dc) {
 				if(p_dc->Src == TDrawCtrlData::cScrollBar) {
-					int ctl_id = GetDlgCtrlID(p_dc->H_Ctl);
+					int   ctl_id = GetDlgCtrlID(p_dc->H_Ctl);
 					if(ctl_id && oneof2(ctl_id, MAKE_BUTTON_ID(CTL_CHKPAN_GRPLIST, 1), MAKE_BUTTON_ID(CTL_CHKPAN_GDSLIST, 1))) {
 						::SendMessageW(::GetDlgItem(H(), CTL_CHKPAN_ARROW_UP),   BM_SETSTYLE, BS_BITMAP, TRUE);
 						::SendMessageW(::GetDlgItem(H(), CTL_CHKPAN_ARROW_DOWN), BM_SETSTYLE, BS_BITMAP, TRUE);
@@ -7675,7 +7773,8 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					else if(p_dc->H_Ctl == getCtrlHandle(CTL_CHKPAN_TOTAL)) {
 						::SetBkMode(p_dc->H_DC, TRANSPARENT);
 						for(uint i = 0; i < P.getCount(); i++) {
-							if(P.at(i).Flags & cifGift) {
+							const  CCheckItem & r_item = P.at(i);
+							if(r_item.Flags & cifGift) {
 								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brTotalGift));
 								clearEvent(event);
 								break;
@@ -7685,7 +7784,8 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					else if(p_dc->H_Ctl == getCtrlHandle(CTL_CHKPAN_DISCOUNT)) {
 						::SetBkMode(p_dc->H_DC, TRANSPARENT);
 						for(uint i = 0; i < P.getCount(); i++) {
-							if(P.at(i).Flags & cifGift && P.at(i).Discount != 0.0) {
+							const  CCheckItem & r_item = P.at(i);
+							if(r_item.Flags & cifGift && r_item.Discount != 0.0) {
 								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brDiscountGift));
 								clearEvent(event);
 								break;
@@ -7697,8 +7797,9 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			return;
 		}
 		else if(Flags & fAsSelector) {
-			if(TVCMD == cmLBDblClk)
+			if(TVCMD == cmLBDblClk) {
 				TVCMD = cmOK;
+			}
 			if(TVCMD == cmOK) {
 				if(P_ChkPack) {
 					const CCheckLineTbl::Rec * p_line = 0;
@@ -7920,7 +8021,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 									rowopDown,
 									rowopDoGroup,
 									rowopDelete,
-									rowopPrintLabel // @v11.4.7
+									rowopPrintLabel
 								};
 								int    r = -1;
 								const  CCheckItem & r_cur_item = P.at(cur);
@@ -7933,7 +8034,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 									dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 2, rowopDown);
 									dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 3, rowopDoGroup);
 									dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 4, rowopDelete);
-									dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 5, rowopPrintLabel); // @v11.4.7
+									dlg->AddClusterAssoc(CTL_CHKPANROWOP_VERB, 5, rowopPrintLabel);
 									dlg->SetClusterData(CTL_CHKPANROWOP_VERB, verb);
 									dlg->SetupSpin(CTLSPIN_CHKPANROWOP_QUEUE, CTL_CHKPANROWOP_QUEUE, 0, 20, queue);
 									dlg->setCtrlData(CTL_CHKPANROWOP_QUEUE, &queue);
@@ -8085,11 +8186,11 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					Barrier(1);
 				}
 				break;
-			case cmQuantity:      BARRIER(AcceptQuantity()); break;
 			case cmRetCheck:      
 				// @v12.2.9 BARRIER(SetupRetCheck(!F(fRetCheck))); 
 				BARRIER(SetupRetCheck(!(IsCurrentOp(CCOP_RETURN) || IsCurrentOpCorrection()))); // @v12.2.9
 				break;
+			case cmQuantity:      BARRIER(AcceptQuantity()); break;
 			case cmSelSCard:      BARRIER(AcceptSCard(0, 0, (Flags & fWaitOnSCard) ? ascfFromInput : ascfExtPane)); break;
 			case cmChkPanSuspend: BARRIER(SuspendCheck()); break;
 			case cmToLocPrinters: BARRIER(PrintToLocalPrinters(-1, false/*ignoreNonZeroAgentReq*/)); break;
@@ -8254,32 +8355,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 	}
 	else if(TVKEYDOWN) {
 		switch(TVKEY) {
-			case kbF12:
-				if(SlDebugMode::CT()) {
-					SString file_name;
-					if(ExportCurrentState(temp_buf)) {
-						PPGetFilePath(PPPATH_OUT, "CPosProcessorState.xml", file_name);
-						SFile f_out(file_name, SFile::mWrite);
-						f_out.WriteLine(temp_buf);
-					}
-					else
-						PPError();
-					if(ExportCTblList(temp_buf)) {
-						PPGetFilePath(PPPATH_OUT, "CPosCTableList.xml", file_name);
-						SFile f_out(file_name, SFile::mWrite);
-						f_out.WriteLine(temp_buf);
-					}
-					else
-						PPError();
-					if(ExportCCheckList(0, temp_buf)) {
-						PPGetFilePath(PPPATH_OUT, "CPosCCheckList.xml", file_name);
-						SFile f_out(file_name, SFile::mWrite);
-						f_out.WriteLine(temp_buf);
-					}
-					else
-						PPError();
-				}
-				break;
+			case kbF12: Debug_ExportCurrentDataSet(); break;
 			case kbCtrlF12:
 				{
 					SString mark;
@@ -8330,6 +8406,9 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 			case kbCtrlF7:  BARRIER(PrintSlipDocument()); break;
 			case kbAltF7:   BARRIER(PrintToLocalPrinters(1, false/*ignoreNonZeroAgentReq*/)); break;
 			case kbShiftF7: BARRIER(PrintToLocalPrinters(0, false/*ignoreNonZeroAgentReq*/)); break;
+			case kbF9:      BARRIER(AcceptDivision()); break;
+			case kbF11:     BARRIER(ResetOperRightsByKey()); break;
+			case kbCtrlF4:  BARRIER(AcceptManualDiscount()); break;
 			case kbF8:
 				{
 					// @v12.6.8 {
@@ -8347,7 +8426,6 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					}
 				}
 				break;
-			case kbF9:      BARRIER(AcceptDivision()); break;
 			case kbF10:     
 				// @v11.7.12 Для аптек по двойному клику в строке ввода теперь будет редактироваться рецепт 
 				// (это не очень хорошо - если кто-то скажет, что им нужна доставка и(или) примечание, то придется пересматривать подход)
@@ -8358,12 +8436,10 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 					BARRIER(EditMemo(0, 0));
 				}
 				break;
-			case kbF11:     BARRIER(ResetOperRightsByKey()); break;
 			case kbCtrlF3:
 				if(InitCashMachine() && P_CM->GetNodeData().Flags & CASHF_OPENBOX)
 					P_CM->SyncOpenBox();
 				break;
-			case kbCtrlF4: BARRIER(AcceptManualDiscount()); break;
 			case kbCtrlF6:
 				if(!Barrier()) {
 					if(P.HasCur() && P.GetCur().GoodsID) {

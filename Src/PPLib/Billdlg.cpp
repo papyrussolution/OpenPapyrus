@@ -5103,7 +5103,8 @@ public:
 		setCtrlReal(CTL_ATURN_AMOUNT, Data.Amount);
 		setCtrlDate(CTL_ATURN_DATE, Data.Date);
 		//
-		SetupPPObjCombo(this, CTLSEL_ATURN_DACCNAME, PPOBJ_ACCOUNT2, Data.DbtID.ac, OLW_CANINSERT|OLW_WORDSELECTOR, reinterpret_cast<void *>(ACY_SEL_PERSONAL));
+		SetupPPObjCombo(this, CTLSEL_ATURN_DACCNAME, PPOBJ_ACCOUNT2, Data.DbtID.ac, 
+			OLW_CANINSERT|OLW_WORDSELECTOR|OLW_CANSELUPLEVEL, reinterpret_cast<void *>(ACY_SEL_PERSONAL));
 		//
 		return ok;
 	}

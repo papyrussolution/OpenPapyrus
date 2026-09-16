@@ -1,5 +1,5 @@
 // ASSTWROF.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2020, 2021, 2024, 2025
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2020, 2021, 2024, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -20,11 +20,12 @@ int Transfer::EnumAssetOp(PPID lotID, DateIter * pIter, int * pOpCode, PPID * pD
 				op_code = ASSTOPC_RCPT;
 		}
 		else if(rec.Flags & PPTFR_REVAL) {
-			if(rec.Flags & PPTFR_ASSETEXPL)
+			if(rec.Flags & PPTFR_ASSETEXPL) {
 				if(rec.Flags & PPTFR_MODIF)
 					op_code = ASSTOPC_EXPLOUT;
 				else
 					op_code = ASSTOPC_EXPL;
+			}
 			else
 				op_code = ASSTOPC_DEPREC;
 		}
@@ -45,7 +46,8 @@ int Transfer::EnumAssetOp(PPID lotID, DateIter * pIter, int * pOpCode, PPID * pD
 
 int Transfer::EnumAssetOp(PPID * pLotID, DateIter * pIter, int * pOpCode, TransferTbl::Rec * pRec)
 {
-	int    op_code = 0, r;
+	int    op_code = 0;
+	int    r;
 	PPID   dest_lot_id = 0;
 	TransferTbl::Rec rec;
 	if(!pIter->dt && !pIter->oprno) {

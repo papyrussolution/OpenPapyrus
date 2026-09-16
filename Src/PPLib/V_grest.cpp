@@ -502,9 +502,6 @@ int PPViewGoodsRest::ViewLots(PPID __id, const BrwHdr * pHdr, int orderLots)
 	return ok;
 }
 
-// @v11.4.4 #define GRP_LOC        1
-// @v11.4.4 #define GRP_GOODSFILT  2
-
 class GoodsRestFiltDlg : public WLDialog {
 	DECL_DIALOG_DATA(GoodsRestFilt);
 	enum {

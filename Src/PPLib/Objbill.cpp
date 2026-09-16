@@ -848,7 +848,7 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 							const  double sq   = isales_support_quot; 
 							const  double quot = R5(sq * (1 - ord_pct_dis));
 							ti.Discount = ti.Price - quot;
-							ti.SetupQuot(quot, 1);						
+							ti.SetupQuot(quot, true);						
 						}
 						// }
 						else if(p_ord_item->NetPrice() <= 0.0 || (ord_price_low_prior && CheckOpFlags(pOrderPack->Rec.OpID, OPKF_ORDERBYLOC)) ||
@@ -860,14 +860,14 @@ int PPObjBill::InsertShipmentItemByOrder(PPBillPacket * pPack, const PPBillPacke
 									quot = R5(fabs(p_ord_item->Price) * (1 - ord_pct_dis));
 								}
 								ti.Discount = ti.Price - quot;
-								ti.SetupQuot(quot, 1);
+								ti.SetupQuot(quot, true);
 							}
 						}
 						else if(is_isales_order && ord_pct_dis > 0.0) {
 							const  double sq = ti.Price;
 							const  double quot = R5(sq * (1 - ord_pct_dis));
 							ti.Discount = sq - quot;
-							ti.SetupQuot(quot, 1);
+							ti.SetupQuot(quot, true);
 						}
 						else if(is_coke_order && ord_dis > 0.0 && p_ord_item->Discount <= ti.Price) { // @v11.5.4
 							// Для заказов кока-кола (COKE) скидка в заказе трактуется как абсолютная скидка предоставляемая к той цене, которую выставляет дистрибьютор
@@ -5598,12 +5598,12 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 								quot = p_ti->RoundPrice(quot, cliagt.PriceRoundPrec, cliagt.PriceRoundDir,
 									(cliagt.Flags & AGTF_PRICEROUNDVAT) ? PPTransferItem::valfRoundVat : 0);
 							}
-							if(is_coke_draft) { // @v11.6.0 {
+							if(is_coke_draft) {
 								const  double ord_dis = p_ti->Discount;
 								p_ti->Price = R2(quot);
 								p_ti->Discount = ord_dis;
 							}
-							else { // } @v11.6.0
+							else {
 								if(oneof2(pPack->OpTypeID, PPOPT_DRAFTEXPEND, PPOPT_GOODSORDER) && p_ti->Price <= 0.0) {
 									p_ti->Price = R2(quot);
 									p_ti->Discount = 0.0;
@@ -5611,7 +5611,7 @@ int PPObjBill::SetupQuot(PPBillPacket * pPack, PPID forceArID)
 								else
 									p_ti->Discount = R2(p_ti->Price - quot);
 							}
-							p_ti->SetupQuot(quot, 1);
+							p_ti->SetupQuot(quot, true);
 							pPack->SetupItemQuotInfo(i-1, qk_id, quot, 0);
 							ok = 1;
 						}

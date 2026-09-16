@@ -69,7 +69,99 @@ int PPObjAccount::ParseString(const char * pStr, int tok[])
 
 /*virtual*/int PPObjAccount::MakeReserved(long flags) // @v12.7.7
 {
-	return -1;
+	int    ok = -1;
+	if(flags & mrfPersonalFinance) {
+		PPObjAccSheet acs_obj;
+		PPAccSheet2 acs_rec;
+		PPAccount acc_rec;
+		SString temp_buf;
+		{
+			const char * p_symb = "rPSNACCEXP";
+			PPID   _id = 0;
+			PPID   acs_id = 0;
+			if(SearchBySymb(p_symb, &_id, &acc_rec) > 0) {
+				;
+			}
+			else {
+				if(acs_obj.SearchBySymb("rPSNACSEXPCAT", &acs_id, &acs_rec) > 0) {
+					PPAccountPacket acc_pack;
+					PPLoadString("account_reserved_exp", temp_buf);
+					STRNSCPY(acc_pack.Rec.Name, temp_buf);
+					STRNSCPY(acc_pack.Rec.Code, p_symb);
+					acc_pack.Rec.Type = ACY_PERSONAL;
+					acc_pack.Rec.Kind = ACCK_PA_EXP;
+					acc_pack.Rec.AccSheetID = acs_id;
+					THROW(PutPacket(&_id, &acc_pack, 0));
+					ok = 1;
+				}
+				else {
+					// Не найдена зарезервированная таблица статей для этого счета
+				}
+			}
+		}
+		{
+			const char * p_symb = "rPSNACCINC";
+			PPID   _id = 0;
+			PPID   acs_id = 0;
+			if(SearchBySymb(p_symb, &_id, &acc_rec) > 0) {
+				;
+			}
+			else {
+				if(acs_obj.SearchBySymb("rPSNACSINCCAT", &acs_id, &acs_rec) > 0) {
+					PPAccountPacket acc_pack;
+					PPLoadString("account_reserved_inc", temp_buf);
+					STRNSCPY(acc_pack.Rec.Name, temp_buf);
+					STRNSCPY(acc_pack.Rec.Code, p_symb);
+					acc_pack.Rec.Type = ACY_PERSONAL;
+					acc_pack.Rec.Kind = ACCK_PA_INC;
+					acc_pack.Rec.AccSheetID = acs_id;
+					THROW(PutPacket(&_id, &acc_pack, 0));
+					ok = 1;
+				}
+				else {
+					// Не найдена зарезервированная таблица статей для этого счета
+				}
+			}
+		}
+		{
+			const char * p_symb = "rPSNACCCOR";
+			PPID   _id = 0;
+			PPID   acs_id = 0;
+			if(SearchBySymb(p_symb, &_id, &acc_rec) > 0) {
+				;
+			}
+			else {
+				PPAccountPacket acc_pack;
+				PPLoadString("account_reserved_cor", temp_buf);
+				STRNSCPY(acc_pack.Rec.Name, temp_buf);
+				STRNSCPY(acc_pack.Rec.Code, p_symb);
+				acc_pack.Rec.Type = ACY_PERSONAL;
+				acc_pack.Rec.Kind = ACCK_PA_CORRECTION;
+				THROW(PutPacket(&_id, &acc_pack, 0));
+				ok = 1;
+			}
+		}
+		{
+			const char * p_symb = "rPSNACCLIQ";
+			PPID   _id = 0;
+			PPID   acs_id = 0;
+			if(SearchBySymb(p_symb, &_id, &acc_rec) > 0) {
+				;
+			}
+			else {
+				PPAccountPacket acc_pack;
+				PPLoadString("account_reserved_liq", temp_buf);
+				STRNSCPY(acc_pack.Rec.Name, temp_buf);
+				STRNSCPY(acc_pack.Rec.Code, p_symb);
+				acc_pack.Rec.Type = ACY_PERSONAL;
+				acc_pack.Rec.Kind = ACCK_PA_LIQ;
+				THROW(PutPacket(&_id, &acc_pack, 0));
+				ok = 1;
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
 }
 
 int PPObjAccount::AddCurRecord(const PPAccount * pBaseRec, PPID curID)
@@ -88,11 +180,13 @@ int PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_ta)
 	int16  acc_type = 0;
 	PPIDArray cur_acc_list;
 	PPIDArray cur_list;
-	PPAccount cur_acc_rec, acc_rec;
+	PPAccount cur_acc_rec;
+	//PPAccount acc_rec;
 	if(pPack) {
 		THROW_PP(pPack->Rec.CurID == 0, PPERR_WACCSCURACC);
-		if(*strip(pPack->Rec.Code) == 0 || pPack->Rec.Type == ACY_BAL)
+		if(*strip(pPack->Rec.Code) == 0 || pPack->Rec.Type == ACY_BAL) {
 			PPObjAccount::GenerateCode(pPack->Rec);
+		}
 	}
 	{
 		PPTransaction tra(use_ta);
@@ -104,10 +198,11 @@ int PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_ta)
 				if(pPack->Rec.A.Ac == 0) {
 					//GetAggrNumber(&pPack->Rec);
 					//int AccountCore::GetAggrNumber(PPAccount * pRec)
-					for(int _n = MINGENACCNUMBER; pPack->Rec.A.Ac == 0 && _n <= MAXGENACCNUMBER; _n++)
+					for(int _n = MINGENACCNUMBER; pPack->Rec.A.Ac == 0 && _n <= MAXGENACCNUMBER; _n++) {
 						if(SearchNum(_n, 0, 0L) < 0) {
 							pPack->Rec.A.Ac = _n;
 						}
+					}
 				}
 			}
 			THROW(StoreItem(Obj, new_id, &pPack->Rec, 0));
@@ -118,61 +213,73 @@ int PPObjAccount::PutPacket(PPID * pID, PPAccountPacket * pPack, int use_ta)
 					THROW(AddCurRecord(&pPack->Rec, pPack->CurList.at(i)));
 				}
 			}
-			DS.LogAction(PPACN_OBJADD, PPOBJ_ACCOUNT2, new_id, 0, 0);
+			// @v12.7.8 @fix (функция StoreItem создала уже это событие) DS.LogAction(PPACN_OBJADD, PPOBJ_ACCOUNT2, new_id, 0, 0);
 		}
 		else if(pPack) {
-			PPAccount prev_rec;
-			THROW(Search(*pID, &prev_rec) > 0);
+			PPAccountPacket org_pack;
+			// @v12.7.8 PPAccount prev_rec;
+			// @v12.7.8 THROW(Search(*pID, &prev_rec) > 0);
+			THROW(GetPacket(*pID, &org_pack) > 0); // @v12.7.8
 			pPack->Rec.ID = *pID;
-			acc_type = pPack->Rec.Type;
-			THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 0 /*logAction*/, 0));
-			if(pPack->Rec.CurID == 0) {
-				THROW(GetCurList(pPack->Rec.A.Ac, pPack->Rec.A.Sb, &cur_acc_list, &cur_list));
-				for(i = 0; i < pPack->CurList.getCount(); i++) {
-					PPID   cur_id = pPack->CurList.at(i);
-					uint   pos = 0;
-					if(cur_list.lsearch(cur_id, &pos)) {
-						PPID   acc_id = cur_acc_list.at(pos);
-						THROW(Search(acc_id, &cur_acc_rec) > 0);
-						cur_acc_rec.A = pPack->Rec.A;
-						STRNSCPY(cur_acc_rec.Name, pPack->Rec.Name);
-						cur_acc_rec.AccSheetID = pPack->Rec.AccSheetID;
-						cur_acc_rec.Kind  = pPack->Rec.Kind;
-						cur_acc_rec.Limit = cur_acc_rec.Overdraft = 0;
-						//THROW_DB(updateRecBuf(&cur_acc_rec));
-						THROW(P_Ref->UpdateItem(Obj, acc_id, &cur_acc_rec, 0 /*logAction*/, 0));
-						cur_list.atFree(pos);
-						cur_acc_list.atFree(pos);
-					}
-					else {
-						THROW(AddCurRecord(&pPack->Rec, cur_id));
-					}
-				}
-				for(i = 0; i < cur_acc_list.getCount(); i++) {
-					const  PPID acc_id = cur_acc_list.get(i);
-					THROW_DB(deleteFrom(P_Ref, 0, (P_Ref->ObjType == Obj && P_Ref->ObjID == acc_id)));
-				}
+			if(org_pack.IsEq(*pPack)) { // @v12.7.8 (отказ от транзакции если ничего не изменилось)
+				ok = -1;
 			}
-			DS.LogAction(PPACN_OBJUPD, PPOBJ_ACCOUNT2, *pID, 0, 0);
+			else {
+				acc_type = pPack->Rec.Type;
+				THROW(CheckRights(PPR_MOD)); // @v12.7.8
+				THROW(P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 0/*logAction*/, 0));
+				if(pPack->Rec.CurID == 0) {
+					THROW(GetCurList(pPack->Rec.A.Ac, pPack->Rec.A.Sb, &cur_acc_list, &cur_list));
+					for(i = 0; i < pPack->CurList.getCount(); i++) {
+						const  PPID cur_id = pPack->CurList.at(i);
+						uint   pos = 0;
+						if(cur_list.lsearch(cur_id, &pos)) {
+							const  PPID acc_id = cur_acc_list.at(pos);
+							THROW(Search(acc_id, &cur_acc_rec) > 0);
+							cur_acc_rec.A = pPack->Rec.A;
+							STRNSCPY(cur_acc_rec.Name, pPack->Rec.Name);
+							cur_acc_rec.AccSheetID = pPack->Rec.AccSheetID;
+							cur_acc_rec.Kind  = pPack->Rec.Kind;
+							cur_acc_rec.Limit = cur_acc_rec.Overdraft = 0;
+							//THROW_DB(updateRecBuf(&cur_acc_rec));
+							THROW(P_Ref->UpdateItem(Obj, acc_id, &cur_acc_rec, 0 /*logAction*/, 0));
+							cur_list.atFree(pos);
+							cur_acc_list.atFree(pos);
+						}
+						else {
+							THROW(AddCurRecord(&pPack->Rec, cur_id));
+						}
+					}
+					for(i = 0; i < cur_acc_list.getCount(); i++) {
+						const  PPID acc_id = cur_acc_list.get(i);
+						THROW_DB(deleteFrom(P_Ref, 0, (P_Ref->ObjType == Obj && P_Ref->ObjID == acc_id)));
+					}
+				}
+				DS.LogAction(PPACN_OBJUPD, PPOBJ_ACCOUNT2, *pID, 0, 0);
+			}
 		}
 		else {
-			THROW(Search(*pID, &acc_rec) > 0);
-			acc_type = acc_rec.Type;
-			if(acc_rec.A.Sb == 0) {
-				THROW_PP(HasAnySubacct(acc_rec.A.Ac) <= 0, PPERR_ACCHASBRANCH);
-				THROW(Search(*pID, &acc_rec) > 0);
+			PPAccountPacket org_pack; // @v12.7.8
+			THROW(CheckRights(PPR_DEL)); // @v12.7.8
+			// @v12.7.8 THROW(Search(*pID, &acc_rec) > 0);
+			THROW(GetPacket(*pID, &org_pack) > 0); // @v12.7.8
+			acc_type = org_pack.Rec.Type;
+			if(org_pack.Rec.A.Sb == 0) {
+				THROW_PP(HasAnySubacct(org_pack.Rec.A.Ac) <= 0, PPERR_ACCHASBRANCH);
+				// @v12.7.8 THROW(Search(*pID, &acc_rec) > 0);
 			}
 			THROW_DB(deleteFrom(P_Ref, 0, (P_Ref->ObjType == Obj && P_Ref->ObjID == *pID)));
-			if(acc_rec.CurID == 0) {
-				THROW(GetCurList(acc_rec.A.Ac, acc_rec.A.Sb, &cur_acc_list, 0));
+			if(org_pack.Rec.CurID == 0) {
+				THROW(GetCurList(org_pack.Rec.A.Ac, org_pack.Rec.A.Sb, &cur_acc_list, 0));
 				for(i = 0; i < cur_acc_list.getCount(); i++) {
 					const  PPID acc_id = cur_acc_list.get(i);
 					THROW_DB(deleteFrom(P_Ref, 0, (P_Ref->ObjType == Obj && P_Ref->ObjID == acc_id)));
 				}
 			}
 		}
-		if(acc_type == ACY_AGGR)
+		if(acc_type == ACY_AGGR) {
 			THROW(P_Ref->PutPropArray(PPOBJ_ACCOUNT2, *pID, ACCPRP_GENACCLIST, pPack ? &pPack->GenList : 0, 0));
+		}
 		THROW(tra.Commit());
 	}
 	CATCHZOK
@@ -847,8 +954,9 @@ public:
 		SETFLAG(Data.Rec.Flags, ACF_CURRENCY, v & 1);
 		v = getCtrlUInt16(CTL_ACCOUNT_AUTONUMBER);
 		SETFLAG(Data.Rec.Flags, ACF_SYSNUMBER, v & 1);
-		if(Data.Rec.Type == ACY_BUDGET)
+		if(oneof2(Data.Rec.Type, ACY_BUDGET, ACY_PERSONAL)) { // @v12.7.8 ACY_PERSONAL
 			getCtrlData(CTLSEL_ACCOUNT_PARENT,  &Data.Rec.ParentID);
+		}
 		if(validate()) {
 			ASSIGN_PTR(pData, Data);
 			return 1;

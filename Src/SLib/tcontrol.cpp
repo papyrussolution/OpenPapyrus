@@ -930,17 +930,29 @@ void TInputLine::InputStat::CheckIn()
 				p_view->OnDestroy(hWnd);
 			}
 			return 0;
+		case WM_GETDLGCODE: // @v12.7.8
+			{
+				const  MSG * p_msg = reinterpret_cast<const MSG *>(lParam);
+				if(p_msg && p_view) {
+					if(p_msg->message == WM_KEYDOWN && p_msg->wParam == VK_RETURN && (p_view->SpcFlags & spcfSendReturnToOwner)) {
+						return DLGC_WANTMESSAGE;
+					}
+				}
+			}
+			break;
 		case WM_COMMAND:
 			if(HIWORD(wParam) == 1) {
 				::SendMessageW(APPL->H_TopOfStack, uMsg, wParam, lParam);
 			}
 			break;
 		case WM_CHAR:
-			if(p_view && (p_view->GetCombo() || p_view->HasWordSelector())) {
-				if(!oneof2(wParam, VK_ESCAPE, VK_RETURN)) {
-					if(!oneof2(wParam, '+', '-'))
-						p_view->SendToParent(hWnd, uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
-					return 0;
+			if(p_view) {
+				if(p_view->GetCombo() || p_view->HasWordSelector()) {
+					if(!oneof2(wParam, VK_ESCAPE, VK_RETURN)) {
+						if(!oneof2(wParam, '+', '-'))
+							p_view->SendToParent(hWnd, uMsg, wParam, reinterpret_cast<LPARAM>(hWnd));
+						return 0;
+					}
 				}
 			}
 			break;
@@ -1146,7 +1158,7 @@ void TInputLine::InputStat::CheckIn()
 		*/
 	}
 	return (p_view && p_view->PrevWindowProc && p_view->PrevWindowProc != TInputLine::DlgProc) ? 
-		CallWindowProc(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam) : 0;
+		::CallWindowProcW(p_view->PrevWindowProc, hWnd, uMsg, wParam, lParam) : 0;
 }
 
 int TInputLine::OnPaste()

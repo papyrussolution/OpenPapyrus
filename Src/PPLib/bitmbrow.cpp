@@ -42,7 +42,8 @@ public:
 			fHasIndepPhQtty = 0x0001, // По крайней мере одна строка имеет признак PPTFR_INDEPPHQTTY
 			fHasVetisGuid   = 0x0002, // По крайней мере одна строка имеет сертификат ВЕТИС
 			fHasEgaisRefB   = 0x0004, // По крайней мере одна строка имеет справку Б ЕГАИС
-			fHasEgaisCode   = 0x0008  // По крайней мере одна строка имеет код товара ЕГАИС
+			fHasEgaisCode   = 0x0008, // По крайней мере одна строка имеет код товара ЕГАИС
+			fHasGoodsType   = 0x0010, // @v12.7.8 По крайней мере одна строка имеет не нулевой тип товара
 		};
 
 		SString Text; // @anchor
@@ -261,12 +262,13 @@ public:
 	int    GetRest(long itemPos, double * pVal) const
 	{
 		int    ok = 1;
-		if(GetItemByPos(itemPos))
+		if(GetItemByPos(itemPos)) {
 			if(P_Item->Flags & BillGoodsBrwItem::fRestInited) {
 				ASSIGN_PTR(pVal, P_Item->Rest);
 			}
 			else
 				ok = -1;
+		}
 		else
 			ok = 0;
 		return ok;
@@ -281,12 +283,13 @@ public:
 	int    GetOrderRest(long itemPos, double * pVal) const
 	{
 		int    ok = 1;
-		if(GetItemByPos(itemPos))
+		if(GetItemByPos(itemPos)) {
 			if(P_Item->Flags & BillGoodsBrwItem::fOrdRestInited) {
 				ASSIGN_PTR(pVal, P_Item->OrderRest);
 			}
 			else
 				ok = -1;
+		}
 		else
 			ok = 0;
 		return ok;
@@ -408,11 +411,11 @@ int BillItemBrowser::ConvertSupplRetLink(PPID locID)
 				}
 				THROW(P_T->Rcpt.GatherChildren(p_ti->LotID, &children, test_lot, reinterpret_cast<void *>(locID)));
 				{
-					PPID * p_lot_id;
-					for(uint j = 0; children.enumItems(&j, reinterpret_cast<void **>(&p_lot_id));) {
+					for(uint j = 0; j < children.getCount(); j++) {
+						const  PPID lot_id = children.get(j);
 						PPTransferItem t(*p_ti);
 						t.LocID = locID;
-						t.LotID = *p_lot_id;
+						t.LotID = lot_id;
 						THROW_SL(temp.insert(&t));
 					}
 				}
@@ -422,8 +425,9 @@ int BillItemBrowser::ConvertSupplRetLink(PPID locID)
 		}
 		P_LinkPack->RemoveRows(0);
 		{
-			for(uint i = 0; temp.enumItems(&i, reinterpret_cast<void **>(&p_ti));)
+			for(uint i = 0; temp.enumItems(&i, reinterpret_cast<void **>(&p_ti));) {
 				THROW(P_LinkPack->InsertRow(p_ti, 0));
+			}
 		}
 	}
 	CATCHZOK
@@ -1011,8 +1015,9 @@ BillItemBrowser::BillItemBrowser(uint rezID, PPObjBill * pBObj, PPBillPacket & r
 			setSubTitle(P_Pckg->Code);
 		}
 	}
-	else
+	else {
 		setSubTitle(PPObjBill::MakeCodeString(&R_Pack.Rec, 0, temp_buf));
+	}
 	if(oneof2(R_Pack.OpTypeID, PPOPT_GOODSRETURN, PPOPT_CORRECTION) && R_Pack.Rec.LinkBillID) {
 		PPTransferItem * p_link_ti;
 		THROW_MEM(P_LinkPack = new PPBillPacket);
@@ -1310,6 +1315,11 @@ SArray * BillItemBrowser::MakeList()
 				if(temp_buf.NotEmpty())
 					Total.Flags |= Total.fHasEgaisCode;
 			}
+			if(!(Total.Flags & Total.fHasGoodsType)) { // @v12.7.8
+				if(goods_rec.GoodsTypeID) {
+					Total.Flags |= Total.fHasGoodsType;
+				}
+			}
 			if(AlcoGoodsClsID && goods_rec.GdsClsID == AlcoGoodsClsID) {
 				bool has_egais_code = false;
 				GObj.P_Tbl->ReadBarcodes(labs(r_ti.GoodsID), bc_list);
@@ -1362,7 +1372,7 @@ int BillItemBrowser::CalcShippedQtty(const BillGoodsBrwItem * pItem, const BillG
 	double real_val = 0.0;
 	if(pList && pItem) {
 		AryBrowserDef * p_def = static_cast<AryBrowserDef *>(getDef());
-		const PPTransferItem & r_ti = R_Pack.ConstTI(pItem->Pos);
+		const  PPTransferItem & r_ti = R_Pack.ConstTI(pItem->Pos);
 		if(pList->GetOrderRest(pItem->Pos, &real_val) < 0) {
 			if(State & stOrderSelector) {
 				if(GObj.CheckFlag(r_ti.GoodsID, GF_UNLIM))
@@ -1373,7 +1383,7 @@ int BillItemBrowser::CalcShippedQtty(const BillGoodsBrwItem * pItem, const BillG
 					real_val = 0.0;
 				pList->SetOrderRest(pItem->Pos, real_val);
 			}
-			else if(R_Pack.OpTypeID == PPOPT_GOODSORDER)
+			else if(R_Pack.OpTypeID == PPOPT_GOODSORDER) {
 				if(r_ti.LotID) {
 					double rest = 0.0;
 					P_BObj->trfr->GetRest(r_ti.LotID, MAXDATE, &rest);
@@ -1381,6 +1391,7 @@ int BillItemBrowser::CalcShippedQtty(const BillGoodsBrwItem * pItem, const BillG
 				}
 				else
 					real_val = 0.0; //r_ti.SQtty(R_Pack.Rec.OpID);
+			}
 			else
 				ok = 0;
 		}
@@ -1433,6 +1444,7 @@ int BillItemBrowser::CalcShippedQtty(const BillGoodsBrwItem * pItem, const BillG
 // 38 - Контрактная цена предпочтительного поставщика // @v12.0.8
 // 39 - Наименование складской ячейки или адреса операции ответственного хранения // @v12.4.1
 // 40 - Контрагент операции ответственного хранения // @v12.4.1
+// 41 - Наименование типа товара // @v12.7.8
 //
 int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
@@ -1713,8 +1725,9 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 									if(R_Pack.Rec.Object)
 										GObj.P_Tbl->GetArCode(R_Pack.Rec.Object, p_ti->GoodsID, temp_buf, 0);
 								}
-								else
+								else {
 									GObj.FetchSingleBarcode(p_ti->GoodsID, temp_buf);
+								}
 								p_list->AddCode(p_item->Pos, temp_buf);
 								pBlk->Set(temp_buf);
 							}
@@ -1938,15 +1951,24 @@ int BillItemBrowser::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 				case 38: // Контрактная цена предпочтительного поставщика // @v12.0.8
 					real_val = 0.0;
 					if(!is_total && p_ti && p_ti->GoodsID) {
-						const PPID suppl_id = R_Pack.GetPrefSupplForTi(p_item->Pos);
+						const  PPID suppl_id = R_Pack.GetPrefSupplForTi(p_item->Pos);
 						if(suppl_id) {
-							const QuotIdent suppl_deal_qi(R_Pack.Rec.Dt, R_Pack.Rec.LocID, 0, 0, suppl_id);
+							const  QuotIdent suppl_deal_qi(R_Pack.Rec.Dt, R_Pack.Rec.LocID, 0, 0, suppl_id);
 							PPSupplDeal sd;
 							GObj.GetSupplDeal(p_ti->GoodsID, suppl_deal_qi, &sd, 1);
 							real_val = sd.Cost;
 						}
 					}
 					pBlk->Set(real_val);
+					break;
+				case 41: // Наименование типа товара // @v12.7.8
+					if(!is_total && p_ti && p_ti->GoodsID) {
+						GetObjectName(PPOBJ_GOODSTYPE, ClGoodsRec.GoodsTypeID, pBlk->TempBuf);
+						pBlk->TempBuf.CopyTo(static_cast<char *>(pBlk->P_DestData), stsize(pBlk->TypeID));
+					}
+					else {
+						pBlk->SetZero();
+					}
 					break;
 				default:
 					ok = 0;
@@ -2050,6 +2072,7 @@ void BillItemBrowser::update(int pos)
             p_def->setArray(p_list, 0, 1);
 			setRange(p_list->getCount());
 			{
+				int    goodsname_col = -1; // @v12.7.8
 				int    setup_quot_info_col = -1;
 				int    ext_cost_col = -1;
 				int    cost_col = -1;
@@ -2061,13 +2084,19 @@ void BillItemBrowser::update(int pos)
 				int    vetis_uuid_col = -1;
 				int    egais_refb_col = -1;
 				int    egais_code_col = -1;
+				int    goods_type_col = -1; // @v12.7.8
+				int    goodscode_col = -1; // @v12.7.8
+				int    serial_col = -1; // @v12.7.8
 				for(uint i = 0; i < p_def->getCount(); i++) {
 					const BroColumn & r_col = p_def->at(i);
 					switch(r_col.Offs) {
-						case 25: ext_cost_col = static_cast<int>(i); break;
+						case 1: goodsname_col = static_cast<int>(i); break; // @v12.7.8
 						case  3: cost_col = static_cast<int>(i); break;
 						case  2: qtty_col = static_cast<int>(i); break;
 						case  7: phqtty_col = static_cast<int>(i); break;
+						case 25: ext_cost_col = static_cast<int>(i); break;
+						case 27: goodscode_col = static_cast<int>(i); break; // @v12.7.8
+						case 28: serial_col = static_cast<int>(i); break; // @v12.7.8
 						case 29: upp_col = static_cast<int>(i); break;
 						case 30: setup_quot_info_col = static_cast<int>(i); break;
 						case 31: ordqtty_col = static_cast<int>(i); break;
@@ -2075,6 +2104,7 @@ void BillItemBrowser::update(int pos)
 						case 33: egais_refb_col = static_cast<int>(i); break;
 						case 34: egais_code_col = static_cast<int>(i); break;
 						case 35: mark_count_col = static_cast<int>(i); break;
+						case 41: goods_type_col = static_cast<int>(i); break; // @v12.7.8
 					}
 				}
 				if(Total.ExtCost != 0.0) {
@@ -2136,6 +2166,21 @@ void BillItemBrowser::update(int pos)
 					insertColumn(-1, "RefB", 33, MKSTYPE(S_ZSTRING, 20), ALIGN_LEFT, BCO_USERPROC|BCO_CAPLEFT);
 				if(Total.Flags & Total.fHasEgaisCode && egais_code_col < 0)
 					insertColumn(-1, "EGAIS-Code", 34, MKSTYPE(S_ZSTRING, 24), ALIGN_LEFT, BCO_USERPROC|BCO_CAPLEFT);
+				if(State & stAltView && Total.Flags & Total.fHasGoodsType) { // @v12.7.8
+					int   target_col = -1;
+					if(serial_col >= 0) {
+						target_col = serial_col+1;
+					}
+					else if(goodscode_col >= 0) {
+						target_col = goodscode_col+1;
+					}
+					else if(goodsname_col >= 0) {
+						target_col = goodsname_col+1;
+					}
+					if(target_col >= 0) {
+						insertColumn(target_col, "@goods_type", 41, MKSTYPE(S_ZSTRING, 48), ALIGN_LEFT, BCO_USERPROC|BCO_CAPLEFT);
+					}
+				}
 			}
 			{
 				for(uint cidx = 0; cidx < getDef()->getCount(); cidx++) {

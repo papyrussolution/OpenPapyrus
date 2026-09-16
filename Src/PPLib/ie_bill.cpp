@@ -7276,6 +7276,15 @@ bool DocNalogRu_Generator::WriteIdentifValPair(const char * pNodeName, const cha
 	return ok;
 }
 
+bool DocNalogRu_Generator::WriteIdentifValPair2(const char * pNodeName, const char * pIdent, const char * pVal) // @v12.7.8
+{
+	bool   ok = true;
+	SXml::WNode n(P_X, pNodeName);
+	n.PutAttrib(GetToken_Ansi(PPHSC_RU_IDENTIF), pIdent);
+	n.PutAttrib(GetToken_Ansi(PPHSC_RU_VALUE), pVal);
+	return ok;
+}
+
 /* @v12.5.2 void DocNalogRu_Generator::WriteExcise(SXml::WNode & rParentNode, double value)
 {
 	if(value != 0.0)
@@ -10361,11 +10370,11 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName, StringSet &
 						SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_EXTRA0)); // ÈíôÏîë
 						BillTbl::Rec ord_rec;
 						if(GetOrderRec(ord_rec) > 0) {
-							G.WriteIdentifValPair(GetToken(PPHSC_RU_TEXTINF), "ORDERS", G.EncText(temp_buf = ord_rec.Code));
-							G.WriteIdentifValPair(GetToken(PPHSC_RU_TEXTINF), "ORDERS_DATE", temp_buf.Z().Cat(ord_rec.Dt, DATF_GERMANCENT));
+							G.WriteIdentifValPair2(GetToken(PPHSC_RU_TEXTINF), "ORDERS", G.EncText(temp_buf = ord_rec.Code));
+							G.WriteIdentifValPair2(GetToken(PPHSC_RU_TEXTINF), "ORDERS_DATE", temp_buf.Z().Cat(ord_rec.Dt, DATF_GERMANCENT));
 						}
-						G.WriteIdentifValPair(GetToken(PPHSC_RU_TEXTINF), "INVOIC", G.EncText(temp_buf = R_Bp.GetInvoiceCode(1)));
-						G.WriteIdentifValPair(GetToken(PPHSC_RU_TEXTINF), "INVOIC_DATE", temp_buf.Z().Cat(R_Bp.GetInvoiceDate(1), DATF_GERMANCENT));
+						G.WriteIdentifValPair2(GetToken(PPHSC_RU_TEXTINF), "INVOIC", G.EncText(temp_buf = R_Bp.GetInvoiceCode(1)));
+						G.WriteIdentifValPair2(GetToken(PPHSC_RU_TEXTINF), "INVOIC_DATE", temp_buf.Z().Cat(R_Bp.GetInvoiceDate(1), DATF_GERMANCENT));
 					}
 				}
 			}

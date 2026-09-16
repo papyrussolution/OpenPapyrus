@@ -2,6 +2,11 @@
 /// Комментарии можно ставить после примеров дабы пояснить что за марка.
 /// Внимание: комментарий начинается строго с /// (три слэша) ибо два слэша (как в C++) могут встретиться в коде марки
 ///
+0104064666212210215Oph5i91EE12924aIso6uBkC8sBgA8ftCO90fJL3F8qCeLPW65s867MOg= /// Проблема с проверкой в тс-пиот (cannot parse code. InvalidVarLengthDelimiterException: Invalid delimiter 'u' [index = 38, after AI SERIAL])
+0108019653044912215QKErc91EE1292LrmXeuXZWmUpFIe2X8tpcR+CAVWvLbWVbdJnvbRUfw=  /// То же, что и предыдущая //
+0108019653044912215QCBQI91EE1292RfxMk3FJwn3AGUh13r7kknFKCgP77p9AQnK6fyb5MDA= /// То же, что и предыдущая // 
+0104630056065386215waYa91EE1192rItA6EOe+6+nTpTA9jLZ6HOM3xmeOoaDzXIR5TR4WiU=  /// То же, что и предыдущая //
+0108019653039130215f0PTn91EE1292hIY0z0eJpxWOuu0JTzectSElbe07740EwcxOXdu8eVM= /// То же, что и предыдущая //
 00000046275073%!21DDFAC<ohxqc /// Сигареты в @v12.7.6 не воспринимаются как марка чзн
 00000046254887n,21uL&ADyAAqOT /// Сигареты в @v12.7.6 не воспринимаются как марка чзн
 00000046235039t;211u>ADWowMyH /// Сигареты в @v12.7.6 не воспринимаются как марка чзн

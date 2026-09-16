@@ -3156,19 +3156,6 @@ template <typename T> int PPObjOprKind_SerializePacketMember(T ** ppV, int dir, 
 
 int PPObjOprKind::Helper_SerializePacket(int dir, PPOprKindPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx, uint flags) // @v12.5.7
 {
-	/*
-		//PPOprKind2 Rec;
-		//PPIDArray Amounts;
-		// PPAccTurnTemplArray ATTmpls;
-		//SString ExtString;
-		PPInventoryOpEx  * P_IOE;
-		ObjRestrictArray * P_GenList;
-		//PPReckonOpEx * P_ReckonData;
-		PPBillPoolOpEx   * P_PoolData;  //
-		PPDraftOpEx * P_DraftData; //
-		PPDebtInventOpEx * P_DIOE;      //
-		PPOpCounterPacket OpCntrPack;   //
-	*/ 
 	int    ok = 1;
 	PPReckonOpEx roe;
 	PPAccTurnTemplArray attmpls;

@@ -160,7 +160,7 @@
 	#endif
 	// } @v11.7.0 
 	#define _Windows
-	// @v11.3.10 (for Visual C _MSC_VER == 1310) {
+	// (for Visual C _MSC_VER == 1310) {
 	#ifndef MAXUINT32
 		#define MAXUINT32   ((uint32)~((uint32)0))
 	#endif
@@ -170,10 +170,10 @@
 	#ifndef MININT32
 		#define MININT32    ((int32)~MAXINT32)
 	#endif
-	// } @v11.3.10 
+	// }
 	// @v11.7.10 (replaced with MAX_PATH) #define MAXPATH_Removed  261
 #endif // _WIN32
-#ifndef SLIB_DONT_UNDEF_MINMAX // @v11.1.11
+#ifndef SLIB_DONT_UNDEF_MINMAX
 	#undef min
 	#undef max
 #endif
@@ -3663,6 +3663,39 @@ long SFormat_TranslateFlagFromString(const char * pText, TYPEID typeId);
 //
 #ifndef RC_INVOKED
 //
+//
+//
+template <class T> constexpr T smin(T a, T b) { return MIN(a, b); }
+//
+// Descr: Возвращает минимум 3-х аргументов.
+//
+template <class T> constexpr T smin3(T a, T b, T c) { return smin(MIN(a, b), c); }
+//
+// Descr: Возвращает минимум 4-х аргументов.
+//
+template <class T> constexpr T smin4(T a, T b, T c, T d) { return smin(MIN(a, b), MIN(c, d)); }
+template <class T> constexpr T smax(T a, T b) { return MAX(a, b); }
+//
+// Descr: Возвращает максимум 3-х аргументов.
+//
+template <class T> constexpr T smax3(T a, T b, T c) { return smax(MAX(a, b), c); }
+//
+// Descr: Возвращает максимум 4-х аргументов.
+//
+template <class T> constexpr T smax4(T a, T b, T c, T d) { return smax(MAX(a, b), MAX(c, d)); }
+//
+// Descr: Функция возвращает значение v в пределах диапазона [lo..up]. If v >= lo && v <= up, то результат v, elseif (v < lo) --> lo, else --> up
+// Функции sclampx проверяют границы диапазона lo vs up: если lo < up то результат эквивалентен sclamp(v, lo, up) иначе - sclamp(v, up, lo)
+//
+template <class T> constexpr T sclamp(T v, T lo, T up) { return (v < lo) ? lo : ((v > up) ? up : v); }
+template <class T> constexpr T sclampx(T v, T lo, T up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
+//
+// Descr: clamp с первым аргументом типа float часто используется. При этом 
+//   остальные 2 аргумента в вызовах часто не приводят к float (используют int-constant)
+//   что сильно затрудняет применени шаблонизированной функции slamp().
+//
+FORCEINLINE constexpr float sclampf(float v, float lo, float up) { return (v < lo) ? lo : ((v > up) ? up : v); }
+//
 // Descr: Блок форматов вывода различных типов данных в строку.
 //   Используется при форматировании бинарных данных.
 //
@@ -3879,8 +3912,8 @@ struct RealRange { // @persistent @flat @noctr @novtbl @size=16
 	// Descr: Устанавливает диапазон [middle-delta..middle+delta]
 	//
 	RealRange & SetMiddle(double middle, double delta);
-	double GetMin() const { return MIN(low, upp); }
-	double GetMax() const { return MAX(low, upp); }
+	double GetMin() const { return smin(low, upp); }
+	double GetMax() const { return smax(low, upp); }
 	double GetMiddle() const;
 	int    FASTCALL Intersect(const RealRange & rTest, RealRange * pResult) const;
 
@@ -8900,7 +8933,8 @@ public:
 	// Descr: Возвращает true если количество элементом массива более 1.
 	//
 	bool   isList() const;
-	bool   FASTCALL IsEq(const LongArray *) const;
+	bool   FASTCALL IsEq(const LongArray * pS) const;
+	bool   FASTCALL IsEq(const LongArray & rS) const { return IsEq(&rS); }
 	long   FASTCALL get(uint) const;
 	long   getSingle() const;
 	long   getLast() const;
@@ -15612,37 +15646,6 @@ uint64 FASTCALL sexpanduint64(const void * pBuf, uint size);
 //
 //
 //
-template <class T> constexpr T smin(T a, T b) { return MIN(a, b); }
-//
-// Descr: Возвращает минимум 3-х аргументов.
-//
-template <class T> constexpr T smin3(T a, T b, T c) { return smin(MIN(a, b), c); }
-//
-// Descr: Возвращает минимум 4-х аргументов.
-//
-template <class T> constexpr T smin4(T a, T b, T c, T d) { return smin(MIN(a, b), MIN(c, d)); }
-template <class T> constexpr T smax(T a, T b) { return MAX(a, b); }
-//
-// Descr: Возвращает максимум 3-х аргументов.
-//
-template <class T> constexpr T smax3(T a, T b, T c) { return smax(MAX(a, b), c); }
-//
-// Descr: Возвращает максимум 4-х аргументов.
-//
-template <class T> constexpr T smax4(T a, T b, T c, T d) { return smax(MAX(a, b), MAX(c, d)); }
-//
-// Descr: Функция возвращает значение v в пределах диапазона [lo..up]. If v >= lo && v <= up, то результат v, elseif (v < lo) --> lo, else --> up
-// Функции sclampx проверяют границы диапазона lo vs up: если lo < up то результат эквивалентен sclamp(v, lo, up) иначе - sclamp(v, up, lo)
-//
-template <class T> constexpr T sclamp(T v, T lo, T up) { return (v < lo) ? lo : ((v > up) ? up : v); }
-template <class T> constexpr T sclampx(T v, T lo, T up) { return (lo < up) ? sclamp(v, lo, up) : sclamp(v, up, lo); }
-//
-// Descr: clamp с первым аргументом типа float часто используется. При этом 
-//   остальные 2 аргумента в выховах часто не приводят к float (используют int-constant)
-//   что сильно затрудняет применени шаблонизированной функции slamp().
-//
-FORCEINLINE constexpr float sclampf(float v, float lo, float up) { return (v < lo) ? lo : ((v > up) ? up : v); }
-
 double FASTCALL fdiv100r(double);
 double FASTCALL fdiv100i(long);
 double FASTCALL fdiv1000i(long);

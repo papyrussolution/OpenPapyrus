@@ -2887,6 +2887,19 @@ CTLUSTTD_RUBIC_INVALID                "Недопустимое значение
 CTLUSTTD_BILL_PAYMDATE_UNDEFORINV     "Дата срока оплаты по документу не определена либо имеет недопустимое значение"
 CTLUSTTD_BILL_PAYMDATE_NOTMATCHTOAGT  "Дата срока оплаты по документу не соответствует периоду оплаты из соглашения (%d дней)"
 CTLUSTTD_BILL_SYNCED                  "Документ синхронизирован с другими разделами базы данных"
+
+CTLUSTTD_CHECKPAN_STATE_ERROR         "Информация о текущей ошибке"
+CTLUSTTD_CHECKPAN_STATE_GIFT          "Информация о подарке за выбор покупки"
+CTLUSTTD_CHECKPAN_STATE_BYORDER       "Обслуживание по заказу"
+CTLUSTTD_CHECKPAN_TOTAL_GIFTINCL      "Сумма учитывает подарок"
+CTLUSTTD_CHECKPAN_DISCOUNT_GIFTINCL   "Скидка учитывает подарок"
+
+CTLUSTTD_GOODS_SINGLEPREFFEREDBARCODE "Единственный и предпочтительный штрихкод товара"
+
+CTLUSTTD_TRFRITEM_PRICEBYQUOT            "Цена установлена по котировке"
+CTLUSTTD_TRFRITEM_PRICEBYQUOT_CANTCANCEL "Цена установлена по котировке без возможности отмены"
+CTLUSTTD_TRFRITEM_PRICEBELOWCOST         "Цена реализации меньше цены поступления"
+CTLUSTTD_TRFRITEM_COSTCHANGED            "Цена поступления изменилась по сравнению с предшествующим лотом"
 									
 [110] // Наименования типов объектов данных
 1    "@{config}"
@@ -3418,6 +3431,7 @@ PPINIPARAM_CHZNPMLOCALOVRALLTIMEOUT      "ChZnPmLocalOvrallTimeout"  // @v12.5.5
 PPINIPARAM_FORCE_IMPEXP_EXCEL_OLEAUTO    "ForceImpExpExcelOleAuto"   // @v12.5.3 [config] def=0 Для импорта/экспорта excel применять старую технику OleAuto (через приложение Excel).
 PPINIPARAM_CENTRIGO_DATABASE             "centrigo_database"         // @v12.5.4 [path] @construction путь к базе данных centrigo
 PPINIPARAM_CHZNPMCRIT                    "chznpmcrit"                // @v12.6.5 [config] Критерии проверки марки честный знак разрешительным режимом и тс-пиот
+PPINIPARAM_CENTRIGOCONSTRUCTION_DBSYMBLIST "centrigo_construction_dblist" // @v12.7.8
 
 PPFILNAM_REPORT_INI            "report.ini"
 PPFILNAM_IMPORT_INI            "import.ini"
@@ -10047,6 +10061,11 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @account_sb                               "@{subaccount}"
 @account_tag                              "@{tag}"
 @account_type                             "@{type}"
+
+@account_reserved_exp                     "Расходы" // @v12.7.8
+@account_reserved_inc                     "Доходы"  // @v12.7.8
+@account_reserved_cor                     "Корректировка остатков по счетам" // @v12.7.8
+@account_reserved_liq                     "Располагаемые средства" // @v12.7.8
 
 @groupingaccountitem                      "Элемент группирующего счета"
 @groupingaccountitem_groupby              "Группировка по счету"
@@ -19572,6 +19591,7 @@ PPHSC_RU_BANKCORRACC           "КСчет" // @v11.9.5 SBIS
 PPHSC_RU_BANKNAME              "НаимБанк"
 PPHSC_RU_IDENTIF               "Идентиф"
 PPHSC_RU_VAL                   "Значен"
+PPHSC_RU_VALUE                 "Значение"       // @v11.9.5 SBIS и этрн
 PPHSC_RU_STATUS                "Статус"
 PPHSC_RU_OFFICIAL_DUTIES       "Должностные обязанности"
 PPHSC_RU_TEXTINF               "ТекстИнф"
@@ -19683,7 +19703,6 @@ PPHSC_RU_GTIN                  "GTIN"           // @v11.9.5 SBIS
 PPHSC_RU_DATE                  "Дата"           // @v11.9.5 SBIS
 PPHSC_RU_TIME                  "Время"          // @v11.9.9 SBIS
 PPHSC_RU_FEATURE               "Характеристика" // @v11.9.5 SBIS
-PPHSC_RU_VALUE                 "Значение"       // @v11.9.5 SBIS
 PPHSC_RU_IDENTIFIER            "Идентификатор"  // @v11.9.5 SBIS
 PPHSC_RU_PARAMETER             "Параметр"       // @v11.9.5 SBIS
 PPHSC_RU_CODE                  "Код"            // @v11.9.5 SBIS
