@@ -1,5 +1,5 @@
 // V_BUDGET.CPP
-// Copyright (c) A.Starodub 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025, 2026
+// Copyright (c) A.Starodub, A.Sobolev 2010, 2011, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025, 2026
 // @codepage UTF-8
 // PPViewBudget
 //
@@ -1470,20 +1470,40 @@ class BudgetTotalDialog : public TDialog {
 public:
 	explicit BudgetTotalDialog(RPair * pData) : TDialog(DLG_BUDGTOTAL)
 	{
+		Ptb.SetBrush(deficitBrush, SPaintObj::bsSolid, GetColorRef(SClrRed), 0);
+		Ptb.SetBrush(proficitBrush, SPaintObj::bsSolid, GetColorRef(SClrGreen), 0);
+		//
 		SString word;
 		if(!RVALUEPTR(Data, pData))
 			MEMSZERO(Data);
 		setCtrlData(CTL_BUDGTOTAL_PLAN, &Data.X);
 		setCtrlData(CTL_BUDGTOTAL_FACT, &Data.Y);
-		setCtrlData(CTL_BUDGTOTAL_DIFF, &(Diff = Data.X - Data.Y));
-		if(Diff < 0) {
+		Diff = Data.X - Data.Y;
+		setCtrlReal(CTL_BUDGTOTAL_DIFF, Diff);
+		if(Diff < 0.0) {
 			PPGetWord(PPWORD_DEFICITBUDG, 0, word);
 		}
-		else if(Diff > 0)
+		else if(Diff > 0.0) {
 			PPGetWord(PPWORD_PROFICITBUDG, 0, word);
+		}
 		setStaticText(CTL_BUDGTOTAL_DEFICITTXT, word);
-		Ptb.SetBrush(deficitBrush, SPaintObj::bsSolid, GetColorRef(SClrRed), 0);
-		Ptb.SetBrush(proficitBrush, SPaintObj::bsSolid, GetColorRef(SClrGreen), 0);
+		// @v12.7.9 {
+		{
+			const  uint ctl_id = CTL_BUDGTOTAL_DEFICITTXT;
+			TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+			if(p_il) {
+				uint64 _state = 0;
+				if(Diff > 0.0) {
+					_state = 1;
+				}
+				else if(Diff < 0.0) {
+					_state = 2;
+				}
+				if(p_il->SetIndicatorState(_state, word) > 0)
+					drawCtrl(ctl_id);
+			}
+		}
+		// } @v12.7.9 
 	}
 private:
 	DECL_HANDLE_EVENT;
@@ -1501,13 +1521,25 @@ private:
 IMPL_HANDLE_EVENT(BudgetTotalDialog)
 {
 	TDialog::handleEvent(event);
-	if(TVCOMMAND && event.isCmd(cmCtlColor)) {
+	if(event.isCmd(cmCtlColor)) { // @IndicatorState-done
+		bool   local_done = false;
 		TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 		if(p_dc && getCtrlHandle(CTL_BUDGTOTAL_DEFICITTXT) == p_dc->H_Ctl && Diff != 0.0) {
 			::SetBkMode(p_dc->H_DC, TRANSPARENT);
 			::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
 			p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get((Diff > 0) ? proficitBrush : deficitBrush));
+			local_done = true;
+		}
+		if(local_done) {
 			clearEvent(event);
+		}
+		else
+			return;
+	}
+	else if(event.isCmd(cmMouseHoverCtrl)) { // @v12.7.9
+		const  uint ctl_id = event.getCtlID();
+		if(ctl_id == CTL_BUDGTOTAL_DEFICITTXT) {
+			PPShowCtrlIndicatorHintOnInputLine(this, ctl_id);
 		}
 	}
 }

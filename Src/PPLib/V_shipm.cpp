@@ -387,7 +387,7 @@ int FASTCALL PPViewShipmAnalyze::NextIteration(ShipmAnalyzeViewItem * pItem)
 	if(Filt.Flags & ShipmAnalyzeFilt::fDiffByBill) {
 		brw_id = BROWSER_SHIPMANLZBYBILL;
 		bt = new BillTbl;
-		q = & Select_(
+		q = &Select_(
 			tbl->BillID,          // #0
 			tbl->GoodsID,         // #1
 			tbl->Dt,              // #2
@@ -404,7 +404,7 @@ int FASTCALL PPViewShipmAnalyze::NextIteration(ShipmAnalyzeViewItem * pItem)
 	}
 	else {
 		brw_id = BROWSER_SHIPMANLZ;
-		q = & Select_(
+		q = &Select_(
 			tbl->BillID,          // #0
 			tbl->GoodsID,         // #1
 			tbl->Dt,              // #2

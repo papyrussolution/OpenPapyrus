@@ -201,8 +201,6 @@ class BankingOrderDialog : public TDialog {
 		brushInvalidNumber
 	};
 
-	int    PayerValidCode;
-	int    RcvrValidCode;
 	SPaintToolBox  Ptb;
 	PPObjPerson PsnObj;
 	RegisterFilt BnkAccFilt;
@@ -212,29 +210,25 @@ public:
 	int    getDTS(PPBankingOrder * pData);
 private:
 	DECL_HANDLE_EVENT;
-	int    setupPerson(int payerOrRcvr, PPID personID, PPID * pBnkAccID);
-	int    setupBnkAcc(int payerOrRcvr, PPID bnkAccID);
+	int    SetupPerson(int payerOrRcvr, PPID personID, PPID * pBnkAccID);
+	int    SetupBnkAcc(int payerOrRcvr, PPID bnkAccID);
 	int    editTaxMarkers();
 	void   setupVAT();
 	void   swapPersons();
 };
 
-BankingOrderDialog::BankingOrderDialog() : TDialog(DLG_BNKPAYM), PayerValidCode(-1), RcvrValidCode(-1)
+BankingOrderDialog::BankingOrderDialog() : TDialog(DLG_BNKPAYM)
 {
 	SetupCalDate(CTLCAL_BNKPAYM_DT, CTL_BNKPAYM_DT);
 	{
-		const UiDescription * p_uid = SLS.GetUiDescription();
-		const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+		const  UiDescription * p_uid = SLS.GetUiDescription();
+		const  SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 		{
-			SColor _color;
-			if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
-				_color = SClrCoral; 
+			SColor _color = UiDescription::GetColorR(p_uid, p_cs, "invalid_value_input_bg", SClrCoral);
 			Ptb.SetBrush(brushInvalidNumber, SPaintObj::bsSolid, _color, 0);
 		}
 		{
-			SColor _color;
-			if(!p_cs || !p_cs->Get("valid_value_input_bg", &p_uid->ClrList, _color))
-				_color = SClrAqua; 
+			SColor _color = UiDescription::GetColorR(p_uid, p_cs, "valid_value_input_bg", SClrAqua);
 			Ptb.SetBrush(brushValidNumber,   SPaintObj::bsSolid, _color,  0);
 		}
 	}
@@ -275,8 +269,8 @@ void BankingOrderDialog::swapPersons()
 	setCtrlData(CTLSEL_BNKPAYM_RCVRKIND,  &Data.RcvrKindID);
 	SetupPersonCombo(this, CTLSEL_BNKPAYM_PAYER, Data.PayerID, OLW_CANINSERT, Data.PayerKindID, 0);
 	SetupPersonCombo(this, CTLSEL_BNKPAYM_RCVR, Data.RcvrID, OLW_CANINSERT, Data.RcvrKindID, 0);
-	setupPerson(0, Data.PayerID, &Data.PayerBnkAccID);
-	setupPerson(1, Data.RcvrID,  &Data.RcvrBnkAccID);
+	SetupPerson(0, Data.PayerID, &Data.PayerBnkAccID);
+	SetupPerson(1, Data.RcvrID,  &Data.RcvrBnkAccID);
 }
 
 int BankingOrderDialog::editTaxMarkers()
@@ -287,45 +281,77 @@ int BankingOrderDialog::editTaxMarkers()
 
 IMPL_HANDLE_EVENT(BankingOrderDialog)
 {
-	PPID   person_kind_id;
 	TDialog::handleEvent(event);
 	if(event.isCmd(cmSwap))
 		swapPersons();
 	else if(event.isCmd(cmTaxMarkers))
 		editTaxMarkers();
 	else if(event.isCbSelected(CTLSEL_BNKPAYM_PAYERKIND)) {
-		person_kind_id = getCtrlLong(CTLSEL_BNKPAYM_PAYERKIND);
+		const  PPID person_kind_id = getCtrlLong(CTLSEL_BNKPAYM_PAYERKIND);
 		SetupPersonCombo(this, CTLSEL_BNKPAYM_PAYER, 0, OLW_CANINSERT, person_kind_id, 0);
-		setupPerson(0, 0, 0);
+		SetupPerson(0, 0, 0);
 	}
 	else if(event.isCbSelected(CTLSEL_BNKPAYM_RCVRKIND)) {
-		person_kind_id = getCtrlLong(CTLSEL_BNKPAYM_RCVRKIND);
+		const  PPID person_kind_id = getCtrlLong(CTLSEL_BNKPAYM_RCVRKIND);
 		SetupPersonCombo(this, CTLSEL_BNKPAYM_RCVR, 0, OLW_CANINSERT, person_kind_id, 0);
-		setupPerson(1, 0, 0);
+		SetupPerson(1, 0, 0);
 	}
-	else if(event.isCbSelected(CTLSEL_BNKPAYM_PAYER))
-		setupPerson(0, getCtrlLong(CTLSEL_BNKPAYM_PAYER), 0);
-	else if(event.isCbSelected(CTLSEL_BNKPAYM_RCVR))
-		setupPerson(1, getCtrlLong(CTLSEL_BNKPAYM_RCVR), 0);
-	else if(event.isCbSelected(CTLSEL_BNKPAYM_PAYERACC))
-		setupBnkAcc(0, getCtrlLong(CTLSEL_BNKPAYM_PAYERACC));
-	else if(event.isCbSelected(CTLSEL_BNKPAYM_RCVRACC))
-		setupBnkAcc(1, getCtrlLong(CTLSEL_BNKPAYM_RCVRACC));
-	else if(event.isCmd(cmCtlColor)) {
+	else if(event.isCbSelected(CTLSEL_BNKPAYM_PAYER)) {
+		SetupPerson(0, getCtrlLong(CTLSEL_BNKPAYM_PAYER), 0);
+	}
+	else if(event.isCbSelected(CTLSEL_BNKPAYM_RCVR)) {
+		SetupPerson(1, getCtrlLong(CTLSEL_BNKPAYM_RCVR), 0);
+	}
+	else if(event.isCbSelected(CTLSEL_BNKPAYM_PAYERACC)) {
+		SetupBnkAcc(0, getCtrlLong(CTLSEL_BNKPAYM_PAYERACC));
+	}
+	else if(event.isCbSelected(CTLSEL_BNKPAYM_RCVRACC)) {
+		SetupBnkAcc(1, getCtrlLong(CTLSEL_BNKPAYM_RCVRACC));
+	}
+	else if(event.isCmd(cmCtlColor)) { // @IndicatorState-done
+		bool   local_done = false;
 		TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
-		if(p_dc && oneof2(p_dc->H_Ctl, getCtrlHandle(CTL_BNKPAYM_PAYERACC), getCtrlHandle(CTL_BNKPAYM_RCVRACC))) {
-			const  int valid_code = (p_dc->H_Ctl == getCtrlHandle(CTL_BNKPAYM_PAYERACC)) ? PayerValidCode : RcvrValidCode;
-			if(valid_code > 0) {
-				::SetBkMode(p_dc->H_DC, TRANSPARENT);
-				p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushValidNumber));
-			}
-			else {
-				::SetBkMode(p_dc->H_DC, TRANSPARENT);
-				p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushInvalidNumber));
+		if(p_dc) {
+			uint   ctl_id = 0;
+			if(p_dc->H_Ctl == getCtrlHandle(CTL_BNKPAYM_PAYERACC))
+				ctl_id = CTL_BNKPAYM_PAYERACC;
+			else if(p_dc->H_Ctl == getCtrlHandle(CTL_BNKPAYM_RCVRACC))
+				ctl_id = CTL_BNKPAYM_RCVRACC;
+			if(ctl_id) {
+				TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+				if(p_il) {
+					uint64 _state = 0;
+					if(p_il->GetIndicatorState(&_state, 0)) {
+						::SetBkMode(p_dc->H_DC, TRANSPARENT);
+						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get((_state == 1) ? brushValidNumber : brushInvalidNumber));
+						local_done = true;
+					}
+				}
+				/*
+				const  int valid_code = (p_dc->H_Ctl == getCtrlHandle(CTL_BNKPAYM_PAYERACC)) ? PayerValidCode : RcvrValidCode;
+				if(valid_code > 0) {
+					::SetBkMode(p_dc->H_DC, TRANSPARENT);
+					p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushValidNumber));
+					local_done = true;
+				}
+				else {
+					::SetBkMode(p_dc->H_DC, TRANSPARENT);
+					p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushInvalidNumber));
+					local_done = true;
+				}
+				*/
 			}
 		}
+		if(local_done)
+			clearEvent(event);
 		else
 			return;
+	}
+	else if(event.isCmd(cmMouseHoverCtrl)) { // @v12.7.9
+		const  uint ctl_id = event.getCtlID();
+		if(oneof2(ctl_id, CTL_BNKPAYM_PAYERACC, CTL_BNKPAYM_RCVRACC)) {
+			PPShowCtrlIndicatorHintOnInputLine(this, ctl_id);
+		}
 	}
 	else if(TVBROADCAST && TVCMD == cmChangedFocus && TVINFOVIEW) {
 		if(event.isCtlEvent(CTL_BNKPAYM_VATRATE) || event.isCtlEvent(CTL_BNKPAYM_AMOUNT)) {
@@ -345,35 +371,54 @@ IMPL_HANDLE_EVENT(BankingOrderDialog)
 	clearEvent(event);
 }
 
-int BankingOrderDialog::setupBnkAcc(int payerOrRcvr, PPID bnkAccID)
+int BankingOrderDialog::SetupBnkAcc(int payerOrRcvr, PPID bnkAccID)
 {
 	int    ok = 1;
-	uint   bnk_ctl = (payerOrRcvr == 0) ? CTL_BNKPAYM_PAYERBNK : CTL_BNKPAYM_RCVRBNK;
-	int  * p_valid_code = (payerOrRcvr == 0) ? &PayerValidCode : &RcvrValidCode;
+	const  uint ctl_id = (payerOrRcvr == 0) ? CTL_BNKPAYM_PAYERBNK : CTL_BNKPAYM_RCVRBNK;
+	const  uint acc_ctl_id = (payerOrRcvr == 0) ? CTL_BNKPAYM_PAYERACC : CTL_BNKPAYM_RCVRACC;
+	//int  * p_valid_code = (payerOrRcvr == 0) ? &PayerValidCode : &RcvrValidCode;
+	int    is_code_valid = 0;
 	SString bnk_name;
-	ASSIGN_PTR(p_valid_code, 0);
+	//ASSIGN_PTR(p_valid_code, 0);
 	if(bnkAccID) {
 		BnkAcctData bnk_data(BADIF_INITBNAME);
 		PsnObj.GetBnkAcctData(bnkAccID, (const PPBankAccount *)0, &bnk_data);
 		bnk_name = bnk_data.Bnk.Name;
-		ASSIGN_PTR(p_valid_code, CheckBnkAcc(bnk_data.Acct, bnk_data.Bnk.BIC));
+		is_code_valid = CheckBnkAcc(bnk_data.Acct, bnk_data.Bnk.BIC);
+		//ASSIGN_PTR(p_valid_code, is_code_valid);
 	}
-	setCtrlString(bnk_ctl, bnk_name);
+	setCtrlString(ctl_id, bnk_name);
+	// @v12.7.9 {
+	{
+		TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(acc_ctl_id, TV_SUBSIGN_INPUTLINE));
+		if(p_il) {
+			SString msg_buf;
+			uint64 _state = 0;
+			int    state_msg_id = 0;
+			if(is_code_valid) {
+				_state = 1;
+				state_msg_id = CTLUSTTD_BANKACC_VALID;
+			}
+			else {
+				_state = 2;
+				state_msg_id = CTLUSTTD_BANKACC_INVALID;
+			}
+			msg_buf.Z();
+			if(state_msg_id)
+				PPLoadString(PPSTR_CTLUSTTD, state_msg_id, msg_buf);
+			if(p_il->SetIndicatorState(_state, msg_buf) > 0)
+				drawCtrl(ctl_id);
+		}
+	}
+	// } @v12.7.9 
 	return ok;
 }
 
-int BankingOrderDialog::setupPerson(int payerOrRcvr, PPID personID, PPID * pBnkAcctID)
+int BankingOrderDialog::SetupPerson(int payerOrRcvr, PPID personID, PPID * pBnkAcctID)
 {
 	int    ok = 1;
-	uint   person_ctl, bacc_ctl;
-	if(payerOrRcvr == 0) {
-		person_ctl = CTLSEL_BNKPAYM_PAYER;
-		bacc_ctl   = CTLSEL_BNKPAYM_PAYERACC;
-	}
-	else {
-		person_ctl = CTLSEL_BNKPAYM_RCVR;
-		bacc_ctl   = CTLSEL_BNKPAYM_RCVRACC;
-	}
+	const  uint person_ctl = (payerOrRcvr == 0) ? CTLSEL_BNKPAYM_PAYER : CTLSEL_BNKPAYM_RCVR;
+	const  uint bacc_ctl = (payerOrRcvr == 0) ? CTLSEL_BNKPAYM_PAYERACC : CTLSEL_BNKPAYM_RCVRACC;
 	PPID   bacc_id = DEREFPTRORZ(pBnkAcctID);
 	PsnObj.GetSingleBnkAcct(personID, 0, &bacc_id, 0);
 	setCtrlData(person_ctl, &personID);
@@ -382,7 +427,7 @@ int BankingOrderDialog::setupPerson(int payerOrRcvr, PPID personID, PPID * pBnkA
 		BnkAccFilt.RegTypeID = PPREGT_BANKACCOUNT;
 		SetupPPObjCombo(this, bacc_ctl, PPOBJ_REGISTER, bacc_id, OLW_CANINSERT, &BnkAccFilt);
 	}
-	setupBnkAcc(payerOrRcvr, bacc_id);
+	SetupBnkAcc(payerOrRcvr, bacc_id);
 	ASSIGN_PTR(pBnkAcctID, bacc_id);
 	return ok;
 }
@@ -400,8 +445,8 @@ int BankingOrderDialog::setDTS(const PPBankingOrder * pData)
 	SetupPersonCombo(this, CTLSEL_BNKPAYM_PAYER,     Data.PayerID, OLW_CANINSERT, Data.PayerKindID, 0);
 	SetupPPObjCombo(this,  CTLSEL_BNKPAYM_RCVRKIND,  PPOBJ_PERSONKIND, Data.RcvrKindID, 0);
 	SetupPersonCombo(this, CTLSEL_BNKPAYM_RCVR,      Data.RcvrID, OLW_CANINSERT, Data.RcvrKindID, 0);
-	setupPerson(0, Data.PayerID, &Data.PayerBnkAccID);
-	setupPerson(1, Data.RcvrID,  &Data.RcvrBnkAccID);
+	SetupPerson(0, Data.PayerID, &Data.PayerBnkAccID);
+	SetupPerson(1, Data.RcvrID,  &Data.RcvrBnkAccID);
 	switch(Data.BnkPaymMethod) {
 		case BNKPAYMMETHOD_UNDEF:     v = 0; break;
 		case BNKPAYMMETHOD_MAIL:      v = 1; break;
@@ -658,7 +703,7 @@ int BillExtraDialog(const PPBillPacket * pPack, PPBillExt * pData, ObjTagList * 
 			if(sc_obj.Search(pData->SCardID, &scard_rec) > 0)
 				STRNSCPY(scard_no, scard_rec.Code);
 			else
-				PTR32(scard_no)[0] = 0;
+				scard_no[0] = 0;
 			dlg->setCtrlData(CTL_BILLEXT_SCARDN, scard_no);
 			dlg->disableCtrl(CTL_BILLEXT_SCARDN, !sc_obj.CheckRights(SCRDRT_BINDING));
 		}
@@ -2177,7 +2222,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 							bill_filt.OpID = op_rec.LinkOpID;
 							bill_filt.ObjectID = P_Pack->Rec.Object;
 							bill_filt.AgentID = P_Pack->Ext.AgentID;
-							bill_filt.Flags |= (BillFilt::fAsSelector | BillFilt::fShowDebt | BillFilt::fDebtOnly);
+							bill_filt.Flags |= (BillFilt::fAsSelector|BillFilt::fShowDebt|BillFilt::fDebtOnly);
 							PPViewBill bill_view;
 							if(bill_view.Init_(&bill_filt)) {
 								if(bill_view.Browse(false) > 0) {
@@ -2242,7 +2287,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 					if(obj_id) {
 						AccAnlzFilt flt;
 						if(P_BObj->atobj->ConvertAcct(&CConfig.ImprestAcct, 0 /*@curID*/, &flt.AcctId, &flt.AccSheetID) > 0) {
-							flt.AcctId.ar = obj_id;
+							flt.AcctId.ArID = obj_id;
 							flt.Aco = ACO_3;
 							int    r = P_BObj->atobj->P_Tbl->AcctIDToRel(&flt.AcctId, &flt.AccID);
 							if(r > 0)
@@ -2382,7 +2427,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 						return;
 				}
 				break;
-			case cmCtlColor:
+			case cmCtlColor: // @IndicatorState-done
 				{
 					bool   local_done = false;
 					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
@@ -2455,14 +2500,7 @@ IMPL_HANDLE_EVENT(BillDialog)
 				{
 					const  uint ctl_id = event.getCtlID();
 					if(oneof2(ctl_id, CTL_BILL_PAYDATE, CTL_BILL_DOC)) {
-						TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
-						if(p_il) {
-							uint64 _state = 0;
-							SString descr_buf;
-							if(p_il->GetIndicatorState(&_state, &descr_buf) && descr_buf.NotEmptyS()) {
-								PPShowCtrlIndicatorHint(descr_buf);
-							}
-						}
+						PPShowCtrlIndicatorHintOnInputLine(this, ctl_id);
 					}
 				}
 				break;
@@ -4084,7 +4122,7 @@ int BillDialog::calcAdvanceRepRest()
 	PPID   obj_id = getCtrlLong(CTLSEL_BILL_OBJECT);
 	if(obj_id && getCtrlView(CTL_BILL_ADV_INREST)) {
 		double rest = 0.0;
-		AcctID acctid;
+		AccIdent acctid;
 		PPID   acc_sheet_id = 0;
 		PPID   ar_sheet_id = 0;
 		PPID   acc_rel = 0;
@@ -4093,7 +4131,7 @@ int BillDialog::calcAdvanceRepRest()
 		getCtrlData(CTL_BILL_DATE, &period.upp);
 		if(P_BObj->atobj->ConvertAcct(&CConfig.ImprestAcct, 0L/*@curID*/, &acctid, &acc_sheet_id) > 0 &&
 			acc_sheet_id && GetArticleSheetID(obj_id, &ar_sheet_id) > 0 && ar_sheet_id == acc_sheet_id) {
-			acctid.ar = obj_id;
+			acctid.ArID = obj_id;
 			THROW(P_BObj->atobj->P_Tbl->AcctIDToRel(&acctid, &acc_rel));
 			THROW(P_BObj->atobj->P_Tbl->GetAcctRest(period.upp, acc_rel, &rest, 1));
 		}
@@ -4859,17 +4897,17 @@ public:
 		}
 		if(pData) {
 			Data = *pData;
-			if(Data.DbtID.ac) {
-				if(AccObj.SearchBase(Data.DbtID.ac, &temp_acc_id, 0) > 0) {
-					Data.DbtID.ac = temp_acc_id;
+			if(Data.DbtID.AcID) {
+				if(AccObj.SearchBase(Data.DbtID.AcID, &temp_acc_id, 0) > 0) {
+					Data.DbtID.AcID = temp_acc_id;
 				}
 				else {
 					PPError();
 				}
 			}
-			if(Data.CrdID.ac) {
-				if(AccObj.SearchBase(Data.CrdID.ac, &temp_acc_id, 0) > 0) {
-					Data.CrdID.ac = temp_acc_id;
+			if(Data.CrdID.AcID) {
+				if(AccObj.SearchBase(Data.CrdID.AcID, &temp_acc_id, 0) > 0) {
+					Data.CrdID.AcID = temp_acc_id;
 				}
 				else {
 					PPError();
@@ -4891,7 +4929,7 @@ public:
 		{
 			AcctCtrlGroup::Rec rec;
 			rec.AcctId      = Data.DbtID;
-			rec.AccSheetID  = Data.DbtSheet;
+			rec.AccSheetID  = Data.DbtAcsID;
 			if(Data.Flags & PPAF_PERSONAL) { // @v12.7.5
 				rec.AccSelParam = ACY_SEL_PERSONAL;
 			}
@@ -4909,7 +4947,7 @@ public:
 		{
 			AcctCtrlGroup::Rec rec;
 			rec.AcctId      = Data.CrdID;
-			rec.AccSheetID  = Data.CrdSheet;
+			rec.AccSheetID  = Data.CrdAcsID;
 			if(Data.Flags & PPAF_PERSONAL) { // @v12.7.5
 				rec.AccSelParam = ACY_SEL_PERSONAL;
 			}
@@ -4961,10 +4999,10 @@ public:
 		}
 		THROW(getGroupData(grpDbt, &rec));
 		Data.DbtID    = rec.AcctId;
-		Data.DbtSheet = rec.AccSheetID;
+		Data.DbtAcsID = rec.AccSheetID;
 		THROW(getGroupData(grpCrd, &rec));
 		Data.CrdID    = rec.AcctId;
-		Data.CrdSheet = rec.AccSheetID;
+		Data.CrdAcsID = rec.AccSheetID;
 		THROW(getGroupData(grpCurAmt, &ca_rec));
 		Data.Amount   = ca_rec.Amount;
 		Data.CurID    = ca_rec.CurID;
@@ -4974,18 +5012,17 @@ public:
 		THROW_SL(checkdate(Data.Date));
 		sel = 0;
 		getCtrlData(CTL_ATURN_DOC,  Data.BillCode);
-		THROW(AccObj.SearchCur(Data.DbtID.ac, Data.CurID, &dbt_acc_id, 0) > 0);
-		Data.DbtID.ac = dbt_acc_id;
+		THROW(AccObj.SearchCur(Data.DbtID.AcID, Data.CurID, &dbt_acc_id, 0) > 0);
+		Data.DbtID.AcID = dbt_acc_id;
 		if(Data.Flags & PPAF_REGISTER || (Data.Flags & PPAF_OUTBAL && !(Data.Flags & PPAF_OUTBAL_TRANSFER))) {
-			Data.CrdID.ac = 0;
-			Data.CrdID.ar = 0;
-			Data.CrdSheet = 0;
+			Data.CrdID.Z();
+			Data.CrdAcsID = 0;
 			if(Data.Flags & PPAF_OUTBAL_WITHDRAWAL)
 				Data.Amount = -Data.Amount;
 		}
 		else {
-			THROW(AccObj.SearchCur(Data.CrdID.ac, Data.CurID, &crd_acc_id, 0) > 0);
-			Data.CrdID.ac = crd_acc_id;
+			THROW(AccObj.SearchCur(Data.CrdID.AcID, Data.CurID, &crd_acc_id, 0) > 0);
+			Data.CrdID.AcID = crd_acc_id;
 			if(Data.Flags & PPAF_OUTBAL_TRANSFER) {
 				if(Data.Amount >= 0)
 					Data.SwapDbtCrd();
@@ -5077,7 +5114,7 @@ private:
 		AcctCtrlGroup::Rec crd_rec;
 		getGroupData(grpDbt, &dbt_rec);
 		getGroupData(grpCrd, &crd_rec);
-		AccObj.GetIntersectCurList(dbt_rec.AcctId.ac, crd_rec.AcctId.ac, &cur_list);
+		AccObj.GetIntersectCurList(dbt_rec.AcctId.AcID, crd_rec.AcctId.AcID, &cur_list);
 		TView::messageCommand(this, cmCurAmtGrpSetupCurrencyCombo, &cur_list);
 	}
 	PPObjBill * P_BObj;
@@ -5103,28 +5140,106 @@ public:
 		setCtrlReal(CTL_ATURN_AMOUNT, Data.Amount);
 		setCtrlDate(CTL_ATURN_DATE, Data.Date);
 		//
-		SetupPPObjCombo(this, CTLSEL_ATURN_DACCNAME, PPOBJ_ACCOUNT2, Data.DbtID.ac, 
-			OLW_CANINSERT|OLW_WORDSELECTOR|OLW_CANSELUPLEVEL, reinterpret_cast<void *>(ACY_SEL_PERSONAL));
+		SetupPPObjCombo(this, CTLSEL_ATURN_DACCNAME, PPOBJ_ACCOUNT2, Data.DbtID.AcID, 
+			OLW_CANINSERT|OLW_WORDSELECTOR|OLW_CANSELUPLEVEL, reinterpret_cast<void *>(ACY_SEL_PERSONAL_USER));
 		//
+		SetupFlowDir();
+		if(P_Pack)
+			setCtrlString(CTL_ATURN_MEMO, P_Pack->SMemo);
 		return ok;
 	}
 	int    getDTS(PPAccTurn * pData)
 	{
 		int    ok = 1;
+		uint   sel = 0;
+		PPAccount acc_rec;
 		{
 			long nbf = GetClusterData(CTL_ATURN_FLOWDIR);
 			Data.SetNonBalancedFlow(nbf);
 		}
-		Data.Amount = getCtrlReal(CTL_ATURN_AMOUNT);
-		Data.Date = getCtrlDate(CTL_ATURN_DATE);
-		//
+		Data.Amount = getCtrlReal(sel = CTL_ATURN_AMOUNT);
+		THROW(Data.Amount > 0.0); // @todo @err
+		Data.Date = getCtrlDate(sel = CTL_ATURN_DATE);
+		THROW(checkdate(Data.Date)); // @todo @err
+		getCtrlData(sel = CTLSEL_ATURN_DACCNAME, &Data.DbtID.AcID);
+		THROW(Data.DbtID.AcID); // @todo @err
+		THROW(AccObj.Fetch(Data.DbtID.AcID, &acc_rec) > 0); // @todo @err
+		Data.DbtAcsID = acc_rec.AccSheetID;
+		getCtrlData(sel = CTLSEL_ATURN_CACCNAME, &Data.CrdID.AcID);
+		THROW(Data.CrdID.AcID); // @todo @err
+		THROW(AccObj.Fetch(Data.CrdID.AcID, &acc_rec) > 0); // @todo @err
+		getCtrlData(sel = CTLSEL_ATURN_PA_CATEGORY, &Data.CrdID.ArID);
+		Data.CrdAcsID = acc_rec.AccSheetID;
+		if(P_Pack) {
+			if(P_Pack->Turns.getCount())
+				P_Pack->Turns.at(0) = Data;
+			else {
+				THROW_SL(P_Pack->Turns.insert(&Data));
+			}
+			P_Pack->Rec.Dt = Data.Date;
+			memcpy(P_Pack->Rec.Code, Data.BillCode, sizeof(P_Pack->Rec.Code));
+			P_Pack->Rec.Amount = BR2(Data.Amount);
+			P_Pack->Rec.CurID  = Data.CurID;
+			P_Pack->Rec.CRate  = Data.CRate;
+			if(Data.CurID)
+				P_Pack->Amounts.Put(PPAMT_CRATE, Data.CurID, Data.CRate, 0, 1);
+			getCtrlString(CTL_ATURN_MEMO, P_Pack->SMemo);
+		}
 		ASSIGN_PTR(pData, Data);
+		CATCHZOKPPERRBYDLG
 		return ok;
 	}
 private:
 	DECL_HANDLE_EVENT
 	{
 		TDialog::handleEvent(event);
+		if(event.isClusterClk(CTL_ATURN_FLOWDIR)) {
+			SetupFlowDir();
+			clearEvent(event);
+		}
+		else if(event.isCbSelected(CTLSEL_ATURN_CACCNAME)) {
+			SetupCorrespondingAcc();
+			clearEvent(event);
+		}
+		else
+			return;
+	}
+	void   SetupCorrespondingAcc()
+	{
+		const  PPID acc_id = getCtrlLong(CTLSEL_ATURN_CACCNAME);
+		PPAccount acc_rec;
+		if(AccObj.Fetch(acc_id, &acc_rec) > 0 && acc_rec.AccSheetID) {
+			setCtrlReadOnly(CTLSEL_ATURN_PA_CATEGORY, false);
+			Data.CrdAcsID = acc_rec.AccSheetID;
+			Data.CrdID.AcID = acc_rec.ID;
+			SetupArCombo(this, CTLSEL_ATURN_PA_CATEGORY, Data.CrdID.ArID, OLW_CANINSERT|OLW_CANSELUPLEVEL, Data.CrdAcsID, sacfDisableIfZeroSheet|sacfNonGeneric);
+		}
+		else {
+			Data.CrdAcsID = 0;
+			Data.CrdID.Z();
+			setCtrlLong(CTLSEL_ATURN_PA_CATEGORY, 0);
+			setCtrlReadOnly(CTLSEL_ATURN_PA_CATEGORY, true);
+		}
+	}
+	void   SetupFlowDir()
+	{
+		long   nbf = GetClusterData(CTL_ATURN_FLOWDIR);
+		PPID   acc_id = 0;
+		if(nbf == PPATFLOW_EXPENSE) {
+			AccObj.SearchBySymb(PPConst::P_PredefAccountSymb_Exp, &acc_id, 0);
+			SetupPPObjCombo(this, CTLSEL_ATURN_CACCNAME, PPOBJ_ACCOUNT2, acc_id,
+				OLW_CANINSERT|OLW_WORDSELECTOR|OLW_CANSELUPLEVEL, reinterpret_cast<void *>(ACY_SEL_PERSONAL_PREDEF));
+		}
+		else if(nbf == PPATFLOW_INCOME) {
+			AccObj.SearchBySymb(PPConst::P_PredefAccountSymb_Inc, &acc_id, 0);
+			SetupPPObjCombo(this, CTLSEL_ATURN_CACCNAME, PPOBJ_ACCOUNT2, acc_id,
+				OLW_CANINSERT|OLW_WORDSELECTOR|OLW_CANSELUPLEVEL, reinterpret_cast<void *>(ACY_SEL_PERSONAL_PREDEF));
+		}
+		else if(nbf == PPATFLOW_TRANSFER) {
+			SetupPPObjCombo(this, CTLSEL_ATURN_CACCNAME, PPOBJ_ACCOUNT2, acc_id,
+				OLW_CANINSERT|OLW_WORDSELECTOR|OLW_CANSELUPLEVEL, reinterpret_cast<void *>(ACY_SEL_PERSONAL_USER));
+		}
+		SetupCorrespondingAcc();
 	}
 	PPObjBill * P_BObj;
 	PPObjAccount AccObj;
@@ -5141,8 +5256,9 @@ int PPObjBill::EditGenericAccTurn(PPBillPacket & rPack, long flags)
 	uint   dlg_id = 0;
 	if(rPack.Turns.getCount())
 		at = rPack.Turns.at(0);
-	else
+	else {
 		rPack.CreateAccTurn(at);
+	}
 	if(GetOpSubType(rPack.Rec.OpID) == OPSUBT_PERSONALFINANCE) { // @v12.7.5
 		dlg_id = DLG_ATURNPERSONAL;
 		PersonalAccTurnDialog * p_dlg_ = new PersonalAccTurnDialog(this);

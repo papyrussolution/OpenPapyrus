@@ -1374,7 +1374,9 @@ int TInputLine::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					if(Data.Len() == 0)
 						InlSt &= ~stPaste;
 				}
-				CALLPTRMEMB(P_WordSel, Refresh(Data));
+				if(!(InlSt & stDataSetting)) { // @v12.7.9 @condition
+					CALLPTRMEMB(P_WordSel, Refresh(Data));
+				}
 				MessageCommandToOwner(cmInputUpdated);
 			}
 			break;
@@ -1578,10 +1580,12 @@ void TInputLine::getText(SString & rBuf) const
 
 void TInputLine::setText(const char * b)
 {
+	InlSt |= stDataSetting; // @v12.7.9
 	(Data = b).Strip();
 	if(MaxLen)
 		Data.Trim(MaxLen).Strip();
 	Draw_();
+	InlSt &= ~stDataSetting; // @v12.7.9
 }
 
 IMPL_HANDLE_EVENT(TInputLine)
@@ -1597,13 +1601,14 @@ IMPL_HANDLE_EVENT(TInputLine)
 		TView::HandleCmSetBounds(event);
 	}
 	else if(TVCOMMAND && IsInState(sfSelected)) {
-		if(event.message.infoPtr)
+		if(event.message.infoPtr) {
 			if(event.message.command == cmGetFocusedNumber)
 				*static_cast<double *>(event.message.infoPtr) = Data.ToReal();
 			else if(event.message.command == cmGetFocusedText)
 				Data.CopyTo_Unsafe(static_cast<char *>(event.message.infoPtr));
 			else
 				return;
+		}
 		else
 			return;
 	}

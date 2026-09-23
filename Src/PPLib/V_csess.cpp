@@ -2582,7 +2582,7 @@ DBQuery * PPViewCSessExc::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	TempCSessExcTbl * t = new TempCSessExcTbl(P_TempTbl->GetName());
 	PPDbqFuncPool::InitObjNameFunc(dbe_goods, PPDbqFuncPool::IdObjNameGoods, t->AltGoodsID);
 	// @v12.5.8 {
-	DBQuery * q = & Select_(
+	DBQuery * q = &Select_(
 		t->GoodsID,       // #0
 		t->Sign,          // #1
 		t->GoodsName,     // #2

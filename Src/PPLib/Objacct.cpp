@@ -32,6 +32,23 @@ PPObjAccount::~PPObjAccount()
 	STRNSCPY(rRec.Code, buf);
 }
 
+/*static*/bool PPObjAccount::IsPredefPersonalAcc(const PPAccount & rRec) // @v12.7.9
+{
+	bool   result = false;
+	if(rRec.Code[0]) {
+		if(rRec.Type == ACY_PERSONAL && sstreqi_ascii(rRec.Code, PPConst::P_PredefAccountSymb_Exp)) {
+			result = true;
+		}
+		else if(rRec.Type == ACY_PERSONAL && sstreqi_ascii(rRec.Code, PPConst::P_PredefAccountSymb_Inc)) {
+			result = true;
+		}
+		else if(rRec.Type == ACY_PERSONAL && sstreqi_ascii(rRec.Code, PPConst::P_PredefAccountSymb_Cor)) {
+			result = true;
+		}
+	}
+	return result;
+}
+
 int PPObjAccount::SearchCode(const char * pCode, PPID curID, PPAccount * pRec)
 {
 	// @todo Это - дорогая функция. Для увеличения производительности необходимо оптимизировать
@@ -76,7 +93,7 @@ int PPObjAccount::ParseString(const char * pStr, int tok[])
 		PPAccount acc_rec;
 		SString temp_buf;
 		{
-			const char * p_symb = "rPSNACCEXP";
+			const char * p_symb = PPConst::P_PredefAccountSymb_Exp;
 			PPID   _id = 0;
 			PPID   acs_id = 0;
 			if(SearchBySymb(p_symb, &_id, &acc_rec) > 0) {
@@ -100,7 +117,7 @@ int PPObjAccount::ParseString(const char * pStr, int tok[])
 			}
 		}
 		{
-			const char * p_symb = "rPSNACCINC";
+			const char * p_symb = PPConst::P_PredefAccountSymb_Inc;
 			PPID   _id = 0;
 			PPID   acs_id = 0;
 			if(SearchBySymb(p_symb, &_id, &acc_rec) > 0) {
@@ -124,7 +141,7 @@ int PPObjAccount::ParseString(const char * pStr, int tok[])
 			}
 		}
 		{
-			const char * p_symb = "rPSNACCCOR";
+			const char * p_symb = PPConst::P_PredefAccountSymb_Cor;
 			PPID   _id = 0;
 			PPID   acs_id = 0;
 			if(SearchBySymb(p_symb, &_id, &acc_rec) > 0) {
@@ -142,7 +159,7 @@ int PPObjAccount::ParseString(const char * pStr, int tok[])
 			}
 		}
 		{
-			const char * p_symb = "rPSNACCLIQ";
+			const char * p_symb = PPConst::P_PredefAccountSymb_Liq;
 			PPID   _id = 0;
 			PPID   acs_id = 0;
 			if(SearchBySymb(p_symb, &_id, &acc_rec) > 0) {
@@ -308,16 +325,16 @@ int PPObjAccount::GetPacket(PPID id, PPAccountPacket * pPack)
 	return ok;
 }
 
-int PPObjAccount::InitAccSheetForAcctID(AcctID * pAcctId, PPID * pAccSheetID)
+int PPObjAccount::InitAccSheetForAcctID(AccIdent * pAcctId, PPID * pAccSheetID)
 {
 	int    r = 1;
 	*pAccSheetID = 0;
-	if(pAcctId->ac) {
+	if(pAcctId->AcID) {
 		PPAccount acc_rec;
-		if(Search(pAcctId->ac, &acc_rec) > 0) {
+		if(Search(pAcctId->AcID, &acc_rec) > 0) {
 			*pAccSheetID = acc_rec.AccSheetID;
 			if(*pAccSheetID == 0)
-				pAcctId->ar = 0;
+				pAcctId->ArID = 0;
 		}
 		else
 			r = 0;
@@ -608,9 +625,20 @@ StrAssocArray * PPObjAccount::MakeStrAssocList(void * extraPtr/*acySelType*/)
 							_suite = 1;
 						break;
 					case ACY_SEL_PERSONAL: // @v12.7.4
-						if(rec.Type == ACY_PERSONAL)
+						if(rec.Type == ACY_PERSONAL) {
 							_suite = 1;
-						break;						
+						}
+						break;
+					case ACY_SEL_PERSONAL_PREDEF: // @v12.7.9
+						if(rec.Type == ACY_PERSONAL && PPObjAccount::IsPredefPersonalAcc(rec)) {
+							_suite = 1;
+						}
+						break;
+					case ACY_SEL_PERSONAL_USER: // @v12.7.9
+						if(rec.Type == ACY_PERSONAL && !PPObjAccount::IsPredefPersonalAcc(rec)) {
+							_suite = 1;
+						}
+						break;
 					case ACY_SEL_BALOBAL:
 						if(oneof3(rec.Type, ACY_BAL, ACY_OBAL, ACY_REGISTER))
 							_suite = 1;
@@ -636,7 +664,7 @@ StrAssocArray * PPObjAccount::MakeStrAssocList(void * extraPtr/*acySelType*/)
 						break;
 				}
 				if(_suite) {
-					if(acy_sel_type == ACY_SEL_PERSONAL) {
+					if(oneof3(acy_sel_type, ACY_SEL_PERSONAL, ACY_SEL_PERSONAL_USER, ACY_SEL_PERSONAL_PREDEF)) {
 						temp_buf = rec.Name;
 					}
 					else {
@@ -812,7 +840,7 @@ int GenAccountDialog::editItemDialog(ObjRestrictItem * pItem)
 		AcctCtrlGroup * p_grp = new AcctCtrlGroup(CTL_ACCAGGRI_ACC, CTL_ACCAGGRI_ART, CTLSEL_ACCAGGRI_ACCNAME, CTLSEL_ACCAGGRI_ARTNAME);
 		dlg->addGroup(ACCT_GROUP, p_grp);
 		if(oneof2(aco, ACO_1, ACO_2))
-			ag_rec.AcctId.ac = pItem->ObjID;
+			ag_rec.AcctId.AcID = pItem->ObjID;
 		else
 			AtObj.P_Tbl->AcctRelToID(pItem->ObjID, &ag_rec.AcctId, &ag_rec.AccSheetID);
 		ag_rec.AccSelParam = acc_sheet_id ? (acc_sheet_id + 1000L) : 0;
@@ -835,7 +863,7 @@ int GenAccountDialog::editItemDialog(ObjRestrictItem * pItem)
 		dlg->setCtrlData(CTL_ACCAGGRI_FLAGS, &v);
 		while(!valid_data && ExecView(dlg) == cmOK) {
 			dlg->getGroupData(ACCT_GROUP, &ag_rec);
-			pItem->ObjID = ag_rec.AcctId.ac;
+			pItem->ObjID = ag_rec.AcctId.AcID;
 			pItem->Flags = 0;
 			dlg->getCtrlData(CTL_ACCAGGRI_FLAGS, &v);
 			SETFLAG(pItem->Flags, ACGF_NEGATIVE, v & 0x01);
@@ -846,12 +874,12 @@ int GenAccountDialog::editItemDialog(ObjRestrictItem * pItem)
 			}
 			else if(v == 1) {
 				aco = ACO_1;
-				pItem->ObjID = ag_rec.AcctId.ac;
+				pItem->ObjID = ag_rec.AcctId.AcID;
 				pItem->Flags |= ACGF_ACO1GRP;
 			}
 			else if(v == 2) {
 				aco = ACO_2;
-				pItem->ObjID  = ag_rec.AcctId.ac;
+				pItem->ObjID  = ag_rec.AcctId.AcID;
 				pItem->Flags |= ACGF_ACO2GRP;
 			}
 			if(pItem->ObjID != 0)

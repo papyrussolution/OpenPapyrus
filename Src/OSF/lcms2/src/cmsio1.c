@@ -694,40 +694,32 @@ boolint CMSEXPORT cmsIsMatrixShaper(cmsHPROFILE hProfile)
 boolint CMSEXPORT cmsIsCLUT(cmsHPROFILE hProfile, uint32 Intent, uint32 UsedDirection)
 {
 	const cmsTagSignature* TagTable;
-
 	// For devicelinks, the supported intent is that one stated in the header
 	if(cmsGetDeviceClass(hProfile) == cmsSigLinkClass) {
 		return (cmsGetHeaderRenderingIntent(hProfile) == Intent);
 	}
-
 	switch(UsedDirection) {
 		case LCMS_USED_AS_INPUT: TagTable = Device2PCS16; break;
 		case LCMS_USED_AS_OUTPUT: TagTable = PCS2Device16; break;
-
 		// For proofing, we need rel. colorimetric in output. Let's do some recursion
 		case LCMS_USED_AS_PROOF:
 		    return cmsIsIntentSupported(hProfile, Intent, LCMS_USED_AS_INPUT) &&
 			   cmsIsIntentSupported(hProfile, INTENT_RELATIVE_COLORIMETRIC, LCMS_USED_AS_OUTPUT);
-
 		default:
 		    cmsSignalError(cmsGetProfileContextID(hProfile), cmsERROR_RANGE, "Unexpected direction (%d)", UsedDirection);
 		    return FALSE;
 	}
-
 	return cmsIsTag(hProfile, TagTable[Intent]);
 }
 
 // Return info about supported intents
-boolint CMSEXPORT cmsIsIntentSupported(cmsHPROFILE hProfile,
-    uint32 Intent, uint32 UsedDirection)
+boolint CMSEXPORT cmsIsIntentSupported(cmsHPROFILE hProfile, uint32 Intent, uint32 UsedDirection)
 {
 	if(cmsIsCLUT(hProfile, Intent, UsedDirection)) return TRUE;
-
 	// Is there any matrix-shaper? If so, the intent is supported. This is a bit odd, since V2 matrix shaper
 	// does not fully support relative colorimetric because they cannot deal with non-zero black points, but
 	// many profiles claims that, and this is certainly not true for V4 profiles. Lets answer "yes" no matter
 	// the accuracy would be less than optimal in rel.col and v2 case.
-
 	return cmsIsMatrixShaper(hProfile);
 }
 
@@ -741,23 +733,16 @@ cmsSEQ* _cmsReadProfileSequence(cmsHPROFILE hProfile)
 	cmsSEQ* ProfileId;
 	cmsSEQ* NewSeq;
 	uint32 i;
-
 	// Take profile sequence description first
 	ProfileSeq = (cmsSEQ*)cmsReadTag(hProfile, cmsSigProfileSequenceDescTag);
-
 	// Take profile sequence ID
 	ProfileId  = (cmsSEQ*)cmsReadTag(hProfile, cmsSigProfileSequenceIdTag);
-
 	if(ProfileSeq == NULL && ProfileId == NULL) return NULL;
-
 	if(ProfileSeq == NULL) return cmsDupProfileSequenceDescription(ProfileId);
 	if(ProfileId  == NULL) return cmsDupProfileSequenceDescription(ProfileSeq);
-
 	// We have to mix both together. For that they must agree
 	if(ProfileSeq->n != ProfileId->n) return cmsDupProfileSequenceDescription(ProfileSeq);
-
 	NewSeq = cmsDupProfileSequenceDescription(ProfileSeq);
-
 	// Ok, proceed to the mixing
 	if(NewSeq != NULL) {
 		for(i = 0; i < ProfileSeq->n; i++) {
@@ -772,11 +757,9 @@ cmsSEQ* _cmsReadProfileSequence(cmsHPROFILE hProfile)
 boolint _cmsWriteProfileSequence(cmsHPROFILE hProfile, const cmsSEQ* seq)
 {
 	if(!cmsWriteTag(hProfile, cmsSigProfileSequenceDescTag, seq)) return FALSE;
-
 	if(cmsGetEncodedICCversion(hProfile) >= 0x4000000) {
 		if(!cmsWriteTag(hProfile, cmsSigProfileSequenceIdTag, seq)) return FALSE;
 	}
-
 	return TRUE;
 }
 
@@ -784,8 +767,8 @@ boolint _cmsWriteProfileSequence(cmsHPROFILE hProfile, const cmsSEQ* seq)
 static cmsMLU* GetMLUFromProfile(cmsHPROFILE h, cmsTagSignature sig)
 {
 	cmsMLU* mlu = (cmsMLU*)cmsReadTag(h, sig);
-	if(mlu == NULL) return NULL;
-
+	if(mlu == NULL) 
+		return NULL;
 	return cmsMLUdup(mlu);
 }
 
@@ -794,30 +777,25 @@ cmsSEQ* _cmsCompileProfileSequence(cmsContext ContextID, uint32 nProfiles, cmsHP
 {
 	uint32 i;
 	cmsSEQ* seq = cmsAllocProfileSequenceDescription(ContextID, nProfiles);
-
-	if(seq == NULL) return NULL;
-
+	if(seq == NULL) 
+		return NULL;
 	for(i = 0; i < nProfiles; i++) {
 		cmsPSEQDESC* ps = &seq->seq[i];
 		cmsHPROFILE h = hProfiles[i];
 		cmsTechnologySignature* techpt;
-
 		cmsGetHeaderAttributes(h, &ps->attributes);
 		cmsGetHeaderProfileID(h, ps->ProfileID.ID8);
 		ps->deviceMfg   = cmsGetHeaderManufacturer(h);
 		ps->deviceModel = cmsGetHeaderModel(h);
-
 		techpt = (cmsTechnologySignature*)cmsReadTag(h, cmsSigTechnologyTag);
 		if(techpt == NULL)
 			ps->technology   =  (cmsTechnologySignature)0;
 		else
 			ps->technology   = *techpt;
-
 		ps->Manufacturer = GetMLUFromProfile(h,  cmsSigDeviceMfgDescTag);
 		ps->Model        = GetMLUFromProfile(h,  cmsSigDeviceModelDescTag);
 		ps->Description  = GetMLUFromProfile(h, cmsSigProfileDescriptionTag);
 	}
-
 	return seq;
 }
 
@@ -834,20 +812,18 @@ static const cmsMLU* GetInfo(cmsHPROFILE hProfile, cmsInfoType Info)
 	return (cmsMLU*)cmsReadTag(hProfile, sig);
 }
 
-uint32 CMSEXPORT cmsGetProfileInfo(cmsHPROFILE hProfile, cmsInfoType Info,
-    const char LanguageCode[3], const char CountryCode[3], wchar_t * Buffer, uint32 BufferSize)
+uint32 CMSEXPORT cmsGetProfileInfo(cmsHPROFILE hProfile, cmsInfoType Info, const char LanguageCode[3], const char CountryCode[3], wchar_t * Buffer, uint32 BufferSize)
 {
 	const cmsMLU* mlu = GetInfo(hProfile, Info);
-	if(mlu == NULL) return 0;
+	if(mlu == NULL) 
+		return 0;
 	return cmsMLUgetWide(mlu, LanguageCode, CountryCode, Buffer, BufferSize);
 }
 
-uint32 CMSEXPORT cmsGetProfileInfoASCII(cmsHPROFILE hProfile, cmsInfoType Info,
-    const char LanguageCode[3], const char CountryCode[3],
-    char * Buffer, uint32 BufferSize)
+uint32 CMSEXPORT cmsGetProfileInfoASCII(cmsHPROFILE hProfile, cmsInfoType Info, const char LanguageCode[3], const char CountryCode[3], char * Buffer, uint32 BufferSize)
 {
 	const cmsMLU* mlu = GetInfo(hProfile, Info);
-	if(mlu == NULL) return 0;
-
+	if(mlu == NULL) 
+		return 0;
 	return cmsMLUgetASCII(mlu, LanguageCode, CountryCode, Buffer, BufferSize);
 }

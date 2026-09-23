@@ -371,22 +371,24 @@ DBQuery * PPViewPersonRel::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	TempPersonRelTbl * t = 0;
 	TempOrderTbl * p_ord = 0;
 	DBQ  * dbq = 0;
-	DBE    dbe_psn1, dbe_psn2;
+	DBE    dbe_psn1;
+	DBE    dbe_psn2;
 	uint   brw_id = BROWSER_PERSONREL;
 	THROW(CheckTblPtr(p_ord = new TempOrderTbl(P_TempOrd->GetName())));
 	THROW(CheckTblPtr(t = new TempPersonRelTbl(P_TempTbl->GetName())));
 	PPDbqFuncPool::InitObjNameFunc(dbe_psn1, PPDbqFuncPool::IdObjNamePerson, t->PrmrPersonID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_psn2, PPDbqFuncPool::IdObjNamePerson, t->ScndPersonID);
 	dbq = &(*dbq && t->ID == p_ord->ID);
-	q = & Select_(
+	q = &Select_(
 		t->ID,           // #01
 		t->PrmrPersonID, // #02
 		t->ScndPersonID, // #03
 		t->RelTypeID,    // #04
-		dbe_psn1,        // #05
-		dbe_psn2,        // #06
-		t->RelName,      // #07
-		0L).from(p_ord, t, 0L).where(*dbq).orderBy(p_ord->Name, 0L);
+		0L);
+	q->addField(dbe_psn1);   // #05
+	q->addField(dbe_psn2);   // #06
+	q->addField(t->RelName); // #07
+	q->from(p_ord, t, 0L).where(*dbq).orderBy(p_ord->Name, 0L);
 	THROW(CheckQueryPtr(q));
 	CATCH
 		if(q)

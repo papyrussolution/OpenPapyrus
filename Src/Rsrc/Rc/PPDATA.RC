@@ -1019,10 +1019,10 @@ ROD_TAG PP_RCDATA {
 	96, "@{rtag_gua_outerwareidtag}\0",       "GUAOUTERWAREIDTAG\0",  "GLOBALUSER\0", "LINK:TAG:GOODS\0"
 	97, "@{rtag_gua_socialgroupcode}\0",      "GUASOCIALGROUPCODE\0", "GLOBALUSER\0", "STRING\0"
 	98, "@{rtag_gua_socialpagecode}\0",       "GUASOCIALPAGECODE\0",  "GLOBALUSER\0", "STRING\0"
-	99, "@{rtag_loc_vetisregionguid}\0",      "LOCVETISREGIONGUID\0", "LOCATION\0",   "STRING\0" // @v11.0.10
-	100, "@{rtag_bill_longcode}\0",           "BILLLONGCODE\0",       "BILL\0",       "STRING\0" // @v11.0.12
-	101, "@{rtag_posnode_ofdver}\0",          "POSNODEOFDVER\0",      "POSNODE\0",    "STRING\0" // @v11.1.9
-	102, "@{rtag_loc_trunkpoint}\0",          "TRUNKPOINT\0",         "LOCATION\0",   "LINK:WORLD\0" // @v11.2.9
+	99, "@{rtag_loc_vetisregionguid}\0",      "LOCVETISREGIONGUID\0", "LOCATION\0",   "STRING\0"
+	100, "@{rtag_bill_longcode}\0",           "BILLLONGCODE\0",       "BILL\0",       "STRING\0"
+	101, "@{rtag_posnode_ofdver}\0",          "POSNODEOFDVER\0",      "POSNODE\0",    "STRING\0"
+	102, "@{rtag_loc_trunkpoint}\0",          "TRUNKPOINT\0",         "LOCATION\0",   "LINK:WORLD\0"
 	103, "@{rtag_tsess_outercode}\0",         "TSESSOUTERCODE\0",     "TSESSION\0",   "STRING\0" // @v11.6.6
 	104, "@{rtag_person_transportto}\0",      "TRANSPORTTO\0",        "PERSON\0",     "LINK:TRANSPORT\0" // @v11.6.9
 	105, "@{rtag_lotacceptance}\0",           "ACCEPTANCE\0",         "LOT\0",        "STRING\0" // @v11.7.0

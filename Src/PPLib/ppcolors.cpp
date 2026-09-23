@@ -845,7 +845,7 @@ int ColorCtrlGroup::getData(TDialog * pDlg, void * pData)
 				}
 			}
 		}
-		else if(TVCMD == cmCtlColor) {
+		else if(event.isCmd(cmCtlColor)) { // Не применяем индикаторы состояния //
 			TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 			if(p_dc) {
 				TView * v = pDlg->getCtrlView(Ctl);

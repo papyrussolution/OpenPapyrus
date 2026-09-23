@@ -1359,7 +1359,7 @@ DBQuery * PPViewPriceList::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			dbq = & (*dbq && pl->IsPresent == 1L);
 	}
 	// @v12.5.1 {
-	q = & Select_(
+	q = &Select_(
 		pl->GoodsID,       // #00
 		pl->QuotKindID,    // #01
 		pl->LineNo,        // #02
@@ -1375,7 +1375,7 @@ DBQuery * PPViewPriceList::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	q->addField(pl->Rest);          // #11
 	q->addField(dbe_quotkind);      // #12
 	// } @v12.5.1 
-	/* @v12.5.1 q = & Select_(
+	/* @v12.5.1 q = &Select_(
 		pl->GoodsID,       // #00
 		pl->QuotKindID,    // #01
 		pl->LineNo,        // #02

@@ -1,5 +1,5 @@
 // V_BCMP.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2019, 2020, 2022, 2024, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop
@@ -314,19 +314,20 @@ DBQuery * PPViewGoodsBillCmp::CreateBrowserQuery(uint * pBrwId, SString * pSubTi
 	TempGoodsBillCmpTbl * tbl = new TempGoodsBillCmpTbl(P_TempTbl->GetName());
 	DBE * dbe_minus_qtty  = &(tbl->DiffQtty * -1);
 	DBE * dbe_minus_price = &(tbl->DiffPrice * -1);
-	q = & Select_(
+	q = &Select_(
 		tbl->GoodsID,     // #00
 		tbl->GoodsName,   // #01
 		tbl->Barcode,     // #02
 		tbl->LhQtty,      // #03
 		tbl->RhQtty,      // #04
 		tbl->DiffQtty,    // #05
-		*dbe_minus_qtty,  // #06
-		tbl->LhPrice,     // #07
-		tbl->RhPrice,     // #08
-		tbl->DiffPrice,   // #09
-		*dbe_minus_price, // #10
-		0L).from(tbl, 0L);
+		0L);
+	q->addField(*dbe_minus_qtty);  // #06
+	q->addField(tbl->LhPrice);     // #07
+	q->addField(tbl->RhPrice);     // #08
+	q->addField(tbl->DiffPrice);   // #09
+	q->addField(*dbe_minus_price); // #10
+	q->from(tbl, 0L);
 	delete dbe_minus_qtty;
 	delete dbe_minus_price;
 	if(Filt.Flags & GoodsBillCmpFilt::fDiffQttyOnly)

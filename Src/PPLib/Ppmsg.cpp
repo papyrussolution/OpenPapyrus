@@ -937,6 +937,26 @@ int PPShowCtrlIndicatorHint(const char * pText) // @v12.7.7
 	return ok;
 }
 
+int PPShowCtrlIndicatorHintOnInputLine(TWindow * pWin, uint ctlId) // @v12.7.9
+{
+	int    ok = 0;
+	if(pWin && pWin->IsConsistent()) {
+		TInputLine * p_il = static_cast<TInputLine *>(pWin->getCtrlViewEnsureSubsign(ctlId, TV_SUBSIGN_INPUTLINE));
+		if(p_il) {
+			uint64 _state = 0;
+			SString descr_buf;
+			if(p_il->GetIndicatorState(&_state, &descr_buf) && descr_buf.NotEmptyS()) {
+				PPShowCtrlIndicatorHint(descr_buf);
+				ok = 1;
+			}
+			else {
+				ok = -1;
+			}
+		}
+	}
+	return ok;
+}
+
 int PPCheckUserBreak()
 {
 	int    ok = 1;

@@ -1672,7 +1672,7 @@ DBQuery * PPViewVatBook::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		PPDbqFuncPool::InitObjNameFunc(dbe_op, PPDbqFuncPool::IdObjNameOprKind, vt->OpID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, vt->LinkBillID);
 		// @v12.5.3 {
-		q = & Select_(
+		q = &Select_(
 			vt->ID,        // #00
 			vt->Dt,        // #01
 			vt->Code,      // #02
@@ -1686,7 +1686,7 @@ DBQuery * PPViewVatBook::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		q->addField(vt->Export);    // #09
 		q->addField(dbe_loc);       // #10
 		// } @v12.5.3 
-		/* @v12.5.3 q = & Select_(
+		/* @v12.5.3 q = &Select_(
 			vt->ID,        // #00
 			vt->Dt,        // #01
 			vt->Code,      // #02
@@ -1710,7 +1710,7 @@ DBQuery * PPViewVatBook::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_fix  = & flagtoa(vt->Flags, VATBF_FIX,      flag_subst.Get(PPTXT_FLAG_YES));
 		dbe_excl = & flagtoa(vt->Flags, VATBF_EXCLUDED, flag_subst.Get(PPTXT_FLAG_YES));
 		// @v12.5.3 {
-		q = & Select_(
+		q = &Select_(
 			vt->ID,      // #00
 			vt->Dt,      // #01
 			vt->Code,    // #02
@@ -1723,7 +1723,7 @@ DBQuery * PPViewVatBook::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		q->addField(*dbe_excl);   // #08
 		q->addField(dbe_loc);     // #09
 		// } @v12.5.3 
-		/* @v12.5.3 q = & Select_(
+		/* @v12.5.3 q = &Select_(
 			vt->ID,      // #00
 			vt->Dt,      // #01
 			vt->Code,    // #02

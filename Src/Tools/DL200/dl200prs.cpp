@@ -622,7 +622,7 @@ DL2_CI * DL2_Resolver::Helper_Resolve(const DL2_Column * pCol, const DL2_CI * pI
 	DL2_CI * p_result = 0;
 	if(pItem->CiType == DL2CIT_ACC) {
 		double val = 0.0;
-		AcctID acctid;
+		AccIdent acctid;
 		PPID   acc_sheet_id = 0;
 		int    aco;
 		long   mask = 0;
@@ -672,10 +672,12 @@ DL2_CI * DL2_Resolver::Helper_Resolve(const DL2_Column * pCol, const DL2_CI * pI
 			PPID   acc_id = 0;
 			long   f = (DL2_Acc::fDebit | DL2_Acc::fCredit);
 			int    is_net_trnovr = BIN(dl2ac.Flags & DL2_Acc::fTurnover && (!(dl2ac.Flags & f) || (dl2ac.Flags & f) == f));
-			if(oneof2(aco, ACO_1, ACO_2))
-				acc_id = acctid.ac;
-			else
+			if(oneof2(aco, ACO_1, ACO_2)) {
+				acc_id = acctid.AcID;
+			}
+			else {
 				THROW(AtObj.P_Tbl->AcctIDToRel(&acctid, &acc_id));
+			}
 			if(dl2ac.Flags & DL2_Acc::fTurnover && dl2ac.CorrAcc.ac) {
 				//
 				// Обороты в корреспонденции с заданным счетом

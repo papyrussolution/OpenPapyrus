@@ -2089,18 +2089,18 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 		THROW(CheckTblPtr(st = new TempInventorySubstTbl(P_TempSubstTbl->GetName())));
 		if(ccfg_flags2 & CCFLG2_HIDEINVENTORYSTOCK) {
 			// @v12.5.8 {
-			q = & Select_(
+			q = &Select_(
 				st->GoodsID,       // #00
 				st->Name,          // #01
 				st->Quantity,      // #02
 				st->SumPrice,      // #03
 				0L);
-				q->addField(dbe_empty); // #04
-				q->addField(dbe_empty); // #05
-				q->addField(dbe_empty); // #06
-				q->addField(dbe_empty); // #07
+			q->addField(dbe_empty); // #04
+			q->addField(dbe_empty); // #05
+			q->addField(dbe_empty); // #06
+			q->addField(dbe_empty); // #07
 			// } @v12.5.8 
-			/* @v12.5.8 q = & Select_(
+			/* @v12.5.8 q = &Select_(
 				st->GoodsID,       // #00
 				st->Name,          // #01
 				st->Quantity,      // #02
@@ -2112,7 +2112,7 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 				0L);*/
 		}
 		else {
-			q = & Select_(
+			q = &Select_(
 				st->GoodsID,       // #00
 				st->Name,          // #01
 				st->Quantity,      // #02
@@ -2163,7 +2163,7 @@ DBQuery * PPViewInventory::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 			tbl_l[tbl_count++] = p_tord;
 		tbl_l[tbl_count++] = it;
 		// @v12.5.8 {
-		q = & Select_(
+		q = &Select_(
 			it->BillID,     // #00
 			it->OprNo,      // #01
 			it->GoodsID,    // #02

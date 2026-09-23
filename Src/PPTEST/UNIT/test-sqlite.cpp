@@ -728,7 +728,7 @@ SLTEST_R(SQLite_OneWriterManyReaders) // @v12.7.5
 				SLCHECK_NZ(run_result);
 				if(run_result) {
 					process_h_list[process_h_list_count++] = result.HProcess;
-					result.HProcess = 0; // Важно! иначе деструктор SlProcess::Result грохнет этот дескриптор
+					result.HProcess.Z(); // Важно! иначе деструктор SlProcess::Result грохнет этот дескриптор
 				}
 			}
 		}

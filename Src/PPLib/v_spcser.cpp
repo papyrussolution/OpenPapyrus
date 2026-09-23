@@ -1,5 +1,5 @@
 // V_SPCSER.CPP
-// Copyright (c) A.Starodub 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
+// Copyright (c) A.Starodub 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025, 2026
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -195,9 +195,10 @@ static IMPL_DBE_PROC(dbqf_spcsn_textfld_iisi)
 		t->InfoDate,  // #2
 		t->Barcode,   // #3
 		t->Serial,    // #4
-		dbe_goods_name, // #5
-		dbe_manuf_name, // #6
-		0L).from(t, 0).where(*dbq);
+		0L);
+	q->addField(dbe_goods_name); // #5
+	q->addField(dbe_manuf_name); // #6
+	q->from(t, 0).where(*dbq);
 	q->orderBy(t->InfoKind, t->InfoIdent, 0L);
 	THROW(CheckQueryPtr(q));
 	ASSIGN_PTR(pBrwId, brw_id);

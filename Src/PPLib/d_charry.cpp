@@ -4267,7 +4267,7 @@ int PPDS_CrrAcctEntry::InitData(Ido op, void * dataPtr, long /*addedParam*/)
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
-			Data = *static_cast<const AcctID *>(dataPtr);
+			Data = *static_cast<const AccIdent *>(dataPtr);
 	}
 	else if(op == idoAccept) {
 	}
@@ -4282,12 +4282,12 @@ int PPDS_CrrAcctEntry::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTransm
 	if(pData) {
 		if(fldID == DSF_CRRACCTENTRY_AR) {
 			ArticleTbl::Rec rec = static_cast<const PPDS_CrrArticle *>(pData)->Data;
-			Data.ar = rec.ID;
+			Data.ArID = rec.ID;
 			ok = 1;
 		}
 		else if(fldID == DSF_CRRACCTENTRY_ACC) {
 			PPAccountPacket pack = static_cast<const PPDS_CrrAccount *>(pData)->Data;
-			Data.ac = pack.Rec.ID;
+			Data.AcID = pack.Rec.ID;
 			ok = 1;
 		}
 	}
@@ -4299,14 +4299,14 @@ int PPDS_CrrAcctEntry::CreateListItem(long fldID, uint * pIter, PPDeclStruc * pD
 	int    ok = -1;
 	if(pData) {
 		if(fldID == DSF_CRRACCTENTRY_AR) {
-			if(*pIter == 0 && Data.ar) {
-				pData->InitData(idoExtract, 0, Data.ar);
+			if(*pIter == 0 && Data.ArID) {
+				pData->InitData(idoExtract, 0, Data.ArID);
 				ok = 1;
 			}
 		}
 		else if(fldID == DSF_CRRACCTENTRY_ACC) {
-			if(*pIter == 0 && Data.ac) {
-				pData->InitData(idoExtract, 0, Data.ac);
+			if(*pIter == 0 && Data.AcID) {
+				pData->InitData(idoExtract, 0, Data.AcID);
 				ok = 1;
 			}
 		}
@@ -4390,7 +4390,7 @@ int PPDS_CrrAccturnTempl::AcceptListItem(long fldID, PPDeclStruc * pData, ObjTra
 	int    ok = -1;
 	if(pData) {
 		if(oneof2(fldID, DSF_CRRACCTURNTEMPL_DBT, DSF_CRRACCTURNTEMPL_CRD)) {
-			AcctID item = static_cast<const PPDS_CrrAcctEntry *>(pData)->Data;
+			AccIdent item = static_cast<const PPDS_CrrAcctEntry *>(pData)->Data;
 			if(fldID == DSF_CRRACCTURNTEMPL_DBT)
 				Data.DbtID = item;
 			else
@@ -4405,13 +4405,13 @@ int PPDS_CrrAccturnTempl::CreateListItem(long fldID, uint * pIter, PPDeclStruc *
 {
 	int    ok = -1;
 	if(fldID == DSF_CRRACCTURNTEMPL_DBT) {
-		if(*pIter == 0 && (Data.DbtID.ar || Data.DbtID.ac)) {
+		if(*pIter == 0 && (Data.DbtID.ArID || Data.DbtID.AcID)) {
 			pData->InitData(idoExtract, &Data.DbtID, 0);
 			ok = 1;
 		}
 	}
 	else if(fldID == DSF_CRRACCTURNTEMPL_CRD) {
-		if(*pIter == 0 && (Data.CrdID.ar || Data.CrdID.ac)) {
+		if(*pIter == 0 && (Data.CrdID.ArID || Data.CrdID.AcID)) {
 			pData->InitData(idoExtract, &Data.CrdID, 0);
 			ok = 1;
 		}

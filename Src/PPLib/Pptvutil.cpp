@@ -181,7 +181,7 @@ SString & FASTCALL PPFormatPeriod(const DateRange * pPeriod, SString & rBuf)
 	return rBuf; // @v12.2.4
 }
 
-SString & FASTCALL PPFormatPeriod(const LDATETIME & rBeg, const LDATETIME & rEnd, SString & rBuf)
+SString & STDCALL PPFormatPeriod(const LDATETIME & rBeg, const LDATETIME & rEnd, SString & rBuf)
 {
 	// @v12.2.4 usage PPLoadStringS("daterange_from", SLS.AcquireRvlStr()) and PPLoadStringS("daterange_to", SLS.AcquireRvlStr()) insted russian text
 	rBuf.Z();
@@ -300,7 +300,7 @@ int STDCALL GetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, LTIME * pLow, 
 	return ok;
 }
 
-int FASTCALL SetRealRangeInput(TDialog * dlg, uint ctl, double lo, double up, int prc)
+int STDCALL SetRealRangeInput(TDialog * dlg, uint ctl, double lo, double up, int prc)
 {
 	char   buf[256];
 	char * b = buf;
@@ -320,7 +320,7 @@ int FASTCALL SetRealRangeInput(TDialog * dlg, uint ctl, double lo, double up, in
 	return 1;
 }
 
-int FASTCALL GetRealRangeInput(TDialog * dlg, uint ctl, double * pLow, double * pUpp)
+int STDCALL GetRealRangeInput(TDialog * dlg, uint ctl, double * pLow, double * pUpp)
 {
 	char   buf[256];
 	double low = 0.0;
@@ -335,16 +335,16 @@ int FASTCALL GetRealRangeInput(TDialog * dlg, uint ctl, double * pLow, double * 
 		return 0;
 }
 
-int FASTCALL SetRealRangeInput(TDialog * dlg, uint ctl, const RealRange * pRng, int prc) { return SetRealRangeInput(dlg, ctl, pRng->low, pRng->upp, prc); }
-int FASTCALL GetRealRangeInput(TDialog * dlg, uint ctl, RealRange * pRng) { return GetRealRangeInput(dlg, ctl, pRng ? &pRng->low : 0, pRng ? &pRng->upp : 0); }
+int STDCALL SetRealRangeInput(TDialog * dlg, uint ctl, const RealRange * pRng, int prc) { return SetRealRangeInput(dlg, ctl, pRng->low, pRng->upp, prc); }
+int STDCALL GetRealRangeInput(TDialog * dlg, uint ctl, RealRange * pRng) { return GetRealRangeInput(dlg, ctl, pRng ? &pRng->low : 0, pRng ? &pRng->upp : 0); }
 
-int FASTCALL SetIntRangeInput(TDialog * dlg, uint ctl, const IntRange * pR)
+int STDCALL SetIntRangeInput(TDialog * dlg, uint ctl, const IntRange * pR)
 {
 	SString temp_buf;
 	return dlg->setCtrlString(ctl, pR->ToStr(0, temp_buf));
 }
 
-int FASTCALL GetIntRangeInput(TDialog * dlg, uint ctl, IntRange * pR)
+int STDCALL GetIntRangeInput(TDialog * dlg, uint ctl, IntRange * pR)
 {
 	SString temp_buf;
 	if(dlg->getCtrlString(ctl, temp_buf)) {
@@ -399,7 +399,7 @@ int PPExecuteContextMenu(TView * pView, uint menuID)
 	return ok;
 }
 
-int FASTCALL PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrlMenuID)
+int STDCALL PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrlMenuID)
 {
 	int    ok = 1;
 	if(pDlg) {
@@ -579,21 +579,51 @@ int ViewStatus()
 				const UiDescription * p_uid = SLS.GetUiDescription();
 				const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 				{
-					SColor _color;
-					if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
-						_color = SClrCoral; 
+					SColor _color = UiDescription::GetColorR(p_uid, p_cs, "invalid_value_input_bg", SClrCoral);
 					Ptb.SetBrush(brushInvalidPath, SPaintObj::bsSolid, _color, 0);
 				}
 				{
-					SColor _color;
-					if(!p_cs || !p_cs->Get("valid_value_input_bg", &p_uid->ClrList, _color))
-						_color = SClrAqua; 
+					SColor _color = UiDescription::GetColorR(p_uid, p_cs, "valid_value_input_bg", SClrAqua);
 					Ptb.SetBrush(brushValidPath,   SPaintObj::bsSolid, _color,  0);
 				}
 			}
 			SetCtrlBitmap(CTL_STATUS_IMG, BM_PICT_STATUS);
 			PPAdviseEventQueue * p_queue = DS.GetAdviseEventQueue(0);
 			enableCommand(cmAeqStat, BIN(p_queue));
+		}
+		int    SetupInputState_Path(uint ctlId)
+		{
+			int    ok = -1;
+			TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctlId, TV_SUBSIGN_INPUTLINE));
+			if(p_il) {
+				SString temp_buf;
+				for(uint i = 0; i < SIZEOFARRAY(ctrl_to_path_map); i++) {
+					const uint16 iter_ctl_id = ctrl_to_path_map[i].CtlId;
+					if(iter_ctl_id == ctlId) {
+						getCtrlString(ctlId, temp_buf);
+						uint64 _state = 0;
+						int    state_msg_id = 0;
+						if(SFile::IsDir(temp_buf.RmvLastSlash())) {
+							_state = 1;
+							state_msg_id = CTLUSTTD_PATH_VALID;
+						}
+						else {
+							_state = 2;
+							state_msg_id = CTLUSTTD_PATH_INVALID;
+						}
+						temp_buf.Z();
+						if(state_msg_id) {
+							PPLoadString(PPSTR_CTLUSTTD, state_msg_id, temp_buf);
+						}
+						if(p_il->SetIndicatorState(_state, temp_buf) > 0) {
+							drawCtrl(ctlId);
+							ok = 1;
+						}
+						break;
+					}
+				}
+			}
+			return ok;
 		}
 	private:
 		DECL_HANDLE_EVENT
@@ -603,23 +633,43 @@ int ViewStatus()
 				ViewAsyncEventQueueStat();
 				clearEvent(event);
 			}
-			else if(event.isCmd(cmCtlColor)) {
+			else if(event.isCmd(cmInputUpdated)) {
+				const  uint ctl_id = event.getCtlID();
+				SetupInputState_Path(ctl_id);
+			}
+			else if(event.isCmd(cmCtlColor)) { // @IndicatorState-done
+				bool  local_done = false;
 				TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 				if(p_dc) {
-					//static const uint16 ctl_list[] = {CTL_STATUS_BINPATH, CTL_STATUS_INPATH, CTL_STATUS_OUTPATH, CTL_STATUS_TEMPPATH};
 					SString path;
-					for(uint i = 0; i < SIZEOFARRAY(/*ctl_list*/ctrl_to_path_map); i++) {
-						const uint16 ctl_id = /*ctl_list*/ctrl_to_path_map[i].CtlId;
-						if(p_dc->H_Ctl == getCtrlHandle(ctl_id)) {
-							getCtrlString(ctl_id, path);
-							int tool_id = SFile::IsDir(path.RmvLastSlash()) ? brushValidPath : brushInvalidPath;
-							if(tool_id) {
-								::SetBkMode(p_dc->H_DC, TRANSPARENT);
-								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(tool_id));
+					for(uint i = 0; i < SIZEOFARRAY(ctrl_to_path_map); i++) {
+						const  uint16 iter_ctl_id = ctrl_to_path_map[i].CtlId;
+						HWND   iter_hw = getCtrlHandle(iter_ctl_id);
+						if(p_dc->H_Ctl == iter_hw) {
+							TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(iter_ctl_id, TV_SUBSIGN_INPUTLINE));
+							if(p_il) {
+								uint64 _state = 0;
+								if(p_il->GetIndicatorState(&_state, 0)) {
+									::SetBkMode(p_dc->H_DC, TRANSPARENT);
+									p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get((_state == 2) ? brushInvalidPath : brushValidPath));
+									local_done = true;
+								}
 							}
-							clearEvent(event);
 							break;
 						}
+					}
+				}
+				if(local_done) {
+					clearEvent(event);
+				}
+			}
+			else if(event.isCmd(cmMouseHoverCtrl)) { // @v12.7.9
+				const  uint ctl_id = event.getCtlID();
+				for(uint i = 0; i < SIZEOFARRAY(ctrl_to_path_map); i++) {
+					const uint16 iter_ctl_id = ctrl_to_path_map[i].CtlId;
+					if(iter_ctl_id == ctl_id) {
+						PPShowCtrlIndicatorHintOnInputLine(this, ctl_id);
+						break;
 					}
 				}
 			}
@@ -654,10 +704,11 @@ int ViewStatus()
 	dlg->setCtrlString(CTL_STATUS_DBSYMBOL, sbuf);
 	dlg->setCtrlString(CTL_STATUS_DATAPATH, datapath.Transf(CTRANSF_OUTER_TO_INNER));
 	for(uint i = 0; i < SIZEOFARRAY(ctrl_to_path_map); i++) {
-		const CtrlToPathMapEntry & r_map_entry = ctrl_to_path_map[i];
+		const  CtrlToPathMapEntry & r_map_entry = ctrl_to_path_map[i];
 		PPGetPath(r_map_entry.PathID, temp_buf);
 		SFsPath::NormalizePath(temp_buf,  SFsPath::npfCompensateDotDot|SFsPath::npfKeepCase, datapath); // @v12.5.7
 		dlg->setCtrlString(r_map_entry.CtlId, datapath.Transf(CTRANSF_OUTER_TO_INNER));
+		dlg->SetupInputState_Path(r_map_entry.CtlId); // @v12.7.9
 	}
 	if(LConfig.Flags & CFGFLG_USEGOODSMATRIX) {
 		PPLoadText(PPTXT_GOODSMATRIX_IS_USED, sbuf);
@@ -4209,6 +4260,168 @@ int PhoneSelExtra::SearchText(const char * pText, long * pID, SString & rBuf)
 //
 //
 //
+LocalStateBinderySelExtra::LocalStateBinderySelExtra(const LocalStateBinderyCore::StateIdent & rIdent) : WordSel_ExtraBlock(), StI(rIdent)
+{
+}
+
+/*virtual*/StrAssocArray * LocalStateBinderySelExtra::GetList(const char * pText)
+{
+	StrAssocArray * p_result = 0;
+	if(!isempty(pText)) {
+		LocalStateBinderyCore * p_lstb = DS.GetTLA().GetLocalStateBindery();
+		if(p_lstb) {
+			SString temp_buf;
+			SString key(pText);
+			key.Transf(CTRANSF_INNER_TO_UTF8);
+			TSCollection <LocalStateBinderyCore::SerialEntry> serial_list;
+			LongArray pos_list; // [+1]
+			p_lstb->FetchStateSerial(StI, &serial_list);
+			LocalStateBinderyCore::SearchInSerial(serial_list, key, LocalStateBinderyCore::treatsSubStringUtf8List, pos_list);
+			if(pos_list.getCount()) {
+				for(uint i = 0; i < pos_list.getCount(); i++) {
+					const  long iter_idx = pos_list.get(i);
+					const  uint iter_pos = static_cast<uint>(iter_idx-1);
+					const  LocalStateBinderyCore::SerialEntry * p_entry = serial_list.at(iter_pos);
+					if(p_entry && p_entry->Buf.GetAvailableSize()) {
+						if(!p_result) {
+							p_result = new StrAssocArray();
+						}
+						LocalStateBinderyCore::GetStringFromStateBuf(LocalStateBinderyCore::treatbStringUtf8, p_entry->Buf, temp_buf);
+						if(temp_buf.NotEmpty()) {
+							if(!p_result->SearchByTextNcUtf8(temp_buf, 0))
+								p_result->AddFast(p_entry->ID, temp_buf);
+						}
+					}
+				}
+			}
+		}
+	}
+	return p_result;
+}
+
+/*virtual*/StrAssocArray * LocalStateBinderySelExtra::GetRecentList()
+{
+	StrAssocArray * p_result = 0;
+	// @v12.7.9 {
+	LocalStateBinderyCore * p_lstb = DS.GetTLA().GetLocalStateBindery();
+	if(p_lstb) {
+		SString temp_buf;
+		TSCollection <LocalStateBinderyCore::SerialEntry> serial_list;
+		p_lstb->FetchStateSerial(StI, &serial_list);
+		{
+			// Строки далее извлекаем с конца - в начало дабы в начале списка были бы самый свежие элементы
+			uint   i = serial_list.getCount();
+			if(i) do {
+				const  LocalStateBinderyCore::SerialEntry * p_entry = serial_list.at(--i);
+				if(p_entry && p_entry->Buf.GetAvailableSize()) {
+					if(!p_result) {
+						p_result = new StrAssocArray();
+					}
+					LocalStateBinderyCore::GetStringFromStateBuf(LocalStateBinderyCore::treatbStringUtf8, p_entry->Buf, temp_buf);
+					if(temp_buf.NotEmpty()) {
+						if(!p_result->SearchByTextNcUtf8(temp_buf, 0))
+							p_result->AddFast(p_entry->ID, temp_buf);
+					}
+				}
+			} while(i);
+		}
+	}
+	// } @v12.7.9 
+	return p_result;
+}
+
+/*virtual*/int LocalStateBinderySelExtra::Search(long id, SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 0;
+	if(id) {
+		LocalStateBinderyCore * p_lstb = DS.GetTLA().GetLocalStateBindery();
+		if(p_lstb) {
+			TSCollection <LocalStateBinderyCore::SerialEntry> serial_list;
+			p_lstb->FetchStateSerial(StI, &serial_list);
+			uint   pos = 0;
+			if(serial_list.lsearch(&id, &pos, CMPF_LONG)) {
+				const  LocalStateBinderyCore::SerialEntry * p_entry = serial_list.at(pos);
+				if(p_entry) {
+					LocalStateBinderyCore::GetStringFromStateBuf(LocalStateBinderyCore::treatbStringUtf8, p_entry->Buf, rBuf);
+					ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+/*virtual*/int LocalStateBinderySelExtra::SearchText(const char * pText, long * pID, SString & rBuf)
+{
+	rBuf.Z();
+	int    ok = 0;
+	long   result_id = 0;
+	if(!isempty(pText)) {
+		LocalStateBinderyCore * p_lstb = DS.GetTLA().GetLocalStateBindery();
+		if(p_lstb) {
+			SString key(pText);
+			TSCollection <LocalStateBinderyCore::SerialEntry> serial_list;
+			LongArray pos_list; // [+1]
+			p_lstb->FetchStateSerial(StI, &serial_list);
+			LocalStateBinderyCore::SearchInSerial(serial_list, key, LocalStateBinderyCore::treatsStringUtf8List, pos_list);
+			if(pos_list.getCount()) {
+				const  long _idx = pos_list.get(0);
+				const  uint _pos = static_cast<uint>(_idx-1);
+				const  LocalStateBinderyCore::SerialEntry * p_entry = serial_list.at(_pos);
+				if(p_entry && p_entry->Buf.GetAvailableSize()) {
+					LocalStateBinderyCore::GetStringFromStateBuf(LocalStateBinderyCore::treatbStringUtf8, p_entry->Buf, rBuf);
+					if(rBuf.NotEmpty()) {
+						result_id = p_entry->ID;
+						ok = 1;
+					}
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pID, result_id);
+	return ok;
+}
+
+/*virtual*/void LocalStateBinderySelExtra::OnAcceptInput(const char * pText, long id)
+{
+	int    lstb_reg_state_result = 0;
+	if(!isempty(pText)) {
+		SString temp_buf(pText);
+		if(temp_buf.NotEmptyS()) {
+			LocalStateBinderyCore * p_lstb = DS.GetTLA().GetLocalStateBindery();
+			if(p_lstb) {
+				temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+				//LocalStateBinderyCore::StateIdent state_ident;
+				//state_ident.Kind = LocalStateBinderyCore::kInput;
+				//state_ident.Subj = UED::SetRaw_UXControlIdent(SObjID(WNDID_FACADEWINDOW, CTL_FACADEWINDOW_MAININPUT));
+				//if(state_ident.Subj) {
+				{
+					PPID   sid = 0;
+					SBuffer state_input_data;
+					state_input_data.Write(temp_buf.cptr(), temp_buf.Len()+1);
+					lstb_reg_state_result = p_lstb->RegisterState(&sid, StI, state_input_data, 1);
+				}
+			}
+		}
+	}
+}
+
+int PPSetupLocalStateWordSelectorOnInputLine(TWindow * pWin, uint winIdent, uint ctlIdent) // @v12.7.9
+{
+	int    ok = 0;
+	if(pWin && pWin->IsConsistent()) {
+		LocalStateBinderyCore::StateIdent state_ident;
+		state_ident.Kind = LocalStateBinderyCore::kInput;
+		state_ident.Subj = UED::SetRaw_UXControlIdent(SObjID(winIdent, ctlIdent));
+		ok = pWin->SetupWordSelector(ctlIdent, new LocalStateBinderySelExtra(state_ident), 0, 3,
+			WordSel_ExtraBlock::fUtf8|WordSel_ExtraBlock::fFreeText/*|WordSel_ExtraBlock::fAlwaysSearchBySubStr*/);
+	}
+	return ok;
+}
+//
+//
+//
 PersonCtrlGroup::Rec::Rec() : PsnKindID(0), PersonID(0), SCardID(0), Flags(0)
 {
 }
@@ -6448,7 +6661,7 @@ void EmailCtrlGroup::SetLine(TDialog * pDlg)
 			addr_list.Semicol();
 	}
 	if(pDlg) {
-		pDlg->SetupWordSelector(Ctl, (oneof2(alcnt, 0, 1) ? new TextHistorySelExtra("email-common") : 0), 0, 2, WordSel_ExtraBlock::fFreeText);
+		// @v12.7.9 pDlg->SetupWordSelector(Ctl, (oneof2(alcnt, 0, 1) ? new TextHistorySelExtra("email-common") : 0), 0, 2, WordSel_ExtraBlock::fFreeText);
 		pDlg->setCtrlString(Ctl, addr_list);
 		pDlg->disableCtrl(Ctl, Data.AddrList.getCount() > 1);
 	}

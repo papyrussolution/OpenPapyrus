@@ -2531,9 +2531,9 @@ int PPViewGoodsOpAnalyze::CreateTempTable(double * pUfpFactors)
 							AccAnlzFilt aa_filt;
 							AccAnlzTotal aa_total;
 							aa_filt.Period = Filt.Period;
-							aa_filt.AcctId.ac = mp_acc_id;
+							aa_filt.AcctId.AcID = mp_acc_id;
 							if(P_BObj->ArObj.P_Tbl->SearchNum(mp_acs_id, ar_no, &ar_rec) > 0) {
-								aa_filt.AcctId.ar = ar_rec.ID;
+								aa_filt.AcctId.ArID = ar_rec.ID;
 								aa_filt.Aco = ACO_3;
 								if(P_BObj->atobj->P_Tbl->AcctIDToRel(&aa_filt.AcctId, &aa_filt.AccID)) {
 									aa_filt.Flags |= AccAnlzFilt::fTotalOnly;
@@ -4680,7 +4680,7 @@ DBQuery * PPViewGoodsOpAnalyze::CreateBrowserQuery(uint * pBrwID, SString * pSub
 			dbe_crest.push(dbc_long); // Formatting flags
 			dbe_crest.push(static_cast<DBFunc>(PPDbqFuncPool::IdCQtty));
 		}
-		q = & Select_(
+		q = &Select_(
 			tbl->ID__,           // #00 // @v12.1.7  
 			tbl->LocID,          // #01 // @v12.1.7 +1
 			tbl->GoodsID,        // #02 // @v12.1.7 +1

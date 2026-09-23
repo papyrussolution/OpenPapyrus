@@ -1359,6 +1359,14 @@ PPEanComDocument::CuxValue & PPEanComDocument::CuxValue::Z()
 	return *this;
 }
 
+PPEanComDocument::TodValue::TodValue() : FunctionCode(0)
+{
+	PaymMethodCode[0] = 0;
+	TermDescrCode[0] = 0;
+	CodeListIdCode[0] = 0;
+	CodeListRespAgcCode[0] = 0;
+}
+
 PPEanComDocument::TaxValue::TaxValue() : Q(0), T(0), Rate(0.0), Value(0.0)
 {
 }
@@ -3831,6 +3839,11 @@ void PPEanComDocument::SetupPartyAddedMsg(const PartyValue * pVal, SString & rBu
 	rBuf.CatDivIfNotEmpty('/', 1).Cat(pVal->Code);
 	if(pVal->Name.NotEmpty())
 		rBuf.CatChar('[').Cat(pVal->Name).CatChar(']');
+}
+
+PPEanComDocument::PartyResolveBlock::PartyResolveBlock()
+{
+	THISZERO();
 }
 
 int PPEanComDocument::PreprocessPartiesOnReading(int ediOpID, const DocumentValue * pV, PartyResolveBlock * pResult)

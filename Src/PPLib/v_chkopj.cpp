@@ -1,5 +1,5 @@
 // V_CHKOPJ.CPP
-// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2017, 2021, 2022, 2024, 2025
+// Copyright (c) A.Starodub 2010, 2013, 2015, 2016, 2017, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 // Журнал чековых операций
 //
@@ -283,19 +283,20 @@ DBQuery * PPViewCheckOpJrnl::CreateBrowserQuery(uint * pBrwId, SString *)
 	dbq = ppcheckfiltid(dbq, p_chkop_j->AgentID, Filt.AgentID); // @vmiller
 	if(Filt.BegTm)
 		dbq = & (*dbq && p_chkop_j->Tm >= (long)Filt.BegTm);
-	q = & Select_(
+	q = &Select_(
 		p_chkop_j->Dt,       // #1
 		p_chkop_j->Tm,       // #2
 		p_chkop_j->Action,   // #3
-		dbe_user,            // #4
-		dbe_action,          // #5
-		p_chkop_j->CheckNum, // #6
-		dbe_goods,           // #7
-		p_chkop_j->Price,    // #8
-		p_chkop_j->Summ,     // #9
-		dbe_saler,  // @vmiller
-		p_chkop_j->PosNodeID,// @vmiller
-		0L).from(p_chkop_j, 0L);
+		0L);
+	q->addField(dbe_user);             // #4
+	q->addField(dbe_action);           // #5
+	q->addField(p_chkop_j->CheckNum);  // #6
+	q->addField(dbe_goods);            // #7
+	q->addField(p_chkop_j->Price);     // #8
+	q->addField(p_chkop_j->Summ);      // #9
+	q->addField(dbe_saler);            // #10 @vmiller
+	q->addField(p_chkop_j->PosNodeID); // #11 @vmiller
+	q->from(p_chkop_j, 0L);
 	q->where(*dbq);
 	q->orderBy(p_chkop_j->Dt, p_chkop_j->Tm, 0L);
 	THROW(CheckQueryPtr(q));

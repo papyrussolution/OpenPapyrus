@@ -507,9 +507,9 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 		/* Пока включать нельзя поскольку таким же цветом надо отрисовывать неклиентскую часть некоторых контролов и 
 		фон текста STATIC (label в том числе)*/
 		case WM_CTLCOLORDLG: 
-		case WM_CTLCOLORSTATIC:
+		// @v12.7.9 (moved down) case WM_CTLCOLORSTATIC:
 			{
-				SPaintToolBox * p_tb = APPL->GetUiToolBox();
+				const  SPaintToolBox * p_tb = APPL->GetUiToolBox();
 				if(p_tb) {
 					COLORREF _clr = p_tb->GetColor(TProgram::tbiDialogBkgColor);
 					HDC h_dc = reinterpret_cast<HDC>(wParam);
@@ -518,8 +518,9 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 					HGDIOBJ brush = p_tb->Get(TProgram::tbiDialogBkgBrush);
 					return (BOOL)brush;
 				}
-				else
+				else {
 					return 0;
+				}
 			}
 			break;
 	#endif // } 0
@@ -527,46 +528,39 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 		// @v12.5.3 case WM_CTLCOLORSTATIC:
 		case WM_CTLCOLOREDIT:
 		case WM_CTLCOLORSCROLLBAR:
-			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
-			if(p_dlg) {
-				TDrawCtrlData dc;
-				switch(uMsg) {
-					case WM_CTLCOLORSTATIC: dc.Src = TDrawCtrlData::cStatic; break;
-					case WM_CTLCOLOREDIT: dc.Src = TDrawCtrlData::cEdit; break;
-					case WM_CTLCOLORSCROLLBAR: dc.Src = TDrawCtrlData::cScrollBar; break;
-					default: dc.Src = 0; break;
-				}
-				dc.H_Ctl = reinterpret_cast<HWND>(lParam);
-				dc.H_DC  = reinterpret_cast<HDC>(wParam);
-				dc.H_Br  = 0;
-				if(TView::messageCommand(p_dlg, cmCtlColor, &dc))
-					return (BOOL)dc.H_Br;
-				/* @construction
-				else {
-					if(dc.Src == TDrawCtrlData::cEdit) {
-						TView * p_view = p_dlg->getCtrlByHandle(dc.H_Ctl);
-						if(p_view && p_view->GetSubSign() == TV_SUBSIGN_INPUTLINE) {
-							TInputLine * p_il = (TInputLine *)p_view;
-							if(GETSTYPE(p_il->getType()) == S_DATE) {
-								SString & r_temp_buf = SLS.AcquireRvlStr();
-								p_il->getText(r_temp_buf);
-								if(r_temp_buf.NotEmpty()) {
-									long   sdret = 0;
-									SUniDate_Internal _date;
-									_strtodate(r_temp_buf, p_il->getFormat(), &_date, &sdret);
-									if(sdret & strtodatefInvalid) {
-										SPaintToolBox * p_tb = APPL->GetUiToolBox();
-										if(p_tb)
-											return (BOOL)p_tb->Get(TProgram::tbiInvalInpBrush);
-									}
-								}
-							}
+		case WM_CTLCOLORSTATIC: // @v12.7.9 (moved up-down) 
+			{
+				HGDIOBJ h_br = 0;
+				p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
+				if(p_dlg) {
+					TDrawCtrlData dc;
+					switch(uMsg) {
+						case WM_CTLCOLORSTATIC: dc.Src = TDrawCtrlData::cStatic; break;
+						case WM_CTLCOLOREDIT: dc.Src = TDrawCtrlData::cEdit; break;
+						case WM_CTLCOLORSCROLLBAR: dc.Src = TDrawCtrlData::cScrollBar; break;
+						default: dc.Src = 0; break;
+					}
+					dc.H_Ctl = reinterpret_cast<HWND>(lParam);
+					dc.H_DC  = reinterpret_cast<HDC>(wParam);
+					dc.H_Br  = 0;
+					if(TView::messageCommand(p_dlg, cmCtlColor, &dc)) {
+						h_br = dc.H_Br;
+					}
+					// @v12.7.9 {
+					else if(uMsg == WM_CTLCOLORSTATIC) {
+						const  SPaintToolBox * p_tb = APPL->GetUiToolBox();
+						if(p_tb) {
+							COLORREF _clr = p_tb->GetColor(TProgram::tbiDialogBkgColor);
+							HDC h_dc = reinterpret_cast<HDC>(wParam);
+							//SetTextColor(h_dc, RGB(0, 0, 0));
+							SetBkColor(h_dc, _clr);
+							h_br = p_tb->Get(TProgram::tbiDialogBkgBrush);
 						}
 					}
+					// } @v12.7.9 
 				}
-				@construction */
+				return (BOOL)h_br;
 			}
-			// no break: ret FALSE by default
 		case WM_PAINT:
 			{
 				p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));

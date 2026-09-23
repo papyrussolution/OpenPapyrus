@@ -1735,6 +1735,13 @@ static const SIntToSymbTabEntry ChZnPtList[] = {
 	{ GTCHZNPT_NONALCBEER, "nonalcbeer" }, // @v12.2.6
 	{ GTCHZNPT_PETFOOD, "petfood"}, // @v12.3.9
 	{ GTCHZNPT_VEGETABLEOIL, "vegetableoil" }, // @v12.4.8
+	{ GTCHZNPT_NCP, "ncp" }, // @v12.7.8 @fix (пропустил я его почему-то)
+	{ GTCHZNPT_JEWELRY, "jewelry" }, // @v12.7.9
+	{ GTCHZNPT_MOTOROIL, "motoroil" }, // @v12.7.9
+	{ GTCHZNPT_CHEMISTRY, "chemistry" }, // @v12.7.9
+	{ GTCHZNPT_GROCERY, "grocery" }, // @v12.7.9
+	{ GTCHZNPT_CANNEDFOOD, "cannedfood" }, // @v12.7.9
+	{ GTCHZNPT_TOYS, "toys" }, // @v12.7.9
 };
 
 int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, const AsyncCashGoodsInfo & rInfo, const PPQuotArray * pQList)
@@ -3786,8 +3793,8 @@ int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, bool 
 				for(uint aci = 0; aci < goods_pack.ArCodes.getCount(); aci++) {
 					const  ArGoodsCodeTbl::Rec & r_src_item = goods_pack.ArCodes.at(aci);
 					// @v12.7.1 {
-					// Необходимо удалить из сущесвующего товара все коды со статьями, равными тем, с которыми добавляются коды с хоста.
-					// Этот блок введен в ответ на проблему, возникшию из-за того, что на хосте были объединены товары в результате
+					// Необходимо удалить из существующего товара все коды со статьями, равными тем, с которыми добавляются коды с хоста.
+					// Этот блок введен в ответ на проблему, возникшую из-за того, что на хосте были объединены товары в результате
 					// в кассовой БД появились товары с двумя собственными кодами (ArID==0) и чеки на хост передавались со старым идентификатором.
 					// В общем, путаница возникала.
 					//
@@ -4382,12 +4389,12 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 				PPObjGoodsType gt_obj;
 				{
 					PPGoodsType2 gt_rec;
+					constexpr long reckoned_gt_flags = (GTF_LOOKBACKPRICES|GTF_UNLIMITED|GTF_GMARKED);
 					for(SEnum en = gt_obj.Enum(0); en.Next(&gt_rec) > 0;) {
 						for(uint j = 0; j < gt_list.getCount(); j++) {
 							SurrGoodsTypeEntry * p_entry = static_cast<SurrGoodsTypeEntry *>(gt_list.at(j));
 							if(!p_entry->NativeID) {
-								if((p_entry->Flags & (GTF_LOOKBACKPRICES|GTF_UNLIMITED|GTF_GMARKED)) == (gt_rec.Flags & (GTF_LOOKBACKPRICES|GTF_UNLIMITED|GTF_GMARKED)) &&
-									p_entry->ChZnProdType == gt_rec.ChZnProdType)
+								if((p_entry->Flags & reckoned_gt_flags) == (gt_rec.Flags & reckoned_gt_flags) && p_entry->ChZnProdType == gt_rec.ChZnProdType)
 									p_entry->NativeID = gt_rec.ID;
 							}
 						}

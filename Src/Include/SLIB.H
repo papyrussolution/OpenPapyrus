@@ -2359,6 +2359,18 @@ int    FASTCALL GetLinguaCode(int ident, SString & rCode);
 uint32 FASTCALL GetLinguaIdent(int ident);
 void   FASTCALL GetLinguaList(LongArray & rList);
 //
+// Descr: Возвращает 2-буквенный символ государства по его цифровому коду.
+// 
+bool   FASTCALL GetCountrySymb2(uint intCode, SString & rSymb); // @v12.7.9
+//
+// Descr: Возвращает 3-буквенный символ государства по его цифровому коду.
+// 
+bool   FASTCALL GetCountrySymb3(uint intCode, SString & rSymb); // @v12.7.9
+//
+// Descr: Возвращает цифровой код государства по его символу (2-буквенному или 3-буквенному).
+// 
+uint   FASTCALL GetCountryCode(const char * pSymb); // @v12.7.9
+//
 // Descr: Возвращает идентификатор натурального скрипта по английскому наименованию pSymb.
 //   Внутренняя таблица символов скриптов "заточена" на соответствие со стандартной таблицей unicode-символов.
 //
@@ -5152,6 +5164,12 @@ public:
 	SStringU & Slash();
 	SStringU & BSlash();
 	SStringU & SetLastSlash();
+	//
+	// Descr: Вставляет в позицию pos строки this другую строку pStr.
+	//   Если pos > this->Len(), то ничего не делает,
+	//   если pos == this->Len(), то this->Insert(this->Len(), pStr) == this->Cat(pStr)
+	//
+	SStringU & Insert(size_t pos, const wchar_t * pStr); // @v12.7.9
 	SStringU & FASTCALL CopyFrom(const SStringU & rS);
 	SStringU & FASTCALL CopyFrom(const wchar_t * pS);
 	SStringU & CopyFromN(const wchar_t * pS, size_t maxLen);
@@ -7752,6 +7770,10 @@ uint8  FASTCALL bitscanreverse(uint * pIdx, uint32 mask);
 uint8  FASTCALL bitscanreverse(ulong * pIdx, uint32 mask);
 
 class SBits { // @v11.7.10
+	//
+	// x |=  ((1 << N) - 1); установить N младших бит
+	// x &= ~((1 << N) - 1); сбросить N младших бит
+	// ------
 public:
 	static uint FASTCALL Bsf_fallback(uint v);
 	static uint FASTCALL Bsf_fallback(uint64 v);
@@ -7759,6 +7781,9 @@ public:
 	static uint FASTCALL Bsr_fallback(uint64 v);
 	static FORCEINLINE uint Bsf_fallback(ulong v) { return Bsf_fallback((uint)v); }
 	static FORCEINLINE uint Bsr_fallback(ulong v) { return Bsr_fallback((uint)v); }
+
+	// ctz - count trailing zero
+	// clz - count leading zero
 
 	static uint FASTCALL Ctz_fallback(uint32 v);
 	static uint FASTCALL Ctz_fallback(uint64 v);
@@ -12909,6 +12934,7 @@ int STDCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags);
 #define SNTOK_CHZN_GENERAL              64 // @v12.6.5  Код можно трактовать как маркировку честного знака (в любом из вариантов). Часто совмещен с одним из иных варантов SNTOK_CHZN_XXX
 #define SNTOK_RU_LICPLATE               65 // @v12.7.4  Автомобильный номер (российский) @construction 
 #define SNTOK_WININTERNALCMD            66 // @v12.7.6  Внутренняя команда windows 
+#define SNTOK_COUNTRYCODE               67 // @v12.7.9  Символьный код государства (2- или 3- буквенный)
 
 #define SNTOKSEQ_DEC                0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR             0x00000002 // a-z

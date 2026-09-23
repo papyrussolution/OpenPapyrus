@@ -1749,7 +1749,7 @@ DBQuery * PPViewTSessLine::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	p_dbe_sign   = & enumtoa(p_tslt->Sign, 3, sign_subst.Get(PPTXT_TSESSLN_SIGN));
 	p_dbe_price  = &(p_tslt->Price - p_tslt->Discount);
 	p_dbe_amount = &((p_tslt->Price - p_tslt->Discount) * p_tslt->Qtty);
-	q = & Select_(p_tslt->TSessID, // #0
+	q = &Select_(p_tslt->TSessID, // #0
 		p_tslt->OprNo,             // #1
 		0L);         
 	q->addField(*p_dbe_sign);      // #2

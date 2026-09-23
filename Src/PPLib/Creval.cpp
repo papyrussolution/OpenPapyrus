@@ -78,7 +78,7 @@ private:
 
 int CRevalDialog::getAcc(uint ctl, Acct * pAcc)
 {
-	AcctID acctid;
+	AccIdent acctid;
 	getCtrlData(ctl, pAcc);
 	//pAcc->ar = 0;
 	return (pAcc->ac == 0 && pAcc->sb == 0) ? -1 : ((BillObj->atobj->ConvertAcct(pAcc, 0L, &acctid, 0) > 0) ? 1 : (selectCtrl(ctl), 0));

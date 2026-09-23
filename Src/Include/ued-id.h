@@ -1,6 +1,6 @@
 // UED-ID-TEMP.H
-// version: 20
-// sha256: 7bda8802d72dde021fd4de76a7d7af424dec5e8f8aef4891ce316a7a7a648fbc
+// version: 21
+// sha256: c32db1fa0948f976c112113200430bf8aa1cb3e82877eabfeb2ba905d973412e
 //
 #ifndef __UED_ID_H
 #define __UED_ID_H
@@ -3702,6 +3702,7 @@
 #define UED_META_PRICE_BT                            0x1409f0000ULL
 #define UED_META_PRICE_AT                            0x140a00000ULL
 #define UED_META_DISCOUNT                            0x140a10000ULL
+#define UED_META_RU_LICPLATE                         0x140a20000ULL
 #define UED_META_PRV_PERSON                          0x143ec0000ULL
 #define UED_META_PRV_WARE                            0x143f10000ULL
 #define UED_META_PRV_LOCATION                        0x143f20000ULL

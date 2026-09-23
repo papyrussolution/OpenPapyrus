@@ -4611,7 +4611,7 @@ DBQuery * PPViewDebtorStat::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 		tbl->ExpiryMean,     // #10
 		tbl->SigmFactor,     // #11
 		tbl->Flags,          // #12
-		0);
+		0L);
 	q->addField(dbe_ar);     // #13
 	if(p_ot)
 		q->from(p_ot, tbl, 0L).where(*dbq).orderBy(p_ot->Name, 0L);

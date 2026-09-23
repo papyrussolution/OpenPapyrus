@@ -12,22 +12,22 @@ AccTurnCore::AccTurnCore() : AccTurnTbl(), Frrl(0) /*, AccT(*AccObj.P_Tbl)*/
 {
 }
 
-int AccTurnCore::AcctIDToRel(const AcctID * pAcctId, PPID * pAccRelID)
+int AccTurnCore::AcctIDToRel(const AccIdent * pAcctId, PPID * pAccRelID)
 {
 	const  int r = AccRel.SearchAcctID(pAcctId);
 	*pAccRelID = (r > 0) ? AccRel.data.ID : 0;
 	return r;
 }
 
-int AccTurnCore::AcctRelToID(PPID relID, AcctID * pAcctId, PPID * pAccSheetID)
+int AccTurnCore::AcctRelToID(PPID relID, AccIdent * pAcctId, PPID * pAccSheetID)
 {
 	int    ok = -1;
 	PPID   acc_sheet_id = 0;
 	AcctRelTbl::Rec acrel_rec;
 	if(AccRel.Search(relID, &acrel_rec) > 0) {
 		if(pAcctId) {
-			pAcctId->ac = acrel_rec.AccID;
-			pAcctId->ar = acrel_rec.ArticleID;
+			pAcctId->AcID = acrel_rec.AccID;
+			pAcctId->ArID = acrel_rec.ArticleID;
 		}
 		acc_sheet_id = (Art.Search(acrel_rec.ArticleID) > 0) ? Art.data.AccSheetID : 0;
 		ok = 1;
@@ -61,9 +61,9 @@ int AccTurnCore::GetExtentAccListByGen(PPID genAccID, ObjRestrictArray * pAccLis
 		const  long  f = p_item->Flags & ~(ACGF_ACO1GRP | ACGF_ACO2GRP);
 		const  int   aco = abs(GetAcoByGenFlags(p_item->Flags));
 		if(aco == ACO_3) {
-			AcctID acctid;
+			AccIdent acctid;
 			if(AcctRelToID(p_item->ObjID, &acctid, 0) > 0)
-				THROW(UpdateItemInExtGenAccList(p_item->ObjID, f, acctid.ac, pAccList, pCurList));
+				THROW(UpdateItemInExtGenAccList(p_item->ObjID, f, acctid.AcID, pAccList, pCurList));
 		}
 		else if(AccObj.Search(p_item->ObjID, &acc_rec) > 0) {
 			if(aco == ACO_1) {
@@ -84,19 +84,19 @@ int AccTurnCore::GetExtentAccListByGen(PPID genAccID, ObjRestrictArray * pAccLis
 	return ok;
 }
 
-int AccTurnCore::GetBaseAcctID(const AcctID & rCurAcctId, AcctID * pBaseAcctId)
+int AccTurnCore::GetBaseAcctID(const AccIdent & rCurAcctId, AccIdent * pBaseAcctId)
 {
 	PPID   base_acc_id = 0;
-	if(AccObj.SearchBase(rCurAcctId.ac, &base_acc_id, 0) > 0) {
-		pBaseAcctId->ac = base_acc_id;
-		pBaseAcctId->ar = rCurAcctId.ar;
+	if(AccObj.SearchBase(rCurAcctId.AcID, &base_acc_id, 0) > 0) {
+		pBaseAcctId->AcID = base_acc_id;
+		pBaseAcctId->ArID = rCurAcctId.ArID;
 		return 1;
 	}
 	else
 		return 0;
 }
 
-int AccTurnCore::ConvertAcct(const Acct * pAcct, PPID curID, AcctID * pAcctId, PPID * pSheetID)
+int AccTurnCore::ConvertAcct(const Acct * pAcct, PPID curID, AccIdent * pAcctId, PPID * pSheetID)
 {
 	int    ok = 1;
 	PPID   sheet_id = 0;
@@ -105,11 +105,11 @@ int AccTurnCore::ConvertAcct(const Acct * pAcct, PPID curID, AcctID * pAcctId, P
 	THROW(ok = AccObj.FetchNum(pAcct->ac, pAcct->sb, curID, &acc_rec));
 	if(ok > 0) {
 		sheet_id   = acc_rec.AccSheetID;
-		pAcctId->ac = acc_rec.ID;
+		pAcctId->AcID = acc_rec.ID;
 		if(pAcct->ar) {
 			THROW(ok = Art.SearchNum(sheet_id, pAcct->ar));
 			if(ok > 0)
-				pAcctId->ar = Art.data.ID;
+				pAcctId->ArID = Art.data.ID;
 		}
 	}
 	CATCHZOK
@@ -117,31 +117,31 @@ int AccTurnCore::ConvertAcct(const Acct * pAcct, PPID curID, AcctID * pAcctId, P
 	return ok;
 }
 
-int AccTurnCore::ConvertAcctID(const AcctID & rAci, Acct * pAcct, PPID * pCurID, int useCache)
+int AccTurnCore::ConvertAcctID(const AccIdent & rAci, Acct * pAcct, PPID * pCurID, int useCache)
 {
 	int    ok = 1;
 	pAcct->Z();
 	PPAccount acc_rec;
 	if(useCache) {
 		PPObjAccount acc_obj;
-		THROW(ok = acc_obj.Fetch(rAci.ac, &acc_rec));
+		THROW(ok = acc_obj.Fetch(rAci.AcID, &acc_rec));
 	}
 	else {
-		THROW(ok = AccObj.Search(rAci.ac, &acc_rec));
+		THROW(ok = AccObj.Search(rAci.AcID, &acc_rec));
 	}
 	if(ok > 0) {
 		pAcct->ac = acc_rec.A.Ac;
 		pAcct->sb = acc_rec.A.Sb;
 		ASSIGN_PTR(pCurID, acc_rec.CurID);
-		if(rAci.ar) {
+		if(rAci.ArID) {
 			ArticleTbl::Rec ar_rec;
 			AcctRelTbl::Rec acr_rec;
 			if(useCache) {
 				PPObjArticle ar_obj;
-				THROW(ok = ar_obj.Fetch(rAci.ar, &ar_rec));
+				THROW(ok = ar_obj.Fetch(rAci.ArID, &ar_rec));
 			}
 			else {
-				THROW(ok = Art.Search(rAci.ar, &ar_rec));
+				THROW(ok = Art.Search(rAci.ArID, &ar_rec));
 			}
 			if(ok > 0)
 				pAcct->ar = ar_rec.Article;
@@ -153,7 +153,7 @@ int AccTurnCore::ConvertAcctID(const AcctID & rAci, Acct * pAcct, PPID * pCurID,
 	return ok;
 }
 
-int AccTurnCore::ConvertStr(const char * pStr, PPID curID, Acct * pAcct, AcctID * pAcctId, PPID * pAccSheetID)
+int AccTurnCore::ConvertStr(const char * pStr, PPID curID, Acct * pAcct, AccIdent * pAcctId, PPID * pAccSheetID)
 {
 	int    ok = 1;
 	int    r;
@@ -187,8 +187,8 @@ int AccTurnCore::ConvertStr(const char * pStr, PPID curID, Acct * pAcct, AcctID 
 		}
 		ASSIGN_PTR(pAccSheetID, sheet_id);
 		if(pAcctId) {
-			pAcctId->ac = acc_id;
-			pAcctId->ar = ar_id;
+			pAcctId->AcID = acc_id;
+			pAcctId->ArID = ar_id;
 		}
 	}
 	CATCHZOK
@@ -313,7 +313,7 @@ int AccTurnCore::ConvertRec(const AccTurnTbl::Rec * pRec, PPAccTurn * pAturn, in
 		THROW(AccRel.Search(acc_id, &acr_rec) > 0);
 	}
 	cur_id = acr_rec.CurID;
-	*reinterpret_cast<AcctID *>(&pAturn->DbtID.ac) = *reinterpret_cast<const AcctID *>(&acr_rec.AccID);
+	*reinterpret_cast<AccIdent *>(&pAturn->DbtID.AcID) = *reinterpret_cast<const AccIdent *>(&acr_rec.AccID);
 	acc_id = reverse ? pRec->Acc : pRec->CorrAcc;
 	if(acc_id) {
 		if(useCache) {
@@ -322,32 +322,35 @@ int AccTurnCore::ConvertRec(const AccTurnTbl::Rec * pRec, PPAccTurn * pAturn, in
 		else {
 			THROW(AccRel.Search(acc_id, &acr_rec) > 0);
 		}
-		*reinterpret_cast<AcctID *>(&pAturn->CrdID.ac) = *reinterpret_cast<const AcctID *>(&acr_rec.AccID);
+		*reinterpret_cast<AccIdent *>(&pAturn->CrdID.AcID) = *reinterpret_cast<const AccIdent *>(&acr_rec.AccID);
 	}
 	pAturn->Flags = 0;
 	if(useCache) {
-		THROW(AccObj.Fetch(pAturn->DbtID.ac, &acc_rec) > 0);
+		THROW(AccObj.Fetch(pAturn->DbtID.AcID, &acc_rec) > 0);
 	}
 	else {
-		THROW(AccObj.Search(pAturn->DbtID.ac, &acc_rec) > 0);
+		THROW(AccObj.Search(pAturn->DbtID.AcID, &acc_rec) > 0);
 	}
-	pAturn->DbtSheet = acc_rec.AccSheetID;
+	pAturn->DbtAcsID = acc_rec.AccSheetID;
 	if(acc_rec.Type == ACY_OBAL) {
 		pAturn->Flags |= PPAF_OUTBAL;
 		if(acc_id)
 			pAturn->Flags |= PPAF_OUTBAL_TRANSFER;
 	}
-	if(acc_rec.Type == ACY_REGISTER) {
+	else if(acc_rec.Type == ACY_REGISTER) {
 		pAturn->Flags |= PPAF_REGISTER;
+	}
+	else if(acc_rec.Type == ACY_PERSONAL) { // @v12.7.9
+		pAturn->Flags |= PPAF_PERSONAL;
 	}
 	if(!(pAturn->Flags & PPAF_REGISTER) && (!(pAturn->Flags & PPAF_OUTBAL) || (pAturn->Flags & PPAF_OUTBAL_TRANSFER))) {
 		if(useCache) {
-			THROW(AccObj.Fetch(pAturn->CrdID.ac, &acc_rec) > 0);
+			THROW(AccObj.Fetch(pAturn->CrdID.AcID, &acc_rec) > 0);
 		}
 		else {
-			THROW(AccObj.Search(pAturn->CrdID.ac, &acc_rec) > 0);
+			THROW(AccObj.Search(pAturn->CrdID.AcID, &acc_rec) > 0);
 		}
-		pAturn->CrdSheet = acc_rec.AccSheetID;
+		pAturn->CrdAcsID = acc_rec.AccSheetID;
 	}
 	pAturn->Date    = pRec->Dt;
 	pAturn->BillID  = pRec->BillID;
@@ -481,28 +484,30 @@ int AccTurnCore::IdentifyAcc(long * pAco, PPID * pAccID, PPID curID, PPID person
 		}
 		ar_list.addUnique(acr_rec.ArticleID);
 		for(uint j = 0; j < ar_list.getCount(); j++) {
-			AcctID acctid;
-			acctid.ac = acc_id;
-			acctid.ar = ar_list.get(j);
+			AccIdent acctid;
+			acctid.AcID = acc_id;
+			acctid.ArID = ar_list.get(j);
 			if(curID < 0) {
 				temp_list.clear();
-				THROW(AccObj.SearchBase(acctid.ac, &acctid.ac, 0) > 0);
-				THROW(AccObj.GetCurList(acctid.ac, &temp_list, 0));
-				THROW_SL(temp_list.addUnique(acctid.ac));
+				THROW(AccObj.SearchBase(acctid.AcID, &acctid.AcID, 0) > 0);
+				THROW(AccObj.GetCurList(acctid.AcID, &temp_list, 0));
+				THROW_SL(temp_list.addUnique(acctid.AcID));
 				for(uint i = 0; i < temp_list.getCount(); i++) {
-					acctid.ac = temp_list.get(i);
+					acctid.AcID = temp_list.get(i);
 					if(AccRel.SearchAcctID(&acctid, &acr_rec) > 0)
 						THROW_SL(pAccList->addUnique(acr_rec.ID));
 				}
 			}
 			else {
-				THROW(AccObj.SearchCur(acctid.ac, curID, &acctid.ac, 0) > 0);
-				if(AccRel.SearchAcctID(&acctid, &acr_rec) > 0)
+				THROW(AccObj.SearchCur(acctid.AcID, curID, &acctid.AcID, 0) > 0);
+				if(AccRel.SearchAcctID(&acctid, &acr_rec) > 0) {
 					THROW_SL(pAccList->addUnique(acr_rec.ID));
+				}
 			}
 		}
-		if(pAccList->getCount() == 1)
+		if(pAccList->getCount() == 1) {
 			*pAccID = pAccList->at(0);
+		}
 		ok = pAccList->getCount();
 	}
 	else {
@@ -792,12 +797,12 @@ int AccTurnCore::_Turn(const PPAccTurn * pAt, PPID accRel, PPID corrAccRel, cons
 	THROW(_OprNo(pAt->Date, &oprno));
 	clearDataBuf();
 	if(rParam.Side == PPDEBIT) {
-		data.Bal     = pAt->DbtID.ac;
+		data.Bal     = pAt->DbtID.AcID;
 		data.Reverse = 0;
 		LDBLTOMONEY(rParam.Amt, data.Amount);
 	}
 	else {
-		data.Bal     = pAt->CrdID.ac;
+		data.Bal     = pAt->CrdID.AcID;
 		data.Reverse = 1;
 		LDBLTOMONEY(-rParam.Amt, data.Amount);
 	}
@@ -870,17 +875,17 @@ int AccTurnCore::GetBill(PPAccTurn * pAt)
 	return pAt->BillID ? _RecByBill(pAt->BillID, &pAt->RByBill) : PPSetError(PPERR_INVBILLID);
 }
 
-static int ValidateAccKind(int k)
+static bool ValidateAccKind(int k)
 {
-	return oneof3(k, ACCK_ACTIVE, ACCK_PASSIVE, ACCK_AP) ? 1 : PPSetError(PPERR_ACTNDEF);
+	return oneof3(k, ACCK_ACTIVE, ACCK_PASSIVE, ACCK_AP) ? true : PPSetError(PPERR_ACTNDEF);
 }
 
 int AccTurnCore::GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec, int createIfNExists, int use_ta)
 {
 	int    ok = -1;
-	AcctID acctid;
-	acctid.ac = accID;
-	acctid.ar = arID;
+	AccIdent acctid;
+	acctid.AcID = accID;
+	acctid.ArID = arID;
 	if(AccRel.SearchAcctID(&acctid, pRec) > 0) {
 		ok = 1;
 	}
@@ -896,7 +901,9 @@ int AccTurnCore::GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec, int c
 		// Проверяем существование счета
 		//
 		THROW(AccObj.Search(accID, &acc_rec) > 0);
-		THROW(ValidateAccKind(kind = acc_rec.Kind));
+		if(acc_rec.Type != ACY_PERSONAL) { // @v12.7.9 @condition
+			THROW(ValidateAccKind(kind = acc_rec.Kind));
+		}
 		acct.ac = acc_rec.A.Ac;
 		acct.sb = acc_rec.A.Sb;
 		//
@@ -916,7 +923,7 @@ int AccTurnCore::GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec, int c
 	return ok;
 }
 
-int AccTurnCore::_ProcessAcct(int side, PPID curID, const AcctID & rAcctId, PPID * pAccRelID, AccTurnParam * p)
+int AccTurnCore::_ProcessAcct(int side, PPID curID, const AccIdent & rAcctId, PPID * pAccRelID, AccTurnParam * p)
 {
 	int    ok = 1;
 	int    r;
@@ -926,9 +933,11 @@ int AccTurnCore::_ProcessAcct(int side, PPID curID, const AcctID & rAcctId, PPID
 	//
 	// Проверяем существование счета
 	//
-	THROW(AccObj.Search(rAcctId.ac, &acc_rec) > 0);
+	THROW(AccObj.Search(rAcctId.AcID, &acc_rec) > 0);
 	THROW_PP(acc_rec.CurID == curID, PPERR_INCOMPACCWITHCUR);
-	THROW(ValidateAccKind(kind = acc_rec.Kind));
+	if(acc_rec.Type != ACY_PERSONAL) { // @v12.7.9 @condition
+		THROW(ValidateAccKind(kind = acc_rec.Kind));
+	}
 	acct.ac = acc_rec.A.Ac;
 	acct.sb = acc_rec.A.Sb;
 	p->Low  = acc_rec.Overdraft;
@@ -936,8 +945,8 @@ int AccTurnCore::_ProcessAcct(int side, PPID curID, const AcctID & rAcctId, PPID
 	//
 	// Проверяем существование статьи
 	//
-	if(rAcctId.ar) {
-		THROW(Art.Search(rAcctId.ar) > 0);
+	if(rAcctId.ArID) {
+		THROW(Art.Search(rAcctId.ArID) > 0);
 		acct.ar = Art.data.Article;
 	}
 	else
@@ -998,7 +1007,9 @@ int AccTurnCore::_RollbackTurn(int side, LDATE date, long oprNo, PPID bal, PPID 
 	AccTurnParam p;
 	p.Amt = R2(amt);
 	THROW(AccObj.Search(bal, &acc_rec) > 0);
-	THROW(ValidateAccKind(kind = acc_rec.Kind));
+	if(acc_rec.Type != ACY_PERSONAL) { // @v12.7.9 @condition
+		THROW(ValidateAccKind(kind = acc_rec.Kind));
+	}
 	p.Low = acc_rec.Overdraft;
 	p.Upp = acc_rec.Limit;
 	SetupAccTurnParam(&p, side,  kind);
@@ -1140,9 +1151,9 @@ int AccTurnCore::Turn(PPAccTurn & rAt, int use_ta)
 		if(!zero_crd_acc) {
 			THROW(LockFRR(crd_rel, rAt.Date));
 		}
-		THROW(BalTurn.Turn(rAt.DbtID.ac, rAt.Date, &dbt_param, 0));
+		THROW(BalTurn.Turn(rAt.DbtID.AcID, rAt.Date, &dbt_param, 0));
 		if(!zero_crd_acc) {
-			THROW(BalTurn.Turn(rAt.CrdID.ac, rAt.Date, &crd_param, 0));
+			THROW(BalTurn.Turn(rAt.CrdID.AcID, rAt.Date, &crd_param, 0));
 		}
 		THROW(_Turn(&rAt, dbt_rel, crd_rel, dbt_param));
 		if(!zero_crd_acc) {
@@ -1884,8 +1895,8 @@ int AccTurnCore::RevalCurRest(const CurRevalParam & rParam, const Acct * pAcc, c
 {
 	int    ok = 1;
 	uint   i;
-	AcctID base_acc_id;
-	AcctID cur_acc_id;
+	AccIdent base_acc_id;
+	AccIdent cur_acc_id;
 	PPID   base_acc_rel_id;
 	PPID   cur_acc_rel_id;
 	double base_rest;
@@ -1917,12 +1928,12 @@ int AccTurnCore::RevalCurRest(const CurRevalParam & rParam, const Acct * pAcc, c
 			pack.Rec.Dt    = p_at->Date  = rParam.Dt;
 			if(base_rest > new_base_rest) {
 				const Acct * p_acct = rParam.NegCorrAcc.ac ? &rParam.NegCorrAcc : &rParam.CorrAcc;
-				THROW(ConvertAcct(p_acct, 0L, &p_at->DbtID, &p_at->DbtSheet));
+				THROW(ConvertAcct(p_acct, 0L, &p_at->DbtID, &p_at->DbtAcsID));
 				p_at->CrdID    = base_acc_id;
 				p_at->Amount   = base_rest - new_base_rest;
 			}
 			else {
-				THROW(ConvertAcct(&rParam.CorrAcc, 0L, &p_at->CrdID, &p_at->CrdSheet));
+				THROW(ConvertAcct(&rParam.CorrAcc, 0L, &p_at->CrdID, &p_at->CrdAcsID));
 				p_at->DbtID    = base_acc_id;
 				p_at->Amount   = new_base_rest - base_rest;
 			}

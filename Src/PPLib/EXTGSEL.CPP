@@ -301,6 +301,7 @@ ExtGoodsSelDialog::ExtGoodsSelDialog(PPID _op, PPID initGoodsID, long flags) : T
 		showCtrl(CTLSEL_EXTGSEL_MODIFMODE, false);
 		selectCtrl(CTL_EXTGSEL_QTTY);
 	}
+	SetupModifModeIndicator();
 	{
 		bool   disable_group_selection = false;
 		if(!initGoodsID) {
@@ -569,6 +570,25 @@ void ExtGoodsSelDialog::searchBarcode()
 	}
 }
 
+int ExtGoodsSelDialog::SetupModifModeIndicator()
+{
+	int    result = -1;
+	TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(CTL_EXTGSEL_MODIFMODE, TV_SUBSIGN_INPUTLINE));
+	if(p_il) {
+		const  long modif_mode = getCtrlLong(CTLSEL_EXTGSEL_MODIFMODE);
+		uint64 _state = 0;
+		SString msg_buf;
+		if(oneof3(modif_mode, TIDlgInitData::mmExpend, TIDlgInitData::mmIncoming, TIDlgInitData::mmRecompl)) {
+			_state = modif_mode;
+			PPLoadString(PPSTR_CTLUSTTD, CTLUSTTD_EXTGOODSSEL_MODIFMODE, msg_buf);
+			if(p_il->SetIndicatorState(_state, msg_buf) > 0) {
+				result = 1;
+			}
+		}
+	}
+	return result;
+}
+
 IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 {
 	PPID   grp_id;
@@ -581,33 +601,52 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 			event.message.command = cmOK;
 	}
 	TDialog::handleEvent(event);
-	if(event.isCmd(cmCtlColor)) {
+	if(event.isCmd(cmCtlColor)) { // @IndicatorState-done
+		bool   local_done = false;
 		TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 		if(p_dc && getCtrlHandle(CTL_EXTGSEL_MODIFMODE) == p_dc->H_Ctl) {
-			const long modif_mode = getCtrlLong(CTLSEL_EXTGSEL_MODIFMODE);
-			if(modif_mode == TIDlgInitData::mmExpend) {
-				::SetBkMode(p_dc->H_DC, TRANSPARENT);
-				::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-				p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushModMode_Expend));
+			TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(CTL_EXTGSEL_MODIFMODE, TV_SUBSIGN_INPUTLINE));
+			if(p_il) {
+				uint64  _state = 0;
+				if(p_il->GetIndicatorState(&_state, 0)) {
+					int   brush_ident = 0;
+					if(_state == TIDlgInitData::mmExpend) {
+						brush_ident = brushModMode_Expend;
+					}
+					else if(_state == TIDlgInitData::mmIncoming) {
+						brush_ident = brushModMode_Incoming;
+					}
+					else if(_state == TIDlgInitData::mmRecompl) {
+						brush_ident = brushModMode_Recompl;
+					}
+					if(brush_ident) {
+						::SetBkMode(p_dc->H_DC, TRANSPARENT);
+						::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
+						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brush_ident));
+						local_done = true;
+						
+					}
+				}
 			}
-			else if(modif_mode == TIDlgInitData::mmIncoming) {
-				::SetBkMode(p_dc->H_DC, TRANSPARENT);
-				::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-				p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushModMode_Incoming));
-			}
-			else if(modif_mode == TIDlgInitData::mmRecompl) {
-				::SetBkMode(p_dc->H_DC, TRANSPARENT);
-				::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-				p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushModMode_Recompl));
-			}
-			else
-				return;
 		}
+		if(local_done)
+			clearEvent(event);
 		else
 			return;
 	}
-	else if(event.isCbSelected(CTLSEL_EXTGSEL_GGRP) || event.isCbSelected(CTLSEL_EXTGSEL_BRAND) || event.isCbSelected(CTLSEL_EXTGSEL_MODIFMODE))
+	else if(event.isCmd(cmMouseHoverCtrl)) { // @v12.7.9
+		const  uint ctl_id = event.getCtlID();
+		if(ctl_id == CTL_EXTGSEL_MODIFMODE) {
+			PPShowCtrlIndicatorHintOnInputLine(this, ctl_id);
+		}
+	}
+	else if(event.isCbSelected(CTLSEL_EXTGSEL_MODIFMODE)) {
+		SetupModifModeIndicator();
 		updateList(0);
+	}
+	else if(event.isCbSelected(CTLSEL_EXTGSEL_GGRP) || event.isCbSelected(CTLSEL_EXTGSEL_BRAND)) {
+		updateList(0);
+	}
 	else if(event.isCmd(cmaInsert)) {
 		PPID   new_goods_id = 0;
 		grp_id = getCtrlLong(CTLSEL_EXTGSEL_GGRP);
@@ -625,11 +664,12 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 			long  new_mode = 0;
 			switch(cur_mode) {
 				case TIDlgInitData::mmIncoming: new_mode = TIDlgInitData::mmExpend; break;
-				case TIDlgInitData::mmExpend: new_mode = TIDlgInitData::mmIncoming; break;
-				case TIDlgInitData::mmRecompl: new_mode = TIDlgInitData::mmExpend; break;
+				case TIDlgInitData::mmExpend: new_mode = TIDlgInitData::mmRecompl; break;
+				case TIDlgInitData::mmRecompl: new_mode = TIDlgInitData::mmIncoming; break;
 				default: new_mode = TIDlgInitData::mmExpend; break;
 			}
 			setCtrlLong(CTLSEL_EXTGSEL_MODIFMODE, new_mode);
+			SetupModifModeIndicator();
 			updateList(0);
 		}
 		else

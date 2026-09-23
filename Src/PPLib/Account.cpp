@@ -9,20 +9,20 @@
 //
 int FASTCALL GetAcctName(const Acct * acct, PPID curID, long fmt, SString & rBuf)
 {
-	AcctID acctid;
+	AccIdent acctid;
 	rBuf.Z();
 	PPObjBill * p_bobj(BillObj);
 	return (p_bobj && p_bobj->atobj && p_bobj->atobj->ConvertAcct(acct, curID, &acctid, 0) > 0) ? GetAcctIDName(acctid, fmt, rBuf) : -1;
 }
 
-int FASTCALL GetAcctIDName(const AcctID & rAci, long, SString & rBuf)
+int FASTCALL GetAcctIDName(const AccIdent & rAci, long, SString & rBuf)
 {
 	int    ok = -1;
 	rBuf.Z();
-	if(rAci.ar) {
+	if(rAci.ArID) {
 		PPObjArticle ar_obj;
 		ArticleTbl::Rec ar_rec;
-		if(ar_obj.Fetch(rAci.ar, &ar_rec) > 0) {
+		if(ar_obj.Fetch(rAci.ArID, &ar_rec) > 0) {
 			rBuf = ar_rec.Name;
 			ok = 1;
 		}
@@ -30,7 +30,7 @@ int FASTCALL GetAcctIDName(const AcctID & rAci, long, SString & rBuf)
 	else {
 		PPObjAccount acc_obj;
 		PPAccount acc_rec;
-		if(acc_obj.Fetch(rAci.ac, &acc_rec) > 0) {
+		if(acc_obj.Fetch(rAci.AcID, &acc_rec) > 0) {
 			rBuf = acc_rec.Name;
 			ok = 1;
 		}
@@ -266,16 +266,17 @@ AcctRel::AcctRel() : AcctRelTbl()
 
 int AcctRel::Search(PPID id, AcctRelTbl::Rec * pRec) { return SearchByID(this, PPOBJ_ACCTREL, id, pRec); }
 
-int AcctRel::SearchAcctID(const AcctID * pAcctId, AcctRelTbl::Rec * pRec)
+int AcctRel::SearchAcctID(const AccIdent * pAcctId, AcctRelTbl::Rec * pRec)
 {
 	AcctRelTbl::Key1 k1;
-	k1.AccID     = pAcctId->ac;
-	k1.ArticleID = pAcctId->ar;
+	k1.AccID     = pAcctId->AcID;
+	k1.ArticleID = pAcctId->ArID;
 	return SearchByKey(this, 1, &k1, pRec);
 }
 
 int AcctRel::SearchNum(int closed, const Acct * pAcct, PPID curID, AcctRelTbl::Rec * pRec)
 {
+	int    result = 0;
 	int    sp;
 	AcctRelTbl::Key3 k3;
 	k3.Ac = pAcct->ac;
@@ -291,16 +292,17 @@ int AcctRel::SearchNum(int closed, const Acct * pAcct, PPID curID, AcctRelTbl::R
 		sp = spLe;
 	}
 	if(search(3, &k3, sp) && (closed >= 0 || (k3.Ac == pAcct->ac && k3.Sb == pAcct->sb && k3.Ar == pAcct->ar && k3.CurID == curID)))
-		return (CopyBufTo(pRec), 1);
+		result = (CopyBufTo(pRec), 1);
 	else
-		return PPDbSearchError();
+		result = PPDbSearchError();
+	return result;
 }
 
-int AcctRel::OpenAcct(PPID * pID, const Acct * pAcct, PPID curID, const AcctID * pAcctId, int accKind, int accsLevel)
+int AcctRel::OpenAcct(PPID * pID, const Acct * pAcct, PPID curID, const AccIdent * pAcctId, int accKind, int accsLevel)
 {
 	clearDataBuf();
-	data.AccID    = pAcctId->ac;
-	data.ArticleID = pAcctId->ar;
+	data.AccID    = pAcctId->AcID;
+	data.ArticleID = pAcctId->ArID;
 	data.Ac       = pAcct->ac;
 	data.Sb       = pAcct->sb;
 	data.Ar       = pAcct->ar;
@@ -313,7 +315,8 @@ int AcctRel::OpenAcct(PPID * pID, const Acct * pAcct, PPID curID, const AcctID *
 int AcctRel::CloseAcct(PPID id, int use_ta)
 {
 	int    ok = 1;
-	int    r, closed;
+	int    r;
+	int    closed;
 	Acct   acct;
 	{
 		PPTransaction tra(use_ta);

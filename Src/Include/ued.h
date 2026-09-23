@@ -129,6 +129,8 @@ public:
 	static bool   GetRaw_UPCA(uint64 ued, SString & rT);
 	static uint64 SetRaw_GLN(const char * pT);
 	static bool   GetRaw_GLN(uint64 ued, SString & rT);
+	static uint64 SetRaw_Ru_LicPlate(const char * pT); // @v12.7.9 @construction
+	static bool   GetRaw_Ru_LicPlate(uint64 ued, SString & rT); // @v12.7.9 @construction
 
 	static bool   _GetRaw_Time(uint64 ued, SUniTime_Internal & rT);
 	static uint64 _SetRaw_Time(uint64 meta, const SUniTime_Internal & rT);

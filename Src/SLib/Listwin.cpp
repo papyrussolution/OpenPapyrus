@@ -409,24 +409,16 @@ WordSelector::WordSelector(WordSel_ExtraBlock * pBlk) : WsState(0), P_Blk(pBlk)
 		const UiDescription * p_uid = SLS.GetUiDescription();
 		const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 		{
-			SColor _color;
-			if(!p_cs || !p_cs->Get("autocomplete_focus_bg", &p_uid->ClrList, _color))
-				_color = RGB(0x20, 0xAC, 0x90); // Mountain Meadow
+			SColor _color = UiDescription::GetColorR(p_uid, p_cs, "autocomplete_focus_bg", RGB(0x20, 0xAC, 0x90)/*Mountain Meadow*/);
 			Ptb.SetColor(clrFocus, _color); 
 		}
 		{
-			SColor _color;
-			if(!p_cs || !p_cs->Get("autocomplete_odd_bg", &p_uid->ClrList, _color))
-				_color = RGB(0xDC, 0xED, 0xD5); // Sprout
+			SColor _color = UiDescription::GetColorR(p_uid, p_cs, "autocomplete_odd_bg", RGB(0xDC, 0xED, 0xD5)/*Sprout*/);
 			Ptb.SetColor(clrOdd, _color); 
 		}
 		{
-			SColor _color_;
-			SColor _color_free_text;
-			if(!p_cs || !p_cs->Get("autocomplete_bg", &p_uid->ClrList, _color_))
-				_color_ = GetColorRef(SClrYellow);
-			if(!p_cs || !p_cs->Get("autocomplete_freetext_bg", &p_uid->ClrList, _color_free_text))
-				_color_free_text = GetColorRef(SClrAntiquewhite);
+			SColor _color_ = UiDescription::GetColorR(p_uid, p_cs, "autocomplete_bg", SClrYellow);
+			SColor _color_free_text = UiDescription::GetColorR(p_uid, p_cs, "autocomplete_freetext_bg", SClrAntiquewhite);
 			Ptb.SetColor(clrBkgnd,  (P_Blk && P_Blk->Flags & WordSel_ExtraBlock::fFreeText) ? _color_free_text : _color_);
 		}
 		// } @v12.5.10 

@@ -220,7 +220,7 @@ DBQuery * PPViewCurRate::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, crt->CurID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_basecur, PPDbqFuncPool::IdObjSymbCurrency, crt->RelCurID);
 	// @v12.5.2 {
-	q = & Select_(
+	q = &Select_(
 		crt->RateTypeID,  // #0
 		crt->CurID,       // #1
 		crt->RelCurID,    // #2
@@ -231,7 +231,7 @@ DBQuery * PPViewCurRate::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	q->addField(dbe_basecur);  // #6
 	q->addField(rtt->ObjName); // #7
 	// } @v12.5.2 
-	/* @v12.5.2 q = & Select_(
+	/* @v12.5.2 q = &Select_(
 		crt->RateTypeID,  // #0
 		crt->CurID,       // #1
 		crt->RelCurID,    // #2

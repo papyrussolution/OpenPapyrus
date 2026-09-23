@@ -348,7 +348,7 @@ int PPObjBill::LoadBalance(LDATE endDate, const char * pFileName, int use_ta)
 		beg_rest_acct.ar = 0;
 		if(rest != actual_rest) {
 			long   flags = 0;
-			AcctID acctid;
+			AccIdent acctid;
 			PPID   as_id = 0;
 			PPAccount acc_rec;
 			PPAccTurn * p_at = 0;
@@ -361,12 +361,12 @@ int PPObjBill::LoadBalance(LDATE endDate, const char * pFileName, int use_ta)
 				cr_core.GetRate(cur_id, LConfig.BaseRateTypeID, LConfig.BaseCurID, &crate_date, &p_at->CRate);
 			}
 			atobj->ConvertAcct(&acct, cur_id, &acctid, &as_id);
-			if(atobj->P_Tbl->AccObj.Search(acctid.ac, &acc_rec) > 0) {
+			if(atobj->P_Tbl->AccObj.Search(acctid.AcID, &acc_rec) > 0) {
 				int    is_outbal = 0;
 				int    is_reg = 0;
 				if(oneof2(acc_rec.Type, ACY_OBAL, ACY_REGISTER)) {
 					p_at->DbtID = acctid;
-					p_at->DbtSheet = as_id;
+					p_at->DbtAcsID = as_id;
 					p_at->Amount = rest - actual_rest;
 					if(acc_rec.Type == ACY_REGISTER) {
 						p_at->Flags |= PPAF_REGISTER;
@@ -377,13 +377,13 @@ int PPObjBill::LoadBalance(LDATE endDate, const char * pFileName, int use_ta)
 				}
 				else {
 					if(rest > actual_rest) {
-						atobj->ConvertAcct(&acct, cur_id, &p_at->DbtID, &p_at->DbtSheet);
-						atobj->ConvertAcct(&beg_rest_acct, cur_id, &p_at->CrdID, &p_at->CrdSheet);
+						atobj->ConvertAcct(&acct, cur_id, &p_at->DbtID, &p_at->DbtAcsID);
+						atobj->ConvertAcct(&beg_rest_acct, cur_id, &p_at->CrdID, &p_at->CrdAcsID);
 						p_at->Amount = rest - actual_rest;
 					}
 					else {
-						atobj->ConvertAcct(&acct, cur_id, &p_at->CrdID, &p_at->CrdSheet);
-						atobj->ConvertAcct(&beg_rest_acct, cur_id, &p_at->DbtID, &p_at->DbtSheet);
+						atobj->ConvertAcct(&acct, cur_id, &p_at->CrdID, &p_at->CrdAcsID);
+						atobj->ConvertAcct(&beg_rest_acct, cur_id, &p_at->DbtID, &p_at->DbtAcsID);
 						p_at->Amount = actual_rest - rest;
 					}
 					//p_at->Amount = fabs(rest - actual_rest);

@@ -1273,8 +1273,39 @@ int PPViewGoods::CellStyleFunc_(const void * pData, long col, int paintAction, B
 
 void PPViewGoods::PreprocessBrowser(PPViewBrowser * pBrw)
 {
+	// @v12.7.9 {
+	if(!(Filt.Flags & GoodsFilt::fShowStrucType)) {
+		const  BrowserDef * p_def = pBrw->getDef();
+		if(p_def) {
+			int    next_pos = -1;
+			int    brand_pos = -1;
+			int    group_pos = -1;
+			int    manuf_pos = -1;
+			int    name_pos  = -1;
+			for(uint i = 0; i < p_def->getCount(); i++) {
+				switch(p_def->at(i).OrgOffs) {
+					case 2: name_pos = i; break;
+					case 16: group_pos = i; break;
+					case 3: manuf_pos = i; break;
+					case 15: brand_pos = i; break;
+				}
+			}
+			if(brand_pos >= 0)
+				next_pos = brand_pos+1;
+			else if(manuf_pos >= 0)
+				next_pos = manuf_pos+1;
+			else if(group_pos >= 0)
+				next_pos = group_pos+1;
+			else if(name_pos >= 0)
+				next_pos = name_pos+1;
+			if(next_pos >= 0) {
+				pBrw->InsColumn(next_pos, "@goods_type", 18, 0, 0, 0);
+			}
+		}
+	}
+	// } @v12.7.9 
 	if(!GObj.CheckFlag(Filt.GrpID, GF_DYNAMICALTGRP) && PPObjGoodsGroup::IsAlt(Filt.GrpID) > 0 && !(Filt.Flags & GoodsFilt::fNegation)) {
-		pBrw->InsColumn(-1, "@plu", 18, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0); // @v11.5.8 17-->18
+		pBrw->InsColumn(-1, "@plu", 19, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0); // @v12.7.9 #18-->#19
 	}
 	if(Filt.Flags & GoodsFilt::fShowBarcode) {
 		pBrw->InsColumn(-1, "@barcode", 7, 0, 0, 0);
@@ -1387,7 +1418,7 @@ static IMPL_DBE_PROC(dbqf_goodsassocloc_pi)
 {
 	char   text_buf[256];
 	if(!DbeInitSize(option, result, sizeof(text_buf))) {
-		const GoodsToObjAssoc * p_goa = static_cast<const GoodsToObjAssoc *>(params[0].ptrval);
+		const  GoodsToObjAssoc * p_goa = static_cast<const GoodsToObjAssoc *>(params[0].ptrval);
 		const  PPID goods_id = params[1].lval;
 		if(p_goa && goods_id) {
 			PPID loc_id = 0;
@@ -1425,7 +1456,8 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE    dbe_structype;
 	DBE    dbe_brand;
 	DBE    dbe_group;
-	DBE    dbe_assocloc; // @v11.5.8
+	DBE    dbe_assocloc;
+	DBE    dbe_goodstype; // @v12.7.9
 	DBQ  * dbq = 0;
 	ObjAssocTbl * oa = 0;
 	Goods2Tbl   * g  = 0;
@@ -1448,9 +1480,9 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		is_alt = 0;
 	}
 	THROW(CheckTblPtr(g  = new Goods2Tbl));
-	PPDbqFuncPool::InitObjNameFunc(dbe_unit,   PPDbqFuncPool::IdObjNameUnit,       g->UnitID);
-	PPDbqFuncPool::InitObjNameFunc(dbe_phunit, PPDbqFuncPool::IdObjNameUnit,       g->PhUnitID);
-	PPDbqFuncPool::InitObjNameFunc(dbe_manuf,  PPDbqFuncPool::IdObjNamePerson,     g->ManufID);
+	PPDbqFuncPool::InitObjNameFunc(dbe_unit,      PPDbqFuncPool::IdObjNameUnit,       g->UnitID);
+	PPDbqFuncPool::InitObjNameFunc(dbe_phunit,    PPDbqFuncPool::IdObjNameUnit,       g->PhUnitID);
+	PPDbqFuncPool::InitObjNameFunc(dbe_manuf,     PPDbqFuncPool::IdObjNamePerson,     g->ManufID);
 	PPDbqFuncPool::InitLongFunc(dbe_dim,       PPDbqFuncPool::IdGoodsStockDim,     g->ID);
 	PPDbqFuncPool::InitLongFunc(dbe_brutto,    PPDbqFuncPool::IdGoodsStockBrutto,  g->ID);
 	PPDbqFuncPool::InitLongFunc(dbe_min,       PPDbqFuncPool::IdGoodsStockMin,     g->ID);
@@ -1458,9 +1490,10 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	PPDbqFuncPool::InitLongFunc(dbe_structype, PPViewGoods::DynFuncStrucType,      g->StrucID);
 	PPDbqFuncPool::InitLongFunc(dbe_brand,     PPDbqFuncPool::IdObjNameBrand,      g->BrandID);
 	PPDbqFuncPool::InitLongFunc(dbe_group,     PPDbqFuncPool::IdObjNameGoods,      g->ParentID);
-	if(P_TempTbl)
+	if(P_TempTbl) {
 		THROW(CheckTblPtr(tmp_t = new TempOrderTbl(P_TempTbl->GetName())));
-	q = & Select_(g->ID, 0L);                          // #00
+	}
+	q = &Select_(g->ID, 0L);                          // #00
 	q->addField(g->Flags);                             // #01
 	q->addField(g->Name);                              // #02
 	q->addField(dbe_manuf);                            // #03
@@ -1471,8 +1504,9 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		THROW(CheckTblPtr(p_bc_t = new BarcodeTbl));
 		q->addField(p_bc_t->Code);                     // #07
 	}
-	else
+	else {
 		q->addField(g->ID); // stub                    // #07
+	}
 	if(Filt.Flags & GoodsFilt::fShowArCode) {
 		THROW(CheckTblPtr(p_ac_t = new ArGoodsCodeTbl));
 		PPDbqFuncPool::InitObjNameFunc(dbe_code_ar, PPDbqFuncPool::IdObjNameAr, p_ac_t->ArID);
@@ -1490,7 +1524,6 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	q->addField(dbe_structype);                        // #14
 	q->addField(dbe_brand);                            // #15
 	q->addField(dbe_group);                            // #16
-	// @v11.5.8 {
 	if(Filt.Flags2 & GoodsFilt::f2ShowWhPlace) {
 		dbe_assocloc.init();
 		dbe_assocloc.push(dbconst(static_cast<const void *>(P_G2OAssoc)));
@@ -1501,11 +1534,21 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	else {
 		q->addField(g->ID); // stub                    // #17
 	}
-	// } @v11.5.8 
-	if(Filt.Flags & GoodsFilt::fShowStrucType)
+	// @v12.7.9 {
+	if(Filt.Flags & GoodsFilt::fShowStrucType) {
+		q->addField(g->ID);                            // #18 stub 
+	}
+	else {
+		PPDbqFuncPool::InitObjNameFunc(dbe_goodstype, PPDbqFuncPool::IdObjNameGoodsType, g->GoodsTypeID);
+		q->addField(dbe_goodstype);                    // #18
+	}
+	// } @v12.7.9 
+	if(Filt.Flags & GoodsFilt::fShowStrucType) {
 		brw_id = BROWSER_GOODSWITHSTRUC; // @todo Убрать отдельную таблицу и доп поле вставить на общий основаниях в PPViewGoods::PreprocessBrowser
-	else
+	}
+	else {
 		brw_id = BROWSER_GOODS;
+	}
 	//if(Filt.Flags & GoodsFilt::fShowCargo)
 		//brw_id = (Filt.Flags & GoodsFilt::fShowBarcode) ? BROWSER_GOODSCARGOBARCODE : BROWSER_GOODSCARGO;
 	//else if(Filt.Flags & GoodsFilt::fShowStrucType)
@@ -1532,10 +1575,10 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		}
 		if(!is_dyn && is_alt && !(Filt.Flags & GoodsFilt::fNegation)) {
 			THROW(CheckTblPtr(oa = new ObjAssocTbl));
-			if(is_alt)
-				q->addField(oa->InnerNum);             // #18 // @v11.5.8 #17-->#18
-			dbq = & (*dbq && (tmp_t->ID == oa->ScndObjID &&
-				oa->PrmrObjID == grp_id && oa->AsscType == (is_alt ? PPASS_ALTGOODSGRP : PPASS_GENGOODS)));
+			if(is_alt) {
+				q->addField(oa->InnerNum);             // #19 // @v12.7.9 #18-->#19
+			}
+			dbq = & (*dbq && (tmp_t->ID == oa->ScndObjID && oa->PrmrObjID == grp_id && oa->AsscType == (is_alt ? PPASS_ALTGOODSGRP : PPASS_GENGOODS)));
 		}
 		if(Filt.Flags & GoodsFilt::fShowStrucType && !(Filt.Flags & GoodsFilt::fShowGoodsWOStruc))
 			dbq = &(*dbq && g->StrucID > 0L);
@@ -1550,7 +1593,7 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		if(is_alt || is_gen) {
 			THROW(CheckTblPtr(oa = new ObjAssocTbl));
 			if(is_alt)
-				q->addField(oa->InnerNum);             // #18 // @v11.5.8 #17-->#18
+				q->addField(oa->InnerNum);             // #19 // @v12.7.9 #18-->#19
 			dbq = & (oa->AsscType == (is_alt ? PPASS_ALTGOODSGRP : PPASS_GENGOODS) && (oa->PrmrObjID == grp_id && g->ID == oa->ScndObjID));
 		}
 		else {

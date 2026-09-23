@@ -887,53 +887,8 @@ int  SmartListBox::GetImageIdxByID(long id, long * pIdx)
 	return ok;
 }
 
-/* @v11.4.4 (inlined) int  FASTCALL SmartListBox::onVKeyToItem(WPARAM wParam)
-{
-	int    nScrollCode;
-	int    sf = 0;
-	switch(LOWORD(wParam)) {
-		case VK_UP:    nScrollCode = SB_LINEUP;   break;
-		case VK_DOWN:  nScrollCode = SB_LINEDOWN; break;
-		case VK_NEXT:  nScrollCode = SB_PAGEDOWN; break;
-		case VK_PRIOR: nScrollCode = SB_PAGEUP;   break;
-		case VK_HOME:  nScrollCode = SB_TOP;      break;
-		case VK_END:   nScrollCode = SB_BOTTOM;   break;
-		case VK_INSERT:
-			if(IsInState(sfSelected) || State & stTreeList) {
-				MessageCommandToOwner(cmaInsert);
-				sf = 1;
-			}
-			break;
-		case VK_DELETE:
-			if(IsInState(sfSelected) || State & stTreeList) {
-				MessageCommandToOwner(cmaDelete);
-				sf = 1;
-			}
-			break;
-		case VK_ADD:
-			MessageCommandToOwner(cmaLevelDown);
-			sf = 1;
-			break;
-		case VK_SUBTRACT:
-			MessageCommandToOwner(cmaLevelUp);
-			sf = 1;
-			break;
-		default:
-			return 0;
-	}
-	if(!(State & stTreeList)) {
-		if(sf) {
-			SetFocus(getHandle());
-			return 1;
-		}
-		Scroll(nScrollCode, 0);
-	}
-	return -1;
-}*/
-
 int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	bool   debug_mark = false; // @debug
 	switch(uMsg) {
 		case WM_INITDIALOG:
 			onInitDialog(1);
@@ -1164,7 +1119,6 @@ int SmartListBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 								TEvent e_;
 								long lvn_res = 0;
 								NMTVCUSTOMDRAW * p_tv_blk = reinterpret_cast<NMTVCUSTOMDRAW *>(lParam);
-								debug_mark = true; // @debug
 								if(P_Owner && p_tv_blk) {
 									///* @construction
 									TEvent local_ev;

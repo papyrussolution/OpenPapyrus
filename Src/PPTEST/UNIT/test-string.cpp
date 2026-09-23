@@ -134,6 +134,15 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	else if(sstreqi_ascii(pBenchmark, "sstrnlen"))     bm = 13; // @v11.7.10
 	else SetInfo("invalid benchmark");
 	if(bm == 0) {
+		// @debug {
+		/*{
+			ued_t uv = UED::SetRaw_Ru_LicPlate("У 114 АХ 750");
+			SLCHECK_NZ(uv);
+			bool  uvr = UED::GetRaw_Ru_LicPlate(uv, str);
+			SLCHECK_NZ(uvr);
+			//SLCHECK_NZ(str == line_buf);
+		}*/
+		// } @debug
 		{
 			// Тестирование функций sstrlen и sstrnlen
 			SLCHECK_EQ(sstrlen(static_cast<const char *>(0)), static_cast<size_t>(0));
@@ -1433,6 +1442,15 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 								tr.Run(line_buf.ucptr(), line_buf.LenI(), nta.Z(), 0);
 								const float p = nta.Has(SNTOK_RU_LICPLATE);
 								SLCHECK_LE(0.1f, p);
+								// @v12.7.9 {
+								/* @construction if(p > 0.0f) {
+									ued_t uv = UED::SetRaw_Ru_LicPlate(line_buf);
+									SLCHECK_NZ(uv);
+									bool  uvr = UED::GetRaw_Ru_LicPlate(uv, str);
+									SLCHECK_NZ(uvr);
+									SLCHECK_NZ(str == line_buf);
+								}*/
+								// } @v12.7.9 
 							}
 						}
 						{ // cp1251
@@ -1473,6 +1491,9 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					}
 					{
 						static const SStrToStrAssoc licplate_nn_to_n_list[] = {
+							{ "k644am-50", "К644АМ50" }, // ВСЕ! символы ascii вместо русских букв
+							{ "Y832Pe-90", "У832РЕ90" }, // ВСЕ! символы ascii вместо русских букв
+
 							{ "М 028 НМ 178", "М028НМ178" },
 							{ "м 314 НА 99", "М314НА99" },
 							{ "С 093 ОУ 797", "С093ОУ797" },
@@ -1496,7 +1517,6 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 							{ "К363РE-716", "К363РЕ716" }, // ascii символы вместо русских букв
 							{ "a 666 ТР 96", "А666ТР96" }, // ascii символы вместо русских букв
 							{ "Х536 TK 23", "Х536ТК23" },   // ascii символы вместо русских букв
-
 						};
 						SNaturalTokenStat ntstat;
 						SString normalized_token;
@@ -1526,28 +1546,44 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 								const float p = nta.Has(SNTOK_RU_LICPLATE);
 								SLCHECK_LE(0.1f, p);
 								if(p > 0.0f) {
-									(normalized_token_pattern = r_entry.Val).Transf(CTRANSF_UTF8_TO_OUTER);
 									int r = tr.NormalizeToken(str.ucptr(), str.Len(), ntstat, SNTOK_RU_LICPLATE, normalized_token);
 									SLCHECK_NZ(r > 0);
 									if(r > 0) {
-										SLCHECK_EQ(normalized_token, normalized_token_pattern);
+										if(normalized_token.IsLegalUtf8()) { 
+											// Если все буквы в оригинале были замещены латынью, то в результате получим utf8. То есть, в этом случае сравниваем utf результат
+											// Увы, в реальной жизни такая неопределенность будет проблемой.
+											normalized_token_pattern = r_entry.Val;
+											SLCHECK_EQ(normalized_token, normalized_token_pattern);
+										}
+										else {
+											(normalized_token_pattern = r_entry.Val).Transf(CTRANSF_UTF8_TO_OUTER);
+											SLCHECK_EQ(normalized_token, normalized_token_pattern);
+										}
 									}
 								}
 							}
 						}
 						{ // cp866
 							for(uint i = 0; i < SIZEOFARRAY(licplate_nn_to_n_list); i++) {
-								const SStrToStrAssoc & r_entry = licplate_nn_to_n_list[i];
+								const  SStrToStrAssoc & r_entry = licplate_nn_to_n_list[i];
 								(str = r_entry.Key).Transf(CTRANSF_UTF8_TO_INNER);
 								tr.Run(str.ucptr(), str.Len(), nta.Z(), &ntstat);
 								const float p = nta.Has(SNTOK_RU_LICPLATE);
 								SLCHECK_LE(0.1f, p);
 								if(p > 0.0f) {
-									(normalized_token_pattern = r_entry.Val).Transf(CTRANSF_UTF8_TO_INNER);
 									int r = tr.NormalizeToken(str.ucptr(), str.Len(), ntstat, SNTOK_RU_LICPLATE, normalized_token);
 									SLCHECK_NZ(r > 0);
 									if(r > 0) {
-										SLCHECK_EQ(normalized_token, normalized_token_pattern);
+										if(normalized_token.IsLegalUtf8()) { 
+											// Если все буквы в оригинале были замещены латынью, то в результате получим utf8. То есть, в этом случае сравниваем utf результат
+											// Увы, в реальной жизни такая неопределенность будет проблемой.
+											normalized_token_pattern = r_entry.Val;
+											SLCHECK_EQ(normalized_token, normalized_token_pattern);
+										}
+										else {
+											(normalized_token_pattern = r_entry.Val).Transf(CTRANSF_UTF8_TO_INNER);
+											SLCHECK_EQ(normalized_token, normalized_token_pattern);
+										}
 									}
 								}
 							}
@@ -1556,22 +1592,52 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				}
 			}
 			{ // @v12.7.7
-				tr.Run((const uchar *)"DiR", -1, nta.Z(), &nts); 
+				tr.Run((const uchar *)"DiR", -1, nta.Z(), &nts);
 				SLCHECK_LT(0.0f, nta.Has(SNTOK_WININTERNALCMD));
-				tr.Run((const uchar *)"VER", -1, nta.Z(), &nts); 
+				tr.Run((const uchar *)"VER", -1, nta.Z(), &nts);
 				SLCHECK_LT(0.0f, nta.Has(SNTOK_WININTERNALCMD));
-				tr.Run((const uchar *)"verIfy", -1, nta.Z(), &nts); 
+				tr.Run((const uchar *)"verIfy", -1, nta.Z(), &nts);
 				SLCHECK_LT(0.0f, nta.Has(SNTOK_WININTERNALCMD));
-				tr.Run((const uchar *)"verIfy", -1, nta.Z(), &nts); 
+				tr.Run((const uchar *)"verIfy", -1, nta.Z(), &nts);
 				SLCHECK_LT(0.0f, nta.Has(SNTOK_WININTERNALCMD));
-				tr.Run((const uchar *)"ren", -1, nta.Z(), &nts); 
+				tr.Run((const uchar *)"ren", -1, nta.Z(), &nts);
 				SLCHECK_LT(0.0f, nta.Has(SNTOK_WININTERNALCMD));
-				tr.Run((const uchar *)"renamE", -1, nta.Z(), &nts); 
+				tr.Run((const uchar *)"renamE", -1, nta.Z(), &nts);
 				SLCHECK_LT(0.0f, nta.Has(SNTOK_WININTERNALCMD));
 				//
-				tr.Run((const uchar *)",ren,", -1, nta.Z(), &nts); 
+				tr.Run((const uchar *)",ren,", -1, nta.Z(), &nts);
 				SLCHECK_EQ(0.0f, nta.Has(SNTOK_WININTERNALCMD));
-				tr.Run((const uchar *)"vir", -1, nta.Z(), &nts); 
+				tr.Run((const uchar *)"vir", -1, nta.Z(), &nts);
+				SLCHECK_EQ(0.0f, nta.Has(SNTOK_WININTERNALCMD));
+			}
+			{ // @v12.7.9
+				for(uint cc = 1; cc < 1000; cc++) {
+					if(GetCountrySymb2(cc, str)) {
+						tr.Run(str.ucptr(), -1, nta.Z(), &nts);
+						SLCHECK_LT(0.0f, nta.Has(SNTOK_COUNTRYCODE));
+						//
+						tr.Run(str.ToUpper().ucptr(), -1, nta.Z(), &nts);
+						SLCHECK_LT(0.0f, nta.Has(SNTOK_COUNTRYCODE));
+						//
+						tr.Run(str.ToLower().ucptr(), -1, nta.Z(), &nts);
+						SLCHECK_LT(0.0f, nta.Has(SNTOK_COUNTRYCODE));
+					}
+					if(GetCountrySymb3(cc, str)) {
+						tr.Run(str.ucptr(), -1, nta.Z(), &nts);
+						SLCHECK_LT(0.0f, nta.Has(SNTOK_COUNTRYCODE));
+						//
+						tr.Run(str.ToUpper().ucptr(), -1, nta.Z(), &nts);
+						SLCHECK_LT(0.0f, nta.Has(SNTOK_COUNTRYCODE));
+						//
+						tr.Run(str.ToLower().ucptr(), -1, nta.Z(), &nts);
+						SLCHECK_LT(0.0f, nta.Has(SNTOK_COUNTRYCODE));
+					}
+				}
+				tr.Run((const uchar *)"_qe", -1, nta.Z(), &nts);
+				SLCHECK_EQ(0.0f, nta.Has(SNTOK_WININTERNALCMD));
+				tr.Run((const uchar *)"111", -1, nta.Z(), &nts);
+				SLCHECK_EQ(0.0f, nta.Has(SNTOK_WININTERNALCMD));
+				tr.Run(0, -1, nta.Z(), &nts);
 				SLCHECK_EQ(0.0f, nta.Has(SNTOK_WININTERNALCMD));
 			}
 		}

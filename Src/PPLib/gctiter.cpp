@@ -7,7 +7,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-static constexpr int32 GCTFilt_CurrentVer = 1; // @v12.5.8 0-->1
+static constexpr int32 GCTFilt_CurrentVer = 2; // @v12.5.8 0-->1 // @v12.7.9 1-->2
 
 void GCTFilt::Helper_Init()
 {
@@ -18,15 +18,16 @@ void GCTFilt::Helper_Init()
 	SetBranchObjIdListFilt(offsetof(GCTFilt, ArList));
 	SetBranchObjIdListFilt(offsetof(GCTFilt, AgentList));
 	SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(GCTFilt, P_BillTagF)); // @v12.5.8
+	SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(GCTFilt, P_DlvrLocTagF)); // @v12.7.9
 	Init(1, 0);
 }
 
-IMPLEMENT_PPFILT_FACTORY(GCT); GCTFilt::GCTFilt() : PPBaseFilt(PPFILT_GCT, 0, GCTFilt_CurrentVer), P_BillTagF(0)
+IMPLEMENT_PPFILT_FACTORY(GCT); GCTFilt::GCTFilt() : PPBaseFilt(PPFILT_GCT, 0, GCTFilt_CurrentVer), P_BillTagF(0), P_DlvrLocTagF(0)
 {
 	Helper_Init();
 }
 
-GCTFilt::GCTFilt(const GCTFilt & rS) : PPBaseFilt(PPFILT_GCT, 0, GCTFilt_CurrentVer), P_BillTagF(0)
+GCTFilt::GCTFilt(const GCTFilt & rS) : PPBaseFilt(PPFILT_GCT, 0, GCTFilt_CurrentVer), P_BillTagF(0), P_DlvrLocTagF(0)
 {
 	Helper_Init();
 	Copy(&rS, 1);
@@ -104,6 +105,81 @@ GCTFilt & FASTCALL GCTFilt::operator = (const GCTFilt & rS) // @v12.5.8
 			CPYFLD(ArList);
 			CPYFLD(AgentList);
 #undef CPYFLD
+		ok = 1;
+	}
+	if(ver == 1) {
+		class GCTFilt_v1 : public PPBaseFilt {
+		public:
+			GCTFilt_v1() : PPBaseFilt(PPFILT_GCT, 0, 1)
+			{
+				SetFlatChunk(offsetof(GCTFilt_v1, ReserveStart), offsetof(GCTFilt_v1, BillList) - offsetof(GCTFilt_v1, ReserveStart));
+				SetBranchObjIdListFilt(offsetof(GCTFilt_v1, BillList));
+				SetBranchObjIdListFilt(offsetof(GCTFilt_v1, LocList));
+				SetBranchObjIdListFilt(offsetof(GCTFilt_v1, GoodsList));
+				SetBranchObjIdListFilt(offsetof(GCTFilt_v1, ArList));
+				SetBranchObjIdListFilt(offsetof(GCTFilt_v1, AgentList));
+				SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(GCTFilt, P_BillTagF));
+				Init(1, 0);
+			}
+			uint8  ReserveStart[24];
+			DateRange DueDatePeriod;
+			DateRange Period;
+			DateRange LotsPeriod;
+			DateRange ShipmentPeriod;
+			PPID   OpID;
+			PPID   SupplID;
+			PPID   DlvrAddrID;
+			PPID   GoodsGrpID;
+			PPID   GoodsID;
+			PPID   ExtGoodsTypeID;
+			PPID   BrandID;
+			PPID   SupplAgentID;
+			GCTSoftRestrict SoftRestrict;
+			long   Flags;
+			long   Order;
+			int32  GrpPeriod;
+			ObjIdListFilt BillList;
+			ObjIdListFilt LocList;
+			ObjIdListFilt GoodsList;
+			ObjIdListFilt ArList;
+			ObjIdListFilt AgentList;
+			TagFilt * P_BillTagF;
+		};
+		GCTFilt_v1 fv1;
+		THROW(fv1.Read(rBuf, 0));
+		memzero(ReserveStart, sizeof(ReserveStart));
+#define CPYFLD(f) f = fv1.f
+			CPYFLD(DueDatePeriod);
+			CPYFLD(Period);
+			CPYFLD(LotsPeriod);
+			CPYFLD(ShipmentPeriod);
+			CPYFLD(OpID);
+			CPYFLD(SupplID);
+			CPYFLD(DlvrAddrID);
+			CPYFLD(GoodsGrpID);
+			CPYFLD(GoodsID);
+			CPYFLD(ExtGoodsTypeID);
+			CPYFLD(BrandID);
+			CPYFLD(SupplAgentID);
+			CPYFLD(SoftRestrict);
+			CPYFLD(Flags);
+			CPYFLD(Order);
+			CPYFLD(GrpPeriod);
+			CPYFLD(BillList);
+			CPYFLD(LocList);
+			CPYFLD(GoodsList);
+			CPYFLD(ArList);
+			CPYFLD(AgentList);
+#undef CPYFLD
+			{
+				if(fv1.P_BillTagF) {
+					P_BillTagF = new TagFilt(*fv1.P_BillTagF);
+				}
+				else {
+					ZDELETE(P_BillTagF);
+				}
+			}
+			ZDELETE(P_DlvrLocTagF);
 		ok = 1;
 	}
 	CATCHZOK
@@ -230,18 +306,57 @@ int FASTCALL GCTIterator::GCT_BillCache::CheckBillRec(const BillTbl::Rec * pRec)
 	}
 	if(PPObjTag::CheckForTagFilt(PPOBJ_BILL, pRec->ID, Filt.P_BillTagF) <= 0) // @v12.5.8 
 		return 0;
-	if(ArList.GetSingle() && (Filt.DlvrAddrID || Filt.Flags & OPG_BYZERODLVRADDR)) {
+	{
+		PPID   dlvr_loc_id = -1;
 		PPFreight freight;
-		if(pRec->Flags & BILLF_FREIGHT && P_BObj->P_Tbl->GetFreight(pRec->ID, &freight) > 0) {
-			if(Filt.Flags & OPG_BYZERODLVRADDR) {
-				if(freight.DlvrAddrID__)
-					return 0;
+		{ // @v12.7.9
+			bool   local_ok = true;
+			if(Filt.P_DlvrLocTagF && !Filt.P_DlvrLocTagF->IsEmpty()) {
+				if(dlvr_loc_id == -1) {
+					dlvr_loc_id = (pRec->Flags & BILLF_FREIGHT && P_BObj->FetchFreight(pRec->ID, &freight) > 0) ? freight.DlvrAddrID__ : 0;
+				}
+				if(dlvr_loc_id) {
+					if(PPObjTag::CheckForTagFilt(PPOBJ_LOCATION, dlvr_loc_id, Filt.P_DlvrLocTagF) > 0) {
+						;
+					}
+					else
+						local_ok = false;
+				}
+				else
+					local_ok = false;
 			}
-			else if(freight.DlvrAddrID__ != Filt.DlvrAddrID)
+			if(!local_ok)
 				return 0;
 		}
-		else if(!(Filt.Flags & OPG_BYZERODLVRADDR) && Filt.DlvrAddrID)
-			return 0;
+		if(ArList.GetSingle() && (Filt.DlvrAddrID || Filt.Flags & OPG_BYZERODLVRADDR)) {
+			// @v12.7.9 {
+			if(dlvr_loc_id == -1) {
+				dlvr_loc_id = (pRec->Flags & BILLF_FREIGHT && P_BObj->FetchFreight(pRec->ID, &freight) > 0) ? freight.DlvrAddrID__ : 0;
+			}
+			if(dlvr_loc_id > 0) {
+				if(Filt.Flags & OPG_BYZERODLVRADDR) {
+					return 0;
+				}
+				else if(dlvr_loc_id != Filt.DlvrAddrID)
+					return 0;
+			}
+			else if(!(Filt.Flags & OPG_BYZERODLVRADDR) && Filt.DlvrAddrID) {
+				return 0;
+			}
+			// } @v12.7.9 
+			/* @v12.7.9
+			if(pRec->Flags & BILLF_FREIGHT && P_BObj->P_Tbl->GetFreight(pRec->ID, &freight) > 0) {
+				if(Filt.Flags & OPG_BYZERODLVRADDR) {
+					if(freight.DlvrAddrID__)
+						return 0;
+				}
+				else if(freight.DlvrAddrID__ != Filt.DlvrAddrID)
+					return 0;
+			}
+			else if(!(Filt.Flags & OPG_BYZERODLVRADDR) && Filt.DlvrAddrID)
+				return 0;
+			*/
+		}
 	}
 	return 1;
 }
@@ -527,6 +642,7 @@ GCTIterator::~GCTIterator()
 
 int FASTCALL GCTIterator::CheckBillForFilt(const BillTbl::Rec & rBillRec) const
 {
+	// DlvrAddrID
 	const  int soft_restr = BIN(Filt.SoftRestrict);
 	if((Filt.Flags & OPG_LABELONLY) && !(rBillRec.Flags & BILLF_WHITELABEL))
 		return 0;
@@ -546,23 +662,45 @@ int FASTCALL GCTIterator::CheckBillForFilt(const BillTbl::Rec & rBillRec) const
 		return 0;
 	else if(PPObjTag::CheckForTagFilt(PPOBJ_BILL, rBillRec.ID, Filt.P_BillTagF) <= 0) // @v12.5.8 
 		return 0;
-	else if(!soft_restr) {
+	//
+	{
 		PPObjBill * p_bobj(BillObj);
-		PPBillExt ext_rec;
-		if(Filt.Flags & OPG_BYZEROAGENT) {
-			if(p_bobj->FetchExt(rBillRec.ID, &ext_rec) > 0 && ext_rec.AgentID)
+		{ // @v12.7.9
+			bool   local_ok = true;
+			if(Filt.P_DlvrLocTagF && !Filt.P_DlvrLocTagF->IsEmpty()) { 
+				PPFreight freight;
+				if(p_bobj->FetchFreight(rBillRec.ID, &freight) > 0 && freight.DlvrAddrID__) {
+					if(PPObjTag::CheckForTagFilt(PPOBJ_LOCATION, freight.DlvrAddrID__, Filt.P_DlvrLocTagF) > 0) {
+						;
+					}
+					else {
+						local_ok = false;
+					}
+				}
+				else {
+					local_ok = false;
+				}
+			}
+			if(!local_ok)
 				return 0;
 		}
-		else if(Filt.AgentList.GetCount()) {
-			const PPIDArray & r_agent_list = Filt.AgentList.Get();
-			int    f = 0;
-			for(uint i = 0; !f && i < r_agent_list.getCount(); i++) {
-				const  PPID agent_id = r_agent_list.get(i);
-				if(p_bobj->FetchExt(rBillRec.ID, &ext_rec) > 0 && ext_rec.AgentID == agent_id)
-					f = 1;
+		if(!soft_restr) {
+			PPBillExt ext_rec;
+			if(Filt.Flags & OPG_BYZEROAGENT) {
+				if(p_bobj->FetchExt(rBillRec.ID, &ext_rec) > 0 && ext_rec.AgentID)
+					return 0;
 			}
-			if(!f)
-				return 0;
+			else if(Filt.AgentList.GetCount()) {
+				const PPIDArray & r_agent_list = Filt.AgentList.Get();
+				int    f = 0;
+				for(uint i = 0; !f && i < r_agent_list.getCount(); i++) {
+					const  PPID agent_id = r_agent_list.get(i);
+					if(p_bobj->FetchExt(rBillRec.ID, &ext_rec) > 0 && ext_rec.AgentID == agent_id)
+						f = 1;
+				}
+				if(!f)
+					return 0;
+			}
 		}
 	}
 	return 1;

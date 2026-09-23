@@ -1437,10 +1437,10 @@
 #define PPTAG_GUA_OUTERWAREIDTAG        96L // Ссылка на тег товара, содержащий внешний идентификатор
 #define PPTAG_GUA_SOCIALGROUPCODE       97L // Код группы в социальной сети
 #define PPTAG_GUA_SOCIALPAGECODE        98L // Код страницы в социальной сети
-#define PPTAG_LOC_VETIS_REGIONGUID      99L // @v11.0.10 ВЕТИС-идент региона локации (склад или адрес доставки) // в терминах ВЕТИС - region GUID (не UUID)
+#define PPTAG_LOC_VETIS_REGIONGUID      99L // ВЕТИС-идент региона локации (склад или адрес доставки) // в терминах ВЕТИС - region GUID (не UUID)
 #define PPTAG_BILL_LONGCODE            100L // @v11.0.12 (надеюсь, временный тег) Если номер документа, поступившего из-вне длиннее sizeof(Bill:Code)-1 то полный номер сохраняется в этом теге
-#define PPTAG_POSNODE_OFDVER           101L // @v11.1.9  Версия ОФД на аппарате (аппаратах), с которой работает кассовый узел
-#define PPTAG_LOC_TRUNKPOINT           102L // @v11.2.9  Магистральная точка, ближайшая к адресу. Используется в логистике для планирования маршрутов.
+#define PPTAG_POSNODE_OFDVER           101L // Версия ОФД на аппарате (аппаратах), с которой работает кассовый узел
+#define PPTAG_LOC_TRUNKPOINT           102L // Магистральная точка, ближайшая к адресу. Используется в логистике для планирования маршрутов.
 #define PPTAG_TSESS_OUTERCODE          103L // @v11.6.6  Внешний код технологической сессии
 #define PPTAG_PERSON_TRANSPORTTO       104L // @v11.6.9  Транспорт, используемый для доставки товара клиенту по-умолчанию (используется для интеграции с VETIS)
 #define PPTAG_LOT_ACCEPTANCE           105L // @v11.7.0  Результат "физической" приемки документа. Структурированная информация сжата в строку.
@@ -1690,42 +1690,42 @@
 #define PPEDIOP_EGAIS_REPLYFORMB              44
 #define PPEDIOP_EGAIS_ACTCHARGEON             45
 #define PPEDIOP_EGAIS_ACTWRITEOFF             46
-#define PPEDIOP_EGAIS_REQUESTREPEALWB         47 //
-#define PPEDIOP_EGAIS_CONFIRMREPEALWB         48 //
-#define PPEDIOP_EGAIS_QUERYRESTSSHOP          49 //
-#define PPEDIOP_EGAIS_REPLYRESTSSHOP          50 //
-#define PPEDIOP_EGAIS_QUERYBARCODE            51 //
-#define PPEDIOP_EGAIS_REPLYBARCODE            52 //
-#define PPEDIOP_EGAIS_TRANSFERTOSHOP          53 //
+#define PPEDIOP_EGAIS_REQUESTREPEALWB         47
+#define PPEDIOP_EGAIS_CONFIRMREPEALWB         48
+#define PPEDIOP_EGAIS_QUERYRESTSSHOP          49
+#define PPEDIOP_EGAIS_REPLYRESTSSHOP          50
+#define PPEDIOP_EGAIS_QUERYBARCODE            51
+#define PPEDIOP_EGAIS_REPLYBARCODE            52
+#define PPEDIOP_EGAIS_TRANSFERTOSHOP          53
 #define PPEDIOP_EGAIS_ACTCHARGEONSHOP         54 // ActChargeOnShop_v2
-#define PPEDIOP_EGAIS_TRANSFERFROMSHOP        55 //
-#define PPEDIOP_EGAIS_ACTCHARGEON_V2          56 //
-#define PPEDIOP_EGAIS_ACTWRITEOFF_V2          57 //
-#define PPEDIOP_EGAIS_ACTWRITEOFFSHOP         58 //
-#define PPEDIOP_EGAIS_WAYBILL_V2              59 //
+#define PPEDIOP_EGAIS_TRANSFERFROMSHOP        55
+#define PPEDIOP_EGAIS_ACTCHARGEON_V2          56
+#define PPEDIOP_EGAIS_ACTWRITEOFF_V2          57
+#define PPEDIOP_EGAIS_ACTWRITEOFFSHOP         58
+#define PPEDIOP_EGAIS_WAYBILL_V2              59
 #define PPEDIOP_EGAIS_TTNINFORMF2REG          60 // version 2 of PPEDIOP_EGAIS_TTNINFORMBREG
 #define PPEDIOP_EGAIS_WAYBILLACT_V2           61 // version 2 of PPEDIOP_EGAIS_WAYBILLACT
 #define PPEDIOP_EGAIS_NOTIFY_WBVER2           62 // Уведомление сервера ЕГАИС об использовании версии 2 протокола обмена
 #define PPEDIOP_EGAIS_QUERYRESTS_V2           63 // Запрос остатков version 2
 #define PPEDIOP_EGAIS_REPLYRESTS_V2           64 // Ответ на запрос остатков version 2
 #define PPEDIOP_EGAIS_ACTINVENTORYINFORMF2REG 65 // version 2 of PPEDIOP_EGAIS_ACTINVENTORYINFORMBREG
-#define PPEDIOP_EGAIS_WAYBILL_V3              66 //
+#define PPEDIOP_EGAIS_WAYBILL_V3              66
 #define PPEDIOP_EGAIS_WAYBILLACT_V3           67 // version 3 of PPEDIOP_EGAIS_WAYBILLACT
-#define PPEDIOP_EGAIS_ACTWRITEOFF_V3          68 //
+#define PPEDIOP_EGAIS_ACTWRITEOFF_V3          68
 #define PPEDIOP_EGAIS_NOTIFY_WBVER3           69 // Уведомление сервера ЕГАИС об использовании версии 3 протокола обмена (то же, что и PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменением внутри).
-#define PPEDIOP_EGAIS_REQUESTREPEALAWO        70 //
-#define PPEDIOP_EGAIS_QUERYRESENDDOC          71 //
+#define PPEDIOP_EGAIS_REQUESTREPEALAWO        70
+#define PPEDIOP_EGAIS_QUERYRESENDDOC          71
 #define PPEDIOP_EGAIS_QUERYRESTBCODE          72 // Запрос марок по справке Б
 #define PPEDIOP_EGAIS_REPLYRESTBCODE          73 // Ответ на запрос марок по справке Б
 #define PPEDIOP_EGAIS_ACTFIXBARCODE           74 // ActFixBarCode Акт фиксации штрихкодов на балансе организации
 #define PPEDIOP_EGAIS_ACTUNFIXBARCODE         75 // ActUnFixBarCode Акт отмены фиксации штрихкодов на балансе организации
-#define PPEDIOP_EGAIS_NOTIFY_WBVER4           76 // @v11.0.12 Уведомление сервера ЕГАИС об использовании версии 4 протокола обмена (то же, что и PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменением внутри).
-#define PPEDIOP_EGAIS_WAYBILL_V4              77 // @v11.0.12 version 4 of PPEDIOP_EGAIS_WAYBILLACT
-#define PPEDIOP_EGAIS_WAYBILLACT_V4           78 // @v11.0.12 version 4 of PPEDIOP_EGAIS_WAYBILLACT
-#define PPEDIOP_EGAIS_QUERYFORMF1             79 // @v11.2.12 Новая версия PPEDIOP_EGAIS_QUERYFORMA
-#define PPEDIOP_EGAIS_QUERYFORMF2             80 // @v11.2.12 Новая версия PPEDIOP_EGAIS_QUERYFORMB
-#define PPEDIOP_EGAIS_REPLYFORM1              81 // @v11.3.4
-#define PPEDIOP_EGAIS_REPLYFORM2              82 // @v11.3.4
+#define PPEDIOP_EGAIS_NOTIFY_WBVER4           76 // Уведомление сервера ЕГАИС об использовании версии 4 протокола обмена (то же, что и PPEDIOP_EGAIS_NOTIFY_WBVER2, но с небольшим изменением внутри).
+#define PPEDIOP_EGAIS_WAYBILL_V4              77 // version 4 of PPEDIOP_EGAIS_WAYBILLACT
+#define PPEDIOP_EGAIS_WAYBILLACT_V4           78 // version 4 of PPEDIOP_EGAIS_WAYBILLACT
+#define PPEDIOP_EGAIS_QUERYFORMF1             79 // Новая версия PPEDIOP_EGAIS_QUERYFORMA
+#define PPEDIOP_EGAIS_QUERYFORMF2             80 // Новая версия PPEDIOP_EGAIS_QUERYFORMB
+#define PPEDIOP_EGAIS_REPLYFORM1              81
+#define PPEDIOP_EGAIS_REPLYFORM2              82
 //
 #define PPEDIOP_MRKTPLC_RECEIPT              101 // @v12.1.6 Поступление товара на склад маркетплейса
 #define PPEDIOP_MRKTPLC_ORDER                102 // @v12.1.6 Заказ от покупателя, поступивший на маркетплейс
@@ -3161,6 +3161,7 @@
 	#define CTL_GTO_SHOWALL_GOODS       (50 + WINDOWS_ID_BIAS) // @v12.5.7 замена single CTL_GTO_SHOWALL
 	#define CTL_GTO_CMD_TAGRPNGOPTIONS  (51 + WINDOWS_ID_BIAS) // @v12.5.8 Команда обращения к опциям группировки
 	#define CTL_GTO_CMD_BILLTAGS        (52 + WINDOWS_ID_BIAS) // @v12.5.8 Команда фильтрации по тегам документов
+	#define CTL_GTO_CMD_DLVRLOCTAGS     (53 + WINDOWS_ID_BIAS) // @v12.7.9 Команда фильтрации по тегам адресов доставки
 #define DLG_PRINT                 134 // Общий диалог параметров печати
 	#define CTL_PRINT_PORT               (1 + WINDOWS_ID_BIAS) // Порт вывода
 	#define CTL_PRINT_PGHT               (2 + WINDOWS_ID_BIAS) // Длина листа
@@ -3859,6 +3860,10 @@
 	#define CTLSEL_GOODSFLT_ORDER       (33 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSFLT_BARCODESTR     (34 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSFLT_NOBRAND        (35 + WINDOWS_ID_BIAS)
+	#define CTL_GOODSFLT_CMD_BRANDLIST  (36 + WINDOWS_ID_BIAS) // @v12.7.9
+	#define CTL_GOODSFLT_CMD_BRANDOWNERLIST (37 + WINDOWS_ID_BIAS) // @v12.7.9
+	#define CTL_GOODSFLT_CMD_ADVOPTIONS (38 + WINDOWS_ID_BIAS) // @v12.7.9
+	#define CTL_GOODSFLT_CMD_EXTPARAMS  (39 + WINDOWS_ID_BIAS) // @v12.7.9
 
 #define DLG_PSNFLT                251 // Фильтр по персоналиям
 #define DLG_PSNEXFLT              252 // Фильтр по кадрам           @obsolete
@@ -4934,6 +4939,7 @@
 #define DLG_TRFRANLZ              360 // Фильтр анализа товарных операций
 	#define cmTaGrpngOptions             110
 	#define cmBillTags                   111 // @v12.5.8 Команда фильтрации по тегам документов
+	#define cmDlvrLocTags                112 // @v12.7.9 Команда фильтрации по тегам адресов доставки
 	// CTL[SEL]_GTO_XXX
 #define DLG_STAFF                 361 // Штатная должность
 	#define cmAmounts                    101

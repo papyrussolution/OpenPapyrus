@@ -11,6 +11,7 @@
 //     PPMSG_CONFIRMATION        102
 //     PPMSG_INFORMATION         103
 //     PPSTR_TCELHLD             104 // @v12.7.5 Table Cell HighLight Description
+//     PPSTR_CTLUSTTD            105 // @v12.7.7 Control User's State Description
 //     PPSTR_OBJNAMES            110 // Наименования объектов
 //     PPSTR_TEXT                111 // Просто строки
 //     PPSTR_ACTION              112 // Наименования событий в SysJ
@@ -185,6 +186,8 @@ PPERR_AMTTYPENEEDED                "Необходимо выбрать тип �
 PPERR_GDSCLSNEEDED                 "Необходимо выбрать класс товара"
 PPERR_SCALETYPENEEDED              "Необходимо указать тип электронных весов"
 PPERR_ACCSHEETNEEDED               "Необходимо указать таблицу аналитических статей"
+PPERR_AR_ACS_NOTDEFINED            "В аналитической статье '%s' не определена либо указана несуществующая таблица аналитических статей" // @v12.7.9
+PPERR_AR_PARENT_NOTFOUND           "В аналитической статье '%s' задана несуществующая родительская статья" // @v12.7.9
 PPERR_NFILTNAMENEEDED		       "Необходимо ввести название"
 PPERR_SYMBNEEDED                   "Символ не задан или задан не верно"
 PPERR_CTBLNEEDED                   "Необходимо указать номер стола"
@@ -2876,6 +2879,7 @@ CTLUSTTD_RULICPLATE_INVALID           "Недопустимое значение
 CTLUSTTD_BANKACCOUNT_VALID            "Номер банковского счета - допустимое значение"
 CTLUSTTD_BANKACCOUNT_INVALID          "Недопустимое значение номера банковского счета"
 CTLUSTTD_RUINN_VALID                  "ИНН - допустимое значение" 
+CTLUSTTD_RUINN_VALID_BADCD            "ИНН - почти допустимое значение (неправильная контрольная цифра)"
 CTLUSTTD_RUINN_INVALID                "Недопустимое значение ИНН" 
 CTLUSTTD_RUKPP_VALID                  "КПП - допустимое значение"  
 CTLUSTTD_RUKPP_INVALID                "Недопустимое значение КПП" 
@@ -2900,6 +2904,31 @@ CTLUSTTD_TRFRITEM_PRICEBYQUOT            "Цена установлена по �
 CTLUSTTD_TRFRITEM_PRICEBYQUOT_CANTCANCEL "Цена установлена по котировке без возможности отмены"
 CTLUSTTD_TRFRITEM_PRICEBELOWCOST         "Цена реализации меньше цены поступления"
 CTLUSTTD_TRFRITEM_COSTCHANGED            "Цена поступления изменилась по сравнению с предшествующим лотом"
+
+CTLUSTTD_CCHECKBYBILL_EADR_EMAIL         "Правильный адрес электронной почты" 
+CTLUSTTD_CCHECKBYBILL_EADR_PHONE         "Правильный номер телефона"
+CTLUSTTD_CCHECKBYBILL_EADR_INVALID       "Строка не выглядит ни как номер телефона, ни как адрес электронной почты"
+
+CTLUSTTD_EXTGOODSSEL_MODIFMODE           "Просто заметная цветовая индикация выбранного режима"
+
+CTLUSTTD_GLBSVCSETUP_KEYVALID_WB         "API-ключ @{brand_wildberries} имеет правильный формат"
+CTLUSTTD_GLBSVCSETUP_KEYINVALID_WB       "Недопустимое значение API-ключа @{brand_wildberries}"
+
+CTLUSTTD_PATH_VALID                      "Путь валиден и существует" 
+CTLUSTTD_PATH_INVALID                    "Путь не валиден либо не существует"
+
+CTLUSTTD_BANKACC_VALID                   "Допустимое значение банковского счета" 
+CTLUSTTD_BANKACC_INVALID                 "Номер банковского счета пуст либо имеет недопустимое значение"
+
+CTLUSTTD_DL600_STRUCSYMB_VALID           "Символ структуры DL600"
+CTLUSTTD_DL600_STRUCSYMB_INVALID         "Недопустимый либо несуществующий символ структуры DL600"
+
+CTLUSTTD_NAME_HUMAN                      "Человеческое имя"
+CTLUSTTD_NAME_FEM                        "Женское имя" 
+CTLUSTTD_NAME_MUS                        "Мужское имя" 
+
+CTLUSTTD_SERIAL_UNINDETIFIED             "Серийный номер не идентифицирован"
+CTLUSTTD_SERIAL_INDETIFIED               "Идентифицирована принадлежность серийного номера конкретному лоту"
 									
 [110] // Наименования типов объектов данных
 1    "@{config}"
@@ -15918,6 +15947,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @trfranlzfilt_ctk_location                "По складу"
 @trfranlzfilt_btn_grouping                "Параметры группировки"
 @trfranlzfilt_btn_billtags                "Теги документов"
+@trfranlzfilt_btn_dlvrloctags             "Теги адресов доставки" // @v12.7.9
 @trfranlzfilt_title_grouping              "Параметры группировки анализа товарных операций" // Обобщающее понятие (заголовок диалога)
 @trfranlzfilt_grouping                    "@{grouping}" // Параметр группировки
 @trfranlzfilt_g_none                      "@{no}"
@@ -19451,6 +19481,9 @@ PPHSC_RU_INVOICETAB            "ТаблСчФакт"
 PPHSC_RU_CORRINVOICETAB        "ТаблКСчФ" // @v11.7.0
 PPHSC_RU_CODEOKV               "КодОКВ"
 PPHSC_RU_WAREINFO              "СведТов"
+PPHSC_RU_GTD                   "СвДТ"      // @v12.7.9 Сведения о декларации на товары
+PPHSC_RU_GTD_COUNTRYCODE       "КодПроисх" // @v12.7.9 Цифровой код страны происхождения товара (графа 10 счета-фактуры)
+PPHSC_RU_GTD_NUMBER            "НомерДТ"   // @v12.7.9 Регистрационный номер декларации на товары (графа 11 счета-фактуры)
 PPHSC_RU_WAREEXTRAINFO         "ДопСведТов"
 PPHSC_RU_LINENUMBER            "НомСтр"
 PPHSC_RU_LINENUMBER2           "ПорНомер" // @v11.9.5 SBIS

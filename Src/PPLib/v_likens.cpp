@@ -1,12 +1,11 @@
 // V_LIKENS.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2018, 2019, 2022, 2024
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2016, 2018, 2019, 2022, 2024, 2026
 //
 #include <pp.h>
 #pragma hdrstop
 //
 // @ModuleDef(PPViewObjLikeness)
 //
-
 IMPLEMENT_PPFILT_FACTORY(ObjLikeness); ObjLikenessFilt::ObjLikenessFilt() : PPBaseFilt(PPFILT_OBJLIKENESS, 0, 0)
 {
 	SetFlatChunk(offsetof(ObjLikenessFilt, ReserveStart),
@@ -121,11 +120,12 @@ DBQuery * PPViewObjLikeness::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	int    func_name = 0;
 	uint   brw_id = BROWSER_OBJLIKENESS;
 	SString sub_title;
-	DBQuery   * q  = 0;
+	DBQuery * q  = 0;
 	ObjLikenessTbl * l = 0;
-	DBE dbe_pct_rate, dbe_name1, dbe_name2;
+	DBE    dbe_pct_rate;
+	DBE    dbe_name1;
+	DBE    dbe_name2;
 	DBQ  * dbq = 0;
-
 	THROW(CheckTblPtr(l = new ObjLikenessTbl(Tbl.GetName())));
 	dbq = ppcheckfiltid(dbq, l->ObjType, Filt.ObjTypeID);
 	dbq =& (*dbq && l->Rate >= Filt.Rate);
@@ -143,14 +143,14 @@ DBQuery * PPViewObjLikeness::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 		func_name = PPDbqFuncPool::IdObjNameGoods;
 	PPDbqFuncPool::InitObjNameFunc(dbe_name1, func_name, l->ID1);
 	PPDbqFuncPool::InitObjNameFunc(dbe_name2, func_name, l->ID2);
-	q = & Select_(
+	q = &Select_(
 		l->ObjType,
 		l->ID1,
 		l->ID2,
-		dbe_pct_rate,
-		dbe_name1,
-		dbe_name2,
 		0L);
+	q->addField(dbe_pct_rate);
+	q->addField(dbe_name1);
+	q->addField(dbe_name2);
 	if(pSubTitle)
 		GetObjectTitle(Filt.ObjTypeID, sub_title);
 	q->from(l, 0L).where(*dbq).orderBy(l->ObjType, l->Rate, 0L);

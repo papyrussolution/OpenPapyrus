@@ -1,5 +1,5 @@
 // V_QCERT.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2015, 2016, 2017, 2018, 2020, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2015, 2016, 2017, 2018, 2020, 2024, 2025, 2026
 // @codepage windows-1251
 //
 #include <pp.h>
@@ -234,16 +234,17 @@ DBQuery * PPViewQCert::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	if(P_TempTbl) {
 		THROW(CheckTblPtr(qc = new QualityCertTbl(P_TempTbl->GetName())));
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn, PPDbqFuncPool::IdObjNamePerson, qc->RegOrgan);
-		q = & Select_(
+		q = &Select_(
 			qc->ID,         // #00
 			qc->Code,       // #01
 			qc->BlankCode,  // #02
 			qc->InitDate,   // #03
 			qc->Expiry,     // #04
-			dbe_psn,        // #05
-			qc->GoodsName,  // #06
-			qc->Etc,        // #07
-			0L).from(qc, 0L);
+			0L);
+		q->addField(dbe_psn);       // #05
+		q->addField(qc->GoodsName); // #06
+		q->addField(qc->Etc);       // #07
+		q->from(qc, 0L);
 		THROW(CheckQueryPtr(q));
 	}
 	else {
@@ -251,16 +252,17 @@ DBQuery * PPViewQCert::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn, PPDbqFuncPool::IdObjNamePerson, qc->RegOrgan);
 		if(Filt.Flags & QCertFilt::fHasRest)
 			THROW(CheckTblPtr(rcpt = new ReceiptTbl));
-		q = & Select_(
+		q = &Select_(
 			qc->ID,         // #00
 			qc->Code,       // #01
 			qc->BlankCode,  // #02
 			qc->InitDate,   // #03
 			qc->Expiry,     // #04
-			dbe_psn,        // #05
-			qc->GoodsName,  // #06
-			qc->Etc,        // #07
-			0L).from(qc, rcpt, 0L);
+			0L);
+		q->addField(dbe_psn);       // #05
+		q->addField(qc->GoodsName); // #06
+		q->addField(qc->Etc);       // #07
+		q->from(qc, rcpt, 0L);
 		THROW(CheckQueryPtr(q));
 		if(!(Filt.Flags & QCertFilt::fShowPassive))
 			dbq = & (*dbq && qc->Passive == 0L);

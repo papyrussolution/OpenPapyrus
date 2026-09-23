@@ -2386,50 +2386,102 @@ int AsyncCashNodeDialog::EditApnCorrList() { DIALOG_PROC_BODY(ApnCorrListDialog,
 
 IMPL_HANDLE_EVENT(AsyncCashNodeDialog)
 {
+	static const uint16 dir_ctl_list[] = { CTL_CASHN_IMPFILES, CTL_CASHN_EXPPATHS };
 	TDialog::handleEvent(event);
 	if(event.isCmd(cmDivGrpAssc)) {
 		SArray div_grp_list(sizeof(PPGenCashNode::DivGrpAssc));
 		if(P_Data->P_DivGrpList)
 			div_grp_list.copy(*P_Data->P_DivGrpList);
-		if(EditDivGrpAssoc(&div_grp_list) > 0)
+		if(EditDivGrpAssoc(&div_grp_list) > 0) {
 			if(P_Data->P_DivGrpList)
 				P_Data->P_DivGrpList->copy(div_grp_list);
 			else
 				P_Data->P_DivGrpList = new SArray(div_grp_list);
+		}
 	}
 	else if(event.isCmd(cmApnCorrList)) {
 		EditApnCorrList();
 	}
-	else if(event.isCmd(cmInputUpdated) && event.isCtlEvent(CTL_CASHN_DEVICE)) {
-		const  PPID cash_type = getCtrlLong(CTLSEL_CASHN_DEVICE);
-		showCtrl(CTL_CASHN_IMPPARAM, (cash_type == PPCMT_CRCSHSRV && UseAltImport));
-	}
-	else if(event.isCmd(cmCtlColor)) {
-		TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
-		if(p_dc) {
-			static const uint16 ctl_list[] = { CTL_CASHN_IMPFILES, CTL_CASHN_EXPPATHS };
-			SString input_buf;
-			SString temp_buf;
-			for(uint i = 0; i < SIZEOFARRAY(ctl_list); i++) {
-				const uint16 ctl_id = ctl_list[i];
-				if(p_dc->H_Ctl == getCtrlHandle(ctl_id)) {
-					getCtrlString(ctl_id, input_buf);
-					int    local_result = -1; // -1 - empty, 0 - path unavailable, 1 - path available
-					if(input_buf.NotEmpty()) {
-						StringSet ss(';', input_buf);
-						for(uint ssp = 0; local_result != 0 && ss.get(&ssp, temp_buf);) {
-							temp_buf.Strip().RmvLastSlash().Transf(CTRANSF_INNER_TO_OUTER);
-							local_result = (SFile::IsDir(temp_buf) || fileExists(temp_buf)) ? 1 : 0;
+	else if(event.isCmd(cmInputUpdated)) {
+		if(event.isCtlEvent(CTL_CASHN_DEVICE)) {
+			const  PPID cash_type = getCtrlLong(CTLSEL_CASHN_DEVICE);
+			showCtrl(CTL_CASHN_IMPPARAM, (cash_type == PPCMT_CRCSHSRV && UseAltImport));
+		}
+		else {
+			for(uint i = 0; i < SIZEOFARRAY(dir_ctl_list); i++) {
+				const  uint16 ctl_id = dir_ctl_list[i];
+				if(event.isCtlEvent(ctl_id)) {
+					TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+					if(p_il) {
+						uint64 _state = 0;
+						int    state_msg_id = 0;
+						SString input_buf;
+						SString temp_buf;
+						getCtrlString(ctl_id, input_buf);
+						if(input_buf.NotEmpty()) {
+							StringSet ss(';', input_buf);
+							int    local_result = -1; // -1 - empty, 0 - path unavailable, 1 - path available
+							for(uint ssp = 0; local_result != 0 && ss.get(&ssp, temp_buf);) {
+								temp_buf.Strip().RmvLastSlash().Transf(CTRANSF_INNER_TO_OUTER);
+								local_result = (SFile::IsDir(temp_buf) || fileExists(temp_buf)) ? 1 : 0;
+							}
+							if(local_result == 1) {
+								_state = 1;
+								state_msg_id = CTLUSTTD_PATH_VALID;
+							}
+							else if(local_result == 0) {
+								_state = 2;
+								state_msg_id = CTLUSTTD_PATH_INVALID;
+							}
 						}
+						temp_buf.Z();
+						if(state_msg_id)
+							PPLoadString(PPSTR_CTLUSTTD, state_msg_id, temp_buf);
+						if(p_il->SetIndicatorState(_state, temp_buf) > 0)
+							drawCtrl(ctl_id);
 					}
-					const int tool_id = (local_result > 0) ? brushValidPath : ((local_result == 0) ? brushInvalidPath : 0);
-					if(tool_id) {
-						::SetBkMode(p_dc->H_DC, TRANSPARENT);
-						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(tool_id));
-					}
+					break;
 				}
 			}
-			clearEvent(event);
+		}
+	}
+	else if(event.isCmd(cmCtlColor)) { // @IndicatorState-done
+		bool   local_done = false;
+		TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
+		if(p_dc) {
+			SString input_buf;
+			SString temp_buf;
+			for(uint i = 0; i < SIZEOFARRAY(dir_ctl_list); i++) {
+				const  uint16 ctl_id = dir_ctl_list[i];
+				if(p_dc->H_Ctl == getCtrlHandle(ctl_id)) {
+					TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+					if(p_il) {
+						uint64 _state = 0;
+						if(p_il->GetIndicatorState(&_state, 0)) {
+							const  int tool_id = (_state == 1) ? brushValidPath : ((_state == 2) ? brushInvalidPath : 0);
+							if(tool_id) {
+								::SetBkMode(p_dc->H_DC, TRANSPARENT);
+								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(tool_id));
+								local_done = true;
+							}
+						}
+					}
+					break;
+				}
+			}
+			if(local_done)
+				clearEvent(event);
+			else
+				return;
+		}
+	}
+	else if(event.isCmd(cmMouseHoverCtrl)) { // @v12.7.7
+		for(uint i = 0; i < SIZEOFARRAY(dir_ctl_list); i++) {
+			const  uint16 ctl_id = dir_ctl_list[i];
+			if(event.isCtlEvent(ctl_id)) {
+				PPShowCtrlIndicatorHintOnInputLine(this, ctl_id);
+				break;
+			}
 		}
 	}
 	else if(event.isCmd(cmImpParam)) {

@@ -1549,7 +1549,7 @@ int FASTCALL PPViewGeoTracking::CheckRecForFilt(const GeoTrackTbl::Rec * pRec)
 		}
 	}
 	// @v12.5.1 {
-	q = & Select_(
+	q = &Select_(
 		t->ObjType,   // #0
 		t->ObjID,     // #1
 		t->Dts2010,   // #2
@@ -1563,7 +1563,7 @@ int FASTCALL PPViewGeoTracking::CheckRecForFilt(const GeoTrackTbl::Rec * pRec)
 	q->addField(t->Altitude);  // #9
 	q->addField(t->Speed);     // #10
 	// } @v12.5.1 
-	/* @v12.5.1 q = & Select_(
+	/* @v12.5.1 q = &Select_(
 		t->ObjType,   // #0
 		t->ObjID,     // #1
 		t->Dts2010,   // #2

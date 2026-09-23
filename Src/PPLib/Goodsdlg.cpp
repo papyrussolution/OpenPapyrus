@@ -2316,7 +2316,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 						return;
 				}
 				break;
-			case cmCtlColor:
+			case cmCtlColor: // @IndicatorState-done
 				{
 					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 					if(p_dc && Data.Rec.Kind == PPGDSK_GOODS) {
@@ -2339,14 +2339,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 				{
 					const  uint ctl_id = event.getCtlID();
 					if(ctl_id == CTL_GOODS_BARCODE) {
-						TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
-						if(p_il) {
-							uint64 _state = 0;
-							SString descr_buf;
-							if(p_il->GetIndicatorState(&_state, &descr_buf) && descr_buf.NotEmptyS()) {
-								PPShowCtrlIndicatorHint(descr_buf);
-							}
-						}
+						PPShowCtrlIndicatorHintOnInputLine(this, ctl_id);
 					}
 				}
 				break;
@@ -3211,6 +3204,8 @@ public:
 	{
 		addGroup(ctlgroupBrand, new BrandCtrlGroup(CTLSEL_GOODSFLT_BRAND, cmBrandList));
 		addGroup(ctlgroupBrandOwner, new PersonListCtrlGroup(CTLSEL_GOODSFLT_BROWNER, 0, cmBrandOwnerList, 0));
+		PPSetupLocalStateWordSelectorOnInputLine(this, DLG_GOODSFLT, CTL_GOODSFLT_NAMESTR); // @v12.7.9
+		PPSetupLocalStateWordSelectorOnInputLine(this, DLG_GOODSFLT, CTL_GOODSFLT_BARCODESTR); // @v12.7.9
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -3221,7 +3216,7 @@ public:
 		setGroupData(ctlgroupBrand, &brand_grp_rec);
 		setCtrlUInt16(CTL_GOODSFLT_NOBRAND, BIN(Data.Flags & GoodsFilt::fWoBrand));
 		setGroupData(ctlgroupBrandOwner, &brandowner_grp_rec);
-		SetupPPObjCombo(this, CTLSEL_GOODSFLT_GRP,     PPOBJ_GOODSGROUP, Data.GrpID,       OLW_CANSELUPLEVEL|/*OLW_LOADDEFONOPEN|*/OLW_WORDSELECTOR); // @v11.1.10 OLW_WORDSELECTOR
+		SetupPPObjCombo(this, CTLSEL_GOODSFLT_GRP,     PPOBJ_GOODSGROUP, Data.GrpID,       OLW_CANSELUPLEVEL|OLW_WORDSELECTOR);
 		SetupPPObjCombo(this, CTLSEL_GOODSFLT_MANUF,   PPOBJ_PERSON,     Data.ManufID,     OLW_LOADDEFONOPEN, reinterpret_cast<void *>(PPPRK_MANUF));
 		{
 			// @v12.5.6 SetupPPObjCombo(this, CTLSEL_GOODSFLT_COUNTRY, PPOBJ_COUNTRY, Data.ManufCountryID, OLW_LOADDEFONOPEN, 0);
@@ -3257,12 +3252,12 @@ public:
 		{
 			Data.GetExtssData(Data.extssNameText, temp_buf.Z());
 			setCtrlString(CTL_GOODSFLT_NAMESTR, temp_buf);
-			SetupWordSelector(CTL_GOODSFLT_NAMESTR, new TextHistorySelExtra("goodsfilt-nametext-common"), 0, 2, WordSel_ExtraBlock::fFreeText);
+			// @v12.7.9 SetupWordSelector(CTL_GOODSFLT_NAMESTR, new TextHistorySelExtra("goodsfilt-nametext-common"), 0, 2, WordSel_ExtraBlock::fFreeText);
 		}
 		{
 			Data.GetExtssData(Data.extssBarcodeText, temp_buf.Z());
 			setCtrlString(CTL_GOODSFLT_BARCODESTR, temp_buf);
-			SetupWordSelector(CTL_GOODSFLT_BARCODESTR, new TextHistorySelExtra("goodsfilt-barcodetext-common"), 0, 2, WordSel_ExtraBlock::fFreeText);
+			// @v12.7.9 SetupWordSelector(CTL_GOODSFLT_BARCODESTR, new TextHistorySelExtra("goodsfilt-barcodetext-common"), 0, 2, WordSel_ExtraBlock::fFreeText);
 		}
 		setCtrlString(CTL_GOODSFLT_BCLEN, Data.BarcodeLen);
 		if(Data.Flags & GoodsFilt::fNotUseViewOptions) {
@@ -3630,18 +3625,14 @@ private:
 		SETFLAG(f_, 0x0004, Data.Flags & GoodsFilt::fShowStrucType);
 		SETFLAG(f_, 0x0008, Data.Flags & GoodsFilt::fShowGoodsWOStruc);
 		SETFLAG(f_, 0x0010, Data.Flags & GoodsFilt::fShowArCode);
-		// @v11.5.9 SETFLAG(f_, 0x0020, Data.Flags2 & GoodsFilt::f2ShowWhPlace);
 		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 0, /*GoodsFilt::fShowBarcode*/0x0001);
 		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 1, /*GoodsFilt::fShowCargo*/0x0002);
 		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 2, /*GoodsFilt::fShowStrucType*/0x0004);
 		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 3, /*GoodsFilt::fShowGoodsWOStruc*/0x0008);
 		AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 4, /*GoodsFilt::fShowArCode*/0x0010);
-		// @v11.5.9 AddClusterAssoc(CTL_GDSFVOPT_FLAGS, 5, /*GoodsFilt::f2ShowWhPlace*/0x0020);
 		SetClusterData(CTL_GDSFVOPT_FLAGS, /*Data.Flags*/f_);
-		// @v11.5.9  {
 		AddClusterAssoc(CTL_GDSFVOPT_FASSOC, 0, GoodsFilt::f2ShowWhPlace);
 		SetClusterData(CTL_GDSFVOPT_FASSOC, Data.Flags2);
-		// } @v11.5.9 
 	}
 	void   GetShowFlags()
 	{
@@ -3651,8 +3642,7 @@ private:
 		SETFLAG(Data.Flags, GoodsFilt::fShowStrucType, f_ & 0x0004);
 		SETFLAG(Data.Flags, GoodsFilt::fShowGoodsWOStruc, f_ & 0x0008);
 		SETFLAG(Data.Flags, GoodsFilt::fShowArCode, f_ & 0x0010);
-		// @v11.5.9 SETFLAG(Data.Flags2, GoodsFilt::f2ShowWhPlace, f_ & 0x0020);
-		GetClusterData(CTL_GDSFVOPT_FASSOC, &Data.Flags2); // @v11.5.9
+		GetClusterData(CTL_GDSFVOPT_FASSOC, &Data.Flags2);
 	}
 	void   SetupCtrls()
 	{
@@ -3662,7 +3652,7 @@ private:
 		if(!(Data.Flags & GoodsFilt::fShowStrucType))
 			Data.Flags &= ~(GoodsFilt::fShowGoodsWOStruc);
 		SetShowFlags();
-		disableCtrl(CTLSEL_GDSFVOPT_ASSOC, LOGIC(!(Data.Flags2 & GoodsFilt::f2ShowWhPlace))); // @v11.5.9 
+		disableCtrl(CTLSEL_GDSFVOPT_ASSOC, LOGIC(!(Data.Flags2 & GoodsFilt::f2ShowWhPlace)));
 		DisableClusterItem(CTL_GDSFVOPT_FLAGS, 1, disable_cargo);
 		DisableClusterItem(CTL_GDSFVOPT_FLAGS, 2, disable_struc);
 		DisableClusterItem(CTL_GDSFVOPT_FLAGS, 3, /*!disable_cargo ||*/ disable_struc);
@@ -3680,7 +3670,7 @@ private:
 		else
 			disableCtrls(1, CTL_GDSFVOPT_OWNCODES, CTLSEL_GDSFVOPT_ACS, CTLSEL_GDSFVOPT_AR, 0);
 	}
-	PPID   AcsID;        // PPOBJ_ACCSHEET
+	PPID   AcsID; // PPOBJ_ACCSHEET
 	PPObjArticle ArObj;
 };
 

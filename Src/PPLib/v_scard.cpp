@@ -1835,22 +1835,22 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		// } @v12.4.1 
 		PPDbqFuncPool::InitFunc2Arg(dbe_memo, PPDbqFuncPool::IdSCardExtString, p_t->ID, dbconst((long)PPSCardPacket::extssMemo));
 		dbe_dis = & (p_t->PDis / 100);
-		q = & Select_(
+		q = &Select_(
 			p_t->ID,        // #0
 			p_t->Code,      // #1
 			p_t->Expiry,    // #2
-			*dbe_dis,       // #3
-			p_t->MaxCredit, // #4
-			p_t->Turnover,  // #5
-			p_t->InTrnovr,  // #6
-			dbe_psn,        // #7
-			p_t->Rest,      // #8
-			p_t->Dt,        // #9
-			dbe_ser,        // #10
-			dbe_autogoods,  // #11
-			dbe_phone,      // #12 
-			dbe_memo,       // #13
 			0L);
+		q->addField(*dbe_dis);       // #3
+		q->addField(p_t->MaxCredit); // #4
+		q->addField(p_t->Turnover);  // #5
+		q->addField(p_t->InTrnovr);  // #6
+		q->addField(dbe_psn);        // #7
+		q->addField(p_t->Rest);      // #8
+		q->addField(p_t->Dt);        // #9
+		q->addField(dbe_ser);        // #10
+		q->addField(dbe_autogoods);  // #11
+		q->addField(dbe_phone);      // #12 
+		q->addField(dbe_memo);       // #13
 		if(Filt.Flags & SCardFilt::fShowOwnerAddrDetail) {
 			DBE    dbe_phone__;
 			DBE    dbe_address;
@@ -1915,7 +1915,7 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		PPDbqFuncPool::InitFunc2Arg(dbe_memo, PPDbqFuncPool::IdSCardExtString, p_c->ID, dbconst((long)PPSCardPacket::extssMemo));
 		dbe_dis = & (p_c->PDis / 100);
 		// @v12.5.1 {
-		q = & Select_(
+		q = &Select_(
 			p_c->ID,                 // #0
 			p_c->Code,               // #1
 			p_c->Expiry,             // #2
@@ -1932,7 +1932,7 @@ DBQuery * PPViewSCard::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		q->addField(dbe_phone);      // #12
 		q->addField(dbe_memo);       // #13
 		// } @v12.5.1 
-		/* @v12.5.1 q = & Select_(
+		/* @v12.5.1 q = &Select_(
 			p_c->ID,        // #0
 			p_c->Code,      // #1
 			p_c->Expiry,    // #2
@@ -2960,8 +2960,7 @@ static IMPL_DBE_PROC(dbqf_scardop_extobj_ii)
 	}
 }
 
-// static
-int PPViewSCardOp::DynFuncExtObjName = 0;
+/*static*/int PPViewSCardOp::DynFuncExtObjName = 0;
 
 DBQuery * PPViewSCardOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
@@ -2998,17 +2997,18 @@ DBQuery * PPViewSCardOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbq = & (*dbq && p_c->SCardID == p_s->ID && p_s->SeriesID == Filt.SCardSerID);
 	}
 	dbq = & (*dbq && realrange(p_c->Amount, Filt.AmtR.low, Filt.AmtR.upp));
-	q = & Select_(
+	q = &Select_(
 		p_c->SCardID,     // #0
 		p_c->Dt,          // #1
 		p_c->Tm,          // #2
 		p_c->Amount,      // #3
 		p_c->Rest,        // #4
-		dbe_extobj,       // #5
-		dbe_sc_code,      // #6
-		dbe_scowner_name, // #7
-		dbe_frzprd,       // #8
-		0L).from(p_c, p_s, 0L).where(*dbq).orderBy(p_c->SCardID, p_c->Dt, p_c->Tm, 0L);
+		0L);
+	q->addField(dbe_extobj);       // #5
+	q->addField(dbe_sc_code);      // #6
+	q->addField(dbe_scowner_name); // #7
+	q->addField(dbe_frzprd);       // #8
+	q->from(p_c, p_s, 0L).where(*dbq).orderBy(p_c->SCardID, p_c->Dt, p_c->Tm, 0L);
 	THROW(CheckQueryPtr(q));
 	if(pSubTitle) {
 		SString card_name;

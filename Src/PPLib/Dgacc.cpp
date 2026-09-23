@@ -44,24 +44,46 @@ int AcctCtrlGroup::getData(TDialog * dlg, void * pData)
 {
 	int    ok = 1;
 	Rec  * p_rec = static_cast<Rec *>(pData);
-	char   b[48];
+	char   b[128];
 	Acct   acct;
 	PPAccount acc_rec;
+	ArticleTbl::Rec ar_rec;
 	p_rec->AccType = -1;
 	if(dlg->getCtrlData(CtlAcc, b) && *strip(b)) {
 		THROW(P_AtObj->ConvertStr(b, CurID, &acct, &AcctId, &AccSheetID));
-		THROW(ObjRts.CheckAccID(AcctId.ac, PPR_READ));
-		if(P_AtObj->P_Tbl->AccObj.Search(AcctId.ac, &acc_rec) > 0) {
+		THROW(ObjRts.CheckAccID(AcctId.AcID, PPR_READ));
+		if(P_AtObj->P_Tbl->AccObj.Search(AcctId.AcID, &acc_rec) > 0) {
 			p_rec->AccType = acc_rec.Type;
 		}
-		if(AcctId.ar == 0 && dlg->getCtrlData(CtlArt, b) && *strip(b)) {
-			THROW_PP((acct.ar = atol(b)) > 0, PPERR_USERINPUT);
+		if(AcctId.ArID == 0 && dlg->getCtrlData(CtlArt, b) && *strip(b)) {
+			acct.ar = atol(b);
+			THROW_PP(acct.ar > 0, PPERR_USERINPUT);
 			THROW(P_AtObj->P_Tbl->Art.SearchNum(AccSheetID, acct.ar) > 0);
-			AcctId.ar = P_AtObj->P_Tbl->Art.data.ID;
+			AcctId.ArID = P_AtObj->P_Tbl->Art.data.ID;
 		}
 	}
-	else
-		AcctId.ac = AcctId.ar = AccSheetID = 0;
+	else {
+		AcctId.Z();
+		AccSheetID = 0;
+		// @v12.7.9 {
+		if(CtlselAccName) {
+			AccIdent local_acctid;
+			dlg->getCtrlData(CtlselAccName, &local_acctid.AcID);
+			THROW(ObjRts.CheckAccID(local_acctid.AcID, PPR_READ));
+			if(P_AtObj->P_Tbl->AccObj.Search(local_acctid.AcID, &acc_rec) > 0) {
+				AcctId.AcID = local_acctid.AcID;
+				AccSheetID = acc_rec.AccSheetID;
+				p_rec->AccType = acc_rec.Type;
+				if(AccSheetID && CtlselArtName) {
+					dlg->getCtrlData(CtlselArtName, &local_acctid.ArID);
+					if(P_AtObj->P_Tbl->Art.Search(local_acctid.ArID, &ar_rec) > 0) {
+						AcctId.ArID = local_acctid.ArID;
+					}
+				}
+			}
+		}
+		// } @v12.7.9 
+	}
 	p_rec->AcctId = AcctId;
 	p_rec->AccSheetID = AccSheetID;
 	CATCHZOK
@@ -94,18 +116,19 @@ void AcctCtrlGroup::setup(TDialog * dlg, const Acct * pAcct, int sheetChanged, i
 	ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(CtlselAccName));
 	if(p_combo) {
 		if(p_combo->listDef() && !accSelParamChanged) {
-			if(AcctId.ac)
-				p_combo->TransmitData(+1, &AcctId.ac);
+			if(AcctId.AcID)
+				p_combo->TransmitData(+1, &AcctId.AcID);
 			else
 				p_combo->setInputLineText(0);
 		}
 		else {
-			SetupPPObjCombo(p_combo, PPOBJ_ACCOUNT2, AcctId.ac, OLW_CANINSERT|OLW_WORDSELECTOR, reinterpret_cast<void *>(AccSelParam)); // @v12.7.6 OLW_WORDSELECTOR
+			SetupPPObjCombo(p_combo, PPOBJ_ACCOUNT2, AcctId.AcID, OLW_CANINSERT|OLW_WORDSELECTOR|OLW_CANSELUPLEVEL, reinterpret_cast<void *>(AccSelParam)); 
+				// @v12.7.6 OLW_WORDSELECTOR // @v12.7.9 OLW_CANSELUPLEVEL
 		}
 	}
 	if(sheetChanged) {
 		if(AccSheetID) {
-			SetupArCombo(dlg, CtlselArtName, AcctId.ar, OLW_LOADDEFONOPEN|OLW_CANINSERT, AccSheetID, 0);
+			SetupArCombo(dlg, CtlselArtName, AcctId.ArID, OLW_LOADDEFONOPEN|OLW_CANINSERT|OLW_CANSELUPLEVEL, AccSheetID, 0); // @v12.7.9 OLW_CANSELUPLEVEL
 		}
 		else {
 			p_combo = static_cast<ComboBox *>(dlg->getCtrlView(CtlselArtName));
@@ -122,7 +145,7 @@ int AcctCtrlGroup::processAccInput(TDialog * dlg)
 {
 	char   b[32];
 	Acct   acct;
-	const  AcctID save_acctid(AcctId);
+	const  AccIdent save_acctid(AcctId);
 	const  PPID   save_sheetid = AccSheetID;
 	dlg->getCtrlData(CtlAcc, b);
 	if(*strip(b) == 0) {
@@ -138,8 +161,8 @@ int AcctCtrlGroup::processAccInput(TDialog * dlg)
 			dlg->selectCtrl(CtlAcc);
 			return 0;
 		}
-		if(AcctId.ar == 0 && save_acctid.ar && save_sheetid == AccSheetID)
-			AcctId.ar = save_acctid.ar;
+		if(AcctId.ArID == 0 && save_acctid.ArID && save_sheetid == AccSheetID)
+			AcctId.ArID = save_acctid.ArID;
 	}
 	if(save_acctid != AcctId)
 		setup(dlg, &acct, 1);
@@ -150,7 +173,7 @@ void AcctCtrlGroup::processAccCombo(TDialog * dlg)
 {
 	Acct   acct;
 	PPID   bal_id = dlg->getCtrlLong(CtlselAccName);
-	if(bal_id != AcctId.ac) {
+	if(bal_id != AcctId.AcID) {
 		PPAccount acc_rec;
 		if(P_AtObj->P_Tbl->AccObj.Search(bal_id, &acc_rec) > 0) {
 			AccSheetID = acc_rec.AccSheetID;
@@ -162,8 +185,8 @@ void AcctCtrlGroup::processAccCombo(TDialog * dlg)
 			acct.Z();
 			PPError();
 		}
-		AcctId.ac = bal_id;
-		AcctId.ar = acct.ar = 0;
+		AcctId.AcID = bal_id;
+		AcctId.ArID = acct.ar = 0;
 		setup(dlg, &acct, 1);
 	}
 }
@@ -172,7 +195,7 @@ void AcctCtrlGroup::processArtCombo(TDialog * dlg)
 {
 	if(CtlselArtName) {
 		const  PPID ar_id = dlg->getCtrlLong(CtlselArtName);
-		if(ar_id != AcctId.ar) {
+		if(ar_id != AcctId.ArID) {
 			SString code_buf;
 			ArticleTbl::Rec ar_rec;
 			if(P_AtObj->P_Tbl->Art.Search(ar_id, &ar_rec) <= 0) {
@@ -182,7 +205,7 @@ void AcctCtrlGroup::processArtCombo(TDialog * dlg)
 				code_buf.Cat(ar_rec.Article);
 			}
 			dlg->setCtrlString(CtlArt, code_buf);
-			AcctId.ar = ar_id;
+			AcctId.ArID = ar_id;
 			TView::messageCommand(dlg, cmPPArSelected, this);
 		}
 	}
@@ -191,7 +214,7 @@ void AcctCtrlGroup::processArtCombo(TDialog * dlg)
 int AcctCtrlGroup::processArtInput(TDialog * dlg)
 {
 	int    r;
-	const  long prev_ar = AcctId.ar;
+	const  long prev_ar = AcctId.ArID;
 	char   b[32];
 	b[0] = 0;
 	dlg->getCtrlData(CtlArt, b);
@@ -203,11 +226,11 @@ int AcctCtrlGroup::processArtInput(TDialog * dlg)
 			ar = 0;
 		}
 		else {
-			AcctId.ar = P_AtObj->P_Tbl->Art.data.ID;
+			AcctId.ArID = P_AtObj->P_Tbl->Art.data.ID;
 		}
 	}
 	if(ar == 0) {
-		AcctId.ar = 0;
+		AcctId.ArID = 0;
 		dlg->setCtrlData(CtlArt, &(b[0] = 0));
 	}
 	{
@@ -216,11 +239,11 @@ int AcctCtrlGroup::processArtInput(TDialog * dlg)
 			ListWindow * p_listwin = p_combo->getListWindow();
 			if(p_listwin) {
 				TView::messageCommand(p_listwin, cmLBLoadDef);
-				dlg->setCtrlLong(CtlselArtName, AcctId.ar);
+				dlg->setCtrlLong(CtlselArtName, AcctId.ArID);
 			}
 		}
 	}
-	if(prev_ar != AcctId.ar)
+	if(prev_ar != AcctId.ArID)
 		TView::messageCommand(dlg, cmPPArSelected, this);
 	return 1;
 }

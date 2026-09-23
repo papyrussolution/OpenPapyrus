@@ -889,24 +889,16 @@ bool STDCALL strtotime(const char * pBuf, long fmt, SUniTime_Internal & rResult)
 										const  uint sec_frac = _texttodec32(pBuf, frac_len);
 										// миллисекунды = (fraction + 10^(n-3)/2) / 10^(n-3)
 										switch(frac_len) {
-											case 1:
-												rResult.MSc = sec_frac * 100;
-												break;
-											case 2:
-												rResult.MSc = sec_frac * 10;
-												break;
-											case 3:
-												rResult.MSc = sec_frac;
-												break;
+											case 1: rResult.MSc = sec_frac * 100; break;
+											case 2: rResult.MSc = sec_frac * 10; break;
+											case 3: rResult.MSc = sec_frac; break;
 											case 4:
 												{
 													const uint64 p10 = ui64pow10(frac_len-3);
 													rResult.MSc = static_cast<uint>((sec_frac + p10/2) / p10);
 												}
 												break;
-											default:
-												assert(0);
-												break;
+											default: assert(0); break;
 										}
 										// } @v12.7.4 
 									}

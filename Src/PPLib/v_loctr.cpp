@@ -158,13 +158,15 @@ public:
 		addGroup(grpPallet, new PalletCtrlGroup(CTLSEL_LOCTRANSF_PLTTYPE, CTL_LOCTRANSF_PLT, CTL_LOCTRANSF_PLTC,
 			CTL_LOCTRANSF_PCKG, CTL_LOCTRANSF_PCKGC, CTL_LOCTRANSF_QTTY, CTLSEL_LOCTRANSF_GOODS));
 		{
-			const UiDescription * p_uid = SLS.GetUiDescription();
-			const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+			const  UiDescription * p_uid = SLS.GetUiDescription();
+			const  SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 			{
-				SColor _color;
-				if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
-					_color = SClrCoral; 
+				SColor _color = UiDescription::GetColorR(p_uid, p_cs, "invalid_value_input_bg", SClrCoral);
 				Ptb.SetBrush(brushIllSerial, SPaintObj::bsSolid, _color, 0);
+			}
+			{ // @v12.7.9
+				SColor _color = UiDescription::GetColorR(p_uid, p_cs, "valid_value_input_bg", SClrAqua);
+				Ptb.SetBrush(brushNormalSerial,   SPaintObj::bsSolid, _color,  0);
 			}
 		}
 	}
@@ -379,15 +381,84 @@ private:
 				}
 			}
 		}
-		else if(event.isCmd(cmCtlColor)) {
-			TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
-			if(p_dc && getCtrlHandle(CTL_LOCTRANSF_SERIAL) == p_dc->H_Ctl && State & stSerialUndef) {
-				::SetBkMode(p_dc->H_DC, TRANSPARENT);
-				::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-				p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushIllSerial));
+		else if(event.isCmd(cmInputUpdated)) { // @v12.7.9
+			const  uint ctl_id = event.getCtlID();
+			if(ctl_id == CTL_LOCTRANSF_SERIAL) {
+				TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+				if(p_il) {
+					uint64 _state = 0;
+					int    state_msg_id = 0;
+					getCtrlString(ctl_id, temp_buf);
+					if(temp_buf.NotEmptyS()) {
+						ReceiptTbl::Rec lot_rec;
+						if(P_BObj->SelectLotBySerial(temp_buf, 0, WarehouseID, &lot_rec) > 0) {
+							Data.GoodsID = lot_rec.GoodsID;
+							PalletCtrlGroup * p_plt_grp = static_cast<PalletCtrlGroup *>(getGroup(grpPallet));
+							CALLPTRMEMB(p_plt_grp, SetupGoods(this, Data.GoodsID));
+							Data.LotID = lot_rec.ID;
+							SetupGoodsAndLot();
+							_state = 1;
+							state_msg_id = CTLUSTTD_SERIAL_INDETIFIED;
+						}
+						else {
+							_state = 2;
+							state_msg_id = CTLUSTTD_SERIAL_UNINDETIFIED;
+							//State |= stSerialUndef;
+						}
+					}
+					temp_buf.Z();
+					if(state_msg_id) {
+						PPLoadString(PPSTR_CTLUSTTD, state_msg_id, temp_buf);
+					}
+					if(p_il->SetIndicatorState(_state, temp_buf) > 0) {
+						drawCtrl(ctl_id);
+					}
+				}
 			}
 			else
 				return;
+		}
+		else if(event.isCmd(cmCtlColor)) { // @IndicatorState-done
+			bool   local_done = false;
+			TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
+			const  uint ctl_id = CTL_LOCTRANSF_SERIAL;
+			if(p_dc && getCtrlHandle(ctl_id) == p_dc->H_Ctl) {
+				TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+				if(p_il) {
+					uint64 _state = 0;
+					if(p_il->GetIndicatorState(&_state, 0) > 0) {
+						if(_state == 1) {
+							::SetBkMode(p_dc->H_DC, TRANSPARENT);
+							::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
+							p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushNormalSerial));
+							local_done = true;
+						}
+						else if(_state == 2) {
+							::SetBkMode(p_dc->H_DC, TRANSPARENT);
+							::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
+							p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushIllSerial));
+							local_done = true;
+						}
+					}
+				}
+				/*if(State & stSerialUndef) {
+					::SetBkMode(p_dc->H_DC, TRANSPARENT);
+					::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
+					p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushIllSerial));
+					local_done = true;
+				}*/
+			}
+			if(local_done) {
+				clearEvent(event);
+			}
+			else
+				return;
+		}
+		else if(event.isCmd(cmMouseHoverCtrl)) { // @v12.7.9
+			const  uint ctl_id = event.getCtlID();
+			if(ctl_id == CTL_LOCTRANSF_SERIAL) {
+				PPShowCtrlIndicatorHintOnInputLine(this, ctl_id);
+			}
 		}
 		else if(event.isCbSelected(CTLSEL_LOCTRANSF_PSN)) {
 			if(Domain == LOCTRFRDOMAIN_BAILMENT) {
@@ -397,7 +468,7 @@ private:
 					PsnObj.SetupDlvrLocCombo(this, CTLSEL_LOCTRANSF_LOC, Data.LocOwnerPersonID, 0);
 			}
 		}
-		else if(TVBROADCAST) {
+		/* @v12.7.9 else if(TVBROADCAST) {
 			if(TVCMD == cmChangedFocus) {
 				if(event.isCtlEvent(CTL_LOCTRANSF_SERIAL)) {
 					getCtrlString(CTL_LOCTRANSF_SERIAL, temp_buf);
@@ -419,7 +490,7 @@ private:
 			}
 			else
 				return;
-		}
+		}*/
 		else
 			return;
 		clearEvent(event);
@@ -489,12 +560,13 @@ private:
 	PPID   WarehouseID;
 	enum {
 		dummyFirst = 1,
-		brushIllSerial // Кисть для индикации не идентифицированного серийного номера
+		brushIllSerial, // Кисть для индикации не идентифицированного серийного номера
+		brushNormalSerial, // @v12.7.9
 	};
 	SPaintToolBox Ptb;
-	enum {
+	/* @v12.7.9 enum {
 		stSerialUndef  = 0x0001 // Введенный в поле CTL_LOCTRANSF_SERIAL серийный номер не идентифицирован
-	};
+	};*/
 	long   State;
 	PPObjBill * P_BObj; // @notowned
 	PPObjPerson PsnObj;

@@ -4194,7 +4194,7 @@ public:
 		Ptb.SetBrush(brushHumanName,    SPaintObj::bsSolid, LightenColor(GetColorRef(SClrYellow), 0.8f), 0);
 		Ptb.SetBrush(brushHumanNameFem, SPaintObj::bsSolid, LightenColor(GetColorRef(SClrRed), 0.8f), 0);
 		Ptb.SetBrush(brushHumanNameMus, SPaintObj::bsSolid, LightenColor(GetColorRef(SClrBlue), 0.8f), 0);
-		SetupInputLine(CTL_PERSON_EXTNAME, MKSTYPE(S_ZSTRING, 512), MKSFMT(512, 0)); // @v11.6.1
+		SetupInputLine(CTL_PERSON_EXTNAME, MKSTYPE(S_ZSTRING, 512), MKSFMT(512, 0));
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -5424,34 +5424,89 @@ IMPL_HANDLE_EVENT(PersonDialog)
 	PersonDialogBase::handleEvent(event);
 	if(TVCOMMAND) {
 		switch(TVCMD) {
-			case cmCtlColor:
+			case cmInputUpdated: // @v12.7.9
 				{
-					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
-					int   color_ident = 0;
-					if(p_dc && getCtrlHandle(CTL_PERSON_NAME) == p_dc->H_Ctl) {
-						SString name;
-						getCtrlString(CTL_PERSON_NAME, name);
-						long gender_fem_components = 0;
-						long gender_mus_components = 0;
-						long nam_components = AnalyzePersonName(name, &gender_mus_components, &gender_fem_components);
-						if(nam_components) {
-							if((nam_components & apnrfLastName) || (nam_components & (apnrfFirstName|apnrfPatronymic))) {
-								color_ident = brushHumanName;
-								if(gender_fem_components && !gender_mus_components)
-									color_ident = brushHumanNameFem;
-								else if(gender_mus_components && !gender_fem_components)
-									color_ident = brushHumanNameMus;
-								else
-									color_ident = brushHumanName;
+					const  uint ctl_id = event.getCtlID();
+					if(ctl_id == CTL_PERSON_NAME) {
+						SString temp_buf;
+						TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+						if(p_il) {
+							getCtrlString(ctl_id, temp_buf);
+							uint64 _state = 0;
+							int    state_msg_id = 0;
+							long   gender_fem_components = 0;
+							long   gender_mus_components = 0;
+							long   nam_components = AnalyzePersonName(temp_buf, &gender_mus_components, &gender_fem_components);
+							if(nam_components) {
+								if((nam_components & apnrfLastName) || (nam_components & (apnrfFirstName|apnrfPatronymic))) {
+									if(gender_fem_components && !gender_mus_components) {
+										_state = UED_GENDER_FEMINAM;
+										state_msg_id = CTLUSTTD_NAME_FEM;
+									}
+									else if(gender_mus_components && !gender_fem_components) {
+										_state = UED_GENDER_MASCULUM;
+										state_msg_id = CTLUSTTD_NAME_MUS;
+									}
+									else {
+										_state = UED_GENDER_INCERTUM;
+										state_msg_id = CTLUSTTD_NAME_HUMAN;
+									}
+								}
+							}
+							temp_buf.Z();
+							if(state_msg_id) {
+								PPLoadString(PPSTR_CTLUSTTD, state_msg_id, temp_buf);
+							}
+							if(p_il->SetIndicatorState(_state, temp_buf) > 0) {
+								drawCtrl(ctl_id);
 							}
 						}
 					}
-					if(color_ident) {
-						::SetBkMode(p_dc->H_DC, TRANSPARENT);
-						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(color_ident));
+					else
+						return;
+				}
+				break;
+			case cmCtlColor: // @IndicatorState-done
+				{
+					bool  local_done = false;					
+					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
+					int    color_ident = 0;
+					const  uint ctl_id = CTL_PERSON_NAME;
+					if(p_dc && getCtrlHandle(ctl_id) == p_dc->H_Ctl) {
+						TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+						if(p_il) {
+							uint64 _state = 0;
+							if(p_il->GetIndicatorState(&_state, 0) > 0) {
+								if(_state == UED_GENDER_FEMINAM) {
+									color_ident = brushHumanNameFem;
+								}
+								else if(_state == UED_GENDER_MASCULUM) {
+									color_ident = brushHumanNameMus;
+								}
+								else if(_state == UED_GENDER_INCERTUM) {
+									color_ident = brushHumanName;
+								}
+								if(color_ident) {
+									::SetBkMode(p_dc->H_DC, TRANSPARENT);
+									p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(color_ident));
+									local_done = true;
+								}
+							}
+						}
+					}
+					if(local_done) {
+						clearEvent(event);
 					}
 					else
 						return;
+				}
+				break;
+			case cmMouseHoverCtrl: // @v12.7.9
+				{
+					const  uint ctl_id = event.getCtlID();
+					if(ctl_id == CTL_PERSON_NAME) {
+						PPShowCtrlIndicatorHintOnInputLine(this, ctl_id);
+					}
 				}
 				break;
 			case cmSelectAnalog:

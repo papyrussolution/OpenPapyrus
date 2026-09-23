@@ -213,7 +213,7 @@ DBQuery * PPViewCashNode::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	THROW(CheckTblPtr(t = new TempCashNodeTbl(P_TempTbl->GetName())));
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,  PPDbqFuncPool::IdObjNameLoc, t->LocID);
 	// @v12.5.1 {
-	q = & Select_(
+	q = &Select_(
 		t->ID,            // #0
 		t->Name,          // #1
 		t->CashTypeName,  // #2
@@ -223,7 +223,7 @@ DBQuery * PPViewCashNode::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	q->addField(t->Symb);       // #6
 	q->addField(t->ParentName); // #7
 	// } @v12.5.1 
-	/* @v12.5.1 q = & Select_(
+	/* @v12.5.1 q = &Select_(
 		t->ID,            // #0
 		t->Name,          // #1
 		t->CashTypeName,  // #2

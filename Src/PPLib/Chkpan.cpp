@@ -4827,7 +4827,7 @@ int CheckPaneDialog::ConfirmPosPaymBank(PosPaymentBlock & rPpl)
 			SetClusterData(CTL_POSPAYMBNK_CLBPEQ, Data.Flags);
 			showCtrl(CTL_POSPAYMBNK_CLBPEQ, LOGIC(Data.Flags & PosPaymentBlock::fCashlessBypassEqEnabled));
 			// } @v12.0.6 
-			if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) { // @v11.3.7
+			if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) {
 				if(Data.EAddr.IsEmpty())
 					Data.EAddr.SetEMail(DS.GetConstTLA().PaperlessCheque_FakeEAddr);
 				setCtrlString(CTL_POSPAYMBNK_EADDR, Data.EAddr.EAddr);
@@ -4872,9 +4872,28 @@ int CheckPaneDialog::ConfirmPosPaymBank(PosPaymentBlock & rPpl)
 		DECL_HANDLE_EVENT
 		{
 			TDialog::handleEvent(event);
-			if(TVCMD == cmCtlColor) {
+			if(event.isCmd(cmCtlColor)) { // @IndicatorState-done
 				TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 				if(p_dc && getCtrlHandle(CTL_POSPAYMBNK_EADDR) == p_dc->H_Ctl) {
+					TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(CTL_POSPAYMBNK_EADDR, TV_SUBSIGN_INPUTLINE));
+					if(p_il) {
+						uint64 _state = 0;
+						if(p_il->GetIndicatorState(&_state, 0)) {
+							int    brush_ident = 0;
+							if(_state == SNTOK_PHONE)
+								brush_ident = brushEAddrPhone;
+							else if(_state == SNTOK_EMAIL)
+								brush_ident = brushEAddrEmail;
+							else if(_state == _FFFF64)
+								brush_ident = brushInvalid;
+							if(brush_ident) {
+								::SetBkMode(p_dc->H_DC, TRANSPARENT);
+								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brush_ident));
+								clearEvent(event);
+							}
+						}
+					}
+					/*
 					int brush_ident = 0;
 					if(EAddrInputState == SNTOK_PHONE)
 						brush_ident = brushEAddrPhone;
@@ -4885,17 +4904,56 @@ int CheckPaneDialog::ConfirmPosPaymBank(PosPaymentBlock & rPpl)
 					if(brush_ident) {
 						::SetBkMode(p_dc->H_DC, TRANSPARENT);
 						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brush_ident));
-					}
+					}*/
 				}
 				else
 					return;
 			}
 			else if(event.isCmd(cmInputUpdated)) {
 				if(event.isCtlEvent(CTL_POSPAYMBNK_EADDR)) {
+					const  uint clt_id = CTL_POSPAYMBNK_EADDR;
+					/*
 					SString eaddr_buf;
-					getCtrlString(CTL_POSPAYMBNK_EADDR, eaddr_buf);
+					getCtrlString(clt_id, eaddr_buf);
 					EAddrInputState = GetEAddrStatus(eaddr_buf);
-					drawCtrl(CTL_POSPAYMBNK_EADDR);
+					drawCtrl(clt_id);
+					*/
+					TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(clt_id, TV_SUBSIGN_INPUTLINE));
+					if(p_il) {
+						SString temp_buf;
+						getCtrlString(clt_id, temp_buf);
+						const  int eadr_status = GetEAddrStatus(temp_buf);
+						uint64 _state = 0;
+						int    msg_id = 0;
+						temp_buf.Z();
+						//EAddrInputState = eadr_status;
+						{
+							if(eadr_status == SNTOK_PHONE) {
+								_state = SNTOK_PHONE;
+								msg_id = CTLUSTTD_CCHECKBYBILL_EADR_PHONE;
+							}
+							else if(eadr_status == SNTOK_EMAIL) {
+								_state = SNTOK_EMAIL;
+								msg_id = CTLUSTTD_CCHECKBYBILL_EADR_EMAIL;
+							}
+							else if(eadr_status < 0) {
+								_state = _FFFF64;
+								msg_id = CTLUSTTD_CCHECKBYBILL_EADR_INVALID;
+							}
+							if(msg_id) {
+								PPLoadString(PPSTR_CTLUSTTD, msg_id, temp_buf);
+							}
+						}
+						if(p_il->SetIndicatorState(_state, temp_buf) > 0) {
+							drawCtrl(clt_id);
+						}
+					}
+				}
+			}
+			else if(event.isCmd(cmInputUpdated)) { // @v12.7.9
+				const  uint ctl_id = event.getCtlID();
+				if(oneof2(ctl_id, CTL_BILL_PAYDATE, CTL_BILL_DOC)) {
+					PPShowCtrlIndicatorHintOnInputLine(this, ctl_id);
 				}
 			}
 		}
@@ -7733,7 +7791,7 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 				}
 			}
 		}
-		else if(TVCMD == cmCtlColor) {
+		else if(event.isCmd(cmCtlColor)) {
 			//
 			// Это блок должен быть согласован с блоком (TVCMD == cmMouseHoverCtrl)
 			//

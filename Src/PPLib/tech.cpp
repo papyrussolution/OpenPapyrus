@@ -2229,7 +2229,7 @@ DBQuery * PPViewTech::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_capacity.push(p_tect->Capacity);
 		dbe_capacity.push(static_cast<DBFunc>(PPDbqFuncPool::IdTechCapacity));
 	}
-	q = & Select_(p_tect->ID, 0L).from(p_tect, p_reft, 0L); // #0
+	q = &Select_(p_tect->ID, 0L).from(p_tect, p_reft, 0L); // #0
 	q->addField(p_tect->Code);      // #1
 	q->addField(dbe_prc);           // #2
 	q->addField(dbe_goods);         // #3

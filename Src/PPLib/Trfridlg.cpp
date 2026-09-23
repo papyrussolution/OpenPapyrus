@@ -1054,19 +1054,10 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 						St &= ~stLockQttyAutoUpd;
 					}
 					break;
-				case cmCtlColor:
+				case cmCtlColor: // @IndicatorState-done
 					{
-						// TCanvas
 						TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 						if(p_dc) {
-							/*if(St & stWasCostInput) {
-								if(getCtrlHandle(CTL_LOT_COST) == p_dc->H_Ctl) {
-									::SetBkMode(p_dc->H_DC, TRANSPARENT);
-									::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-									p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushChangedCost));
-									clearEvent(event);
-								}
-							}*/
 							if(getCtrlHandle(CTL_LOT_COST) == p_dc->H_Ctl) {
 								TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(CTL_LOT_COST, TV_SUBSIGN_INPUTLINE));
 								if(p_il) {
@@ -1118,14 +1109,7 @@ IMPL_HANDLE_EVENT(TrfrItemDialog)
 					{
 						const  uint ctl_id = event.getCtlID();
 						if(oneof2(ctl_id, CTL_LOT_COST, CTL_LOT_PRICE)) {
-							TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
-							if(p_il) {
-								uint64 _state = 0;
-								SString descr_buf;
-								if(p_il->GetIndicatorState(&_state, &descr_buf) && descr_buf.NotEmptyS()) {
-									PPShowCtrlIndicatorHint(descr_buf);
-								}
-							}
+							PPShowCtrlIndicatorHintOnInputLine(this, ctl_id);
 						}
 					}
 					break;

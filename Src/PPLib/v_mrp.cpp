@@ -1,5 +1,5 @@
 // V_MRP.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -84,8 +84,9 @@ int PPViewMrpTab::UpdateTempTable(PPID id)
 				THROW_DB(P_TempOrd->insertRecBuf(&ord_rec));
 			}
 		}
-		else
+		else {
 			THROW_DB(deleteFrom(P_TempOrd, 0, P_TempOrd->ID == id));
+		}
 		THROW(tra.Commit());
 	}
 	else
@@ -255,7 +256,7 @@ DBQuery * PPViewMrpTab::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	THROW(CheckTblPtr(t = new MrpTabTbl));
 	THROW(CheckTblPtr(lt = new LocationTbl));
 	THROW(CheckTblPtr(ot  = new TempOrderTbl(P_TempOrd->GetName())));
-	q = & Select_(
+	q = &Select_(
 		t->ID,           // #00
 		t->Name,         // #01
 		t->LinkObjType,  // #02
@@ -714,7 +715,7 @@ DBQuery * PPViewMrpLine::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	dbq = & (*dbq && t->TabID == Filt.TabID);
 	if(Filt.Flags & MrpLineFilt::fShowSubst) {
 		brw_id = BROWSER_MRPLINE_SUBST;
-		q = & Select_(
+		q = &Select_(
 			t->ID,               // #00
 			gt->Name,            // #01
 			t->DestReqQtty,      // #02
@@ -727,38 +728,37 @@ DBQuery * PPViewMrpLine::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_term     = & flagtoa(t2->Flags, MRPLF_TERMINAL, flag_subst.Get(PPTXT_FLAG_YES));
 		dbe_replaced = & flagtoa(t2->Flags, MRPLF_REPLACED, flag_subst.Get(PPTXT_FLAG_YES));
 		if(Filt.DestGoodsID) {
-			q = & Select_(
+			q = &Select_(
 				t->ID,           // #0
 				t->Flags,        // #1
 				gt->Name,        // #2
 				t->SrcReqQtty,   // #3
 				t2->DestRest,    // #4
 				t2->DestDfct,    // #5
-				*dbe_term,       // #6
-				*dbe_replaced,   // #7
-				t2->Cost,        // #8
-				t2->Price,       // #9
 				0L);
+			q->addField(*dbe_term);     // #6
+			q->addField(*dbe_replaced); // #7
+			q->addField(t2->Cost);      // #8
+			q->addField(t2->Price);     // #9
 			dbq = & (*dbq && t->DestID == Filt.DestGoodsID && t->SrcID > 0L);
 		}
 		else {
-			q = & Select_(
+			q = &Select_(
 				t->ID,           // #0
 				t->Flags,        // #1
 				gt->Name,        // #2
 				t->DestReqQtty,  // #3
 				t2->DestRest,    // #4
 				t2->DestDfct,    // #5
-				*dbe_term,       // #6
-				*dbe_replaced,   // #7
-				t2->Cost,        // #8
-				t2->Price,       // #9
 				0L);
+			q->addField(*dbe_term);     // #6
+			q->addField(*dbe_replaced); // #7
+			q->addField(t2->Cost);      // #8
+			q->addField(t2->Price);     // #9
 			dbq = &(*dbq && t->SrcID == Filt.SrcGoodsID);
 		}
 	}
-	// @v11.5.6 dbq = ppcheckflag(dbq, t->Flags, MRPLF_TERMINAL, (Filt.Flags & MrpLineFilt::fShowTerminalOnly) ? 1 : 0);
-	dbq = ppcheckflag(dbq, t->Flags, MRPLF_TERMINAL, Filt.Ft_Terminal); // @v11.5.6
+	dbq = ppcheckflag(dbq, t->Flags, MRPLF_TERMINAL, Filt.Ft_Terminal);
 	dbq = ppcheckflag(dbq, t->Flags, MRPLF_SUBST, (Filt.Flags & MrpLineFilt::fShowSubst) ? 1 : 0);
 	if(Filt.Flags & MrpLineFilt::fShowSubst) {
 		dbq = &(*dbq && gt->ID == t->SrcID);
@@ -766,8 +766,9 @@ DBQuery * PPViewMrpLine::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			dbq = &(*dbq && t->ID == ot->ID);
 			q->from(ot, t, gt, 0L).where(*dbq).orderBy(ot->Name, 0L);
 		}
-		else
+		else {
 			q->from(t, gt, 0L).where(*dbq);
+		}
 	}
 	else {
 		if(Filt.DestGoodsID) {
@@ -784,8 +785,9 @@ DBQuery * PPViewMrpLine::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			dbq = &(*dbq && t->ID == ot->ID);
 			q->from(ot, t, t2, gt, 0L).where(*dbq).orderBy(ot->Name, 0L);
 		}
-		else
+		else {
 			q->from(t, t2, gt, 0L).where(*dbq);
+		}
 	}
 	THROW(CheckQueryPtr(q));
 	if(pSubTitle) {

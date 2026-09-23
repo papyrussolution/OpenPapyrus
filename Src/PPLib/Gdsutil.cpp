@@ -674,6 +674,7 @@ int PPObjGoods::GetGoodsByBarcode(const char * pBarcode, PPID arID, Goods2Tbl::R
 			//disableCtrl(CTL_SRCHBCODE_CHKDIG, true);
 			//SetCtrlBitmap(CTL_SRCHBCODE_IMG, BM_BARCODE);
 			SetupKeyboardStateControls();
+			PPSetupLocalStateWordSelectorOnInputLine(this, DLG_SRCHBCODE, CTL_SRCHBCODE_CODE); // @v12.7.9
 		}
 	private:
 		DECL_HANDLE_EVENT

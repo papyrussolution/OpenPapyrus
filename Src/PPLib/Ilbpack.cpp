@@ -1659,8 +1659,8 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 				rPack.CreateAccTurn(at);
 				at.DbtID = p_at->DbtID;
 				at.CrdID = p_at->CrdID;
-				THROW(acc_obj.InitAccSheetForAcctID(&at.DbtID, &at.DbtSheet));
-				THROW(acc_obj.InitAccSheetForAcctID(&at.CrdID, &at.CrdSheet));
+				THROW(acc_obj.InitAccSheetForAcctID(&at.DbtID, &at.DbtAcsID));
+				THROW(acc_obj.InitAccSheetForAcctID(&at.CrdID, &at.CrdAcsID));
 				at.Amount = p_at->Amount;
 				THROW_SL(rPack.Turns.insert(&at));
 			}
@@ -3046,10 +3046,10 @@ int PPObjBill::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, Ob
 		THROW(ProcessObjRefInArray(PPOBJ_SCARD,    &p_pack->Rec.SCardID,     ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_BILLSTATUS, &p_pack->Rec.StatusID,  ary, replace));
 		for(i = 0; p_pack->Turns.enumItems(&i, (void **)&at);) {
-			THROW(ProcessObjRefInArray(PPOBJ_ACCOUNT2, &at->DbtID.ac, ary, replace));
-			THROW(ProcessObjRefInArray(PPOBJ_ARTICLE, &at->DbtID.ar, ary, replace));
-			THROW(ProcessObjRefInArray(PPOBJ_ACCOUNT2, &at->CrdID.ac, ary, replace));
-			THROW(ProcessObjRefInArray(PPOBJ_ARTICLE, &at->CrdID.ar, ary, replace));
+			THROW(ProcessObjRefInArray(PPOBJ_ACCOUNT2, &at->DbtID.AcID, ary, replace));
+			THROW(ProcessObjRefInArray(PPOBJ_ARTICLE, &at->DbtID.ArID, ary, replace));
+			THROW(ProcessObjRefInArray(PPOBJ_ACCOUNT2, &at->CrdID.AcID, ary, replace));
+			THROW(ProcessObjRefInArray(PPOBJ_ARTICLE, &at->CrdID.ArID, ary, replace));
 		}
 		for(i = 0; p_pack->Lots.enumItems(&i, (void **)&ilti);) {
 			goods_id = labs(ilti->GoodsID);

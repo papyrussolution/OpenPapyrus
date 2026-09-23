@@ -266,7 +266,7 @@ DBQuery * PPViewScale::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,  PPDbqFuncPool::IdObjNameLoc,   t->LocID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_ggrp, PPDbqFuncPool::IdObjNameGoods, t->AltGoodsGrp);
 	// @v12.5.1 {
-	q = & Select_(
+	q = &Select_(
 		t->ID,            // #0
 		t->Name,          // #1
 		t->ScaleTypeName, // #2
@@ -275,7 +275,7 @@ DBQuery * PPViewScale::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	q->addField(dbe_ggrp); // #4
 	q->addField(t->Port);  // #5
 	// } @v12.5.1 
-	/* @v12.5.1 q = & Select_(
+	/* @v12.5.1 q = &Select_(
 		t->ID,            // #0
 		t->Name,          // #1
 		t->ScaleTypeName, // #2

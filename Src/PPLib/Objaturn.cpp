@@ -1,5 +1,7 @@
 // OBJATURN.CPP
 // Copyright (c) A.Sobolev 1996-2000, 2001, 2002, 2003, 2004, 2005, 2006, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2025, 2026
+// @codepage UTF-8
+// PPObjAccTurn - Объект данных, управляющих записями бухгалтерских проводок.
 //
 #include <pp.h>
 #pragma hdrstop
@@ -19,20 +21,22 @@ PPObjAccTurn::~PPObjAccTurn()
 	TLP_CLOSE(P_Tbl);
 }
 
-int PPObjAccTurn::ConvertStr(const char * pStr, PPID curID, Acct * pAcct, AcctID * pAcctId, PPID * pSheetID)
+int PPObjAccTurn::ConvertStr(const char * pStr, PPID curID, Acct * pAcct, AccIdent * pAcctId, PPID * pSheetID)
 	{ return P_Tbl->ConvertStr(pStr, curID, pAcct, pAcctId, pSheetID); }
-int PPObjAccTurn::ConvertAcct(const Acct * pAcct, PPID curID, AcctID * pAcctId, PPID * pAccSheetID)
+int PPObjAccTurn::ConvertAcct(const Acct * pAcct, PPID curID, AccIdent * pAcctId, PPID * pAccSheetID)
 	{ return P_Tbl->ConvertAcct(pAcct, curID, pAcctId, pAccSheetID); }
-int PPObjAccTurn::ConvertAcctID(const AcctID & rAci, Acct * acct, PPID * pCurID, int useCache)
+int PPObjAccTurn::ConvertAcctID(const AccIdent & rAci, Acct * acct, PPID * pCurID, int useCache)
 	{ return P_Tbl->ConvertAcctID(rAci, acct, pCurID, useCache); }
 
 int PPObjAccTurn::VerifyRevokingCurFromAccount(PPID accID, PPID curID)
 {
+	int    ok = 1;
 	PPID   cur_acc_id = 0;
-	if(P_Tbl->AccObj.SearchCur(accID, curID, &cur_acc_id, 0) > 0)
+	if(P_Tbl->AccObj.SearchCur(accID, curID, &cur_acc_id, 0) > 0) {
 		if(ReplyAccDel(cur_acc_id) != DBRPL_OK)
-			return 0;
-	return 1;
+			ok = 0;
+	}
+	return ok;
 }
 
 int PPObjAccTurn::VerifyChangingAccsheetOfAccount(PPID accID)
@@ -70,8 +74,8 @@ int PPObjAccTurn::CreateBlankAccTurn(PPID opID, PPBillPacket * pPack, long * pFl
 		f = ATTF_TO_ATDF(r_tmpl.Flags);
 		at.DbtID = r_tmpl.DbtID;
 		at.CrdID = r_tmpl.CrdID;
-		THROW(P_Tbl->AccObj.InitAccSheetForAcctID(&at.DbtID, &at.DbtSheet));
-		THROW(P_Tbl->AccObj.InitAccSheetForAcctID(&at.CrdID, &at.CrdSheet));
+		THROW(P_Tbl->AccObj.InitAccSheetForAcctID(&at.DbtID, &at.DbtAcsID));
+		THROW(P_Tbl->AccObj.InitAccSheetForAcctID(&at.CrdID, &at.CrdAcsID));
 	}
 	THROW_SL(pPack->Turns.insert(&at));
 	CATCHZOK
@@ -104,8 +108,8 @@ int PPObjAccTurn::CreateBlankAccTurnBySample(PPBillPacket * pPack, const PPBillP
 			at.Amount = p_sample_at->Amount;
 		}
 	}
-	THROW(P_Tbl->AccObj.InitAccSheetForAcctID(&at.DbtID, &at.DbtSheet));
-	THROW(P_Tbl->AccObj.InitAccSheetForAcctID(&at.CrdID, &at.CrdSheet));
+	THROW(P_Tbl->AccObj.InitAccSheetForAcctID(&at.DbtID, &at.DbtAcsID));
+	THROW(P_Tbl->AccObj.InitAccSheetForAcctID(&at.CrdID, &at.CrdAcsID));
 	THROW_SL(pPack->Turns.insert(&at));
 	CATCHZOK
 	ASSIGN_PTR(pFlags, f);
@@ -118,8 +122,8 @@ int PPObjAccTurn::SearchAccturnInPacketByCorrAcc(const PPBillPacket * pPack, int
 		Acct   dbt;
 		Acct   crd;
 		PPID   cur_id = 0;
-		ConvertAcctID(pPack->Turns.at(i).DbtID, &dbt, &cur_id, 1 /* useCache */);
-		ConvertAcctID(pPack->Turns.at(i).CrdID, &crd, &cur_id, 1 /* useCache */);
+		ConvertAcctID(pPack->Turns.at(i).DbtID, &dbt, &cur_id, 1/*useCache*/);
+		ConvertAcctID(pPack->Turns.at(i).CrdID, &crd, &cur_id, 1/*useCache*/);
 		if(side == PPDEBIT && dbt.ac == ac) {
 			ASSIGN_PTR(pCorrAcc, crd);
 			ASSIGN_PTR(pPos, i);
@@ -180,12 +184,11 @@ int PPObjAccTurn::EditRecoverBalanceParam(RecoverBalanceParam * pParam)
 	int    valid_data = 0;
 	Acct   acct;
 	PPID   cur_id = 0;
-	AcctID acct_id;
-	TDialog * dlg = 0;
-	acct_id.ac = pParam->BalAccID;
-	acct_id.ar = 0;
+	AccIdent acct_id;
+	TDialog * dlg = new TDialog(DLG_CBAL);
+	acct_id.Set(pParam->BalAccID, 0);
 	acct.Z();
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_CBAL))));
+	THROW(CheckDialogPtr(&dlg));
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CBAL_LOG, CTL_CBAL_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);
 	dlg->SetupCalPeriod(CTLCAL_CBAL_PERIOD, CTL_CBAL_PERIOD);
 	SetPeriodInput(dlg, CTL_CBAL_PERIOD, pParam->Period);

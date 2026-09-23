@@ -750,7 +750,7 @@ DBQuery * PPViewOpGrouping::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 		p_tbl = new TempOpGrpngTbl(P_TempTbl->GetName());
 	}
 	THROW(CheckTblPtr(p_tbl));
-	q = & Select_(
+	q = &Select_(
 		p_tbl->ID__,      // #0
 		p_tbl->Dt,        // #1
 		p_tbl->OpID,      // #2

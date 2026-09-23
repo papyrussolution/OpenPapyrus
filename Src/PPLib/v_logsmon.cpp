@@ -1,5 +1,5 @@
 // V_LOGSMON.CPP
-// A. Kurilov 2008, 2009, 2015, 2016, 2018, 2019, 2020, 2023, 2024, 2026
+// A.Kurilov, A.Sobolev 2008, 2009, 2015, 2016, 2018, 2019, 2020, 2023, 2024, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -231,16 +231,17 @@ DBQuery * PPViewLogsMonitor::CreateBrowserQuery(uint *pBrwId, SString *)
 	TempLogFileMonTbl *p_tbl = new TempLogFileMonTbl(P_TmpTbl->GetName());
 	PPDbqFuncPool::InitObjNameFunc(dbe_logfname, PPDbqFuncPool::IdLogFileName, p_tbl->LogFileId);
 	if(p_tbl) {
-		q = & Select_(
+		q = &Select_(
 			p_tbl->ID__,    // #0
-			dbe_logfname,	// #1
-			p_tbl->LineNo,	// #2
-			p_tbl->Dt,		// #3
-			p_tbl->Tm,		// #4
-			p_tbl->UserName,// #5
-			p_tbl->DbSymb,	// #6
-			p_tbl->Text,	// #7
-			0).from(p_tbl, 0).orderBy(p_tbl->Dt, p_tbl->Tm, 0);
+			0L);
+		q->addField(dbe_logfname);    // #1
+		q->addField(p_tbl->LineNo);   // #2
+		q->addField(p_tbl->Dt);       // #3
+		q->addField(p_tbl->Tm);       // #4
+		q->addField(p_tbl->UserName); // #5
+		q->addField(p_tbl->DbSymb);   // #6
+		q->addField(p_tbl->Text);     // #7
+		q->from(p_tbl, 0).orderBy(p_tbl->Dt, p_tbl->Tm, 0);
 		ASSIGN_PTR(pBrwId, BROWSER_LOGSMON);
 	}
 	return q;

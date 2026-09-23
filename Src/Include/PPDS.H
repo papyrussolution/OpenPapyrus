@@ -605,7 +605,7 @@ private:
 class PPDS_CrrAcctEntry : public PPDeclStruc {
 public:
 	PPDS_CrrAcctEntry() : PPDeclStruc() {}
-	AcctID Data;
+	AccIdent Data;
 private:
 	virtual int InitData(Ido op, void * dataPtr, long addedParam);
 	virtual int AcceptListItem(long fldID, PPDeclStruc *, ObjTransmContext * pCtx);

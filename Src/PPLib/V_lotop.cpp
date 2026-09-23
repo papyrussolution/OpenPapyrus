@@ -169,10 +169,31 @@ DBQuery * PPViewLotOp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	if(Filt.Flags & LotOpFilt::fZeroLotOps) {
 		brw_id = BROWSER_ZEROLOTOPS;
 		PPDbqFuncPool::InitObjNameFunc(dbe_goods, PPDbqFuncPool::IdObjNameGoods, trf->GoodsID);
-		if(State & stAccsCost)
+		/* @v12.7.9 
+		if(State & stAccsCost) {
 			q = &Select_(trf->Dt, trf->OprNo, bll->Code, dbe_ar, trf->Quantity, trf->Rest, trf->Cost, dbe_price, dbe_goods, 0L);
-		else
+		}
+		else {
 			q = &Select_(trf->Dt, trf->OprNo, bll->Code, dbe_ar, trf->Quantity, trf->Rest, zero_cost, dbe_price, dbe_goods, 0L);
+		}
+		*/
+		// @v12.7.9 {
+		q = &Select_(trf->Dt, // #0
+			trf->OprNo,       // #1 
+			bll->Code,        // #2
+			0);
+		q->addField(dbe_ar);        // #3
+		q->addField(trf->Quantity); // #4
+		q->addField(trf->Rest);     // #5
+		if(State & stAccsCost) {
+			q->addField(trf->Cost); // #6
+		}
+		else {
+			q->addField(zero_cost); // #6
+		}
+		q->addField(dbe_price);     // #7
+		q->addField(dbe_goods);     // #8
+		// } @v12.7.9 
 		q->from(trf, bll, 0L).where(trf->LotID == 0L && daterange(trf->Dt, &period) &&
 			(trf->Flags & PPTFR_RECEIPT) == PPTFR_RECEIPT && bll->ID == trf->BillID).
 			orderBy(trf->LotID, trf->Dt, trf->OprNo, 0L);

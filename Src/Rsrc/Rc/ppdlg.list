@@ -225,6 +225,9 @@ AR_RL.DLG    // @uiview DLG_ARTICLE_RL
 UPDFRHT.DLG  // @uiview DLG_UPDFREIGHT
 F_PSN.DLG    // @uiview DLG_PSNFLT
 ARTCLGRP.DLG // @uiview DLG_ARTICLEGROUP
+F_GRESTA.DLG // @uiview DLG_GRESTFLTA
+f_grest.dlg  // @uiview DLG_GOODSREST
+F_SCARD.DLG  // @uiview DLG_SCARDFLT
 LOGIN.DLG    // @obsolete (since @v12.6.12 используется только DLG_LOGIND)
 BILLAMT.DLG  // @unused
 ABCANLZ.DLG  // DLG_ABCANLZ
@@ -497,8 +500,6 @@ F_GOANZ2.DLG
 f_goanze.dlg
 F_GOODS.DLG
 F_GOODSV.DLG
-f_grest.dlg
-F_GRESTA.DLG
 f_grprgn.dlg
 F_GTAJ.DLG
 f_gtanlz.dlg
@@ -532,7 +533,6 @@ F_REGTYP.DLG
 f_report.dlg
 F_SALARY.DLG
 F_SCALE.DLG
-F_SCARD.DLG
 F_SCOP.DLG
 F_SHANLZ.DLG
 F_SLLTO.DLG

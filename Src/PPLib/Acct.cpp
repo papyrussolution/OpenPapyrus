@@ -255,11 +255,15 @@ int IsAccBelongToList(const Acct * pAcct, int side, const char * pList)
 				q = p + sstrlen(p) + 1;
 				p = STRNSCPY(buf, p);
 				parseAccString(p, tok, &sd);
-				if(pAcct->ac == tok[0])
-					if(pAcct->sb == tok[1] || tok[1] == -1)
-						if(pAcct->ar == tok[2] || tok[2] == -1)
-							if(sd == -1 || sd == side)
+				if(pAcct->ac == tok[0]) {
+					if(pAcct->sb == tok[1] || tok[1] == -1) {
+						if(pAcct->ar == tok[2] || tok[2] == -1) {
+							if(sd == -1 || sd == side) {
 								found = 1;
+							}
+						}
+					}
+				}
 			} while(!found && *q && (p = strtok(q, separator)) != 0);
 	}
 	return found;
@@ -267,16 +271,23 @@ int IsAccBelongToList(const Acct * pAcct, int side, const char * pList)
 //
 //
 //
-AcctID::AcctID() : ac(0), ar(0)
+AccIdent::AccIdent() : AcID(0), ArID(0)
 {
 }
 
-AcctID & AcctID::Z()
+AccIdent & AccIdent::Z()
 {
-	ac = 0;
-	ar = 0;
+	AcID = 0;
+	ArID = 0;
 	return *this;
 }
 
-bool FASTCALL AcctID::operator == (AcctID s) const { return (ac == s.ac && ar == s.ar); }
-bool FASTCALL AcctID::operator != (AcctID s) const { return (ac != s.ac || ar != s.ar); }
+AccIdent & AccIdent::Set(PPID acID, PPID arID) // @v12.7.9
+{
+	AcID = acID;
+	ArID = arID;
+	return *this;
+}
+
+bool FASTCALL AccIdent::operator == (AccIdent s) const { return (AcID == s.AcID && ArID == s.ArID); }
+bool FASTCALL AccIdent::operator != (AccIdent s) const { return (AcID != s.AcID || ArID != s.ArID); }

@@ -6232,9 +6232,9 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 											if(ArObj.P_Tbl->SearchNum(acs_id, ARTN_MRKTPLCACC_ACCEPTANCE, &ar_rec) > 0) {
 												PPAccTurn at;
 												bpack_at.CreateAccTurn(at);
-												at.DbtID.ac = acc_id;
-												at.DbtID.ar = ar_rec.ID;
-												at.DbtSheet = acs_id;
+												at.DbtID.AcID = acc_id;
+												at.DbtID.ArID = ar_rec.ID;
+												at.DbtAcsID = acs_id;
 												at.Amount = -fabs(p_entry->Acceptance);
 												bpack_at.Turns.insert(&at);
 												bpack_at.Rec.Amount = at.Amount;
@@ -6447,9 +6447,9 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 											if(ArObj.P_Tbl->SearchNum(acs_id, ARTN_MRKTPLCACC_PENALTY, &ar_rec) > 0) {
 												PPAccTurn at;
 												bpack_at.CreateAccTurn(at);
-												at.DbtID.ac = acc_id;
-												at.DbtID.ar = ar_rec.ID;
-												at.DbtSheet = acs_id;
+												at.DbtID.AcID = acc_id;
+												at.DbtID.ArID = ar_rec.ID;
+												at.DbtAcsID = acs_id;
 												at.Amount = -fabs(p_entry->Penalty);
 												bpack_at.Turns.insert(&at);
 												bpack_at.Rec.Amount = at.Amount;
@@ -6483,9 +6483,9 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 											if(ArObj.P_Tbl->SearchNum(acs_id, ARTN_MRKTPLCACC_DEDUCTION, &ar_rec) > 0) {
 												PPAccTurn at;
 												bpack_at.CreateAccTurn(at);
-												at.DbtID.ac = acc_id;
-												at.DbtID.ar = ar_rec.ID;
-												at.DbtSheet = acs_id;
+												at.DbtID.AcID = acc_id;
+												at.DbtID.ArID = ar_rec.ID;
+												at.DbtAcsID = acs_id;
 												at.Amount = -fabs(p_entry->Deduction);
 												bpack_at.Turns.insert(&at);
 												bpack_at.Rec.Amount = at.Amount;
@@ -6519,9 +6519,9 @@ int PPMarketplaceInterface_Wildberries::ImportFinancialTransactions()
 											if(ArObj.P_Tbl->SearchNum(acs_id, ARTN_MRKTPLCACC_STORAGE, &ar_rec) > 0) {
 												PPAccTurn at;
 												bpack_at.CreateAccTurn(at);
-												at.DbtID.ac = acc_id;
-												at.DbtID.ar = ar_rec.ID;
-												at.DbtSheet = acs_id;
+												at.DbtID.AcID = acc_id;
+												at.DbtID.ArID = ar_rec.ID;
+												at.DbtAcsID = acs_id;
 												at.Amount = -fabs(p_entry->StorageFee);
 												bpack_at.Turns.insert(&at);
 												bpack_at.Rec.Amount = at.Amount;

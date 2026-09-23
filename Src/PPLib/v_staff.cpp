@@ -647,24 +647,27 @@ DBQuery * PPViewStaffPost::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	TempOrderTbl * p_temp_tbl = 0;
 	PersonPostTbl * p_tbl = new PersonPostTbl;
 	DBQ  * dbq = 0;
-	DBE    dbe_psn, dbe_org, dbe_div, dbe_chargegrp;
+	DBE    dbe_psn;
+	DBE    dbe_org;
+	DBE    dbe_div;
+	DBE    dbe_chargegrp;
 	DBE    dbe_staff;
 	PPDbqFuncPool::InitObjNameFunc(dbe_psn,   PPDbqFuncPool::IdObjNamePerson, p_tbl->PersonID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_staff, PPDbqFuncPool::IdObjNameStaff,  p_tbl->StaffID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_org,   PPDbqFuncPool::IdObjStaffOrg, p_tbl->StaffID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_div,   PPDbqFuncPool::IdObjStaffDiv, p_tbl->StaffID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_chargegrp, PPDbqFuncPool::IdObjNameSalCharge, p_tbl->ChargeGrpID);
-	q = & Select_(
+	q = &Select_(
 		p_tbl->ID,      // #00
 		p_tbl->Code,    // #01
 		p_tbl->Dt,      // #02
 		p_tbl->Finish,  // #03
-		dbe_staff,      // #04
-		dbe_psn,        // #05
-		dbe_org,        // #06
-		dbe_div,        // #07
-		dbe_chargegrp,  // #08
-		0);
+		0L);
+	q->addField(dbe_staff);     // #04
+	q->addField(dbe_psn);       // #05
+	q->addField(dbe_org);       // #06
+	q->addField(dbe_div);       // #07
+	q->addField(dbe_chargegrp); // #08
 	if(P_TempTbl) {
 		p_temp_tbl = new TempOrderTbl(P_TempTbl->GetName());
 		dbq = &(p_tbl->ID == p_temp_tbl->ID);

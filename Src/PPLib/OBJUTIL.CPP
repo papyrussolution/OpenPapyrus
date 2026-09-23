@@ -667,6 +667,13 @@ int PPObject::CreateReservedObjects(long flags)
 					obj_type_list.swap(p1, p2);
     		}
 			// } @v12.7.8 
+			// @v12.7.9 {
+    		p1 = p2 = 0;
+    		if(obj_type_list.lsearch(PPOBJ_ACCSHEET, &p1) && obj_type_list.lsearch(PPOBJ_ARTICLE, &p2)) {
+				if(p1 > p2)
+					obj_type_list.swap(p1, p2);
+    		}
+			// } @v12.7.9 
 		}
 		for(uint i = 0; i < obj_type_list.getCount(); i++) {
 			PPObject * p_o = GetPPObject(obj_type_list.at(i), 0);
@@ -3097,6 +3104,7 @@ int PrcssrUniFindObj::EditParam(UniFindObjFilt * pParam)
 	public:
 		UniFindObjParamDialog() : TDialog(DLG_UNIFINDOBJ)
 		{
+			PPSetupLocalStateWordSelectorOnInputLine(this, DLG_UNIFINDOBJ, CTL_UNIFINDOBJ_MPATTERN); // @v12.7.9
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -3123,8 +3131,9 @@ int PrcssrUniFindObj::EditParam(UniFindObjFilt * pParam)
 			int    ok = 1;
 			uint   sel = 0;
 			getCtrlString(sel = CTL_UNIFINDOBJ_MPATTERN, Data.MainPattern);
-			if(!(Data.Flags & UniFindObjFilt::f_Internal_AllowZeroPattern))
+			if(!(Data.Flags & UniFindObjFilt::f_Internal_AllowZeroPattern)) {
 				THROW_PP(Data.MainPattern.NotEmptyS(), PPERR_SEARCHPATTERNNEEDED);
+			}
 			GetClusterData(sel = CTL_UNIFINDOBJ_WFLAGS, &Data.WFlags);
 			GetClusterData(sel = CTL_UNIFINDOBJ_FLAGS, &Data.Flags);
 			GetPeriodInput(this, sel = CTL_UNIFINDOBJ_PERIOD, &Data.Period);
@@ -3306,9 +3315,17 @@ int PrcssrUniFindObj::Run()
 		}
 		if(P.WFlags & UniFindObjFilt::wfEverything) {
 			if(_int_val > 0 && _int_val < LONG_MAX) {
-				ReceiptTbl::Rec lot_rec;
-				if(P_BObj->trfr->Rcpt.Search(static_cast<long>(_int_val), &lot_rec) > 0) {
-					AddResult(PPOBJ_LOT, lot_rec.ID, PPOBJATTR_ID, 0);
+				{
+					ReceiptTbl::Rec lot_rec;
+					if(P_BObj->trfr->Rcpt.Search(static_cast<long>(_int_val), &lot_rec) > 0) {
+						AddResult(PPOBJ_LOT, lot_rec.ID, PPOBJATTR_ID, 0);
+					}
+				}
+				{ // @v12.7.9
+					ArticleTbl::Rec ar_rec;
+					if(P_BObj->ArObj.Search(static_cast<long>(_int_val), &ar_rec) > 0) {
+						AddResult(PPOBJ_ARTICLE, ar_rec.ID, PPOBJATTR_ID, 0);
+					}
 				}
 			}
 		}
@@ -3581,10 +3598,22 @@ public:
 		rlErrOnStore  = 4, // Запрет сохранения объекта при любом создании/изменении
 	};
 	struct Item {
+		enum {
+			atpfxUndef = 0,
+			atpfxTag = 1,
+			atpfxRegister = 2,
+		};
+		uint32 AttrPrefix; // atpfxXXX
 		uint32 AttrId;
 		uint32 RLevel; // ObjAttrRestrList::rlXXX Уровень ограничения //
 		ObjAttrRestr R;
 		uint32 MsgId;
+	};
+	//
+	// Descr: Контекст применимости ограничений
+	//
+	struct Context {
+		//
 	};
 
 	ObjAttrRestrList()
@@ -3662,14 +3691,33 @@ SJson * ObjAttrRestr::ToJsonObj() const // @construction
 	SJson * p_result = SJson::CreateObj();
 	if(SJson::IsObject(p_result)) {
 		SString temp_buf;
-		if(Typ)
+		if(Typ) {
 			p_result->InsertInt("Typ", Typ);
-		if(Flags)
-			p_result->InsertInt("Flags", Flags);
-		if(RPrec != _FFFF16)
+		}
+		if(Flags) {
+			p_result->InsertUInt("Flags", Flags);
+		}
+		if(RPrec != _FFFF16) {
 			p_result->InsertUInt("RPrec", RPrec);
+		}
 		if(!RRange.IsZero()) {
-			//p_result->InsertDouble("NbLn", NbLine);
+			SJson * p_js_range = SJson::CreateObj();
+			p_js_range->InsertString("low", temp_buf.Z().Cat(RRange.low, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
+			p_js_range->InsertString("upp", temp_buf.Z().Cat(RRange.low, MKSFMTD(0, 5, NMBF_NOTRAILZ)));
+			p_result->Insert("RRange", p_js_range);
+		}
+		if(!DRange.IsZero()) {
+			DRange.ToStr(DATF_ISO8601CENT, temp_buf);
+			p_result->InsertString("DRange", temp_buf);
+		}
+		if(SnTok) {
+			p_result->InsertUInt("SnTok", SnTok);
+		}
+		if(UedMeta) {
+			p_result->InsertUInt64("UedMeta", UedMeta);
+		}
+		if(RegExp.NotEmpty()) {
+			p_result->InsertString("RegExp", (temp_buf = RegExp).Escape());
 		}
 	}
 	return p_result;
@@ -3677,9 +3725,55 @@ SJson * ObjAttrRestr::ToJsonObj() const // @construction
 	
 bool ObjAttrRestr::FromJsonObj(const SJson * pJs) // @construction
 {
+	Z();
 	bool   ok = false;
 	if(SJson::IsObject(pJs)) {
-		//
+		SString temp_buf;
+		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("Typ")) {
+				Typ = p_cur->P_Child->Text.ToLong();
+				ok = true;
+			}
+			else if(p_cur->Text.IsEqiAscii("Flags")) {
+				Flags = p_cur->P_Child->Text.ToULong();
+				ok = true;
+			}
+			else if(p_cur->Text.IsEqiAscii("RPrec")) {
+				RPrec = static_cast<uint16>(p_cur->P_Child->Text.ToULong());
+				ok = true;
+			}
+			else if(p_cur->Text.IsEqiAscii("RRange")) {
+				if(SJson::IsObject(p_cur->P_Child)) {
+					for(const SJson * p_cur2 = p_cur->P_Child->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
+						if(p_cur2->Text.IsEqiAscii("low")) {
+							RRange.low = p_cur2->P_Child->Text.ToReal_Plain();
+						}
+						if(p_cur2->Text.IsEqiAscii("upp")) {
+							RRange.upp = p_cur2->P_Child->Text.ToReal_Plain();
+						}
+					}
+				}
+				ok = true;
+			}
+			else if(p_cur->Text.IsEqiAscii("DRange")) {
+				(temp_buf = p_cur->P_Child->Text).Unescape();
+				DRange.FromStr(temp_buf, 0);
+				ok = true;
+			}
+			else if(p_cur->Text.IsEqiAscii("SnTok")) {
+				SnTok = p_cur->P_Child->Text.ToULong();
+				ok = true;
+			}
+			else if(p_cur->Text.IsEqiAscii("UedMeta")) {
+				UedMeta = p_cur->P_Child->Text.ToUInt64();
+				ok = true;
+			}
+			else if(p_cur->Text.IsEqiAscii("RegExp")) {
+				(temp_buf = p_cur->P_Child->Text).Unescape();
+				RegExp = temp_buf;
+				ok = true;
+			}
+		}
 	}
 	return ok;
 }

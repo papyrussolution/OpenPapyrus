@@ -2269,7 +2269,7 @@ DBQuery * PPViewProcessor::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	}
 	// } @v12.2.0 
 	// @v12.5.12 {
-	q = & Select_(p_prct->ID, // #0
+	q = &Select_(p_prct->ID, // #0
 		p_prct->Name,         // #1
 		p_prct->Code,         // #2
 		0);
@@ -2278,7 +2278,7 @@ DBQuery * PPViewProcessor::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle
 	q->addField(dbe_linkobj); // #5
 	q->addField(dbe_wroffop); // #6 // @v12.5.12
 	// } @v12.5.12 
-	/* @v12.5.12 q = & Select_(p_prct->ID, 
+	/* @v12.5.12 q = &Select_(p_prct->ID, 
 		p_prct->Name, 
 		p_prct->Code, 
 		dbe_parent, 

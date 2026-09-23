@@ -1407,7 +1407,7 @@ browser ACCOUNT_SYS north(100), 1, 0, "%s", OWNER|GRID, 0
 browser GOODS north(100), 3, 0, "@{view_goods} {%s}", OWNER|GRID, 0
 {
 	"@id",           0, notype, ALIGN_RIGHT,  6
-	"@appellation",  2, notype, 0, 30 // @v10.2.5 eliminated BCO_DONTSHOWDUPL
+	"@appellation",  2, notype, 0, 30
 	"@group",       16, notype, 0, 20
 	"@manufacturer", 3, notype, 0, 20
 	"@brand",       15, notype, 0, 20
@@ -1419,71 +1419,19 @@ browser GOODS north(100), 3, 0, "@{view_goods} {%s}", OWNER|GRID, 0
 	toolbar GOODS
 }
 
-//browser GOODSBARCODE north(100), 3, 0, "@{view_goods} {%s}", OWNER|GRID, 0
-//{
-	//"@id",           0, notype, ALIGN_RIGHT,  6
-	//"@appellation",  2, notype, 0, 30 // @v10.2.5 eliminated BCO_DONTSHOWDUPL
-	//"@manufacturer", 3, notype, 0, 20
-	//"@brand",       15, notype, 0, 20
-	//group "@munits" {
-		//"@munit_trade_sl",  4, notype, 0, 6
-		//"@munit_ph_sl",     5, notype, 0, 6
-		//"@ratio",           6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
-	//}
-	//"@barcode",     7, notype, 0, 14
-	//toolbar GOODS
-//}
-
-//browser GOODSCARGO north(100), 3, 0, "@{view_goodscargo} {%s}", OWNER|GRID, 0
-//{
-	//"@id",           0, notype, ALIGN_RIGHT,  6
-	//"@appellation",  2, notype, 0, 30
-	//"@manufacturer", 3, notype, 0, 15
-	//"@brand",       15, notype, 0, 15
-	//group "@munits" {
-		//"@munit_trade_sl",  4, notype, 0, 6
-		//"@munit_ph_sl",     5, notype, 0, 6
-		//"@ratio",           6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
-	//}
-	//"@cargobrutto",    10, notype, NMBF_NOZERO, 8
-	//"@cargodim",       11, notype, NMBF_NOZERO, 8
-	//"@stockths",       12, notype, NMBF_NOZERO, 8
-	//"@cargopckg",      13, notype, NMBF_NOZERO, 8
-	//toolbar GOODS
-//}
-
-//browser GOODSCARGOBARCODE north(100), 3, 0, "@{view_goodscargo} {%s}", OWNER|GRID, 0
-//{
-	//"@id",           0, notype, ALIGN_RIGHT,  6
-	//"@appellation",  2, notype, 0, 30 // @v10.2.5 eliminated BCO_DONTSHOWDUPL
-	//"@manufacturer", 3, notype, 0, 15
-	//"@brand",       15, notype, 0, 15
-	//group "@munits" {
-		//"@munit_trade_sl",  4, notype, 0, 6
-		//"@munit_ph_sl",     5, notype, 0, 6
-		//"@ratio",           6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
-	//}
-	//"@barcode",      7, notype, 0, 14
-	//"@cargobrutto", 10, notype, NMBF_NOZERO, 8
-	//"@cargodim",    11, notype, NMBF_NOZERO, 8
-	//"@stockths",    12, notype, NMBF_NOZERO, 8
-	//"@cargopckg",   13, notype, NMBF_NOZERO, 8
-	//toolbar GOODS
-//}
-
 browser GOODSWITHSTRUC north(100), 3, 1, "@{view_goodswithstruc} {%s}", OWNER|GRID, 0
 {
 	"@appellation",  2, notype, 0, 30
-	"@structure",   14, notype, 0, 10 // @v11.6.9 @fix 15-->14
+	"@structure",   14, notype, 0, 10
 	toolbar GOODS
 }
 
 browser GOODSSTRUC2 north(100), 3, 1, "@{view_goodsstruc} {%s}", OWNER|GRID, 0
 {
 	"@id",                   0, long, 0,             10, BCO_USERPROC
-	"@appellation",          8, zstring(48), 0,      20, BCO_USERPROC // @v10.7.5
+	"@appellation",          8, zstring(48), 0,      20, BCO_USERPROC
 	"N",                     7, long, 0,              4, BCO_USERPROC
-	"@ware",                 1, zstring(128), 0,     60, BCO_USERPROC // @v10.2.5 eliminated BCO_DONTSHOWDUPL
+	"@ware",                 1, zstring(128), 0,     60, BCO_USERPROC
 	"@gsitem2",              2, zstring(128), 0,     60, BCO_USERPROC
 	"@goodsstruc_commdenom", 6, double,      NMBF_NOZERO, 10.3, BCO_USERPROC
 	"@qtty",                 3, zstring(20), ALIGN_RIGHT, 10, BCO_USERPROC

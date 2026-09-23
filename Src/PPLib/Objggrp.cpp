@@ -1651,15 +1651,11 @@ public:
 			const UiDescription * p_uid = SLS.GetUiDescription();
 			const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 			{
-				SColor _color;
-				if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
-					_color = SClrCoral; 
+				SColor _color = UiDescription::GetColorR(p_uid, p_cs, "invalid_value_input_bg", SClrCoral);
 				Ptb.SetBrush(brushInvalidNumber, SPaintObj::bsSolid, _color, 0);
 			}
 			{
-				SColor _color;
-				if(!p_cs || !p_cs->Get("valid_value_input_bg", &p_uid->ClrList, _color))
-					_color = SClrAqua; 
+				SColor _color = UiDescription::GetColorR(p_uid, p_cs, "valid_value_input_bg", SClrAqua);
 				Ptb.SetBrush(brushValidNumber,   SPaintObj::bsSolid, _color,  0);
 			}
 		}
@@ -1735,7 +1731,7 @@ private:
 			else
 				return;
 		}
-		else if(event.isCmd(cmCtlColor)) {
+		else if(event.isCmd(cmCtlColor)) { // @IndicatorState-done
 			TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 			if(p_dc && getCtrlHandle(CTL_TRANSPORT_CODE) == p_dc->H_Ctl) {
 				TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(CTL_TRANSPORT_CODE, TV_SUBSIGN_INPUTLINE));
@@ -1755,14 +1751,7 @@ private:
 		else if(event.isCmd(cmMouseHoverCtrl)) { // @v12.7.7
 			const  uint ctl_id = event.getCtlID();
 			if(ctl_id == CTL_TRANSPORT_CODE) {
-				TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
-				if(p_il) {
-					uint64 _state = 0;
-					SString descr_buf;
-					if(p_il->GetIndicatorState(&_state, &descr_buf) && descr_buf.NotEmptyS()) {
-						PPShowCtrlIndicatorHint(descr_buf);
-					}
-				}
+				PPShowCtrlIndicatorHintOnInputLine(this, ctl_id);
 			}
 		}
 		else if(!LockAutoName && Cfg.NameTemplate.NotEmpty()) {
@@ -1789,8 +1778,6 @@ private:
 			Trg.Run(temp_buf, nta.Z(), &nts); 
 			//
 			const   bool is_licplate = (nta.Has(SNTOK_RU_LICPLATE) > 0.0f);
-			//CTLUSTTD_RULICPLATE_VALID             "Государственный номер автомобиля - допустимое значение"
-			//CTLUSTTD_RULICPLATE_INVALID           "Недопустимое значение государственного номер автомобиля"				
 			const  uint64 _state = static_cast<int>(is_licplate)+1;
 			PPLoadString(PPSTR_CTLUSTTD, (is_licplate ? CTLUSTTD_RULICPLATE_VALID : CTLUSTTD_RULICPLATE_INVALID), temp_buf);
 			if(p_il->SetIndicatorState(_state, temp_buf) > 0)

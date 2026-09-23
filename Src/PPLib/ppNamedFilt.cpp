@@ -236,9 +236,10 @@ uint PPNamedFiltPool::GetCount() const
 {
 	uint   c = 0;
 	if(DbSymb.NotEmpty()) {
-		for(uint i = 0; i < getCount(); i++)
+		for(uint i = 0; i < getCount(); i++) {
 			if(DbSymb.CmpNC(at(i)->DbSymb) == 0)
 				c++;
+		}
 	}
 	else
 		c = getCount();
@@ -249,11 +250,12 @@ int PPNamedFiltPool::CheckUniqueNamedFilt(const PPNamedFilt * pNFilt) const
 {
 	int    ok = 1;
 	for(uint i = 0; i < getCount(); i++) {
-		const PPNamedFilt * p_nfilt = at(i);
+		const  PPNamedFilt * p_nfilt = at(i);
 		if(p_nfilt->ID != pNFilt->ID) {
 			THROW_PP_S(p_nfilt->Name.CmpNC(pNFilt->Name) != 0, PPERR_DUPNFNAME, p_nfilt->Name);
-			if(pNFilt->Symb[0])
+			if(pNFilt->Symb[0]) {
 				THROW_PP_S(stricmp(p_nfilt->Symb, pNFilt->Symb) != 0, PPERR_DUPNFSYMB, p_nfilt->Symb);
+			}
 		}
 	}
 	CATCHZOK
@@ -657,7 +659,7 @@ int EditFiltItem(PPNamedFiltMngr * pMngr, PPNamedFiltPool * pNFiltPool, PPNamedF
 IMPL_HANDLE_EVENT(FiltItemDialog)
 {
 	TDialog::handleEvent(event);
-	uint pos;
+	uint   pos;
 	// Событие: выбор элемента в комбобоксе
 	if(event.isCbSelected(CTLSEL_FILTITEM_CMD)) {
 		PPID view_id = getCtrlLong(CTLSEL_FILTITEM_CMD);
@@ -689,6 +691,8 @@ IMPL_HANDLE_EVENT(FiltItemDialog)
 		if(ListToListDialog(&ltld) > 0)
 			Data.DestGuaList.Set(&id_list);
 	}
+	else
+		return;
 	clearEvent(event);
 }
 
@@ -1059,34 +1063,63 @@ private:
 	{
 		PPListDialog::handleEvent(event);
 		if(event.isCmd(cmInputUpdated)) {
-			if(event.isCtlEvent(CTL_MOBCLMNN_STRUC)) {
-				SString temp_buf;
-				getCtrlString(CTL_MOBCLMNN_STRUC, temp_buf);
-				P_Dl600Scope = Dl600Ctx.GetScopeByName_Const(DlScope::kExpData, temp_buf.Strip());
-				clearEvent(event);
+			const  uint ctl_id = event.getCtlID();
+			if(ctl_id == CTL_MOBCLMNN_STRUC) {
+				TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+				if(p_il) {
+					uint64 _state = 0;
+					int    state_msg_id = 0;
+					SString temp_buf;
+					getCtrlString(ctl_id, temp_buf);
+					if(temp_buf.NotEmptyS()) {
+						P_Dl600Scope = Dl600Ctx.GetScopeByName_Const(DlScope::kExpData, temp_buf.Strip());
+						if(P_Dl600Scope) {
+							_state = 1;
+							state_msg_id = CTLUSTTD_DL600_STRUCSYMB_VALID;
+						}
+						else {
+							_state = 2;
+							state_msg_id = CTLUSTTD_DL600_STRUCSYMB_INVALID;
+						}
+					}
+					else
+						P_Dl600Scope = 0;
+					temp_buf.Z();
+					if(state_msg_id)
+						PPLoadString(PPSTR_CTLUSTTD, state_msg_id, temp_buf);
+					if(p_il->SetIndicatorState(_state, temp_buf) > 0) {
+						drawCtrl(ctl_id);
+					}
+					clearEvent(event);
+				}
 			}
 		}
-		else if(event.isCmd(cmCtlColor)) {
+		else if(event.isCmd(cmCtlColor)) { // @IndicatorState-done
+			bool   local_done = false;
 			TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 			if(p_dc) {
-				if(p_dc->H_Ctl == getCtrlHandle(CTL_MOBCLMNN_STRUC)) {
-					TCanvas canv(p_dc->H_DC);
-					::SetBkMode(p_dc->H_DC, TRANSPARENT);
-					if(P_Dl600Scope) {
-						//canv.SetTextColor(GetColorRef(SClrWhite));
-						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushValidStrucSymb));
-						clearEvent(event);
-					}
-					else {
-						SString temp_buf;
-						getCtrlString(CTL_MOBCLMNN_STRUC, temp_buf);
-						if(temp_buf.NotEmpty()) {
-							//canv.SetTextColor(GetColorRef(SClrWhite));
-							p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushInvalidStrucSymb));
-							clearEvent(event);
+				const  uint ctl_id = CTL_MOBCLMNN_STRUC;
+				if(p_dc->H_Ctl == getCtrlHandle(ctl_id)) {
+					TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
+					if(p_il) {
+						uint64 _state = 0;
+						if(p_il->GetIndicatorState(&_state, 0)) {
+							::SetBkMode(p_dc->H_DC, TRANSPARENT);
+							p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get((_state == 1) ? brushValidStrucSymb : brushInvalidStrucSymb));
+							local_done = true;
 						}
 					}
 				}
+			}
+			if(local_done)
+				clearEvent(event);
+			else
+				return;
+		}
+		else if(event.isCmd(cmMouseHoverCtrl)) { // @v12.7.9
+			const  uint ctl_id = event.getCtlID();
+			if(ctl_id == CTL_MOBCLMNN_STRUC) {
+				PPShowCtrlIndicatorHintOnInputLine(this, ctl_id);
 			}
 		}
 		else

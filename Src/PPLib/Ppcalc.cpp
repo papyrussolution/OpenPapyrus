@@ -1093,21 +1093,31 @@ int PosPaymentBlock::EditDialog2()
 						else if(k == cpmIncorpCrd)
 							SetupKind(cpmCash);
 					}
-					else if(TVCMD == cmCtlColor) {
+					else if(event.isCmd(cmCtlColor)) { // @IndicatorState-done
+						bool  local_done = false;
 						TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 						if(p_dc && getCtrlHandle(CTL_CPPAYM_EADDR) == p_dc->H_Ctl) {
-							int brush_ident = 0;
-							if(EAddrInputState == SNTOK_PHONE)
-								brush_ident = brushEAddrPhone;
-							else if(EAddrInputState == SNTOK_EMAIL)
-								brush_ident = brushEAddrEmail;
-							else if(EAddrInputState < 0)
-								brush_ident = brushInvalid;
-							if(brush_ident) {
-								::SetBkMode(p_dc->H_DC, TRANSPARENT);
-								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brush_ident));
+							TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(CTL_CPPAYM_EADDR, TV_SUBSIGN_INPUTLINE));
+							if(p_il) {
+								uint64 _state = 0;
+								if(p_il->GetIndicatorState(&_state, 0)) {
+									int    brush_ident = 0;
+									if(_state == SNTOK_PHONE)
+										brush_ident = brushEAddrPhone;
+									else if(_state == SNTOK_EMAIL)
+										brush_ident = brushEAddrEmail;
+									else if(_state == _FFFF64)
+										brush_ident = brushInvalid;
+									if(brush_ident) {
+										::SetBkMode(p_dc->H_DC, TRANSPARENT);
+										p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brush_ident));
+										local_done = true;
+									}
+								}
 							}
 						}
+						if(local_done)
+							clearEvent(event);
 						else
 							return;
 					}
@@ -1161,12 +1171,50 @@ int PosPaymentBlock::EditDialog2()
 								SetupCrdCard(1);
 								State &= ~stLock;
 							}
-							else if(event.isCtlEvent(CTL_CPPAYM_EADDR)) { // @v11.3.6
+							/* @v12.7.9. else if(event.isCtlEvent(CTL_CPPAYM_EADDR)) {
 								SString eaddr_buf;
 								getCtrlString(CTL_CPPAYM_EADDR, eaddr_buf);
 								EAddrInputState = GetEAddrStatus(eaddr_buf);
 								drawCtrl(CTL_CPPAYM_EADDR);
+							}*/
+							else if(event.isCtlEvent(CTL_CPPAYM_EADDR)) { // @v12.7.9
+								const  uint clt_id = CTL_CPPAYM_EADDR;
+								TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(clt_id, TV_SUBSIGN_INPUTLINE));
+								if(p_il) {
+									SString temp_buf;
+									getCtrlString(clt_id, temp_buf);
+									const  int eadr_status = GetEAddrStatus(temp_buf);
+									uint64 _state = 0;
+									int    msg_id = 0;
+									temp_buf.Z();
+									{
+										if(eadr_status == SNTOK_PHONE) {
+											_state = SNTOK_PHONE;
+											msg_id = CTLUSTTD_CCHECKBYBILL_EADR_PHONE;
+										}
+										else if(eadr_status == SNTOK_EMAIL) {
+											_state = SNTOK_EMAIL;
+											msg_id = CTLUSTTD_CCHECKBYBILL_EADR_EMAIL;
+										}
+										else if(eadr_status < 0) {
+											_state = _FFFF64;
+											msg_id = CTLUSTTD_CCHECKBYBILL_EADR_INVALID;
+										}
+										if(msg_id) {
+											PPLoadString(PPSTR_CTLUSTTD, msg_id, temp_buf);
+										}
+									}
+									if(p_il->SetIndicatorState(_state, temp_buf) > 0) {
+										drawCtrl(clt_id);
+									}
+								}
 							}
+						}
+					}
+					else if(event.isCmd(cmMouseHoverCtrl)) { // @v12.7.9
+						const  uint ctl_id = event.getCtlID();
+						if(ctl_id == CTL_CPPAYM_EADDR) {
+							PPShowCtrlIndicatorHintOnInputLine(this, ctl_id);
 						}
 					}
 					else

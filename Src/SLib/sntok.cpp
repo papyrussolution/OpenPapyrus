@@ -100,6 +100,7 @@ static const SIntToSymbTabEntry SNTokSymb_List[] = {
 	{ SNTOK_SSCC, "sscc" }, // @v12.4.5
 	{ SNTOK_RU_LICPLATE, "ru-license-plate" }, // @v12.7.4
 	{ SNTOK_WININTERNALCMD, "win-internal-cmd" }, // @v12.7.6
+	{ SNTOK_COUNTRYCODE, "countrycode" }, // @v12.7.9
 };
 
 SNaturalToken::SNaturalToken() : ID(0), Prob(0.0f), Count(0)
@@ -799,15 +800,23 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 			}
 			if(h & SNTOKSEQ_LAT) { // @v12.7.6
 				if(toklen >= 2 && toklen <= 10) {
-					// @fixme Это способ идентификации токена очень медленный (облагает "налогом" все ascii-токены) - надо как-то оптимизировать
-					static const char * p_win_internal_cmd_list =
-						",ASSOC,ATTRIB,BREAK,CALL,CD,CHCP,CHDIR,CLS,CMD,COLOR,COPY,DATE,DEL,DIR,DPATH,ECHO,ENDLOCAL,ERASE,EXIT,FOR,FTYPE,"
-						"GOTO,GRAFTABL,HELP,IF,LABEL,MD,MKDIR,MKLINK,MODE,MORE,MOVE,PATH,PAUSE,POPD,PROMPT,PUSHD,RD,REM,REN,RENAME,RMDIR,SET,SETLOCAL,SHIFT,SORT,START,SUBST,TIME,"
-						"TITLE,TYPE,VER,VERIFY,VOL,XCOPY,";
-					rIb.Temp.Z().CatChar(',').Cat(reinterpret_cast<const char *>(pToken)).ToUpperAscii().CatChar(',');
-					const char * p = strstr(p_win_internal_cmd_list, rIb.Temp.cptr());
-					if(p) {
-						rResultList.AddTok(SNTOK_WININTERNALCMD, 0.4f, 0);
+					{
+						// @fixme Это способ идентификации токена очень медленный (облагает "налогом" все ascii-токены) - надо как-то оптимизировать
+						static const char * p_win_internal_cmd_list =
+							",ASSOC,ATTRIB,BREAK,CALL,CD,CHCP,CHDIR,CLS,CMD,COLOR,COPY,DATE,DEL,DIR,DPATH,ECHO,ENDLOCAL,ERASE,EXIT,FOR,FTYPE,"
+							"GOTO,GRAFTABL,HELP,IF,LABEL,MD,MKDIR,MKLINK,MODE,MORE,MOVE,PATH,PAUSE,POPD,PROMPT,PUSHD,RD,REM,REN,RENAME,RMDIR,SET,SETLOCAL,SHIFT,SORT,START,SUBST,TIME,"
+							"TITLE,TYPE,VER,VERIFY,VOL,XCOPY,";
+						rIb.Temp.Z().CatChar(',').Cat(reinterpret_cast<const char *>(pToken)).ToUpperAscii().CatChar(',');
+						const char * p = strstr(p_win_internal_cmd_list, rIb.Temp.cptr());
+						if(p) {
+							rResultList.AddTok(SNTOK_WININTERNALCMD, 0.4f, 0);
+						}
+					}
+					if(oneof2(toklen, 2, 3)) { // @v12.7.9
+						const  uint cid = GetCountryCode(reinterpret_cast<const char *>(pToken)); // @v12.7.9
+						if(cid) {
+							rResultList.AddTok(SNTOK_COUNTRYCODE, 0.4f, 0);
+						}
 					}
 				}
 			}
@@ -1328,6 +1337,12 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 							if(IsRuLicPlate(r_temp_buf, rIb.Temp)) {
 								m1251 = true;
 								rResultList.AddTok(SNTOK_RU_LICPLATE, 0.8f, 0/*flags*/);
+								//
+								// Токен одновременно может выглядеть как имеющий кодировку cp866 и cp1251.
+								// Здесь мы делаем вот что: если токен выглядит как автомобильный номер в кодировке cp1251, то отменяем cp866,
+								// считая что она крайне маловероятна в этой ситуации.
+								//
+								h &= ~SNTOKSEQ_866; 
 							}
 						}
 					}
@@ -1340,6 +1355,12 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 								if(IsRuLicPlate(r_temp_buf, rIb.Temp)) {
 									m866 = true;
 									rResultList.AddTok(SNTOK_RU_LICPLATE, 0.8f, 0/*flags*/);
+									//
+									// Токен одновременно может выглядеть как имеющий кодировку cp866 и cp1251.
+									// Здесь мы делаем вот что: если токен выглядит как автомобильный номер в кодировке cp866, то отменяем cp1251,
+									// считая что она крайне маловероятна в этой ситуации.
+									//
+									h &= ~SNTOKSEQ_1251;
 								}
 							}
 						}
@@ -1418,7 +1439,7 @@ int STokenRecognizer::Run(const SString & rToken, SNaturalTokenArray & rResultLi
 	return ok ? PostImplement(ib, rToken.ucptr(), rToken.LenI(), rResultList, pStat) : 0;
 }
 
-/*virtual*/int STokenRecognizer::NormalizeToken(const uchar * pToken, int len, const SNaturalTokenStat & rStat, uint32 tok, SString & rResult) // @construction
+/*virtual*/int STokenRecognizer::NormalizeToken(const uchar * pToken, int len, const SNaturalTokenStat & rStat, uint32 tok, SString & rResult)
 {
 	rResult.Z();
 	int    ok = -1;

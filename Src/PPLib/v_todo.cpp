@@ -2153,7 +2153,7 @@ DBQuery * PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_status = & enumtoa(t->Status,   5, status_subst.Get(PPTXT_TODO_STATUS));
 		dbq = &(*dbq && t->ID == p_ord->ID);
 		// @v12.5.1 {
-		q = & Select_(
+		q = &Select_(
 			t->ID,          // #0
 			t->Code,        // #1
 			t->Dt,          // #2
@@ -2167,7 +2167,7 @@ DBQuery * PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		q->addField(dbe_psn_emp); // #9
 		q->addField(dbe_descr);   // #10
 		// } @v12.5.1 
-		/* @v12.5.1 q = & Select_(
+		/* @v12.5.1 q = &Select_(
 			t->ID,          // #0
 			t->Code,        // #1
 			t->Dt,          // #2

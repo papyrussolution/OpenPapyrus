@@ -266,7 +266,7 @@ DBQuery * PPViewPalm::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	PPDbqFuncPool::InitObjNameFunc(dbe_ggrp,  PPDbqFuncPool::IdObjNameGoods,  t->GoodsGrpID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_ar,    PPDbqFuncPool::IdObjNameAr,     t->AgentID);
 	// @v12.5.1 {
-	q = & Select_(
+	q = &Select_(
 		t->ID,            // #0
 		t->Name,          // #1
 		0L);
@@ -278,7 +278,7 @@ DBQuery * PPViewPalm::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	q->addField(t->FtpPath);   // #7
 	q->addField(t->Symb);      // #8
 	// } @v12.5.1 
-	/* @v12.5.1 q = & Select_(
+	/* @v12.5.1 q = &Select_(
 		t->ID,            // #0
 		t->Name,          // #1
 		dbe_loc,          // #2

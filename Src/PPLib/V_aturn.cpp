@@ -371,8 +371,8 @@ int PPViewAccturn::CreateGrouping()
 		else if(Filt.GrpAco == ACO_2) {
 			dbt_acct.ar = 0;
 			crd_acct.ar = 0;
-			rec.DbtAccID = item.DbtID.ac;
-			rec.CrdAccID = item.CrdID.ac;
+			rec.DbtAccID = item.DbtID.AcID;
+			rec.CrdAccID = item.CrdID.AcID;
 		}
 		else {
 			rec.DbtAccID = item.DbtAccRelID;
@@ -493,18 +493,16 @@ int PPViewAccturn::InitViewItem(const AccTurnTbl::Rec * pAtRec, AccturnViewItem 
 		if((Filt.Flags & AccturnFilt::fAllCurrencies) || aturn.CurID == Filt.CurID) {
 			if(P_TmpBillTbl || !OpList.getCount() || OpList.lsearch(aturn.Opr)) {
 				int    rt = 0;
-				const PPRights & r_orts = ObjRts;
-				if(!r_orts.CheckAccID(aturn.DbtID.ac, PPR_READ)) {
-					aturn.DbtID.ac = 0;
-					aturn.DbtID.ar = 0;
-					aturn.DbtSheet = 0;
+				const  PPRights & r_orts = ObjRts;
+				if(!r_orts.CheckAccID(aturn.DbtID.AcID, PPR_READ)) {
+					aturn.DbtID.Z();
+					aturn.DbtAcsID = 0;
 				}
 				else
 					rt++;
-				if(!r_orts.CheckAccID(aturn.CrdID.ac, PPR_READ)) {
-					aturn.CrdID.ac = 0;
-					aturn.CrdID.ar = 0;
-					aturn.CrdSheet = 0;
+				if(!r_orts.CheckAccID(aturn.CrdID.AcID, PPR_READ)) {
+					aturn.CrdID.Z();
+					aturn.CrdAcsID = 0;
 				}
 				else
 					rt++;
@@ -533,20 +531,20 @@ int PPViewAccturn::InitViewItem(const TempAccturnGrpngTbl::Rec * pATGRec, Acctur
 		pItem->CurID  = pATGRec->CurID;
 		pItem->Amount = pATGRec->Amount;
 		if(oneof2(Filt.GrpAco, ACO_1, ACO_2)) {
-			pItem->DbtID.ac = pATGRec->DbtAccID;
-			pItem->CrdID.ac = pATGRec->CrdAccID;
+			pItem->DbtID.AcID = pATGRec->DbtAccID;
+			pItem->CrdID.AcID = pATGRec->CrdAccID;
 		}
 		else {
 			AcctRelTbl::Rec rec;
 			if(P_ATC->AccRel.Fetch(pATGRec->DbtAccID, &rec) > 0) {
 				pItem->DbtAccRelID = rec.ID;
-				pItem->DbtID.ac = rec.AccID;
-				pItem->DbtID.ar = rec.ArticleID;
+				pItem->DbtID.AcID = rec.AccID;
+				pItem->DbtID.ArID = rec.ArticleID;
 			}
 			if(P_ATC->AccRel.Fetch(pATGRec->CrdAccID, &rec) > 0) {
 				pItem->CrdAccRelID = rec.ID;
-				pItem->CrdID.ac = rec.AccID;
-				pItem->CrdID.ar = rec.ArticleID;
+				pItem->CrdID.AcID = rec.AccID;
+				pItem->CrdID.ArID = rec.ArticleID;
 			}
 		}
 	}
@@ -798,7 +796,7 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 		THROW(CheckTblPtr(p_grp_tbl = new TempAccturnGrpngTbl(P_TmpAGTbl->GetName())));
 		PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, p_grp_tbl->CurID);
 		// @v12.5.1 {
-		q = & Select_(
+		q = &Select_(
 			p_grp_tbl->Dt,          // #00
 			p_grp_tbl->DbtAccID,    // #01
 			p_grp_tbl->CrdAccID,    // #02
@@ -816,7 +814,7 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 		q->addField(p_grp_tbl->Count);       // #13
 		q->addField(p_grp_tbl->Amount);      // #14
 		// } @v12.5.1 
-		/*q = & Select_(
+		/*q = &Select_(
 			p_grp_tbl->Dt,          // #00
 			p_grp_tbl->DbtAccID,    // #01
 			p_grp_tbl->CrdAccID,    // #02
@@ -862,7 +860,7 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 			dbe_rel_restrict.push(static_cast<DBFunc>(PPViewAccturn::DynFuncCheckRelRestrictions));
 		}
 		// @v12.5.1 {
-		q = & Select_(
+		q = &Select_(
 			at->BillID,             // #00
 			at->Dt,                 // #01
 			at->RByBill,            // #02
@@ -871,12 +869,11 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 		q->addField(dbe_acc_dbt);   // #04
 		q->addField(dbe_acc_crd);   // #05
 		q->addField(at->Amount);    // #06
-			// @v11.1.12 q->addField(bll->Memo); // #07
-		q->addField(dbe_memo);      // #07 @v11.1.12
+		q->addField(dbe_memo);      // #07
 		q->addField(dbe_cur);       // #08
 		q->addField(dbe_oprkind);   // #09
 		// } @v12.5.1 
-		/* @v12.5.1 q = & Select_(
+		/* @v12.5.1 q = &Select_(
 			at->BillID,             // #00
 			at->Dt,                 // #01
 			at->RByBill,            // #02

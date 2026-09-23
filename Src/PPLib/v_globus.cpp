@@ -149,7 +149,7 @@ int FASTCALL PPViewGlobalUserAcc::NextIteration(GlobalUserAccViewItem * pItem)
 	}
 	// } @v12.2.0
 	// @v12.5.1 {
-	q = & Select_(
+	q = &Select_(
 		t->ID,            // #0
 		0L);
 	q->addField(t->Name);         // #1
@@ -157,7 +157,7 @@ int FASTCALL PPViewGlobalUserAcc::NextIteration(GlobalUserAccViewItem * pItem)
 	q->addField(t->Guid);         // #3
 	q->addField(dbe_svc);         // #4
 	// } @v12.5.1 
-	/* @v12.5.1 q = & Select_(
+	/* @v12.5.1 q = &Select_(
 			t->ID,            // #0
 			t->Name,          // #1
 			dbe_psn,          // #2

@@ -473,10 +473,10 @@ static const SIntToSymbTabEntry StyloQFaceTagNameList[] = {
 	{ StyloQFace::tagRuSnils,         "rusnils" },
 	{ StyloQFace::tagExpiryPeriodSec, "expiryperiodsec" },
 	{ StyloQFace::tagExpiryEpochSec,  "expiryepochsec" },
-	{ StyloQFace::tagEMail,           "email" }, // @v11.3.2
-	{ StyloQFace::tagVerifiability,   "verifiability" }, // @v11.3.2
-	{ StyloQFace::tagStatus,          "status" }, // @v11.3.6
-	{ StyloQFace::tagImageBlobSignature, "imgblobs" }, // @v11.3.8
+	{ StyloQFace::tagEMail,           "email" },
+	{ StyloQFace::tagVerifiability,   "verifiability" },
+	{ StyloQFace::tagStatus,          "status" },
+	{ StyloQFace::tagImageBlobSignature, "imgblobs" },
 };
 
 int StyloQFace::FromJsonObject(const SJson * pJsObj)

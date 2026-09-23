@@ -342,7 +342,7 @@ DBQuery * PPViewObjSync::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	}
 	PPDbqFuncPool::InitLongFunc(dbe_objtitle, PPDbqFuncPool::IdObjTitle, t->ObjType);
 	// @v12.5.1 {
-	q = & Select_(
+	q = &Select_(
 		t->ObjType,    // #0
 		t->ObjID,      // #1
 		t->CommIdPfx,  // #2
@@ -355,7 +355,7 @@ DBQuery * PPViewObjSync::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	q->addField(dbe_objtitle); // #8
 	q->addField(t->Flags);     // #9
 	// } @v12.5.1 
-	/*q = & Select_(
+	/*q = &Select_(
 		t->ObjType,    // #0
 		t->ObjID,      // #1
 		t->CommIdPfx,  // #2
@@ -668,7 +668,7 @@ DBQuery * PPViewObjSyncCmp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 		dbe_commid.push(static_cast<DBFunc>(PPDbqFuncPool::IdCommSyncId));
 	}
 	// @v12.5.1 {
-	q = & Select_(
+	q = &Select_(
 		p_t->ObjType,   // #0
 		p_t->DestID,    // #1
 		p_t->CommIdPfx, // #2
@@ -685,7 +685,7 @@ DBQuery * PPViewObjSyncCmp::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 	q->addField(p_t->DestModDt); // #12
 	q->addField(p_t->DestModTm); // #13
 	// } @v12.5.1 
-	/*q = & Select_(
+	/*q = &Select_(
 		p_t->ObjType,   // #0
 		p_t->DestID,    // #1
 		p_t->CommIdPfx, // #2

@@ -1,5 +1,5 @@
 // V_PAYPLN.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 // Plan of Payments View
 //
@@ -522,7 +522,7 @@ DBQuery * PPViewPaymPlan::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			dbe_cycle.push(dbconst((long)&CycleList)); // @x64crit
 			dbe_cycle.push(static_cast<DBFunc>(PPDbqFuncPool::IdFormatCycle));
 		}
-		q = & Select_(
+		q = &Select_(
 			t->BillID, // #00
 			t->ObjID,  // #01
 			t->Dt,     // #02
@@ -530,8 +530,9 @@ DBQuery * PPViewPaymPlan::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 			t->Amount, // #04
 			t->Paym,   // #05
 			t->Debt,   // #06
-			dbe_cycle, // #07
-			0L).from(t, 0L);
+			0L);
+		q->addField(dbe_cycle); // #07
+		q->from(t, 0L);
 		THROW(CheckQueryPtr(q));
 	}
 	CATCH

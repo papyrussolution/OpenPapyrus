@@ -2449,6 +2449,7 @@ public:
 		SetupCalDate(CTLCAL_PSNFLT_CASDT, CTL_PSNFLT_CASDT); // @v12.2.2
 		SetupCalPeriod(CTLCAL_PSNFLT_NEWCLIPERIOD, CTL_PSNFLT_NEWCLIPERIOD);
 		enableCommand(cmAdvOptions, true);
+		PPSetupLocalStateWordSelectorOnInputLine(this, DLG_PSNFLT, CTL_PSNFLT_NAMESTR); // @v12.7.9
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -2474,7 +2475,7 @@ public:
 			disableCtrl(CTL_PSNFLT_EMPTY, true);
 		Data.GetExtssData(PersonFilt::extssNameText, temp_buf);
 		setCtrlString(CTL_PSNFLT_NAMESTR, temp_buf);
-		SetupWordSelector(CTL_PSNFLT_NAMESTR, new TextHistorySelExtra("personfilt-nametext-common"), 0, 2, WordSel_ExtraBlock::fFreeText);
+		// @v12.7.9 SetupWordSelector(CTL_PSNFLT_NAMESTR, new TextHistorySelExtra("personfilt-nametext-common"), 0, 2, WordSel_ExtraBlock::fFreeText);
 		// @v12.7.5 setCtrlUInt16(CTL_PSNFLT_VATFREE, BIN(Data.Flags & PersonFilt::fVatFree));
 		AddClusterAssoc(CTL_PSNFLT_FLAGS, 0, PersonFilt::fVatFree); // @v12.7.5 
 		AddClusterAssoc(CTL_PSNFLT_FLAGS, 1, PersonFilt::fTagsCrsstab); // @v12.7.5 0-->1
@@ -3310,7 +3311,7 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 			PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone, tmp_pt->PhoneP, &StrPool); // @v12.1.11
 			PPDbqFuncPool::InitStrPoolRefFunc(dbe_email, tmp_pt->EMailP, &StrPool); // @v12.1.11
 			// @v12.5.12 {
-			q = & Select_(
+			q = &Select_(
 				p->ID,             // #0
 				tmp_pt->TabID,     // #1 ИД адреса
 				p->Name,           // #2 Наименование персоналии
@@ -3326,7 +3327,7 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 			q->addField(dbe_email);         // #11 @v12.1.11
 			q->addField(tmp_pt->RegNumber); // #12 @v12.1.11 либо текстовое представление тега (PPPSNATTR_TAG), либо номер регистрационного документа (PPPSNATTR_REGISTER)
 			// } @v12.5.12 
-			/* @v12.5.12 q = & Select_(
+			/* @v12.5.12 q = &Select_(
 				p->ID,             // #0
 				tmp_pt->TabID,     // #1 ИД адреса
 				p->Name,           // #2 Наименование персоналии
@@ -3357,7 +3358,7 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_addr,  tmp_pt->AddressP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_raddr, tmp_pt->RAddressP, &StrPool);
 						// @v12.5.12 {
-						q = & Select_(
+						q = &Select_(
 							p->ID,                         // #0 
 							p->Name,                       // #1
 							0L);
@@ -3366,7 +3367,7 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 						q->addField(dbe_raddr); // #4
 						q->addField(p->Flags);  // #5
 						// } @v12.5.12 
-						/* @v12.5.12 q = & Select_(
+						/* @v12.5.12 q = &Select_(
 							p->ID,     // #0 
 							p->Name,   // #1
 							dbe_phone, // #2  
@@ -3381,14 +3382,14 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 					{
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone, tmp_pt->EMailP, &StrPool); // @v12.1.11 tmp_pt->PhoneP-->tmp_pt->EMailP
 						// @v12.5.12 {
-						q = & Select_(
+						q = &Select_(
 							p->ID,     // #0
 							p->Name,   // #1 
 							0L);
 						q->addField(dbe_phone); // #2
 						q->addField(p->Flags);  // #3
 						// } @v12.5.12 
-						/* @v12.5.12 q = & Select_(
+						/* @v12.5.12 q = &Select_(
 							p->ID,     // #0
 							p->Name,   // #1 
 							dbe_phone, // #2
@@ -3408,7 +3409,7 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_fiashseguid,  tmp_pt->FiasHouseGuidP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_addrtype,  tmp_pt->AddrTypeP, &StrPool); // @v12.1.11
 						// @v12.5.12 {
-						q = & Select_(
+						q = &Select_(
 							p->ID,                // #0
 							tmp_pt->TabID,        // #1 ИД адреса
 							0L);
@@ -3422,7 +3423,7 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 						q->addField(dbe_fiashseguid); // #9
 						// } @v12.5.12 
 						/* @v12.5.12 
-						q = & Select_(
+						q = &Select_(
 							p->ID,                // #0
 							tmp_pt->TabID,        // #1 ИД адреса
 							p->Name,              // #2 Наименование персоналии
@@ -3447,7 +3448,7 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkname,  tmp_pt->BnkNameP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_addrtype,  tmp_pt->AddrTypeP, &StrPool); // @v12.1.11
 						// @v12.5.12 {
-						q = & Select_(
+						q = &Select_(
 							tmp_pt->ID,        // #0
 							tmp_pt->TabID,     // #1 ИД адреса
 							tmp_pt->Name,      // #2 Наименование персоналии
@@ -3460,7 +3461,7 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 						q->addField(dbe_bnkname);  // #8 Контакт (ассоциированный с адресом)
 						// } @v12.5.12
 						/* @v12.5.12 
-						q = & Select_(
+						q = &Select_(
 							tmp_pt->ID,        // #0
 							tmp_pt->TabID,     // #1 ИД адреса
 							tmp_pt->Name,      // #2 Наименование персоналии
@@ -3480,7 +3481,7 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_bnkacct, tmp_pt->BnkAcctP, &StrPool);
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_phone,  tmp_pt->PhoneP, &StrPool);
 						// @v12.5.12 {
-						q = & Select_(
+						q = &Select_(
 							p->ID,               // #0
 							tmp_pt->TabID,       // #1
 							p->Name,             // #2
@@ -3493,7 +3494,7 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 						q->addField(p->Flags);            // #8
 						// } @v12.5.12
 						/* @v12.5.12 
-						q = & Select_(
+						q = &Select_(
 							p->ID,               // #0
 							tmp_pt->TabID,       // #1
 							p->Name,             // #2
@@ -3511,7 +3512,7 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 					{
 						PPDbqFuncPool::InitStrPoolRefFunc(dbe_regser,  tmp_pt->RegSerialP, &StrPool);
 						// @v12.5.12 {
-						q = & Select_(
+						q = &Select_(
 							p->ID,               // #0
 							p->Name,             // #1
 							0L);
@@ -3522,7 +3523,7 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 						q->addField(p->Flags);            // #6
 						// } @v12.5.12 
 						/* @v12.5.12 
-						q = & Select_(
+						q = &Select_(
 							p->ID,               // #0
 							p->Name,             // #1
 							dbe_regser,          // #2  
@@ -3536,7 +3537,7 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 					break;
 				case PPPSNATTR_TAG:
 					{
-						q = & Select_(
+						q = &Select_(
 							p->ID,             // #0
 							p->Name,           // #1
 							tmp_pt->RegNumber, // #2
@@ -3552,24 +3553,13 @@ browser PERSON_INMEM north(100), 1, 1, "@{person_pl} {%s}", OWNER|GRID, 0
 						PPDbqFuncPool::InitObjNameFunc(dbe_status, PPDbqFuncPool::IdObjNamePersonStatus, p->Status);
 						PPDbqFuncPool::InitObjNameFunc(dbe_cat,    PPDbqFuncPool::IdObjNamePersonCat,    p->CatID);
 						PPDbqFuncPool::InitObjNameFunc(dbe_memo,   PPDbqFuncPool::IdObjMemoPerson,       p->ID);
-						// @v12.5.0 {
-						q = & Select_(p->ID, // #0
+						q = &Select_(p->ID, // #0
 							p->Name,         // #1
 							0L); 
 						q->addField(dbe_status); // #2
 						q->addField(dbe_cat);    // #3
 						q->addField(dbe_memo);   // #4
 						q->addField(p->Flags);   // #5
-						// } @v12.5.0 
-						/* @v12.5.0 q = & Select_(
-							p->ID,      // #0
-							p->Name,    // #1 
-							dbe_status, // #2
-							dbe_cat,    // #3
-							dbe_memo,   // #4
-							p->Flags,   // #5
-							0L);*/
-
 						// @v12.2.2 {
 						if(Filt.Flags & PersonFilt::fCliActivityStats) {
 							DBE    dbe_cas_evntcount;

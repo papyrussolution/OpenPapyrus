@@ -2334,6 +2334,44 @@ int  PPObjGoods::FetchSingleBarcode(PPID id, SString & rBuf) { return P_Tbl->Fet
 bool PPObjGoods::IsAsset(PPID goodsID) { return CheckFlag(goodsID, GF_ASSETS); }
 bool PPObjGoods::IsGeneric(PPID goodsID) { return CheckFlag(goodsID, GF_GENERIC); }
 
+PPObjGoods::ExportDataCodeSet & PPObjGoods::ExportDataCodeSet::Z()
+{
+	Code.Z();
+	CodeForMarking.Z();
+	CodeForExchange.Z();
+	return *this;
+}
+
+int PPObjGoods::GetExportDataCodeSet(PPID id, ExportDataCodeSet & rSet) // @v12.7.9
+{
+	rSet.Z();
+	int    ok = -1;
+	{
+		SString temp_buf;
+		BarcodeArray bc_list;
+		P_Tbl->ReadBarcodes(id, bc_list);
+		bc_list.GetSingle(BarcodeArray::sifValidEanUpcOnly, temp_buf);
+		if(temp_buf.NotEmpty()) {
+			rSet.CodeForMarking = temp_buf;
+			rSet.CodeForExchange = temp_buf;
+			rSet.Code = temp_buf;
+			ok = 1;
+		}
+		else {
+			bc_list.GetSingle(0, rSet.Code);
+			if(rSet.Code.NotEmpty())
+				ok = 2;
+		}
+		if(rSet.Code.IsEmpty()) {
+			rSet.Code.CatLongZ(id, 11);
+			ok = 3;
+		}
+		else
+			rSet.Code.Transf(CTRANSF_INNER_TO_OUTER);
+	}
+	return ok;
+}
+
 int PPObjGoods::IsEqualOrBelongToGeneric(PPID goodsID, PPID otherGoodsID)
 {
 	int    ok = 0;
@@ -3134,7 +3172,7 @@ ListBoxDef * PPObjGoods::_Selector2(ListBoxDef * pDef, long parentID, long optio
 			if(dont_sel_generic)
 				dbq = &(*dbq && (t->Flags & GF_GENERIC) == 0L); // @memleak
 		}
-		p_q = & Select_(t->ID, ((options & selfByName) ? t->Name : t->Abbr), 0L).from(t, 0L);
+		p_q = &Select_(t->ID, ((options & selfByName) ? t->Name : t->Abbr), 0L).from(t, 0L);
 		p_q->where(*dbq).orderBy(t->Kind, ((options & selfByName) ? t->Name : t->Abbr), 0L);
 	}
 	if(!pDef) {

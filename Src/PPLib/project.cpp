@@ -774,7 +774,7 @@ DBQuery * PPViewProject::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_descr.push(static_cast<DBFunc>(PPDbqFuncPool::IdUnxText));
 	}
 	// @v12.5.1 {
-	q = & Select_(
+	q = &Select_(
 		t->ID,          // #00
 		t->Name,        // #01
 		t->Code,        // #02
@@ -788,7 +788,7 @@ DBQuery * PPViewProject::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	q->addField(dbe_mgr);   // #09
 	q->addField(dbe_descr); // #10
 	// } @v12.5.1 
-	/* @v12.5.1 q = & Select_(
+	/* @v12.5.1 q = &Select_(
 		t->ID,          // #00
 		t->Name,        // #01
 		t->Code,        // #02
@@ -2761,8 +2761,8 @@ public:
 			selectCtrl(CTL_TODO_START);
 		}
 		SetupStringCombo(this, CTLSEL_TODO_STATUS, str_id, Data.Rec.Status);
-		SetupWordSelector(CTL_TODO_DESCR, new TextHistorySelExtra("todo-descr-common"), 0, 2, WordSel_ExtraBlock::fFreeText);
-		SetupWordSelector(CTL_TODO_MEMO, new TextHistorySelExtra("todo-memo-common"), 0, 2, WordSel_ExtraBlock::fFreeText);
+		// @v12.7.9 SetupWordSelector(CTL_TODO_DESCR, new TextHistorySelExtra("todo-descr-common"), 0, 2, WordSel_ExtraBlock::fFreeText);
+		// @v12.7.9 SetupWordSelector(CTL_TODO_MEMO, new TextHistorySelExtra("todo-memo-common"), 0, 2, WordSel_ExtraBlock::fFreeText);
 		setCtrlString(CTL_TODO_DESCR,   Data.SDescr);
 		setCtrlString(CTL_TODO_MEMO,    Data.SMemo);
 		setCtrlData(CTL_TODO_AMOUNT, &Data.Rec.Amount);

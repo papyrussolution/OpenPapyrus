@@ -753,7 +753,7 @@ DBQuery * PPViewGoodsTaxAnalyze::CreateBrowserQuery(uint * pBrwId, SString *)
 	THROW(CheckTblPtr(t));
 	if(Filt.Flags & GoodsTaxAnalyzeFilt::fLedgerByLots) {
 		brw_id = BROWSER_GOODSTAXANLZ_PIL;
-		q = & Select_(
+		q = &Select_(
 			t->GoodsID,     // #0
 			t->LotID,       // #1
 			t->Dt,          // #2
@@ -762,14 +762,15 @@ DBQuery * PPViewGoodsTaxAnalyze::CreateBrowserQuery(uint * pBrwId, SString *)
 			t->TrnovrCost,  // #5
 			t->C_VATSum,    // #6
 			t->C_STaxSum,   // #7
-			(t->TrnovrCost + t->C_VATSum + t->C_STaxSum) * t->Qtty,     // #8
-			(t->TrnovrCost + t->C_VATSum + t->C_STaxSum) * t->ExpQtty,  // #9
-			(t->TrnovrCost + t->C_VATSum + t->C_STaxSum) * t->Rest,     // #10
-			0L).from(t, 0L).orderBy(t->Dt, t->Name, 0L);
+			0L);
+		q->addField((t->TrnovrCost + t->C_VATSum + t->C_STaxSum) * t->Qtty);    // #8
+		q->addField((t->TrnovrCost + t->C_VATSum + t->C_STaxSum) * t->ExpQtty); // #9
+		q->addField((t->TrnovrCost + t->C_VATSum + t->C_STaxSum) * t->Rest);    // #10
+		q->from(t, 0L).orderBy(t->Dt, t->Name, 0L);
 	}
 	else {
 		brw_id = Filt.HasCycleFlags() ? BROWSER_GOODSTAXANLZ_D : BROWSER_GOODSTAXANLZ;
-		q = & Select_(
+		q = &Select_(
 			t->GoodsID,     // #0
 			t->Dt,          // #1
 			t->Name,        // #2

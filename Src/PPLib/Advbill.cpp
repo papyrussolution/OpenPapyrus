@@ -219,8 +219,7 @@ public:
 		AcctCtrlGroup * p_acc_grp = new AcctCtrlGroup(CTL_ADVBITEM_ACC, CTL_ADVBITEM_ART, CTLSEL_ADVBITEM_ACCNAME, CTLSEL_ADVBITEM_ARTNAME);
 		THROW_MEM(p_acc_grp);
 		addGroup(ctlgroupAcc, p_acc_grp);
-		acc_rec.AcctId.ac   = Data.AccID;
-		acc_rec.AcctId.ar   = Data.ArID;
+		acc_rec.AcctId.Set(Data.AccID, Data.ArID);
 		BillObj->atobj->P_Tbl->AccObj.InitAccSheetForAcctID(&acc_rec.AcctId, &acc_rec.AccSheetID);
 		acc_rec.AccSelParam = ACY_SEL_BAL;
 		setGroupData(ctlgroupAcc, &acc_rec);
@@ -246,8 +245,8 @@ public:
 		getCtrlData(CTL_ADVBITEM_AMOUNT, &Data.Amount);
 		getCtrlData(CTL_ADVBITEM_MEMO,   Data.Memo);
 		getGroupData(ctlgroupAcc, &acc_rec);
-		Data.AccID = acc_rec.AcctId.ac;
-		Data.ArID  = acc_rec.AcctId.ar;
+		Data.AccID = acc_rec.AcctId.AcID;
+		Data.ArID  = acc_rec.AcctId.ArID;
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
 		return ok;
@@ -300,8 +299,8 @@ void AdvBillItemDialog::editLink()
 					getCtrlData(CTL_ADVBITEM_AMOUNT, &Data.Amount);
 					getCtrlData(CTL_ADVBITEM_MEMO,   Data.Memo);
 					getGroupData(ctlgroupAcc, &acc_rec);
-					Data.AccID = acc_rec.AcctId.ac;
-					Data.ArID  = acc_rec.AcctId.ar;
+					Data.AccID = acc_rec.AcctId.AcID;
+					Data.ArID  = acc_rec.AcctId.ArID;
 				}
 				const  PPID current_loc_id = LConfig.Location;
 				PPID   op_id = abk_rec.LinkOpID;
@@ -609,11 +608,11 @@ int AdvBillItemBrowser::update(int pos)
 static int SetAdvBillItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItemList::Item * pItem, PPObjBill * pBObj)
 {
 	int    ok = 1;
-	SString result_buf, temp_buf;
+	SString result_buf;
+	SString temp_buf;
 	char   acc_buf[64];
-	AcctID acctid;
+	AccIdent acctid;
 	Acct   acct;
-
 	memzero(pEntry, sizeof(AdvBillItemEntry));
 	THROW_INVARG(pEntry && pItem && pBObj);
 	pEntry->Dt = pItem->AdvDt;
@@ -621,8 +620,8 @@ static int SetAdvBillItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItemLis
 	pEntry->Amount = pItem->Amount;
 	GetObjectName(PPOBJ_ADVBILLKIND, pItem->AdvBillKindID, temp_buf);
 	temp_buf.CopyTo(pEntry->BillKind, sizeof(pEntry->BillKind));
-	acctid.ac = pItem->AccID;
-	acctid.ar = pItem->ArID;
+	acctid.AcID = pItem->AccID;
+	acctid.ArID = pItem->ArID;
 	pBObj->atobj->P_Tbl->ConvertAcctID(acctid, &acct, 0, 0);
 	acct.ToStr(ACCF_DEFAULT, acc_buf);
 	GetAcctIDName(acctid, 0, temp_buf);

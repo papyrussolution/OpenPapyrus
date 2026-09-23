@@ -6,7 +6,7 @@
 #include <pp.h>
 #pragma hdrstop
 
-PPAccTurn::PPAccTurn() : DbtSheet(0), CrdSheet(0), Date(ZERODATE), BillID(0), RByBill(0), Reserve(0), CurID(0), CRate(0.0), Amount(0.0), Opr(0), Flags(0)
+PPAccTurn::PPAccTurn() : DbtAcsID(0), CrdAcsID(0), Date(ZERODATE), BillID(0), RByBill(0), Reserve(0), CurID(0), CRate(0.0), Amount(0.0), Opr(0), Flags(0)
 {
 	BillCode[0] = 0;
 }
@@ -14,9 +14,9 @@ PPAccTurn::PPAccTurn() : DbtSheet(0), CrdSheet(0), Date(ZERODATE), BillID(0), RB
 PPAccTurn & PPAccTurn::Z()
 {
 	DbtID.Z();
-	DbtSheet = 0;
+	DbtAcsID = 0;
 	CrdID.Z();
-	CrdSheet = 0;
+	CrdAcsID = 0;
 	Date.Z();
 	BillCode[0] = 0;
 	BillID = 0;
@@ -32,8 +32,8 @@ PPAccTurn & PPAccTurn::Z()
 
 bool FASTCALL PPAccTurn::IsEq(const PPAccTurn & rS) const
 {
-	// DbtSheet не участвует в проверке эквивалентности, поскольку есть избыточное поле и инициализируется по DbtID 
-	// CrdSheet не участвует в проверке эквивалентности, поскольку есть избыточное поле и инициализируется по CrdID
+	// DbtAcsID не участвует в проверке эквивалентности, поскольку есть избыточное поле и инициализируется по DbtID 
+	// CrdAcsID не участвует в проверке эквивалентности, поскольку есть избыточное поле и инициализируется по CrdID
 	bool   eq = true;
 	if(DbtID != rS.DbtID)
 		eq = false;
@@ -107,7 +107,7 @@ int PPAccTurn::GetNonBalancedFlow() const
 void PPAccTurn::SwapDbtCrd()
 {
 	SExchange(&DbtID, &CrdID);
-	SExchange(&DbtSheet, &CrdSheet);
+	SExchange(&DbtAcsID, &CrdAcsID);
 }
 //
 //
@@ -137,8 +137,8 @@ public:
 	PPID   ObjType;       // Const=PPOBJ_OPRKIND
 	PPID   ObjID;         // ->Ref(PPOBJ_OPRKIND)
 	PPID   ID;            // Номер шаблона для операции (1..PP_MAXATURNTEMPLATES)
-	AcctID DbtID;
-	AcctID CrdID;
+	AccIdent DbtID;
+	AccIdent CrdID;
 	long   Flags;
 	char   Expr[52];      // Формула для суммы проводки (текст)
 	//
@@ -343,24 +343,21 @@ int PPAccTurnTempl::GetSubstObjects(ATBillParam * pParam, ATSubstObjects * pAtso
 				THROW(GetObjByVar(*p, pParam, &temp_ar_id));
 				if(byAcc) {
 					if(*p == PPSYM_ADVLNACC) {
-						item.Aid.ac = temp_ar_id;
-						item.Aid.ar = 0;
+						item.Aid.Set(temp_ar_id, 0);
 					}
 					else if(IsAccAssocArticle(temp_ar_id, &temp_ac_id)) {
-						item.Aid.ac = temp_ac_id;
-						item.Aid.ar = temp_ar_id;
+						item.Aid.Set(temp_ac_id, temp_ar_id);
 					}
 					else {
 					}
 				}
 				else if(*p == PPSYM_ADVLNACC) {
-					item.Aid.ar = 0;
+					item.Aid.ArID = 0;
 				}
 				else {
-					item.Aid.ac = temp_ac_id;
-					item.Aid.ar = temp_ar_id;
+					item.Aid.Set(temp_ac_id, temp_ar_id);
 				}
-				if(item.Aid.ac || item.Aid.ar) {
+				if(item.Aid.AcID || item.Aid.ArID) {
 					if(ord == 0)
 						pAtso->PrimList.insert(&item);
 					else
@@ -372,14 +369,14 @@ int PPAccTurnTempl::GetSubstObjects(ATBillParam * pParam, ATSubstObjects * pAtso
 	if(!is_prim_list_present) {
 		if(pParam->P_Pack->Rec.LocID) {
 			ATSubstObjects::Item item;
-			THROW(item.Aid.ar = PPObjLocation::WarehouseToObj(pParam->P_Pack->Rec.LocID));
+			THROW(item.Aid.ArID = PPObjLocation::WarehouseToObj(pParam->P_Pack->Rec.LocID));
 			item.AcsID = LConfig.LocAccSheetID;
 			pAtso->PrimList.insert(&item);
 		}
 	}
 	if(!is_foreign_list_present) {
 		ATSubstObjects::Item item;
-		item.Aid.ar = pParam->P_Pack->Rec.Object;
+		item.Aid.ArID = pParam->P_Pack->Rec.Object;
 		item.AcsID = pParam->P_Pack->AccSheetID;
 		pAtso->ForeignList.insert(&item);
 	}
@@ -387,9 +384,9 @@ int PPAccTurnTempl::GetSubstObjects(ATBillParam * pParam, ATSubstObjects * pAtso
 		uint c = pAtso->PrimList.getCount();
 		if(c) do {
 			ATSubstObjects::Item & r_item = pAtso->PrimList.at(--c);
-			if(byAcc && !r_item.Aid.ac && !IsAccAssocArticle(r_item.Aid.ar, &r_item.Aid.ac))
+			if(byAcc && !r_item.Aid.AcID && !IsAccAssocArticle(r_item.Aid.ArID, &r_item.Aid.AcID))
 				pAtso->PrimList.atFree(c);
-			else if(!byAcc && GetArticleSheetID(r_item.Aid.ar, &r_item.AcsID) <= 0)
+			else if(!byAcc && GetArticleSheetID(r_item.Aid.ArID, &r_item.AcsID) <= 0)
 				pAtso->PrimList.atFree(c);
 		} while(c);
 	}
@@ -397,9 +394,9 @@ int PPAccTurnTempl::GetSubstObjects(ATBillParam * pParam, ATSubstObjects * pAtso
 		uint c = pAtso->ForeignList.getCount();
 		if(c) do {
 			ATSubstObjects::Item & r_item = pAtso->ForeignList.at(--c);
-			if(byAcc && !r_item.Aid.ac && !IsAccAssocArticle(r_item.Aid.ar, &r_item.Aid.ac))
+			if(byAcc && !r_item.Aid.AcID && !IsAccAssocArticle(r_item.Aid.ArID, &r_item.Aid.AcID))
 				pAtso->ForeignList.atFree(c);
-			else if(GetArticleSheetID(r_item.Aid.ar, &r_item.AcsID) <= 0)
+			else if(GetArticleSheetID(r_item.Aid.ArID, &r_item.AcsID) <= 0)
 				pAtso->ForeignList.atFree(c);
 		} while(c);
 	}
@@ -408,23 +405,23 @@ int PPAccTurnTempl::GetSubstObjects(ATBillParam * pParam, ATSubstObjects * pAtso
 }
 
 	// <<PPAccTurnTempl::SetupAccounts()
-int PPAccTurnTempl::SubstAcct(int side, PPAccTurn * at, const ATSubstObjects * atso, const AcctID * pDbt, const AcctID * pCrd) const
+int PPAccTurnTempl::SubstAcct(int side, PPAccTurn * at, const ATSubstObjects * atso, const AccIdent * pDbt, const AccIdent * pCrd) const
 {
 	int      ok    = 1;
 	PPObjBill * p_bobj(BillObj);
 	int      subst = 0;		// 1 - prim, 2 - foreign, 3 - both
-	PPID   & r_sheet_id  = (side == PPDEBIT) ? at->DbtSheet : at->CrdSheet;
-	AcctID & r_acctid = (side == PPDEBIT) ? at->DbtID    : at->CrdID;
+	PPID   & r_sheet_id  = (side == PPDEBIT) ? at->DbtAcsID : at->CrdAcsID;
+	AccIdent & r_acctid = (side == PPDEBIT) ? at->DbtID    : at->CrdID;
 	long     artfix = (side == PPDEBIT) ? ATTF_DARTFIX : ATTF_CARTFIX;
 	int      primOnCrd = (Flags & ATTF_PRIMONCREDIT) ? 1 : 0;
 	PPObjAccTurn * p_atobj = p_bobj->atobj;
 	PPAccount acrec;
-	r_acctid.ac = (side == PPDEBIT) ? pDbt->ac : pCrd->ac;
-	r_acctid.ar = (side == PPDEBIT) ? pDbt->ar : pCrd->ar;
+	r_acctid.AcID = (side == PPDEBIT) ? pDbt->AcID : pCrd->AcID;
+	r_acctid.ArID = (side == PPDEBIT) ? pDbt->ArID : pCrd->ArID;
 	if(!(Flags & artfix)) {
 		uint    prim_subst_pos = 0;
 		uint    foreign_subst_pos = 0;
-		THROW(p_atobj->P_Tbl->AccObj.Search(r_acctid.ac, &acrec) > 0);
+		THROW(p_atobj->P_Tbl->AccObj.Search(r_acctid.AcID, &acrec) > 0);
 		r_sheet_id = acrec.AccSheetID;
 		if(r_sheet_id != 0) {
 			{
@@ -457,21 +454,22 @@ int PPAccTurnTempl::SubstAcct(int side, PPAccTurn * at, const ATSubstObjects * a
 			if(subst) {
 				if(subst == 1) {
 					if(prim_subst_pos)
-						r_acctid.ar = atso->PrimList.at(prim_subst_pos-1).Aid.ar;
+						r_acctid.ArID = atso->PrimList.at(prim_subst_pos-1).Aid.ArID;
 				}
 				else {
 					if(foreign_subst_pos)
-						r_acctid.ar = atso->ForeignList.at(foreign_subst_pos-1).Aid.ar;
+						r_acctid.ArID = atso->ForeignList.at(foreign_subst_pos-1).Aid.ArID;
 				}
 			}
 			else {
 				PPID   foreign_ar_id = 0;
 				for(uint i = 0; i < atso->ForeignList.getCount(); i++) {
-					foreign_ar_id = atso->ForeignList.at(i).Aid.ar;
-					THROW(p_bobj->GetAlternateArticle(foreign_ar_id, r_sheet_id, &r_acctid.ar));
+					foreign_ar_id = atso->ForeignList.at(i).Aid.ArID;
+					THROW(p_bobj->GetAlternateArticle(foreign_ar_id, r_sheet_id, &r_acctid.ArID));
 				}
-				if(r_acctid.ar <= 0) {
-					SString msg_buf, name_buf;
+				if(r_acctid.ArID <= 0) {
+					SString msg_buf;
+					SString name_buf;
 					Acct   acct;
 					PPID   cur_id = 0;
 					p_atobj->ConvertAcctID(r_acctid, &acct, &cur_id, 0);
@@ -484,7 +482,7 @@ int PPAccTurnTempl::SubstAcct(int side, PPAccTurn * at, const ATSubstObjects * a
 			}
 		}
 		else
-			r_acctid.ar = 0;
+			r_acctid.ArID = 0;
 	}
 	CATCH
 		r_acctid.Z();
@@ -494,12 +492,12 @@ int PPAccTurnTempl::SubstAcct(int side, PPAccTurn * at, const ATSubstObjects * a
 }
 
 	// <<PPAccTurnTempl::SetupAccounts()
-int PPAccTurnTempl::ResolveAlias(int side, AcctID * pAcct, const ATSubstObjects * pAtso) const
+int PPAccTurnTempl::ResolveAlias(int side, AccIdent * pAcct, const ATSubstObjects * pAtso) const
 {
 	int    ok = 1;
 	PPObjAccount & r_acc_obj = BillObj->atobj->P_Tbl->AccObj;
 	PPAccount acc_rec;
-	if(pAcct->ac && r_acc_obj.Fetch(pAcct->ac, &acc_rec) > 0 && acc_rec.Type == ACY_ALIAS) {
+	if(pAcct->AcID && r_acc_obj.Fetch(pAcct->AcID, &acc_rec) > 0 && acc_rec.Type == ACY_ALIAS) {
 		LAssocArray alias_subst;
 		PPID   unresolved_ar_id = 0; // Для сообщения об ошибке
 		const  TSVector <ATSubstObjects::Item> * p_atso_list = 0;
@@ -512,11 +510,11 @@ int PPAccTurnTempl::ResolveAlias(int side, AcctID * pAcct, const ATSubstObjects 
 		assert(p_atso_list);
 		int    found = 0;
 		for(uint i = 0; !found && i < p_atso_list->getCount(); i++) {
-			const  PPID ar_id = p_atso_list->at(0).Aid.ar;
+			const  PPID ar_id = p_atso_list->at(0).Aid.ArID;
 			long  acc_id = 0;
 			alias_subst.clear();
-			if(PPObjArticle::GetAliasSubst(ar_id, &alias_subst) > 0 && alias_subst.Search(pAcct->ac, &acc_id, 0)) {
-				pAcct->ac = acc_id;
+			if(PPObjArticle::GetAliasSubst(ar_id, &alias_subst) > 0 && alias_subst.Search(pAcct->AcID, &acc_id, 0)) {
+				pAcct->AcID = acc_id;
 				found = 1;
 			}
 			else
@@ -544,8 +542,8 @@ int PPAccTurnTempl::SetupAccounts(ATBillParam & rParam, PPID curID, PPAccTurn * 
 	ATSubstObjects  atso;
 	PPObjAccount & r_acc_obj = BillObj->atobj->P_Tbl->AccObj;
 	PPAccount acc_rec;
-	AcctID dbt = DbtID;
-	AcctID crd = CrdID;
+	AccIdent dbt = DbtID;
+	AccIdent crd = CrdID;
 	if(curID != 0 && curID != LConfig.BaseCurID) {
 		rParam.P_Pack->Amounts.Get(PPAMT_CRATE, curID, &cur_rate);
 		if(cur_rate == 0.0)
@@ -558,8 +556,8 @@ int PPAccTurnTempl::SetupAccounts(ATBillParam & rParam, PPID curID, PPAccTurn * 
 		{
 			ATSubstObjects atso_alias;
 			int    is_atso_alias_inited = 0;
-			AcctID aid;
-			if(dbt.ac && r_acc_obj.Fetch(dbt.ac, &acc_rec) > 0 && acc_rec.Type == ACY_ALIAS) {
+			AccIdent aid;
+			if(dbt.AcID && r_acc_obj.Fetch(dbt.AcID, &acc_rec) > 0 && acc_rec.Type == ACY_ALIAS) {
 				int   r_alias = 0;
 				aid = dbt;
 				if(!is_atso_alias_inited) {
@@ -569,11 +567,11 @@ int PPAccTurnTempl::SetupAccounts(ATBillParam & rParam, PPID curID, PPAccTurn * 
 				r_alias = ResolveAlias(PPDEBIT, &aid, &atso_alias);
 				THROW(r_alias);
 				if(r_alias > 0)
-					dbt.ac = aid.ac;
+					dbt.AcID = aid.AcID;
 				else
 					ok = -1;
 			}
-			if(crd.ac && r_acc_obj.Fetch(crd.ac, &acc_rec) > 0 && acc_rec.Type == ACY_ALIAS) {
+			if(crd.AcID && r_acc_obj.Fetch(crd.AcID, &acc_rec) > 0 && acc_rec.Type == ACY_ALIAS) {
 				int   r_alias = 0;
 				aid = crd;
 				if(!is_atso_alias_inited) {
@@ -583,77 +581,77 @@ int PPAccTurnTempl::SetupAccounts(ATBillParam & rParam, PPID curID, PPAccTurn * 
 				r_alias = ResolveAlias(PPCREDIT, &aid, &atso_alias);
 				THROW(r_alias);
 				if(r_alias > 0)
-					crd.ac = aid.ac;
+					crd.AcID = aid.AcID;
 				else
 					ok = -1;
 			}
 		}
 		if(ok > 0) {
-			if(dbt.ac == 0 || crd.ac == 0) {
+			if(dbt.AcID == 0 || crd.AcID == 0) {
 				ATSubstObjects acc_atso;
 				THROW(GetSubstObjects(&rParam, &acc_atso, 1));
-				if(dbt.ac) {
-					if(!acc_atso.ForeignList.getCount() || !acc_atso.ForeignList.at(0).Aid.ac) {
+				if(dbt.AcID) {
+					if(!acc_atso.ForeignList.getCount() || !acc_atso.ForeignList.at(0).Aid.AcID) {
 						if(acc_atso.PrimList.getCount())
-							crd.ac = acc_atso.PrimList.at(0).Aid.ac;
+							crd.AcID = acc_atso.PrimList.at(0).Aid.AcID;
 					}
-					else if(!acc_atso.PrimList.getCount() || !acc_atso.PrimList.at(0).Aid.ac) {
+					else if(!acc_atso.PrimList.getCount() || !acc_atso.PrimList.at(0).Aid.AcID) {
 						if(acc_atso.ForeignList.getCount())
-							crd.ac = acc_atso.ForeignList.at(0).Aid.ac;
+							crd.AcID = acc_atso.ForeignList.at(0).Aid.AcID;
 					}
 					else if(Flags & ATTF_PRIMONCREDIT) {
 						if(acc_atso.PrimList.getCount())
-							crd.ac = acc_atso.PrimList.at(0).Aid.ac;
+							crd.AcID = acc_atso.PrimList.at(0).Aid.AcID;
 					}
 					else {
 						if(acc_atso.ForeignList.getCount())
-							crd.ac = acc_atso.ForeignList.at(0).Aid.ac;
+							crd.AcID = acc_atso.ForeignList.at(0).Aid.AcID;
 					}
 				}
-				else if(crd.ac) {
-					if(!acc_atso.ForeignList.getCount() || !acc_atso.ForeignList.at(0).Aid.ac) {
+				else if(crd.AcID) {
+					if(!acc_atso.ForeignList.getCount() || !acc_atso.ForeignList.at(0).Aid.AcID) {
 						if(acc_atso.PrimList.getCount())
-							dbt.ac = acc_atso.PrimList.at(0).Aid.ac;
+							dbt.AcID = acc_atso.PrimList.at(0).Aid.AcID;
 					}
-					else if(!acc_atso.PrimList.getCount() || !acc_atso.PrimList.at(0).Aid.ac) {
+					else if(!acc_atso.PrimList.getCount() || !acc_atso.PrimList.at(0).Aid.AcID) {
 						if(acc_atso.ForeignList.getCount())
-							dbt.ac = acc_atso.ForeignList.at(0).Aid.ac;
+							dbt.AcID = acc_atso.ForeignList.at(0).Aid.AcID;
 					}
 					else if(Flags & ATTF_PRIMONCREDIT) {
 						if(acc_atso.ForeignList.getCount())
-							dbt.ac = acc_atso.ForeignList.at(0).Aid.ac;
+							dbt.AcID = acc_atso.ForeignList.at(0).Aid.AcID;
 					}
 					else {
 						if(acc_atso.PrimList.getCount())
-							dbt.ac = acc_atso.PrimList.at(0).Aid.ac;
+							dbt.AcID = acc_atso.PrimList.at(0).Aid.AcID;
 					}
 				}
-				else if(acc_atso.ForeignList.getCount() == 0 || acc_atso.ForeignList.at(0).Aid.ac == 0) {
+				else if(acc_atso.ForeignList.getCount() == 0 || acc_atso.ForeignList.at(0).Aid.AcID == 0) {
 					if(acc_atso.PrimList.getCount())
-						dbt.ac = crd.ac = acc_atso.PrimList.at(0).Aid.ac;
+						dbt.AcID = crd.AcID = acc_atso.PrimList.at(0).Aid.AcID;
 				}
-				else if(acc_atso.PrimList.getCount() == 0 || acc_atso.PrimList.at(0).Aid.ac == 0) {
+				else if(acc_atso.PrimList.getCount() == 0 || acc_atso.PrimList.at(0).Aid.AcID == 0) {
 					if(acc_atso.ForeignList.getCount())
-						dbt.ac = crd.ac = acc_atso.ForeignList.at(0).Aid.ac;
+						dbt.AcID = crd.AcID = acc_atso.ForeignList.at(0).Aid.AcID;
 				}
 				else if(Flags & ATTF_PRIMONCREDIT) {
 					if(acc_atso.ForeignList.getCount())
-						dbt.ac = acc_atso.ForeignList.at(0).Aid.ac;
+						dbt.AcID = acc_atso.ForeignList.at(0).Aid.AcID;
 					if(acc_atso.PrimList.getCount())
-						crd.ac = acc_atso.PrimList.at(0).Aid.ac;
+						crd.AcID = acc_atso.PrimList.at(0).Aid.AcID;
 				}
 				else {
 					if(acc_atso.PrimList.getCount())
-						dbt.ac = acc_atso.PrimList.at(0).Aid.ac;
+						dbt.AcID = acc_atso.PrimList.at(0).Aid.AcID;
 					if(acc_atso.ForeignList.getCount())
-						crd.ac = acc_atso.ForeignList.at(0).Aid.ac;
+						crd.AcID = acc_atso.ForeignList.at(0).Aid.AcID;
 				}
 			}
 			THROW(GetSubstObjects(&rParam, &atso, 0)); // Инициализация atso. Далее этот блок не меняется.
 			// @# atso=const {
-			if((!atso.PrimList.getCount() || !atso.PrimList.at(0).Aid.ar) && Flags & ATTF_PSKIPONZOBJ)
+			if((!atso.PrimList.getCount() || !atso.PrimList.at(0).Aid.ArID) && Flags & ATTF_PSKIPONZOBJ)
 				ok = -1;
-			if((!atso.ForeignList.getCount() || !atso.ForeignList.at(0).Aid.ar) && Flags & ATTF_PSKIPONZOBJ)
+			if((!atso.ForeignList.getCount() || !atso.ForeignList.at(0).Aid.ArID) && Flags & ATTF_PSKIPONZOBJ)
 				ok = -1;
 			else {
 				int    r1 = 0, r2 = 0;
@@ -662,23 +660,23 @@ int PPAccTurnTempl::SetupAccounts(ATBillParam & rParam, PPID curID, PPAccTurn * 
 				if(r1 < 0 || r2 < 0)
 					ok = -1;
 				else {
-					THROW_PP(dbt.ac && r_acc_obj.Search(dbt.ac, &acc_rec) > 0, PPERR_ATTMUSTBEFIX);
+					THROW_PP(dbt.AcID && r_acc_obj.Search(dbt.AcID, &acc_rec) > 0, PPERR_ATTMUSTBEFIX);
 					if(oneof2(acc_rec.Type, ACY_OBAL, ACY_REGISTER))
 						is_outbal_ac = 1;
 					SETFLAG(pAT->Flags, PPAF_OUTBAL, is_outbal_ac);
-					SETFLAG(pAT->Flags, PPAF_OUTBAL_TRANSFER, is_outbal_ac && crd.ac);
-					THROW_PP(crd.ac || (pAT->Flags & PPAF_OUTBAL), PPERR_ATTMUSTBEFIX);
+					SETFLAG(pAT->Flags, PPAF_OUTBAL_TRANSFER, is_outbal_ac && crd.AcID);
+					THROW_PP(crd.AcID || (pAT->Flags & PPAF_OUTBAL), PPERR_ATTMUSTBEFIX);
 					if(curID) {
 						PPID   cur_acc_id = 0;
-						THROW(r_acc_obj.SearchCur(dbt.ac, curID, &cur_acc_id, 0));
-						dbt.ac = cur_acc_id;
-						if(crd.ac) {
-							THROW(r_acc_obj.SearchCur(crd.ac, curID, &cur_acc_id, 0));
-							crd.ac = cur_acc_id;
+						THROW(r_acc_obj.SearchCur(dbt.AcID, curID, &cur_acc_id, 0));
+						dbt.AcID = cur_acc_id;
+						if(crd.AcID) {
+							THROW(r_acc_obj.SearchCur(crd.AcID, curID, &cur_acc_id, 0));
+							crd.AcID = cur_acc_id;
 						}
 					}
 					THROW(SubstAcct(PPDEBIT, pAT, &atso, &dbt, &crd));
-					if(crd.ac) {
+					if(crd.AcID) {
 						THROW(SubstAcct(PPCREDIT, pAT, &atso, &dbt, &crd));
 						if(pAT->Amount < 0 && Flags & ATTF_INVERTNEG) {
 							pAT->SwapDbtCrd();
@@ -814,7 +812,7 @@ int PPAccTurnTempl::CreateAccturns(PPBillPacket * pPack)
 	int    r = 0;
 	pPack->ErrCause = 0;
 	PPIDArray cur_list;
-	BillObj->atobj->P_Tbl->AccObj.GetIntersectCurList(DbtID.ac, CrdID.ac, &cur_list);
+	BillObj->atobj->P_Tbl->AccObj.GetIntersectCurList(DbtID.AcID, CrdID.AcID, &cur_list);
 	for(uint j = 0; j < cur_list.getCount(); j++) {
 		const  PPID cur_id = cur_list.at(j);
 		PPAccTurn pattern_at;
@@ -951,10 +949,10 @@ int PPAccTurnTempl::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx
 	THROW(pSCtx->Serialize(dir, ObjType, rBuf));
 	THROW(pSCtx->Serialize(dir, ObjID, rBuf));
 	THROW(pSCtx->Serialize(dir, ID, rBuf));
-	THROW(pSCtx->Serialize(dir, DbtID.ac, rBuf));
-	THROW(pSCtx->Serialize(dir, DbtID.ar, rBuf));
-	THROW(pSCtx->Serialize(dir, CrdID.ac, rBuf));
-	THROW(pSCtx->Serialize(dir, CrdID.ar, rBuf));
+	THROW(pSCtx->Serialize(dir, DbtID.AcID, rBuf));
+	THROW(pSCtx->Serialize(dir, DbtID.ArID, rBuf));
+	THROW(pSCtx->Serialize(dir, CrdID.AcID, rBuf));
+	THROW(pSCtx->Serialize(dir, CrdID.ArID, rBuf));
 	THROW(pSCtx->Serialize(dir, Flags, rBuf));
 	THROW(pSCtx->Serialize(dir, Period, rBuf));
 	{
@@ -1083,7 +1081,7 @@ int PPAccTurnTempl::AccTemplToStr(int side, SString & rBuf) const
 {
 	Acct   acct;
 	PPID   cur_id = 0;
-	const AcctID & r_acctid = (side == PPDEBIT) ? DbtID : CrdID;
+	const AccIdent & r_acctid = (side == PPDEBIT) ? DbtID : CrdID;
 	const long ac_fixed = (side == PPDEBIT) ? (Flags & ATTF_DACCFIX) : (Flags & ATTF_CACCFIX);
 	const long ar_fixed = (side == PPDEBIT) ? (Flags & ATTF_DARTFIX) : (Flags & ATTF_CARTFIX);
 	BillObj->atobj->ConvertAcctID(r_acctid, &acct, &cur_id, 1 /* useCache */);
@@ -1098,7 +1096,7 @@ int PPAccTurnTempl::AccTemplToStr(int side, SString & rBuf) const
 int PPAccTurnTempl::AccTemplFromStr(int side, const char * pBuf)
 {
 	int    ok = 1;
-	AcctID acctid;
+	AccIdent acctid;
 	Acct   acct;
 	long   ac_fixed = 0;
 	long   ar_fixed = 0;
@@ -1202,10 +1200,10 @@ public:
 		getCtrlData(CTL_ATRNTMPL_AMOUNT, Data.Expr);
 		if(dbt_acc_rec.AccType != ACY_ALIAS && crd_acc_rec.AccType != ACY_ALIAS) {
 			if(oneof2(dbt_acc_rec.AccType, ACY_OBAL, ACY_REGISTER)) {
-				THROW_PP(!crd_acc_rec.AcctId.ac || crd_acc_rec.AccType != ACY_BAL, PPERR_INVACCTYPEPAIR);
+				THROW_PP(!crd_acc_rec.AcctId.AcID || crd_acc_rec.AccType != ACY_BAL, PPERR_INVACCTYPEPAIR);
 			}
 		}
-		if(oneof2(dbt_acc_rec.AccType, ACY_OBAL, ACY_REGISTER) && crd_acc_rec.AcctId.ac == 0)
+		if(oneof2(dbt_acc_rec.AccType, ACY_OBAL, ACY_REGISTER) && crd_acc_rec.AcctId.AcID == 0)
 			Data.Flags |= ATTF_CACCFIX;
 		if(*strip(Data.Expr)) {
 			Data.Flags |= ATTF_EXPRESSION;
@@ -1272,7 +1270,7 @@ private:
 			GetClusterData(CTL_ATRNTMPL_CFIX, &Data.Flags);
 		}
 	}
-	int    getSheetOfAcc(AcctID * pAcctId, PPID * pAcsID)
+	int    getSheetOfAcc(AccIdent * pAcctId, PPID * pAcsID)
 	{
 		return ppobj->P_Tbl->AccObj.InitAccSheetForAcctID(pAcctId, pAcsID);
 	}

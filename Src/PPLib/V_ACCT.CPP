@@ -89,7 +89,7 @@ int PPViewAccount::ViewAccAnalyze(PPID accID)
 			P_AnlzFilt->Period.Z();
 		}
 		P_AnlzFilt->AccID = accID;
-		P_AnlzFilt->AcctId.ac = accID;
+		P_AnlzFilt->AcctId.AcID = accID;
 		P_AnlzFilt->AccSheetID = acc_rec.AccSheetID;
 		if(acc_rec.A.Sb == 0)
 			P_AnlzFilt->Aco = ACO_1;

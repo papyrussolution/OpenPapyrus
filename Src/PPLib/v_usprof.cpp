@@ -1,5 +1,5 @@
 // V_USPROF.CPP
-// Copyright (c) A.Starodub 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
+// Copyright (c) A.Starodub 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025, 2026
 // @codepage UTF-8
 // Профиль пользовательских функций
 //
@@ -162,7 +162,8 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	UserFuncPrfSessTbl * t1 = 0;
 	UserFuncPrfTbl * t2 = 0;
 	DBQuery * q = 0;
-	DBE    dbe_func, dbe_ver;
+	DBE    dbe_func;
+	DBE    dbe_ver;
 	DBE    dbe_dbuuidcmp;
 	DBQ  * dbq = 0;
 	{
@@ -198,12 +199,13 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 			t1->SessUUID_s, // #7
 			t1->DbName,     // #8
 			t1->UserName,   // #9
-			dbe_func,       // #10
-			dbe_ver,        // #11
-			t2->Factor1,    // #12
-			t2->Factor2,    // #13
-			t2->Factor3,    // #14
-			0).from(t2, t1, 0).where(*dbq).orderBy(t2->Dt, t2->Tm, 0);
+			0L);
+		q->addField(dbe_func);    // #10
+		q->addField(dbe_ver);     // #11
+		q->addField(t2->Factor1); // #12
+		q->addField(t2->Factor2); // #13
+		q->addField(t2->Factor3); // #14
+		q->from(t2, t1, 0).where(*dbq).orderBy(t2->Dt, t2->Tm, 0);
 	}
 	THROW(CheckQueryPtr(q));
 	CATCH

@@ -580,14 +580,14 @@ static int EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 			RVALUEPTR(Data, pData);
 			{
 				AcctCtrlGroup::Rec acc_rec;
-				acc_rec.AcctId.ac = Data.Key;
+				acc_rec.AcctId.AcID = Data.Key;
 				acc_rec.AccSheetID = P_Pack->Rec.AccSheetID;
 				acc_rec.AccSelParam = ACY_SEL_ALIAS;
 				setGroupData(ctlgroupAls, &acc_rec);
 			}
 			{
 				AcctCtrlGroup::Rec acc_rec;
-				acc_rec.AcctId.ac = Data.Val;
+				acc_rec.AcctId.AcID = Data.Val;
 				acc_rec.AccSheetID = P_Pack->Rec.AccSheetID;
 				//
 				// Если необходимо, чтобы в качестве подставляемого счета можно было выбрать только
@@ -605,11 +605,11 @@ static int EditAliasSubst(const PPArticlePacket * pPack, LAssoc * pData)
 			uint   sel = 0;
 			AcctCtrlGroup::Rec acc_rec;
 			getGroupData(ctlgroupAls, &acc_rec);
-			Data.Key = acc_rec.AcctId.ac;
+			Data.Key = acc_rec.AcctId.AcID;
 			sel = CTL_ALSSUBST_ALS;
 			THROW_PP(Data.Key, PPERR_ACCALIASNEEDED);
 			getGroupData(ctlgroupAcc, &acc_rec);
-			Data.Val = acc_rec.AcctId.ac;
+			Data.Val = acc_rec.AcctId.AcID;
 			sel = CTL_ALSSUBST_ACC;
 			THROW_PP(Data.Val, PPERR_ACCNEEDED);
 			ASSIGN_PTR(pData, Data);
@@ -635,7 +635,7 @@ public:
 			AcctCtrlGroup::Rec acc_rec;
 			AcctCtrlGroup * p_ac_grp = new AcctCtrlGroup(CTL_ARTICLE_ACC, 0, CTLSEL_ARTICLE_ACCNAME, 0);
 			addGroup(ctlgroupAsscAcc, p_ac_grp);
-			acc_rec.AcctId.ac   = P_Data->Rec.ObjID;
+			acc_rec.AcctId.AcID = P_Data->Rec.ObjID;
 			setGroupData(ctlgroupAsscAcc, &acc_rec);
 		}
 		if(acs_obj.Search(P_Data->Rec.AccSheetID, &AcsRec) > 0) {
@@ -1030,7 +1030,7 @@ int PPObjArticle::EditDialog(ArticleDlgData * pData)
 		if(pData->Options & ArticleDlgData::fAssocAccnt) {
 			AcctCtrlGroup::Rec acc_rec;
 			dlg->getGroupData(ArticleDialog::ctlgroupAsscAcc, &acc_rec);
-			pData->Rec.ObjID = acc_rec.AcctId.ac;
+			pData->Rec.ObjID = acc_rec.AcctId.AcID;
 		}
 		dlg->getCtrlData(CTL_ARTICLE_NAME,   pData->Rec.Name);
 		if(*strip(pData->Rec.Name) == 0)
@@ -1167,7 +1167,7 @@ int PPObjArticle::NewArticle(PPID * pID, long sheetID)
 				LocationTbl::Rec loc_rec;
 				PPAccount  acc_rec;
 				PPGlobalUserAcc gua_rec;
-				ProcessorTbl::Rec prc_rec; // @v11.3.12
+				ProcessorTbl::Rec prc_rec;
 				//THROW(ppobj->Search(obj_id, &assoc_obj_rec) > 0);
 				switch(acs_rec.Assoc) {
 					case PPOBJ_PERSON:
@@ -1186,7 +1186,7 @@ int PPObjArticle::NewArticle(PPID * pID, long sheetID)
 						THROW(ppobj->Search(obj_id, &acc_rec) > 0);
 						STRNSCPY(pack.Rec.Name, acc_rec.Name);
 						break;
-					case PPOBJ_PROCESSOR: // @v11.3.12
+					case PPOBJ_PROCESSOR:
 						THROW(ppobj->Search(obj_id, &prc_rec) > 0);
 						STRNSCPY(pack.Rec.Name, prc_rec.Name);
 						break;
@@ -1472,6 +1472,8 @@ int PPObjArticle::PutPacket(PPID * pID, PPArticlePacket * pPack, int use_ta)
 	int    ok = 1;
 	PPObjAccTurn at_obj;
 	PPObjLocation loc_obj;
+	PPObjAccSheet acs_obj; // @v12.7.9
+	PPAccSheet acs_rec; // @v12.7.9
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1483,13 +1485,26 @@ int PPObjArticle::PutPacket(PPID * pID, PPArticlePacket * pPack, int use_ta)
 				// Однако, есть опасность, что при проверке этого флага, возникнет ситуация когда
 				// из другого раздела не удасться принять новую статью. По этому, пока оставляем как есть.
 				//
+				// @v12.7.9 {
+				THROW_PP_S(pPack->Rec.AccSheetID && acs_obj.Search(pPack->Rec.AccSheetID, &acs_rec) > 0, PPERR_AR_ACS_NOTDEFINED, pPack->Rec.Name); 
+				if(pPack->Rec.ParentID) {
+					ArticleTbl::Rec par_rec;
+					THROW_PP_S(Search(pPack->Rec.ParentID, &par_rec) > 0, PPERR_AR_PARENT_NOTFOUND, pPack->Rec.Name);
+				}
+				// } @v12.7.9 
 				pPack->Rec.ID = 0;
 				pPack->Rec.Article = 0;
 				P_Tbl->SearchFreeNum(pPack->Rec.AccSheetID, &pPack->Rec.Article, 0);
+				// @v12.7.9 {
+				if(acs_rec.Assoc == 0) {
+					pPack->Rec.ObjID = pPack->Rec.Article;
+				}
+				// } @v12.7.9 
 				THROW(AddObjRecByID(P_Tbl, Obj, pID, &pPack->Rec, 0));
 				THROW(Helper_PutAgreement(*pID, pPack));
-				if(!pPack->DontUpdateAliasSubst)
+				if(!pPack->DontUpdateAliasSubst) {
 					THROW(PutAliasSubst(*pID, pPack->GetAliasSubst(), 0));
+				}
 				DS.LogAction(PPACN_OBJADD, Obj, *pID, 0, 0);
 				if(pPack->Assoc == PPOBJ_LOCATION) {
 					if(pPack->Rec.ObjID)
@@ -1510,6 +1525,13 @@ int PPObjArticle::PutPacket(PPID * pID, PPArticlePacket * pPack, int use_ta)
 			}
 			if(!IsPacketEq(*pPack, org_pack, pPack->DontUpdateAliasSubst ? peoDontCmpAliasSubst : 0)) {
 				THROW(CheckRights(PPR_MOD));
+				// @v12.7.9 {
+				THROW_PP_S(pPack->Rec.AccSheetID && acs_obj.Search(pPack->Rec.AccSheetID, &acs_rec) > 0, PPERR_AR_ACS_NOTDEFINED, pPack->Rec.Name); 
+				if(pPack->Rec.ParentID) {
+					ArticleTbl::Rec par_rec;
+					THROW_PP_S(Search(pPack->Rec.ParentID, &par_rec) > 0, PPERR_AR_PARENT_NOTFOUND, pPack->Rec.Name);
+				}
+				// } @v12.7.9 
 				THROW(UpdateByID(P_Tbl, Obj, *pID, &pPack->Rec, 0));
 				if(pPack->Rec.Article != org_pack.Rec.Article) {
 					THROW(at_obj.P_Tbl->UpdateRelsArRef(*pID, pPack->Rec.Article, 0));
@@ -1832,6 +1854,22 @@ int PPObjArticle::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 	return ok;
 }
 
+/*virtual*/int PPObjArticle::MakeReserved(long flags) // @v12.7.9
+{
+	int    ok = -1;
+	if(flags & mrfPersonalFinance) {
+		SString file_name;
+		PPGetFilePath(PPPATH_DD, "personal_finance_categories-ru.json", file_name);
+		if(fileExists(file_name)) {
+			PPID   acs_id = 0;
+			if(ImportPredefinedJson(acs_id, file_name, 0) > 0) {
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
+
 int PPObjArticle::SearchAssocObjRef(PPID _obj, PPID _id, PPID * pAccSheetID, PPID kind, PPID * pID)
 {
 	int    r;
@@ -1923,7 +1961,7 @@ int PPObjArticle::ReplyObjectCreated(PPID objType, PPID objID)
 	for(PPID acs_id = 0; acs_obj.EnumItems(&acs_id, &acs_rec) > 0;) {
 		if(acs_rec.Assoc == objType && acs_rec.Flags & ACSHF_AUTOCREATART) {
 			if(P_Tbl->SearchObjRef(acs_id, objID) < 0) {
-				PPID ar_id = 0;
+				PPID   ar_id = 0;
 				if(!CreateObjRef(&ar_id, acs_id, objID, 0, 0))
 					return DBRPL_ERROR;
 			}
@@ -2039,7 +2077,7 @@ int PPObjArticle::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmConte
 	PPArticlePacket * p_pack = static_cast<PPArticlePacket *>(p->Data);
 	THROW(p && p->Data);
 	if(stream == 0) {
-		assert(pID); // @v11.0.10
+		assert(pID);
 		int    is_new = 0;
 		ArticleTbl::Rec rec;
 		if(P_Tbl->SearchObjRef(p_pack->Rec.AccSheetID, p_pack->Rec.ObjID, &rec) > 0 && (!*pID || rec.ID != *pID))
@@ -2054,21 +2092,20 @@ int PPObjArticle::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmConte
 				else
 					*pID = 0;
 			}
-			else
+			else {
 				is_new = 1;
+			}
 			p_pack->DontUpdateAliasSubst = 1;
 			//
 			// Запрещаем изменение параметров формирования автозаказа при изменении записи
 			//
-			if(*pID && p_pack && p_pack->P_SupplAgt) { // @v11.0.10 (pID-->*pID)
+			if(*pID && p_pack && p_pack->P_SupplAgt) {
 				PPSupplAgreement spl_agt;
 				if(GetSupplAgreement(*pID, &spl_agt, 0) > 0) {
 					PPSupplAgreement spl_agt_general;
 					p_pack->P_SupplAgt->RestoreAutoOrderParams(spl_agt);
-					// @v11.0.10 {
 					if(GetSupplAgreement(0, &spl_agt_general, 0) > 0 && spl_agt_general.Flags & AGTF_DEFAGENTLOCTODBDIV)
 						p_pack->P_SupplAgt->DefAgentID = spl_agt.DefAgentID;
-					// } @v11.0.10 
 				}
 			}
 			int    r = PutPacket(pID, p_pack, 1);
@@ -2297,6 +2334,98 @@ int PPObjArticle::CheckObject(const ArticleTbl::Rec * pRec, SString * pMsgBuf)
 			PPGetLastErrorMessage(1, *pMsgBuf);
 		}
 	}
+	return ok;
+}
+
+bool PPObjArticle::AcceptPredefinedJsonObj(PPID accSheetID, PPID parentArID, const SJson * pJs, int use_ta) // @v12.7.9 @construction
+{
+	bool   ok = true;
+	PPID   result_id = 0;
+	if(SJson::IsObject(pJs) && accSheetID) {
+		PPArticlePacket pack;
+		ArticleTbl::Rec ex_rec;
+		SString temp_buf;
+		const SJson * p_js_children = 0;
+		for(const SJson * p_f = pJs->P_Child; p_f; p_f = p_f->P_Next) {
+			if(p_f->Text.IsEqiAscii("name")) {
+				(temp_buf = p_f->P_Child->Text).Transf(CTRANSF_UTF8_TO_INNER);
+				STRNSCPY(pack.Rec.Name, temp_buf);
+			}
+			else if(p_f->Text.IsEqiAscii("children")) {
+				p_js_children = p_f->P_Child;
+			}
+		}
+		if(!isempty(pack.Rec.Name)) {
+			PPTransaction tra(use_ta);
+			THROW(tra);
+			if(P_Tbl->SearchName(accSheetID, pack.Rec.Name, &ex_rec) > 0) {
+				result_id = ex_rec.ID; // Запись уже существует (только по совпадению имени и таблицы статей)
+			}
+			else {
+				pack.Rec.AccSheetID = accSheetID;
+				pack.Rec.ParentID = parentArID;
+				THROW(PutPacket(&result_id, &pack, 0));
+			}
+			if(SJson::IsArray(p_js_children)) {
+				for(const SJson * p_js_item = p_js_children->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+					THROW(AcceptPredefinedJsonObj(accSheetID, result_id, p_js_item, 0)); // @recursion
+				}
+			}
+			THROW(tra.Commit());
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPObjArticle::ImportPredefinedJson(PPID accSheetID, const char * pFileName, int use_ta) // @v12.7.9 @construction
+{
+	int    ok = -1;
+	SJson * p_js = 0;
+	PPObjAccSheet acs_obj;
+	PPAccSheet2 acs_rec;
+	SString temp_buf;
+	SString acs_symb;
+	if(acs_obj.Search(accSheetID, &acs_rec) > 0 && !isempty(acs_rec.Symb)) {
+		(acs_symb = acs_rec.Symb).Transf(CTRANSF_INNER_TO_UTF8);
+	}
+	{
+		p_js = SJson::ParseFile(pFileName);
+		if(SJson::IsObject(p_js)) {
+			for(const SJson * p_cur = p_js->P_Child; p_cur; p_cur = p_cur->P_Next) {
+				bool   do_process = false;
+				PPID   acs_id = 0;
+				(temp_buf = p_cur->Text).Unescape();
+				if(accSheetID) {
+					if(temp_buf.IsEqiUtf8(acs_symb)) {
+						acs_id = accSheetID;
+						do_process = true;
+					}
+				}
+				else {
+					if(acs_obj.SearchBySymb(temp_buf, 0, &acs_rec) > 0) {
+						acs_id = acs_rec.ID;
+						do_process = true;
+					}
+				}
+				if(do_process) {
+					PPTransaction tra(use_ta);
+					THROW(tra);
+					if(SJson::IsArray(p_cur->P_Child)) {
+						for(const SJson * p_js_item = p_cur->P_Child->P_Child; p_js_item; p_js_item = p_js_item->P_Next) {
+							THROW(AcceptPredefinedJsonObj(acs_id, 0, p_js_item, 0)); // @recursion
+						}
+					}
+					THROW(tra.Commit());
+				}
+			}
+		}
+		else {
+			ok = 0;
+		}
+	}
+	CATCHZOK
+	delete p_js;
 	return ok;
 }
 //

@@ -564,6 +564,7 @@ public:
 		addGroup(ctlgroupLoc, new LocationCtrlGroup(CTLSEL_BILLFLT_LOC, 0, 0, cmLocList, 0, LocationCtrlGroup::fEnableSelUpLevel, 0));
 		SetupCalPeriod(CTLCAL_BILLFLT_PERIOD, CTL_BILLFLT_PERIOD);
 		SetupCalPeriod(CTLCAL_BILLFLT_DUEPERIOD, CTL_BILLFLT_DUEPERIOD);
+		PPSetupLocalStateWordSelectorOnInputLine(this, DLG_BILLFLT, CTL_BILLFLT_MEMOTEXT); // @v12.7.9
 	}
 	int    setDTS(const BillFilt *);
 	int    getDTS(BillFilt *);
@@ -579,19 +580,22 @@ private:
 
 int BillFilterDialog(uint dlgID, BillFilt * pFilt, TDialog ** ppDlg, const char * pAddText)
 {
-	int    r;
+	int    r = 0;
 	int    valid_data = 0;
 	BillFiltDialog * dlg = 0;
 	if(*ppDlg == 0) {
-		if(!CheckDialogPtr(&(dlg = new BillFiltDialog(dlgID, pAddText))))
+		dlg = new BillFiltDialog(dlgID, pAddText);
+		if(!CheckDialogPtr(&dlg))
 			return 0;
 		*ppDlg = dlg;
 	}
-	else
+	else {
 		dlg = static_cast<BillFiltDialog *>(*ppDlg);
+	}
 	dlg->setDTS(pFilt);
-	while(!valid_data && (r = ExecView(dlg)) == cmOK)
+	while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 		valid_data = dlg->getDTS(pFilt);
+	}
 	return r;
 }
 
@@ -1368,7 +1372,7 @@ int PPViewBill::EditBaseFilt(PPBaseFilt * pFilt)
 	int    caption = -1;
 	uint   rez_id = DLG_BILLFLT;
 	if(pFilt) {
-		const BrowseBillsType bbt = static_cast<const BillFilt *>(pFilt)->Bbt;
+		const  BrowseBillsType bbt = static_cast<const BillFilt *>(pFilt)->Bbt;
 		BillFilt * p_filt = static_cast<BillFilt *>(pFilt);
 		switch(bbt) {
 			case bbtOrderBills:
@@ -3160,11 +3164,12 @@ DBQuery * PPViewBill::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				bllt->BillID,  // #0
 				bllt->Dt,      // #1
 				bll->Code,     // #2
-				dbe_oprkind,   // #3
-				bllt->Debit,   // #4
-				bllt->Credit,  // #5
-				dbe_bill_memo, // #6
-				0L).from(bllt, bll, 0L).where(bll->ID == bllt->BillID).orderBy(bllt->Dt, bllt->BillNo, 0L);
+				0L);
+			q->addField(dbe_oprkind);   // #3
+			q->addField(bllt->Debit);   // #4
+			q->addField(bllt->Credit);  // #5
+			q->addField(dbe_bill_memo); // #6
+			q->from(bllt, bll, 0L).where(bll->ID == bllt->BillID).orderBy(bllt->Dt, bllt->BillNo, 0L);
 			brw_id = BROWSER_DEBTCARD;
 		}
 		else {
@@ -8702,14 +8707,14 @@ int PPALDD_CashOrder::InitData(PPFilt & rFilt, long rsrv)
 	uint   pos;
 	Acct   corr_acct;
 	PPBillPacket * pack = static_cast<PPBillPacket *>(rFilt.Ptr);
-	int    incstax = 0, val = 0;
+	int    incstax = 0;
+	int    val = 0;
 	PPIniFile ini_file;
 	if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_CASHORDINCSTAX, &val))
 		incstax = val;
 	H.Dt = pack->Rec.Dt;
 	STRNSCPY(H.Code, CheckOpPrnFlags(pack->Rec.OpID, OPKF_PRT_NBILLN) ? 0 : pack->Rec.Code);
-	// @v11.1.12 STRNSCPY(H.Memo, pack->Rec.Memo);
-	STRNSCPY(H.Memo, pack->SMemo); // @v11.1.12
+	STRNSCPY(H.Memo, pack->SMemo);
 	H.BillID    = pack->Rec.ID;
 	H.ArticleID = pack->Rec.Object;
 	H.Article2ID = pack->Rec.Object2;
@@ -8725,9 +8730,9 @@ int PPALDD_CashOrder::InitData(PPFilt & rFilt, long rsrv)
 		if(H.Amount == 0.0)
 			H.Amount = at->Amount;
 		if(!H.ArticleID) {
-			AcctID acctid;
+			AccIdent acctid;
 			p_bobj->atobj->ConvertAcct(&corr_acct, 0, &acctid, 0);
-			H.ArticleID = acctid.ar;
+			H.ArticleID = acctid.ArID;
 		}
 	}
 	H.PersonReqID  = ObjectToPerson(H.ArticleID);
@@ -9583,8 +9588,8 @@ int PPALDD_AssetReceipt::InitData(PPFilt & rFilt, long rsrv)
 	H.OrgLotID   = p_data->OrgLotID;
 	H.StartCost  = p_data->OrgCost;
 	H.StartPrice = p_data->OrgPrice;
-	H.AssetAccID = p_data->AssetAcctID.ac;
-	H.AssetArID  = p_data->AssetAcctID.ar;
+	H.AssetAccID = p_data->AssetAcctID.AcID;
+	H.AssetArID  = p_data->AssetAcctID.ArID;
 	H.ExplBillID = p_data->ExplBillID;
 	H.MovLineNo  = 0;
 	return DlRtm::InitData(rFilt, rsrv);

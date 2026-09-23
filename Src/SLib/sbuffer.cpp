@@ -798,14 +798,14 @@ int SBinaryChunk::CheckInvariants() const
 
 SBinaryChunk & SBinaryChunk::Z()
 {
-	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактически, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	L = 0;
 	return *this;
 }
 
 void SBinaryChunk::DestroySecure() // @v12.7.0
 {
-	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактически, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	if(P_Buf && Size) {
 		SMem::Obfuscate(P_Buf, Size);
 	}
@@ -814,31 +814,31 @@ void SBinaryChunk::DestroySecure() // @v12.7.0
 
 size_t SBinaryChunk::Len() const 
 { 
-	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактически, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	return L; 
 }
 
 const void * SBinaryChunk::PtrC() const 
 { 
-	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактически, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	return P_Buf; 
 }
 
 const void * SBinaryChunk::PtrC(size_t offs) const 
 { 
-	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактически, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	return (offs < L) ? (PTR8C(P_Buf)+offs) : 0; 
 }
 
 void * SBinaryChunk::Ptr() 
 { 
-	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактически, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	return P_Buf; 
 }
 
 void * SBinaryChunk::Ptr(size_t offs) 
 { 
-	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактически, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	return (offs < L) ? (PTR8(P_Buf)+offs) : 0; 
 }
 
@@ -849,7 +849,7 @@ SString & SBinaryChunk::ToRawStr(SString & rBuf) const
 
 SString & SBinaryChunk::Mime64(SString & rBuf) const
 {
-	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактически, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	if(Len())
 		rBuf.EncodeMime64(P_Buf, Len());
 	else
@@ -904,7 +904,7 @@ bool SBinaryChunk::FromHex(const char * pHexString)
 bool SBinaryChunk::Ensure(size_t len)
 {
 	bool   ok = true;
-	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактически, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	if(len <= Size || Alloc(len))
 		L = len;
 	else
@@ -915,7 +915,7 @@ bool SBinaryChunk::Ensure(size_t len)
 int SBinaryChunk::Set(uint8 byte, size_t len)
 {
 	int    ok = 1;
-	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактически, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	if(!len)
 		L = 0;
 	else if(len <= Size || Alloc(len)) {
@@ -967,7 +967,7 @@ bool SBinaryChunk::Put(const void * pData, size_t len)
 bool SBinaryChunk::Cat(uint8 byte)
 {
 	bool   ok = true;
-	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее) 
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактически, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее) 
 	const  size_t new_len = L + 1;
 	if(new_len <= Size || Alloc(new_len)) {
 		PTR8(P_Buf)[L] = byte;
@@ -981,7 +981,7 @@ bool SBinaryChunk::Cat(uint8 byte)
 bool SBinaryChunk::Cat(const void * pData, size_t len)
 {
 	bool   ok = true;
-	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактичеки, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
+	assert(CheckInvariants()); // @v12.6.9 ()-->assert() (фактически, в релизе функция ничего не делает, потому будет быстрее просто не вызывать ее)
 	if(len/*&& pData*/) {
 		const size_t new_len = L + len;
 		if(new_len <= Size || Alloc(new_len)) {

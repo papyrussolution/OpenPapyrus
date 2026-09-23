@@ -1444,21 +1444,17 @@ static int Setup_GlobalService_Wildberries_InitParam(SetupGlobalServiceWildberri
 			brushApiKeyEmpty,
 		};
 	public:
-		SetupGlobalServiceWildberries_Dialog(DlgDataType & rData) : TDialog(DLG_SU_WB), Data(rData), ApiKeyBrushIdent(0)
+		SetupGlobalServiceWildberries_Dialog(DlgDataType & rData) : TDialog(DLG_SU_WB), Data(rData)/*, ApiKeyBrushIdent(0)*/
 		{
 			{
-				const UiDescription * p_uid = SLS.GetUiDescription();
-				const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+				const  UiDescription * p_uid = SLS.GetUiDescription();
+				const  SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 				{
-					SColor _color;
-					if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
-						_color = SClrCoral; 
+					SColor _color = UiDescription::GetColorR(p_uid, p_cs, "invalid_value_input_bg", SClrCoral);
 					Ptb.SetBrush(brushInvalid, SPaintObj::bsSolid, _color, 0);
 				}
 				{
-					SColor _color;
-					if(!p_cs || !p_cs->Get("valid_value_input_bg", &p_uid->ClrList, _color))
-						_color = SClrAqua; 
+					SColor _color = UiDescription::GetColorR(p_uid, p_cs, "valid_value_input_bg", SClrAqua);
 					Ptb.SetBrush(brushApiKeyValid, SPaintObj::bsSolid, _color,  0);
 				}
 			}
@@ -1567,16 +1563,45 @@ static int Setup_GlobalService_Wildberries_InitParam(SetupGlobalServiceWildberri
 					SetupCtrls();
 				}
 			}
-			else if(event.isCmd(cmCtlColor)) {
+			else if(event.isCmd(cmCtlColor)) { // @IndicatorState-done
 				TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
+				bool   local_done = false;
 				if(p_dc && getCtrlHandle(CTL_SUWB_APIKEY) == p_dc->H_Ctl) {
-					if(ApiKeyBrushIdent) {
+					// @v12.7.9 {
+					{
+						TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(CTL_SUWB_APIKEY, TV_SUBSIGN_INPUTLINE));
+						if(p_il) {
+							uint64 _state = 0;
+							if(p_il->GetIndicatorState(&_state, 0)) {
+								::SetBkMode(p_dc->H_DC, TRANSPARENT);
+								if(_state == 1) {
+									p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushApiKeyValid));
+									local_done = true;
+								}
+								else if(_state == 2) {
+									p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushInvalid));
+									local_done = true;
+								}
+							}
+						}
+					}
+					// } @v12.7.9 
+					/* @v12.7.9 if(ApiKeyBrushIdent) {
 						::SetBkMode(p_dc->H_DC, TRANSPARENT);
 						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(ApiKeyBrushIdent));
-					}
+					}*/
+				}
+				if(local_done) {
+					clearEvent(event);
 				}
 				else
 					return;
+			}
+			else if(event.isCmd(cmMouseHoverCtrl)) { // @v12.7.9
+				const  uint ctl_id = event.getCtlID();
+				if(ctl_id == CTL_SUWB_APIKEY) {
+					PPShowCtrlIndicatorHintOnInputLine(this, ctl_id);
+				}
 			}
 			else
 				return;
@@ -1585,10 +1610,12 @@ static int Setup_GlobalService_Wildberries_InitParam(SetupGlobalServiceWildberri
 		void   SetupCtrls()
 		{
 			SString temp_buf;
-			getCtrlString(CTL_SUWB_APIKEY, temp_buf);
-			int brush_ident = 0;
+			int    brush_ident = 0;
+			bool   enable_configure = false;
 			SString info_buf;
-			bool enable_configure = false;
+			getCtrlString(CTL_SUWB_APIKEY, temp_buf);
+			uint64 _state = 0; // @v12.7.9
+			int    state_msg_id = 0; // @v12.7.9
 			if(temp_buf.NotEmpty()) {
 				PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult tdr;
 				if(PPMarketplaceInterface_Wildberries::ParseApiToken(temp_buf, &tdr)) {
@@ -1622,22 +1649,40 @@ static int Setup_GlobalService_Wildberries_InitParam(SetupGlobalServiceWildberri
 							info_buf.Cat("accs-returns").CR();
 						if(tdr.Flags & PPMarketplaceInterface_Wildberries::ApiTokenDecodeResult::fAccs_Documents)
 							info_buf.Cat("accs-documents").CR();
-					ApiKeyBrushIdent = brushApiKeyValid;
+					//ApiKeyBrushIdent = brushApiKeyValid;
+					_state = 1;
+					state_msg_id = CTLUSTTD_GLBSVCSETUP_KEYVALID_WB;
 				}
 				else {
 					info_buf = "invalid key";
-					ApiKeyBrushIdent = brushInvalid;
+					//ApiKeyBrushIdent = brushInvalid;
+					_state = 2;
+					state_msg_id = CTLUSTTD_GLBSVCSETUP_KEYINVALID_WB;
 				}
 			}
 			else {
-				ApiKeyBrushIdent = brushApiKeyEmpty;
+				//ApiKeyBrushIdent = brushApiKeyEmpty;
+				_state = 0;
 			}
+			// @v12.7.9 {
+			{
+				TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(CTL_SUWB_APIKEY, TV_SUBSIGN_INPUTLINE));
+				if(p_il) {
+					temp_buf.Z();
+					if(state_msg_id)
+						PPLoadString(PPSTR_CTLUSTTD, state_msg_id, temp_buf);
+					if(p_il->SetIndicatorState(_state, temp_buf) > 0) {
+						drawCtrl(CTL_SUWB_APIKEY);
+					}
+				}
+			}
+			// } @v12.7.9 
 			setStaticText(CTL_SUWB_HINT, info_buf);
 			enableCommand(cmConfigure, enable_configure);
 		}
 		PPObjGlobalUserAcc GuaObj;
 		SPaintToolBox Ptb;
-		int   ApiKeyBrushIdent;
+		// @v12.7.9 int   ApiKeyBrushIdent;
 	};
 	int    ok = -1;
 	SetupGlobalServiceWildberries_Param param;

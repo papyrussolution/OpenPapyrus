@@ -5236,6 +5236,25 @@ SStringU & SStringU::Space() { return CatChar(L' '); }
 SStringU & SStringU::Slash()  { return CatChar(L'/');  } 
 SStringU & SStringU::BSlash() { return CatChar(L'\\'); } 
 
+SStringU & SStringU::Insert(size_t pos, const wchar_t * pS) // @v12.7.9
+{
+	const size_t add_len = sstrlen(pS);
+	if(add_len) {
+		if(pos < Len()) {
+			const size_t new_len = (L ? L : 1) + add_len;
+			if(Alloc(new_len)) {
+				memmove(P_Buf+pos+add_len, P_Buf+pos, (L-pos) * sizeof(wchar_t));
+				memcpy(P_Buf+pos, pS, add_len * sizeof(wchar_t));
+				L = new_len;
+			}
+		}
+		else if(pos == Len()) {
+			Cat(pS);
+		}
+	}
+	return *this;
+}
+
 SStringU & SStringU::SetLastSlash()
 {
 	const wchar_t last = Last();

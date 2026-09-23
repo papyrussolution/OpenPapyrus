@@ -1749,7 +1749,7 @@ private:
 	void   editExtension();
 	void   prnOptDialog();
 	void   exAmountList();
-	int    setAccTextToList(const AcctID & rAci, long, long, long, SString & rBuf);
+	int    setAccTextToList(const AccIdent & rAci, long, long, long, SString & rBuf);
 
 	SmartListBox * P_ListBox;
 	PPObjOprKind OpObj;
@@ -1994,7 +1994,7 @@ void OprKindDialog::delGenOp()
 	}
 }
 
-int OprKindDialog::setAccTextToList(const AcctID & rAci, long flgs, long accFixMask, long artFixMask, SString & rBuf)
+int OprKindDialog::setAccTextToList(const AccIdent & rAci, long flgs, long accFixMask, long artFixMask, SString & rBuf)
 {
 	int    ok = 1;
 	Acct   acct;
@@ -3105,15 +3105,18 @@ int PPObjOprKind::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		if(_id && oneof4(_obj, PPOBJ_OPRTYPE, PPOBJ_ACCSHEET, PPOBJ_ACCOUNT2, PPOBJ_ARTICLE)) {
 			PPOprKind2 op_rec;
 			for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&op_rec) > 0;) {
-				if(_obj == PPOBJ_ACCSHEET && op_rec.AccSheetID == _id)
+				if(_obj == PPOBJ_ACCSHEET && op_rec.AccSheetID == _id) {
 					return RetRefsExistsErr(Obj, op_rec.ID);
-				else if(_obj == PPOBJ_OPRTYPE && op_rec.OpTypeID == _id)
+				}
+				else if(_obj == PPOBJ_OPRTYPE && op_rec.OpTypeID == _id) {
 					return RetRefsExistsErr(Obj, op_rec.ID);
+				}
 				else if(oneof2(_obj, PPOBJ_ACCOUNT2, PPOBJ_ARTICLE)) {
 					PPAccTurnTempl att;
-					for(PPID prop = 0; P_Ref->EnumProperties(Obj, op_rec.ID, &prop, &att, sizeof(att)) > 0 && prop <= PP_MAXATURNTEMPLATES;)
-						if((_obj == PPOBJ_ACCOUNT2 && (att.DbtID.ac == _id || att.CrdID.ac == _id)) || (_obj == PPOBJ_ARTICLE && (att.DbtID.ar == _id || att.CrdID.ar == _id)))
+					for(PPID prop = 0; P_Ref->EnumProperties(Obj, op_rec.ID, &prop, &att, sizeof(att)) > 0 && prop <= PP_MAXATURNTEMPLATES;) {
+						if((_obj == PPOBJ_ACCOUNT2 && (att.DbtID.AcID == _id || att.CrdID.AcID == _id)) || (_obj == PPOBJ_ARTICLE && (att.DbtID.ArID == _id || att.CrdID.ArID == _id)))
 							return RetRefsExistsErr(Obj, op_rec.ID);
+					}
 				}
 			}
 		}

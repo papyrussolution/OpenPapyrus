@@ -723,10 +723,10 @@ void PPObjBill::DiagGoodsTurnError(const PPBillPacket * pPack)
 		SString advbillkind_buf, acc_buf;
 		GetObjectName(PPOBJ_ADVBILLKIND, r_item.AdvBillKindID, advbillkind_buf);
 		{
-			AcctID acctid;
+			AccIdent acctid;
 			Acct   acct;
-			acctid.ac = r_item.AccID;
-			acctid.ar = r_item.ArID;
+			acctid.AcID = r_item.AccID;
+			acctid.ArID = r_item.ArID;
 			atobj->P_Tbl->ConvertAcctID(acctid, &acct, 0, 0);
 			acct.ToStr(ACCF_DEFAULT, acc_buf);
 		}
@@ -1316,7 +1316,7 @@ bool PPBillPacket::ConvertToCCheckParam::SetBuyersEAddr(int addrType, const char
 
 static int _EditCcByBillParam(PPBillPacket::ConvertToCCheckParam & rParam)
 {
-	//@erik v10.5.9 {
+	//@erik {
 	class CCByBillDialog: public TDialog {
 		DECL_DIALOG_DATA(PPBillPacket::ConvertToCCheckParam);
 		enum {
@@ -1326,27 +1326,21 @@ static int _EditCcByBillParam(PPBillPacket::ConvertToCCheckParam & rParam)
 			brushEAddrEmail,
 		};
 	public:
-		CCByBillDialog() : TDialog(DLG_CCBYBILL), EAddrInputState(0)
+		CCByBillDialog() : TDialog(DLG_CCBYBILL)/*, EAddrInputState(0)*/
 		{
 			{
 				const UiDescription * p_uid = SLS.GetUiDescription();
 				const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 				{
-					SColor _color;
-					if(!p_cs || !p_cs->Get("invalid_value_input_bg", &p_uid->ClrList, _color))
-						_color = SClrCoral; 
+					SColor _color = UiDescription::GetColorR(p_uid, p_cs, "invalid_value_input_bg", SClrCoral);
 					Ptb.SetBrush(brushInvalid, SPaintObj::bsSolid, _color, 0);
 				}
 				{
-					SColor _color;
-					if(!p_cs || !p_cs->Get("eaddr_phone_input_bg", &p_uid->ClrList, _color))
-						_color = SClrAqua; 
+					SColor _color = UiDescription::GetColorR(p_uid, p_cs, "eaddr_phone_input_bg", SClrAqua);
 					Ptb.SetBrush(brushEAddrPhone, SPaintObj::bsSolid, _color,  0);
 				}
 				{
-					SColor _color;
-					if(!p_cs || !p_cs->Get("eaddr_email_input_bg", &p_uid->ClrList, _color))
-						_color = SClrCadetblue; 
+					SColor _color = UiDescription::GetColorR(p_uid, p_cs, "eaddr_email_input_bg", SClrCadetblue);
 					Ptb.SetBrush(brushEAddrEmail, SPaintObj::bsSolid, _color,  0);
 				}
 			}
@@ -1370,7 +1364,7 @@ static int _EditCcByBillParam(PPBillPacket::ConvertToCCheckParam & rParam)
 				f.SyncGroup = 1; // only sync nodes
 				SetupPPObjCombo(this, CTLSEL_CCBYBILL_POSNODE, PPOBJ_CASHNODE, Data.PosNodeID, 0, &f);
 			}
-			// @erik v10.5.9 {
+			// @erik {
 			AddClusterAssocDef(CTL_CCBYBILL_PAYMTYPE, 0, cpmCash);
 			AddClusterAssoc(CTL_CCBYBILL_PAYMTYPE, 1, cpmBank);
 			const long __p = CHKXORFLAGS(Data.Flags_, PPBillPacket::ConvertToCCheckParam::fCash, PPBillPacket::ConvertToCCheckParam::fBank);
@@ -1384,7 +1378,7 @@ static int _EditCcByBillParam(PPBillPacket::ConvertToCCheckParam & rParam)
 			else {
 				SetClusterData(CTL_CCBYBILL_PAYMTYPE, Data.PaymType);
 			}
-			// } @erik v10.5.9
+			// } @erik
 			AddClusterAssoc(CTL_CCBYBILL_FLAGS, 0, PPBillPacket::ConvertToCCheckParam::fPrepay);
 			SetClusterData(CTL_CCBYBILL_FLAGS, Data.Flags_);
 			setCtrlLong(CTL_CCBYBILL_DIVISION, Data.DivisionN);
@@ -1448,31 +1442,71 @@ static int _EditCcByBillParam(PPBillPacket::ConvertToCCheckParam & rParam)
 					clearEvent(event);
 				}
 				else if(event.isCtlEvent(CTL_CCBYBILL_EADDR)) {
-					SString eaddr_buf;
-					getCtrlString(CTL_CCBYBILL_EADDR, eaddr_buf);
-					EAddrInputState = GetEAddrStatus(eaddr_buf);
-					drawCtrl(CTL_CCBYBILL_EADDR);
-				}
-				else
-					return;
-			}
-			else if(event.isCmd(cmCtlColor)) {
-				TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
-				if(p_dc && getCtrlHandle(CTL_CCBYBILL_EADDR) == p_dc->H_Ctl) {
-					int brush_ident = 0;
-					if(EAddrInputState == SNTOK_PHONE)
-						brush_ident = brushEAddrPhone;
-					else if(EAddrInputState == SNTOK_EMAIL)
-						brush_ident = brushEAddrEmail;
-					else if(EAddrInputState < 0)
-						brush_ident = brushInvalid;
-					if(brush_ident) {
-						::SetBkMode(p_dc->H_DC, TRANSPARENT);
-						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brush_ident));
+					const  uint clt_id = CTL_CCBYBILL_EADDR;
+					TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(clt_id, TV_SUBSIGN_INPUTLINE));
+					if(p_il) {
+						SString temp_buf;
+						getCtrlString(clt_id, temp_buf);
+						const  int eadr_status = GetEAddrStatus(temp_buf);
+						uint64 _state = 0;
+						int    msg_id = 0;
+						temp_buf.Z();
+						//EAddrInputState = eadr_status;
+						{
+							if(eadr_status == SNTOK_PHONE) {
+								_state = SNTOK_PHONE;
+								msg_id = CTLUSTTD_CCHECKBYBILL_EADR_PHONE;
+							}
+							else if(eadr_status == SNTOK_EMAIL) {
+								_state = SNTOK_EMAIL;
+								msg_id = CTLUSTTD_CCHECKBYBILL_EADR_EMAIL;
+							}
+							else if(eadr_status < 0) {
+								_state = _FFFF64;
+								msg_id = CTLUSTTD_CCHECKBYBILL_EADR_INVALID;
+							}
+							if(msg_id) {
+								PPLoadString(PPSTR_CTLUSTTD, msg_id, temp_buf);
+							}
+						}
+						if(p_il->SetIndicatorState(_state, temp_buf) > 0) {
+							drawCtrl(clt_id);
+						}
 					}
 				}
 				else
 					return;
+			}
+			else if(event.isCmd(cmCtlColor)) { // @IndicatorState-done
+				TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
+				if(p_dc && getCtrlHandle(CTL_CCBYBILL_EADDR) == p_dc->H_Ctl) {
+					TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(CTL_CCBYBILL_EADDR, TV_SUBSIGN_INPUTLINE));
+					if(p_il) {
+						uint64 _state = 0;
+						if(p_il->GetIndicatorState(&_state, 0)) {
+							int    brush_ident = 0;
+							if(_state == SNTOK_PHONE)
+								brush_ident = brushEAddrPhone;
+							else if(_state == SNTOK_EMAIL)
+								brush_ident = brushEAddrEmail;
+							else if(_state == _FFFF64)
+								brush_ident = brushInvalid;
+							if(brush_ident) {
+								::SetBkMode(p_dc->H_DC, TRANSPARENT);
+								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brush_ident));
+								clearEvent(event);
+							}
+						}
+					}
+				}
+				else
+					return;
+			}
+			else if(event.isCmd(cmMouseHoverCtrl)) { // @v12.7.9
+				const  uint ctl_id = event.getCtlID();
+				if(ctl_id == CTL_CCBYBILL_EADDR) {
+					PPShowCtrlIndicatorHintOnInputLine(this, ctl_id);
+				}
 			}
 			else
 				return;
@@ -1495,7 +1529,7 @@ static int _EditCcByBillParam(PPBillPacket::ConvertToCCheckParam & rParam)
 				status = 0;
 			return status;
 		}
-		int    EAddrInputState; // 0 - empty, -1 - invalid, SNTOK_PHONE, SNTOK_EMAIL
+		// @v12.7.9 int    EAddrInputState; // 0 - empty, -1 - invalid, SNTOK_PHONE, SNTOK_EMAIL
 		PPTokenRecognizer Trgn;
 		SPaintToolBox Ptb;
 	};
@@ -2785,7 +2819,7 @@ int PPObjBill::AddGenAccturn(PPID * pBillID, PPID opID, PPID registerID)
 	THROW(atobj->CreateBlankAccTurn(opID, &pack, &flags, 1));
 	if(pack.Turns.getCount()) {
 		PPAccTurn & r_at = pack.Turns.at(0);
-		SETIFZ(r_at.DbtID.ac, registerID);
+		SETIFZ(r_at.DbtID.AcID, registerID);
 	}
 	do {
 		THROW(r = EditGenericAccTurn(pack, flags));
@@ -4860,7 +4894,7 @@ int PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
 			//
 			// Определяем балансовый счет основных средств
 			//
-			AcctID accid;
+			AccIdent accid;
 			PPID   acs_id = 0;
 			if(atobj->ConvertAcct(&CConfig.AssetAcct, 0 /*@curID*/, &accid, &acs_id) > 0)
 				pCard->AssetAcctID = accid;
@@ -10435,20 +10469,20 @@ int PPObjBill::ConvertGenAccturnToExtAccBill(PPID srcID, PPID * pDestID, const C
 		THROW(dest_pack.CreateBlank(pParam->OpID, 0, pParam->LocID ? pParam->LocID : src_pack.Rec.LocID, use_ta));
 		dest_pack.Rec.Object  = pParam->ObjID;
 		dest_pack.Rec.Object2 = pParam->ExtObjID;
-		if(p_at->DbtSheet) {
-			if(p_at->DbtSheet == op_rec.AccSheetID) {
-				SETIFZ(dest_pack.Rec.Object, p_at->DbtID.ar);
+		if(p_at->DbtAcsID) {
+			if(p_at->DbtAcsID == op_rec.AccSheetID) {
+				SETIFZ(dest_pack.Rec.Object, p_at->DbtID.ArID);
 			}
-			else if(p_at->DbtSheet == op_rec.AccSheet2ID) {
-				SETIFZ(dest_pack.Rec.Object2, p_at->DbtID.ar);
+			else if(p_at->DbtAcsID == op_rec.AccSheet2ID) {
+				SETIFZ(dest_pack.Rec.Object2, p_at->DbtID.ArID);
 			}
 		}
-		if(p_at->CrdSheet) {
-			if(p_at->CrdSheet == op_rec.AccSheetID) {
-				SETIFZ(dest_pack.Rec.Object, p_at->CrdID.ar);
+		if(p_at->CrdAcsID) {
+			if(p_at->CrdAcsID == op_rec.AccSheetID) {
+				SETIFZ(dest_pack.Rec.Object, p_at->CrdID.ArID);
 			}
-			else if(p_at->CrdSheet == op_rec.AccSheet2ID) {
-				SETIFZ(dest_pack.Rec.Object2, p_at->CrdID.ar);
+			else if(p_at->CrdAcsID == op_rec.AccSheet2ID) {
+				SETIFZ(dest_pack.Rec.Object2, p_at->CrdID.ArID);
 			}
 		}
 		dest_pack.Rec.Dt = src_pack.Rec.Dt;

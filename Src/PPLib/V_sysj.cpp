@@ -704,7 +704,7 @@ DBQuery * PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 		if(Filt.BegTm)
 			dbq = & (*dbq && sj->Tm >= static_cast<long>(Filt.BegTm));
 		// @v12.5.1 {
-		q = & Select_(
+		q = &Select_(
 			sj->ObjType,  // #0
 			sj->ObjID,    // #1
 			0L);
@@ -718,7 +718,7 @@ DBQuery * PPViewSysJournal::CreateBrowserQuery(uint * pBrwId, SString *)
 		q->addField(dbe_objtitle); // #9
 		q->addField(dbe_person);   // #10
 		// } @v12.5.1 
-		/* @v12.5.1 q = & Select_(
+		/* @v12.5.1 q = &Select_(
 			sj->ObjType,  // #0
 			sj->ObjID,    // #1
 			*dbe_extra,   // #2
@@ -1555,7 +1555,7 @@ DBQuery * PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 			dbe_objname.push(dbconst(this));
 			dbe_objname.push(static_cast<DBFunc>(DynFuncObjNameFromList));
 		}
-		q = & Select_(
+		q = &Select_(
 			t->ObjType,   // #0
 			t->ObjID,     // #1
 			t->Op,        // #2
@@ -1566,7 +1566,7 @@ DBQuery * PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 		q->addField(dbe_action);   // #6
 		q->addField(dbe_objtitle); // #7
 		q->addField(dbe_objname);  // #8
-		/* @v12.5.7 q = & Select_(
+		/* @v12.5.7 q = &Select_(
 			t->ObjType,   // #0
 			t->ObjID,     // #1
 			t->Op,        // #2
@@ -1580,7 +1580,7 @@ DBQuery * PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 		q->from(t, /*nm,*/ 0L);
 	}
 	else {
-		q = & Select_(
+		q = &Select_(
 			t->ObjType,   // #0
 			t->ObjID,     // #1
 			t->Op,        // #2
@@ -1590,7 +1590,7 @@ DBQuery * PPViewGtaJournal::CreateBrowserQuery(uint * pBrwId, SString * pSubTitl
 		q->addField(dbe_user);     // #5
 		q->addField(dbe_action);   // #6
 		q->addField(dbe_objtitle); // #7
-		/* @v12.5.7 q = & Select_(
+		/* @v12.5.7 q = &Select_(
 			t->ObjType,   // #0
 			t->ObjID,     // #1
 			t->Op,        // #2

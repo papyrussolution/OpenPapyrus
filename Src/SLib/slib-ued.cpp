@@ -1,4 +1,4 @@
-﻿// slib-ued.cpp
+// slib-ued.cpp
 // Copyright (c) A.Sobolev 2026
 // @codepage UTF-8
 //
@@ -155,9 +155,9 @@ ued_t FASTCALL ued_t::operator = (uint64 v)
 
 /*static*/bool UED::GetRaw_MacAddr(uint64 ued, MACAddr & rVal)
 {
-	bool ok = false;
+	bool   ok = false;
 	uint64 raw_val = 0;
-	const uint64 meta = GetMeta(ued);
+	const  uint64 meta = GetMeta(ued);
 	if(meta == UED_META_MACADDR && GetRawValue(ued, &raw_val)) {
 		assert(PTR8(&raw_val)[6] == 0 && PTR8(&raw_val)[7] == 0);
 		memcpy(&rVal, &raw_val, sizeof(rVal));
@@ -187,7 +187,7 @@ uint64 UedEncodeRange(uint64 upp, uint granulation, uint bits, double value)
 		assert(granulation < ((1ULL << bits) - 1));
 	}
 	uint64 result = 0;
-	const uint64 ued_width = ((1ULL << bits) - 1) / granulation * granulation;
+	const  uint64 ued_width = ((1ULL << bits) - 1) / granulation * granulation;
 	result = static_cast<uint64>((ued_width / upp) * value);
 	return result;
 }
@@ -356,8 +356,8 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 {
 	rT.Z();
 	assert(flagsBits <= 8);
-	bool ok = false;
-	uint flags = 0;
+	bool   ok = false;
+	uint   flags = 0;
 	const  uint bits = GetMetaRawDataBits(meta);
 	if(bits && BelongsToMeta(ued, meta)) {
 		if(flagsBits <= 8) {
@@ -485,7 +485,7 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 	return result;
 }
 
-/*static*/bool   UED::GetRaw_Ar_DNI(uint64 ued, SString & rT)
+/*static*/bool UED::GetRaw_Ar_DNI(uint64 ued, SString & rT)
 {
 	uint flags = 0;
 	bool ok = Helper_GetRaw_DecimalString(UED_META_AR_DNI, ued, rT, 4, &flags);
@@ -622,6 +622,166 @@ bool UedDecodeRange(uint64 v, uint64 upp, uint granulation, uint bits, double * 
 		rC.Set(rv.Bytes[2], rv.Bytes[1], rv.Bytes[0]);
 		rC.SetAlpha(rv.Bytes[3]);
 		ok = true;
+	}
+	return ok;
+}
+
+static constexpr uint Ru_LicPlate_max_statu_bits = 10;
+static constexpr uint Ru_LicPlate_max_alpha_bits = 11;
+static constexpr uint Ru_LicPlate_max_dec_bits = 20;
+static const char * P_Ru_LicPlate_Symbs_Utf8  = "АВЕКМНОРСТУХ";
+//static constexpr char * P_RuLicPlateUtf8Symbs = "АВЕКМНОРСТУХавекмнорстухABEKMHOPCTYXabekmhopctyx";
+
+/*static*/uint64 UED::SetRaw_Ru_LicPlate(const char * pT) // @v12.7.9 @construction
+{
+	/*
+		0000000140A20000 "ru_licplate" // @v12.7.9 Российский автомобильный номер (3 буквы из 12-значного набора, 3 цифры + 2-3 цифры региона + 10bit код страны) 
+			// То есть: 12^3 + 10^6 = 1728000000 -> ~32bit + 10bit
+	*/ 
+	uint64 result = 0ULL;
+	STokenRecognizer tr;
+	SNaturalTokenArray nta;
+	SNaturalTokenStat nts;
+	const  uchar * p_tok = reinterpret_cast<const uchar *>(pT);
+	const  size_t tok_len = sstrlen32(pT);
+	tr.Run(p_tok, tok_len, nta, &nts);
+	if(nta.Has(SNTOK_RU_LICPLATE)) {
+		SString temp_buf;
+		if(tr.NormalizeToken(p_tok, tok_len, nts, SNTOK_RU_LICPLATE, temp_buf)) {
+			// 
+			// 10bit - country (const 0xc1), 11bit - 3 буквы (12 значений у каждой), 20bit - 6 десятичных цифр
+			// биты государства сдвинуты в самые старшие позиции 48-битного отрезка, остальные 31 бит - в младших разрядах
+			// UED_STATU_RU = 193 (0xc1)
+			//
+			static_assert((Ru_LicPlate_max_statu_bits + Ru_LicPlate_max_alpha_bits + Ru_LicPlate_max_dec_bits) <= 48);
+			bool   local_fault = false;
+			uint64 raw_value = 0ULL;
+			SString a;
+			SStringU norm_buf_u;
+			raw_value = static_cast<uint64>(UED::GetRawValue32(UED_STATU_RU)) << (48-Ru_LicPlate_max_statu_bits);
+			if(temp_buf.IsLegalUtf8()) {
+				norm_buf_u.CopyFromUtf8(temp_buf);
+			}
+			else {
+				// По поводу взаимоисключения SNTOKSEQ_866 и SNTOKSEQ_1251: функция tr.Run позаботилась об этом (см. соответсвующий блок в STokenRecognizer::Implement)
+				if(nts.Seq & SNTOKSEQ_866) {
+					norm_buf_u.CopyFromMb_INNER(temp_buf, temp_buf.Len());
+				}
+				else if(nts.Seq & SNTOKSEQ_1251) {
+					norm_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
+				}
+				else {
+					local_fault = true; // @err
+				}
+			}
+			if(!local_fault) {
+				assert(oneof2(norm_buf_u.Len(), 8, 9)); // Если условие нарушено, то функции tr.Run и tr.NormalizeToken накосячили!
+				if(oneof2(norm_buf_u.Len(), 8, 9)) {
+					//А827РВ54
+					//Т877ХК750
+					SStringU symbs_u;
+					const  bool cfur = symbs_u.CopyFromUtf8Strict(P_Ru_LicPlate_Symbs_Utf8, sstrlen(P_Ru_LicPlate_Symbs_Utf8));
+					assert(cfur);
+					if(cfur) {
+						if(norm_buf_u.Len() == 8) {
+							// Вставим ноль для компенсации 2-значного регионального номера до 3-значного.
+							norm_buf_u.Insert(6, L"0");
+						}
+						assert(norm_buf_u.Len() == 9);
+						uint64 dec_bits = 0;
+						uint64 alpha_bits = 0;
+						uint   dec_ord = 0;
+						uint   alpha_ord = 0;
+						uint   i = norm_buf_u.Len();
+						if(i) do {
+							const  wchar_t c = norm_buf_u.C(--i);
+							if(isdec(c)) {
+								dec_bits += ((c - L'0') * ui64pow10(dec_ord));
+								dec_ord++;
+							}
+							else {
+								uint  sp = 0;
+								if(symbs_u.SearchChar(c, &sp)) {
+									alpha_bits += (sp * ui64pow(12, alpha_ord));
+									alpha_ord++;
+								}
+								else {
+									local_fault = true; // @err
+								}
+							}
+						} while(!local_fault && i);
+						if(!local_fault) {
+							const  uint clz_alpha_bits = SBits::Clz(alpha_bits);
+							const  uint clz_dec_bits = SBits::Clz(dec_bits);
+							assert(clz_alpha_bits >= (64-Ru_LicPlate_max_alpha_bits));
+							assert(clz_dec_bits >= (64-Ru_LicPlate_max_dec_bits));
+							raw_value |= ((alpha_bits << Ru_LicPlate_max_dec_bits) | dec_bits);
+							result = UED::ApplyMetaToRawValue(UED_META_RU_LICPLATE, raw_value);
+							// done!
+						}
+					}
+					else {
+						local_fault = true; // @err
+					}
+				}
+				else {
+					local_fault = true; // @err
+				}
+			}
+		}
+	}
+	return result;
+}
+
+/*static*/bool UED::GetRaw_Ru_LicPlate(uint64 ued, SString & rT) // @v12.7.9 @construction
+{
+	rT.Z();
+	bool   ok = false;
+	uint64 raw_value = 0ULL;
+	if(BelongsToMeta(ued, UED_META_RU_LICPLATE)) {
+		uint64 country_bits = 0;
+		uint64 alpha_bits = 0;
+		uint64 dec_bits = 0;
+		if(GetRawValue(ued, &raw_value)) {
+			country_bits = (raw_value >> (48-Ru_LicPlate_max_statu_bits));
+			alpha_bits = (raw_value >> Ru_LicPlate_max_dec_bits) | ((1ULL << Ru_LicPlate_max_alpha_bits) - 1ULL);
+			dec_bits = (raw_value) | ((1ULL << Ru_LicPlate_max_dec_bits) - 1ULL);
+			if(alpha_bits > 0ULL && dec_bits > 0) {
+				const  ued_t ued_country = UED::ApplyMetaToRawValue(UED_META_STATU, country_bits);
+				if(ued_country == UED_STATU_RU) {
+					SStringU symbs_u;
+					const  bool cfur = symbs_u.CopyFromUtf8Strict(P_Ru_LicPlate_Symbs_Utf8, sstrlen(P_Ru_LicPlate_Symbs_Utf8));
+					assert(cfur);
+					if(cfur) {
+						SString dec_buf;
+						SStringU alpha_buf_u;
+						dec_buf.Cat(dec_bits);
+						{
+							while(alpha_bits > 0) {
+								alpha_buf_u.CatChar(symbs_u.C(alpha_bits % 12));
+								alpha_bits /= 12;
+							}
+						}
+						if(dec_buf.Len() == 6 && alpha_buf_u.Len() == 3) {
+							SStringU result_buf_u;
+							result_buf_u.CatChar(alpha_buf_u.C(0));
+							result_buf_u.CatChar(dec_buf.C(0));
+							result_buf_u.CatChar(dec_buf.C(1));
+							result_buf_u.CatChar(dec_buf.C(2));
+							result_buf_u.CatChar(alpha_buf_u.C(1));
+							result_buf_u.CatChar(alpha_buf_u.C(2));
+							if(dec_buf.C(3) != '0') {
+								result_buf_u.CatChar(dec_buf.C(3));
+							}
+							result_buf_u.CatChar(dec_buf.C(4));
+							result_buf_u.CatChar(dec_buf.C(5));
+							if(result_buf_u.CopyToUtf8(rT, 1))
+								ok = true;
+						}
+					}
+				}
+			}
+		}
 	}
 	return ok;
 }

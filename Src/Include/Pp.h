@@ -540,6 +540,10 @@ public:
 	static constexpr const char * PipeCrr32Proxi = "PapyrusCrr32Proxi"; // @v11.9.5 Имя именованного канала, по которому осуществляется взаимодействие
 		// с proxi-сервером, обеспечивающим интерфейс с 32-битным клиентом CristalReports.
 	static constexpr GUID TsPiotRegUUID = {0x41d489c3, 0x3ca2, 0x4d4e, { 0x99, 0xbd, 0x08, 0x61, 0x44, 0xd7, 0x42, 0x7f }}; // @v12.6.6 Регистрационный GUID Papyrus для работы с тс пиот (получен 20260601)
+	static constexpr const char * P_PredefAccountSymb_Exp = "rPSNACCEXP"; // @v12.7.9
+	static constexpr const char * P_PredefAccountSymb_Inc = "rPSNACCINC"; // @v12.7.9
+	static constexpr const char * P_PredefAccountSymb_Cor = "rPSNACCCOR"; // @v12.7.9
+	static constexpr const char * P_PredefAccountSymb_Liq = "rPSNACCLIQ"; // @v12.7.9
 };
 //
 // @v11.7.3 (все константы стали static constexpr) extern const PPConstParam _PPConst;
@@ -1652,6 +1656,7 @@ public:
 	static int IdClientActivityState; // @v12.2.2 (personID, LDATE actualDate, LDATE newCliPeriodLo, LDATE newCliPeriodUp) Возвращает ClientActivityState::State
 	static int IdObjLocAddress;     // @v12.4.1 (fldLocID) текст адреса локации
 	static int IdObjMemoTech;       // @v12.5.12 (fldTechID)
+	static int IdObjNameGoodsType;  // @v12.7.9 (fldGoodsTypeID)
 
 	static int Register();
 	static void STDCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
@@ -5323,14 +5328,15 @@ struct Acct {
 //
 // Бух. счет в форме ид-ров баз данных (DB format);
 //
-struct AcctID {
-	AcctID();
-	AcctID & Z();
-	bool   FASTCALL operator == (AcctID s) const;
-	bool   FASTCALL operator != (AcctID s) const;
+struct AccIdent {
+	AccIdent();
+	AccIdent & Z();
+	AccIdent & Set(PPID acID, PPID arID); // @v12.7.9
+	bool   FASTCALL operator == (AccIdent s) const;
+	bool   FASTCALL operator != (AccIdent s) const;
 
-	PPID   ac;
-	PPID   ar;
+	PPID   AcID; //ac;
+	PPID   ArID; //ar;
 };
 //
 // Тип STAcct подогнан под использование в списках ComboBox'а
@@ -5385,10 +5391,10 @@ struct PPAccTurn { // @persistent
 	bool   SetNonBalancedFlow(int dir/*PPATFLOW_XXX*/);
 	int    GetNonBalancedFlow() const;
 
-	AcctID DbtID;
-	PPID   DbtSheet;
-	AcctID CrdID;
-	PPID   CrdSheet;
+	AccIdent DbtID;
+	PPID   DbtAcsID;
+	AccIdent CrdID;
+	PPID   CrdAcsID;
 	LDATE  Date;
 	char   BillCode[48];   // Код документа
 	PPID   BillID;         // Идентификатор документа
@@ -5455,8 +5461,8 @@ public:
 	PPID   ObjType;       // Const=PPOBJ_OPRKIND
 	PPID   ObjID;         // ->Ref(PPOBJ_OPRKIND)
 	PPID   ID;            // Номер шаблона для операции (1..PP_MAXATURNTEMPLATES)
-	AcctID DbtID;
-	AcctID CrdID;
+	AccIdent DbtID;
+	AccIdent CrdID;
 	long   Flags;
 	DateRange Period;     // Период действия шаблона
 	//
@@ -5475,7 +5481,7 @@ private:
 		struct Item {
 			Item();
 
-			AcctID Aid;
+			AccIdent Aid;
 			PPID   AcsID;
 		};
 		TSVector <ATSubstObjects::Item> PrimList;
@@ -5504,14 +5510,14 @@ private:
 	};
 	int    SetupAccounts(ATBillParam & rParam, PPID curID, PPAccTurn * pAT) const;
 		// @<<PPAccTurnTempl::CreateAccturns, @<<PPAccTurnTempl::CreateBaseProjectionAccturns
-	int    SubstAcct(int side, PPAccTurn *, const ATSubstObjects *, const AcctID *, const AcctID *) const;
+	int    SubstAcct(int side, PPAccTurn *, const ATSubstObjects *, const AccIdent *, const AccIdent *) const;
 		// @<<PPAccTurnTempl::SetupAccounts
 	int    ParseSubstString(const char * str, int * lp, int * skipzobj);
 	int    SubstToString(SString & rBuf, int * lp, int skipzobj);
 	int    GetObjByVar(PPID, ATBillParam *, PPID * pObjID) const;
 	int    GetSubstObjects(ATBillParam *, ATSubstObjects *, int byAcc) const;
 		// @<<PPAccTurnTempl::SetupAccounts
-	int    ResolveAlias(int side, AcctID * pAcct, const ATSubstObjects * pAtso) const;
+	int    ResolveAlias(int side, AccIdent * pAcct, const ATSubstObjects * pAtso) const;
 		// @<<PPAccTurnTempl::SetupAccounts
 	int    EnumerateExtLines(const PPBillPacket * pPack, ExtLinesBlock * pBlk) const;
 };
@@ -7967,7 +7973,7 @@ public:
 	// Note: Функция использует данные сформированные вызовом CheckRemoteHosts(), осуществленным
 	//   в начале сеанса по заданному списку имен хостов.
 	//
-	int    GetHostAvailability(const char * pHost); // @v11.1.2
+	int    GetHostAvailability(const char * pHost);
 	//
 	//
 	//
@@ -8389,7 +8395,7 @@ int    FASTCALL GetPersonName(PPID id, SString & rBuf);
 int    FASTCALL GetGoodsNameR(PPID goodsID, SString & rBuf);
 SString & FASTCALL GetGoodsName(PPID goodsID, SString & rBuf);
 int    FASTCALL GetAcctName(const Acct *, PPID curID, long fmt, SString & rBuf);
-int    FASTCALL GetAcctIDName(const AcctID & rAci, long fmt, SString & rBuf);
+int    FASTCALL GetAcctIDName(const AccIdent & rAci, long fmt, SString & rBuf);
 int    FASTCALL GetArticleName(PPID arID, SString & rBuf);
 int    FASTCALL GetArticleSheetID(PPID arID, PPID * pAccSheetID, PPID * pLnkObjID = 0);
 int    FASTCALL GetRegisterTypeName(PPID rtID, SString & rBuf);
@@ -22667,6 +22673,8 @@ struct PPAccountPacket {
 #define ACY_SEL_ALIAS        ACY_ALIAS
 #define ACY_SEL_BUDGET       ACY_BUDGET
 #define ACY_SEL_PERSONAL     ACY_PERSONAL // @v12.7.4 
+#define ACY_SEL_PERSONAL_USER   ((ACY_PERSONAL * 1000) + 1) // @v12.7.9 Персональные пользовательские счета
+#define ACY_SEL_PERSONAL_PREDEF ((ACY_PERSONAL * 1000) + 2) // @v12.7.9 Персональные предопределенные счета
 #define ACY_SEL_BALCUR       -1
 #define ACY_SEL_BALOBAL      -2
 #define ACY_SEL_BALOBALCUR   -3
@@ -22678,6 +22686,7 @@ public:
 	static Reference2Tbl::Key2 & MakeAcctKey(int ac, int sb, Reference2Tbl::Key2 & rKey);
 	static int  CheckRecursion(PPID id, PPID parentID);
 	static void GenerateCode(PPAccount & rRec);
+	static bool IsPredefPersonalAcc(const PPAccount & rRec); // @v12.7.9
 	explicit PPObjAccount(void * extraPtr = 0);
 	~PPObjAccount();
 	virtual int  Edit(PPID *, void * extraPtr);
@@ -22690,7 +22699,7 @@ public:
 	int    GetIntersectCurList(PPID accID_1, PPID accID_2, PPIDArray * pCurList);
 	int    GetSubacctList(int ac, int sb, PPID curID, PPIDArray * pList);
 	int    HasAnySubacct(int ac);
-	int    InitAccSheetForAcctID(AcctID * pAcctId, PPID * pAccSheetID);
+	int    InitAccSheetForAcctID(AccIdent * pAcctId, PPID * pAccSheetID);
 	//
 	// Для функции Selector дополнительное значение:
 	//  ACY_SEL_AGGR         - только группирующие счета
@@ -22807,7 +22816,7 @@ public:
 	// @! Без транзакции
 	//
 	int    ReplaceAcct(int oldAc, int oldSb, int newAc, int newSb);
-	int    SearchAcctID(const AcctID * pAcctId, AcctRelTbl::Rec * pRec = 0);
+	int    SearchAcctID(const AccIdent * pAcctId, AcctRelTbl::Rec * pRec = 0);
 	//
 	// Descr: Если параметр closed == -1, то ищет последний закрытый счет с
 	//   номером acct. Иначе ищет точное соответствие { closed, acct }
@@ -22817,7 +22826,7 @@ public:
 	// Так как операции модификации этой таблицы, кроме CloseAcct,
 	// не используются самостоятельно, то транзакции здесь не применяются //
 	//
-	int    OpenAcct(PPID *, const Acct *, PPID curID, const AcctID *, int accKind, int accsLevel = 0);
+	int    OpenAcct(PPID *, const Acct *, PPID curID, const AccIdent *, int accKind, int accsLevel = 0);
 	int    CloseAcct(PPID, int use_ta);
 private:
 	SEnum::Imp * Enum(int keyN, PPID keyID);
@@ -22879,8 +22888,8 @@ public:
 	int    Turn(PPAccTurn & rAt, int use_ta);
 	int    RollbackTurn(PPID, short rByBill, int use_ta);
 	int    UpdateAmount(PPID, short rByBill, double newAmt, double cRate, int use_ta);
-	int    AcctIDToRel(const AcctID *, PPID * rel);
-	int    AcctRelToID(PPID relID, AcctID *, PPID * pAccSheetID);
+	int    AcctIDToRel(const AccIdent *, PPID * rel);
+	int    AcctRelToID(PPID relID, AccIdent *, PPID * pAccSheetID);
 	int    GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec, int createIfNExists, int use_ta);
 	//
 	// Descr: возвращает список счетов 2-го порядка (pAccList),
@@ -22893,10 +22902,10 @@ public:
 	//   0  - Error (PPERR_NOMEM, PPERR_SLIB, PPERR_ACCNGEN)
 	//
 	int    GetExtentAccListByGen(PPID genAccID, ObjRestrictArray *, PPIDArray * pCurList);
-	int    GetBaseAcctID(const AcctID & rCurAcctId, AcctID * pBaseAcctId);
-	int    ConvertAcct(const Acct *, PPID curID, AcctID *, PPID * pSheetID);
-	int    ConvertAcctID(const AcctID & rAci, Acct *, PPID * pCurID, int useCache);
-	int    ConvertStr(const char *, PPID curID, Acct *, AcctID *, PPID * pSheetID);
+	int    GetBaseAcctID(const AccIdent & rCurAcctId, AccIdent * pBaseAcctId);
+	int    ConvertAcct(const Acct *, PPID curID, AccIdent *, PPID * pSheetID);
+	int    ConvertAcctID(const AccIdent & rAci, Acct *, PPID * pCurID, int useCache);
+	int    ConvertStr(const char *, PPID curID, Acct *, AccIdent *, PPID * pSheetID);
 	int    GetAcctRest(LDATE, PPID accrel, double *, int incoming);
 	//
 	// Descr: Возвращает дебитовый и кредитовый остатки по балансовому счету accID на
@@ -22957,7 +22966,7 @@ private:
 	int    _RecByBill(PPID billID, short * rByBill);
 	int    _UpdateForward(LDATE, long, PPID accRel, const AccTurnParam & rParam);
 	int    _Turn(const PPAccTurn * pAt, PPID accRel, PPID corrAccRel, const AccTurnParam & rParam);
-	int    _ProcessAcct(int side, PPID curID, const AcctID &, PPID * pAccRelID, AccTurnParam *);
+	int    _ProcessAcct(int side, PPID curID, const AccIdent &, PPID * pAccRelID, AccTurnParam *);
 	int    _RollbackTurn(int side, LDATE date, long oprNo, PPID bal, PPID rel, double);
 	int    _UpdateTurn(PPID billID, short rByBill, double newAmt, double cRate, int use_ta);
 	int    _RecalcBalance(PPID, const RecoverBalanceParam *, PPLogger &);
@@ -30149,9 +30158,9 @@ public:
 	int    EditDialog(ArticleDlgData *);
 	int    EditGrpArticle(PPID * pID, PPID sheetID);
 	int    NewArticle(PPID * pID, long sheetID);
-	int    GetMainOrgAsSuppl(PPID * id, int processAbsense = 0, int use_ta = 0);
-	int    CreateObjRef(PPID *, PPID accSheetID, PPID objID, long ar, int use_ta);
-	int    AddSimple(PPID *, PPID accSheetID, const char * pName, long ar, int use_ta);
+	int    GetMainOrgAsSuppl(PPID * pID, int processAbsense = 0, int use_ta = 0);
+	int    CreateObjRef(PPID * pID, PPID accSheetID, PPID objID, long ar, int use_ta);
+	int    AddSimple(PPID * pID, PPID accSheetID, const char * pName, long ar, int use_ta);
 	int    GetClientAgreement(PPID id, PPClientAgreement & rAgt, int use_default = 0);
 	static int PutClientAgreement(PPID id, PPClientAgreement *, int use_ta);
 	int    HasClientAgreement(PPID arID);
@@ -30179,6 +30188,7 @@ public:
 	int    GetRelPersonList(PPID arID, PPID relTypeID, int reverse, PPIDArray * pList);
 	int    GetRelPersonSingle(PPID arID, PPID relTypeID, int reverse, PPID * pRelID);
 	int    GetByProcessor(PPID accSheetID, PPID prcID, PPIDArray * pArList);
+	int    ImportPredefinedJson(PPID accSheetID, const char * pFileName, int use_ta); // @v12.7.9
 	//
 	static int ConvertClientAgreements_11200(Reference * pRef, int use_ta);
 private:
@@ -30187,6 +30197,7 @@ private:
 	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual const char * GetNamePtr();
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
+	virtual int  MakeReserved(long flags); // @v12.7.9
 	int    SearchAssocObjRef(PPID objType, PPID objID, PPID * pAccSheetID, PPID kind, PPID * pID);
 	int    ReplyArticleReplace(PPID dest, PPID src);
 	int    ReplyPersonReplace(PPID dest, PPID src);
@@ -30195,6 +30206,7 @@ private:
 	int    _UpdateName(const char * pNewName);
 	int    Helper_PutAgreement(PPID id, PPArticlePacket * pPack);
 	int    Helper_MakeHierarchicalStrAssocList(PPID parentID, const ArticleFilt * pFilt, StrAssocArray * pList);
+	bool   AcceptPredefinedJsonObj(PPID accSheetID, PPID parentArID, const SJson * pJs, int use_ta);
 
 	void * ExtraPtr;
 	ArticleFilt CurrFilt;
@@ -31487,6 +31499,20 @@ public:
 	// Descr: поиск товара по артикулу, полученному при импорте в Papyrus.
 	//
 	int    SearchByArticle(PPID article, BarcodeTbl::Rec * pRec);
+	//
+	// Descr: Набор кодов товара для экспорта данных
+	//
+	struct ExportDataCodeSet {
+		ExportDataCodeSet & Z();
+
+		SString Code;
+		SString CodeForMarking;  // Валидный штрихкод для формирования суррогатной chzn-марки для некоторых категорий товаров
+		SString CodeForExchange; // Валидный штрихкод для передачи контрагенту с целью идентификации товара
+	};
+	//
+	// Descr: Специализированная функция, получающая набор кодов товара, необходимый для экспорта документов.
+	//
+	int   GetExportDataCodeSet(PPID id, ExportDataCodeSet & rSet); // @v12.7.9
 	//
 	// Descr: Флаги функции PPObjGoods::GetRetailGoodsInfo
 	//
@@ -34990,7 +35016,7 @@ struct AssetCard {
 	PPID   OrgLotID;
 	double OrgCost;     // Начальная балансовая стоимость
 	double OrgPrice;    // Начальная остаточная стоимость
-	AcctID AssetAcctID;
+	AccIdent AssetAcctID;
 	PPID   ExplBillID;
 	SVector * P_MovList;
 };
@@ -36531,12 +36557,12 @@ public:
 	//
 	// В функции ConvertStr параметры pAcctId и pAccSheetID могут быть нулевыми
 	//
-	int    ConvertStr(const char *, PPID curID, Acct *, AcctID * pAcctId, PPID * pAccSheetID);
+	int    ConvertStr(const char *, PPID curID, Acct *, AccIdent * pAcctId, PPID * pAccSheetID);
 	//
 	// В функции ConvertAcct параметр pAccSheetID может быть нулевым
 	//
-	int    ConvertAcct(const Acct *, PPID curID, AcctID *, PPID * pAccSheetID);
-	int    ConvertAcctID(const AcctID & rAci, Acct *, PPID * pCurID, int useCache);
+	int    ConvertAcct(const Acct *, PPID curID, AccIdent *, PPID * pAccSheetID);
+	int    ConvertAcctID(const AccIdent & rAci, Acct *, PPID * pCurID, int useCache);
 	int    CorrectRelsArRefs();
 	int    VerifyRevokingCurFromAccount(PPID accID, PPID curID);
 	int    VerifyChangingAccsheetOfAccount(PPID accID);
@@ -36784,6 +36810,7 @@ public:
 	ObjIdListFilt ArList;         //
 	ObjIdListFilt AgentList;      //
 	TagFilt * P_BillTagF;         // @v12.5.8 Фильтр по тегам документов, которые перебираются при формировании отчета //
+	TagFilt * P_DlvrLocTagF;      // @v12.7.9 Фильтр по тегам адресов доставки из документов, которые перебираются при формировании отчета //
 private:
 	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 	void   Helper_Init();
@@ -45426,7 +45453,7 @@ public:
 	PPCycleFilt Cycl;      // Цикл анализа (If CorAco == 0 then ignored)
 	long   InitOrder;      // PPViewAccAnlz::IterOrder
 	long   Flags;          // Опции (AccAnlzFilt::fXXX)
-	AcctID AcctId;         //
+	AccIdent AcctId;         //
 	PPID   AccSheetID;     //
 	//
 	// If (Flags & AccAnlzFilt::fAllCurrencies) then CurID = -1.
@@ -46792,12 +46819,12 @@ public:
 		ravTurnoverRate = 0x0004, // Коэффициент оборачиваемости (движение / остаток)
 	};
 
-	uint8  ReserveStart[32];     // @anchor // @v11.0.1 [4]-->[32]
+	uint8  ReserveStart[32];     // @anchor
 	DateRange DueDatePeriod;     // Период даты исполнения документов
 	long   ExtValueParam[2];     // Параметры, определяющие вычисление дополнительных показателей отчета
 	long   RestAddendumValue;    // Параметр, определяющий варинат отображения значений, базирующихся на остатках
-	long   ExtFactorParam[3];    // @v11.0.1
-	long   ExtFactorAddendum[3]; // @v11.0.1
+	long   ExtFactorParam[3];
+	long   ExtFactorAddendum[3];
 	PPID   AcsID;                // Таблица статей для выбора контрагента (если не выбран вид операции)
 	PPID   SupplAgentID;         // Агент поставщика
 	DateRange Period;
@@ -46826,6 +46853,7 @@ public:
 	ObjIdListFilt   ArList;       // Список статей контрагентов
 	ObjIdListFilt   AgentList;    // Список статей агентов
 	TagFilt * P_BillTagF;         // @v12.5.8 Фильтр по тегам документов, которые перебираются при формировании отчета //
+	TagFilt * P_DlvrLocTagF;      // @v12.7.9 Фильтр по тегам адресов доставки из документов, которые перебираются при формировании отчета //
 private:
 	void   Helper_Init();
 	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
@@ -56134,7 +56162,7 @@ class AcctCtrlGroup : public CtrlGroup {
 public:
 	struct Rec {
 		Rec();
-		AcctID AcctId;      // @INOUT
+		AccIdent AcctId;      // @INOUT
 		PPID   AccSheetID;  // @INOUT
 		long   AccSelParam; // @IN (ACY_SEL_XXX, -1, -100)
 		long   AccType;     // @OUT Type of selected account (ACY_XXX). -1 - undefined
@@ -56152,7 +56180,7 @@ private:
 	int    processArtInput(TDialog *);
 
 	PPObjAccTurn * P_AtObj; // @notowned (== BillObj->atobj)
-	AcctID AcctId;
+	AccIdent AcctId;
 	PPID   AccSheetID;
 	PPID   CurID;
 	long   AccSelParam;
@@ -56199,7 +56227,7 @@ private:
 	const  uint CmEditList;
 };
 
-class TextHistorySelExtra : public WordSel_ExtraBlock {
+class TextHistorySelExtra : public WordSel_ExtraBlock { // @todo(2020918) eliminate
 public:
 	explicit TextHistorySelExtra(const char * pKey);
 	virtual StrAssocArray * GetList(const char * pText);
@@ -56286,6 +56314,21 @@ private:
 	PPID   LocID;
 	PPObjTag TagObj;
 	StrAssocArray TextBlock;
+};
+//
+// Descr: Дополнение к полю ввода, позволяющее сохранять предыдущие введенные значения и после выбирать их из списка.
+//   Использует локальную к компьютеру базу данных LocalStateBinderyCore.
+//
+class LocalStateBinderySelExtra : public WordSel_ExtraBlock {
+public:
+	explicit LocalStateBinderySelExtra(const LocalStateBinderyCore::StateIdent & rIdent);
+	virtual StrAssocArray * GetList(const char * pText);
+	virtual StrAssocArray * GetRecentList();
+	virtual int Search(long id, SString & rBuf);
+	virtual int SearchText(const char * pText, long * pID, SString & rBuf);
+	virtual void OnAcceptInput(const char * pText, long id);
+private:
+	const  LocalStateBinderyCore::StateIdent StI;
 };
 
 class PersonCtrlGroup : public CtrlGroup {
@@ -56927,6 +56970,7 @@ private:
 	//
 	int    selectGoods(PPID grp, PPID goodsID);
 	PPID   getSelectedItem();
+	int    SetupModifModeIndicator();
 
 	SmartListBox * P_List;
 	PPObjGoods GObj;
@@ -57912,6 +57956,11 @@ public:
 	};
 	// @v12.6.9 @unused static int FASTCALL IsChZnCode(const char * pCode);
 	static SString & FASTCALL RemoveSpcCharsFromCode(SString & rCode);
+	static constexpr bool IsTypeSuitableForSurrogateMarking(int chznProductType)
+	{
+		return oneof7(chznProductType, GTCHZNPT_MILK, GTCHZNPT_WATER, GTCHZNPT_SOFTDRINKS, 
+			GTCHZNPT_VEGETABLEOIL, GTCHZNPT_PETFOOD, GTCHZNPT_GROCERY, GTCHZNPT_CANNEDFOOD); // @v12.7.9 GTCHZNPT_GROCERY, GTCHZNPT_CANNEDFOOD		
+	}
 	//
 	// Descr: Режимы трансформации кодов марок чзн
 	//
@@ -60163,6 +60212,8 @@ public:
 		SString NonEAN_Code; // Код товара, не являющийся EAN или UPC-кодом. Пытаемся идентифицировать товар по нему как коду по статье
 		SString OKEI;
 		SString UOM;
+		SString GtdNumber;    // @v12.7.9
+		ued_t  UedGtdCountry; // @v12.7.9
 		double Qtty;
 		double Price;
 		double PriceWoVat;
@@ -60246,13 +60297,6 @@ public:
 		Invoice(DocNalogRu_Generator & rG, const PPBillPacket & rBp, bool correction = false);
 		SXml::WNode N;
 		const bool IsCorrection;
-	};
-	struct GoodsCodeSet {
-		GoodsCodeSet & Z();
-
-		SString Code;
-		SString CodeForMarking;  // Валидный штрихкод для формирования суррогатной chzn-марки для некоторых категорий товаров
-		SString CodeForExchange; // Валидный штрихкод для передачи контрагенту с целью идентификации товара
 	};
 	DocNalogRu_Generator();
 	~DocNalogRu_Generator();
@@ -60346,8 +60390,7 @@ public:
 	// @v12.5.2 (see WriteExcise2()) void   WriteExcise(SXml::WNode & rParentNode, double value);
 	void   WriteExcise2(int parentNodeTokenId, double value); // @v12.5.2
 	int    WriteWareInfoAddendum(const PPBillImpExpParam & rParam, const PPBillPacket & rBp, uint itemIdx, 
-		const SString & rGoodsCode, const SString & rBarcodeForMarking, bool correction, const PPBillPacket * pOrgBp); // @v12.2.12
-	int    GetGoodsCodeSet(PPID goodsID, DocNalogRu_Generator::GoodsCodeSet & rSet);
+		const PPObjGoods::ExportDataCodeSet & rGcS, bool correction, const PPBillPacket * pOrgBp); // @v12.2.12
 //private:
 	PPObjGoods GObj;
 	PPObjPerson PsnObj;
@@ -60366,7 +60409,13 @@ private:
 		wmlictxCorrectionAfter  = 3,
 		wmlictxUnified          = 4,
 	};
-	void   WriteMarkListOnInvoiceItem3(xmlTextWriter * pX, int contextId, const PPBillImpExpParam & rParam, int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet);
+	//
+	// Returns:
+	//   >0 - хотя-бы одна марка экспортирована (или болжна быть экспортирована)
+	//   <0 - нет марок для экспорта (ни реальных, ни суррогатных)
+	//    0 - error
+	//
+	int    WriteMarkListOnInvoiceItem3(xmlTextWriter * pX, int contextId, const PPBillImpExpParam & rParam, int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet);
 	//
 	// Descr: Извлекает из базы данных идентификатор участника документооборота.
 	//   Сложность в том, что этот идентификатор может быть задан либо в виде тега персоналии (PPTAG_PERSON_ENALOGID),
@@ -60442,7 +60491,7 @@ public:
 	//
 	int    GetOrderRec(BillTbl::Rec & rOrderBillRec);
 	int    WriteInvoiceItems_(bool correction);
-	void   WriteInvoiceItem_Extra2Block(uint trfrItemIdx, bool correction, const SString & rGoodsArCode, const DocNalogRu_Generator::GoodsCodeSet & rGoodsCodeSet);
+	void   WriteInvoiceItem_Extra2Block(uint trfrItemIdx, bool correction, const SString & rGoodsArCode, const PPObjGoods::ExportDataCodeSet & rGoodsCodeSet);
 
 	enum {
 		stError                 = 0x0001, // В конструкторе возникла ошибка
@@ -60480,8 +60529,8 @@ public:
 		fExpOneByOne          = 0x0008, // Экспортировать документы по-одному в каждом файле
 		fCreateAbsenceGoods   = 0x0010, // Создавать отсутствующие товары (если возможно)
 		fDontIdentGoodsByName = 0x0020, // При идентификации товаров
-		fChZnMarkAsCDATA      = 0x0040, // @v11.5.0 Для xml-форматов при экспорте марок чезнак обрамлять значения в конструкцию CDATA
-		fChZnMarkGTINSER      = 0x0080, // @v11.5.0 Марки чезнак экспортировать в виде GTIN-SERIAL, в противном случае - полную марку
+		fChZnMarkAsCDATA      = 0x0040, // Для xml-форматов при экспорте марок чезнак обрамлять значения в конструкцию CDATA
+		fChZnMarkGTINSER      = 0x0080, // Марки чезнак экспортировать в виде GTIN-SERIAL, в противном случае - полную марку
 		fUseExtGoodsName      = 0x0100, // @v11.7.12 При экспорте использовать расширенные наименования товаров (если определены)
 	};
 	
@@ -60497,7 +60546,7 @@ public:
 	long   Flags;             // @persistent
 	PPID   ImpOpID;           // @persistent
 	long   PredefFormat;      // @persistent PredefinedImpExpFormat
-	PPID   FixTagID;          // @v11.5.6  @persistent Тег, фиксирующий факт экспорта документа. Если в документе такой тег установлен, то документ снова не экспортируется.
+	PPID   FixTagID;          // @persistent Тег, фиксирующий факт экспорта документа. Если в документе такой тег установлен, то документ снова не экспортируется.
 	PPID   TiOrdCodeTagID;    // @v12.5.12 @transient Тег, привязанный к строке документа и содержащий номер заказа, по которому товар отгружен.
 	PPID   DtoPersonID;       // @v11.9.12 Ид персоналии оператора передачи данных. Введен ради использования в EDI. В ini-файле не сохраняется и не читается из него!
 	SString Object1SrchCode;  // @persistent
@@ -61439,13 +61488,7 @@ public:
 	};
 
 	struct TodValue { // Terms of delivery or transport
-		TodValue() : FunctionCode(0)
-		{
-			PaymMethodCode[0] = 0;
-			TermDescrCode[0] = 0;
-			CodeListIdCode[0] = 0;
-			CodeListRespAgcCode[0] = 0;
-		}
+		TodValue();
 		// 4055 Delivery or transport terms function code
 		/*
 			1 - Price condition. Specifies a condition related to the price which a seller must fulfil before the buyer will complete a purchase.
@@ -61859,10 +61902,7 @@ private:
 	};
 	int    PreprocessGoodsOnReading(const PPBillPacket * pPack, uint flags, const DocumentDetailValue * pItem, PPID * pGoodsID, int use_ta);
 	struct PartyResolveBlock {
-		PartyResolveBlock()
-		{
-			THISZERO();
-		}
+		PartyResolveBlock();
 		long   Flags;
 		PPID   BillObjID;
 		PPID   MainOrgID;
@@ -62144,7 +62184,7 @@ public:
 		cfDirectFileLogging = 0x0002, // Сообщения выводить на прямую в файлы журналов (без посредничества PPLogger)
 		cfVer3              = 0x0004, // Применять 3-ю версию протокола при отправке документов
 		cfUseVerByConfig    = 0x0008, // Версию протокола применять в соответствии с конфигурацией
-		cfVer4              = 0x0010, // @v11.0.12 Применять 4-ю версию протокола при отправке документов
+		cfVer4              = 0x0010, // Применять 4-ю версию протокола при отправке документов
 	};
 
 	PPEgaisProcessor(long cflags, PPLogger * pOuterLogger, int __reserve);
@@ -62315,7 +62355,7 @@ private:
 		stTestSendingMode = 0x0008, // Тестовый режим отправки сообщений. Фактически, сообщения в виде файлов копируются в каталог TEMP/EGAIX-XXX/OUT-TEST/
 		stDontRemoveTags  = 0x0010, // Опция, припятствующая удалению тегов с документов при получении отрицательных тикетов
 		stUseEgaisVer3    = 0x0040, // Документы отправлять в 3-й версии формата
-		stUseEgaisVer4    = 0x0080, // @v11.0.12 Документы отправлять в 4-й версии формата
+		stUseEgaisVer4    = 0x0080, // Документы отправлять в 4-й версии формата
 	};
 	long   State;
 	const  UtmEntry * P_UtmEntry; // @notowned
@@ -64521,6 +64561,7 @@ void   FASTCALL PPWaitDate(LDATE);
 //
 int    PPCheckUserBreak();
 int    PPShowCtrlIndicatorHint(const char * pText); // @v12.7.7
+int    PPShowCtrlIndicatorHintOnInputLine(TWindow * pWin, uint ctlId); // @v12.7.9
 int    SetupComboByBuddyList(TDialog * pDlg, uint ctlCombo, const ObjIdListFilt & rList);
 //
 // Descr: Устанавливает список баз данных в комбо-бокс ctl диалога dlg.
@@ -64596,14 +64637,15 @@ void   STDCALL SetTimeRangeInput(TDialog *, uint ctl, long fmt, const LTIME * pL
 int    STDCALL GetTimeRangeInput(TDialog *, uint ctl, long fmt, TimeRange * pTimePeriod);
 int    STDCALL GetTimeRangeInput(TDialog *, uint ctl, long fmt, LTIME * pLow, LTIME * pUpp);
 SString & FASTCALL PPFormatPeriod(const DateRange * pPeriod, SString & rBuf);
-SString & FASTCALL PPFormatPeriod(const LDATETIME & rBeg, const LDATETIME & rEnd, SString & rBuf);
-int    FASTCALL SetRealRangeInput(TDialog *, uint ctl, double lo, double up, int prc = 0);
-int    FASTCALL SetRealRangeInput(TDialog *, uint ctl, const RealRange *, int prc = 0);
-int    FASTCALL GetRealRangeInput(TDialog *, uint ctl, double * pLow, double * pUpp);
-int    FASTCALL GetRealRangeInput(TDialog *, uint ctl, RealRange *);
-int    FASTCALL SetIntRangeInput(TDialog *, uint ctl, const IntRange *);
-int    FASTCALL GetIntRangeInput(TDialog *, uint ctl, IntRange *);
-int    FASTCALL PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrlMenuID);
+SString & STDCALL  PPFormatPeriod(const LDATETIME & rBeg, const LDATETIME & rEnd, SString & rBuf);
+int    STDCALL  SetRealRangeInput(TDialog *, uint ctl, double lo, double up, int prc = 0);
+int    STDCALL  SetRealRangeInput(TDialog *, uint ctl, const RealRange *, int prc = 0);
+int    STDCALL  GetRealRangeInput(TDialog *, uint ctl, double * pLow, double * pUpp);
+int    STDCALL  GetRealRangeInput(TDialog *, uint ctl, RealRange *);
+int    STDCALL  SetIntRangeInput(TDialog *, uint ctl, const IntRange *);
+int    STDCALL  GetIntRangeInput(TDialog *, uint ctl, IntRange *);
+int    STDCALL  PPSetupCtrlMenu(TDialog * pDlg, uint ctl, uint ctlButton, uint ctrlMenuID);
+int    PPSetupLocalStateWordSelectorOnInputLine(TWindow * pWin, uint winIdent, uint ctlIdent); // @v12.7.9
 int    PPExecuteContextMenu(TView * pView, uint menuID);
 // @v12.5.12 int    ViewGoodsTurnover(long);
 // @v12.3.11 int    PrintDialog(SPrinter *);
@@ -65645,9 +65687,7 @@ delete dlg; return ok;
 int    ok = -1;                                             \
 dlg_class * dlg = new dlg_class(param1);                 \
 if(CheckDialogPtrErr(&dlg) && dlg->setDTS(data_param)) { \
-	while(ok <= 0 && ExecView(dlg) == cmOK)              \
-		if(dlg->getDTS(data_param)) ok = 1;              \
-		else PPError();                                  \
+	while(ok <= 0 && ExecView(dlg) == cmOK) if(dlg->getDTS(data_param)) ok = 1; else PPError(); \
 }                                                        \
 else ok = 0;                                             \
 delete dlg; return ok;
@@ -65656,9 +65696,7 @@ delete dlg; return ok;
 int    ok = -1;                                             \
 dlg_class * dlg = new dlg_class(param1, param2);         \
 if(CheckDialogPtrErr(&dlg) && dlg->setDTS(data_param)) { \
-	while(ok <= 0 && ExecView(dlg) == cmOK)              \
-		if(dlg->getDTS(data_param)) ok = 1;              \
-		else PPError();                                  \
+	while(ok <= 0 && ExecView(dlg) == cmOK) if(dlg->getDTS(data_param)) ok = 1; else PPError(); \
 }                                                        \
 else ok = 0;                                             \
 delete dlg; return ok;

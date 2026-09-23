@@ -923,7 +923,7 @@ DBQuery * PPViewBizScore::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	dbq = &(t->ObjType == PPOBJ_BIZSCORE);
 	dbq = ppcheckfiltid(dbq, t->Val1, Filt.UserID);
 	// @v12.5.4 {
-	q = & Select_(
+	q = &Select_(
 		t->ObjID,    // #00
 		t->ObjName,  // #01
 		t->Symb,     // #02
@@ -932,7 +932,7 @@ DBQuery * PPViewBizScore::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	q->addField(dbe_descr);   // #04
 	q->addField(dbe_formula); // #05
 	// } @v12.5.4 
-	/* @v12.5.4 q = & Select_(
+	/* @v12.5.4 q = &Select_(
 		t->ObjID,    // #00
 		t->ObjName,  // #01
 		t->Symb,     // #02
@@ -1657,7 +1657,7 @@ DBQuery * PPViewBizScoreVal::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 	dbq = ppcheckfiltid(dbq, t->ScoreID, Filt.BizScoreID);
 	if(Filt.Since.d)
 		dbq = &(*dbq && t->Dt >= Filt.Since.d);
-	q = & Select_(
+	q = &Select_(
 		t->ScoreID,    // #00
 		t->ActualDate, // #01
 		t->ObjID,      // #02
@@ -1665,9 +1665,10 @@ DBQuery * PPViewBizScoreVal::CreateBrowserQuery(uint * pBrwId, SString * pSubTit
 		t->Tm,         // #04
 		t->Val,        // #05 // #07
 		t->Str,        // #06 // #08
-		dbe_bizscore,  // #07 // #05
-		dbe_user,      // #08 // #06
-		0).from(t, 0).where(*dbq).orderBy(t->ActualDate, t->ScoreID, 0L);
+		0L);
+	q->addField(dbe_bizscore); // #07 // #05
+	q->addField(dbe_user);     // #08 // #06
+	q->from(t, 0).where(*dbq).orderBy(t->ActualDate, t->ScoreID, 0L);
 	if(pSubTitle) {
 		*pSubTitle = 0;
 		if(Filt.UserID) {

@@ -35,7 +35,7 @@ TrfrAnlzTotal & TrfrAnlzTotal::Z()
 //
 //
 //
-static constexpr int32 TrfrAnlzFilt_CurrentVer = 5; // @v7.9.11 ver 2-->3 // @v11.0.1 ver 3-->4 // @v12.5.8 4-->5
+static constexpr int32 TrfrAnlzFilt_CurrentVer = 6; // @v7.9.11 ver 2-->3 // @v11.0.1 ver 3-->4 // @v12.5.8 4-->5 // @v12.7.9 5-->6
 
 void TrfrAnlzFilt::Helper_Init()
 {
@@ -48,15 +48,16 @@ void TrfrAnlzFilt::Helper_Init()
 	SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, ArList));
 	SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, AgentList));
 	SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(TrfrAnlzFilt, P_BillTagF)); // @v12.5.8
+	SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(TrfrAnlzFilt, P_DlvrLocTagF)); // @v12.7.9
 	Init(1, 0);
 }
 
-IMPLEMENT_PPFILT_FACTORY(TrfrAnlz); TrfrAnlzFilt::TrfrAnlzFilt() : PPBaseFilt(PPFILT_TRFRANLZ, 0, TrfrAnlzFilt_CurrentVer), P_BillTagF(0) 
+IMPLEMENT_PPFILT_FACTORY(TrfrAnlz); TrfrAnlzFilt::TrfrAnlzFilt() : PPBaseFilt(PPFILT_TRFRANLZ, 0, TrfrAnlzFilt_CurrentVer), P_BillTagF(0), P_DlvrLocTagF(0)
 {
 	Helper_Init();
 }
 
-TrfrAnlzFilt::TrfrAnlzFilt(const TrfrAnlzFilt & rS) : PPBaseFilt(PPFILT_TRFRANLZ, 0, TrfrAnlzFilt_CurrentVer), P_BillTagF(0)
+TrfrAnlzFilt::TrfrAnlzFilt(const TrfrAnlzFilt & rS) : PPBaseFilt(PPFILT_TRFRANLZ, 0, TrfrAnlzFilt_CurrentVer), P_BillTagF(0), P_DlvrLocTagF(0)
 {
 	Helper_Init();
 	Copy(&rS, 1);
@@ -74,7 +75,107 @@ bool TrfrAnlzFilt::HasBillGrouping() const
 int TrfrAnlzFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 {
 	int    ok = -1;
-	if(ver == 4) {
+	if(ver == 5) { // @v12.7.9
+		class TrfrAnlzFilt_v5 : public PPBaseFilt {
+		public:
+			TrfrAnlzFilt_v5() : PPBaseFilt(PPFILT_TRFRANLZ, 0, 5), P_BillTagF(0)
+			{
+				SetFlatChunk(offsetof(TrfrAnlzFilt, ReserveStart),
+					offsetof(TrfrAnlzFilt, BillList)-offsetof(TrfrAnlzFilt, ReserveStart));
+				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, BillList));
+				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, RcptBillList));
+				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, LocList));
+				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, CtValList));
+				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, ArList));
+				SetBranchObjIdListFilt(offsetof(TrfrAnlzFilt, AgentList));
+				SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(TrfrAnlzFilt, P_BillTagF));
+				Init(1, 0);
+			}
+			uint8  ReserveStart[32];
+			DateRange DueDatePeriod;
+			long   ExtValueParam[2];
+			long   RestAddendumValue;
+			long   ExtFactorParam[3];
+			long   ExtFactorAddendum[3];
+			PPID   AcsID;
+			PPID   SupplAgentID;
+			DateRange Period;
+			DateRange LotsPeriod;
+			PPID   OpID;
+			PPID   SupplID;
+			PPID   DlvrAddrID;
+			PPID   PsnCatID;
+			PPID   CityID;
+			PPID   GoodsGrpID;
+			PPID   GoodsID;
+			long   Flags;
+			int    InitOrd;
+			long   CtKind;
+			PPID   BrandID;
+			Grouping Grp;
+			SubstGrpGoods   Sgg;
+			SubstGrpPerson  Sgp;
+			SubstGrpDate    Sgd;
+			ObjIdListFilt   BillList;
+			ObjIdListFilt   RcptBillList;
+			ObjIdListFilt   LocList;
+			ObjIdListFilt   CtValList;
+			ObjIdListFilt   ArList;
+			ObjIdListFilt   AgentList;
+			TagFilt * P_BillTagF;
+		};
+		TrfrAnlzFilt_v5 fv5;
+		THROW(fv5.Read(rBuf, 0));
+		memzero(ReserveStart, sizeof(ReserveStart));		
+#define CPYFLD(f) f = fv5.f
+			CPYFLD(DueDatePeriod);
+			CPYFLD(ExtValueParam[0]);
+			CPYFLD(ExtValueParam[1]);
+			CPYFLD(RestAddendumValue);
+			CPYFLD(ExtFactorParam[0]);
+			CPYFLD(ExtFactorParam[1]);
+			CPYFLD(ExtFactorParam[2]);
+			CPYFLD(ExtFactorAddendum[0]);
+			CPYFLD(ExtFactorAddendum[1]);
+			CPYFLD(ExtFactorAddendum[2]);
+			CPYFLD(AcsID);
+			CPYFLD(SupplAgentID);
+			CPYFLD(Period);
+			CPYFLD(LotsPeriod);
+			CPYFLD(OpID);
+			CPYFLD(SupplID);
+			CPYFLD(DlvrAddrID);
+			CPYFLD(PsnCatID);
+			CPYFLD(CityID);
+			CPYFLD(GoodsGrpID);
+			CPYFLD(GoodsID);
+			CPYFLD(Flags);
+			CPYFLD(InitOrd);
+			CPYFLD(CtKind);
+			CPYFLD(BrandID);
+			CPYFLD(Grp);
+			CPYFLD(Sgg);
+			CPYFLD(Sgp);
+			CPYFLD(Sgd);
+			CPYFLD(BillList);
+			CPYFLD(RcptBillList);
+			CPYFLD(LocList);
+			CPYFLD(CtValList);
+			CPYFLD(ArList);
+			CPYFLD(AgentList);
+#undef CPYFLD
+		{
+			if(fv5.P_BillTagF) {
+				P_BillTagF = new TagFilt(*fv5.P_BillTagF);
+			}
+			else {
+				ZDELETE(P_BillTagF);
+			}
+			ZDELETE(P_DlvrLocTagF);
+		}
+		ok = 1;
+	}
+	else if(ver == 4) {
 		class TrfrAnlzFilt_v4 : public PPBaseFilt {
 		public:
 			TrfrAnlzFilt_v4() : PPBaseFilt(PPFILT_TRFRANLZ, 0, 4)
@@ -389,11 +490,21 @@ int TrfrAnlzFilt::IsEqualExcept(const TrfrAnlzFilt & rS, long flags) const
 		if(NEQ_FLD(InitOrd)) // !
 			return 0;
 	}
-	if(LOGIC(P_BillTagF) != LOGIC(rS.P_BillTagF))
-		return 0;
-	else if(P_BillTagF && rS.P_BillTagF) {
-		if(!P_BillTagF->IsEq(rS.P_BillTagF, 0))
+	{
+		if(LOGIC(P_BillTagF) != LOGIC(rS.P_BillTagF))
 			return 0;
+		else if(P_BillTagF && rS.P_BillTagF) {
+			if(!P_BillTagF->IsEq(rS.P_BillTagF, 0))
+				return 0;
+		}
+	}
+	{ // @v12.7.9
+		if(LOGIC(P_DlvrLocTagF) != LOGIC(rS.P_DlvrLocTagF))
+			return 0;
+		else if(P_DlvrLocTagF && rS.P_DlvrLocTagF) {
+			if(!P_DlvrLocTagF->IsEq(rS.P_DlvrLocTagF, 0))
+				return 0;
+		}
 	}
 #undef NEQ_FLD
 	return 1;
@@ -863,7 +974,12 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 			if(Filt.P_BillTagF) {
 				gct_filt.P_BillTagF = new TagFilt(*Filt.P_BillTagF);
 			}
-			// } @v12.5.8 
+			// } @v12.5.8
+			// @v12.7.9 {
+			if(Filt.P_DlvrLocTagF) {
+				gct_filt.P_DlvrLocTagF = new TagFilt(*Filt.P_DlvrLocTagF);
+			}
+			// } @v12.7.9 
 			GCTIterator gctiter(&gct_filt, &Filt.Period);
 			ZDELETE(P_TrAnlzTbl);
 			ZDELETE(P_TrGrpngTbl);
@@ -2513,7 +2629,7 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				brw_id = (Filt.Flags & TrfrAnlzFilt::fGByDate) ? BROWSER_TRFRANLZ_GC : BROWSER_GOODSCARD;
 				DBE * p_mult = & (tat->Discount * tat->Qtty);
 				// @v12.5.1 {
-				q = & Select_(
+				q = &Select_(
 					tat->OprNo,     // #0
 					tat->Dt,        // #1
 					tat->BillID,    // #2
@@ -2532,7 +2648,7 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				q->addField(tat->ExtVal1);   // #14 
 				q->addField(tat->Brutto);    // #15
 				// } @v12.5.1 
-				/* @v12.5.1 q = & Select_(
+				/* @v12.5.1 q = &Select_(
 					tat->OprNo,     // #0
 					tat->Dt,        // #1
 					tat->BillID,    // #2
@@ -2586,7 +2702,7 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					goods_as_ar = 1;
 					THROW(CheckTblPtr(at2 = new ArticleTbl));
 					// @v12.5.1 {
-					q = & Select_(
+					q = &Select_(
 						tat->Dt,        // #0
 						tat->BillID,    // #1
 						tat->BillCode,  // #2
@@ -2608,7 +2724,7 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					q->addField(tat->Brutto);    // #17
 					q->addField(tat->Discount);  // #18 // @v12.4.2 Скидка к номинальной цене (уже учтена в tat->Price и dbe_price)
 					// } @v12.5.1 
-					/* @v12.5.1 q = & Select_(
+					/* @v12.5.1 q = &Select_(
 						tat->Dt,        // #0
 						tat->BillID,    // #1
 						tat->BillCode,  // #2
@@ -2642,7 +2758,7 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 						dbe_extfactor.push(static_cast<DBFunc>(DynFuncExtFactor));
 					}
 					// @v12.5.1 {
-					q = & Select_(
+					q = &Select_(
 						tat->Dt,        // #0
 						tat->BillID,    // #1
 						tat->BillCode,  // #2
@@ -2663,7 +2779,7 @@ DBQuery * PPViewTrfrAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 					q->addField(tat->ExtVal1);   // #16
 					q->addField(tat->Brutto);    // #17
 					// } @v12.5.1 
-					/* @v12.5.1 q = & Select_(
+					/* @v12.5.1 q = &Select_(
 						tat->Dt,        // #0
 						tat->BillID,    // #1
 						tat->BillCode,  // #2
@@ -3963,6 +4079,10 @@ IMPL_HANDLE_EVENT(TrfrAnlzFiltDialog)
 	}
 	else if(event.isCmd(cmBillTags)) { // @v12.5.8
 		TagFilt::EditTagFiltPtr(PPOBJ_BILL, &Data.P_BillTagF);
+	}
+	
+	else if(event.isCmd(cmDlvrLocTags)) { // @v12.7.9
+		TagFilt::EditTagFiltPtr(PPOBJ_LOCATION, &Data.P_DlvrLocTagF);
 	}
 	else if(event.isCmd(cmCBSelected)) {
 		SetSaldoInfo();

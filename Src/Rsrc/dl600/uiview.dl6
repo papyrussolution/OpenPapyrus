@@ -1905,7 +1905,7 @@ dialog DLG_IMPEXPBILH [vertical title: "@impexpparambillh" size: (700, 680) mins
 	}
 }
 
-dialog DLG_ARTICLEFLT [vertical title: "@articlefilt" size: (350, 385) minsize: (350, 385) padding: 4] {
+dialog DLG_ARTICLEFLT [vertical title: "@articlefilt" size: (360, 390) minsize: (350, 385) padding: 4 justifycontent: spacebetween] {
 	combobox CTLSEL_ARTICLEFLT_ACCSID [tabstop width: bycontainer height: 21 margin: 4 label: "@accsheet" cblinesymb: CTL_ARTICLEFLT_ACCSID];
 	view [horizontal width: bycontainer height: 80] {
 		radiocluster CTL_ARTICLEFLT_FTCLOSED [tabstop growfactor: 1 margin: 4 title: "@articlefilt_ft_closed"] {
@@ -1930,7 +1930,7 @@ dialog DLG_ARTICLEFLT [vertical title: "@articlefilt" size: (350, 385) minsize: 
 		radiobutton [title: "@articlefilt_ordbyarticle"];
 		radiobutton [title: "@articlefilt_ordbydefault"];
 	}
-	view [horizontal width: bycontainer(100) growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (8, 4, 4, 4) command: cmCancel];
 	}
@@ -3797,6 +3797,7 @@ dialog DLG_TRFRANLZ [vertical title: "@view_trfranlz" size: (785, 690) minsize: 
 		view [vertical width: 180 height: bycontainer margin_top: 6] {
 			button CTL_GTO_CMD_TAGRPNGOPTIONS [title: "@{trfranlzfilt_btn_grouping}..." tabstop size: (165, 21) margin: 4 command: cmTaGrpngOptions];
 			button CTL_GTO_CMD_BILLTAGS [title: "@{trfranlzfilt_btn_billtags}..." tabstop size: (165, 21) margin: 4 command: cmBillTags];
+			button CTL_GTO_CMD_DLVRLOCTAGS [title: "@{trfranlzfilt_btn_dlvrloctags}..." tabstop size: (165, 21) margin: 4 command: cmDlvrLocTags]; // @v12.7.9
 		}
 	}
 	framebox [vertical width: bycontainer growfactor: 2 padding: 4 margin: 4] {
@@ -6262,7 +6263,7 @@ dialog DLG_BILLEXT [vertical title: "@bill_extension" size: (430, 530) minsize: 
 
 dialog DLG_ACCANLZ [vertical title: "@accanlz" size: (600, 450) minsize: (600, 450) padding: 4 justifycontent: spacebetween] { // @v12.7.0
 	view [horizontal width: bycontainer height: 35 justifycontent: spacebetween] {
-		input CTL_ACCANLZ_PERIOD [size: (160, 21) margin: 4 tabstop label: "@accanlz_period"] string[30] supplement daterangecalbutton(CTLCAL_ACCANLZ_PERIOD);
+		input CTL_ACCANLZ_PERIOD [size: (180, 21) margin: 4 tabstop label: "@accanlz_period"] string[30] supplement daterangecalbutton(CTLCAL_ACCANLZ_PERIOD);
 		statictext CTL_ACCANLZ_LABEL [size: (16, 16) margin: (4, 17, 4, 4) staticedge];
 	}
 	framebox [vertical width: bycontainer height: 150 margin: 4 padding: 4] {
@@ -7638,7 +7639,175 @@ dialog DLG_ACCSHEET [vertical title: "@accsheet" size: (550, 380) minsize: (550,
 	}
 }
 
-// @20260905 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+dialog DLG_SCARDFLT [vertical title: "@scardfilt" size: (685, 480) minsize: (685, 480) padding: 4 justifycontent: spacebetween] { // @v12.7.7
+	view [horizontal width: bycontainer height: 100] {
+		view [vertical growfactor: 3 height: bycontainer] {
+			combobox CTLSEL_SCARDFLT_SERIES [width: bycontainer height: 21 margin: 4 tabstop label: "@series" cblinesymb: CTL_SCARDFLT_SERIES];
+			input CTL_SCARDFLT_NUMBER [width: bycontainer(50) height: 21 margin: 4 tabstop label: "@scardfilt_number"] string[20];
+		}
+		radiocluster CTL_SCARDFLT_ORD [title: "@sorting" growfactor: 1.5 margin: 4 padding: (4, 12, 4, 4)] {
+			radiobutton [title: "@scardfilt_ordbyseries_code"];
+			radiobutton [title: "@scardfilt_ordbydiscount"];
+			radiobutton [title: "@scardfilt_ordbytrnovr"];
+			radiobutton [title: "@scardfilt_ordbyperson"];
+			radiobutton [title: "@scardfilt_ordbyexpiry"];
+		}
+	}
+	view [horizontal width: bycontainer height: 150] {
+		view [vertical growfactor: 3 height: bycontainer] {
+			combobox CTLSEL_SCARDFLT_EMPLOYER [width: bycontainer height: 21 margin: 4 tabstop label: "@scardfilt_employer" cblinesymb: CTL_SCARDFLT_EMPLOYER];
+			combobox CTLSEL_SCARDFLT_PERSON [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@scardfilt_person" cblinesymb: CTL_SCARDFLT_PERSON];
+			checkbox CTL_SCARDFLT_WOOWNER [title: "@scardfilt_fnoemployer" tabstop size: (220, 21) margin: (4, 1, 4, 4)];
+			view [horizontal width: bycontainer height: 40] {
+				input CTL_SCARDFLT_ISSUE [growfactor: 1 height: 21 margin: 4 tabstop label: "@scardfilt_issueperiod"] string[30] supplement daterangecalbutton(CTLCAL_SCARDFLT_ISSUE);
+				input CTL_SCARDFLT_EXPIRY [growfactor: 1 height: 21 margin: 4 tabstop label: "@scardfilt_expiryperiod"] string[30] supplement daterangecalbutton(CTLCAL_SCARDFLT_EXPIRY);
+			}
+		}
+		framebox [vertical growfactor: 1.5 height: bycontainer padding: 4] {
+			input CTL_SCARDFLT_PDISRANGE [width: bycontainer height: 21 margin: 4 tabstop label: "@scardfilt_pctdisrange"] string[48];
+			input CTL_SCARDFLT_TRNOVRRANGE [width: bycontainer height: 21 margin: 4 tabstop label: "@scardfilt_turnoverrange"] string[48];
+		}
+	}
+	view [horizontal width: bycontainer height: 110] {
+		framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4] {
+			input CTL_SCARDFLT_TRNOVRPRD [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@scardfilt_trnovrperiod"] string[30] supplement daterangecalbutton(CTLCAL_SCARDFLT_TRNOVRPRD);
+			checkbox CTL_SCARDFLT_SINCE [title: "@scardfilt_fsincelastpdisupdating" tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4)];
+		}
+		view [vertical growfactor: 0.2 height: bycontainer] {} // @stub
+		checkcluster CTL_SCARDFLT_FLAGS [growfactor: 1 margin: 4 padding: 4] {
+			checkbox [title: "@scardfilt_ft_openonly"];
+			checkbox [title: "@scardfilt_ft_closedonly"];
+			checkbox [title: "@scardfilt_fshowowneraddrdetail"];
+			checkbox [title: "@scardfilt_fwithaddressonly"];
+		}
+	}
+	//framebox [origin: (15, 268) size: (263, 81) ];
+	//framebox [origin: (465, 130) size: (195, 106) ];
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 3 height: bycontainer justifycontent: start] {
+			button CTL_SCARDFLT_CMD_EXCLUDEOWNERSCFILT [title: "@{scardfilt_exclownerfilt}..." tabstop size: (265, 21) margin: 4 command: cmExcludeOwnerScFilt];
+			button STDCTL_SJBUTTON [title: "@but_sysj" tabstop size: (90, 21) margin: 4 command: cmSysjFilt2];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_GOODSREST [vertical title: "@goodsrestfilt" size: (910, 550) minsize: (910, 550) padding: 4] { // @v12.7.8
+	view [horizontal width: bycontainer growfactor: 1] {
+		view [vertical growfactor: 1.3 height: bycontainer] {
+			view [horizontal width: bycontainer height: 40 justifycontent: spacebetween] {
+				input CTL_GOODSREST_DATE [size: (130, 21) margin: 4 tabstop fmtf: (dmy) label: "@goodsrestfilt_date"] date supplement datecalbutton(CTLCAL_GOODSREST_DATE);
+				statictext CTL_GOODSREST_WL [size: (15, 16) margin: (4, 17, 4, 4) staticedge];
+			}
+			view [horizontal width: bycontainer height: 130] {
+				radiocluster CTL_GOODSREST_METHOD [title: "@goodsrestfilt_calcmethod" growfactor: 1 margin: 4 padding: 4] {
+					radiobutton [title: "@goodsrestfilt_calcmethod_avg"];
+					radiobutton [title: "@goodsrestfilt_calcmethod_firstlot"];
+					radiobutton [title: "@goodsrestfilt_calcmethod_lastlot"];
+				}
+				checkcluster CTL_GOODSREST_SPLIT [title: "@goodsrestfilt_diffparam" growfactor: 1.2 margin: 4 padding: 4] {
+					checkbox [title: "@goodsrestfilt_diff_cost"];
+					checkbox [title: "@goodsrestfilt_diff_price"];
+					checkbox [title: "@goodsrestfilt_diff_pack"];
+					checkbox [title: "@goodsrestfilt_diff_expiry"];
+					checkbox [title: "@goodsrestfilt_diff_serial"];
+					checkbox [title: "@goodsrestfilt_diff_lottag"];
+				}
+			}
+			combobox CTLSEL_GOODSREST_LOTTAG [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsrestfilt_difflottag" cblinesymb: CTL_GOODSREST_LOTTAG];
+			checkcluster CTL_GOODSREST_FLAGS [width: bycontainer margin: 4 padding: 4] {
+				checkbox [title: "@goodsrestfilt_fnullrest"];
+				checkbox [title: "@goodsrestfilt_fnullrestsonly"];
+				checkbox [title: "@goodsrestfilt_fnozeroorderonly"];
+				checkbox [title: "@goodsrestfilt_fcalcorder"];
+				checkbox [title: "@goodsrestfilt_fbarcode"];
+				checkbox [title: "@goodsrestfilt_fcwovat"];
+				checkbox [title: "@goodsrestfilt_fcalccvat"];
+				checkbox [title: "@goodsrestfilt_funderminstock"];
+				checkbox [title: "@goodsrestfilt_fdisplaywopacks"];
+				checkbox [title: "@goodsrestfilt_fshowminstock"];
+				checkbox [title: "@goodsrestfilt_fshowdraftreceipt"];
+				checkbox [title: "@goodsrestfilt_fusegoodsmatrix"];
+				checkbox [title: "@goodsrestfilt_fshowgoodsmatrixbelongs"];
+			}
+		}
+		view [vertical growfactor: 2 height: bycontainer] {
+			framebox [vertical title: "@warehouse" width: bycontainer(75) height: 110 margin: 4 padding: (4, 12, 4, 4)] {
+				combobox CTLSEL_GOODSREST_LOC [width: bycontainer height: 21 margin: 4 tabstop cblinesymb: CTL_GOODSREST_LOC] supplement listbutton(STDCTL_LOCLISTBUTTON cmLocList);
+				checkcluster CTL_GOODSREST_DIFFBYLOC [width: bycontainer(70) margin: 4 padding: 4] {
+					checkbox [title: "@goodsrestfilt_feachlocation"];
+					checkbox [title: "@goodsrestfilt_fcrosstab"];
+				}
+			}
+			combobox CTLSEL_GOODSREST_SUPPL [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsrestfilt_suppl" cblinesymb: CTL_GOODSREST_SUPPL];
+			combobox CTLSEL_GOODSREST_GGRP [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsrestfilt_goodsgroup" cblinesymb: CTL_GOODSREST_GGRP]
+				supplement filtbutton(STDCTL_GOODSFILTBUTTON cmGoodsFilt);
+			combobox CTLSEL_GOODSREST_BRAND [width: bycontainer(75) height: 21 margin: 4 tabstop label: "@goodsrestfilt_brand" cblinesymb: CTL_GOODSREST_BRAND];
+			view [horizontal width: bycontainer growfactor: 1] {
+				framebox [vertical title: "@goodsrestfilt_quotusage" growfactor: 1.2 height: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
+					radiocluster CTL_GOODSREST_BYQUOT2 [width: bycontainer margin: 4 padding: 4] {
+						radiobutton [title: "@goodsrestfilt_quotusage_no"];
+						radiobutton [title: "@goodsrestfilt_quotusage_asprice"];
+						radiobutton [title: "@goodsrestfilt_quotusage_ascost"];
+					}
+					combobox CTLSEL_GOODSREST_QUOTK [width: bycontainer height: 21 margin: 4 tabstop cblinesymb: CTL_GOODSREST_QUOTK];
+					checkbox CTL_GOODSREST_RTLPRICES [title: "@goodsrestfilt_f2retailprice" tabstop width: bycontainer height: 21 margin: 4];
+				}
+				view [vertical growfactor: 1 height: bycontainer] {
+					combobox CTLSEL_GOODSREST_SUBST [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsrestfilt_sgg" cblinesymb: CTL_GOODSREST_SUBST];
+					combobox CTLSEL_GOODSREST_ORD [width: bycontainer height: 21 margin: 4 tabstop label: "@sorting" cblinesymb: CTL_GOODSREST_ORD ];
+					input CTL_GOODSREST_DRAFTPRD [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsrestfilt_draftrcptperiod"] string[32]
+						supplement daterangecalbutton(CTLCAL_GOODSREST_DRAFTPRD);
+				}
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 2 height: bycontainer justifycontent: start] {
+			button CTL_GOODSREST_CMD_ADVOPTIONS [title: "@but_addendum" tabstop size: (115, 21) margin: 4 command: cmAdvOptions];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_GRESTFLTA [vertical title: "@goodsrestfiltext" size: (375, 480) minsize: (375, 480) padding: 4 justifycontent: spacebetween] { // @v12.7.9
+	combobox CTLSEL_GRESTFLTA_AGENT [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsrestfilt_agent" cblinesymb: CTL_GRESTFLTA_AGENT];
+	framebox [vertical width: bycontainer height: 120 margin: 4 padding: (4, 12, 4, 4) justifycontent: spacebetween] {
+		view [horizontal width: bycontainer height: 30] {
+			input CTL_GRESTFLTA_DEFICDT [design: B size: (105, 21) margin: 4 tabstop fmtf: (dmy) label: "@goodsrestfilt_deficitdate"] date supplement datecalbutton(CTLCAL_GRESTFLTA_DEFICDT);
+		}
+		checkcluster CTL_GRESTFLTA_CALCDEFIC [width: bycontainer margin: 4 padding: 4] {
+			checkbox [title: "@goodsrestfilt_fcalcdeficit"];
+			checkbox [title: "@goodsrestfilt_fcalcuncompletesess"];
+		}
+	}
+	//framebox [origin: (8, 57) size: (335, 122) ];
+	view [horizontal width: bycontainer height: 30] {
+		input CTL_GRESTFLTA_PRGNDAYS [design: B size: (70, 21) margin: 4 tabstop fmtf: (nozero) label: "@goodsrestfilt_prgnterm"] int16;
+	}
+	checkbox CTL_GRESTFLTA_EVF [title: "@goodsrestfilt_evfshowlastsaledate" tabstop width: bycontainer height: 21 margin: 4];
+	framebox [vertical title: "@goodsrestfilt_uhttexpflags" width: bycontainer height: 150 margin: 4 padding: (4, 12, 4, 4) justifycontent: spacebetween] {
+		checkcluster CTL_GRESTFLTA_UHTTEXPF [width: bycontainer margin: 4 padding: 4] {
+			checkbox [title: "@goodsrestfilt_uefrest"];
+			checkbox [title: "@goodsrestfilt_uefprice"];
+			checkbox [title: "@goodsrestfilt_uefzeroabsprices"];
+		}
+		combobox CTLSEL_GRESTFLTA_UHTTLOC [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsrestfilt_uhttexploc" cblinesymb: CTL_GRESTFLTA_UHTTLOC];
+	}
+	//framebox [title: "@goodsrestfilt_uhttexpflags" origin: (8, 252) size: (338, 146) ];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+// @20260918 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 
 // @construction
@@ -8040,8 +8209,8 @@ dialog DLG_ATURNPERSONAL [vertical size: (600, 480) minsize: (600, 480) padding:
 		combobox CTLSEL_ATURN_CACCNAME [growfactor: 2 height: 21 margin: 4 tabstop cblinesymb: CTL_ATURN_CACCNAME];
 	}
 	view [vertical width: bycontainer height: 80 alignitems: center justifycontent: center] {
-		input CTL_ATURN_PA_CATEGORY [width: bycontainer(70) height: 21 margin: 4 tabstop label: "@category"] string[48];
-		input CTL_ATURN_PA_CONTRACTOR [width: bycontainer(70) height: 21 margin: 4 tabstop label: "@contractor"] string[48];
+		combobox CTLSEL_ATURN_PA_CATEGORY [width: bycontainer(70) height: 21 margin: 4 tabstop label: "@category" cblinesymb: CTL_ATURN_PA_CATEGORY];
+		combobox CTLSEL_ATURN_PA_CONTRACTOR [width: bycontainer(70) height: 21 margin: 4 tabstop label: "@contractor" cblinesymb: CTL_ATURN_PA_CONTRACTOR];
 	}
 	input CTL_ATURN_MEMO [width: bycontainer growfactor: 1 margin: 4 tabstop multiline wantreturn label: "@memo"] string[252];
 	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
@@ -8050,139 +8219,146 @@ dialog DLG_ATURNPERSONAL [vertical size: (600, 480) minsize: (600, 480) padding:
 	}
 }
 
-dialog DLG_SCARDFLT [vertical title: "@scardfilt" size: (685, 480) minsize: (685, 480) padding: 4 justifycontent: spacebetween] { // @v12.7.7 @construction
-	view [horizontal width: bycontainer height: 100] {
-		view [vertical growfactor: 3 height: bycontainer] {
-			combobox CTLSEL_SCARDFLT_SERIES [width: bycontainer height: 21 margin: 4 tabstop label: "@series" cblinesymb: CTL_SCARDFLT_SERIES];
-			input CTL_SCARDFLT_NUMBER [width: bycontainer(50) height: 21 margin: 4 tabstop label: "@scardfilt_number"] string[20];
-		}
-		radiocluster CTL_SCARDFLT_ORD [title: "@sorting" growfactor: 1.5 margin: 4 padding: (4, 12, 4, 4)] {
-			radiobutton [title: "@scardfilt_ordbyseries_code"];
-			radiobutton [title: "@scardfilt_ordbydiscount"];
-			radiobutton [title: "@scardfilt_ordbytrnovr"];
-			radiobutton [title: "@scardfilt_ordbyperson"];
-			radiobutton [title: "@scardfilt_ordbyexpiry"];
-		}
-	}
-	view [horizontal width: bycontainer height: 150] {
-		view [vertical growfactor: 3 height: bycontainer] {
-			combobox CTLSEL_SCARDFLT_EMPLOYER [width: bycontainer height: 21 margin: 4 tabstop label: "@scardfilt_employer" cblinesymb: CTL_SCARDFLT_EMPLOYER];
-			combobox CTLSEL_SCARDFLT_PERSON [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@scardfilt_person" cblinesymb: CTL_SCARDFLT_PERSON];
-			checkbox CTL_SCARDFLT_WOOWNER [title: "@scardfilt_fnoemployer" tabstop size: (220, 21) margin: (4, 1, 4, 4)];
-			view [horizontal width: bycontainer height: 40] {
-				input CTL_SCARDFLT_ISSUE [growfactor: 1 height: 21 margin: 4 tabstop label: "@scardfilt_issueperiod"] string[30] supplement daterangecalbutton(CTLCAL_SCARDFLT_ISSUE);
-				input CTL_SCARDFLT_EXPIRY [growfactor: 1 height: 21 margin: 4 tabstop label: "@scardfilt_expiryperiod"] string[30] supplement daterangecalbutton(CTLCAL_SCARDFLT_EXPIRY);
+dialog DLG_GOODSFLT [vertical title: "@goodsfilt" size: (940, 510) minsize: (940, 510) padding: 4 justifycontent: spacebetween] { // @v12.7.9
+	view [horizontal width: bycontainer growfactor: 2 justifycontent: spacebetween] {
+		view [vertical growfactor: 1 height: bycontainer] {
+			combobox CTLSEL_GOODSFLT_GRP [width: bycontainer height: 21 margin: 4 tabstop label: "@group" cblinesymb: CTL_GOODSFLT_GRP] supplement listbutton(CTL_GOODSFLT_GRPLIST cmGrpList);
+				//button CTL_GOODSFLT_GRPLIST [title: "@but_list" tabstop size: (60, 21)  command: cmGrpList];
+			view [horizontal growfactor: 1 width: bycontainer] {
+				framebox [vertical growfactor: 2 height: bycontainer margin: 4 padding: 4] {
+					combobox CTLSEL_GOODSFLT_MANUF [width: bycontainer height: 21 margin: 4 tabstop label: "@manufacturer" cblinesymb: CTL_GOODSFLT_MANUF];
+					combobox CTLSEL_GOODSFLT_BRAND [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@brand" cblinesymb: CTL_GOODSFLT_BRAND]
+						supplement listbutton(CTL_GOODSFLT_CMD_BRANDLIST cmBrandList);
+						//button CTL_CMD_BRANDLIST [title: "..." tabstop size: (30, 21)  command: cmBrandList];
+					checkbox CTL_GOODSFLT_NOBRAND [title: "@goodsfilt_fwobrand" tabstop size: (210, 21) margin: (4, 1, 4, 4)];
+					combobox CTLSEL_GOODSFLT_BROWNER [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_brandowner" cblinesymb: CTL_GOODSFLT_BROWNER]
+						supplement listbutton(CTL_GOODSFLT_CMD_BRANDOWNERLIST cmBrandOwnerList);
+						//button CTL_CMD_BRANDOWNERLIST [title: "..." tabstop size: (30, 21)  command: cmBrandOwnerList];
+					combobox CTLSEL_GOODSFLT_COUNTRY [width: bycontainer height: 21 margin: 4 tabstop label: "@countryoforg" cblinesymb: CTL_GOODSFLT_COUNTRY];
+				}
+				framebox [vertical growfactor: 1.2 height: bycontainer margin: 4 padding: 4] {
+					combobox CTLSEL_GOODSFLT_UNIT [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_unit" cblinesymb: CTL_GOODSFLT_UNIT];
+					combobox CTLSEL_GOODSFLT_PHUNIT [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_phunit" cblinesymb: CTL_GOODSFLT_PHUNIT];
+					checkcluster CTL_GOODSFLT_UNITF [width: bycontainer margin: 4 padding: 4] {
+						checkbox [title: "@goodsfilt_fintunitonly"];
+						checkbox [title: "@goodsfilt_ffloatunitonly"];
+					}
+				}
 			}
 		}
-		framebox [vertical growfactor: 1.5 height: bycontainer padding: 4] {
-			input CTL_SCARDFLT_PDISRANGE [width: bycontainer height: 21 margin: 4 tabstop label: "@scardfilt_pctdisrange"] string[48];
-			input CTL_SCARDFLT_TRNOVRRANGE [width: bycontainer height: 21 margin: 4 tabstop label: "@scardfilt_turnoverrange"] string[48];
+		view [vertical width: 230 height: bycontainer margin_top: 13] {
+			button STDCTL_VIEWOPTBUTTON [title: "@but_viewoptions" tabstop size: (120, 21) margin: 4 command: cmViewOptions];
+			button CTL_GOODSFLT_CMD_EXTPARAMS [title: "@{extension}..." tabstop size: (120, 21) margin: 4 command: cmExtParams];
+			button CTL_GOODSFLT_CMD_ADVOPTIONS [title: "@but_addendum" tabstop size: (120, 21) margin: 4 command: cmAdvOptions];
+			button STDCTL_SJBUTTON [title: "@but_sysj" tabstop size: (120, 21) margin: 4 command: cmSysjFilt2];
+			button STDCTL_TAGSBUTTON [title: "@but_tags" tabstop size: (120, 21) margin: 4 command: cmTags];
+			combobox CTLSEL_GOODSFLT_ORDER [width: bycontainer height: 21 margin: 4 tabstop label: "@sorting" cblinesymb: CTL_GOODSFLT_ORDER];
 		}
 	}
-	view [horizontal width: bycontainer height: 110] {
-		framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4] {
-			input CTL_SCARDFLT_TRNOVRPRD [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@scardfilt_trnovrperiod"] string[30] supplement daterangecalbutton(CTLCAL_SCARDFLT_TRNOVRPRD);
-			checkbox CTL_SCARDFLT_SINCE [title: "@scardfilt_fsincelastpdisupdating" tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4)];
+	view [horizontal width: bycontainer growfactor: 1.5 justifycontent: spacebetween] {
+		view [vertical growfactor: 1.5 height: bycontainer] {
+			view [horizontal width: bycontainer height: 85] {
+				framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4] {
+					combobox CTLSEL_GOODSFLT_KIND [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@goods_type" cblinesymb: CTL_GOODSFLT_KIND ];
+					checkbox CTL_GOODSFLT_NOKIND [title: "@goodsfilt_fundeftype" tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4)];
+				}
+				framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4] {
+					combobox CTLSEL_GOODSFLT_TAXGRP [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@taxgroup" cblinesymb: CTL_GOODSFLT_TAXGRP]
+						supplement ellipsisbutton (CTL_GOODSFLT_VATFLT cmGoodsFiltVat "@{vat}...");
+						//button CTL_GOODSFLT_VATFLT [title: "@{vat}..." tabstop size: (60, 21)  command: cmGoodsFiltVat];
+					checkbox CTL_GOODSFLT_WOTAXGRP [title: "@goodsfilt_fwotaxgrp" tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4)];
+				}
+			}
+			input CTL_GOODSFLT_NAMESTR [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_extssnametext"] string[128];
+			view [horizontal width: bycontainer height: 45] {
+				input CTL_GOODSFLT_BARCODESTR [growfactor: 2 height: 21 margin: 4 tabstop label: "@goodsfilt_extssbarcodetext"] string[128];
+				input CTL_GOODSFLT_BCLEN [growfactor: 1 height: 21 margin: 4 tabstop label: "@goodsfilt_barcodelen"] string[32];
+			}
 		}
-		view [vertical growfactor: 0.2 height: bycontainer] {} // @stub
-		checkcluster CTL_SCARDFLT_FLAGS [growfactor: 1 margin: 4 padding: 4] {
-			checkbox [title: "@scardfilt_ft_openonly"];
-			checkbox [title: "@scardfilt_ft_closedonly"];
-			checkbox [title: "@scardfilt_fshowowneraddrdetail"];
-			checkbox [title: "@scardfilt_fwithaddressonly"];
+		view [vertical growfactor: 1 height: bycontainer] {
+			checkcluster CTL_GOODSFLT_FLAGS [width: bycontainer margin: 4 padding: 4] {
+				checkbox [title: "@goodsfilt_fhidepassive"];
+				checkbox [title: "@goodsfilt_frestrictbymatrix"];
+				checkbox [title: "@goodsfilt_foutofmatrix"];
+				checkbox [title: "@goodsfilt_fhasimages"];
+				checkbox [title: "@goodsfilt_fuseindepwtonly"];
+				checkbox [title: "@goodsfilt_fhidegeneric"];
+			}
+			checkbox CTL_GOODSFLT_NOT [title: "@goodsfilt_fnegation" tabstop width: bycontainer height: 21 margin: (12, 4, 4, 4)];
 		}
 	}
-	//framebox [origin: (15, 268) size: (263, 81) ];
-	//framebox [origin: (465, 130) size: (195, 106) ];
-	view [horizontal width: bycontainer height: 30] {
-		view [horizontal growfactor: 3 height: bycontainer justifycontent: start] {
-			button CTL_SCARDFLT_CMD_EXCLUDEOWNERSCFILT [title: "@{scardfilt_exclownerfilt}..." tabstop size: (265, 21) margin: 4 command: cmExcludeOwnerScFilt];
-			button STDCTL_SJBUTTON [title: "@but_sysj" tabstop size: (90, 21) margin: 4 command: cmSysjFilt2];
-		}
-		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
-			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
-			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
-		}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
 
-dialog DLG_GOODSREST [vertical title: "@goodsrestfilt" size: (910, 550) minsize: (910, 550) padding: 4] { // @v12.7.8
-	view [horizontal width: bycontainer growfactor: 1] {
-		view [vertical growfactor: 1.3 height: bycontainer] {
-			view [horizontal width: bycontainer height: 40 justifycontent: spacebetween] {
-				input CTL_GOODSREST_DATE [size: (130, 21) margin: 4 tabstop fmtf: (dmy) label: "@goodsrestfilt_date"] date supplement datecalbutton(CTLCAL_GOODSREST_DATE);
-				statictext CTL_GOODSREST_WL [size: (15, 16) margin: (4, 17, 4, 4) staticedge];
+dialog DLG_GDSFVOPT [vertical title: "@goodsfilt_viewoptions" size: (400, 470) minsize: (400, 470) padding: 4 justifycontent: spacebetween] { // @v12.7.9
+	checkcluster CTL_GDSFVOPT_FLAGS [width: bycontainer margin: 4 padding: 4] {
+		checkbox [title: "@goodsfilt_fshowbarcode"];
+		checkbox [title: "@goodsfilt_fshowcargo"];
+		checkbox [title: "@goodsfilt_fshowstructype"];
+		checkbox [title: "@goodsfilt_fshowgoodswostruc"];
+		checkbox [title: "@goodsfilt_fshowarcode"];
+	}
+	framebox [vertical title: "@goodsfilt_viewoptions_ar" width: bycontainer growfactor: 2 margin: 4 padding: (4, 12, 4, 4) justifycontent: spacebetween] {
+		checkcluster CTL_GDSFVOPT_OWNCODES [width: bycontainer margin: 4 padding: 4] {
+			checkbox [title: "@goodsfilt_fshowownarcode"];
+			checkbox [title: "@goodsfilt_fshowwoarcode"];
+		}
+		combobox CTLSEL_GDSFVOPT_ACS [width: bycontainer height: 21 margin: 4 tabstop label: "@accsheet" cblinesymb: CTL_GDSFVOPT_ACS];
+		combobox CTLSEL_GDSFVOPT_AR [width: bycontainer height: 21 margin: 4 tabstop label: "@article" cblinesymb: CTL_GDSFVOPT_AR];
+	}
+	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+		checkbox CTL_GDSFVOPT_FASSOC [title: "@goodsfilt_f2showwhplace" tabstop width: bycontainer height: 21 margin: 4 justifycontent: spacebetween];
+		combobox CTLSEL_GDSFVOPT_ASSOC [width: bycontainer height: 21 margin: 4 tabstop label: "Association" cblinesymb: CTL_GDSFVOPT_ASSOC ];
+	}
+	//framebox [title: "@goodsfilt_viewoptions_ar" origin: (8, 122) size: (420, 163) ];
+	//framebox [origin: (8, 293) size: (420, 89) ];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_GFLTADVOPT [vertical title: "@goodsfilt_addendum" size: (610, 435) minsize: (610, 435) padding: 4 justifycontent: spacebetween] { // @v12.7.9
+	view [horizontal width: bycontainer growfactor: 2] {
+		view [vertical growfactor: 2.5 height: bycontainer] {
+			view [horizontal width: bycontainer height: 30] {
+				input CTL_GFLTADVOPT_LOTPERIOD [design: B size: (145, 21) margin: 4 tabstop label: "@goodsfilt_lotperiod"] string[30] supplement daterangecalbutton(CTLCAL_GFLTADVOPT_LOTPERIOD);
 			}
-			view [horizontal width: bycontainer height: 130] {
-				radiocluster CTL_GOODSREST_METHOD [title: "@goodsrestfilt_calcmethod" growfactor: 1 margin: 4 padding: 4] {
-					radiobutton [title: "@goodsrestfilt_calcmethod_avg"];
-					radiobutton [title: "@goodsrestfilt_calcmethod_firstlot"];
-					radiobutton [title: "@goodsrestfilt_calcmethod_lastlot"];
-				}
-				checkcluster CTL_GOODSREST_SPLIT [title: "@goodsrestfilt_diffparam" growfactor: 1.2 margin: 4 padding: 4] {
-					checkbox [title: "@goodsrestfilt_diff_cost"];
-					checkbox [title: "@goodsrestfilt_diff_price"];
-					checkbox [title: "@goodsrestfilt_diff_pack"];
-					checkbox [title: "@goodsrestfilt_diff_expiry"];
-					checkbox [title: "@goodsrestfilt_diff_serial"];
-					checkbox [title: "@goodsrestfilt_diff_lottag"];
-				}
-			}
-			combobox CTLSEL_GOODSREST_LOTTAG [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsrestfilt_difflottag" cblinesymb: CTL_GOODSREST_LOTTAG];
-			checkcluster CTL_GOODSREST_FLAGS [width: bycontainer margin: 4 padding: 4] {
-				checkbox [title: "@goodsrestfilt_fnullrest"];
-				checkbox [title: "@goodsrestfilt_fnullrestsonly"];
-				checkbox [title: "@goodsrestfilt_fnozeroorderonly"];
-				checkbox [title: "@goodsrestfilt_fcalcorder"];
-				checkbox [title: "@goodsrestfilt_fbarcode"];
-				checkbox [title: "@goodsrestfilt_fcwovat"];
-				checkbox [title: "@goodsrestfilt_fcalccvat"];
-				checkbox [title: "@goodsrestfilt_funderminstock"];
-				checkbox [title: "@goodsrestfilt_fdisplaywopacks"];
-				checkbox [title: "@goodsrestfilt_fshowminstock"];
-				checkbox [title: "@goodsrestfilt_fshowdraftreceipt"];
-				checkbox [title: "@goodsrestfilt_fusegoodsmatrix"];
-				checkbox [title: "@goodsrestfilt_fshowgoodsmatrixbelongs"];
+			combobox CTLSEL_GFLTADVOPT_SUPPL [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_suppl" cblinesymb: CTL_GFLTADVOPT_SUPPL];
+			combobox CTLSEL_GFLTADVOPT_LOC [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_loclist" cblinesymb: CTL_GFLTADVOPT_LOC] 
+				supplement listbutton(STDCTL_LOCLISTBUTTON cmLocList);
+			checkcluster CTL_GFLTADVOPT_FLAGS [width: bycontainer margin: 4 padding: 4] {
+				checkbox [title: "@goodsfilt_fnewlots"];
+				checkbox [title: "@goodsfilt_fnozerorestonlotperiod"];
+				checkbox [title: "@goodsfilt_factualonly"];
 			}
 		}
-		view [vertical growfactor: 2 height: bycontainer] {
-			framebox [vertical title: "@warehouse" width: bycontainer(75) height: 110 margin: 4 padding: (4, 12, 4, 4)] {
-				combobox CTLSEL_GOODSREST_LOC [width: bycontainer height: 21 margin: 4 tabstop cblinesymb: CTL_GOODSREST_LOC] supplement listbutton(STDCTL_LOCLISTBUTTON cmLocList);
-				checkcluster CTL_GOODSREST_DIFFBYLOC [width: bycontainer(70) margin: 4 padding: 4] {
-					checkbox [title: "@goodsrestfilt_feachlocation"];
-					checkbox [title: "@goodsrestfilt_fcrosstab"];
-				}
-			}
-			combobox CTLSEL_GOODSREST_SUPPL [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsrestfilt_suppl" cblinesymb: CTL_GOODSREST_SUPPL];
-			combobox CTLSEL_GOODSREST_GGRP [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsrestfilt_goodsgroup" cblinesymb: CTL_GOODSREST_GGRP]
-				supplement filtbutton(STDCTL_GOODSFILTBUTTON cmGoodsFilt);
-			combobox CTLSEL_GOODSREST_BRAND [width: bycontainer(75) height: 21 margin: 4 tabstop label: "@goodsrestfilt_brand" cblinesymb: CTL_GOODSREST_BRAND];
-			view [horizontal width: bycontainer growfactor: 1] {
-				framebox [vertical title: "@goodsrestfilt_quotusage" growfactor: 1.2 height: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
-					radiocluster CTL_GOODSREST_BYQUOT2 [width: bycontainer margin: 4 padding: 4] {
-						radiobutton [title: "@goodsrestfilt_quotusage_no"];
-						radiobutton [title: "@goodsrestfilt_quotusage_asprice"];
-						radiobutton [title: "@goodsrestfilt_quotusage_ascost"];
-					}
-					combobox CTLSEL_GOODSREST_QUOTK [width: bycontainer height: 21 margin: 4 tabstop cblinesymb: CTL_GOODSREST_QUOTK];
-					checkbox CTL_GOODSREST_RTLPRICES [title: "@goodsrestfilt_f2retailprice" tabstop width: bycontainer height: 21 margin: 4];
-				}
-				view [vertical growfactor: 1 height: bycontainer] {
-					combobox CTLSEL_GOODSREST_SUBST [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsrestfilt_sgg" cblinesymb: CTL_GOODSREST_SUBST];
-					combobox CTLSEL_GOODSREST_ORD [width: bycontainer height: 21 margin: 4 tabstop label: "@sorting" cblinesymb: CTL_GOODSREST_ORD ];
-					input CTL_GOODSREST_DRAFTPRD [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsrestfilt_draftrcptperiod"] string[32]
-						supplement daterangecalbutton(CTLCAL_GOODSREST_DRAFTPRD);
-				}
+		view [vertical growfactor: 1.3 height: bycontainer justifycontent: end] {
+			input CTL_GFLTADVOPT_IDRNG [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_idrange"] string[32];
+			input CTL_GFLTADVOPT_GRPCRNG [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_grpcountrange"] string[32];
+		}
+	}
+	view [horizontal width: bycontainer growfactor: 1] {
+		radiocluster CTL_GFLTADVOPT_EXTFLT [title: "@goodsfilt_selbyspecialprop" growfactor: 1 margin: 4 padding: (4, 12, 4, 4)] {
+			radiobutton [title: "@goodsfilt_selbyspecialprop_nouse"];
+			radiobutton [title: "@goodsfilt_fpassiveonly"];
+			radiobutton [title: "@goodsfilt_fgengoodsonly"];
+			radiobutton [title: "@goodsfilt_fwotaxgdsonly"];
+			radiobutton [title: "@goodsfilt_fnodisonly"];
+		}
+		framebox [vertical growfactor: 1.7 height: bycontainer margin: 4 padding: 4] {
+			checkbox CTL_GFLTADVOPT_SNEXP [title: "@goodsfilt_f2soonexpiredonly" tabstop width: bycontainer height: 21 margin: 4];
+			view [horizontal width: bycontainer height: 30] {
+				input CTL_GFLTADVOPT_AHEXPD [design: B size: (60, 21) margin: 4 tabstop fmtf: (nozero) label: "@goodsfilt_aheadexpirydays"] int16;
 			}
 		}
 	}
-	view [horizontal width: bycontainer height: 30] {
-		view [horizontal growfactor: 2 height: bycontainer justifycontent: start] {
-			button CTL_GOODSREST_CMD_ADVOPTIONS [title: "@but_addendum" tabstop size: (115, 21) margin: 4 command: cmAdvOptions];
-		}
-		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
-			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
-			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
-		}
+	//framebox [origin: (270, 244) size: (315, 106) ];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }

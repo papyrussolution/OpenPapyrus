@@ -560,7 +560,10 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 				SNaturalTokenArray nta;
 				Trg.Run(temp_buf, nta.Z(), &nts); 
 				if(Data.RegTypeID == PPREGT_TPID) {
-					valid_code = BIN(nta.Has(SNTOK_RU_INN) > 0.0f);
+					const  float p = nta.Has(SNTOK_RU_INN);
+					valid_code = BIN(p > 0.0f);
+					//0.01f
+					//CTLUSTTD_RUINN_VALID_BADCD
 					msg_id = valid_code ? CTLUSTTD_RUINN_VALID : CTLUSTTD_RUINN_INVALID;
 				}
 				else if(Data.RegTypeID == PPREGT_KPP) {
@@ -657,7 +660,7 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 					else
 						return;
 				}
-				else if(event.isCmd(cmCtlColor)) {
+				else if(event.isCmd(cmCtlColor)) { // @IndicatorState-done
 					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 					if(p_dc && getCtrlHandle(CTL_REG_NUMBER) == p_dc->H_Ctl) {
 						TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(CTL_REG_NUMBER, TV_SUBSIGN_INPUTLINE));
@@ -676,14 +679,7 @@ int PPObjRegister::Helper_EditDialog(RegisterTbl::Rec * pRec, const RegisterArra
 				else if(event.isCmd(cmMouseHoverCtrl)) { // @v12.7.7
 					const  uint ctl_id = event.getCtlID();
 					if(ctl_id == CTL_REG_NUMBER) {
-						TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
-						if(p_il) {
-							uint64 _state = 0;
-							SString descr_buf;
-							if(p_il->GetIndicatorState(&_state, &descr_buf) && descr_buf.NotEmptyS()) {
-								PPShowCtrlIndicatorHint(descr_buf);
-							}
-						}
+						PPShowCtrlIndicatorHintOnInputLine(this, ctl_id);
 					}
 				}
 				else
@@ -933,7 +929,7 @@ int PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 				if(ValidateAccount())
 					drawCtrl(CTL_BACCT_ACCT);
 			}
-			else if(TVCMD == cmCtlColor) {
+			else if(event.isCmd(cmCtlColor)) { // @IndicatorState-done
 				TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 				if(p_dc && getCtrlHandle(CTL_BACCT_ACCT) == p_dc->H_Ctl) {
 					TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(CTL_BACCT_ACCT, TV_SUBSIGN_INPUTLINE));
@@ -952,14 +948,7 @@ int PPObjRegister::EditBankAccount(PPBankAccount * pRec, PPID psnKindID)
 			else if(event.isCmd(cmMouseHoverCtrl)) { // @v12.7.7
 				const  uint ctl_id = event.getCtlID();
 				if(ctl_id == CTL_BACCT_ACCT) {
-					TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(ctl_id, TV_SUBSIGN_INPUTLINE));
-					if(p_il) {
-						uint64 _state = 0;
-						SString descr_buf;
-						if(p_il->GetIndicatorState(&_state, &descr_buf) && descr_buf.NotEmptyS()) {
-							PPShowCtrlIndicatorHint(descr_buf);
-						}
-					}
+					PPShowCtrlIndicatorHintOnInputLine(this, ctl_id);
 				}
 			}
 			else

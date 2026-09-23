@@ -36,7 +36,7 @@ template <class objcls, class objrec> inline void dbqf_objname_i(int option, DBC
 			objcls obj;
 			obj.Fetch(id, &rec);
 			if(rec.Name[0] == 0) {
-				if(obj.Obj == PPOBJ_GOODS && id <= PPConst::TechSurrogateGoodsIdStart) // @v11.6.4 Специальный случай: ид товара меньший, чем PPConst::TechSurrogateGoodsIdStart используется как суррогатное значение.
+				if(obj.Obj == PPOBJ_GOODS && id <= PPConst::TechSurrogateGoodsIdStart) // Специальный случай: ид товара меньший, чем PPConst::TechSurrogateGoodsIdStart используется как суррогатное значение.
 					;
 				else
 					ideqvalstr(id, rec.Name, sizeof(rec.Name));
@@ -935,6 +935,7 @@ static IMPL_DBE_PROC(dbqf_objname_amttype_i) { dbqf_objname_i <PPObjAmountType, 
 static IMPL_DBE_PROC(dbqf_objname_psnkind_i) { dbqf_objname_i <PPObjPersonKind, PPPersonKind> (option, result, params); }
 static IMPL_DBE_PROC(dbqf_objname_scardser_i) { dbqf_objname_i <PPObjSCardSeries, PPSCardSeries> (option, result, params); }
 static IMPL_DBE_PROC(dbqf_objname_debtdim_i) { dbqf_objname_i <PPObjDebtDim, PPDebtDim> (option, result, params); }
+static IMPL_DBE_PROC(dbqf_objname_goodstype_i) { dbqf_objname_i <PPObjGoodsType, PPGoodsType2> (option, result, params); } // @v12.7.9
 
 static IMPL_DBE_PROC(dbqf_objname_scale_i) 
 { 
@@ -1619,6 +1620,7 @@ int PPDbqFuncPool::IdClientActivityStatisticsIndicator = 0; // @v12.2.2 (personI
 int PPDbqFuncPool::IdClientActivityState  = 0; // @v12.2.2 (personID, LDATE actualDate, LDATE newCliPeriodLo, LDATE newCliPeriodUp) Возвращает ClientActivityState::State
 int PPDbqFuncPool::IdObjLocAddress        = 0; // @v12.4.1
 int PPDbqFuncPool::IdObjMemoTech          = 0; // @v12.5.12 (fldTechID)
+int PPDbqFuncPool::IdObjNameGoodsType     = 0; // @v12.7.9 (fldGoodsTypeID)
 
 static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
 {
@@ -1862,6 +1864,7 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	THROW(DbqFuncTab::RegisterDyn(&IdObjMemoTech,         BTS_STRING, dbqf_objmemo_tech_i,         1, BTS_INT)); // @v12.5.12 (fldTechID)
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameSCardSer,     BTS_STRING, dbqf_objname_scardser_i,     1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameDebtDim,      BTS_STRING, dbqf_objname_debtdim_i,      1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameGoodsType,    BTS_STRING, dbqf_objname_goodstype_i,    1, BTS_INT)); // @v12.7.9 (fldGoodsTypeID)
 	THROW(DbqFuncTab::RegisterDyn(&IdObjCodeSCard,        BTS_STRING, dbqf_objcode_scard_i,        1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdSCardOwnerName,      BTS_STRING, dbqf_scardownername_i,       1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdLocOwnerName,        BTS_STRING, dbqf_locownername_i,         1, BTS_INT));
