@@ -108,6 +108,10 @@ int PPObjAccount::ParseString(const char * pStr, int tok[])
 					acc_pack.Rec.Type = ACY_PERSONAL;
 					acc_pack.Rec.Kind = ACCK_PA_EXP;
 					acc_pack.Rec.AccSheetID = acs_id;
+					{ // @v12.7.10 @fix
+						acc_pack.Rec.Flags |= ACF_SYSNUMBER;
+						THROW(GenerateNumber(&acc_pack.Rec));
+					}
 					THROW(PutPacket(&_id, &acc_pack, 0));
 					ok = 1;
 				}
@@ -132,6 +136,10 @@ int PPObjAccount::ParseString(const char * pStr, int tok[])
 					acc_pack.Rec.Type = ACY_PERSONAL;
 					acc_pack.Rec.Kind = ACCK_PA_INC;
 					acc_pack.Rec.AccSheetID = acs_id;
+					{ // @v12.7.10 @fix
+						acc_pack.Rec.Flags |= ACF_SYSNUMBER;
+						THROW(GenerateNumber(&acc_pack.Rec));
+					}
 					THROW(PutPacket(&_id, &acc_pack, 0));
 					ok = 1;
 				}
@@ -154,6 +162,10 @@ int PPObjAccount::ParseString(const char * pStr, int tok[])
 				STRNSCPY(acc_pack.Rec.Code, p_symb);
 				acc_pack.Rec.Type = ACY_PERSONAL;
 				acc_pack.Rec.Kind = ACCK_PA_CORRECTION;
+				{ // @v12.7.10 @fix
+					acc_pack.Rec.Flags |= ACF_SYSNUMBER;
+					THROW(GenerateNumber(&acc_pack.Rec));
+				}
 				THROW(PutPacket(&_id, &acc_pack, 0));
 				ok = 1;
 			}
@@ -172,6 +184,10 @@ int PPObjAccount::ParseString(const char * pStr, int tok[])
 				STRNSCPY(acc_pack.Rec.Code, p_symb);
 				acc_pack.Rec.Type = ACY_PERSONAL;
 				acc_pack.Rec.Kind = ACCK_PA_LIQ;
+				{ // @v12.7.10 @fix
+					acc_pack.Rec.Flags |= ACF_SYSNUMBER;
+					THROW(GenerateNumber(&acc_pack.Rec));
+				}
 				THROW(PutPacket(&_id, &acc_pack, 0));
 				ok = 1;
 			}

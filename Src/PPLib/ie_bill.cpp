@@ -6862,9 +6862,9 @@ int DocNalogRu_Generator::MakeOutFileIdent(const PPBillPacket * pBPack, FileInfo
 					if(pBPack) {
 						//
 						const  bool is_exp_correction = pBPack->IsExpCorrection();
-						bool   pack_has_marks = pBPack->HasChZnMarks(is_exp_correction);
+						bool   pack_has_marks = pBPack->HasChZnMarks(is_exp_correction, false/*realMarksOnly*/);
 						if(is_exp_correction && !pack_has_marks && pBPack->P_LinkPack) {
-							pack_has_marks = pBPack->P_LinkPack->HasChZnMarks(is_exp_correction);
+							pack_has_marks = pBPack->P_LinkPack->HasChZnMarks(is_exp_correction, false/*realMarksOnly*/);
 						}
 						if(pack_has_marks) {
 							n_list[1] = no_marks_because_notch ? 0 : 1; // _N3 // @v12.6.0 @fix 1-->(no_marks_because_notch ? 0 : 1)
@@ -7306,7 +7306,8 @@ int DocNalogRu_Generator::WriteMarkListOnInvoiceItem3(xmlTextWriter * pX, int co
 	SString temp_buf;
 	SString mark_buf;
 	SString chzn_gtin14_buf;
-	SString chzn_serial_buf;
+	SString chzn_serial_buf; // код серии (prefix 21)
+	SString chzn_part_buf; // @v12.7.10 код партии (prefix 10)
 	SString chzn_price_buf;
 	SXml::WNode * p_n_marks_common = 0;
 	int   tag_token = 0;
@@ -7397,10 +7398,22 @@ int DocNalogRu_Generator::WriteMarkListOnInvoiceItem3(xmlTextWriter * pX, int co
 				// } @v12.3.4 
 				if(!is_mark_accepted && ((rParam.Flags & PPBillImpExpParam::fChZnMarkGTINSER) || (Flags & fExpChZnMarksGTINSER))) {
 					if(PPChZnPrcssr::InterpretChZnCodeResult(pczcr) > 0) {
+						static const int _141021_order[] = {GtinStruc::fldGTIN14, GtinStruc::fldPart, GtinStruc::fldSerial};
 						gts.GetToken(GtinStruc::fldGTIN14, &chzn_gtin14_buf);
+						// @v12.7.10 {
+						const  bool is_141021 = gts.IsSpecificOrder(_141021_order, SIZEOFARRAY(_141021_order));
+						if(is_141021) {
+							gts.GetToken(GtinStruc::fldPart, &chzn_part_buf); 
+						}
+						// } @v12.7.10
 						gts.GetToken(GtinStruc::fldSerial, &chzn_serial_buf);
 						if(chzn_gtin14_buf.NotEmpty() && chzn_serial_buf.NotEmpty()) {
-							temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("21").Cat(chzn_serial_buf);
+							if(is_141021 && chzn_part_buf.NotEmpty()) {
+								temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("10").Cat(chzn_part_buf).Cat("21").Cat(chzn_serial_buf);
+							}
+							else {
+								temp_buf.Z().Cat("01").Cat(chzn_gtin14_buf).Cat("21").Cat(chzn_serial_buf);
+							}
 							if(rParam.Flags & PPBillImpExpParam::fChZnMarkAsCDATA) {
 								// Для CDATA не следует экранировать символы (так же в марке нет русских символов). По-этому мы здесь не применяем EncText
 								SXml::WNode::CDATA(temp_buf);

@@ -6529,7 +6529,7 @@ dialog DLG_GOODS [vertical title: "@ware" size: (650, 700) minsize: (650, 700) p
 			combobox CTLSEL_GOODS_TYPE [width: bycontainer height: 21 margin: 4 tabstop label: "@goods_type" cblinesymb: CTL_GOODS_TYPE];
 			framebox [horizontal width: bycontainer growfactor: 1.1 margin: 4 padding: (4, 13, 4, 4) title: "@goods_taxgrp"] {
 				combobox CTLSEL_GOODS_TAX [growfactor: 1.5 height: 21 margin: 4 tabstop cblinesymb: CTL_GOODS_TAX]
-					supplement asterbutton (CTL_CMD_GOODSEDITTAX cmGoodsEditTax "*");
+					supplement ellipsisbutton (CTL_GOODS_CMD_GOODSEDITTAX cmGoodsEditTax "*");
 					//button CTL_CMD_GOODSEDITTAX [title: "*" tabstop size: (24, 21)  command: cmGoodsEditTax];
 				statictext CTL_GOODS_ST_INH_TAXGRP [growfactor: 2 height: bycontainer margin: 4 title: "@goods_parenttaxgrp"];
 			}
@@ -7807,7 +7807,288 @@ dialog DLG_GRESTFLTA [vertical title: "@goodsrestfiltext" size: (375, 480) minsi
 	}
 }
 
-// @20260918 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+dialog DLG_GOODSFLT [vertical title: "@goodsfilt" size: (940, 510) minsize: (940, 510) padding: 4 justifycontent: spacebetween] { // @v12.7.9
+	view [horizontal width: bycontainer growfactor: 2 justifycontent: spacebetween] {
+		view [vertical growfactor: 1 height: bycontainer] {
+			combobox CTLSEL_GOODSFLT_GRP [width: bycontainer height: 21 margin: 4 tabstop label: "@group" cblinesymb: CTL_GOODSFLT_GRP] supplement listbutton(CTL_GOODSFLT_GRPLIST cmGrpList);
+				//button CTL_GOODSFLT_GRPLIST [title: "@but_list" tabstop size: (60, 21)  command: cmGrpList];
+			view [horizontal growfactor: 1 width: bycontainer] {
+				framebox [vertical growfactor: 2 height: bycontainer margin: 4 padding: 4] {
+					combobox CTLSEL_GOODSFLT_MANUF [width: bycontainer height: 21 margin: 4 tabstop label: "@manufacturer" cblinesymb: CTL_GOODSFLT_MANUF];
+					combobox CTLSEL_GOODSFLT_BRAND [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@brand" cblinesymb: CTL_GOODSFLT_BRAND]
+						supplement listbutton(CTL_GOODSFLT_CMD_BRANDLIST cmBrandList);
+						//button CTL_CMD_BRANDLIST [title: "..." tabstop size: (30, 21)  command: cmBrandList];
+					checkbox CTL_GOODSFLT_NOBRAND [title: "@goodsfilt_fwobrand" tabstop size: (210, 21) margin: (4, 1, 4, 4)];
+					combobox CTLSEL_GOODSFLT_BROWNER [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_brandowner" cblinesymb: CTL_GOODSFLT_BROWNER]
+						supplement listbutton(CTL_GOODSFLT_CMD_BRANDOWNERLIST cmBrandOwnerList);
+						//button CTL_CMD_BRANDOWNERLIST [title: "..." tabstop size: (30, 21)  command: cmBrandOwnerList];
+					combobox CTLSEL_GOODSFLT_COUNTRY [width: bycontainer height: 21 margin: 4 tabstop label: "@countryoforg" cblinesymb: CTL_GOODSFLT_COUNTRY];
+				}
+				framebox [vertical growfactor: 1.2 height: bycontainer margin: 4 padding: 4] {
+					combobox CTLSEL_GOODSFLT_UNIT [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_unit" cblinesymb: CTL_GOODSFLT_UNIT];
+					combobox CTLSEL_GOODSFLT_PHUNIT [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_phunit" cblinesymb: CTL_GOODSFLT_PHUNIT];
+					checkcluster CTL_GOODSFLT_UNITF [width: bycontainer margin: 4 padding: 4] {
+						checkbox [title: "@goodsfilt_fintunitonly"];
+						checkbox [title: "@goodsfilt_ffloatunitonly"];
+					}
+				}
+			}
+		}
+		view [vertical width: 230 height: bycontainer margin_top: 13] {
+			button STDCTL_VIEWOPTBUTTON [title: "@but_viewoptions" tabstop size: (120, 21) margin: 4 command: cmViewOptions];
+			button CTL_GOODSFLT_CMD_EXTPARAMS [title: "@{extension}..." tabstop size: (120, 21) margin: 4 command: cmExtParams];
+			button CTL_GOODSFLT_CMD_ADVOPTIONS [title: "@but_addendum" tabstop size: (120, 21) margin: 4 command: cmAdvOptions];
+			button STDCTL_SJBUTTON [title: "@but_sysj" tabstop size: (120, 21) margin: 4 command: cmSysjFilt2];
+			button STDCTL_TAGSBUTTON [title: "@but_tags" tabstop size: (120, 21) margin: 4 command: cmTags];
+			combobox CTLSEL_GOODSFLT_ORDER [width: bycontainer height: 21 margin: 4 tabstop label: "@sorting" cblinesymb: CTL_GOODSFLT_ORDER];
+		}
+	}
+	view [horizontal width: bycontainer growfactor: 1.5 justifycontent: spacebetween] {
+		view [vertical growfactor: 1.5 height: bycontainer] {
+			view [horizontal width: bycontainer height: 85] {
+				framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4] {
+					combobox CTLSEL_GOODSFLT_KIND [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@goods_type" cblinesymb: CTL_GOODSFLT_KIND ];
+					checkbox CTL_GOODSFLT_NOKIND [title: "@goodsfilt_fundeftype" tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4)];
+				}
+				framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4] {
+					combobox CTLSEL_GOODSFLT_TAXGRP [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@taxgroup" cblinesymb: CTL_GOODSFLT_TAXGRP]
+						supplement ellipsisbutton (CTL_GOODSFLT_VATFLT cmGoodsFiltVat "@{vat}...");
+						//button CTL_GOODSFLT_VATFLT [title: "@{vat}..." tabstop size: (60, 21)  command: cmGoodsFiltVat];
+					checkbox CTL_GOODSFLT_WOTAXGRP [title: "@goodsfilt_fwotaxgrp" tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4)];
+				}
+			}
+			input CTL_GOODSFLT_NAMESTR [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_extssnametext"] string[128];
+			view [horizontal width: bycontainer height: 45] {
+				input CTL_GOODSFLT_BARCODESTR [growfactor: 2 height: 21 margin: 4 tabstop label: "@goodsfilt_extssbarcodetext"] string[128];
+				input CTL_GOODSFLT_BCLEN [growfactor: 1 height: 21 margin: 4 tabstop label: "@goodsfilt_barcodelen"] string[32];
+			}
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			checkcluster CTL_GOODSFLT_FLAGS [width: bycontainer margin: 4 padding: 4] {
+				checkbox [title: "@goodsfilt_fhidepassive"];
+				checkbox [title: "@goodsfilt_frestrictbymatrix"];
+				checkbox [title: "@goodsfilt_foutofmatrix"];
+				checkbox [title: "@goodsfilt_fhasimages"];
+				checkbox [title: "@goodsfilt_fuseindepwtonly"];
+				checkbox [title: "@goodsfilt_fhidegeneric"];
+			}
+			checkbox CTL_GOODSFLT_NOT [title: "@goodsfilt_fnegation" tabstop width: bycontainer height: 21 margin: (12, 4, 4, 4)];
+		}
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_GDSFVOPT [vertical title: "@goodsfilt_viewoptions" size: (400, 470) minsize: (400, 470) padding: 4 justifycontent: spacebetween] { // @v12.7.9
+	checkcluster CTL_GDSFVOPT_FLAGS [width: bycontainer margin: 4 padding: 4] {
+		checkbox [title: "@goodsfilt_fshowbarcode"];
+		checkbox [title: "@goodsfilt_fshowcargo"];
+		checkbox [title: "@goodsfilt_fshowstructype"];
+		checkbox [title: "@goodsfilt_fshowgoodswostruc"];
+		checkbox [title: "@goodsfilt_fshowarcode"];
+	}
+	framebox [vertical title: "@goodsfilt_viewoptions_ar" width: bycontainer growfactor: 2 margin: 4 padding: (4, 12, 4, 4) justifycontent: spacebetween] {
+		checkcluster CTL_GDSFVOPT_OWNCODES [width: bycontainer margin: 4 padding: 4] {
+			checkbox [title: "@goodsfilt_fshowownarcode"];
+			checkbox [title: "@goodsfilt_fshowwoarcode"];
+		}
+		combobox CTLSEL_GDSFVOPT_ACS [width: bycontainer height: 21 margin: 4 tabstop label: "@accsheet" cblinesymb: CTL_GDSFVOPT_ACS];
+		combobox CTLSEL_GDSFVOPT_AR [width: bycontainer height: 21 margin: 4 tabstop label: "@article" cblinesymb: CTL_GDSFVOPT_AR];
+	}
+	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+		checkbox CTL_GDSFVOPT_FASSOC [title: "@goodsfilt_f2showwhplace" tabstop width: bycontainer height: 21 margin: 4 justifycontent: spacebetween];
+		combobox CTLSEL_GDSFVOPT_ASSOC [width: bycontainer height: 21 margin: 4 tabstop label: "Association" cblinesymb: CTL_GDSFVOPT_ASSOC ];
+	}
+	//framebox [title: "@goodsfilt_viewoptions_ar" origin: (8, 122) size: (420, 163) ];
+	//framebox [origin: (8, 293) size: (420, 89) ];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_GFLTADVOPT [vertical title: "@goodsfilt_addendum" size: (610, 435) minsize: (610, 435) padding: 4 justifycontent: spacebetween] { // @v12.7.9
+	view [horizontal width: bycontainer growfactor: 2] {
+		view [vertical growfactor: 2.5 height: bycontainer] {
+			view [horizontal width: bycontainer height: 30] {
+				input CTL_GFLTADVOPT_LOTPERIOD [design: B size: (145, 21) margin: 4 tabstop label: "@goodsfilt_lotperiod"] string[30] supplement daterangecalbutton(CTLCAL_GFLTADVOPT_LOTPERIOD);
+			}
+			combobox CTLSEL_GFLTADVOPT_SUPPL [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_suppl" cblinesymb: CTL_GFLTADVOPT_SUPPL];
+			combobox CTLSEL_GFLTADVOPT_LOC [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_loclist" cblinesymb: CTL_GFLTADVOPT_LOC] 
+				supplement listbutton(STDCTL_LOCLISTBUTTON cmLocList);
+			checkcluster CTL_GFLTADVOPT_FLAGS [width: bycontainer margin: 4 padding: 4] {
+				checkbox [title: "@goodsfilt_fnewlots"];
+				checkbox [title: "@goodsfilt_fnozerorestonlotperiod"];
+				checkbox [title: "@goodsfilt_factualonly"];
+			}
+		}
+		view [vertical growfactor: 1.3 height: bycontainer justifycontent: end] {
+			input CTL_GFLTADVOPT_IDRNG [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_idrange"] string[32];
+			input CTL_GFLTADVOPT_GRPCRNG [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_grpcountrange"] string[32];
+		}
+	}
+	view [horizontal width: bycontainer growfactor: 1] {
+		radiocluster CTL_GFLTADVOPT_EXTFLT [title: "@goodsfilt_selbyspecialprop" growfactor: 1 margin: 4 padding: (4, 12, 4, 4)] {
+			radiobutton [title: "@goodsfilt_selbyspecialprop_nouse"];
+			radiobutton [title: "@goodsfilt_fpassiveonly"];
+			radiobutton [title: "@goodsfilt_fgengoodsonly"];
+			radiobutton [title: "@goodsfilt_fwotaxgdsonly"];
+			radiobutton [title: "@goodsfilt_fnodisonly"];
+		}
+		framebox [vertical growfactor: 1.7 height: bycontainer margin: 4 padding: 4] {
+			checkbox CTL_GFLTADVOPT_SNEXP [title: "@goodsfilt_f2soonexpiredonly" tabstop width: bycontainer height: 21 margin: 4];
+			view [horizontal width: bycontainer height: 30] {
+				input CTL_GFLTADVOPT_AHEXPD [design: B size: (60, 21) margin: 4 tabstop fmtf: (nozero) label: "@goodsfilt_aheadexpirydays"] int16;
+			}
+		}
+	}
+	//framebox [origin: (270, 244) size: (315, 106) ];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_OPKPRNOPT [vertical title: "@oprkind_prtoptions" size: (590, 550) minsize: (590, 550) padding: 4 justifycontent: spacebetween] {
+	view [horizontal width: bycontainer growfactor: 1] {
+		view [vertical growfactor: 1 height: bycontainer justifycontent: spacebetween] {
+			radiocluster CTL_OPKMORE_PRTAMT [title: "@oprkind_opkf_prt_amt" width: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
+				radiobutton [title: "@oprkind_opkf_prt_implicit"];
+				radiobutton [title: "@oprkind_opkf_prt_amt_buying"];
+				radiobutton [title: "@oprkind_opkf_prt_amt_selling"];
+				radiobutton [title: "@oprkind_opkf_prt_amt_both"];
+			}
+			checkcluster CTL_OPKMORE_WHAT [title: "@oprkind_opkf_prt_what" width: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
+				checkbox [title: "@oprkind_opkf_prt_qcert"];
+				checkbox [title: "@oprkind_opkf_prt_invoice"];
+				checkbox [title: "@oprkind_opkf_prt_cashord"];
+				checkbox [title: "@oprkind_opkf_prt_lading"];
+				checkbox [title: "@oprkind_opkf_prt_check"];
+				checkbox [title: "@oprkind_opkf_prt_srvact"];
+				checkbox [title: "@oprkind_opkf_prt_plabel"];
+				checkbox [title: "@oprkind_opkf_prt_payplan"];
+				checkbox [title: "@oprkind_opkf_prt_taresaldo"];
+				checkbox [title: "@oprkind_opkf_prt_lottagimg"];
+			}
+			radiocluster CTL_OPKMORE_PRTORD [title: "@oprkind_prnorder" width: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
+				radiobutton [title: "@oprkind_prnorder_default"];
+				radiobutton [title: "@oprkind_prnorder_bygoods"];
+				radiobutton [title: "@oprkind_prnorder_bygrpgoods"];
+				radiobutton [title: "@oprkind_prnorder_bybarcode"];
+				radiobutton [title: "@oprkind_prnorder_bysuppl"];
+				radiobutton [title: "@oprkind_prnorder_bylocation"];
+				radiobutton [title: "@oprkind_prnorder_bystoreplacegrpgoods"];
+			}
+		}
+		view [vertical growfactor: 1 height: bycontainer justifycontent: spacebetween] {
+			checkcluster CTL_OPKMORE_PRTQC [title: "@oprkind_opkf_prt_how" width: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
+				checkbox [title: "@oprkind_opkf_prt_nbilln"];
+				checkbox [title: "@oprkind_opkf_prt_vatax"];
+				checkbox [title: "@oprkind_opkf_prt_qcg"];
+				checkbox [title: "@oprkind_opkf_prt_shrtorg"];
+				checkbox [title: "@oprkind_opkf_prt_selprice"];
+				checkbox [title: "@oprkind_opkf_prt_ndiscnt"];
+				checkbox [title: "@oprkind_opkf_prt_incinvc"];
+				checkbox [title: "@oprkind_opkf_prt_neginvc"];
+				checkbox [title: "@oprkind_opkf_prt_mergeti"];
+				checkbox [title: "@oprkind_opkf_prt_checkti"];
+				checkbox [title: "@oprkind_opkf_prt_extobj2obj"];
+				checkbox [title: "@oprkind_opkf_prt_bcodelist"];
+				checkbox [title: "@oprkind_opkf_prt_qcertlist"];
+				checkbox [title: "@oprkind_opkf_prt_wroffchznmarksoncc"]; // @v12.7.10				
+			}
+			input CTL_OPKMORE_PRNFORM [width: bycontainer height: 21 margin: 4 tabstop label: "@oprkind_extstr_defprnform"] string[32];
+		}
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_ATFLT [vertical title: "@accturnfilt" size: (420, 400) minsize: (420, 400) padding: 4 justifycontent: spacebetween] { // @v12.7.10 @construction
+	view [horizontal width: bycontainer height: 30] {
+		checkbox CTL_ATFLT_LASTONLY [title: "@accturnfilt_flastonly" tabstop growfactor: 1 height: 21 margin: 4];
+		statictext CTL_ATFLT_WL [size: (15, 16) margin: 4 staticedge];
+	}
+	input CTL_ATFLT_PERIOD [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@daterange"] string[30] supplement daterangecalbutton(CTLCAL_ATFLT_PERIOD);
+	combobox CTLSEL_ATFLT_OPRKIND [width: bycontainer height: 21 margin: 4 tabstop label: "@oprkind" cblinesymb: CTL_ATFLT_OPRKIND];
+	view [horizontal width: bycontainer height: 70] {
+		input CTL_ATFLT_AMOUNT [growfactor: 2 height: 21 margin: 4 tabstop label: "@amount"] string[30];
+		view [vertical growfactor: 1 height: bycontainer] {
+			combobox CTLSEL_ATFLT_CUR [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@currency" cblinesymb: CTL_ATFLT_CUR];
+			checkbox CTL_ATFLT_ALLCUR [title: "@accturnfilt_fallcurrencies" tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4)];
+		}
+	}
+	view [horizontal width: bycontainer height: 120] {
+		radiocluster CTL_ATFLT_GRPACO [title: "@grouping" growfactor: 1 margin: 4 padding: (4, 12, 4, 4)] {
+			radiobutton [title: "@dontgroup"];
+			radiobutton [title: "@accturnfilt_grpaco_1"];
+			radiobutton [title: "@accturnfilt_grpaco_2"];
+			radiobutton [title: "@accturnfilt_grpaco_3"];
+		}
+		framebox [vertical growfactor: 1.6 height: bycontainer margin: 4 padding: 4] {
+			view [horizontal width: bycontainer growfactor: 1 justifycontent: end] {
+				combobox CTLSEL_ATFLT_CYCLE [size: (120, 21) margin: 4 tabstop label: "@cycle" cblinesymb: CTL_ATFLT_CYCLE];
+			}
+			view [horizontal width: bycontainer growfactor: 1] {
+				input CTL_ATFLT_NUMCYCLES [design: B size: (70, 21) margin: 4 tabstop label: "@cyclecount"] int16;
+			}
+		}
+	}
+	//framebox [origin: (158, 211) size: (218, 89) ];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_GOODSGROUP [vertical title: "@goodsgroup" size: (610, 430) minsize: (610, 430) padding: 4 justifycontent: spacebetween] { // @v12.7.10 @construction
+	view [horizontal width: bycontainer height: 40] {
+		input CTL_GOODS_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[128];
+		input CTL_GOODS_BARCODE [size: (100, 21) margin: 4 tabstop label: "@code"] string[20];
+		input CTL_GOODS_ID [size: (60, 21) margin: 4 readonly fmtf: (nozero) label: "@id"] int32;
+		//statictext [size: (98, 16)  staticedge];
+	}
+	view [horizontal width: bycontainer height: 40] {
+		combobox CTLSEL_GOODS_GROUP [growfactor: 1 height: 21 margin: 4 tabstop label: "@goodsgroup_parent" cblinesymb: CTL_GOODS_GROUP];
+		input CTL_GOODS_RANK [size: (75, 21) margin: 4 tabstop fmtf: (nozero) label: "@rank"] int16;
+	}
+	view [horizontal width: bycontainer height: 220] {
+		view [vertical growfactor: 1 height: bycontainer] {
+			combobox CTLSEL_GOODS_UNIT [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsgroup_unit" cblinesymb: CTL_GOODS_UNIT];
+			combobox CTLSEL_GOODS_PHUNIT [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsgroup_phunit" cblinesymb: CTL_GOODS_PHUNIT];
+			combobox CTLSEL_GOODS_BCODESTRUC [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsgroup_defbcodestruc" cblinesymb: CTL_GOODS_BCODESTRUC];
+			view [horizontal width: bycontainer height: 30 margin_top: 13] {
+				input CTL_GOODSGROUP_LIMIT [design: B size: (40, 21) margin: 4 tabstop fmtf: (nozero) label: "@goodsgroup_limit"] int32;
+			}
+			checkbox CTL_GOODS_GRPFLAGS [title: "@goodsgroup_gf_unclassified" tabstop width: bycontainer height: 21 margin: 4];
+		}
+		view [vertical growfactor: 1.3 height: bycontainer] {
+			combobox CTLSEL_GOODS_TYPE [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsgroup_goodstype" cblinesymb: CTL_GOODS_TYPE];
+			combobox CTLSEL_GOODS_TAX [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsgroup_taxgrp" cblinesymb: CTL_GOODS_TAX]
+				supplement ellipsisbutton (CTL_GOODS_CMD_GOODSEDITTAX cmGoodsEditTax "*");
+				//button CTL_CMD_GOODSEDITTAX [title: "*" size: (21, 21)  command: cmGoodsEditTax];
+			combobox CTLSEL_GOODS_CLS [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsgroup_gdscls" cblinesymb: CTL_GOODS_CLS];
+			combobox CTLSEL_GOODS_DEFPRC [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsgroup_defprc" cblinesymb: CTL_GOODS_DEFPRC];
+			combobox CTLSEL_GOODS_DEFGSTRUC [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsgroup_struc" cblinesymb: CTL_GOODS_DEFGSTRUC];
+		}
+	}
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 4 height: bycontainer justifycontent: start] {
+			button CTL_GOODS_CMD_GOODSEXTITLES [title: "@{addendumfields}..." tabstop size: (145, 21) margin: 4 command: cmGoodsExTitles];
+			button CTL_GOODS_CMD_VIEWQUOTS [title: "@but_quots" tabstop size: (145, 21) margin: 4 command: cmViewQuots];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+// @20260931 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 
 // @construction
@@ -8213,150 +8494,6 @@ dialog DLG_ATURNPERSONAL [vertical size: (600, 480) minsize: (600, 480) padding:
 		combobox CTLSEL_ATURN_PA_CONTRACTOR [width: bycontainer(70) height: 21 margin: 4 tabstop label: "@contractor" cblinesymb: CTL_ATURN_PA_CONTRACTOR];
 	}
 	input CTL_ATURN_MEMO [width: bycontainer growfactor: 1 margin: 4 tabstop multiline wantreturn label: "@memo"] string[252];
-	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
-		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
-	}
-}
-
-dialog DLG_GOODSFLT [vertical title: "@goodsfilt" size: (940, 510) minsize: (940, 510) padding: 4 justifycontent: spacebetween] { // @v12.7.9
-	view [horizontal width: bycontainer growfactor: 2 justifycontent: spacebetween] {
-		view [vertical growfactor: 1 height: bycontainer] {
-			combobox CTLSEL_GOODSFLT_GRP [width: bycontainer height: 21 margin: 4 tabstop label: "@group" cblinesymb: CTL_GOODSFLT_GRP] supplement listbutton(CTL_GOODSFLT_GRPLIST cmGrpList);
-				//button CTL_GOODSFLT_GRPLIST [title: "@but_list" tabstop size: (60, 21)  command: cmGrpList];
-			view [horizontal growfactor: 1 width: bycontainer] {
-				framebox [vertical growfactor: 2 height: bycontainer margin: 4 padding: 4] {
-					combobox CTLSEL_GOODSFLT_MANUF [width: bycontainer height: 21 margin: 4 tabstop label: "@manufacturer" cblinesymb: CTL_GOODSFLT_MANUF];
-					combobox CTLSEL_GOODSFLT_BRAND [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@brand" cblinesymb: CTL_GOODSFLT_BRAND]
-						supplement listbutton(CTL_GOODSFLT_CMD_BRANDLIST cmBrandList);
-						//button CTL_CMD_BRANDLIST [title: "..." tabstop size: (30, 21)  command: cmBrandList];
-					checkbox CTL_GOODSFLT_NOBRAND [title: "@goodsfilt_fwobrand" tabstop size: (210, 21) margin: (4, 1, 4, 4)];
-					combobox CTLSEL_GOODSFLT_BROWNER [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_brandowner" cblinesymb: CTL_GOODSFLT_BROWNER]
-						supplement listbutton(CTL_GOODSFLT_CMD_BRANDOWNERLIST cmBrandOwnerList);
-						//button CTL_CMD_BRANDOWNERLIST [title: "..." tabstop size: (30, 21)  command: cmBrandOwnerList];
-					combobox CTLSEL_GOODSFLT_COUNTRY [width: bycontainer height: 21 margin: 4 tabstop label: "@countryoforg" cblinesymb: CTL_GOODSFLT_COUNTRY];
-				}
-				framebox [vertical growfactor: 1.2 height: bycontainer margin: 4 padding: 4] {
-					combobox CTLSEL_GOODSFLT_UNIT [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_unit" cblinesymb: CTL_GOODSFLT_UNIT];
-					combobox CTLSEL_GOODSFLT_PHUNIT [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_phunit" cblinesymb: CTL_GOODSFLT_PHUNIT];
-					checkcluster CTL_GOODSFLT_UNITF [width: bycontainer margin: 4 padding: 4] {
-						checkbox [title: "@goodsfilt_fintunitonly"];
-						checkbox [title: "@goodsfilt_ffloatunitonly"];
-					}
-				}
-			}
-		}
-		view [vertical width: 230 height: bycontainer margin_top: 13] {
-			button STDCTL_VIEWOPTBUTTON [title: "@but_viewoptions" tabstop size: (120, 21) margin: 4 command: cmViewOptions];
-			button CTL_GOODSFLT_CMD_EXTPARAMS [title: "@{extension}..." tabstop size: (120, 21) margin: 4 command: cmExtParams];
-			button CTL_GOODSFLT_CMD_ADVOPTIONS [title: "@but_addendum" tabstop size: (120, 21) margin: 4 command: cmAdvOptions];
-			button STDCTL_SJBUTTON [title: "@but_sysj" tabstop size: (120, 21) margin: 4 command: cmSysjFilt2];
-			button STDCTL_TAGSBUTTON [title: "@but_tags" tabstop size: (120, 21) margin: 4 command: cmTags];
-			combobox CTLSEL_GOODSFLT_ORDER [width: bycontainer height: 21 margin: 4 tabstop label: "@sorting" cblinesymb: CTL_GOODSFLT_ORDER];
-		}
-	}
-	view [horizontal width: bycontainer growfactor: 1.5 justifycontent: spacebetween] {
-		view [vertical growfactor: 1.5 height: bycontainer] {
-			view [horizontal width: bycontainer height: 85] {
-				framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4] {
-					combobox CTLSEL_GOODSFLT_KIND [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@goods_type" cblinesymb: CTL_GOODSFLT_KIND ];
-					checkbox CTL_GOODSFLT_NOKIND [title: "@goodsfilt_fundeftype" tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4)];
-				}
-				framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4] {
-					combobox CTLSEL_GOODSFLT_TAXGRP [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@taxgroup" cblinesymb: CTL_GOODSFLT_TAXGRP]
-						supplement ellipsisbutton (CTL_GOODSFLT_VATFLT cmGoodsFiltVat "@{vat}...");
-						//button CTL_GOODSFLT_VATFLT [title: "@{vat}..." tabstop size: (60, 21)  command: cmGoodsFiltVat];
-					checkbox CTL_GOODSFLT_WOTAXGRP [title: "@goodsfilt_fwotaxgrp" tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4)];
-				}
-			}
-			input CTL_GOODSFLT_NAMESTR [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_extssnametext"] string[128];
-			view [horizontal width: bycontainer height: 45] {
-				input CTL_GOODSFLT_BARCODESTR [growfactor: 2 height: 21 margin: 4 tabstop label: "@goodsfilt_extssbarcodetext"] string[128];
-				input CTL_GOODSFLT_BCLEN [growfactor: 1 height: 21 margin: 4 tabstop label: "@goodsfilt_barcodelen"] string[32];
-			}
-		}
-		view [vertical growfactor: 1 height: bycontainer] {
-			checkcluster CTL_GOODSFLT_FLAGS [width: bycontainer margin: 4 padding: 4] {
-				checkbox [title: "@goodsfilt_fhidepassive"];
-				checkbox [title: "@goodsfilt_frestrictbymatrix"];
-				checkbox [title: "@goodsfilt_foutofmatrix"];
-				checkbox [title: "@goodsfilt_fhasimages"];
-				checkbox [title: "@goodsfilt_fuseindepwtonly"];
-				checkbox [title: "@goodsfilt_fhidegeneric"];
-			}
-			checkbox CTL_GOODSFLT_NOT [title: "@goodsfilt_fnegation" tabstop width: bycontainer height: 21 margin: (12, 4, 4, 4)];
-		}
-	}
-	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
-		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
-	}
-}
-
-dialog DLG_GDSFVOPT [vertical title: "@goodsfilt_viewoptions" size: (400, 470) minsize: (400, 470) padding: 4 justifycontent: spacebetween] { // @v12.7.9
-	checkcluster CTL_GDSFVOPT_FLAGS [width: bycontainer margin: 4 padding: 4] {
-		checkbox [title: "@goodsfilt_fshowbarcode"];
-		checkbox [title: "@goodsfilt_fshowcargo"];
-		checkbox [title: "@goodsfilt_fshowstructype"];
-		checkbox [title: "@goodsfilt_fshowgoodswostruc"];
-		checkbox [title: "@goodsfilt_fshowarcode"];
-	}
-	framebox [vertical title: "@goodsfilt_viewoptions_ar" width: bycontainer growfactor: 2 margin: 4 padding: (4, 12, 4, 4) justifycontent: spacebetween] {
-		checkcluster CTL_GDSFVOPT_OWNCODES [width: bycontainer margin: 4 padding: 4] {
-			checkbox [title: "@goodsfilt_fshowownarcode"];
-			checkbox [title: "@goodsfilt_fshowwoarcode"];
-		}
-		combobox CTLSEL_GDSFVOPT_ACS [width: bycontainer height: 21 margin: 4 tabstop label: "@accsheet" cblinesymb: CTL_GDSFVOPT_ACS];
-		combobox CTLSEL_GDSFVOPT_AR [width: bycontainer height: 21 margin: 4 tabstop label: "@article" cblinesymb: CTL_GDSFVOPT_AR];
-	}
-	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
-		checkbox CTL_GDSFVOPT_FASSOC [title: "@goodsfilt_f2showwhplace" tabstop width: bycontainer height: 21 margin: 4 justifycontent: spacebetween];
-		combobox CTLSEL_GDSFVOPT_ASSOC [width: bycontainer height: 21 margin: 4 tabstop label: "Association" cblinesymb: CTL_GDSFVOPT_ASSOC ];
-	}
-	//framebox [title: "@goodsfilt_viewoptions_ar" origin: (8, 122) size: (420, 163) ];
-	//framebox [origin: (8, 293) size: (420, 89) ];
-	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
-		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
-	}
-}
-
-dialog DLG_GFLTADVOPT [vertical title: "@goodsfilt_addendum" size: (610, 435) minsize: (610, 435) padding: 4 justifycontent: spacebetween] { // @v12.7.9
-	view [horizontal width: bycontainer growfactor: 2] {
-		view [vertical growfactor: 2.5 height: bycontainer] {
-			view [horizontal width: bycontainer height: 30] {
-				input CTL_GFLTADVOPT_LOTPERIOD [design: B size: (145, 21) margin: 4 tabstop label: "@goodsfilt_lotperiod"] string[30] supplement daterangecalbutton(CTLCAL_GFLTADVOPT_LOTPERIOD);
-			}
-			combobox CTLSEL_GFLTADVOPT_SUPPL [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_suppl" cblinesymb: CTL_GFLTADVOPT_SUPPL];
-			combobox CTLSEL_GFLTADVOPT_LOC [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_loclist" cblinesymb: CTL_GFLTADVOPT_LOC] 
-				supplement listbutton(STDCTL_LOCLISTBUTTON cmLocList);
-			checkcluster CTL_GFLTADVOPT_FLAGS [width: bycontainer margin: 4 padding: 4] {
-				checkbox [title: "@goodsfilt_fnewlots"];
-				checkbox [title: "@goodsfilt_fnozerorestonlotperiod"];
-				checkbox [title: "@goodsfilt_factualonly"];
-			}
-		}
-		view [vertical growfactor: 1.3 height: bycontainer justifycontent: end] {
-			input CTL_GFLTADVOPT_IDRNG [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_idrange"] string[32];
-			input CTL_GFLTADVOPT_GRPCRNG [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsfilt_grpcountrange"] string[32];
-		}
-	}
-	view [horizontal width: bycontainer growfactor: 1] {
-		radiocluster CTL_GFLTADVOPT_EXTFLT [title: "@goodsfilt_selbyspecialprop" growfactor: 1 margin: 4 padding: (4, 12, 4, 4)] {
-			radiobutton [title: "@goodsfilt_selbyspecialprop_nouse"];
-			radiobutton [title: "@goodsfilt_fpassiveonly"];
-			radiobutton [title: "@goodsfilt_fgengoodsonly"];
-			radiobutton [title: "@goodsfilt_fwotaxgdsonly"];
-			radiobutton [title: "@goodsfilt_fnodisonly"];
-		}
-		framebox [vertical growfactor: 1.7 height: bycontainer margin: 4 padding: 4] {
-			checkbox CTL_GFLTADVOPT_SNEXP [title: "@goodsfilt_f2soonexpiredonly" tabstop width: bycontainer height: 21 margin: 4];
-			view [horizontal width: bycontainer height: 30] {
-				input CTL_GFLTADVOPT_AHEXPD [design: B size: (60, 21) margin: 4 tabstop fmtf: (nozero) label: "@goodsfilt_aheadexpirydays"] int16;
-			}
-		}
-	}
-	//framebox [origin: (270, 244) size: (315, 106) ];
 	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];

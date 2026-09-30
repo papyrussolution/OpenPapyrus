@@ -202,9 +202,6 @@ const StrAssocArray & PPViewQuot::GetQuotKindList() const { return QuotKindList;
 //
 //
 //
-// @v11.4.4 #define GRP_GOODSFILT 1
-// @v11.4.4 #define GRP_LOC       2
-
 class QuotFiltDialog : public TDialog {
 	DECL_DIALOG_DATA(QuotFilt);
 	enum {
@@ -238,7 +235,7 @@ public:
 		AddClusterAssoc(CTL_QUOTFLT_FLAGS, 0, QuotFilt::fCrosstab);
 		SetClusterData(CTL_QUOTFLT_FLAGS, Data.Flags);
 		{
-			long  ggd = CHKXORFLAGS(Data.Flags, QuotFilt::fByGoodsOnly, QuotFilt::fByGroupOnly);
+			const  long ggd = CHKXORFLAGS(Data.Flags, QuotFilt::fByGoodsOnly, QuotFilt::fByGroupOnly);
 			AddClusterAssoc(CTL_QUOTFLT_GGRPDIFF, 0, 0);
 			AddClusterAssoc(CTL_QUOTFLT_GGRPDIFF, 1, QuotFilt::fByGoodsOnly);
 			AddClusterAssoc(CTL_QUOTFLT_GGRPDIFF, 2, QuotFilt::fByGroupOnly);
@@ -272,7 +269,7 @@ public:
 		GetClusterData(CTL_QUOTFLT_ABSENCE,   &Data.Flags);
 		GetClusterData(CTL_QUOTFLT_FLAGS,     &Data.Flags);
 		{
-			const long ggd = GetClusterData(CTL_QUOTFLT_GGRPDIFF);
+			const  long ggd = GetClusterData(CTL_QUOTFLT_GGRPDIFF);
 			Data.Flags &= ~(QuotFilt::fByGoodsOnly|QuotFilt::fByGroupOnly);
 			Data.Flags |= ggd;
 		}
@@ -866,10 +863,14 @@ int FASTCALL PPViewQuot::CheckGoodsKindDiffRestriction(PPID goodsID)
 
 int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArray * pQList, int use_ta)
 {
-	int    ok = 1, is_added = 0;
+	int    ok = 1;
+	int    is_added = 0;
 	int    done = 0;
-	SString temp_buf, msg_buf;
-	PPIDArray loc_list, goods_list, temp_goods_list;
+	SString temp_buf;
+	SString msg_buf;
+	PPIDArray loc_list;
+	PPIDArray goods_list;
+	PPIDArray temp_goods_list;
 	int    use_goods_list = 0;
 	DBQ  * dbq = 0;
 	PPID   prev_goods_id = 0;
@@ -921,7 +922,7 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 			if(use_goods_list) {
 				PPIDArray temp_list;
 				for(uint i = 0; i < goods_list.getCount(); i++) {
-					int id = goods_list.at(i);
+					const  PPID id = goods_list.at(i);
 					if(GObj.Fetch(id, &goods_rec) > 0) {
 						if(goods_rec.BrandID == pFilt->BrandID)
 							temp_list.add(id);
@@ -933,8 +934,9 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 			else {
 				GoodsFilt filt;
 				filt.BrandList.Add(pFilt->BrandID);
-				for(GoodsIterator iter(&filt, 0); iter.Next(&goods_rec) > 0;)
+				for(GoodsIterator iter(&filt, 0); iter.Next(&goods_rec) > 0;) {
 					goods_list.add(goods_rec.ID);
+				}
 				goods_list.sortAndUndup();
 				use_goods_list = 1;
 			}
@@ -1011,8 +1013,8 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 				}
 				else {
 					PPLoadText(PPTXT_WAIT_QUOTVIEWBUILDING, msg_buf);
-					const uint _c = last_goods_id - first_goods_id + 1;
-					const uint rc = rel_list.getCount();
+					const  uint _c = last_goods_id - first_goods_id + 1;
+					const  uint rc = rel_list.getCount();
 					for(uint i = 0; i < rc; i++) {
 						const  PPID rel_id = rel_list.get(i);
 						quot.Z();

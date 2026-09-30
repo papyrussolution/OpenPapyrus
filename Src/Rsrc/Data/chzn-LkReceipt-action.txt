@@ -1,0 +1,51 @@
+﻿Code;Descr
+AUTO_CANCELLATION;Аннулирование неиспользованных КМ по истечении срока
+BALANCE_CORRECTION;Корректировка баланса
+BEFORE_MARKING;До маркировки
+BEYOND_EEC_EXPORT;Экспорт за пределы стран ЕАЭС
+BY_SAMPLES;По образцам
+COMPLAINTS;Рекламации
+CONFISCATION;Конфискация товаров
+DAMAGE_LOSS;Утрата товаров
+DEFECT;Брак
+DEMO_SAMPLES;Демонстрационные образцы
+DESCRIPTION_ERRORS;Ошибки описания
+DESTRUCTION;Уничтожение товаров
+DISTANCE;Дистанционная продажа
+DONATION;Безвозмездная передача
+EAS_TRADE;Трансграничная продажа в страны ЕАЭС
+EEC_EXPORT_RETURN;Возврат при экспорте
+EXPIRATION;Истечение срока годности
+EXPIRY;Истек срок годности
+INTERNAL_RETURN;Внутренний возврат
+KM_CANCELATION;Списание при трансформации
+KM_CANCELLATION;Аннулирование неиспользованных КМ по инициативе участника оборота товаров
+KM_DESTROYED;КМ уничтожен
+DISAGGREGATION;Дезагрегация
+KM_LOST;КМ утерян
+KM_SPOILED;КМ испорчен
+KM_SPOILED_OR_LOST;Испорчено либо утеряно СИ с КМ
+LEGAL_RETURN;Законный возврат
+LIQUIDATION;Ликвидация предприятия
+LOSS;Потери
+MEDICAL_USE;Медицинское применение
+MISMATCH;Несоответствие
+OTHER;Другие причины
+OWN_USE;Использование для собственных нужд
+OWN_USE_EXCISE;Использование для собственных нужд с уплатой акциза
+PACKING;Упаковка
+PRODUCT_TESTING;Тестирование продукта
+PRODUCT_RECALL;Отзыв с рынка
+PRODUCTION_USE;Использование для производственных целей
+QA_SAMPLES;Лабораторные образцы
+RECALL;Отзыв
+REMOTE_SALE_RETURN;Возврат при дистанционной продаже
+RETAIL;Розничная продажа
+RETAIL_RETURN;Возврат при розничной реализации
+RETURN;Возврат
+STATE_CONTRACT;Продажа по государственному (муниципальному) контракту
+STATE_SECRET;Продажа по сделке с государственной тайной
+UTILIZATION;Утилизация
+VENDING;Продажа через вендинговый аппарат
+VETERINARY_USE;Ветеринарное применение
+REMAINS_CANCELLATION;Аннулирование остатков

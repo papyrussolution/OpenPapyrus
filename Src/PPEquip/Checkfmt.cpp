@@ -1555,6 +1555,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 						}
 						if(GetCurCheckItem(pIter, &cc_item, &cc_ext)) {
 							int   chzn_product_type = 0;
+							//const double _net_price = R2(((intmnytodbl(cc_item.Price) - cc_item.Dscnt) * cc_item.Quantity) / cc_item.Quantity); // @v12.7.10 
 							const double s  = intmnytodbl(cc_item.Price) * cc_item.Quantity;
 							const double ds = cc_item.Dscnt * cc_item.Quantity;
 							const double prev_rt = RunningTotal;
@@ -1562,7 +1563,7 @@ int PPSlipFormat::NextIteration(Iter * pIter, SString & rBuf)
 							const double is = RunningTotal - prev_rt;
 							pIter->Qtty  = fabs(cc_item.Quantity);
 							pIter->PhQtty = 0.0; // @v11.9.3
-							pIter->Price = is / pIter->Qtty;
+							pIter->Price = (is / pIter->Qtty);
 							pIter->VatRate = 0.0;
 							pIter->DivID = (cc_item.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? (cc_item.DivID - CHECK_LINE_IS_PRINTED_BIAS) : cc_item.DivID;
 							pIter->GoodsID = cc_item.GoodsID;

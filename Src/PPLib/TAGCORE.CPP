@@ -762,7 +762,8 @@ int ObjTagItem::Read__(SBuffer & rBuf)
 //
 /*static*/bool FASTCALL ObjTagList::ArePtrsEqual(const ObjTagList * pP1, const ObjTagList * pP2)
 {
-	bool   eq = true;
+	return AreObjByPtrEq(pP1, pP2); // @v12.7.10 
+	/* @v12.7.10 bool   eq = true;
 	if(LOGIC(pP1) != LOGIC(pP2))
 		eq = false;	
 	else if(pP1) {
@@ -770,17 +771,16 @@ int ObjTagItem::Read__(SBuffer & rBuf)
 		if(!pP1->IsEq(*pP2))
 			eq = false;
 	}
-	return eq;
+	return eq;*/
 }
 
-ObjTagList::ObjTagList() : SArray(sizeof(ObjTagItem), /*8,*/aryDataOwner|aryEachItem)
+ObjTagList::ObjTagList() : SArray(sizeof(ObjTagItem), aryDataOwner|aryEachItem)
 {
 }
 //
-// Не используем унаследованный copy-constructor так как ObjTagList::Copy сама
-// все сделает правильно.
+// Не используем унаследованный copy-constructor так как ObjTagList::Copy сама все сделает правильно.
 //
-ObjTagList::ObjTagList(const ObjTagList & rS) : SArray(sizeof(ObjTagItem), /*8,*/aryDataOwner|aryEachItem)
+ObjTagList::ObjTagList(const ObjTagList & rS) : SArray(sizeof(ObjTagItem), aryDataOwner|aryEachItem)
 {
 	Copy(rS);
 }

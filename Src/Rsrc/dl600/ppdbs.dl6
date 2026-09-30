@@ -4194,7 +4194,7 @@ table TempLot {
 	double QttyPlus;       //
 	double QttyMinus;      //
 	string Serial[32];
-	string BillStatus[48];
+	// @v12.7.10 string BillStatus[48];
 index:
 	LotID (unique);
 	Dt, OprNo (unique mod);

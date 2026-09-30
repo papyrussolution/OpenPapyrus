@@ -3975,8 +3975,7 @@ xmlChar * xmlGetNodePath(const xmlNode * pNode)
 				}
 				else {
 					/*
-					 * We cannot express named elements in the default
-					 * namespace, so use "*".
+					 * We cannot express named elements in the default namespace, so use "*".
 					 */
 					generic = 1;
 					name = "*";

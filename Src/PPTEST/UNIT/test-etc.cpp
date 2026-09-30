@@ -1,7 +1,7 @@
-// TEST-ETC.CPP
+п»ї// TEST-ETC.CPP
 // Copyright (c) A.Sobolev 2023, 2024, 2025, 2026
 // @codepage UTF-8
-// Модуль тестирования разных функций. В основном в процессе разработки.
+// РњРѕРґСѓР»СЊ С‚РµСЃС‚РёСЂРѕРІР°РЅРёСЏ СЂР°Р·РЅС‹С… С„СѓРЅРєС†РёР№. Р’ РѕСЃРЅРѕРІРЅРѕРј РІ РїСЂРѕС†РµСЃСЃРµ СЂР°Р·СЂР°Р±РѕС‚РєРё.
 //
 #include <pp.h>
 #pragma hdrstop
@@ -64,7 +64,7 @@ SLTEST_R(HASHTAB)
 				char * p_str = newStr(line_buf);
 				THROW(SLCHECK_NZ(ptr_collection.insert(p_str)));
 				//
-				// Нечетные позиции вставляем в кэш, четные - нет
+				// РќРµС‡РµС‚РЅС‹Рµ РїРѕР·РёС†РёРё РІСЃС‚Р°РІР»СЏРµРј РІ РєСЌС€, С‡РµС‚РЅС‹Рµ - РЅРµС‚
 				//
 				if(_count % 2) {
 					THROW(SLCHECK_NZ(ht.Add(p_str, _count+1, 0)));
@@ -142,7 +142,7 @@ SLTEST_R(HASHTAB)
 }
 //
 // @sandbox {
-// Отработка итераторов
+// РћС‚СЂР°Р±РѕС‚РєР° РёС‚РµСЂР°С‚РѕСЂРѕРІ
 //
 SLTEST_R(iterator)
 {
@@ -460,7 +460,7 @@ SLTEST_R(WinToken)
 SLTEST_R(WsCtl)
 {
 #if 1 // {	
-	const char * p_js_text = "{\"account\": {\"login\": \"abc\", \"password\": \"Аб\\tВгД\" }, \"app\": { \"enable\": [ \"abc\", \"123\" ], \"disable\" : [ \"def\", \"456\", \"fheroes2.exe\" ] }}";
+	const char * p_js_text = "{\"account\": {\"login\": \"abc\", \"password\": \"РђР±\\tР’РіР”\" }, \"app\": { \"enable\": [ \"abc\", \"123\" ], \"disable\" : [ \"def\", \"456\", \"fheroes2.exe\" ] }}";
 	WsCtl_ClientPolicy cp;
 	SString temp_buf;
 	SJson * p_js = SJson::Parse(p_js_text);
@@ -469,7 +469,7 @@ SLTEST_R(WsCtl)
 		THROW(SLCHECK_NZ(p_js));
 		SLCHECK_NZ(cp.FromJsonObj(p_js));
 		SLCHECK_EQ(cp.SysUser, "abc");
-		SLCHECK_EQ(cp.SysPassword, "Аб\tВгД");
+		SLCHECK_EQ(cp.SysPassword, "РђР±\tР’РіР”");
 		SLCHECK_EQ(cp.SsAppEnabled.getCount(), 2U);
 		SLCHECK_EQ(cp.SsAppDisabled.getCount(), 3U);
 		{
@@ -504,7 +504,7 @@ SLTEST_R(WsCtl)
 		SLCHECK_NZ(cp2 == cp);
 	}
 	{
-		// Для этого блока нужны права значительные права доступа к реестру. По-этому его блокируем и отрабатываем только под отладчиком.
+		// Р”Р»СЏ СЌС‚РѕРіРѕ Р±Р»РѕРєР° РЅСѓР¶РЅС‹ РїСЂР°РІР° Р·РЅР°С‡РёС‚РµР»СЊРЅС‹Рµ РїСЂР°РІР° РґРѕСЃС‚СѓРїР° Рє СЂРµРµСЃС‚СЂСѓ. РџРѕ-СЌС‚РѕРјСѓ РµРіРѕ Р±Р»РѕРєРёСЂСѓРµРј Рё РѕС‚СЂР°Р±Р°С‚С‹РІР°РµРј С‚РѕР»СЊРєРѕ РїРѕРґ РѕС‚Р»Р°РґС‡РёРєРѕРј.
 		const bool enable_test = false;
 		if(enable_test) {
 			int r = cp.Apply();
@@ -696,7 +696,7 @@ static volatile uint64 Bechmark_ByRefVsByVal_ResultSum = 0;
 
 SLTEST_R(Bechmark_ByRefVsByVal)
 {
-	// volatile нужны дабы компилятор не пытался оптимизировать циклы и все прочее
+	// volatile РЅСѓР¶РЅС‹ РґР°Р±С‹ РєРѕРјРїРёР»СЏС‚РѕСЂ РЅРµ РїС‹С‚Р°Р»СЃСЏ РѕРїС‚РёРјРёР·РёСЂРѕРІР°С‚СЊ С†РёРєР»С‹ Рё РІСЃРµ РїСЂРѕС‡РµРµ
 	volatile uint round_count = 1000000000U;
 	volatile uint sum_a = 0;
 	volatile uint sum_b = 0;
@@ -805,7 +805,7 @@ SLTEST_R(ObjTypeSymb)
 			temp_buf = r_entry.P_Symb;
 			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
 			SLCHECK_EQ(r_entry.Id, MakeLong(obj_type, ext_param));
-			if(r_entry.HsId != PPHS_STYLODEVICE) { // Дублированный (запасной) символ
+			if(r_entry.HsId != PPHS_STYLODEVICE) { // Р”СѓР±Р»РёСЂРѕРІР°РЅРЅС‹Р№ (Р·Р°РїР°СЃРЅРѕР№) СЃРёРјРІРѕР»
 				SLCHECK_LT(0, DS.GetObjectTypeSymb(r_entry.Id, symb));
 				SLCHECK_NZ(sstreqi_ascii(symb, temp_buf));
 			}
@@ -814,7 +814,7 @@ SLTEST_R(ObjTypeSymb)
 			(temp_buf = r_entry.P_Symb).ToLower();
 			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
 			SLCHECK_EQ(r_entry.Id, MakeLong(obj_type, ext_param));
-			if(r_entry.HsId != PPHS_STYLODEVICE) { // Дублированный (запасной) символ
+			if(r_entry.HsId != PPHS_STYLODEVICE) { // Р”СѓР±Р»РёСЂРѕРІР°РЅРЅС‹Р№ (Р·Р°РїР°СЃРЅРѕР№) СЃРёРјРІРѕР»
 				SLCHECK_LT(0, DS.GetObjectTypeSymb(r_entry.Id, symb));
 				SLCHECK_NZ(sstreqi_ascii(symb, temp_buf));
 			}
@@ -1068,11 +1068,11 @@ public:
 	{
 	}
 	//
-	// ARG(rMgr IN): Менеджер записей
-	// ARG(pPage IN): Страница, в которую вставляются записи
-	// ARG(maxRecSize IN): Максимальный размер записи (фактический размер генерируется случайным образом, но не более maxRecSize)
-	// ARG(rDataList OUT): Коллекция, в которую добавляется дубликат вставленной записи для последующей верификации
-	// ARG(rStat OUT): Статистика страницы, полученная после вставки записи, для последующей верификации
+	// ARG(rMgr IN): РњРµРЅРµРґР¶РµСЂ Р·Р°РїРёСЃРµР№
+	// ARG(pPage IN): РЎС‚СЂР°РЅРёС†Р°, РІ РєРѕС‚РѕСЂСѓСЋ РІСЃС‚Р°РІР»СЏСЋС‚СЃСЏ Р·Р°РїРёСЃРё
+	// ARG(maxRecSize IN): РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ Р·Р°РїРёСЃРё (С„Р°РєС‚РёС‡РµСЃРєРёР№ СЂР°Р·РјРµСЂ РіРµРЅРµСЂРёСЂСѓРµС‚СЃСЏ СЃР»СѓС‡Р°Р№РЅС‹Рј РѕР±СЂР°Р·РѕРј, РЅРѕ РЅРµ Р±РѕР»РµРµ maxRecSize)
+	// ARG(rDataList OUT): РљРѕР»Р»РµРєС†РёСЏ, РІ РєРѕС‚РѕСЂСѓСЋ РґРѕР±Р°РІР»СЏРµС‚СЃСЏ РґСѓР±Р»РёРєР°С‚ РІСЃС‚Р°РІР»РµРЅРЅРѕР№ Р·Р°РїРёСЃРё РґР»СЏ РїРѕСЃР»РµРґСѓСЋС‰РµР№ РІРµСЂРёС„РёРєР°С†РёРё
+	// ARG(rStat OUT): РЎС‚Р°С‚РёСЃС‚РёРєР° СЃС‚СЂР°РЅРёС†С‹, РїРѕР»СѓС‡РµРЅРЅР°СЏ РїРѕСЃР»Рµ РІСЃС‚Р°РІРєРё Р·Р°РїРёСЃРё, РґР»СЏ РїРѕСЃР»РµРґСѓСЋС‰РµР№ РІРµСЂРёС„РёРєР°С†РёРё
 	//
 	int InsertOnPage(SRecPageManager & rMgr, SDataPage_ * pPage, const uint maxRecSize, SCollection & rDataList, SDataPageHeader::Stat & rStat)
 	{
@@ -1103,10 +1103,10 @@ public:
 		return ok;
 	}
 	//
-	// ARG(rMgr IN): Менеджер записей
-	// ARG(pPage IN): Страница, в которую вставляются записи
-	// ARG(maxRecSize IN): Максимальный размер записи (фактический размер генерируется случайным образом, но не более maxRecSize)
-	// ARG(rDataList OUT): Коллекция, в которую добавляется дубликат вставленной записи для последующей верификации
+	// ARG(rMgr IN): РњРµРЅРµРґР¶РµСЂ Р·Р°РїРёСЃРµР№
+	// ARG(pPage IN): РЎС‚СЂР°РЅРёС†Р°, РІ РєРѕС‚РѕСЂСѓСЋ РІСЃС‚Р°РІР»СЏСЋС‚СЃСЏ Р·Р°РїРёСЃРё
+	// ARG(maxRecSize IN): РњР°РєСЃРёРјР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ Р·Р°РїРёСЃРё (С„Р°РєС‚РёС‡РµСЃРєРёР№ СЂР°Р·РјРµСЂ РіРµРЅРµСЂРёСЂСѓРµС‚СЃСЏ СЃР»СѓС‡Р°Р№РЅС‹Рј РѕР±СЂР°Р·РѕРј, РЅРѕ РЅРµ Р±РѕР»РµРµ maxRecSize)
+	// ARG(rDataList OUT): РљРѕР»Р»РµРєС†РёСЏ, РІ РєРѕС‚РѕСЂСѓСЋ РґРѕР±Р°РІР»СЏРµС‚СЃСЏ РґСѓР±Р»РёРєР°С‚ РІСЃС‚Р°РІР»РµРЅРЅРѕР№ Р·Р°РїРёСЃРё РґР»СЏ РїРѕСЃР»РµРґСѓСЋС‰РµР№ РІРµСЂРёС„РёРєР°С†РёРё
 	//
 	int UpdateOnPage(SRecPageManager & rMgr, SDataPage_ * pPage, const uint maxRecSize, SCollection & rDataList, uint dataListEntryIdx)
 	{
@@ -1120,7 +1120,7 @@ public:
 		assert(p_upd_entry);
 		uint64 rowid = p_entry->RowId;
 		SDataPageHeader::Stat st;
-		STempBuffer rec_buf(maxRecSize*2); // В это буфер мы будем считывать записи для верификации
+		STempBuffer rec_buf(maxRecSize*2); // Р’ СЌС‚Рѕ Р±СѓС„РµСЂ РјС‹ Р±СѓРґРµРј СЃС‡РёС‚С‹РІР°С‚СЊ Р·Р°РїРёСЃРё РґР»СЏ РІРµСЂРёС„РёРєР°С†РёРё
 		assert(rec_buf.IsValid());
 		const int updr = rMgr.UpdateOnPage(pPage, rowid, p_upd_entry+1, p_upd_entry->Size);
 		THROW(updr);
@@ -1146,7 +1146,7 @@ public:
 				}
 			}
 			else
-				ok = -1; // Новая запись слишком велика для изменения в пределех одной страницы
+				ok = -1; // РќРѕРІР°СЏ Р·Р°РїРёСЃСЊ СЃР»РёС€РєРѕРј РІРµР»РёРєР° РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ РІ РїСЂРµРґРµР»РµС… РѕРґРЅРѕР№ СЃС‚СЂР°РЅРёС†С‹
 		}
 		THROW(pPage->GetStat(st, 0));
 		THROW(rMgr.VerifyFreeList());
@@ -1186,28 +1186,28 @@ SLTEST_FIXTURE(SRecPageManager, SlTestFixtureRecPageManager)
 	}
 	{
 		//
-		// Тестирование работы в рамках единственной страницы данных
+		// РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ СЂР°Р±РѕС‚С‹ РІ СЂР°РјРєР°С… РµРґРёРЅСЃС‚РІРµРЅРЅРѕР№ СЃС‚СЂР°РЅРёС†С‹ РґР°РЅРЅС‹С…
 		//
 		const uint   max_rec_size = 500;
 		const uint   page_size = SKILOBYTE(512);
 		const uint32 page_type = SDataPageHeader::tRecord;
-		uint8 rec_buf[max_rec_size*2]; // В это буфер мы будем считывать записи для верификации
+		uint8 rec_buf[max_rec_size*2]; // Р’ СЌС‚Рѕ Р±СѓС„РµСЂ РјС‹ Р±СѓРґРµРј СЃС‡РёС‚С‹РІР°С‚СЊ Р·Р°РїРёСЃРё РґР»СЏ РІРµСЂРёС„РёРєР°С†РёРё
 		SRecPageManager mgr(page_size);
 		SDataPage_ * p_page = mgr.AllocatePage(page_type);
 		SLCHECK_NZ(p_page);
 		if(p_page) {
 			//
-			// Каждая итерация следующиего цикла: 
-			// -- вставляет записи на страницу до тех пор пока там есть место,
-			// -- проверяет валидность вставленных записей
-			// -- удаляет все записи
-			// таким образом, в конце цикла страница пуста и мы можем повторить то же самое снова
+			// РљР°Р¶РґР°СЏ РёС‚РµСЂР°С†РёСЏ СЃР»РµРґСѓСЋС‰РёРµРіРѕ С†РёРєР»Р°: 
+			// -- РІСЃС‚Р°РІР»СЏРµС‚ Р·Р°РїРёСЃРё РЅР° СЃС‚СЂР°РЅРёС†Сѓ РґРѕ С‚РµС… РїРѕСЂ РїРѕРєР° С‚Р°Рј РµСЃС‚СЊ РјРµСЃС‚Рѕ,
+			// -- РїСЂРѕРІРµСЂСЏРµС‚ РІР°Р»РёРґРЅРѕСЃС‚СЊ РІСЃС‚Р°РІР»РµРЅРЅС‹С… Р·Р°РїРёСЃРµР№
+			// -- СѓРґР°Р»СЏРµС‚ РІСЃРµ Р·Р°РїРёСЃРё
+			// С‚Р°РєРёРј РѕР±СЂР°Р·РѕРј, РІ РєРѕРЅС†Рµ С†РёРєР»Р° СЃС‚СЂР°РЅРёС†Р° РїСѓСЃС‚Р° Рё РјС‹ РјРѕР¶РµРј РїРѕРІС‚РѕСЂРёС‚СЊ С‚Рѕ Р¶Рµ СЃР°РјРѕРµ СЃРЅРѕРІР°
 			//
 			for(uint iter_idx = 0; iter_idx < 40; iter_idx++) {
 				SCollection data_list;
 				SDataPageHeader::Stat stat;
 				//
-				// Вставляем случайные записи сколько возможно
+				// Р’СЃС‚Р°РІР»СЏРµРј СЃР»СѓС‡Р°Р№РЅС‹Рµ Р·Р°РїРёСЃРё СЃРєРѕР»СЊРєРѕ РІРѕР·РјРѕР¶РЅРѕ
 				//
 				do {
 					int iopr = F.InsertOnPage(mgr, p_page, max_rec_size, data_list, stat);
@@ -1216,7 +1216,7 @@ SLTEST_FIXTURE(SRecPageManager, SlTestFixtureRecPageManager)
 				SLCHECK_NZ(data_list.getCount());
 				{
 					//
-					// Проверяем вставленные записи
+					// РџСЂРѕРІРµСЂСЏРµРј РІСЃС‚Р°РІР»РµРЅРЅС‹Рµ Р·Р°РїРёСЃРё
 					//
 					for(uint i = 0; i < data_list.getCount(); i++) {
 						const SRecPageManager_DataEntry * p_entry = static_cast<const SRecPageManager_DataEntry *>(data_list.at(i));
@@ -1235,8 +1235,8 @@ SLTEST_FIXTURE(SRecPageManager, SlTestFixtureRecPageManager)
 				}
 				{
 					//
-					// Удаляем вставленные записи группами по 2 или 3 записи
-					// для проверки слияния свободных областей
+					// РЈРґР°Р»СЏРµРј РІСЃС‚Р°РІР»РµРЅРЅС‹Рµ Р·Р°РїРёСЃРё РіСЂСѓРїРїР°РјРё РїРѕ 2 РёР»Рё 3 Р·Р°РїРёСЃРё
+					// РґР»СЏ РїСЂРѕРІРµСЂРєРё СЃР»РёСЏРЅРёСЏ СЃРІРѕР±РѕРґРЅС‹С… РѕР±Р»Р°СЃС‚РµР№
 					//
 					int _2_3_trigger = 0; // 0 - 2 records to delete, 1 - 3 records to delete
 					uint recs_deleted = 0;
@@ -1250,7 +1250,7 @@ SLTEST_FIXTURE(SRecPageManager, SlTestFixtureRecPageManager)
 						assert(oneof3(recs_to_delete, 1, 2, 3) && recs_to_delete <= data_list.getCount());
 						//
 						if(recs_to_delete == 3) {
-							// удаляем в порядке 3 - 1 - 2
+							// СѓРґР°Р»СЏРµРј РІ РїРѕСЂСЏРґРєРµ 3 - 1 - 2
 							uint64 rowid_list[3];
 							rowid_list[0] = static_cast<const SRecPageManager_DataEntry *>(data_list.at(2))->RowId;
 							rowid_list[1] = static_cast<const SRecPageManager_DataEntry *>(data_list.at(0))->RowId;
@@ -1265,7 +1265,7 @@ SLTEST_FIXTURE(SRecPageManager, SlTestFixtureRecPageManager)
 							data_list.atFree(0);
 						}
 						else if(recs_to_delete == 2) {
-							// удаляем в порядке 2 - 1
+							// СѓРґР°Р»СЏРµРј РІ РїРѕСЂСЏРґРєРµ 2 - 1
 							uint64 rowid_list[2];
 							rowid_list[0] = static_cast<const SRecPageManager_DataEntry *>(data_list.at(1))->RowId;
 							rowid_list[1] = static_cast<const SRecPageManager_DataEntry *>(data_list.at(0))->RowId;
@@ -1279,7 +1279,7 @@ SLTEST_FIXTURE(SRecPageManager, SlTestFixtureRecPageManager)
 						}
 						else {
 							assert(recs_to_delete == 1);
-							// удаляем в порядке 2 - 1
+							// СѓРґР°Р»СЏРµРј РІ РїРѕСЂСЏРґРєРµ 2 - 1
 							uint64 rowid_list[1];
 							rowid_list[0] = static_cast<const SRecPageManager_DataEntry *>(data_list.at(0))->RowId;
 							for(uint j = 0; j < SIZEOFARRAY(rowid_list); j++) {
@@ -1300,20 +1300,20 @@ SLTEST_FIXTURE(SRecPageManager, SlTestFixtureRecPageManager)
 				}
 			}
 			{
-				// Тест изменения записи в рамках единственной страницы
-				// Сейчас страница p_page пуста
+				// РўРµСЃС‚ РёР·РјРµРЅРµРЅРёСЏ Р·Р°РїРёСЃРё РІ СЂР°РјРєР°С… РµРґРёРЅСЃС‚РІРµРЅРЅРѕР№ СЃС‚СЂР°РЅРёС†С‹
+				// РЎРµР№С‡Р°СЃ СЃС‚СЂР°РЅРёС†Р° p_page РїСѓСЃС‚Р°
 				//
-				// План теста: 
-				// - Единственная запись:
-				//   -- Генерируем случайную запись и вставляем ее на страницу затем
-				//      многократно генерируем новые данные случайного размера и обновляем ими вставленную изначально запись
-				// - Две последние записи:
-				//   -- Вставляем на страницу случайные записи насколько хватает места
-				//      Предпоследнюю запись пытаемся многократно изменить
+				// РџР»Р°РЅ С‚РµСЃС‚Р°: 
+				// - Р•РґРёРЅСЃС‚РІРµРЅРЅР°СЏ Р·Р°РїРёСЃСЊ:
+				//   -- Р“РµРЅРµСЂРёСЂСѓРµРј СЃР»СѓС‡Р°Р№РЅСѓСЋ Р·Р°РїРёСЃСЊ Рё РІСЃС‚Р°РІР»СЏРµРј РµРµ РЅР° СЃС‚СЂР°РЅРёС†Сѓ Р·Р°С‚РµРј
+				//      РјРЅРѕРіРѕРєСЂР°С‚РЅРѕ РіРµРЅРµСЂРёСЂСѓРµРј РЅРѕРІС‹Рµ РґР°РЅРЅС‹Рµ СЃР»СѓС‡Р°Р№РЅРѕРіРѕ СЂР°Р·РјРµСЂР° Рё РѕР±РЅРѕРІР»СЏРµРј РёРјРё РІСЃС‚Р°РІР»РµРЅРЅСѓСЋ РёР·РЅР°С‡Р°Р»СЊРЅРѕ Р·Р°РїРёСЃСЊ
+				// - Р”РІРµ РїРѕСЃР»РµРґРЅРёРµ Р·Р°РїРёСЃРё:
+				//   -- Р’СЃС‚Р°РІР»СЏРµРј РЅР° СЃС‚СЂР°РЅРёС†Сѓ СЃР»СѓС‡Р°Р№РЅС‹Рµ Р·Р°РїРёСЃРё РЅР°СЃРєРѕР»СЊРєРѕ С…РІР°С‚Р°РµС‚ РјРµСЃС‚Р°
+				//      РџСЂРµРґРїРѕСЃР»РµРґРЅСЋСЋ Р·Р°РїРёСЃСЊ РїС‹С‚Р°РµРјСЃСЏ РјРЅРѕРіРѕРєСЂР°С‚РЅРѕ РёР·РјРµРЅРёС‚СЊ
 				SCollection data_list;
 				{
 					//
-					// Тестирование вставки и изменения единственной записи на странице
+					// РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ РІСЃС‚Р°РІРєРё Рё РёР·РјРµРЅРµРЅРёСЏ РµРґРёРЅСЃС‚РІРµРЅРЅРѕР№ Р·Р°РїРёСЃРё РЅР° СЃС‚СЂР°РЅРёС†Рµ
 					//
 					TSVector <SRecPageFreeList::Entry> free_list;
 					uint rs = SLS.GetTLA().Rg.GetUniformIntPos(max_rec_size+1);
@@ -1334,7 +1334,7 @@ SLTEST_FIXTURE(SRecPageManager, SlTestFixtureRecPageManager)
 								const uint data_list_idx = data_list.getCount()-1;
 								for(uint i = 0; i < 1000; i++) {
 									int uopr = F.UpdateOnPage(mgr, p_page, max_rec_size, data_list, data_list_idx);
-									SLCHECK_NZ(uopr > 0); // Запись единственная по этому не может быть, что не хватило места на странице
+									SLCHECK_NZ(uopr > 0); // Р—Р°РїРёСЃСЊ РµРґРёРЅСЃС‚РІРµРЅРЅР°СЏ РїРѕ СЌС‚РѕРјСѓ РЅРµ РјРѕР¶РµС‚ Р±С‹С‚СЊ, С‡С‚Рѕ РЅРµ С…РІР°С‚РёР»Рѕ РјРµСЃС‚Р° РЅР° СЃС‚СЂР°РЅРёС†Рµ
 								}
 							}
 						}
@@ -1342,9 +1342,9 @@ SLTEST_FIXTURE(SRecPageManager, SlTestFixtureRecPageManager)
 				}
 				{
 					//
-					// Тестирование изменения последней записи на странице
-					//   вставляем записи до тех пор пока не останется менее max_rec_size свободных байт
-					//   далее вставляем последнюю запись и модифицируем ее много раз
+					// РўРµСЃС‚РёСЂРѕРІР°РЅРёРµ РёР·РјРµРЅРµРЅРёСЏ РїРѕСЃР»РµРґРЅРµР№ Р·Р°РїРёСЃРё РЅР° СЃС‚СЂР°РЅРёС†Рµ
+					//   РІСЃС‚Р°РІР»СЏРµРј Р·Р°РїРёСЃРё РґРѕ С‚РµС… РїРѕСЂ РїРѕРєР° РЅРµ РѕСЃС‚Р°РЅРµС‚СЃСЏ РјРµРЅРµРµ max_rec_size СЃРІРѕР±РѕРґРЅС‹С… Р±Р°Р№С‚
+					//   РґР°Р»РµРµ РІСЃС‚Р°РІР»СЏРµРј РїРѕСЃР»РµРґРЅСЋСЋ Р·Р°РїРёСЃСЊ Рё РјРѕРґРёС„РёС†РёСЂСѓРµРј РµРµ РјРЅРѕРіРѕ СЂР°Р·
 					//
 					SDataPageHeader::Stat stat;
 					do {
@@ -1353,7 +1353,7 @@ SLTEST_FIXTURE(SRecPageManager, SlTestFixtureRecPageManager)
 					} while(CurrentStatus && stat.UsableBlockSize > max_rec_size);
 					if(CurrentStatus) {
 						//
-						// Теперь вставляем последнюю запись, которую будем нещадно модифицировать
+						// РўРµРїРµСЂСЊ РІСЃС‚Р°РІР»СЏРµРј РїРѕСЃР»РµРґРЅСЋСЋ Р·Р°РїРёСЃСЊ, РєРѕС‚РѕСЂСѓСЋ Р±СѓРґРµРј РЅРµС‰Р°РґРЅРѕ РјРѕРґРёС„РёС†РёСЂРѕРІР°С‚СЊ
 						//
 						const uint preserve_data_list_count = data_list.getCount();
 						int iopr = 0;
@@ -1377,7 +1377,7 @@ SLTEST_FIXTURE(SRecPageManager, SlTestFixtureRecPageManager)
 					}
 				}
 				{
-					// Теперь мы меняем произвольные записи на странице много раз
+					// РўРµРїРµСЂСЊ РјС‹ РјРµРЅСЏРµРј РїСЂРѕРёР·РІРѕР»СЊРЅС‹Рµ Р·Р°РїРёСЃРё РЅР° СЃС‚СЂР°РЅРёС†Рµ РјРЅРѕРіРѕ СЂР°Р·
 					if(CurrentStatus) {
 						uint  success_count = 0;
 						uint  iter_no = 0;
@@ -1413,8 +1413,8 @@ SLTEST_FIXTURE(SRecPageManager, SlTestFixtureRecPageManager)
 						offset_list[offset_list_count++] = i;
 					}
 				}
-				SLCHECK_Z(SRecPageManager::MakeRowId(page_size, seq, page_size)); // ошибочное смещение
-				SLCHECK_Z(SRecPageManager::MakeRowId(page_size, 0, page_size-7)); // ошибочный номер страницы (0)
+				SLCHECK_Z(SRecPageManager::MakeRowId(page_size, seq, page_size)); // РѕС€РёР±РѕС‡РЅРѕРµ СЃРјРµС‰РµРЅРёРµ
+				SLCHECK_Z(SRecPageManager::MakeRowId(page_size, 0, page_size-7)); // РѕС€РёР±РѕС‡РЅС‹Р№ РЅРѕРјРµСЂ СЃС‚СЂР°РЅРёС†С‹ (0)
 				for(uint oi = 0; oi < offset_list_count; oi++) {
 					const uint offs = offset_list[oi];
 					uint64 row_id = SRecPageManager::MakeRowId(page_size, seq, offs);
@@ -1539,13 +1539,13 @@ SLTEST_R(Wildberries_ApiKey)
 SLTEST_R(PPSync) // @v12.4.1 @construction
 {
 	//
-	// План теста:
-	// -- Создаем пустой каталог, в котором будет находится файл блокировок ppsync.bin
-	// -- Из основной функции создаем один мьютекс и блокируем его. Этот мьютекс будем проверять из всех потоков.
-	// -- Из основной функции создаем один мьютекс, блокируем и сразу снимаем с него блокировку. Этот мьютекс будем проверять из всех потоков.
-	// -- Создаем несколько потоков каждый из которых со случайным интервалом времени пытается блокировать один из группы предопределенных мьютексов,
-	//   а затем снова разблокирует через 250ms.
-	//   Все такие попытки должны быть удачными.
+	// РџР»Р°РЅ С‚РµСЃС‚Р°:
+	// -- РЎРѕР·РґР°РµРј РїСѓСЃС‚РѕР№ РєР°С‚Р°Р»РѕРі, РІ РєРѕС‚РѕСЂРѕРј Р±СѓРґРµС‚ РЅР°С…РѕРґРёС‚СЃСЏ С„Р°Р№Р» Р±Р»РѕРєРёСЂРѕРІРѕРє ppsync.bin
+	// -- РР· РѕСЃРЅРѕРІРЅРѕР№ С„СѓРЅРєС†РёРё СЃРѕР·РґР°РµРј РѕРґРёРЅ РјСЊСЋС‚РµРєСЃ Рё Р±Р»РѕРєРёСЂСѓРµРј РµРіРѕ. Р­С‚РѕС‚ РјСЊСЋС‚РµРєСЃ Р±СѓРґРµРј РїСЂРѕРІРµСЂСЏС‚СЊ РёР· РІСЃРµС… РїРѕС‚РѕРєРѕРІ.
+	// -- РР· РѕСЃРЅРѕРІРЅРѕР№ С„СѓРЅРєС†РёРё СЃРѕР·РґР°РµРј РѕРґРёРЅ РјСЊСЋС‚РµРєСЃ, Р±Р»РѕРєРёСЂСѓРµРј Рё СЃСЂР°Р·Сѓ СЃРЅРёРјР°РµРј СЃ РЅРµРіРѕ Р±Р»РѕРєРёСЂРѕРІРєСѓ. Р­С‚РѕС‚ РјСЊСЋС‚РµРєСЃ Р±СѓРґРµРј РїСЂРѕРІРµСЂСЏС‚СЊ РёР· РІСЃРµС… РїРѕС‚РѕРєРѕРІ.
+	// -- РЎРѕР·РґР°РµРј РЅРµСЃРєРѕР»СЊРєРѕ РїРѕС‚РѕРєРѕРІ РєР°Р¶РґС‹Р№ РёР· РєРѕС‚РѕСЂС‹С… СЃРѕ СЃР»СѓС‡Р°Р№РЅС‹Рј РёРЅС‚РµСЂРІР°Р»РѕРј РІСЂРµРјРµРЅРё РїС‹С‚Р°РµС‚СЃСЏ Р±Р»РѕРєРёСЂРѕРІР°С‚СЊ РѕРґРёРЅ РёР· РіСЂСѓРїРїС‹ РїСЂРµРґРѕРїСЂРµРґРµР»РµРЅРЅС‹С… РјСЊСЋС‚РµРєСЃРѕРІ,
+	//   Р° Р·Р°С‚РµРј СЃРЅРѕРІР° СЂР°Р·Р±Р»РѕРєРёСЂСѓРµС‚ С‡РµСЂРµР· 250ms.
+	//   Р’СЃРµ С‚Р°РєРёРµ РїРѕРїС‹С‚РєРё РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ СѓРґР°С‡РЅС‹РјРё.
 	//
 	constexpr uint max_thread_count = 3;
 
@@ -1633,7 +1633,7 @@ SLTEST_R(PPSync) // @v12.4.1 @construction
 							const uint idx = idx_list.get(i);
 							const SObjID & r_oid = R_Data.MutexObjList.at(idx);
 							long  mtx_id = 0;
-							//const uint _delay_ms = SLS.GetTLA().Rg.GetUniformIntPos(6000) + 500/*гарантированно больше 500 чтоб другой поток успел снять блокировку если устанавливал*/;
+							//const uint _delay_ms = SLS.GetTLA().Rg.GetUniformIntPos(6000) + 500/*РіР°СЂР°РЅС‚РёСЂРѕРІР°РЅРЅРѕ Р±РѕР»СЊС€Рµ 500 С‡С‚РѕР± РґСЂСѓРіРѕР№ РїРѕС‚РѕРє СѓСЃРїРµР» СЃРЅСЏС‚СЊ Р±Р»РѕРєРёСЂРѕРІРєСѓ РµСЃР»Рё СѓСЃС‚Р°РЅР°РІР»РёРІР°Р»*/;
 							const uint _delay_ms = 1000 + (idx * 50);
 							SDelay(_delay_ms);
 							//int r = sync.GetObjMutexState(r_oid.Obj, r_oid.Id);
@@ -1743,7 +1743,7 @@ SLTEST_R(LocalStateBinderyCore) // @v12.5.9
 						buf_to_fetch.Z();
 						gr2 = instance.FetchState(ident, &test_id2, &buf_to_fetch);
 						SLCHECK_NZ(buf_to_fetch.IsEq(buf_to_read));
-						SLCHECK_EQ(gr2, 2); // Так как RegisterState внес данные в кэш, то этот вызов должен быть строго из памяти
+						SLCHECK_EQ(gr2, 2); // РўР°Рє РєР°Рє RegisterState РІРЅРµСЃ РґР°РЅРЅС‹Рµ РІ РєСЌС€, С‚Рѕ СЌС‚РѕС‚ РІС‹Р·РѕРІ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЃС‚СЂРѕРіРѕ РёР· РїР°РјСЏС‚Рё
 						buf_to_read.Z();
 					}
 					if(!rr || gr <= 0 || !vr) {
@@ -1813,7 +1813,7 @@ SLTEST_R(LocalStateBinderyCore) // @v12.5.9
 								}
 							}
 							const  int gr2 = instance.FetchStateSerial(ident, &test_list2);
-							SLCHECK_EQ(gr2, 2); // Так как RegisterState внес данные в inmem-список, то этот вызов должен быть строго из памяти
+							SLCHECK_EQ(gr2, 2); // РўР°Рє РєР°Рє RegisterState РІРЅРµСЃ РґР°РЅРЅС‹Рµ РІ inmem-СЃРїРёСЃРѕРє, С‚Рѕ СЌС‚РѕС‚ РІС‹Р·РѕРІ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЃС‚СЂРѕРіРѕ РёР· РїР°РјСЏС‚Рё
 							{
 								if(test_list2.getCount() == pattern_list.getCount()) {
 									for(uint tli = 0; tli < test_list2.getCount(); tli++) {
@@ -1919,5 +1919,726 @@ SLTEST_R(PPLotExtCodeContainer)
 	}
 	delete p_js;
 	delete p_js2;
+	return CurrentStatus;
+}
+//
+// Descr: РўРµСЃС‚ С„СѓРЅРєС†РёРё PPChZnPrcssr::EstimateQuantityAdequacy(uint itemQtty, uint minPackage, uint markCount)
+//   РџСЂРёРѕСЂРёС‚РµС‚ РґРёР°РіРЅРѕСЃС‚РёРєРё
+//     1) M == Q            в†’ eqarOK
+//     2) M == 0            в†’ eqarMcZero
+//     3) M > Q             в†’ eqarMcGtQtty
+//     4) P <= 1            в†’ eqarUndefPackage   // С‚РѕР»СЊРєРѕ РµСЃР»Рё 0 < M < Q
+//     5) РёРЅР°С‡Рµ             в†’ eqarOK / eqarUndecomposable
+//
+SLTEST_R(PPChZnPrcssr_EstimateQuantityAdequacy) // @v12.7.10
+{
+	struct TestEntry {
+		uint   MinPackage;
+		uint   ItemQtty;
+		uint   MarkCount;
+		int    ExpectedResult;
+	};
+	//
+	// Р’ СЌС‚РѕР№ С„СѓРЅРєС†РёРё С‚СЂРё С‚РµСЃС‚РѕРІС‹С… РЅР°Р±РѕСЂР°, РїРѕРґРіРѕС‚РѕРІР»РµРЅРЅС‹С… СЂР°Р·РЅС‹РјРё LLM'Р°РјРё. Р’СЃРµ С‚СЂРё РЅР°Р±РѕСЂР° РїСЂРѕС…РѕРґСЏС‚ РїСЂРѕРІРµСЂРєСѓ.
+	//
+
+	static const TestEntry test_entry_list2[] = {
+		//           P        Q        M   expected
+		// ----- P == 1: РїСЂРёРѕСЂРёС‚РµС‚ McZero / McGtQtty РЅР°Рґ UndefPackage
+		{  1,        0,        0,  PPChZnPrcssr::eqarOK             }, // M == Q
+		{  1,        1,        1,  PPChZnPrcssr::eqarOK             },
+		{  1,       10,       10,  PPChZnPrcssr::eqarOK             },
+		{  1,      100,      100,  PPChZnPrcssr::eqarOK             },
+		{  1,        1,        0,  PPChZnPrcssr::eqarMcZero         }, // СЂР°РЅСЊС€Рµ UndefPackage
+		{  1,        5,        0,  PPChZnPrcssr::eqarMcZero         },
+		{  1,       10,        0,  PPChZnPrcssr::eqarMcZero         },
+		{  1,      100,        0,  PPChZnPrcssr::eqarMcZero         },
+		{  1,        0,        1,  PPChZnPrcssr::eqarMcGtQtty       }, // СЂР°РЅСЊС€Рµ UndefPackage
+		{  1,        1,        2,  PPChZnPrcssr::eqarMcGtQtty       },
+		{  1,       10,       11,  PPChZnPrcssr::eqarMcGtQtty       },
+		{  1,      100,      101,  PPChZnPrcssr::eqarMcGtQtty       },
+		{  1,        2,        1,  PPChZnPrcssr::eqarUndefPackage   }, // 0 < M < Q
+		{  1,        5,        3,  PPChZnPrcssr::eqarUndefPackage   },
+		{  1,       10,        1,  PPChZnPrcssr::eqarUndefPackage   },
+		{  1,       10,        9,  PPChZnPrcssr::eqarUndefPackage   },
+		{  1,      100,        1,  PPChZnPrcssr::eqarUndefPackage   },
+		{  1,      100,       50,  PPChZnPrcssr::eqarUndefPackage   },
+		{  1,      100,       99,  PPChZnPrcssr::eqarUndefPackage   },
+		// ----- M == Q, P > 1 в†’ OK (РІ С‚.С‡. Q == 0)
+		{  6,        0,        0,  PPChZnPrcssr::eqarOK             },
+		{  6,        1,        1,  PPChZnPrcssr::eqarOK             },
+		{  6,        5,        5,  PPChZnPrcssr::eqarOK             },
+		{  6,        6,        6,  PPChZnPrcssr::eqarOK             },
+		{  6,      100,      100,  PPChZnPrcssr::eqarOK             },
+		{  8,        0,        0,  PPChZnPrcssr::eqarOK             },
+		{  8,        7,        7,  PPChZnPrcssr::eqarOK             },
+		{  8,        8,        8,  PPChZnPrcssr::eqarOK             },
+		{  8,      100,      100,  PPChZnPrcssr::eqarOK             },
+		{ 10,        0,        0,  PPChZnPrcssr::eqarOK             },
+		{ 10,        9,        9,  PPChZnPrcssr::eqarOK             },
+		{ 10,       10,       10,  PPChZnPrcssr::eqarOK             },
+		{ 10,      999,      999,  PPChZnPrcssr::eqarOK             },
+		{ 12,        0,        0,  PPChZnPrcssr::eqarOK             },
+		{ 12,       11,       11,  PPChZnPrcssr::eqarOK             },
+		{ 12,       12,       12,  PPChZnPrcssr::eqarOK             },
+		{ 12,      144,      144,  PPChZnPrcssr::eqarOK             },
+		{ 48,        0,        0,  PPChZnPrcssr::eqarOK             },
+		{ 48,        1,        1,  PPChZnPrcssr::eqarOK             },
+		{ 48,       47,       47,  PPChZnPrcssr::eqarOK             },
+		{ 48,       48,       48,  PPChZnPrcssr::eqarOK             },
+		{ 48,      480,      480,  PPChZnPrcssr::eqarOK             },
+		// ----- M == 0, Q > 0, P > 1 в†’ McZero (СЂР°РЅСЊС€Рµ, С‡РµРј UndefPackage / Undecomposable)
+		{  6,        1,        0,  PPChZnPrcssr::eqarMcZero         },
+		{  6,        6,        0,  PPChZnPrcssr::eqarMcZero         },
+		{  6,      100,        0,  PPChZnPrcssr::eqarMcZero         },
+		{  8,        8,        0,  PPChZnPrcssr::eqarMcZero         },
+		{  8,      100,        0,  PPChZnPrcssr::eqarMcZero         },
+		{ 10,        1,        0,  PPChZnPrcssr::eqarMcZero         },
+		{ 10,      100,        0,  PPChZnPrcssr::eqarMcZero         },
+		{ 12,       12,        0,  PPChZnPrcssr::eqarMcZero         },
+		{ 48,       48,        0,  PPChZnPrcssr::eqarMcZero         },
+		{ 48,      480,        0,  PPChZnPrcssr::eqarMcZero         },
+		// ----- M > Q, P > 1 в†’ McGtQtty
+		{  6,        0,        1,  PPChZnPrcssr::eqarMcGtQtty       },
+		{  6,        1,        2,  PPChZnPrcssr::eqarMcGtQtty       },
+		{  6,        6,        7,  PPChZnPrcssr::eqarMcGtQtty       },
+		{  6,      100,      101,  PPChZnPrcssr::eqarMcGtQtty       },
+		{  8,        5,        6,  PPChZnPrcssr::eqarMcGtQtty       },
+		{  8,        8,      100,  PPChZnPrcssr::eqarMcGtQtty       },
+		{ 10,        1,        2,  PPChZnPrcssr::eqarMcGtQtty       },
+		{ 10,      100,      101,  PPChZnPrcssr::eqarMcGtQtty       },
+		{ 12,       12,       13,  PPChZnPrcssr::eqarMcGtQtty       },
+		{ 48,        0,        1,  PPChZnPrcssr::eqarMcGtQtty       },
+		{ 48,       48,       49,  PPChZnPrcssr::eqarMcGtQtty       },
+		// ----- Q < P: СѓРїР°РєРѕРІРєРё РЅРµРІРѕР·РјРѕР¶РЅС‹; 0 < M < Q в†’ Undecomposable
+		{  6,        2,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,        3,        2,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,        4,        3,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,        5,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,        5,        4,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,        3,        2,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,        7,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,        7,        6,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,        4,        3,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,        9,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,        9,        8,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,        7,        6,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,       11,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,       11,       10,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,       47,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,       47,       46,  PPChZnPrcssr::eqarUndecomposable },
+		// ----- P=6, СЂР°Р·Р»РѕР¶РёРјРѕ
+		{  6,        6,        1,  PPChZnPrcssr::eqarOK             }, // 1Г—6
+		{  6,        7,        2,  PPChZnPrcssr::eqarOK             }, // 1Г—6 + 1
+		{  6,        8,        3,  PPChZnPrcssr::eqarOK             },
+		{  6,        9,        4,  PPChZnPrcssr::eqarOK             },
+		{  6,       10,        5,  PPChZnPrcssr::eqarOK             },
+		{  6,       11,        6,  PPChZnPrcssr::eqarOK             },
+		{  6,       12,        1,  PPChZnPrcssr::eqarOK             }, // 1Г—12
+		{  6,       12,        2,  PPChZnPrcssr::eqarOK             }, // 2Г—6
+		{  6,       12,        7,  PPChZnPrcssr::eqarOK             }, // 1Г—6 + 6
+		{  6,       13,        2,  PPChZnPrcssr::eqarOK             }, // 1Г—12 + 1
+		{  6,       13,        3,  PPChZnPrcssr::eqarOK             }, // 2Г—6 + 1
+		{  6,       18,        1,  PPChZnPrcssr::eqarOK             },
+		{  6,       18,        2,  PPChZnPrcssr::eqarOK             },
+		{  6,       18,        3,  PPChZnPrcssr::eqarOK             },
+		{  6,       24,        4,  PPChZnPrcssr::eqarOK             },
+		{  6,       30,        1,  PPChZnPrcssr::eqarOK             },
+		{  6,       30,        2,  PPChZnPrcssr::eqarOK             },
+		{  6,       30,        3,  PPChZnPrcssr::eqarOK             },
+		{  6,       30,        4,  PPChZnPrcssr::eqarOK             },
+		{  6,       30,        5,  PPChZnPrcssr::eqarOK             }, // 5Г—6, m_min == m_max
+		{  6,       36,        6,  PPChZnPrcssr::eqarOK             }, // r==0, m_min == P == m_max
+		{  6,       48,        1,  PPChZnPrcssr::eqarOK             },
+		{  6,       48,        8,  PPChZnPrcssr::eqarOK             },
+		{  6,       60,       10,  PPChZnPrcssr::eqarOK             },
+		{  6,      100,        5,  PPChZnPrcssr::eqarOK             }, // 1Г—96 + 4
+		{  6,      100,       16,  PPChZnPrcssr::eqarOK             },
+		{  6,      100,       20,  PPChZnPrcssr::eqarOK             },
+		// ----- P=6, РЅРµСЂР°Р·Р»РѕР¶РёРјРѕ
+		{  6,        6,        2,  PPChZnPrcssr::eqarUndecomposable }, // Р»РёС€РЅСЏСЏ РјР°СЂРєР° Рє 1Г—6
+		{  6,        8,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,        8,        2,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,        8,        4,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,        9,        2,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,        9,        3,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,        9,        5,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,       10,        3,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,       10,        4,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,       10,        6,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,       11,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,       11,        2,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,       11,        5,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,       12,        3,  PPChZnPrcssr::eqarUndecomposable }, // Р»РёС€РЅСЏСЏ РјР°СЂРєР° Рє 2Г—6
+		{  6,       13,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,       13,        7,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,       18,        4,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,       20,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,       20,        2,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,       20,        6,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,       24,        5,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,       30,        6,  PPChZnPrcssr::eqarUndecomposable }, // Р»РёС€РЅСЏСЏ РјР°СЂРєР° Рє 5Г—6
+		{  6,       36,       12,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,      100,        2,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,      100,        3,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,      100,        4,  PPChZnPrcssr::eqarUndecomposable },
+		// ----- P=8, СЂР°Р·Р»РѕР¶РёРјРѕ
+		{  8,        8,        1,  PPChZnPrcssr::eqarOK             },
+		{  8,        9,        2,  PPChZnPrcssr::eqarOK             },
+		{  8,       10,        3,  PPChZnPrcssr::eqarOK             },
+		{  8,       15,        8,  PPChZnPrcssr::eqarOK             },
+		{  8,       16,        1,  PPChZnPrcssr::eqarOK             },
+		{  8,       16,        2,  PPChZnPrcssr::eqarOK             },
+		{  8,       16,        9,  PPChZnPrcssr::eqarOK             },
+		{  8,       24,        1,  PPChZnPrcssr::eqarOK             },
+		{  8,       24,        2,  PPChZnPrcssr::eqarOK             },
+		{  8,       24,        3,  PPChZnPrcssr::eqarOK             },
+		{  8,       32,        2,  PPChZnPrcssr::eqarOK             },
+		{  8,       32,        4,  PPChZnPrcssr::eqarOK             },
+		{  8,       40,        3,  PPChZnPrcssr::eqarOK             },
+		{  8,       40,        4,  PPChZnPrcssr::eqarOK             },
+		{  8,       40,        5,  PPChZnPrcssr::eqarOK             }, // 5Г—8, m_min == m_max
+		{  8,       40,        9,  PPChZnPrcssr::eqarOK             },
+		{  8,       64,        1,  PPChZnPrcssr::eqarOK             },
+		{  8,       64,        6,  PPChZnPrcssr::eqarOK             },
+		{  8,       64,        7,  PPChZnPrcssr::eqarOK             },
+		{  8,       64,        8,  PPChZnPrcssr::eqarOK             }, // r==0, m_min == P == m_max
+		{  8,       80,       10,  PPChZnPrcssr::eqarOK             },
+		{  8,      100,        5,  PPChZnPrcssr::eqarOK             }, // 1Г—96 + 4
+		{  8,      100,        8,  PPChZnPrcssr::eqarOK             },
+		{  8,      100,       12,  PPChZnPrcssr::eqarOK             },
+		{  8,      100,       13,  PPChZnPrcssr::eqarOK             },
+		// ----- P=8, РЅРµСЂР°Р·Р»РѕР¶РёРјРѕ
+		{  8,        8,        2,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,       10,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,       10,        2,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,       10,        4,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,       10,        9,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,       15,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,       15,        2,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,       15,        6,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,       15,        7,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,       16,        3,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,       24,        4,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,       32,        5,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,       40,        6,  PPChZnPrcssr::eqarUndecomposable }, // Р»РёС€РЅСЏСЏ РјР°СЂРєР° Рє 5Г—8
+		{  8,       40,        7,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,      100,        4,  PPChZnPrcssr::eqarUndecomposable },
+		// ----- P=10, СЂР°Р·Р»РѕР¶РёРјРѕ
+		{ 10,       10,        1,  PPChZnPrcssr::eqarOK             },
+		{ 10,       11,        2,  PPChZnPrcssr::eqarOK             },
+		{ 10,       15,        6,  PPChZnPrcssr::eqarOK             },
+		{ 10,       19,       10,  PPChZnPrcssr::eqarOK             },
+		{ 10,       20,        1,  PPChZnPrcssr::eqarOK             },
+		{ 10,       20,        2,  PPChZnPrcssr::eqarOK             },
+		{ 10,       50,        1,  PPChZnPrcssr::eqarOK             },
+		{ 10,       50,        2,  PPChZnPrcssr::eqarOK             },
+		{ 10,       50,        3,  PPChZnPrcssr::eqarOK             },
+		{ 10,       50,        4,  PPChZnPrcssr::eqarOK             },
+		{ 10,       50,        5,  PPChZnPrcssr::eqarOK             },
+		{ 10,       50,       41,  PPChZnPrcssr::eqarOK             }, // 1Г—10 + 40
+		{ 10,       80,        1,  PPChZnPrcssr::eqarOK             },
+		{ 10,       80,        2,  PPChZnPrcssr::eqarOK             },
+		{ 10,       80,        7,  PPChZnPrcssr::eqarOK             },
+		{ 10,       80,        8,  PPChZnPrcssr::eqarOK             }, // 8Г—10, m_min == m_max
+		{ 10,      100,        1,  PPChZnPrcssr::eqarOK             },
+		{ 10,      100,        2,  PPChZnPrcssr::eqarOK             },
+		{ 10,      100,        3,  PPChZnPrcssr::eqarOK             },
+		{ 10,      100,        8,  PPChZnPrcssr::eqarOK             },
+		{ 10,      100,        9,  PPChZnPrcssr::eqarOK             },
+		{ 10,      100,       10,  PPChZnPrcssr::eqarOK             },
+		{ 10,      100,       11,  PPChZnPrcssr::eqarOK             },
+		{ 10,      100,       19,  PPChZnPrcssr::eqarOK             },
+		{ 10,      101,        2,  PPChZnPrcssr::eqarOK             }, // 1Г—100 + 1
+		{ 10,      250,        7,  PPChZnPrcssr::eqarOK             },
+		{ 10,     1000,       10,  PPChZnPrcssr::eqarOK             },
+		{ 10,     1000,       95,  PPChZnPrcssr::eqarOK             }, // СЃР»РµРїР°СЏ Р·РѕРЅР° РјРѕРґРµР»Рё (Р»СЋР±С‹Рµ kP)
+		{ 10,     1000,      100,  PPChZnPrcssr::eqarOK             },
+		// ----- P=10, РЅРµСЂР°Р·Р»РѕР¶РёРјРѕ
+		{ 10,       10,        2,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,       15,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,       15,        5,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,       15,       14,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,       19,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,       19,        9,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,       50,        6,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,       50,       42,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,       50,       45,  PPChZnPrcssr::eqarUndecomposable }, // d < P-1
+		{ 10,       80,        9,  PPChZnPrcssr::eqarUndecomposable }, // Р»РёС€РЅСЏСЏ РјР°СЂРєР° Рє 8Г—10
+		{ 10,       81,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,      101,        1,  PPChZnPrcssr::eqarUndecomposable },
+		// ----- P=12, СЂР°Р·Р»РѕР¶РёРјРѕ
+		{ 12,       12,        1,  PPChZnPrcssr::eqarOK             },
+		{ 12,       13,        2,  PPChZnPrcssr::eqarOK             },
+		{ 12,       23,       12,  PPChZnPrcssr::eqarOK             },
+		{ 12,       24,        1,  PPChZnPrcssr::eqarOK             },
+		{ 12,       24,        2,  PPChZnPrcssr::eqarOK             },
+		{ 12,       25,        2,  PPChZnPrcssr::eqarOK             }, // 1Г—24 + 1
+		{ 12,       25,        3,  PPChZnPrcssr::eqarOK             },
+		{ 12,       25,       14,  PPChZnPrcssr::eqarOK             },
+		{ 12,       36,        1,  PPChZnPrcssr::eqarOK             },
+		{ 12,       36,        2,  PPChZnPrcssr::eqarOK             },
+		{ 12,       36,        3,  PPChZnPrcssr::eqarOK             },
+		{ 12,       48,        1,  PPChZnPrcssr::eqarOK             },
+		{ 12,       48,        4,  PPChZnPrcssr::eqarOK             },
+		{ 12,       60,        3,  PPChZnPrcssr::eqarOK             },
+		{ 12,       60,        5,  PPChZnPrcssr::eqarOK             },
+		{ 12,       72,        1,  PPChZnPrcssr::eqarOK             },
+		{ 12,       72,        6,  PPChZnPrcssr::eqarOK             },
+		{ 12,      100,        5,  PPChZnPrcssr::eqarOK             }, // 1Г—96 + 4
+		{ 12,      100,        6,  PPChZnPrcssr::eqarOK             },
+		{ 12,      100,        8,  PPChZnPrcssr::eqarOK             },
+		{ 12,      100,       10,  PPChZnPrcssr::eqarOK             },
+		{ 12,      144,        1,  PPChZnPrcssr::eqarOK             },
+		{ 12,      144,       10,  PPChZnPrcssr::eqarOK             },
+		{ 12,      144,       11,  PPChZnPrcssr::eqarOK             },
+		{ 12,      144,       12,  PPChZnPrcssr::eqarOK             }, // r==0, m_min == P == m_max
+		// ----- P=12, РЅРµСЂР°Р·Р»РѕР¶РёРјРѕ
+		{ 12,       12,        2,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,       23,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,       23,       11,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,       25,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,       25,        4,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,       25,       13,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,       36,        4,  PPChZnPrcssr::eqarUndecomposable }, // Р»РёС€РЅСЏСЏ РјР°СЂРєР° Рє 3Г—12
+		{ 12,       72,        7,  PPChZnPrcssr::eqarUndecomposable }, // Р»РёС€РЅСЏСЏ РјР°СЂРєР° Рє 6Г—12
+		{ 12,      100,        4,  PPChZnPrcssr::eqarUndecomposable },
+		// ----- P=48, СЂР°Р·Р»РѕР¶РёРјРѕ
+		{ 48,       48,        1,  PPChZnPrcssr::eqarOK             },
+		{ 48,       49,        2,  PPChZnPrcssr::eqarOK             },
+		{ 48,       50,        3,  PPChZnPrcssr::eqarOK             },
+		{ 48,       95,       48,  PPChZnPrcssr::eqarOK             }, // 1Г—48 + 47
+		{ 48,       96,        1,  PPChZnPrcssr::eqarOK             },
+		{ 48,       96,        2,  PPChZnPrcssr::eqarOK             },
+		{ 48,      100,       53,  PPChZnPrcssr::eqarOK             },
+		{ 48,      144,        1,  PPChZnPrcssr::eqarOK             },
+		{ 48,      144,        2,  PPChZnPrcssr::eqarOK             },
+		{ 48,      144,        3,  PPChZnPrcssr::eqarOK             },
+		{ 48,      192,        3,  PPChZnPrcssr::eqarOK             },
+		{ 48,      192,        4,  PPChZnPrcssr::eqarOK             },
+		{ 48,      240,        5,  PPChZnPrcssr::eqarOK             },
+		{ 48,      480,        1,  PPChZnPrcssr::eqarOK             },
+		{ 48,      480,        8,  PPChZnPrcssr::eqarOK             },
+		{ 48,      480,        9,  PPChZnPrcssr::eqarOK             },
+		{ 48,      480,       10,  PPChZnPrcssr::eqarOK             }, // 10Г—48, m_min == m_max
+		{ 48,     1000,       41,  PPChZnPrcssr::eqarOK             }, // 1Г—960 + 40
+		{ 48,     1000,       60,  PPChZnPrcssr::eqarOK             }, // 20Г—48 + 40, m_min == m_max
+		// ----- P=48, РЅРµСЂР°Р·Р»РѕР¶РёРјРѕ
+		{ 48,       48,        2,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,       50,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,       50,        2,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,       95,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,       95,        2,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,       95,       47,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,       96,        3,  PPChZnPrcssr::eqarUndecomposable }, // Р»РёС€РЅСЏСЏ РјР°СЂРєР° Рє 2Г—48
+		{ 48,      100,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,      100,        2,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,      100,       52,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,      192,        5,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,      480,       11,  PPChZnPrcssr::eqarUndecomposable }, // Р»РёС€РЅСЏСЏ РјР°СЂРєР° Рє 10Г—48
+		{ 48,      480,       20,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,     1000,       16,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,     1000,       20,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,     1000,       40,  PPChZnPrcssr::eqarUndecomposable },
+		// ----- Р±РѕР»СЊС€РёРµ Q
+		{  6,  1000000,        5,  PPChZnPrcssr::eqarOK             },
+		{  6,  1000000,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,  1000000,        4,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,  1000000,  1000000,  PPChZnPrcssr::eqarOK             },
+		{  8,  1000000,        1,  PPChZnPrcssr::eqarOK             }, // 1Г—1000000
+		{  8,  1000000,        2,  PPChZnPrcssr::eqarOK             },
+		{  8,  1000000,        3,  PPChZnPrcssr::eqarOK             },
+		{ 10,  1000000,      100,  PPChZnPrcssr::eqarOK             },
+		{ 12,  1000000,       10,  PPChZnPrcssr::eqarOK             },
+		{ 48,  1000000,        1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,  1000000,      100,  PPChZnPrcssr::eqarOK             },
+		{ 48,  1000000,  1000000,  PPChZnPrcssr::eqarOK             },
+	};
+	static const TestEntry test_entry_list3[] = {
+		// MinPackage, ItemQtty, MarkCount, ExpectedResult
+		// 1 = eqarOK; -30 = eqarUndecomposable; -50 = eqarUndefPackage;
+		// -75 = eqarMcZero; -100 = eqarMcGtQtty.
+
+		// minPackage = 1: РїСЂРѕРІРµСЂСЏРµРј РїСЂРёРѕСЂРёС‚РµС‚С‹ РЅРѕРІС‹С… РІРµС‚РѕРє.
+		{  1,          0,          0,    PPChZnPrcssr::eqarOK },
+		{  1,          0,          1, PPChZnPrcssr::eqarMcGtQtty },
+		{  1,          1,          0,  PPChZnPrcssr::eqarMcZero },
+		{  1,          1,          1,    PPChZnPrcssr::eqarOK },
+		{  1,          1,          2, PPChZnPrcssr::eqarMcGtQtty },
+		{  1,          2,          0,  PPChZnPrcssr::eqarMcZero },
+		{  1,          2,          1,  PPChZnPrcssr::eqarUndefPackage },
+		{  1,          2,          2,    PPChZnPrcssr::eqarOK },
+		{  1,          2,          3, PPChZnPrcssr::eqarMcGtQtty },
+		{  1,          6,          5,  PPChZnPrcssr::eqarUndefPackage },
+		{  1,          6,          6,    PPChZnPrcssr::eqarOK },
+		{  1,          6,          7, PPChZnPrcssr::eqarMcGtQtty },
+		{  1,        100,          0,  PPChZnPrcssr::eqarMcZero },
+		{  1,        100,          1,  PPChZnPrcssr::eqarUndefPackage },
+		{  1,        100,         99,  PPChZnPrcssr::eqarUndefPackage },
+		{  1,        100,        100,    PPChZnPrcssr::eqarOK },
+		{  1,        100,        101, PPChZnPrcssr::eqarMcGtQtty },
+
+		// minPackage = 6
+		{  6,          0,          0,    PPChZnPrcssr::eqarOK },
+		{  6,          0,          1, PPChZnPrcssr::eqarMcGtQtty },
+		{  6,          1,          0,  PPChZnPrcssr::eqarMcZero },
+		{  6,          1,          1,    PPChZnPrcssr::eqarOK },
+		{  6,          2,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,          5,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,          6,          1,    PPChZnPrcssr::eqarOK },
+		{  6,          7,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,         11,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,         12,          1,    PPChZnPrcssr::eqarOK },
+		{  6,         12,          2,    PPChZnPrcssr::eqarOK },
+		{  6,         13,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,         13,          2,    PPChZnPrcssr::eqarOK },
+		{  6,         13,          3,    PPChZnPrcssr::eqarOK },
+		{  6,         24,         20,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,         25,         20,    PPChZnPrcssr::eqarOK },
+		{  6,         26,         20,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,         30,          6,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,         35,          5,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,         36,          6,    PPChZnPrcssr::eqarOK },
+		{  6,         37,          7,    PPChZnPrcssr::eqarOK },
+		{  6,         35,          4,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,         36,          5,    PPChZnPrcssr::eqarOK },
+		{  6,        100,          0,  PPChZnPrcssr::eqarMcZero },
+		{  6,        100,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{  6,        100,        100,    PPChZnPrcssr::eqarOK },
+		{  6,        100,        101, PPChZnPrcssr::eqarMcGtQtty },
+		{  6, 1000000000U,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{  6, 1000000002U,          1,    PPChZnPrcssr::eqarOK },
+
+		// minPackage = 8
+		{  8,          0,          0,    PPChZnPrcssr::eqarOK },
+		{  8,          0,          1, PPChZnPrcssr::eqarMcGtQtty },
+		{  8,          1,          0,  PPChZnPrcssr::eqarMcZero },
+		{  8,          1,          1,    PPChZnPrcssr::eqarOK },
+		{  8,          7,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,          7,          7,    PPChZnPrcssr::eqarOK },
+		{  8,          8,          1,    PPChZnPrcssr::eqarOK },
+		{  8,          9,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,         15,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,         16,          1,    PPChZnPrcssr::eqarOK },
+		{  8,         16,          2,    PPChZnPrcssr::eqarOK },
+		{  8,         17,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,         17,          2,    PPChZnPrcssr::eqarOK },
+		{  8,         17,          3,    PPChZnPrcssr::eqarOK },
+		{  8,        100,         94,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,        100,         93,    PPChZnPrcssr::eqarOK },
+		{  8,        100,         92,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,         56,          8,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,         63,          7,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,         64,          8,    PPChZnPrcssr::eqarOK },
+		{  8,         65,          9,    PPChZnPrcssr::eqarOK },
+		{  8,         63,          6,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,         64,          7,    PPChZnPrcssr::eqarOK },
+		{  8,         96,          1,    PPChZnPrcssr::eqarOK },
+		{  8,         97,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,         97,          2,    PPChZnPrcssr::eqarOK },
+		{  8,        506,          2,  PPChZnPrcssr::eqarUndecomposable },
+		{  8,        506,          3,    PPChZnPrcssr::eqarOK },
+		{  8, 1000000000U,          1,    PPChZnPrcssr::eqarOK },
+		{  8, 1000000000U, 999999999U,  PPChZnPrcssr::eqarUndecomposable },
+
+		// minPackage = 10
+		{ 10,          0,          0,    PPChZnPrcssr::eqarOK },
+		{ 10,          0,          1, PPChZnPrcssr::eqarMcGtQtty },
+		{ 10,          1,          0,  PPChZnPrcssr::eqarMcZero },
+		{ 10,          1,          1,    PPChZnPrcssr::eqarOK },
+		{ 10,          9,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,          9,          9,    PPChZnPrcssr::eqarOK },
+		{ 10,         10,          1,    PPChZnPrcssr::eqarOK },
+		{ 10,         11,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,         19,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,         20,          1,    PPChZnPrcssr::eqarOK },
+		{ 10,         20,          2,    PPChZnPrcssr::eqarOK },
+		{ 10,         21,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,         21,          2,    PPChZnPrcssr::eqarOK },
+		{ 10,         21,          3,    PPChZnPrcssr::eqarOK },
+		{ 10,        100,         92,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,        100,         91,    PPChZnPrcssr::eqarOK },
+		{ 10,        100,         90,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,         90,         10,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,         99,          9,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,        100,         10,    PPChZnPrcssr::eqarOK },
+		{ 10,        101,         11,    PPChZnPrcssr::eqarOK },
+		{ 10,         99,          8,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,        100,          9,    PPChZnPrcssr::eqarOK },
+		{ 10,        100,          1,    PPChZnPrcssr::eqarOK },
+		{ 10,        101,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 10,        101,          2,    PPChZnPrcssr::eqarOK },
+		{ 10,       1000,          0,  PPChZnPrcssr::eqarMcZero },
+		{ 10,       1000,         95,    PPChZnPrcssr::eqarOK },
+		{ 10,       1000,          1,    PPChZnPrcssr::eqarOK },
+		{ 10,       1000,       1000,    PPChZnPrcssr::eqarOK },
+		{ 10,       1000,       1001, PPChZnPrcssr::eqarMcGtQtty },
+		{ 10,        500,         48,    PPChZnPrcssr::eqarOK },
+		{ 10, 1000000000U,          1,    PPChZnPrcssr::eqarOK },
+		{ 10, 1000000000U, 999999999U,  PPChZnPrcssr::eqarUndecomposable },
+
+		// minPackage = 12
+		{ 12,          0,          0,    PPChZnPrcssr::eqarOK },
+		{ 12,          0,          1, PPChZnPrcssr::eqarMcGtQtty },
+		{ 12,          1,          0,  PPChZnPrcssr::eqarMcZero },
+		{ 12,          1,          1,    PPChZnPrcssr::eqarOK },
+		{ 12,         11,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,         11,         11,    PPChZnPrcssr::eqarOK },
+		{ 12,         12,          1,    PPChZnPrcssr::eqarOK },
+		{ 12,         13,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,         23,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,         24,          1,    PPChZnPrcssr::eqarOK },
+		{ 12,         24,          2,    PPChZnPrcssr::eqarOK },
+		{ 12,         25,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,         25,          2,    PPChZnPrcssr::eqarOK },
+		{ 12,         25,          3,    PPChZnPrcssr::eqarOK },
+		{ 12,        100,         90,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,        100,         89,    PPChZnPrcssr::eqarOK },
+		{ 12,        100,         88,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,        132,         12,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,        143,         11,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,        144,         12,    PPChZnPrcssr::eqarOK },
+		{ 12,        145,         13,    PPChZnPrcssr::eqarOK },
+		{ 12,        143,         10,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,        144,         11,    PPChZnPrcssr::eqarOK },
+		{ 12,         96,          1,    PPChZnPrcssr::eqarOK },
+		{ 12,         97,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,         97,          2,    PPChZnPrcssr::eqarOK },
+		{ 12,       1000,          4,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12,       1000,          5,    PPChZnPrcssr::eqarOK },
+		{ 12, 1000000000U,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12, 1000000000U,          4,  PPChZnPrcssr::eqarUndecomposable },
+		{ 12, 1000000000U,          5,    PPChZnPrcssr::eqarOK },
+		{ 12, 1000000008U,          1,    PPChZnPrcssr::eqarOK },
+
+		// minPackage = 48
+		{ 48,          0,          0,    PPChZnPrcssr::eqarOK },
+		{ 48,          0,          1, PPChZnPrcssr::eqarMcGtQtty },
+		{ 48,          1,          0,  PPChZnPrcssr::eqarMcZero },
+		{ 48,          1,          1,    PPChZnPrcssr::eqarOK },
+		{ 48,         47,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,         47,         47,    PPChZnPrcssr::eqarOK },
+		{ 48,         48,          1,    PPChZnPrcssr::eqarOK },
+		{ 48,         49,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,         95,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,         96,          1,    PPChZnPrcssr::eqarOK },
+		{ 48,         96,          2,    PPChZnPrcssr::eqarOK },
+		{ 48,         97,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,         97,          2,    PPChZnPrcssr::eqarOK },
+		{ 48,         97,          3,    PPChZnPrcssr::eqarOK },
+		{ 48,       1000,        954,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,       1000,        953,    PPChZnPrcssr::eqarOK },
+		{ 48,       1000,        952,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,       2256,         48,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,       2303,         47,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,       2304,         48,    PPChZnPrcssr::eqarOK },
+		{ 48,       2305,         49,    PPChZnPrcssr::eqarOK },
+		{ 48,       2303,         46,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,       2304,         47,    PPChZnPrcssr::eqarOK },
+		{ 48,       1008,          1,    PPChZnPrcssr::eqarOK },
+		{ 48,       1000,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48,       1009,          2,    PPChZnPrcssr::eqarOK },
+		{ 48,       1016,         12,    PPChZnPrcssr::eqarOK },
+		{ 48, 1000000000U,          1,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48, 1000000000U,         16,  PPChZnPrcssr::eqarUndecomposable },
+		{ 48, 1000000000U,         17,    PPChZnPrcssr::eqarOK },
+		{ 48, 1000000032U,          1,    PPChZnPrcssr::eqarOK },
+	};
+	static const TestEntry test_entry_list[] = {
+		//
+		// Р“Р РђРќРР§РќР«Р• Р РЎРџР•Р¦РРђР›Р¬РќР«Р• РЎР›РЈР§РђР
+		//
+		{10, 0,    0,    PPChZnPrcssr::eqarOK},
+		{10, 0,    1,    PPChZnPrcssr::eqarMcGtQtty},
+		{10, 1,    1,    PPChZnPrcssr::eqarOK},
+		{10, 1,    0,    PPChZnPrcssr::eqarMcZero},
+		{10, 1,    2,    PPChZnPrcssr::eqarMcGtQtty},
+		{6,  100,  100,  PPChZnPrcssr::eqarOK},
+		{8,  1000, 1000, PPChZnPrcssr::eqarOK},
+		{10, 500,  500,  PPChZnPrcssr::eqarOK},
+		{12, 100,  100,  PPChZnPrcssr::eqarOK},
+		{48, 100,  100,  PPChZnPrcssr::eqarOK},
+		{10, 100,  101,  PPChZnPrcssr::eqarMcGtQtty},
+		{10, 100,  150,  PPChZnPrcssr::eqarMcGtQtty},
+		{10, 100,  0,    PPChZnPrcssr::eqarMcZero},
+		{10, 1000, 0,    PPChZnPrcssr::eqarMcZero},
+    
+		{1,  100,  100,  PPChZnPrcssr::eqarOK},
+		{1,  100,  50,   PPChZnPrcssr::eqarUndefPackage},
+		{1,  100,  110,  PPChZnPrcssr::eqarMcGtQtty},
+		{1,  100,  0,    PPChZnPrcssr::eqarMcZero},
+		{1,  1,    1,    PPChZnPrcssr::eqarOK},
+		{1,  1000, 500,  PPChZnPrcssr::eqarUndefPackage},
+    
+		{6,  6,    1,    PPChZnPrcssr::eqarOK},
+		{6,  12,   2,    PPChZnPrcssr::eqarOK},
+		{6,  18,   3,    PPChZnPrcssr::eqarOK},
+		{6,  60,   10,   PPChZnPrcssr::eqarOK},
+		{6,  7,    2,    PPChZnPrcssr::eqarOK},
+		{6,  13,   3,    PPChZnPrcssr::eqarOK},
+		{6,  100,  85,   PPChZnPrcssr::eqarOK},              // d=15
+		{6,  100,  99,   PPChZnPrcssr::eqarUndecomposable},  // d=1
+		{6,  100,  98,   PPChZnPrcssr::eqarUndecomposable},  // d=2
+		{6,  100,  97,   PPChZnPrcssr::eqarUndecomposable},  // d=3
+		{6,  100,  96,   PPChZnPrcssr::eqarUndecomposable},  // d=4
+		{6,  100,  95,   PPChZnPrcssr::eqarOK},              // d=5, 1Г—6
+		{6,  100,  94,   PPChZnPrcssr::eqarUndecomposable},  // d=6
+		{6,  100,  93,   PPChZnPrcssr::eqarUndecomposable},  // d=7
+		{6,  100,  92,   PPChZnPrcssr::eqarUndecomposable},  // d=8
+		{6,  100,  91,   PPChZnPrcssr::eqarUndecomposable},  // d=9
+		{6,  100,  90,   PPChZnPrcssr::eqarOK},              // d=10, 2Г—6
+		{6,  100,  80,   PPChZnPrcssr::eqarOK},              // d=20
+		{6,  100,  75,   PPChZnPrcssr::eqarOK},              // d=25
+		{6,  100,  70,   PPChZnPrcssr::eqarOK},              // d=30, 6Г—6
+		{6,  100,  65,   PPChZnPrcssr::eqarOK},              // d=35
+		{6,  100,  20,   PPChZnPrcssr::eqarOK},
+		{6,  100,  10,   PPChZnPrcssr::eqarOK},
+		{6,  100,  5,    PPChZnPrcssr::eqarOK},
+    
+		{8,  8,    1,    PPChZnPrcssr::eqarOK},
+		{8,  16,   2,    PPChZnPrcssr::eqarOK},
+		{8,  24,   3,    PPChZnPrcssr::eqarOK},
+		{8,  80,   10,   PPChZnPrcssr::eqarOK},
+		{8,  9,    2,    PPChZnPrcssr::eqarOK},
+		{8,  17,   3,    PPChZnPrcssr::eqarOK},
+		{8,  100,  93,   PPChZnPrcssr::eqarOK},              // d=7
+		{8,  100,  99,   PPChZnPrcssr::eqarUndecomposable},  // d=1
+		{8,  100,  98,   PPChZnPrcssr::eqarUndecomposable},
+		{8,  100,  97,   PPChZnPrcssr::eqarUndecomposable},
+		{8,  100,  96,   PPChZnPrcssr::eqarUndecomposable},
+		{8,  100,  95,   PPChZnPrcssr::eqarUndecomposable},
+		{8,  100,  94,   PPChZnPrcssr::eqarUndecomposable},
+		{8,  100,  92,   PPChZnPrcssr::eqarUndecomposable},  // d=8
+		{8,  100,  86,   PPChZnPrcssr::eqarOK},              // d=14
+		{8,  100,  85,   PPChZnPrcssr::eqarOK},              // d=15, 1Г—16
+		{8,  100,  79,   PPChZnPrcssr::eqarOK},              // d=21
+		{8,  100,  72,   PPChZnPrcssr::eqarOK},              // d=28
+		{8,  100,  65,   PPChZnPrcssr::eqarOK},              // d=35
+		{8,  100,  58,   PPChZnPrcssr::eqarOK},              // d=42
+		{8,  100,  51,   PPChZnPrcssr::eqarOK},              // d=49
+		{8,  100,  44,   PPChZnPrcssr::eqarOK},              // d=56, 8Г—8
+		{8,  100,  2,    PPChZnPrcssr::eqarUndecomposable},  // 100 РЅРµ РєСЂР°С‚РЅРѕ 8
+		{8,  100,  1,    PPChZnPrcssr::eqarUndecomposable},  // 100 РЅРµ РєСЂР°С‚РЅРѕ 8
+		{8,  96,   2,    PPChZnPrcssr::eqarOK},              // 96 РєСЂР°С‚РЅРѕ 8
+		{8,  96,   1,    PPChZnPrcssr::eqarOK},
+    
+		{10, 10,   1,    PPChZnPrcssr::eqarOK},
+		{10, 20,   2,    PPChZnPrcssr::eqarOK},
+		{10, 100,  10,   PPChZnPrcssr::eqarOK},              // d=90, 10Г—10
+		{10, 1000, 100,  PPChZnPrcssr::eqarOK},
+		{10, 11,   2,    PPChZnPrcssr::eqarOK},
+		{10, 21,   3,    PPChZnPrcssr::eqarOK},
+		{10, 100,  91,   PPChZnPrcssr::eqarOK},              // d=9
+		{10, 100,  99,   PPChZnPrcssr::eqarUndecomposable},  // d=1
+		{10, 100,  98,   PPChZnPrcssr::eqarUndecomposable},
+		{10, 100,  97,   PPChZnPrcssr::eqarUndecomposable},
+		{10, 100,  96,   PPChZnPrcssr::eqarUndecomposable},
+		{10, 100,  95,   PPChZnPrcssr::eqarUndecomposable},
+		{10, 100,  94,   PPChZnPrcssr::eqarUndecomposable},
+		{10, 100,  93,   PPChZnPrcssr::eqarUndecomposable},
+		{10, 100,  92,   PPChZnPrcssr::eqarUndecomposable},
+		{10, 100,  90,   PPChZnPrcssr::eqarUndecomposable},  // d=10
+		{10, 100,  89,   PPChZnPrcssr::eqarUndecomposable},  // d=11
+		{10, 100,  82,   PPChZnPrcssr::eqarOK},              // d=18
+		{10, 100,  81,   PPChZnPrcssr::eqarOK},              // d=19, 1Г—20
+		{10, 100,  80,   PPChZnPrcssr::eqarUndecomposable},  // d=20
+		{10, 100,  73,   PPChZnPrcssr::eqarOK},              // d=27
+		{10, 100,  64,   PPChZnPrcssr::eqarOK},              // d=36
+		{10, 100,  55,   PPChZnPrcssr::eqarOK},              // d=45
+		{10, 100,  46,   PPChZnPrcssr::eqarOK},              // d=54
+		{10, 100,  37,   PPChZnPrcssr::eqarOK},              // d=63
+		{10, 100,  28,   PPChZnPrcssr::eqarOK},              // d=72
+		{10, 100,  19,   PPChZnPrcssr::eqarOK},              // d=81
+		{10, 100,  2,    PPChZnPrcssr::eqarOK},              // 2Г—50
+		{10, 100,  1,    PPChZnPrcssr::eqarOK},              // 1Г—100
+		{10, 1000, 991,  PPChZnPrcssr::eqarOK},
+		{10, 1000, 990,  PPChZnPrcssr::eqarUndecomposable},
+		{10, 1000, 982,  PPChZnPrcssr::eqarOK},
+		{10, 1000, 500,  PPChZnPrcssr::eqarOK},
+		{10, 1000, 100,  PPChZnPrcssr::eqarOK},
+		{10, 1000, 10,   PPChZnPrcssr::eqarOK},
+		{10, 1000, 2,    PPChZnPrcssr::eqarOK},
+
+		{12, 12,   1,    PPChZnPrcssr::eqarOK},
+		{12, 24,   2,    PPChZnPrcssr::eqarOK},
+		{12, 120,  10,   PPChZnPrcssr::eqarOK},
+		{12, 13,   2,    PPChZnPrcssr::eqarOK},
+		{12, 100,  89,   PPChZnPrcssr::eqarOK},              // d=11
+		{12, 100,  99,   PPChZnPrcssr::eqarUndecomposable},  // d=1
+		{12, 100,  98,   PPChZnPrcssr::eqarUndecomposable},
+		{12, 100,  97,   PPChZnPrcssr::eqarUndecomposable},
+		{12, 100,  96,   PPChZnPrcssr::eqarUndecomposable},
+		{12, 100,  95,   PPChZnPrcssr::eqarUndecomposable},
+		{12, 100,  94,   PPChZnPrcssr::eqarUndecomposable},
+		{12, 100,  93,   PPChZnPrcssr::eqarUndecomposable},
+		{12, 100,  92,   PPChZnPrcssr::eqarUndecomposable},
+		{12, 100,  91,   PPChZnPrcssr::eqarUndecomposable},
+		{12, 100,  90,   PPChZnPrcssr::eqarUndecomposable},
+		{12, 100,  88,   PPChZnPrcssr::eqarUndecomposable},  // d=12
+		{12, 100,  78,   PPChZnPrcssr::eqarOK},              // d=22
+		{12, 100,  67,   PPChZnPrcssr::eqarOK},              // d=33
+		{12, 100,  56,   PPChZnPrcssr::eqarOK},              // d=44
+		{12, 100,  45,   PPChZnPrcssr::eqarOK},              // d=55
+		{12, 100,  34,   PPChZnPrcssr::eqarOK},              // d=66
+		{12, 100,  23,   PPChZnPrcssr::eqarOK},              // d=77
+		{12, 100,  12,   PPChZnPrcssr::eqarOK},              // d=88
+		{12, 100,  2,    PPChZnPrcssr::eqarUndecomposable},  // 100 РЅРµ РєСЂР°С‚РЅРѕ 12
+		{12, 100,  1,    PPChZnPrcssr::eqarUndecomposable},
+		{12, 96,   2,    PPChZnPrcssr::eqarOK},
+		{12, 96,   1,    PPChZnPrcssr::eqarOK},
+
+		{48, 48,   1,    PPChZnPrcssr::eqarOK},
+		{48, 96,   2,    PPChZnPrcssr::eqarOK},
+		{48, 480,  10,   PPChZnPrcssr::eqarOK},
+		{48, 49,   2,    PPChZnPrcssr::eqarOK},
+		{48, 100,  53,   PPChZnPrcssr::eqarOK},              // d=47
+		{48, 100,  99,   PPChZnPrcssr::eqarUndecomposable},  // d=1
+		{48, 100,  90,   PPChZnPrcssr::eqarUndecomposable},
+		{48, 100,  80,   PPChZnPrcssr::eqarUndecomposable},
+		{48, 100,  70,   PPChZnPrcssr::eqarUndecomposable},
+		{48, 100,  60,   PPChZnPrcssr::eqarUndecomposable},
+		{48, 100,  54,   PPChZnPrcssr::eqarUndecomposable},
+		{48, 100,  52,   PPChZnPrcssr::eqarUndecomposable},  // d=48
+		{48, 100,  6,    PPChZnPrcssr::eqarOK},              // d=94, 2Г—48
+		{48, 100,  5,    PPChZnPrcssr::eqarOK},  // d=95, 1 СѓРїР°РєРѕРІРєР° РїРѕ 96 (2Г—48) + 4 С€С‚ = 5 РјР°СЂРѕРє
+		{48, 100,  2,    PPChZnPrcssr::eqarUndecomposable},  // 100 РЅРµ РєСЂР°С‚РЅРѕ 48
+		{48, 100,  1,    PPChZnPrcssr::eqarUndecomposable},
+		{48, 96,   2,    PPChZnPrcssr::eqarOK},
+		{48, 96,   1,    PPChZnPrcssr::eqarOK},
+		{48, 1000, 953,  PPChZnPrcssr::eqarOK},
+		{48, 1000, 952,  PPChZnPrcssr::eqarUndecomposable},
+		{48, 1000, 906,  PPChZnPrcssr::eqarOK},
+		{48, 1000, 500,  PPChZnPrcssr::eqarUndecomposable},
+		{48, 1000, 100,  PPChZnPrcssr::eqarOK},
+		{48, 1000, 10,  PPChZnPrcssr::eqarUndecomposable},
+		//
+		// Р‘РћР›Р¬РЁРР• Р—РќРђР§Р•РќРРЇ
+		//
+		{10, 10000, 9991, PPChZnPrcssr::eqarOK},
+		{10, 10000, 9990, PPChZnPrcssr::eqarUndecomposable},
+		{10, 10000, 5000, PPChZnPrcssr::eqarOK},
+		{10, 10000, 1000, PPChZnPrcssr::eqarOK},
+	};
+	{
+		for(uint i = 0; i < SIZEOFARRAY(test_entry_list2); i++) {
+			const  TestEntry & r_entry = test_entry_list2[i];
+			const  int r = PPChZnPrcssr::EstimateQuantityAdequacy(r_entry.ItemQtty, r_entry.MinPackage, r_entry.MarkCount);
+			SLCHECK_EQ(r, r_entry.ExpectedResult);
+		}
+	}
+	{
+		for(uint i = 0; i < SIZEOFARRAY(test_entry_list3); i++) {
+			const  TestEntry & r_entry = test_entry_list3[i];
+			const  int r = PPChZnPrcssr::EstimateQuantityAdequacy(r_entry.ItemQtty, r_entry.MinPackage, r_entry.MarkCount);
+			SLCHECK_EQ(r, r_entry.ExpectedResult);
+		}
+	}
+	{
+		for(uint i = 0; i < SIZEOFARRAY(test_entry_list); i++) {
+			const  TestEntry & r_entry = test_entry_list[i];
+			const  int r = PPChZnPrcssr::EstimateQuantityAdequacy(r_entry.ItemQtty, r_entry.MinPackage, r_entry.MarkCount);
+			SLCHECK_EQ(r, r_entry.ExpectedResult);
+		}
+	}
 	return CurrentStatus;
 }

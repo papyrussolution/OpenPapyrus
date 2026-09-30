@@ -1284,7 +1284,7 @@ static IMPL_DBE_PROC(dbqf_objmemo_personevent_i) // @v11.1.12
 	}
 }
 
-static IMPL_DBE_PROC(dbqf_objmemo_tech_i) // @v11.1.12
+static IMPL_DBE_PROC(dbqf_objmemo_tech_i)
 {
 	char   name_buf[512];
 	if(!DbeInitSize(option, result, sizeof(name_buf))) {
@@ -1303,7 +1303,7 @@ static IMPL_DBE_PROC(dbqf_objmemo_tech_i) // @v11.1.12
 
 static IMPL_DBE_PROC(dbqf_objname_acctrel_i)
 {
-	char   name_buf[32];
+	char   name_buf[64]; // @v12.7.10 [32]-->[64]
 	AcctRelTbl::Rec rec;
 	if(!DbeInitSize(option, result, sizeof(name_buf))) {
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
@@ -1321,6 +1321,34 @@ static IMPL_DBE_PROC(dbqf_objname_acctrel_i)
 		result->init(name_buf);
 	}
 }
+
+static IMPL_DBE_PROC(dbqf_objname_accbyrel_i) // @v12.7.9 @construction (пока это - копия dbqf_objname_acctrel_i)
+{
+	char   name_buf[64];
+	AcctRelTbl::Rec rec;
+	if(!DbeInitSize(option, result, sizeof(name_buf))) {
+		PPID   id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
+		if(id) {
+			AcctRel * p_tbl = &BillObj->atobj->P_Tbl->AccRel;
+			if(p_tbl->Fetch(id, &rec) > 0) {
+				if(ObjRts.CheckAccID(rec.AccID, PPR_READ)) {
+					SString & r_temp_buf = SLS.AcquireRvlStr();
+					GetObjectName(PPOBJ_ACCOUNT2, rec.AccID, r_temp_buf);
+					STRNSCPY(name_buf, r_temp_buf);
+				}
+				else {
+					//STRNSCPY(name_buf, "ACCS DENIED");
+					name_buf[0] = 0;
+				}
+			}
+			else {
+				//ideqvalstr(id, name_buf, sizeof(name_buf));
+				name_buf[0] = 0;
+			}
+		}
+		result->init(name_buf);
+	}
+} 
 
 static IMPL_DBE_PROC(dbqf_percent_rr) { result->init(fdivnz(100.0 * params[0].rval, params[1].rval)); }
 static IMPL_DBE_PROC(dbqf_percentincdiv_rr) { result->init(fdivnz(100.0 * params[0].rval, params[1].rval+params[0].rval)); }
@@ -1621,6 +1649,7 @@ int PPDbqFuncPool::IdClientActivityState  = 0; // @v12.2.2 (personID, LDATE actu
 int PPDbqFuncPool::IdObjLocAddress        = 0; // @v12.4.1
 int PPDbqFuncPool::IdObjMemoTech          = 0; // @v12.5.12 (fldTechID)
 int PPDbqFuncPool::IdObjNameGoodsType     = 0; // @v12.7.9 (fldGoodsTypeID)
+int PPDbqFuncPool::IdObjNameAccountByRel  = 0; // @v12.7.10 (fldAccRelID)
 
 static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
 {
@@ -1859,12 +1888,13 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	THROW(DbqFuncTab::RegisterDyn(&IdObjCodeBillCmplx,    BTS_STRING, dbqf_objcodecmplx_bill_i,    1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjCodeBill,         BTS_STRING, dbqf_objcode_bill_i,         1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjMemoBill,         BTS_STRING, dbqf_objmemo_bill_i,         1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjMemoPerson,       BTS_STRING, dbqf_objmemo_person_i,       1, BTS_INT)); // @v11.1.12
-	THROW(DbqFuncTab::RegisterDyn(&IdObjMemoPersonEvent,  BTS_STRING, dbqf_objmemo_personevent_i,  1, BTS_INT)); // @v11.1.12
+	THROW(DbqFuncTab::RegisterDyn(&IdObjMemoPerson,       BTS_STRING, dbqf_objmemo_person_i,       1, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdObjMemoPersonEvent,  BTS_STRING, dbqf_objmemo_personevent_i,  1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjMemoTech,         BTS_STRING, dbqf_objmemo_tech_i,         1, BTS_INT)); // @v12.5.12 (fldTechID)
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameSCardSer,     BTS_STRING, dbqf_objname_scardser_i,     1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameDebtDim,      BTS_STRING, dbqf_objname_debtdim_i,      1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjNameGoodsType,    BTS_STRING, dbqf_objname_goodstype_i,    1, BTS_INT)); // @v12.7.9 (fldGoodsTypeID)
+	THROW(DbqFuncTab::RegisterDyn(&IdObjNameAccountByRel, BTS_STRING, dbqf_objname_accbyrel_i,     1, BTS_INT)); // @v12.7.10 (fldAccRelID)
 	THROW(DbqFuncTab::RegisterDyn(&IdObjCodeSCard,        BTS_STRING, dbqf_objcode_scard_i,        1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdSCardOwnerName,      BTS_STRING, dbqf_scardownername_i,       1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdLocOwnerName,        BTS_STRING, dbqf_locownername_i,         1, BTS_INT));

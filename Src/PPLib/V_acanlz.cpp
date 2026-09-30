@@ -1126,9 +1126,6 @@ bool PPViewAccAnlz::IsDedicatedRestEvaluationNeeded() const
 	ExpiryDate = ZERODATE;
 	IterFlags = 0;
 	State = 0;
-	//IsGenAcc = 0;
-	//IsGenAr = 0;
-	//IsRegister = 0;
 	EffDlvrLocID = 0;
 	ExtGenAccList.freeAll();
 
@@ -1170,8 +1167,12 @@ bool PPViewAccAnlz::IsDedicatedRestEvaluationNeeded() const
 			State |= stIsGenAcc;
 			P_ATC->GetExtentAccListByGen(Filt.AcctId.AcID, &ExtGenAccList, 0);
 		}
-		else if(acc_rec.Type == ACY_REGISTER)
+		else if(acc_rec.Type == ACY_REGISTER) {
 			State |= stIsRegister;
+		}
+		else if(acc_rec.Type == ACY_PERSONAL) { // @v12.7.10
+			State |= stIsPersonal;
+		}
 	}
 	if(ArObj.Fetch(Filt.AcctId.ArID, &ar_rec) > 0 && ar_rec.Flags & ARTRF_GROUP) {
 		State |= stIsGenAr;
@@ -1744,7 +1745,6 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 		PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, ttt->CurID);
 		p_dbe1 = &(0 - ttt->InRest);  // @warn unary '-' not defined in class DBField
 		p_dbe2 = &(0 - ttt->OutRest); // @warn unary '-' not defined in class DBField
-		// @v12.5.1 {
 		q = &Select_(
 			ttt->AccRelID,  // #00
 			ttt->Dt,        // #01
@@ -1763,25 +1763,6 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 		q->addField(*p_dbe1);        // #13
 		q->addField(*p_dbe2);        // #14
 		//q->addField(ttt->DispFlags); // #15 @v7.1.2
-		// } @v12.5.1
-		/* @v12.5.1 q = &Select_(
-			ttt->AccRelID,  // #00
-			ttt->Dt,        // #01
-			ttt->Ac,        // #02
-			ttt->Sb,        // #03
-			ttt->Ar,        // #04
-			ttt->CurID,     // #05
-			dbe_cur,        // #06
-			ttt->InRest,    // #07
-			ttt->Dbt,       // #08
-			ttt->Crd,       // #09
-			ttt->OutRest,   // #10
-			ttt->Name,      // #11
-			ttt->GoodsRest, // #12
-			*p_dbe1,        // #13
-			*p_dbe2,        // #14
-			//ttt->DispFlags, // #15 @v7.1.2
-			0L);*/
 		q->from(ttt, 0L).orderBy(ttt->Dt, ttt->Name, 0L);
 		delete p_dbe1;
 		delete p_dbe2;
@@ -1793,7 +1774,6 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 	else if(Filt.Flags & AccAnlzFilt::fGroupByCorAcc || Filt.Cycl.Cycle) {
 		THROW(CheckTblPtr(ttt = new TempAccTrnovrTbl(P_TmpATTbl->GetName())));
 		PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, ttt->CurID);
-		// @v12.5.1 {
 		q = &Select_(
 			ttt->AccRelID,  // #00
 			ttt->Dt,        // #01
@@ -1809,22 +1789,6 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 		q->addField(ttt->OutRest);   // #10
 		q->addField(ttt->Name);      // #11
 		q->addField(ttt->GoodsRest); // #12
-		// } @v12.5.1 
-		/* @v12.5.1 q = &Select_(
-			ttt->AccRelID,  // #00
-			ttt->Dt,        // #01
-			ttt->Ac,        // #02
-			ttt->Sb,        // #03
-			ttt->Ar,        // #04
-			ttt->CurID,     // #05
-			dbe_cur,        // #06
-			ttt->InRest,    // #07
-			ttt->Dbt,       // #08
-			ttt->Crd,       // #09
-			ttt->OutRest,   // #10
-			ttt->Name,      // #11
-			ttt->GoodsRest, // #12
-			0L);*/
 		q->from(ttt, 0L).orderBy(ttt->Dt, ttt->Name, 0L);
 		if(Filt.Flags & AccAnlzFilt::fGroupByCorAcc) {
 			if(Filt.CorAco == AccAnlzFilt::aafgByOp)
@@ -1847,7 +1811,6 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 				dbe_crd = & (rat->Amount * -1);
 				PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, rat->BillID);
 				PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, rat->BillID);
-				// @v12.5.1 {
 				q = &Select_(
 					rat->Dt,       // #00
 					rat->OprNo,    // #01
@@ -1861,20 +1824,6 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 				q->addField(*dbe_crd);      // #08
 				q->addField(rat->Rest);     // #09
 				q->addField(dbe_bill_memo); // #10
-				// } @v12.5.1 
-				/* @v12.5.1 q = &Select_(
-					rat->Dt,       // #00
-					rat->OprNo,    // #01
-					rat->BillID,   // #02
-					rat->Acc,      // #03
-					rt->AccID,     // #04
-					dbe_bill_code, // #05
-					dbe_ar,        // #06
-					rat->Amount,   // #07
-					*dbe_crd,      // #08
-					rat->Rest,     // #09
-					dbe_bill_memo, // #10
-					0L);*/
 				q->from(rat, rt, 0L);
 				delete dbe_crd;
 				dbq = & (daterange(rat->Dt, &Filt.Period) && rt->ID == rat->Acc);
@@ -1893,7 +1842,6 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 				//dbe_crd = & (att->Amount * -1);
 				PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, att->BillID);
 				PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, att->BillID);
-				// @v12.5.1 {
 				q = &Select_(
 					att->Dt,       // #00
 					att->OprNo,    // #01
@@ -1909,22 +1857,6 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 				q->addField(att->Crd);      // #08
 				q->addField(att->Rest);     // #09
 				q->addField(dbe_bill_memo); // #10
-				// } @v12.5.1 
-				/* @v12.5.1 q = &Select_(
-					att->Dt,       // #00
-					att->OprNo,    // #01
-					att->BillID,   // #02
-					att->Acc,      // #03
-					rt->AccID,     // #04
-					dbe_bill_code, // #05
-					dbe_ar,        // #06
-					//att->Amount,   // #07
-					att->Dbt,      // #07
-					//*dbe_crd,      // #08
-					att->Crd,      // #08
-					att->Rest,     // #09
-					dbe_bill_memo, // #10
-					0L);*/
 				q->from(att, rt, 0L);
 				//delete dbe_crd;
 				//dbq = & (daterange(att->Dt, &Filt.Period) /*&& (rt->ID += att->Acc)*/);
@@ -1940,7 +1872,6 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 			PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, att->CurID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, att->BillID);
 			PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, att->BillID);
-			// @v12.5.1 {
 			q = &Select_(
 				att->Dt,       // #00
 				att->OprNo,    // #01
@@ -1959,25 +1890,6 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 			q->addField(att->Rest);     // #13
 			q->addField(dbe_bill_memo); // #14
 			q->addField(dbe_ar);        // #15
-			// } @v12.5.1 
-			/*q = &Select_(
-				att->Dt,       // #00
-				att->OprNo,    // #01
-				att->BillID,   // #02
-				att->Acc,      // #03
-				rt->AccID,     // #04
-				dbe_bill_code, // #05
-				att->Ac,       // #06
-				att->Sb,       // #07
-				att->Ar,       // #08
-				att->CurID,    // #09
-				dbe_cur,       // #10
-				att->Dbt,      // #11
-				att->Crd,      // #12
-				att->Rest,     // #13
-				dbe_bill_memo, // #14
-				dbe_ar,        // #15
-				0L);*/
 			q->from(att, rt, 0L).where((rt->ID += att->Acc));
 			brw_id = BROWSER_ACCTOACC;
 		}

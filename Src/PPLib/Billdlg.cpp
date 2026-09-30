@@ -4882,10 +4882,12 @@ public:
 		if(P_Pack) {
 			PPOprKind2 op_rec;
 			PPObjOprKind op_obj;
-			if(!P_Pack->Rec.ID)
+			if(!P_Pack->Rec.ID) {
 				P_BObj->SubstMemo(P_Pack);
-			if(op_obj.Search(P_Pack->Rec.OpID, &op_rec) > 0)
+			}
+			if(op_obj.Search(P_Pack->Rec.OpID, &op_rec) > 0) {
 				setTitle(op_rec.Name);
+			}
 			setCtrlString(CTL_ATURN_MEMO, P_Pack->SMemo);
 			SetupPPObjCombo(this, CTLSEL_ATURN_LOCATION, PPOBJ_LOCATION, P_Pack->Rec.LocID, 0);
 			// @v12.7.5 {
@@ -5123,67 +5125,76 @@ private:
 };
 
 class PersonalAccTurnDialog : public TDialog {
-	DECL_DIALOG_DATA(PPAccTurn);
+	DECL_DIALOG_DATA(/*PPAccTurn*/PPBillPacket);
+	PPAccTurn * P_At;
+	PPAccTurn AtStub; // Гарантирует ненулевой P_At
 public:
-	PersonalAccTurnDialog(PPObjBill * pBObj) : TDialog(DLG_ATURNPERSONAL), P_BObj(pBObj), P_Pack(0)
+	PersonalAccTurnDialog(PPObjBill * pBObj) : TDialog(DLG_ATURNPERSONAL), P_BObj(pBObj), P_At(&AtStub)
 	{
 	}
-	int    setDTS(const PPAccTurn * pData, PPBillPacket * pPack)
+	int    setDTS(const PPBillPacket * pData)
 	{
 		int    ok = 1;
 		RVALUEPTR(Data, pData);
-		P_Pack = pPack;
+		if(!Data.Turns.getCount()) {
+			PPAccTurn at;
+			Data.CreateAccTurn(at);
+			Data.Turns.insert(&at);
+		}
+		P_At = &Data.Turns.at(0);
 		AddClusterAssocDef(CTL_ATURN_FLOWDIR, 0, PPATFLOW_EXPENSE);
 		AddClusterAssoc(CTL_ATURN_FLOWDIR, 1, PPATFLOW_INCOME);
 		AddClusterAssoc(CTL_ATURN_FLOWDIR, 2, PPATFLOW_TRANSFER);
-		SetClusterData(CTL_ATURN_FLOWDIR, Data.GetNonBalancedFlow());
-		setCtrlReal(CTL_ATURN_AMOUNT, Data.Amount);
-		setCtrlDate(CTL_ATURN_DATE, Data.Date);
+		SetClusterData(CTL_ATURN_FLOWDIR, P_At->GetNonBalancedFlow(Data.Rec));
+		setCtrlReal(CTL_ATURN_AMOUNT, P_At->Amount);
+		setCtrlDate(CTL_ATURN_DATE, P_At->Date);
 		//
-		SetupPPObjCombo(this, CTLSEL_ATURN_DACCNAME, PPOBJ_ACCOUNT2, Data.DbtID.AcID, 
+		SetupPPObjCombo(this, CTLSEL_ATURN_DACCNAME, PPOBJ_ACCOUNT2, P_At->DbtID.AcID, 
 			OLW_CANINSERT|OLW_WORDSELECTOR|OLW_CANSELUPLEVEL, reinterpret_cast<void *>(ACY_SEL_PERSONAL_USER));
 		//
 		SetupFlowDir();
-		if(P_Pack)
-			setCtrlString(CTL_ATURN_MEMO, P_Pack->SMemo);
+		setCtrlString(CTL_ATURN_MEMO, Data.SMemo);
 		return ok;
 	}
-	int    getDTS(PPAccTurn * pData)
+	int    getDTS(PPBillPacket * pData)
 	{
 		int    ok = 1;
 		uint   sel = 0;
 		PPAccount acc_rec;
 		{
 			long nbf = GetClusterData(CTL_ATURN_FLOWDIR);
-			Data.SetNonBalancedFlow(nbf);
+			P_At->SetNonBalancedFlow(nbf, Data.Rec);
 		}
-		Data.Amount = getCtrlReal(sel = CTL_ATURN_AMOUNT);
-		THROW(Data.Amount > 0.0); // @todo @err
-		Data.Date = getCtrlDate(sel = CTL_ATURN_DATE);
-		THROW(checkdate(Data.Date)); // @todo @err
-		getCtrlData(sel = CTLSEL_ATURN_DACCNAME, &Data.DbtID.AcID);
-		THROW(Data.DbtID.AcID); // @todo @err
-		THROW(AccObj.Fetch(Data.DbtID.AcID, &acc_rec) > 0); // @todo @err
-		Data.DbtAcsID = acc_rec.AccSheetID;
-		getCtrlData(sel = CTLSEL_ATURN_CACCNAME, &Data.CrdID.AcID);
-		THROW(Data.CrdID.AcID); // @todo @err
-		THROW(AccObj.Fetch(Data.CrdID.AcID, &acc_rec) > 0); // @todo @err
-		getCtrlData(sel = CTLSEL_ATURN_PA_CATEGORY, &Data.CrdID.ArID);
-		Data.CrdAcsID = acc_rec.AccSheetID;
-		if(P_Pack) {
-			if(P_Pack->Turns.getCount())
-				P_Pack->Turns.at(0) = Data;
-			else {
-				THROW_SL(P_Pack->Turns.insert(&Data));
+		P_At->Amount = getCtrlReal(sel = CTL_ATURN_AMOUNT);
+		THROW(P_At->Amount > 0.0); // @todo @err
+		P_At->Date = getCtrlDate(sel = CTL_ATURN_DATE);
+		THROW(checkdate(P_At->Date)); // @todo @err
+		getCtrlData(sel = CTLSEL_ATURN_DACCNAME, &P_At->DbtID.AcID);
+		THROW(P_At->DbtID.AcID); // @todo @err
+		THROW(AccObj.Fetch(P_At->DbtID.AcID, &acc_rec) > 0); // @todo @err
+		P_At->DbtAcsID = acc_rec.AccSheetID;
+		getCtrlData(sel = CTLSEL_ATURN_CACCNAME, &P_At->CrdID.AcID);
+		THROW(P_At->CrdID.AcID); // @todo @err
+		THROW(AccObj.Fetch(P_At->CrdID.AcID, &acc_rec) > 0); // @todo @err
+		getCtrlData(sel = CTLSEL_ATURN_PA_CATEGORY, &P_At->CrdID.ArID);
+		P_At->CrdAcsID = acc_rec.AccSheetID;
+		{
+			if(Data.Turns.getCount()) {
+				if(&Data.Turns.at(0) != P_At) {
+					Data.Turns.at(0) = *P_At;
+				}
 			}
-			P_Pack->Rec.Dt = Data.Date;
-			memcpy(P_Pack->Rec.Code, Data.BillCode, sizeof(P_Pack->Rec.Code));
-			P_Pack->Rec.Amount = BR2(Data.Amount);
-			P_Pack->Rec.CurID  = Data.CurID;
-			P_Pack->Rec.CRate  = Data.CRate;
-			if(Data.CurID)
-				P_Pack->Amounts.Put(PPAMT_CRATE, Data.CurID, Data.CRate, 0, 1);
-			getCtrlString(CTL_ATURN_MEMO, P_Pack->SMemo);
+			else {
+				THROW_SL(Data.Turns.insert(P_At));
+			}
+			Data.Rec.Dt = P_At->Date;
+			memcpy(Data.Rec.Code, P_At->BillCode, sizeof(Data.Rec.Code));
+			Data.Rec.Amount = BR2(P_At->Amount);
+			Data.Rec.CurID  = P_At->CurID;
+			Data.Rec.CRate  = P_At->CRate;
+			if(P_At->CurID)
+				Data.Amounts.Put(PPAMT_CRATE, P_At->CurID, P_At->CRate, 0, 1);
+			getCtrlString(CTL_ATURN_MEMO, Data.SMemo);
 		}
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
@@ -5210,13 +5221,13 @@ private:
 		PPAccount acc_rec;
 		if(AccObj.Fetch(acc_id, &acc_rec) > 0 && acc_rec.AccSheetID) {
 			setCtrlReadOnly(CTLSEL_ATURN_PA_CATEGORY, false);
-			Data.CrdAcsID = acc_rec.AccSheetID;
-			Data.CrdID.AcID = acc_rec.ID;
-			SetupArCombo(this, CTLSEL_ATURN_PA_CATEGORY, Data.CrdID.ArID, OLW_CANINSERT|OLW_CANSELUPLEVEL, Data.CrdAcsID, sacfDisableIfZeroSheet|sacfNonGeneric);
+			P_At->CrdAcsID = acc_rec.AccSheetID;
+			P_At->CrdID.AcID = acc_rec.ID;
+			SetupArCombo(this, CTLSEL_ATURN_PA_CATEGORY, P_At->CrdID.ArID, OLW_CANINSERT|OLW_CANSELUPLEVEL, P_At->CrdAcsID, sacfDisableIfZeroSheet|sacfNonGeneric);
 		}
 		else {
-			Data.CrdAcsID = 0;
-			Data.CrdID.Z();
+			P_At->CrdAcsID = 0;
+			P_At->CrdID.Z();
 			setCtrlLong(CTLSEL_ATURN_PA_CATEGORY, 0);
 			setCtrlReadOnly(CTLSEL_ATURN_PA_CATEGORY, true);
 		}
@@ -5236,6 +5247,7 @@ private:
 				OLW_CANINSERT|OLW_WORDSELECTOR|OLW_CANSELUPLEVEL, reinterpret_cast<void *>(ACY_SEL_PERSONAL_PREDEF));
 		}
 		else if(nbf == PPATFLOW_TRANSFER) {
+			acc_id = P_At->CrdID.AcID;
 			SetupPPObjCombo(this, CTLSEL_ATURN_CACCNAME, PPOBJ_ACCOUNT2, acc_id,
 				OLW_CANINSERT|OLW_WORDSELECTOR|OLW_CANSELUPLEVEL, reinterpret_cast<void *>(ACY_SEL_PERSONAL_USER));
 		}
@@ -5243,7 +5255,7 @@ private:
 	}
 	PPObjBill * P_BObj;
 	PPObjAccount AccObj;
-	PPBillPacket * P_Pack;
+	//PPBillPacket * P_Pack;
 };
 
 int PPObjBill::EditGenericAccTurn(PPBillPacket & rPack, long flags)
@@ -5251,27 +5263,27 @@ int PPObjBill::EditGenericAccTurn(PPBillPacket & rPack, long flags)
 	int    ok = 1;
 	int    r = 0;
 	int    valid_data = 0;
-	PPAccTurn at;
 	TDialog * p_comm_dlg = 0;
 	uint   dlg_id = 0;
-	if(rPack.Turns.getCount())
-		at = rPack.Turns.at(0);
-	else {
-		rPack.CreateAccTurn(at);
-	}
 	if(GetOpSubType(rPack.Rec.OpID) == OPSUBT_PERSONALFINANCE) { // @v12.7.5
 		dlg_id = DLG_ATURNPERSONAL;
 		PersonalAccTurnDialog * p_dlg_ = new PersonalAccTurnDialog(this);
 		p_comm_dlg = p_dlg_;
 		THROW(CheckDialogPtr(&p_dlg_));
-		p_dlg_->setDTS(&at, &rPack);
+		p_dlg_->setDTS(&rPack);
 		for(r = cmCancel; !valid_data && (r = ExecView(p_dlg_)) == cmOK;) {
-			if(p_dlg_->getDTS(&at)) {
+			if(p_dlg_->getDTS(&rPack)) {
 				valid_data = 1;
 			}
 		}
 	}
 	else {
+		PPAccTurn at;
+		if(rPack.Turns.getCount())
+			at = rPack.Turns.at(0);
+		else {
+			rPack.CreateAccTurn(at);
+		}
 		if(GetOpSubType(rPack.Rec.OpID) == OPSUBT_REGISTER) {
 			dlg_id = DLG_REGATURN;
 		}

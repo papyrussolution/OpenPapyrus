@@ -242,7 +242,7 @@ PPQuot & FASTCALL PPQuot::operator = (const QuotationTbl::Rec & rS)
 	return *this;
 }
 
-static constexpr long PPQuot_MeanFlags = (PPQuot::fZero|PPQuot::fPctDisabled|PPQuot::fPctOnCost|PPQuot::fPctOnPrice|PPQuot::fPctOnAddition|PPQuot::fPctOnBase|PPQuot::fAbsOnCost|PPQuot::fAbsOnPrice);
+static constexpr long PPQuot_MeanFlags = (/*@v12.7.10 PPQuot::fZero|*/PPQuot::fPctDisabled|PPQuot::fPctOnCost|PPQuot::fPctOnPrice|PPQuot::fPctOnAddition|PPQuot::fPctOnBase|PPQuot::fAbsOnCost|PPQuot::fAbsOnPrice);
 
 /*static*/bool PPQuot::IsThereAmbiguityInFlags(long flags) { return (SBits::Cpop(static_cast<uint32>(flags & PPQuot_MeanFlags)) > 1); }
 bool PPQuot::IsThereAmbiguityInFlags() const { return PPQuot::IsThereAmbiguityInFlags(Flags); }
@@ -250,9 +250,9 @@ bool PPQuot::IsThereAmbiguityInFlags() const { return PPQuot::IsThereAmbiguityIn
 /*static*/int PPQuot::GetMean(long flags) // @v12.5.5
 {
 	int    result = meanAbsolute;
-	if(flags & fZero)
+	/* @v12.7.10 if(flags & fZero)
 		result = meanZero;
-	else if(flags & fPctDisabled)
+	else*/if(flags & fPctDisabled)
 		result = meanDisabled;
 	else if(flags & fPctOnCost)
 		result = meanPctOnCost;
@@ -280,10 +280,12 @@ int PPQuot::SetMean(int mean) // @v12.5.5
 	switch(mean) {
 		case meanAbsolute: 
 			break;
+		/* @v12.7.10
 		case meanZero: 
 			Quot = 0.0;
 			new_flags |= fZero; 
 			break;
+		*/
 		case meanDisabled: 
 			Quot = 0.0;
 			new_flags |= fPctDisabled; 
@@ -391,50 +393,64 @@ int FASTCALL PPQuot::GetValFromStr(const char * pStr)
 	Flags = 0;
 	Quot = 0.0;
 
-	char   temp_buf[256];
+	//char   temp_buf[256];
 	long   flags = 0;
-	temp_buf[0] = 0;
-	size_t len = sstrlen(strip(STRNSCPY(temp_buf, pStr)));
-	if(len) {
-		uchar  last_sign = (uchar)ToUpper866(temp_buf[len-1]);
+	//temp_buf[0] = 0;
+	SString temp_buf(pStr);
+	//size_t len = sstrlen(strip(STRNSCPY(temp_buf, pStr)));
+	if(temp_buf.NotEmptyS()) {
+		double val = 0.0;
+		// @v12.7.10 {
+		if(temp_buf.HasPrefixIAscii("zero")) {
+			flags |= PPQuot::fZero;
+			val = 0.0;
+			temp_buf.ShiftLeft(4);
+		}
+		else if(temp_buf.HasPrefixIAscii("z")) {
+			flags |= PPQuot::fZero;
+			val = 0.0;
+			temp_buf.ShiftLeft(1);			
+		}
+		// } @v12.7.10 
+		uchar  last_sign = (uchar)ToUpper866(temp_buf.Last());
 		if(last_sign == 'C' || last_sign == 145 /* rus 866 'С' */) {
-			if(len > 1 && temp_buf[len-2] == '$') // @v12.5.5
+			if(temp_buf.Len() > 1 && temp_buf.C(temp_buf.Len()-2) == '$') // @v12.5.5
 				flags |= PPQuot::fAbsOnCost;
 			else
 				flags |= PPQuot::fPctOnCost;
-			temp_buf[len-1] = 0;
+			temp_buf.TrimRight();
 		}
 		else if(last_sign == 'P' || last_sign == 144 /* rus 866 'Р'*/) {
-			if(len > 1 && temp_buf[len-2] == '$') // @v12.5.5
+			if(temp_buf.Len() > 1 && temp_buf.C(temp_buf.Len()-2) == '$') // @v12.5.5
 				flags |= PPQuot::fAbsOnPrice;
 			else
 				flags |= PPQuot::fPctOnPrice;
-			temp_buf[len-1] = 0;
+			temp_buf.TrimRight();
 		}
 		else if(last_sign == 'D' || last_sign == 132 /* rus 866 'Д'*/) {
 			flags |= PPQuot::fPctOnAddition;
-			temp_buf[len-1] = 0;
+			temp_buf.TrimRight();
 		}
 		else if(last_sign == 'X' || last_sign == 149 /* rus 866 'Х'*/) {
 			flags |= PPQuot::fPctDisabled;
-			temp_buf[len-1] = 0;
+			temp_buf.TrimRight();
 		}
 		else if(last_sign == 'Q' || last_sign == 138 /* rus 866 'К'*/) {
 			flags |= PPQuot::fPctOnBase;
-			temp_buf[len-1] = 0;
+			temp_buf.TrimRight();
 		}
 		else if(last_sign == 'F') {
 			flags |= PPQuot::fWithoutTaxes;
-			temp_buf[len-1] = 0;
+			temp_buf.TrimRight();
 		}
 		{
-			double val = 0.0;
 			if(sstreqi_ascii(temp_buf, "zero") || sstreqi_ascii(temp_buf, "z")) {
 				flags |= PPQuot::fZero;
 				val = 0.0;
 			}
-			else
+			if(!(flags & PPQuot::fZero)) {
 				strtodoub(temp_buf, &val);
+			}
 			Flags |= flags;
 			Quot = val;
 		}
@@ -446,17 +462,24 @@ int FASTCALL PPQuot::GetValFromStr(const char * pStr)
 {
 	rBuf.Z();
 	const int mean = PPQuot::GetMean(flags);
-	if(mean == meanZero)
+	/* @v12.7.10 if(mean == meanZero)
 		rBuf.CatChar('Z');
-	else {
-		long   fmt = 0;
-		if(flags & fAggrCount)
-			fmt = MKSFMTD(0, 0, NMBF_NOZERO);
-		else if(oneof6(mean, meanPctOnCost, meanPctOnPrice, meanPctOnMarkup, meanPctOnBase, meanAbsOnCost, meanAbsOnPrice))
-			fmt = MKSFMTD(0, 2, NMBF_NOTRAILZ|NMBF_NOZERO);
-		else
-			fmt = MKSFMTD(0, 5, NMBF_NOZERO);
-		rBuf.Cat(val, fmt);
+	else */{
+		// @v12.7.10 {
+		if(flags & PPQuot::fZero) {
+			rBuf.CatChar('Z');
+		}
+		// } @v12.7.10 
+		else {
+			long   fmt = 0;
+			if(flags & fAggrCount)
+				fmt = MKSFMTD(0, 0, NMBF_NOZERO);
+			else if(oneof6(mean, meanPctOnCost, meanPctOnPrice, meanPctOnMarkup, meanPctOnBase, meanAbsOnCost, meanAbsOnPrice))
+				fmt = MKSFMTD(0, 2, NMBF_NOTRAILZ|NMBF_NOZERO);
+			else
+				fmt = MKSFMTD(0, 5, NMBF_NOZERO);
+			rBuf.Cat(val, fmt);
+		}
 		if(flags) {
 			/* @v12.5.5
 			if(flags & PPQuot::fPctOnPrice)         rBuf.CatChar('P');
@@ -476,7 +499,7 @@ int FASTCALL PPQuot::GetValFromStr(const char * pStr)
 				case PPQuot::meanPctOnMarkup: rBuf.CatChar('D'); break;
 				case PPQuot::meanDisabled: rBuf.CatChar('X'); break;
 				case PPQuot::meanPctOnBase: rBuf.CatChar('Q'); break;
-				case PPQuot::meanZero: rBuf.CatChar('Z'); break;
+				// @v12.7.10 case PPQuot::meanZero: rBuf.CatChar('Z'); break;
 			}
 			if(flags & PPQuot::fWithoutTaxes)  
 				rBuf.CatChar('F');

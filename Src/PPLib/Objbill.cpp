@@ -375,44 +375,46 @@ int PPObjBill::IsPacketEq(const PPBillPacket & rS1, const PPBillPacket & rS2, lo
 	else if(rS1.LnkFiles.getCount()) // Увы, если есть хоть один прикрепленный файл, то придется признать документ изменившимся в любом случае. @todo Решить это проблему.
 		eq = 0;
 	if(eq) {
-		const uint c1 = rS1.GetTCount();
-		const uint c2 = rS2.GetTCount();
+		const  uint c1 = rS1.GetTCount();
+		const  uint c2 = rS2.GetTCount();
 		if(c1 != c2)
 			eq = 0;
 		else {
-			const bool is_intr = IsIntrExpndOp(rS1.Rec.OpID);
+			const  bool is_intr = IsIntrExpndOp(rS1.Rec.OpID);
 			SString n1;
 			SString n2;
 			for(uint i = 0; eq && i < c1; i++) {
-				const PPTransferItem & r_ti1 = rS1.ConstTI(i);
-				const PPTransferItem & r_ti2 = rS2.ConstTI(i);
+				const  PPTransferItem & r_ti1 = rS1.ConstTI(i);
+				const  PPTransferItem & r_ti2 = rS2.ConstTI(i);
 				if(!r_ti1.IsEq(r_ti2))
 					eq = 0;
-				else if(!ObjTagList::ArePtrsEqual(rS1.LTagL.Get(i), rS2.LTagL.Get(i))) { // @v11.7.3
+				else if(!ObjTagList::ArePtrsEqual(rS1.LTagL.Get(i), rS2.LTagL.Get(i))) {
 					eq = 0;
 				}
 				if(eq && is_intr) {
-					const ObjTagList * p_t1 = rS1.P_MirrorLTagL ? rS1.P_MirrorLTagL->Get(i) : 0;
-					const ObjTagList * p_t2 = rS2.P_MirrorLTagL ? rS2.P_MirrorLTagL->Get(i) : 0;
-					if(p_t1 != 0 && p_t2 != 0) {
+					const  ObjTagList * p_t1 = rS1.P_MirrorLTagL ? rS1.P_MirrorLTagL->Get(i) : 0;
+					const  ObjTagList * p_t2 = rS2.P_MirrorLTagL ? rS2.P_MirrorLTagL->Get(i) : 0;
+					eq = AreObjByPtrEq(p_t1, p_t2); // @v12.7.10 
+					/* @v12.7.10 if(p_t1 != 0 && p_t2 != 0) {
 						if(!p_t1->IsEq(*p_t2))
 							eq = 0;
 					}
 					else if(BIN(p_t1) != BIN(p_t2))
 						eq = 0;
+					*/
 				}
 			}
 		}
 	}
 	if(eq) {
-		const uint _ltc1 = SVectorBase::GetCount(rS1.P_LocTrfrList);
-		const uint _ltc2 = SVectorBase::GetCount(rS2.P_LocTrfrList);
+		const  uint _ltc1 = SVectorBase::GetCount(rS1.P_LocTrfrList);
+		const  uint _ltc2 = SVectorBase::GetCount(rS2.P_LocTrfrList);
 		if(_ltc1 != _ltc2)
 			eq = 0;
 		else if(_ltc1) {
 			for(uint i = 0; eq && i < _ltc1; i++) {
-				const LocTransfOpBlock & r_lt1 = rS1.P_LocTrfrList->at(i);
-				const LocTransfOpBlock & r_lt2 = rS2.P_LocTrfrList->at(i);
+				const  LocTransfOpBlock & r_lt1 = rS1.P_LocTrfrList->at(i);
+				const  LocTransfOpBlock & r_lt2 = rS2.P_LocTrfrList->at(i);
 				if(!r_lt1.IsEq(r_lt2))
 					eq = 0;
 				else if(!ObjTagList::ArePtrsEqual(rS1.LTagL.Get(i), rS2.LTagL.Get(i))) // @v12.4.7 
@@ -956,7 +958,8 @@ int PPBillPacket::Helper_ConvertToCheck2_InsertTItems(const ConvertToCCheckParam
 	PPObjGoods goods_obj;
 	const  bool is_return = oneof3(OpTypeID, PPOPT_GOODSRECEIPT, PPOPT_GOODSRETURN, PPOPT_DRAFTRECEIPT);
 	const  bool use_tspiot = LOGIC(rCnRec.ExtFlags & CASHFX_CHZNTSPIOT);
-	const  bool do_insert_chzn_marks_into_cc = false; //is_return; // @v12.7.4 true-->false // @temporary(false-->is_return)
+	// @v12.7.10 const  bool do_insert_chzn_marks_into_cc = false; //is_return; // @v12.7.4 true-->false // @temporary(false-->is_return)
+	const  bool do_insert_chzn_marks_into_cc = LOGIC(rParam.Flags_ & PPBillPacket::ConvertToCCheckParam::fWrOffChZnMarks); // @v12.7.10
 	{
 		StringSet ss;
 		PPLotExtCodeContainer::MarkSet lotxcode_set;
@@ -1388,7 +1391,26 @@ static int _EditCcByBillParam(PPBillPacket::ConvertToCCheckParam & rParam)
 				setCtrlString(CTL_CCBYBILL_EADDR, Data.EAddr.EAddr);
 				setCtrlUInt16(CTL_CCBYBILL_PAPERLESS, BIN(Data.Flags_ & PPBillPacket::ConvertToCCheckParam::fPaperless));
 			}
-			setStaticText(CTL_CCBYBILL_ST_INFO, Data.Info);
+			{
+				// @v12.7.10 {
+				SString msg_buf(Data.Info);
+				if(msg_buf.IsEmpty()) {
+					int   msg_id = 0;
+					if(Data.Flags_ & PPBillPacket::ConvertToCCheckParam::fIsThereChZnMarks) {
+						if(Data.Flags_ & PPBillPacket::ConvertToCCheckParam::fWrOffChZnMarks) {
+							msg_id = PPTXT_BILLTOCC_WROFFCHZNMARKS;
+						}
+						else {
+							msg_id = PPTXT_BILLTOCC_DONTWROFFCHZNMARKS;
+						}
+					}
+					if(msg_id) {
+						PPLoadText(msg_id, msg_buf);
+					}
+				}
+				// } @v12.7.10 
+				setStaticText(CTL_CCBYBILL_ST_INFO, msg_buf);
+			}
 			//
 			return ok;
 		}
@@ -1587,10 +1609,20 @@ int PPObjBill::PosPrintByBill(PPID billID)
 			param.DivisionN = 0;
 			param.PaymType = cpmCash;
 			param.Amount = bill_rec.Amount; // @erik
-			if(op_pack.Rec.ExtFlags & OPKFX_PAYMENT_NONCASH)
+			if(op_pack.Rec.ExtFlags & OPKFX_PAYMENT_NONCASH) {
 				param.Flags_ |= PPBillPacket::ConvertToCCheckParam::fBank;
-			else if(op_pack.Rec.ExtFlags & OPKFX_PAYMENT_CASH)
+			}
+			else if(op_pack.Rec.ExtFlags & OPKFX_PAYMENT_CASH) {
 				param.Flags_ |= PPBillPacket::ConvertToCCheckParam::fCash;
+			}
+			// @v12.7.10 {
+			if(pack.HasChZnMarks(pack.IsExpCorrection(), true/*realMarksOnly*/)) {
+				param.Flags_ |= PPBillPacket::ConvertToCCheckParam::fIsThereChZnMarks;
+			}
+			if(op_pack.Rec.PrnFlags & OPKF_PRT_WROFFCHZNMARKSONCC) { 
+				param.Flags_ |= PPBillPacket::ConvertToCCheckParam::fWrOffChZnMarks;
+			}
+			// } @v12.7.10 
 			if(bill_person_id) {
 				const PPELinkArray & r_ela = psn_pack.ELA;
 				StringSet ss;
@@ -2740,17 +2772,17 @@ int PPObjBill::EditGoodsBill(PPID id, const EditParam * pExtraParam)
 	return ok;
 }
 
-int PPObjBill::GetAccturn(const AccTurnTbl::Rec * pATRec, PPAccTurn * pAturn, int useCache)
+int PPObjBill::GetAccturn(const AccTurnTbl::Rec * pATRec, PPAccTurn & rAt, int useCache)
 {
 	int    ok = 0;
 	BillTbl::Rec bill_rec;
-	if(atobj->P_Tbl->ConvertRec(pATRec, pAturn, useCache) && P_Tbl->Search(pAturn->BillID, &bill_rec) > 0) {
-		pAturn->Opr = bill_rec.OpID;
-		if(pAturn->CurID)
-			P_Tbl->GetAmount(pAturn->BillID, PPAMT_CRATE, pAturn->CurID, &pAturn->CRate);
+	if(P_Tbl->Search(rAt.BillID, &bill_rec) > 0 && atobj->P_Tbl->ConvertRec_(bill_rec, pATRec, rAt, useCache)) {
+		rAt.Opr = bill_rec.OpID;
+		if(rAt.CurID)
+			P_Tbl->GetAmount(rAt.BillID, PPAMT_CRATE, rAt.CurID, &rAt.CRate);
 		else
-			pAturn->CRate = 0.0;
-		memcpy(pAturn->BillCode, bill_rec.Code, sizeof(pAturn->BillCode));
+			rAt.CRate = 0.0;
+		memcpy(rAt.BillCode, bill_rec.Code, sizeof(rAt.BillCode));
 		ok = 1;
 	}
 	return ok;
@@ -2876,13 +2908,14 @@ int PPObjBill::AddAccturn(PPID * pBillID, const AddBlock * pBlk)
 
 int PPObjBill::EditAccTurn(PPID id)
 {
-	int    ok = cmCancel, r;
+	int    ok = cmCancel;
+	int    r;
 	long   flags = 0;
 	PPAccTurnTemplArray att_list;
 	PPID   org_loc_id = 0;
 	SString org_mem;
 	AmtList org_amt_list;
-	PPAccTurn    at;
+	PPAccTurn at;
 	PPBillPacket pack;
 	THROW(CheckRights(PPR_MOD));
 	THROW(atobj->CheckRights(PPR_MOD));
@@ -5417,15 +5450,18 @@ int PPObjBill::SelectQuotKind(PPBillPacket * pPack, const PPTransferItem * pTi, 
 	PPIDArray ql;
 	double quot = 0.0;
 	if(pPack->QuotKindID || pPack->GetQuotKindList(&ql) > 0) {
-		double cost = pTi->Cost, price = pTi->Price;
+		double cost = pTi->Cost;
+		double price = pTi->Price;
 		const  PPID goods_id = pTi->GoodsID;
 		const  PPID loc_id = IsIntrExpndOp(pPack->Rec.OpID) ? PPObjLocation::ObjToWarehouse(pPack->Rec.Object) : pPack->Rec.LocID;
 		Goods2Tbl::Rec goods_rec;
 		ReceiptTbl::Rec lot_rec;
-		PPQuotArray q_ary, parent_q_ary;
+		PPQuotArray q_ary;
+		PPQuotArray parent_q_ary;
 		THROW(GObj.GetQuotList(goods_id, 0, q_ary)); // если список пустой, то извлекаем котировки для группы
-		if(GObj.Fetch(goods_id, &goods_rec) > 0)
+		if(GObj.Fetch(goods_id, &goods_rec) > 0) {
 			THROW(GObj.GetQuotList(goods_rec.ParentID, 0, parent_q_ary));
+		}
 		if(pTi->LotID && !(pTi->Flags & PPTFR_RECEIPT) && trfr->Rcpt.Search(pTi->LotID, &lot_rec) > 0) {
 			trfr->GetLotPrices(&lot_rec, pTi->Date, 0);
 			cost  = R5(lot_rec.Cost);
@@ -5444,12 +5480,13 @@ int PPObjBill::SelectQuotKind(PPBillPacket * pPack, const PPTransferItem * pTi, 
 				if(qkobj.Fetch(item.ID, &qk_pack) > 0) {
 					STRNSCPY(item.Name, qk_pack.Rec.Name);
 					item.Rank = qk_pack.Rec.Rank;
-					const QuotIdent qi(QIDATE(pPack->Rec.Dt), loc_id, item.ID, pTi->CurID, pPack->Rec.Object);
-					if(GObj.GetQuotExt(goods_id, qi, cost, price, &quot, 1) > 0)
+					const  QuotIdent qi(QIDATE(pPack->Rec.Dt), loc_id, item.ID, pTi->CurID, pPack->Rec.Object);
+					if(GObj.GetQuotExt(goods_id, qi, cost, price, &quot, 1) > 0) {
 						if(!q_ary.IsDisabled(qi, &ql, &parent_q_ary)) {
 							item.Price = quot;
 							qks_list.insert(&item);
 						}
+					}
 				}
 			}
 			if(qks_list.getCount() == 1)
@@ -8823,14 +8860,15 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 		// Вычищаем и модифицируем проводки.
 		//
 		if(!(CcFlags & CCFLG_DISABLEACCTURN)) {
+			assert(id == pPack->Rec.ID); // @v12.7.10
 			if(!(pPack->Rec.Flags & BILLF_NOATURN)) {
 				pPack->ErrCause = PPBillPacket::err_on_accturn;
 				pPack->ErrLine  = -1;
 				rest_checking   = DS.RestCheckingStatus(0);
 				rbybill = 0;
 				do {
-					int prev_rbb = rbybill;
-					while((r = atobj->P_Tbl->EnumByBill(id, &rbybill, &at)) > 0 && rbybill < BASE_RBB_BIAS) {
+					const  int prev_rbb = rbybill;
+					while((r = atobj->P_Tbl->EnumByBill(/*id*/pPack->Rec, &rbybill, &at)) > 0 && rbybill < BASE_RBB_BIAS) {
 						at.CRate = (at.CurID && at.CurID == LConfig.BaseCurID) ? 1.0 : pPack->Amounts.Get(PPAMT_CRATE, at.CurID);
 						found = 0;
 						for(i = 0; !found && i < pPack->Turns.getCount(); i++) {
@@ -8876,7 +8914,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 				}
 			}
 			else {
-				for(rbybill = 0; (r = atobj->P_Tbl->EnumByBill(id, &rbybill, &at)) > 0 && rbybill < BASE_RBB_BIAS;) {
+				for(rbybill = 0; (r = atobj->P_Tbl->EnumByBill(/*id*/pPack->Rec, &rbybill, &at)) > 0 && rbybill < BASE_RBB_BIAS;) {
 					THROW(atobj->P_Tbl->RollbackTurn(id, rbybill, 0));
 					ufp_counter.AtRmvCount++;
 				}
@@ -9087,7 +9125,8 @@ int PPObjBill::RemovePacket(PPID id, int use_ta)
 		THROW(ProcessLink(brec, paym_link_id, &brec));
 		THROW(TurnAdvList(id, 0, 0));
 		THROW(TurnLocTrfrList(id, 0, 0)); // @v12.4.1
-		while((r = atobj->P_Tbl->EnumByBill(id, &rbybill, 0)) > 0) {
+		assert(id == brec.ID); // @v12.7.10
+		while((r = atobj->P_Tbl->EnumByBill(/*id*/brec, &rbybill, 0)) > 0) {
 			THROW(atobj->P_Tbl->RollbackTurn(id, rbybill, 0));
 			ufp_counter.AtRmvCount++;
 		}
@@ -9481,7 +9520,8 @@ int PPObjBill::Helper_ExtractPacket(PPID id, PPBillPacket * pPack, uint fl, cons
 	}
 	// } @v12.4.1 
 	THROW(pPack->LnkFiles.ReadFromProp(id));
-	while((r = atobj->P_Tbl->EnumByBill(id, &rbybill, &at)) > 0 && rbybill < BASE_RBB_BIAS) {
+	assert(pPack->Rec.ID == id); // @v12.7.10
+	while((r = atobj->P_Tbl->EnumByBill(/*id*/pPack->Rec, &rbybill, &at)) > 0 && rbybill < BASE_RBB_BIAS) {
 		at.Opr   = pPack->Rec.OpID;
 		at.CurID = pPack->Rec.CurID;
 		at.CRate = pPack->Amounts.Get(PPAMT_CRATE, at.CurID);
@@ -11103,11 +11143,11 @@ int PPObjBill::ExportList(const ListForExport & rList, const PPBillImpExpParam *
 								StringSet ss_notch; // @v12.5.10
 								DocNalogRu_WriteBillBlock::GetNotchList(pack, ss_notch); // @v12.5.10
 								const  bool no_marks_because_notch = ss_notch.searchNcAscii("#nomarks", 0, 0); // @v12.5.10
-								bool   pack_has_marks = no_marks_because_notch ? false : pack.HasChZnMarks(is_exp_correction);
+								bool   pack_has_marks = no_marks_because_notch ? false : pack.HasChZnMarks(is_exp_correction, false/*realMarksOnly*/);
 								//const  bool no_marks_because_notch = SsNotch.searchNcAscii("#nomarks", 0, 0); // @v12.5.10
 								if(is_exp_correction && !no_marks_because_notch) {
 									if(!pack_has_marks && pack.P_LinkPack) {
-										pack_has_marks = pack.P_LinkPack->HasChZnMarks(is_exp_correction);
+										pack_has_marks = pack.P_LinkPack->HasChZnMarks(is_exp_correction, false/*realMarksOnly*/);
 									}
 								}
 								if(oneof2(b_e.BillParam.PredefFormat, piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR)) {

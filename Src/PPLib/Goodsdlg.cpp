@@ -2318,6 +2318,7 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 				break;
 			case cmCtlColor: // @IndicatorState-done
 				{
+					bool   local_done = false;
 					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 					if(p_dc && Data.Rec.Kind == PPGDSK_GOODS) {
 						if(getCtrlHandle(CTL_GOODS_BARCODE) == p_dc->H_Ctl) {
@@ -2328,11 +2329,16 @@ IMPL_HANDLE_EVENT(GoodsDialog)
 									::SetBkMode(p_dc->H_DC, TRANSPARENT);
 									::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
 									p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brushPriorBarcode));
-									clearEvent(event);
+									local_done = true;
 								}
 							}
 						}
 					}
+					if(local_done) {
+						clearEvent(event);
+					}
+					else
+						return;
 				}
 				break;
 			case cmMouseHoverCtrl: // @v12.7.7
@@ -2528,7 +2534,7 @@ int GoodsCtrlGroup::setFilt(TDialog * pDlg, const GoodsFilt * pFilt)
 {
 	int    ok = 1;
 	if(pFilt && !pFilt->IsEmpty()) {
-		if(P_Filt && P_Filt->IsEq(pFilt, 0)) {
+		if(P_Filt && P_Filt->IsEq(pFilt)) {
 			ok = -1;
 		}
 		else {

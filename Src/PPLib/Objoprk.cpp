@@ -402,7 +402,7 @@ PPDraftOpEx::PPDraftOpEx()
 	Init();
 }
 
-bool FASTCALL PPDraftOpEx::IsEq(const PPDraftOpEx & rS) // @v12.5.7
+bool FASTCALL PPDraftOpEx::IsEq(const PPDraftOpEx & rS) const // @v12.5.7
 {
 	return (WrOffOpID == rS.WrOffOpID && WrOffObjID == rS.WrOffObjID && WrOffComplOpID == rS.WrOffComplOpID && Flags == rS.Flags);
 }
@@ -678,7 +678,7 @@ int PPObjOprKind::GetPacket(PPID id, PPOprKindPacket * pack)
 	return ok;
 }
 
-int PPObjOprKind::IsPacketEq(const PPOprKindPacket & rS1, const PPOprKindPacket & rS2, long flags) // @v12.5.7 @construction
+int PPObjOprKind::IsPacketEq(const PPOprKindPacket & rS1, const PPOprKindPacket & rS2, long flags) // @v12.5.7
 {
 #define CMP_MEMB(m)  if(rS1.Rec.m != rS2.Rec.m) return 0;
 #define CMP_MEMBS(m) if(!sstreq(rS1.Rec.m, rS2.Rec.m)) return 0;
@@ -708,56 +708,74 @@ int PPObjOprKind::IsPacketEq(const PPOprKindPacket & rS1, const PPOprKindPacket 
 		return 0;
 	else {
 		{
-			if(LOGIC(rS1.P_IOE) != LOGIC(rS2.P_IOE))
+			if(!AreObjByPtrEq(rS1.P_IOE, rS2.P_IOE)) { // @v12.7.10
+				return 0;
+			}
+			/* @v12.7.10 if(LOGIC(rS1.P_IOE) != LOGIC(rS2.P_IOE))
 				return 0;
 			else if(rS1.P_IOE && rS2.P_IOE) {
 				if(!rS1.P_IOE->IsEq(*rS2.P_IOE))
 					return 0;
-			}
+			}*/
 		}
 		{
-			if(LOGIC(rS1.P_GenList) != LOGIC(rS2.P_GenList))
+			if(!AreObjByPtrEq(rS1.P_GenList, rS2.P_GenList)) { // @v12.7.10
+				return 0;
+			}
+			/* @v12.7.10 if(LOGIC(rS1.P_GenList) != LOGIC(rS2.P_GenList))
 				return 0;
 			else if(rS1.P_GenList && rS2.P_GenList) {
 				if(!rS1.P_GenList->IsEq(*rS2.P_GenList))
 					return 0;
-			}
+			}*/
 		}
 		{
-			if(LOGIC(rS1.P_ReckonData) != LOGIC(rS2.P_ReckonData))
+			if(!AreObjByPtrEq(rS1.P_ReckonData, rS2.P_ReckonData)) { // @v12.7.10
+				return 0;
+			}
+			/* @v12.7.10 if(LOGIC(rS1.P_ReckonData) != LOGIC(rS2.P_ReckonData))
 				return 0;
 			else if(rS1.P_ReckonData && rS2.P_ReckonData) {
 				if(!rS1.P_ReckonData->IsEq(*rS2.P_ReckonData))
 					return 0;
-			}
+			}*/
 		}
 		{
-			if(LOGIC(rS1.P_PoolData) != LOGIC(rS2.P_PoolData)) {
+			if(!AreObjByPtrEq(rS1.P_PoolData, rS2.P_PoolData)) { // @v12.7.10
+				return 0;
+			}
+			/* @v12.7.10 if(LOGIC(rS1.P_PoolData) != LOGIC(rS2.P_PoolData)) {
 				return 0;
 			}
 			else if(rS1.P_PoolData && rS2.P_PoolData) {
 				if(!rS1.P_PoolData->IsEq(*rS2.P_PoolData)) {
 					return 0;
 				}
-			}
+			}*/
 		}
 		{
-			if(LOGIC(rS1.P_DraftData) != LOGIC(rS2.P_DraftData))
+			if(!AreObjByPtrEq(rS1.P_DraftData, rS2.P_DraftData)) { // @v12.7.10
+				return 0;
+			}
+			/* @v12.7.10 if(LOGIC(rS1.P_DraftData) != LOGIC(rS2.P_DraftData))
 				return 0;
 			else if(rS1.P_DraftData && rS2.P_DraftData) {
 				if(!rS1.P_DraftData->IsEq(*rS2.P_DraftData)) {
 					return 0;
 				}
-			}
+			}*/
 		}
 		{
-			if(LOGIC(rS1.P_DIOE) != LOGIC(rS2.P_DIOE))
+			if(!AreObjByPtrEq(rS1.P_DIOE, rS2.P_DIOE)) { // @v12.7.10
+				return 0;
+			}
+			/* @v12.7.10 if(LOGIC(rS1.P_DIOE) != LOGIC(rS2.P_DIOE))
 				return 0;
 			else if(rS1.P_DIOE && rS2.P_DIOE) {
 				if(!rS1.P_DIOE->IsEq(*rS2.P_DIOE)) {
 					return 0;
 				}
-			}
+			}*/
 		}
 		/* тут есть сомнения: счетчики могут быть как автономными, так и принадлежащми пакету PPOprKindPacket
 		if(!rS1.OpCntrPack.IsEq(rS2.OpCntrPack))
@@ -2100,11 +2118,33 @@ int OprKindDialog::getDTS(PPOprKindPacket * /*_data*/)
 
 void OprKindDialog::prnOptDialog()
 {
+	class OpkPrnOptDialog : public TDialog {
+	public:
+		OpkPrnOptDialog() : TDialog(DLG_OPKPRNOPT)
+		{
+		}
+		void   SetupCtrls()
+		{
+			long   f = 0;
+			GetClusterData(CTL_OPKMORE_WHAT,  &f);
+			DisableClusterItem(CTL_OPKMORE_PRTQC, 9, !LOGIC(f & OPKF_PRT_CHECK)); // OPKF_PRT_CHECKTI
+			DisableClusterItem(CTL_OPKMORE_PRTQC, 13, !LOGIC(f & OPKF_PRT_CHECK)); // OPKF_PRT_WROFFCHZNMARKSONCC
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isClusterClk(CTL_OPKMORE_WHAT)) {
+				SetupCtrls();
+				clearEvent(event);
+			}
+		}
+	};
 	ushort v = 0;
 	long   f = P_Data->Rec.PrnFlags;
 	SString prn_form_name;
 	if(OpObj.CheckRights(OPKRT_MODIFYOPTIONS)) {
-		TDialog * dlg = new TDialog(DLG_OPKPRNOPT);
+		OpkPrnOptDialog * dlg = new OpkPrnOptDialog();
 		if(CheckDialogPtrErr(&dlg)) {
 			if(f & OPKF_PRT_BUYING)   v |= 0x0001;
 			if(f & OPKF_PRT_SELLING)  v |= 0x0002;
@@ -2135,6 +2175,7 @@ void OprKindDialog::prnOptDialog()
 			dlg->AddClusterAssoc(CTL_OPKMORE_PRTQC, 10, OPKF_PRT_EXTOBJ2OBJ);
 			dlg->AddClusterAssoc(CTL_OPKMORE_PRTQC, 11, OPKF_PRT_BCODELIST);
 			dlg->AddClusterAssoc(CTL_OPKMORE_PRTQC, 12, OPKF_PRT_QCERTLIST);
+			dlg->AddClusterAssoc(CTL_OPKMORE_PRTQC, 13, OPKF_PRT_WROFFCHZNMARKSONCC); // @v12.7.10
 			dlg->SetClusterData(CTL_OPKMORE_PRTQC, f);
 
 			P_Data->GetExtStrData(OPKEXSTR_DEFPRNFORM, prn_form_name);
@@ -2148,6 +2189,7 @@ void OprKindDialog::prnOptDialog()
 			dlg->AddClusterAssoc(CTL_OPKMORE_PRTORD,  5, TiIter::ordByLocation);
 			dlg->AddClusterAssoc(CTL_OPKMORE_PRTORD,  6, TiIter::ordByStorePlaceGrpGoods);
 			dlg->SetClusterData(CTL_OPKMORE_PRTORD, P_Data->Rec.PrnOrder);
+			dlg->SetupCtrls();
 			if(ExecView(dlg) == cmOK) {
 				long   temp_long = 0;
 				dlg->getCtrlData(CTL_OPKMORE_PRTAMT, &v);

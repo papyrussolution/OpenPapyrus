@@ -25,7 +25,10 @@ int ViewQuotValueInfo(const PPQuot & rQuot)
 	{
 		temp_buf.Z();
 		// @v12.5.5 {
-		const int mean = rQuot.GetMean();
+		if(rQuot.Flags & PPQuot::fZero) {
+			temp_buf.CatChar('Z');
+		}
+		const  int mean = rQuot.GetMean();
 		switch(mean) {
 			case PPQuot::meanAbsolute: break;
 			case PPQuot::meanPctOnCost: temp_buf.CatChar('C'); break;
@@ -35,7 +38,7 @@ int ViewQuotValueInfo(const PPQuot & rQuot)
 			case PPQuot::meanPctOnMarkup: temp_buf.CatChar('D'); break;
 			case PPQuot::meanDisabled: temp_buf.CatChar('X'); break;
 			case PPQuot::meanPctOnBase: temp_buf.CatChar('Q'); break;
-			case PPQuot::meanZero: temp_buf.CatChar('Z'); break;
+			// @v12.7.10 case PPQuot::meanZero: temp_buf.CatChar('Z'); break;
 		}
 		// } @v12.5.5 
 		/*

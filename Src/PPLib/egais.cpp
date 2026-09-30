@@ -2397,7 +2397,6 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 								}
 								THROW_PP_S(gppf & gppfAlc, PPERR_EGAIS_NOALCINBILL, bill_text);
 								THROW_PP_S(consignee_psn_id, PPERR_EDI_UNBLRSLV_BILLOBJ, bill_text);
-								// @v10.1.6 (moved down) @01 THROW_PP_S((gppf & (gppfPacked|gppfUnpacked)) != (gppfPacked|gppfUnpacked), PPERR_EGAIS_PKUPKMIXINBILL, bill_text);
 								GetWayBillTypeText(wb_type, temp_buf);
 								THROW(temp_buf.NotEmpty());
 								n_h.PutInner(SXml::nst("wb", "Type"), temp_buf);
@@ -2418,7 +2417,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 									if(oneof3(doc_type, PPEDIOP_EGAIS_WAYBILL_V2, PPEDIOP_EGAIS_WAYBILL_V3, PPEDIOP_EGAIS_WAYBILL_V4))
 										woi_flags |= woifVersion2;
 									else {
-										THROW_PP_S((gppf & (gppfPacked|gppfUnpacked)) != (gppfPacked|gppfUnpacked), PPERR_EGAIS_PKUPKMIXINBILL, bill_text); // @v10.1.6 (moved from @01)
+										THROW_PP_S((gppf & (gppfPacked|gppfUnpacked)) != (gppfPacked|gppfUnpacked), PPERR_EGAIS_PKUPKMIXINBILL, bill_text);
 										n_h.PutInner(SXml::nst("wb", "UnitType"), (gppf & gppfUnpacked) ? "Unpacked" : "Packed");
 									}
 									THROW(WriteOrgInfo(_doc, SXml::nst("wb", "Shipper"), shipper_psn_id, shipper_loc_id, p_bp->Rec.Dt, woi_flags));
@@ -2451,14 +2450,24 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 									if(p_bp->P_Freight)
 										GetPersonName(p_bp->P_Freight->CaptainID, temp_buf);
 									n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_DRIVER"), EncText(temp_buf));
-									temp_buf.Z();
-									if(p_bp->P_Freight)
-                                        GetObjectName(PPOBJ_WORLD, p_bp->P_Freight->PortOfLoading, temp_buf);
-									n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_LOADPOINT"), EncText(temp_buf));
-									temp_buf.Z();
-									if(p_bp->P_Freight)
-                                        GetObjectName(PPOBJ_WORLD, p_bp->P_Freight->PortOfDischarge, temp_buf);
-									n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_UNLOADPOINT"), EncText(temp_buf));
+									{
+										temp_buf.Z();
+										if(shipper_loc_id) { // @v12.7.10
+											this->PsnObj.LocObj.GetAddress(shipper_loc_id, 0, temp_buf);
+										}
+										if(temp_buf.IsEmpty() && p_bp->P_Freight)
+											GetObjectName(PPOBJ_WORLD, p_bp->P_Freight->PortOfLoading, temp_buf);
+										n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_LOADPOINT"), EncText(temp_buf));
+									}
+									{
+										temp_buf.Z();
+										if(consignee_loc_id) { // @v12.7.10
+											this->PsnObj.LocObj.GetAddress(consignee_loc_id, 0, temp_buf);
+										}
+										if(temp_buf.IsEmpty() && p_bp->P_Freight)
+											GetObjectName(PPOBJ_WORLD, p_bp->P_Freight->PortOfDischarge, temp_buf);
+										n_tr.PutInnerSkipEmpty(SXml::nst("wb", "TRAN_UNLOADPOINT"), EncText(temp_buf));
+									}
 									n_tr.PutInner(SXml::nst("wb", "TRAN_REDIRECT"), ""); // @v11.7.10 PutInnerSkipEmpty-->PutInner
 									n_tr.PutInner(SXml::nst("wb", "TRAN_FORWARDER"), ""); // @v11.7.10 PutInnerSkipEmpty-->PutInner
 								}

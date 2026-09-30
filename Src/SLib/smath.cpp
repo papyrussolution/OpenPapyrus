@@ -1626,15 +1626,17 @@ void RationalBestApproximation(ulong givenNumerator, ulong givenDenominator, ulo
 	// 
 	// a is current term of the continued fraction.
 	// 
-	ulong d1, n2, d2;
-	ulong n = givenNumerator;
-	ulong n0 = d1 = 0;
-	ulong n1 = 1;
-	ulong d0 = 1;
+	ulong  d1;
+	ulong  n2;
+	ulong  d2;
+	ulong  n = givenNumerator;
+	ulong  n0 = d1 = 0;
+	ulong  n1 = 1;
+	ulong  d0 = 1;
 	for(ulong d = givenDenominator; d != 0;) {
 		// Find next term in continued fraction, 'a', via Euclidean algorithm.
-		const ulong dp = d;
-		const ulong a = n / d;
+		const  ulong dp = d;
+		const  ulong a = n / d;
 		d = n % d;
 		n = dp;
 		// Calculate the current rational approximation (aka
@@ -1673,7 +1675,6 @@ void RationalBestApproximation(ulong givenNumerator, ulong givenDenominator, ulo
 //
 //
 #if 0 // {
-
 void TestFactorize()
 {
 	ulong val = 0;
@@ -1698,5 +1699,34 @@ void main()
 {
 	TestFactorize();
 }
-
 #endif // } 0
+
+class DiscountDistribution { // @v12.7.10 @construction
+public:
+	enum {
+		fNoDiscount = 0x0001
+	};
+	struct Item {
+		Item(int64 refId, uint64 price, double qtty, uint flags) : RefId(refId), Price(price), Qtty(qtty), Discount(0ULL), Flags(flags)
+		{
+		}
+		const  int64  RefId; // Идентификатор, с помощью которого можно ссылаться на внешние данные
+		const  uint64 Price; // Начальная цена за единицу
+		const  double Qtty;  // Количество единиц
+		const  uint   Flags; // DiscountDistribution::fXXX
+		int64  Discount;     // Результатная скидка за единицу
+	};
+	class Result : public TSVector <Item> {
+	public:
+		Result() : TSVector <Item>(), TotalDiscount(0.0), Amount(0ULL)
+		{
+		}
+		double TotalDiscount;
+		uint64 Amount;
+	};
+	DiscountDistribution();
+	int    AddItem(int64 refId, uint64 price, double qtty, uint flags);
+	int    Run(double totalDiscount, Result & rResult);
+private:
+	Result WorkingList;
+};

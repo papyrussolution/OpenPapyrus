@@ -2624,6 +2624,52 @@ static int EditPosRights(ObjTagItem * pItem)
 //
 int COCACOLA_ReadBailmentAaFile(int scheme, StrStrAssocArray & rList); // @v12.5.6 @prototype(ppsupplix.cpp)
 
+int LoadStrStrAssocFromCsvFile(const char * pFilePath, StrStrAssocArray & rList) // @v12.7.10 @construction
+{
+	int    ok = 0;
+	//StrStrAssocArray aa_list;
+	{
+		//PPGetFilePath(PPPATH_DD, "vetis-research-result.csv", temp_buf);
+		// Code;Descr
+		if(fileExists(pFilePath)) {
+
+			CsvSniffer::Param csvsp;
+			CsvSniffer::Result csvsr;
+			CsvSniffer csvs;
+			csvsp.MaxLineCount = 1000;
+			csvs.Run(pFilePath, csvsp, csvsr);
+			if(csvsr.FieldDivisor && csvsr.ColumnStatList.getCount() >= 2) {
+				StringSet ss;
+				SString temp_buf;
+				SString key;
+				SString val;
+				SFile f_in(pFilePath, SFile::mRead);
+				SFile::ReadLineCsvContext csv_ctx(csvsr.FieldDivisor);
+				uint   line_n = 0;
+				const  bool is_there_title = LOGIC(csvsr.Flags & (CsvSniffer::Result::fTitleRow_HTest|CsvSniffer::Result::fTitleRow_VTest));
+				while(f_in.ReadLineCsv(csv_ctx, ss)) {
+					line_n++;
+					if(!is_there_title || line_n > 1) {
+						for(uint ssp = 0, fld_n = 0; ss.get(&ssp, temp_buf); fld_n++) {
+							if(fld_n == 0) {
+								key = temp_buf;
+							}
+							else if(fld_n == 1) {
+								val = temp_buf;
+							}
+						}
+						if(key.NotEmptyS() && val.NotEmpty()) {
+							rList.Add(key, val, 0);
+							ok = 1;
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const PPIDArray * pAllowedTags)
 {
 	class TagValDialog : public TDialog {
@@ -2719,7 +2765,6 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 					}
 				}
 				else if(ctl_id == CTL_TAGV_STR) {
-
 					auto FnUiSelectSymbolFromStrStrAssocList = [](TView * pV, const StrStrAssocArray & rList, SString & rResultSymb)->int
 					{
 						int    ok = -1;
@@ -2758,42 +2803,30 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 							setCtrlString(CTL_TAGV_STR, temp_buf);
 						}
 					}
-					else if(TagObj.Fetch(Data.TagID, &tag) > 0) {
-						if(sstreqi_ascii(tag.Symb, "VETIS-RSRCH-RESULT")) { // @v12.5.12
-							TView * p_il = getCtrlView(CTL_TAGV_STR);
-							if(p_il) {
-								StrStrAssocArray aa_list;
-								{
-									PPGetFilePath(PPPATH_DD, "vetis-research-result.csv", temp_buf);
-									// Code;Descr
-									if(fileExists(temp_buf)) {
-										StringSet ss;
-										SString key;
-										SString val;
-										SFile f_in(temp_buf, SFile::mRead);
-										SFile::ReadLineCsvContext csv_ctx(';');
-										uint   line_n = 0;
-										while(f_in.ReadLineCsv(csv_ctx, ss)) {
-											line_n++;
-											if(line_n > 1) {
-												for(uint ssp = 0, fld_n = 0; ss.get(&ssp, temp_buf); fld_n++) {
-													if(fld_n == 0) {
-														key = temp_buf;
-													}
-													else if(fld_n == 1) {
-														val = temp_buf;
-													}
-												}
-												if(key.NotEmptyS() && val.NotEmpty()) {
-													aa_list.Add(key, val, 0);
-												}
-											}
-										}
-									}
-								}
+					else if(Data.TagID == PPTAG_BILL_CHZNRCPTACTION) { // @v12.7.10 
+						TView * p_il = getCtrlViewEnsureSubsign(CTL_TAGV_STR, TV_SUBSIGN_INPUTLINE);
+						if(p_il) {
+							StrStrAssocArray aa_list;
+							PPGetFilePath(PPPATH_DD, "chzn-LkReceipt-action.txt", temp_buf);
+							if(LoadStrStrAssocFromCsvFile(temp_buf, aa_list)) { 
 								int    sr = FnUiSelectSymbolFromStrStrAssocList(p_il, aa_list, temp_buf);
 								if(sr > 0) {
 									setCtrlString(CTL_TAGV_STR, temp_buf);
+								}
+							}
+						}
+					}
+					else if(TagObj.Fetch(Data.TagID, &tag) > 0) {
+						if(sstreqi_ascii(tag.Symb, "VETIS-RSRCH-RESULT")) { // @v12.5.12
+							TView * p_il = getCtrlViewEnsureSubsign(CTL_TAGV_STR, TV_SUBSIGN_INPUTLINE);
+							if(p_il) {
+								StrStrAssocArray aa_list;
+								PPGetFilePath(PPPATH_DD, "vetis-research-result.csv", temp_buf);
+								if(LoadStrStrAssocFromCsvFile(temp_buf, aa_list)) { 
+									int    sr = FnUiSelectSymbolFromStrStrAssocList(p_il, aa_list, temp_buf);
+									if(sr > 0) {
+										setCtrlString(CTL_TAGV_STR, temp_buf);
+									}
 								}
 							}
 						}

@@ -802,6 +802,47 @@ static void InitTest()
 			static_assert(inirangeor(6LL, 0LL, 5LL, 3LL) == 3LL);
 		}
 		// } @v12.5.5 
+		{ // @v12.7.10 Экспресс-тест AreObjByPtrEq
+			struct A {
+				A() : I(0), R(0.0)
+				{
+					T[0] = 0;
+				}
+				A(int i, double r, const char * pT) : I(i), R(r)
+				{
+					STRNSCPY(T, pT);
+				}
+				bool   IsEq(const A & rS) const
+				{
+					return (I == rS.I && R == rS.R && sstreq(T, rS.T));
+				}
+				int    I;
+				double R;
+				char   T[32];
+			};
+			A      a1(100, 2.5, "test-string-01");
+			A      a2(a1); // a2 == a1
+			A      a3(-100, 3.5, "test-string-02"); // a3 != a1
+			A    * p1 = 0;
+			A    * p2 = 0;
+			assert(AreObjByPtrEq(&a1, &a1));
+			assert(AreObjByPtrEq(&a2, &a1));
+			assert(AreObjByPtrEq(&a1, &a2));
+			assert(!AreObjByPtrEq(&a1, &a3));
+			assert(!AreObjByPtrEq(&a3, &a2));
+			assert(AreObjByPtrEq(&a3, &a3));
+			assert(AreObjByPtrEq(p2, p2));
+			assert(AreObjByPtrEq(p1, p2));
+			p1 = &a1;
+			assert(!AreObjByPtrEq(p1, p2));
+			assert(AreObjByPtrEq(p1, p1));
+			p2 = &a2;
+			assert(AreObjByPtrEq(p1, p2));
+			p2 = &a3;
+			assert(!AreObjByPtrEq(p1, p2));
+			p1 = 0;
+			assert(!AreObjByPtrEq(p1, p2));
+		}
 	}
 }
 

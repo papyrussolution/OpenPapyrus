@@ -78,14 +78,14 @@ public:
 
 	struct ColumnPosBlock {
 		ColumnPosBlock() : GoodsPos(-2), QttyPos(-2), CostPos(-2), PricePos(-2), SerialPos(-2), QuotInfoPos(-2), CodePos(-2), LinkQttyPos(-2), 
-			OrdQttyPos(-2), ShippedQttyPos(-2), VetisCertPos(-2), PrefSupplPos(-2), PrefSupplCPricePos(-2)
+			OrdQttyPos(-2), ShippedQttyPos(-2), VetisCertPos(-2), PrefSupplPos(-2), PrefSupplCPricePos(-2), MarkCountPos(-2)
 		{
 		}
 		bool   IsEmpty() const
 		{
 			return (GoodsPos < 0 && QttyPos < 0 && CostPos < 0 && PricePos < 0 && SerialPos < 0 &&
 				QuotInfoPos < 0 && CodePos < 0 && LinkQttyPos < 0 && OrdQttyPos < 0 && ShippedQttyPos < 0 && VetisCertPos < 0 &&
-				PrefSupplPos < 0 && PrefSupplCPricePos < 0);
+				PrefSupplPos < 0 && PrefSupplCPricePos < 0 && MarkCountPos < 0);
 		}
 		long   GoodsPos; // Позиция колонки с наименованием товара
 		long   QttyPos;
@@ -100,6 +100,7 @@ public:
 		long   VetisCertPos;
 		long   PrefSupplPos; // @v12.0.8 Колонка с именем предпочтительного поставщика
 		long   PrefSupplCPricePos; // @v12.0.8 Колонка с контрактной ценой предпочтительного поставщика
+		long   MarkCountPos; // @v12.7.10
 	};
 	int    GetColPos(ColumnPosBlock & rBlk);
 	bool   HasLinkPack() const { return LOGIC(P_LinkPack); }
@@ -480,6 +481,7 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 					case 32: rBlk.VetisCertPos = static_cast<long>(i); break;
 					//case 33: rBlk.VetisCertPos = static_cast<long>(i); break;
 					//case 34: rBlk.VetisCertPos = static_cast<long>(i); break;
+					case 35: rBlk.MarkCountPos = static_cast<long>(i); break; // @v12.7.10
 					case 37: rBlk.PrefSupplPos = static_cast<long>(i); break; // @v12.1.3
 					case 38: rBlk.PrefSupplCPricePos = static_cast<long>(i); break; // @v12.1.3
 				}
@@ -589,9 +591,9 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 						}
 					}
 					else if(col == posblk.ShippedQttyPos) {
-						const PPTransferItem & r_ti = r_pack.ConstTI(pos);
-						const AryBrowserDef * p_def = static_cast<const AryBrowserDef *>(p_brw->getDef());
-						const BillGoodsBrwItemArray * p_list = p_def ? static_cast<const BillGoodsBrwItemArray *>(p_def->getArray()) : 0;
+						const  PPTransferItem & r_ti = r_pack.ConstTI(pos);
+						const  AryBrowserDef * p_def = static_cast<const AryBrowserDef *>(p_brw->getDef());
+						const  BillGoodsBrwItemArray * p_list = p_def ? static_cast<const BillGoodsBrwItemArray *>(p_def->getArray()) : 0;
 						double shp_qtty = 0.0;
 						p_brw->CalcShippedQtty(p_item, p_list, &shp_qtty);
 						if(fabs(shp_qtty - fabs(r_ti.Quantity_)) > 1E-6) {
@@ -668,6 +670,50 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 							}
 						}
 						ok = 1;
+					}
+					else if(col == posblk.MarkCountPos) { // @v12.7.10 #35
+						const  PPTransferItem & r_ti = r_pack.ConstTI(pos);
+						bool   is_marked_ware = false;
+						Goods2Tbl::Rec goods_rec;
+						PPGoodsType2 gt_rec;
+						if(p_brw->GObj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && p_brw->GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
+							is_marked_ware = (gt_rec.Flags & GTF_GMARKED && gt_rec.ChZnProdType);
+						}
+						PPLotExtCodeContainer::MarkSet ecs;
+						const  long ecs_count = (r_pack.XcL.Get(p_item->Pos+1, 0, ecs) > 0) ? ecs.GetCount() : 0;
+						const  long iqtty = R0i(fabs(r_ti.Qtty()));
+						const  long unit_per_pack = R0i(r_ti.UnitPerPack);
+						const  int r = PPChZnPrcssr::EstimateQuantityAdequacy(iqtty, unit_per_pack, ecs_count);
+						int   msg_id = 0;
+						switch(r) {
+							case PPChZnPrcssr::eqarOK:
+								msg_id = TCELHLD_TRFRLIST_MARKCOUNT_OK;
+								ok = pStyle->SetFullCellColor(SClrLightgreen);
+								break;
+							case PPChZnPrcssr::eqarUndecomposable:
+								msg_id = TCELHLD_TRFRLIST_MARKCOUNT_UNDECOMPOSABLE;
+								ok = pStyle->SetFullCellColor(SClrLightpink);
+								break;
+							case PPChZnPrcssr::eqarUndefPackage:
+								msg_id = TCELHLD_TRFRLIST_MARKCOUNT_UNDEFPACKAGE;
+								ok = pStyle->SetFullCellColor(SClrLightyellow);
+								break;
+							case PPChZnPrcssr::eqarMcZero:
+								if(is_marked_ware) {
+									msg_id = TCELHLD_TRFRLIST_MARKCOUNT_MCZERO;
+									ok = pStyle->SetFullCellColor(SClrIvory);
+								}
+								break;
+							case PPChZnPrcssr::eqarMcGtQtty:
+								msg_id = TCELHLD_TRFRLIST_MARKCOUNT_MCGTQTTY;
+								ok = pStyle->SetFullCellColor(SClrLightcoral);
+								break;
+						}
+						if(ok) {
+							if(msg_id && paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, msg_id, SLS.AcquireRvlStr()));
+							}
+						}
 					}
 				}
 				if(pos >= 0 && pos < static_cast<long>(r_price_dev_list.getCount())) {

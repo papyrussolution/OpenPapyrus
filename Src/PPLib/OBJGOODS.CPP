@@ -615,7 +615,7 @@ int PPObjGoods::IsPacketEq(const PPGoodsPacket & rS1, const PPGoodsPacket & rS2,
 			eq = 0;
 		else if(!rS1.P_Filt && rS2.P_Filt)
 			eq = 0;
-		else if(rS1.P_Filt && rS2.P_Filt && !rS1.P_Filt->IsEq(rS2.P_Filt, 0))
+		else if(rS1.P_Filt && rS2.P_Filt && !rS1.P_Filt->IsEq(rS2.P_Filt))
 			eq = 0;
 		else if(!rS1.TagL.IsEq(rS2.TagL))
 			eq = 0;

@@ -2771,9 +2771,14 @@ TCELHLD_TRFRLIST_LOTSF_PRICEUP         "Цена реализации выше, 
 TCELHLD_TRFRLIST_LOTSF_PRICEDOWN       "Цена реализации ниже, той что была у предыдущей партии"
 TCELHLD_TRFRLIST_LOTSF_RESTRBOUNDS     "Цена выходит за границы диапазона, определяемого ограничениями товарных величин"
 TCELHLD_TRFRLIST_SERIALBAD             "Серийный номер этой строки находится в списке партий, неразрешенных к продаже"
-TCELHLD_TRFRLIST_BARCODEWARN           "Това в этой строке имеет проблемы со штрихкодом"
+TCELHLD_TRFRLIST_BARCODEWARN           "Товар в этой строке имеет проблемы со штрихкодом"
 TCELHLD_TRFRLIST_SOMEPROBLEMS          "Строка имеет проблемы, зафиксированные при вызове функции проверки"
 TCELHLD_TRFRLIST_FORCEREMOVE           "При проведении документа строка будет удалена в форсированном режиме (в обход любых проверок)"
+TCELHLD_TRFRLIST_MARKCOUNT_OK          "Число марок выглядит адекватным общему количеству единиц товара"
+TCELHLD_TRFRLIST_MARKCOUNT_UNDECOMPOSABLE "Число марок невозможно уложить в заданное количество единиц товара с учетом емкости упаковки"
+TCELHLD_TRFRLIST_MARKCOUNT_UNDEFPACKAGE   "Емкость упаковки не определена: не удается вычислить адекватность числа марок количеству единиц товара"
+TCELHLD_TRFRLIST_MARKCOUNT_MCZERO      "Нулевое число марок"
+TCELHLD_TRFRLIST_MARKCOUNT_MCGTQTTY    "Число марок превышает количество единиц товара"
 
 TCELHLD_GOODSREST_SUBSTCOSTQUOT        "Вместо цены поступления подставлено значение котировки"
 TCELHLD_GOODSREST_SUBSTPRICEQUOT       "Вместо цены реализации подставлено значение котировки"
@@ -5486,6 +5491,8 @@ PPTXT_CHZN_LOG_DEBUGAUTH_SUCCESS       "Тестовая авторизация 
 PPTXT_SECSEGTYPES                      "1,Папка;2,Общий;3,Пароль;4,Секрет авторизации;5,Открытый регистр;6,Банковская карта;7,SSH;8,Электронная подпись;9,Текст" // @v12.6.10
 PPTXT_ENUMERATION_BILL                 "Перебор документов"
 PPTXT_CHZNMARKINFO_EXTRACTING          "Извлечение информации о марках @{brand_chzn}"
+PPTXT_BILLTOCC_WROFFCHZNMARKS          "Чек будет отпечатан со списанием марок @{brand_chzn}" // @v12.7.10
+PPTXT_BILLTOCC_DONTWROFFCHZNMARKS      "Чек будет отпечатан без списания марок @{brand_chzn}" // @v12.7.10
 //
 // LastText
 
@@ -7707,6 +7714,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @account                             "Счет"
 @account_pl                          "Счета"
 @subaccount                          "Субсчет"
+@accnumber                           "Номер счета"
 @account_accounting                  "Бухгалтерский счет"
 @account_accounting_pl               "Бухгалтерские счета"
 @account_register                    "Бухгалтерский регистр"
@@ -9120,11 +9128,11 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_prcuuid                             "UUID процессора" // @v11.7.2
 @rtag_billlinkccheckuuid                  "UUID связанного кассового чека" // @v11.8.8
 @rtag_chzndisposalrsn                     "Причина выбытия марки @{brand_chzn}" // @v11.8.12
-@rtag_personchznpmtoken                   "ЧЕСТНЫЙ ЗНАК токен разрешительного режима"  // @v11.9.11
-@rtag_personchznpmhost                    "ЧЕСТНЫЙ ЗНАК хост разрешительного режима"  // @v11.9.12
+@rtag_personchznpmtoken                   "@{brand_chzn}. токен разрешительного режима"  // @v11.9.11
+@rtag_personchznpmhost                    "@{brand_chzn}. хост разрешительного режима"  // @v11.9.12
 @rtag_computeruuid                        "UUID компьютера" // @v12.0.0
 @rtag_extdlvrloccodetag                   "Тег дополнительного кода адреса доставки" // @v12.0.3
-@rtag_lot_chznintqtty                     "ЧЕСТНЫЙ ЗНАК целое число мест весового товара" // @v12.0.7
+@rtag_lot_chznintqtty                     "@{brand_chzn}. целое число мест весового товара" // @v12.0.7
 @rtag_lot_prefsuppl                       "Предпочтительный поставщик для заказа"  // @v12.0.7
 @rtag_person_marketplacesymb              "Символ маркетплейса" // @v12.1.1
 @rtag_gua_account                         "Счет глобальной учетной записи" // @v12.1.3
@@ -9144,6 +9152,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @rtag_gua_chzntspioturl                   "URL модуля тс-пиот"                             // @v12.5.11
 @rtag_lot_tecroutestage                   "Этап технологического маршрута" // @v12.6.2
 @rtag_lot_tecrouteassignment              "Параметры прохождения по техмаршруту" // @v12.6.5
+@rtag_bill_chznrcptaction                 "@{brand_chzn}. причина списания марок" // @v12.7.10
 // @rtag_goods_semichznmarked                "Частично маркированный товар" // @v12.7.6
 //
 // Зарезервированные типы регистрационных документов
@@ -10353,7 +10362,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @assetwroffgrp_limit                      "Предельная остаточная стоимость, %"
 @assetwroffgrp_flags                      "@{flags}"
 
-@bacct_acct                               "Номер счета"
+@bacct_acct                               "@{accnumber}"
 @bacct_acctype                            "Тип счета"
 @bacct_bank                               "@{bank}"
 @bacct_corracc                            "Корреспондирующий балансовый счет"
@@ -13097,6 +13106,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @oprkind_opkf_prt_cashord                 "Кассовый ордер"
 @oprkind_opkf_prt_check                   "@{poscheck}"
 @oprkind_opkf_prt_checkti                 "Товарные строки в кассовом чеке"
+@oprkind_opkf_prt_wroffchznmarksoncc      "Печатать чек со списанием марок @{brand_chzn}"// @v12.7.10
 @oprkind_opkf_prt_extobj2obj              "Подставлять ExtObject вместо Object"
 @oprkind_opkf_prt_incinvc                 "Входящая счет-фактура на предоплату"
 @oprkind_opkf_prt_invoice                 "Счет-фактуру"

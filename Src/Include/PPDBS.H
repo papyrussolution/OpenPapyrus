@@ -7448,7 +7448,6 @@ public:
 		double QttyPlus;
 		double QttyMinus;
 		char   Serial[32];
-		char   BillStatus[48];
 	} data;
 	struct Key0 {
 		int32  LotID;
@@ -7475,7 +7474,6 @@ public:
 	DBField QttyPlus;
 	DBField QttyMinus;
 	DBField Serial;
-	DBField BillStatus;
 };
 #pragma pack(pop)
 

@@ -360,12 +360,19 @@ template <class T> bool IsRuLicPlate(const T & rText, const T & rSet)
 							if(oneof2(c, ' ', '-')) { // возможен разделитель
 								c = rText.C(++ci);
 							}
-							if(isdec(c)) { // две или три цифры подряд
-								c = rText.C(++ci);
-								if(isdec(c)) {
+							{
+								if(isdec(c)) { // две или три цифры подряд (код региона). 
+									const  auto first_reg_digit = c;
 									c = rText.C(++ci);
-									if(c == 0 || isdec(c)) {
-										result = true;	
+									if(isdec(c)) {
+										c = rText.C(++ci);
+										if(c == 0) {
+											result = true;	
+										}
+										else if(isdec(c)) {
+											if(first_reg_digit != '0') // При этом первая цифра 3-значного кода региона не может быть нулем.
+												result = true;	
+										}
 									}
 								}
 							}

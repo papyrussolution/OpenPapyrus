@@ -2,6 +2,7 @@
 /// Комментарии можно ставить после примеров дабы пояснить что за марка.
 /// Внимание: комментарий начинается строго с /// (три слэша) ибо два слэша (как в C++) могут встретиться в коде марки
 ///
+01146400682137641006650921000673 /// сок санфрут.
 0104064666212210215Oph5i91EE12924aIso6uBkC8sBgA8ftCO90fJL3F8qCeLPW65s867MOg= /// Проблема с проверкой в тс-пиот (cannot parse code. InvalidVarLengthDelimiterException: Invalid delimiter 'u' [index = 38, after AI SERIAL])
 0108019653044912215QKErc91EE1292LrmXeuXZWmUpFIe2X8tpcR+CAVWvLbWVbdJnvbRUfw=  /// То же, что и предыдущая //
 0108019653044912215QCBQI91EE1292RfxMk3FJwn3AGUh13r7kknFKCgP77p9AQnK6fyb5MDA= /// То же, что и предыдущая // 

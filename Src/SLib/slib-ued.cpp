@@ -743,39 +743,53 @@ static const char * P_Ru_LicPlate_Symbs_Utf8  = "АВЕКМНОРСТУХ";
 		uint64 alpha_bits = 0;
 		uint64 dec_bits = 0;
 		if(GetRawValue(ued, &raw_value)) {
-			country_bits = (raw_value >> (48-Ru_LicPlate_max_statu_bits));
-			alpha_bits = (raw_value >> Ru_LicPlate_max_dec_bits) | ((1ULL << Ru_LicPlate_max_alpha_bits) - 1ULL);
-			dec_bits = (raw_value) | ((1ULL << Ru_LicPlate_max_dec_bits) - 1ULL);
-			if(alpha_bits > 0ULL && dec_bits > 0) {
+			country_bits = (raw_value >> (48-Ru_LicPlate_max_statu_bits)) & ((1ULL << Ru_LicPlate_max_statu_bits) - 1ULL);
+			alpha_bits = (raw_value >> Ru_LicPlate_max_dec_bits) & ((1ULL << Ru_LicPlate_max_alpha_bits) - 1ULL);
+			dec_bits = (raw_value) & ((1ULL << Ru_LicPlate_max_dec_bits) - 1ULL);
+			{
 				const  ued_t ued_country = UED::ApplyMetaToRawValue(UED_META_STATU, country_bits);
 				if(ued_country == UED_STATU_RU) {
-					SStringU symbs_u;
-					const  bool cfur = symbs_u.CopyFromUtf8Strict(P_Ru_LicPlate_Symbs_Utf8, sstrlen(P_Ru_LicPlate_Symbs_Utf8));
+					SStringU & r_symbs_u = SLS.AcquireRvlStrU();
+					const  bool cfur = r_symbs_u.CopyFromUtf8Strict(P_Ru_LicPlate_Symbs_Utf8, sstrlen(P_Ru_LicPlate_Symbs_Utf8));
 					assert(cfur);
 					if(cfur) {
-						SString dec_buf;
-						SStringU alpha_buf_u;
-						dec_buf.Cat(dec_bits);
+						//SString dec_buf;
+						char   dec_buf[32];
+						wchar_t alpha_buf_u[8];
+						_ui64toa(dec_bits, dec_buf, 10);
+						if(strlen(dec_buf) < 6) {
+							padleft(dec_buf, '0', 6 - strlen(dec_buf));
+						}
+						assert(strlen(dec_buf) == 6);
+						/*
+							SString & SString::Cat(uint64 i)
+							{
+								char   temp_buf[512];
+								return Cat(_ui64toa(i, temp_buf, 10));
+							}
+						*/ 
+						//dec_buf.Cat(dec_bits);
 						{
-							while(alpha_bits > 0) {
-								alpha_buf_u.CatChar(symbs_u.C(alpha_bits % 12));
+							for(uint i = 0; i < 3; ++i) {
+								alpha_buf_u[i] = r_symbs_u.C(alpha_bits % 12);
 								alpha_bits /= 12;
 							}
 						}
-						if(dec_buf.Len() == 6 && alpha_buf_u.Len() == 3) {
-							SStringU result_buf_u;
-							result_buf_u.CatChar(alpha_buf_u.C(0));
-							result_buf_u.CatChar(dec_buf.C(0));
-							result_buf_u.CatChar(dec_buf.C(1));
-							result_buf_u.CatChar(dec_buf.C(2));
-							result_buf_u.CatChar(alpha_buf_u.C(1));
-							result_buf_u.CatChar(alpha_buf_u.C(2));
-							if(dec_buf.C(3) != '0') {
-								result_buf_u.CatChar(dec_buf.C(3));
+						if(sstrlen(dec_buf) == 6) {
+							SStringU & r_result_buf_u = SLS.AcquireRvlStrU();
+							// В alpha_buf_u порядок следования букв изменился на обратный по сравнению с оригиналом!
+							r_result_buf_u.CatChar(alpha_buf_u[2]);
+							r_result_buf_u.CatChar(dec_buf[0]);
+							r_result_buf_u.CatChar(dec_buf[1]);
+							r_result_buf_u.CatChar(dec_buf[2]);
+							r_result_buf_u.CatChar(alpha_buf_u[1]);
+							r_result_buf_u.CatChar(alpha_buf_u[0]);
+							if(dec_buf[3] != '0') {
+								r_result_buf_u.CatChar(dec_buf[3]);
 							}
-							result_buf_u.CatChar(dec_buf.C(4));
-							result_buf_u.CatChar(dec_buf.C(5));
-							if(result_buf_u.CopyToUtf8(rT, 1))
+							r_result_buf_u.CatChar(dec_buf[4]);
+							r_result_buf_u.CatChar(dec_buf[5]);
+							if(r_result_buf_u.CopyToUtf8(rT, 1))
 								ok = true;
 						}
 					}

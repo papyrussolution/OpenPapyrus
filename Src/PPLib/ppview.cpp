@@ -1285,7 +1285,7 @@ int PPBaseFilt::Copy(const PPBaseFilt * pS, int)
 	return ok;
 }
 
-bool PPBaseFilt::IsEq(const PPBaseFilt * pS, int) const
+bool PPBaseFilt::IsEq(const PPBaseFilt * pS/*, int*/) const
 {
 	bool   ok = false;
 	if(IsA(pS)) {
@@ -1313,8 +1313,8 @@ bool PPBaseFilt::IsEq(const PPBaseFilt * pS, int) const
 							ok = false;
 					}
 					else if(p_b->Type == Branch::tObjIdListFilt) {
-						const ObjIdListFilt * p_list = reinterpret_cast<const ObjIdListFilt *>(PTR8C(this) + p_b->Offs);
-						const ObjIdListFilt * p_src_list = reinterpret_cast<const ObjIdListFilt *>(PTR8C(pS) + p_b->Offs);
+						const  ObjIdListFilt * p_list = reinterpret_cast<const ObjIdListFilt *>(PTR8C(this) + p_b->Offs);
+						const  ObjIdListFilt * p_src_list = reinterpret_cast<const ObjIdListFilt *>(PTR8C(pS) + p_b->Offs);
 						if(!p_list->IsEq(*p_src_list))
 							ok = false;
 					}
@@ -1334,7 +1334,7 @@ bool PPBaseFilt::IsEq(const PPBaseFilt * pS, int) const
 						const PPBaseFilt * p_filt = *reinterpret_cast<const PPBaseFilt * const *>(PTR8C(this) + p_b->Offs);
 						const PPBaseFilt * p_src_filt = *reinterpret_cast<const PPBaseFilt * const *>(PTR8C(pS) + p_b->Offs);
 						if(p_filt && p_src_filt) {
-							if(!p_filt->IsEq(p_src_filt, 0))
+							if(!p_filt->IsEq(p_src_filt))
 								ok = false;
 						}
 						else if(!(!p_filt && !p_src_filt))
@@ -1351,7 +1351,7 @@ bool PPBaseFilt::IsEq(const PPBaseFilt * pS, int) const
 {
 	PPBaseFilt * p_filt = 0;
 	PPView::CreateFiltInstance(Signature, &p_filt);
-	bool   r = (p_filt && IsEq(p_filt, 0));
+	bool   r = (p_filt && IsEq(p_filt));
 	ZDELETE(p_filt);
 	return r;
 }

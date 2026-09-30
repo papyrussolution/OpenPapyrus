@@ -467,6 +467,20 @@ int GtinStruc::GetToken(int tokenId, SString * pToken) const
 
 int GtinStruc::GetSpecialNaturalToken() const { return SpecialNaturalToken; }
 
+bool GtinStruc::IsSpecificOrder(const int pTokIdList[], uint tokIdListCount) const // @v12.7.10
+{
+	bool   result = false;
+	if(pTokIdList && tokIdListCount && tokIdListCount < getCount()) {
+		result = true;
+		for(uint i = 0; i < tokIdListCount; i++) { 
+			const  long key = StrAssocArray::GetKeyByIdx(i+1); // первый токен - оригинальный текст
+			if(key != pTokIdList[i])
+				result = false;
+		}
+	}
+	return result;
+}
+
 uint GtinStruc::RecognizeFieldLen(const char * pSrc, int currentPrefixID) const
 {
 	uint   len = 0;

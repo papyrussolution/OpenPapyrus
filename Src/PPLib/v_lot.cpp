@@ -271,7 +271,7 @@ int LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData
 	PutObjMembToBuf(PPOBJ_LOT,        ParentLotID, STRINGIZE(ParentLotID), rBuf);
 	PutObjMembToBuf(PPOBJ_GOODSTAX,   InTaxGrpID,  STRINGIZE(InTaxGrpID),  rBuf);
 	{
-		long id = 1;
+		long   id = 1;
 		StrAssocArray flag_list;
 		#define __ADD_FLAG(f) if(Flags & f) flag_list.Add(id++, STRINGIZE(f));
 		__ADD_FLAG(fWithoutQCert);
@@ -288,9 +288,9 @@ int LotFilt::PutExtssData(int fldID, const char * pBuf) { return PPPutExtStrData
 		__ADD_FLAG(fNoTempTable);
 		__ADD_FLAG(fShowBillStatus);
 		__ADD_FLAG(fShowPriceDev);
-		__ADD_FLAG(fRestByPaym); // @v11.4.4
-		__ADD_FLAG(fInitOrgLot); // @v11.4.4
-		__ADD_FLAG(fLotfPrWoTaxes); // @v11.4.4
+		__ADD_FLAG(fRestByPaym);
+		__ADD_FLAG(fInitOrgLot);
+		__ADD_FLAG(fLotfPrWoTaxes);
 		#undef __ADD_FLAG
 		PutFlagsMembToBuf(&flag_list, STRINGIZE(Flags), rBuf);
 	}
@@ -1792,6 +1792,7 @@ int PPViewLot::UpdateTempTable(PPID lotID)
 				rec.GoodsID = lot_rec.GoodsID;
 				STRNSCPY(rec.GoodsName, GetGoodsName(lot_rec.GoodsID, temp_buf));
 				STRNSCPY(rec.Serial, item.Serial);
+				/* @v12.7.10 (статус документа давно уже вычисляется на лету)
 				if((Filt.Flags & LotFilt::fShowBillStatus) && P_BObj) {
 					BillTbl::Rec bill_rec;
 					if(P_BObj->Search(item.BillID, &bill_rec) > 0 && bill_rec.StatusID) {
@@ -1800,7 +1801,7 @@ int PPViewLot::UpdateTempTable(PPID lotID)
 						if(bs_obj.Fetch(bill_rec.StatusID, &bs_rec) > 0)
 							STRNSCPY(rec.BillStatus, bs_rec.Name);
 					}
-				}
+				}*/
 				rec.BegRest   = item.BegRest;
 				rec.EndRest   = item.EndRest;
 				rec.QttyPlus  = item.QttyPlus;
@@ -1845,8 +1846,10 @@ int PPViewLot::InsertTempRecsByIter(BExtInsert * pBei, long * pCounter, UintHash
 				rec.EndRest   = item.EndRest;
 				rec.QttyPlus  = item.QttyPlus;
 				rec.QttyMinus = item.QttyMinus;
+				/* @v12.7.10 (статус документа давно уже вычисляется на лету)
 				if((Filt.Flags & LotFilt::fShowBillStatus) && P_BObj && P_BObj->Search(item.BillID, &brec) > 0 && brec.StatusID && bs_obj.Fetch(brec.StatusID, &bs_rec) > 0)
 					STRNSCPY(rec.BillStatus, bs_rec.Name);
+				*/
 				if(Filt.Flags & LotFilt::fShowPriceDev) {
 					ReceiptTbl::Rec prev_rec;
 					const  int r = P_Tbl->GetPreviousLot(item.GoodsID, item.LocID, item.Dt, item.OprNo, &prev_rec);
@@ -2315,8 +2318,8 @@ int FASTCALL PPViewLot::NextIteration(LotViewItem * pItem)
 		while(P_IterQuery && P_IterQuery->nextIteration() > 0) {
 			Counter.Increment();
 			if(P_TempTbl) {
-				TempLotTbl::Rec & r_temp_rec = P_TempTbl->data;
-				PPID   lot_id = r_temp_rec.LotID;
+				const  TempLotTbl::Rec & r_temp_rec = P_TempTbl->data;
+				const  PPID lot_id = r_temp_rec.LotID;
 				if(P_Tbl->Search(lot_id) > 0) {
 					LotViewItem item;
 					*static_cast<ReceiptTbl::Rec *>(&item) = P_Tbl->data;
@@ -2499,13 +2502,13 @@ void PPViewLot::PreprocessBrowser(PPViewBrowser * pBrw)
 				}
 				// } @v12.1.6 
 				if(Filt.ExtViewAttr == LotFilt::exvaEgaisTags) {
-					uint fld_no = 19; // @v12.6.6 #+1
+					uint fld_no = 20; // @v12.6.6 #+1 // @v12.7.10 #+1
 					pBrw->InsColumn(-1, "@rtag_fsrarinfalotcode",  fld_no++, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPLEFT);
 					pBrw->InsColumn(-1, "@rtag_fsrarinfblotcode",  fld_no++, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPLEFT);
 					pBrw->InsColumn(-1, "@rtag_fsrarlotgoodscode", fld_no++, 0, MKSFMT(32, ALIGN_LEFT), BCO_CAPLEFT);
 				}
 				else if(Filt.ExtViewAttr == LotFilt::exvaVetisTags) {
-					uint fld_no = 19; // @v12.6.6 #+1
+					uint fld_no = 20; // @v12.6.6 #+1 // @v12.7.10 #+1
 					pBrw->InsColumn(-1, "@rtag_lotvetisuuid", fld_no++, 0, MKSFMT(40, ALIGN_LEFT), BCO_CAPLEFT);
 				}
 			}
@@ -2626,18 +2629,19 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		fld_list[c++].E = dbe_billstatus; // #16 // @v12.1.6
 		fld_list[c++].E = dbe_agentname;  // #17 // @v12.1.6
 		fld_list[c++].E = dbe_dlvraddr;   // #18 // @v12.6.6
+		fld_list[c++].F = rcp->UnitPerPack; // #19 // @v12.7.10 
 		if(Filt.ExtViewAttr == LotFilt::exvaEgaisTags) {
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_ref_a, PPTAG_LOT_FSRARINFA, tt->LotID); // #19 // @v12.1.6 #+1 // @v12.6.6 #+1
+			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_ref_a, PPTAG_LOT_FSRARINFA, tt->LotID); // #20 // @v12.1.6 #+1 // @v12.6.6 #+1 // @v12.7.10 #+1
 			fld_list[c++].E = dbe_egais_ref_a;
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_ref_b, PPTAG_LOT_FSRARINFB, tt->LotID); // #20 // @v12.1.6 #+1 // @v12.6.6 #+1
+			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_ref_b, PPTAG_LOT_FSRARINFB, tt->LotID); // #21 // @v12.1.6 #+1 // @v12.6.6 #+1 // @v12.7.10 #+1
 			fld_list[c++].E = dbe_egais_ref_b;
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_prodcode, PPTAG_LOT_FSRARLOTGOODSCODE, tt->LotID); // #21 // @v12.1.6 #+1 // @v12.6.6 #+1
+			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_prodcode, PPTAG_LOT_FSRARLOTGOODSCODE, tt->LotID); // #22 // @v12.1.6 #+1 // @v12.6.6 #+1 // @v12.7.10 #+1
 			fld_list[c++].E = dbe_egais_prodcode;
 			//DBE    dbe_egais_manuf;
 			//DBE    dbe_egais_prodtypecode;
 		}
 		else if(Filt.ExtViewAttr == LotFilt::exvaVetisTags) {
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_vetis_vdocuuid, PPTAG_LOT_VETIS_UUID, rcp->ID); // #19 // @v12.1.6 #+1 // @v12.6.6 #+1
+			PPDbqFuncPool::InitObjTagTextFunc(dbe_vetis_vdocuuid, PPTAG_LOT_VETIS_UUID, rcp->ID); // #20 // @v12.1.6 #+1 // @v12.6.6 #+1 // @v12.7.10 #+1
 			fld_list[c++].E = dbe_vetis_vdocuuid;
 		}
 		q = &selectbycell(c, fld_list);
@@ -2672,18 +2676,19 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		fld_list[c++].E = dbe_billstatus; // #16 @v12.1.6
 		fld_list[c++].E = dbe_agentname;  // #17 // @v12.1.6
 		fld_list[c++].E = dbe_dlvraddr;   // #18 // @v12.6.6
+		fld_list[c++].F = rcp->UnitPerPack; // #19 // @v12.7.10 
 		if(Filt.ExtViewAttr == LotFilt::exvaEgaisTags) {
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_ref_a, PPTAG_LOT_FSRARINFA, rcp->ID); // #19 // @v12.1.6 #+4 // @v12.6.6 #+1
+			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_ref_a, PPTAG_LOT_FSRARINFA, rcp->ID); // #20 // @v12.1.6 #+4 // @v12.6.6 #+1 // @v12.7.10 #+1
 			fld_list[c++].E = dbe_egais_ref_a;
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_ref_b, PPTAG_LOT_FSRARINFB, rcp->ID); // #20 // @v12.1.6 #+4 // @v12.6.6 #+1
+			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_ref_b, PPTAG_LOT_FSRARINFB, rcp->ID); // #21 // @v12.1.6 #+4 // @v12.6.6 #+1 // @v12.7.10 #+1
 			fld_list[c++].E = dbe_egais_ref_b;
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_prodcode, PPTAG_LOT_FSRARLOTGOODSCODE, rcp->ID); // #21 // @v12.1.6 #+4 // @v12.6.6 #+1
+			PPDbqFuncPool::InitObjTagTextFunc(dbe_egais_prodcode, PPTAG_LOT_FSRARLOTGOODSCODE, rcp->ID); // #22 // @v12.1.6 #+4 // @v12.6.6 #+1 // @v12.7.10 #+1
 			fld_list[c++].E = dbe_egais_prodcode;
 			//DBE    dbe_egais_manuf;
 			//DBE    dbe_egais_prodtypecode;
 		}
 		else if(Filt.ExtViewAttr == LotFilt::exvaVetisTags) {
-			PPDbqFuncPool::InitObjTagTextFunc(dbe_vetis_vdocuuid, PPTAG_LOT_VETIS_UUID, rcp->ID, 0/*dontUseCache*/); // #19 // @v12.1.6 #+4 // @v12.6.6 #+1
+			PPDbqFuncPool::InitObjTagTextFunc(dbe_vetis_vdocuuid, PPTAG_LOT_VETIS_UUID, rcp->ID, 0/*dontUseCache*/); // #20 // @v12.1.6 #+4 // @v12.6.6 #+1 // @v12.7.10 #+1
 			fld_list[c++].E = dbe_vetis_vdocuuid;
 		}
 		if(Filt.QCertID || (Filt.Flags & LotFilt::fWithoutQCert))

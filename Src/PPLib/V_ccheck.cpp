@@ -4029,7 +4029,7 @@ public:
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 3, CCHKF_FIXEDPRICE);
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 4, CCHKF_SPFINISHED);
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 5, CCHKF_ALTREG);
-		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 6, CCHKF_PAPERLESS); // @v11.3.6
+		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 6, CCHKF_PAPERLESS);
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 7, CCHKF_IMPORTED); // @v11.8.11
 		SetClusterData(CTL_CCHECKINFO_FLAGS2, Data.Rec.Flags);
 		if(Data.AL_Const().getCount()) {
@@ -4071,13 +4071,10 @@ public:
 			Data.GetExtStrData(CCheckPacket::extssRemoteProcessingTa, temp_buf);
 			setCtrlString(CTL_CCHECKINFO_RPRCTAID, temp_buf);
 		}
-		// @v11.5.8 {
 		{
 			Data.GetExtStrData(CCheckPacket::extssUuid, temp_buf);
 			setCtrlString(CTL_CCHECKINFO_UUID, temp_buf);
 		}
-		// } @v11.5.8 
-		// @v11.3.6 {
 		{
 			SString email;
 			SString phone;
@@ -4088,7 +4085,6 @@ public:
 			else if(phone.NotEmpty())
 				setCtrlString(CTL_CCHECKINFO_EADDR, phone);
 		}
-		// } @v11.3.6 
 		// @v12.2.8 {
 		{
 			Data.GetExtStrData(CCheckPacket::extssFiscalSign, temp_buf);
@@ -4217,7 +4213,8 @@ int PPViewCCheck::EditCCheckSystemInfo(CCheckPacket & rPack)
 	SCardTbl::Rec sc_rec;
 	char   scard_no[32];
 	THROW(cs_obj.CheckRights(CSESSRT_CHECKINFO));
-	THROW(CheckDialogPtr(&(dlg = new CCheckInfoDialog())));
+	dlg = new CCheckInfoDialog();
+	THROW(CheckDialogPtr(&dlg));
 	dlg->setDTS(&rPack);
 	while(!valid_data && ExecView(dlg) == cmOK) {
 		valid_data = 1;

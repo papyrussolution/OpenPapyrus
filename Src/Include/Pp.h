@@ -1657,6 +1657,7 @@ public:
 	static int IdObjLocAddress;     // @v12.4.1 (fldLocID) текст адреса локации
 	static int IdObjMemoTech;       // @v12.5.12 (fldTechID)
 	static int IdObjNameGoodsType;  // @v12.7.9 (fldGoodsTypeID)
+	static int IdObjNameAccountByRel; // @v12.7.10 (fldAccRelID)
 
 	static int Register();
 	static void STDCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
@@ -2883,7 +2884,8 @@ public:
 	// Descr: Эта функция должна сравнить фильтры и, если они эквивалентны,
 	//   вернуть значение >0.
 	//
-	virtual bool IsEq(const PPBaseFilt *, int) const;
+	virtual bool IsEq(const PPBaseFilt */*, int*/) const;
+	bool   FASTCALL IsEq(const PPBaseFilt & rS) const { return IsEq(&rS); }
 	virtual bool IsEmpty() const;
 	//
 	// Descr: описание внутреннего состояния фильтра
@@ -4255,7 +4257,7 @@ struct PPQuot { // @persistent(DBX see Note above) @flat
 	//
 	enum {
 		meanAbsolute    = 0, // Абсолютное ненулевое значение 
-		meanZero        = 1, // Явно заданное нулевое значение
+		meanZero_ToEliminate = 1, // Явно заданное нулевое значение // @v12.7.10 meanZero-->meanZero_ToEliminate
 		meanDisabled    = 2, // Заблокированная котировка                      'X' //
 		meanPctOnCost   = 3, // Наценка в процентах к цене поступления (Cost)  'C' //
 		meanPctOnPrice  = 4, // Наценка в процентах к цене реализации  (Price) 'P' //
@@ -5388,8 +5390,8 @@ struct PPAccTurn { // @persistent
 	PPAccTurn & Z();
 	void   SwapDbtCrd();
 	bool   FASTCALL IsEq(const PPAccTurn & rS) const;
-	bool   SetNonBalancedFlow(int dir/*PPATFLOW_XXX*/);
-	int    GetNonBalancedFlow() const;
+	bool   SetNonBalancedFlow(int dir/*PPATFLOW_XXX*/, BillTbl::Rec & rBillRec);
+	int    GetNonBalancedFlow(const BillTbl::Rec & rBillRec) const;
 
 	AccIdent DbtID;
 	PPID   DbtAcsID;
@@ -11456,8 +11458,10 @@ struct ILTI { // @persistent(DBX) @size=80
 	// запрос об отмене проведения.
 #define BILLF2_ROWLINKBYRBB  0x00000800L // @internal
 #define BILLF2_REVERSEDEBT   0x00001000L // Документ работает как реверсивная оплата или зачет: имеет отрицательную номинальную сумму оплачивает ее модулем другой документ
-#define BILLF2_FORCEDRECEIPT 0x00002000L // Документ прихода товара, сформированный с целью форсированной компенсанции дефицита
+#define BILLF2_FORCEDRECEIPT 0x00002000L // Документ прихода товара, сформированный с целью форсированной компенсации дефицита
 	// при приеме данных из другого раздела. До версии 11.1.12 такие документы индицировались специальным примечанием N2. Далее это примечание использоваться не будет.
+#define BILLF2_PERSONAL_INCOME    0x00004000L // @v12.7.10 Персональная финансовая транзакция прихода денег
+#define BILLF2_PERSONAL_TRANSFER  0x00008000L // @v12.7.10 Персональная финансовая транзакция перевода денег 
 //
 // Value added record for PPOBJ_BILL
 // Used if (BillTbl::Rec::Flags & BILLF_EXTRA)
@@ -12727,7 +12731,7 @@ public:
 	int    FASTCALL AddShadowItem(const PPTransferItem *);
 	int    AddShadowItem(const PPTransferItem * pOrdItem, uint * pPos);
 	int    InitACPacket();
-	void   CreateAccTurn(PPAccTurn & rAt) const;
+	void   CreateAccTurn(PPAccTurn & rAt); // @v12.7.10 const-->non-const (из-за персональных транзакций, которые меняют флаги в Rec
 	int    UngetCounter();
 	void   FASTCALL SetQuantitySign(int minus /*= -1*/);
 	//
@@ -12820,8 +12824,9 @@ public:
 	int    HasOneOfGoods(const ObjIdListFilt & rList) const;
 	//
 	// Descr: Определяет существует ли среди товарных строк документа хоть одна, содержащая марки честный знак.
+	// ARG(realMarksOnly IN): Возвращает true лишь в том, случае, если в пакете есть реальные (а не суррогатные) марки.
 	//
-	bool   HasChZnMarks(bool isCorrectionExp) const;
+	bool   HasChZnMarks(bool isCorrectionExp, bool realMarksOnly) const;
 	//
 	// Descr: Функция определяет является ли пакет this документом коррекции расхода.
 	//
@@ -12928,11 +12933,13 @@ public:
 		ConvertToCCheckParam();
 		bool SetBuyersEAddr(int addrType, const char * pAddr);
 		enum {
-			fCash      = 0x0001,
-			fBank      = 0x0002,
-			fPrepay    = 0x0004,
-			fPaperless = 0x0008, //
-			fDoChZnPm  = 0x0010, // @v12.1.6 Осуществлять проверку марок разрешительным режимом чзн 
+			fCash             = 0x0001,
+			fBank             = 0x0002,
+			fPrepay           = 0x0004,
+			fPaperless        = 0x0008, //
+			fDoChZnPm         = 0x0010, // @v12.1.6 Осуществлять проверку марок разрешительным режимом чзн 
+			fWrOffChZnMarks   = 0x0020, // @v12.7.10 Списывать чзн-марки при печати чека (то есть, вносить в строки чека марки)
+			fIsThereChZnMarks = 0x0040, // @v12.7.10 Информационный флаг, индицирующий факт того, что в документе содержатся чзн-марки 
 		};
 		PPID   PosNodeID;
 		int    PaymType;
@@ -20087,32 +20094,33 @@ public:
 	// будем подразумевать пользователя, который создает документ - дальше посмотрим как пойдет).
 #define OPKFX_USETODOLINK      0x00080000L // @v12.4.7 Документы этого вида могут быть привязаны к задачам (PrjTask::LinkBillID)
 
-#define OPKF_PRT_INCINVC       0x00000001L // Входящая счет-фактура на предоплату
-#define OPKF_PRT_NEGINVC       0x00000002L // Счет-фактура с отрицательными суммами
-#define OPKF_PRT_CHECK         0x00000004L // Печатать чек по документу
-#define OPKF_PRT_CHECKTI       0x00000008L // Печатать чек по документу с товарными строками
-#define OPKF_PRT_SRVACT        0x00000010L // Печатать акт выполненных работ
-#define OPKF_PRT_BUYING        0x00000020L // Печатать в ценах поступления //
-#define OPKF_PRT_SELLING       0x00000040L // Печатать в ценах реализации  //
-#define OPKF_PRT_EXTOBJ2OBJ    0x00000080L // В структуре GoodsBillBase вместо object подставлять extobject
-#define OPKF_PRT_TARESALDO     0x00000100L // Печатать сальдо по таре (только если определено PPGoodsConfig::TareGrpID)
-#define OPKF_PRT_QCERT         0x00000200L // Печатать сертификаты
-#define OPKF_PRT_NBILLN        0x00000400L // В первичном документе не печатать номер
-#define OPKF_PRT_VATAX         0x00000800L // В накладной печатать колонки НДС
-#define OPKF_PRT_INVOICE       0x00001000L // Печатать счет-фактуру
-#define OPKF_PRT_QCG           0x00004000L // Печатать сертификаты с товаром
-#define OPKF_PRT_SHRTORG       0x00010000L // Печатать сокращ. наименование гл. организации
-#define OPKF_PRT_CASHORD       0x00080000L // Печатать кассовый ордер
-#define OPKF_PRT_SELPRICE      0x00100000L // Печать цен в накладной на выбор
-#define OPKF_PRT_NDISCNT       0x00800000L // Не печатать скидку в накладной
-#define OPKF_PRT_LOCDISP       0x01000000L // @v11.3.11 Печатать наряд на складскую сборку (используется неявно для идентификации варианта выбора)
-#define OPKF_PRT_PAYPLAN       0x02000000L // Печатать план платежей по документу
-#define OPKF_PRT_LADING        0x04000000L // Печатать товарно-транспортную накладную
-#define OPKF_PRT_MERGETI       0x08000000L // Объединять товарные строки
-#define OPKF_PRT_PLABEL        0x10000000L // Печатать ценник
-#define OPKF_PRT_BCODELIST     0x20000000L // Печатать в накладной список штрихкодов
-#define OPKF_PRT_QCERTLIST     0x40000000L // Печатать список сертификатов
-#define OPKF_PRT_LOTTAGIMG     0x80000000L // Печать изображений из тегов лотов
+#define OPKF_PRT_INCINVC            0x00000001L // Входящая счет-фактура на предоплату
+#define OPKF_PRT_NEGINVC            0x00000002L // Счет-фактура с отрицательными суммами
+#define OPKF_PRT_CHECK              0x00000004L // Печатать чек по документу
+#define OPKF_PRT_CHECKTI            0x00000008L // Печатать чек по документу с товарными строками
+#define OPKF_PRT_SRVACT             0x00000010L // Печатать акт выполненных работ
+#define OPKF_PRT_BUYING             0x00000020L // Печатать в ценах поступления //
+#define OPKF_PRT_SELLING            0x00000040L // Печатать в ценах реализации  //
+#define OPKF_PRT_EXTOBJ2OBJ         0x00000080L // В структуре GoodsBillBase вместо object подставлять extobject
+#define OPKF_PRT_TARESALDO          0x00000100L // Печатать сальдо по таре (только если определено PPGoodsConfig::TareGrpID)
+#define OPKF_PRT_QCERT              0x00000200L // Печатать сертификаты
+#define OPKF_PRT_NBILLN             0x00000400L // В первичном документе не печатать номер
+#define OPKF_PRT_VATAX              0x00000800L // В накладной печатать колонки НДС
+#define OPKF_PRT_INVOICE            0x00001000L // Печатать счет-фактуру
+#define OPKF_PRT_QCG                0x00004000L // Печатать сертификаты с товаром
+#define OPKF_PRT_SHRTORG            0x00010000L // Печатать сокращ. наименование гл. организации
+#define OPKF_PRT_CASHORD            0x00080000L // Печатать кассовый ордер
+#define OPKF_PRT_SELPRICE           0x00100000L // Печать цен в накладной на выбор
+#define OPKF_PRT_WROFFCHZNMARKSONCC 0x00400000L // @v12.7.10 При печати кассового чека списывать чзн-марки (то есть, включать их в строки чека)
+#define OPKF_PRT_NDISCNT            0x00800000L // Не печатать скидку в накладной
+#define OPKF_PRT_LOCDISP            0x01000000L // Печатать наряд на складскую сборку (используется неявно для идентификации варианта выбора)
+#define OPKF_PRT_PAYPLAN            0x02000000L // Печатать план платежей по документу
+#define OPKF_PRT_LADING             0x04000000L // Печатать товарно-транспортную накладную
+#define OPKF_PRT_MERGETI            0x08000000L // Объединять товарные строки
+#define OPKF_PRT_PLABEL             0x10000000L // Печатать ценник
+#define OPKF_PRT_BCODELIST          0x20000000L // Печатать в накладной список штрихкодов
+#define OPKF_PRT_QCERTLIST          0x40000000L // Печатать список сертификатов
+#define OPKF_PRT_LOTTAGIMG          0x80000000L // Печать изображений из тегов лотов
 
 #define OPKF_PRT_EXTFORMFLAGS (OPKF_PRT_CASHORD|OPKF_PRT_INVOICE|OPKF_PRT_QCERT|OPKF_PRT_LADING|OPKF_PRT_SRVACT|OPKF_PRT_PLABEL|OPKF_PRT_TARESALDO|OPKF_PRT_LOTTAGIMG)
 
@@ -20286,14 +20294,14 @@ struct PPReckonOpEx {
 struct PPDraftOpEx {
 	PPDraftOpEx();
 	void   Init();
-	bool   FASTCALL IsEq(const PPDraftOpEx & rS); // @v12.5.7
+	bool   FASTCALL IsEq(const PPDraftOpEx & rS) const; // @v12.5.7
 	PPDraftOpEx & FASTCALL operator = (const PPDraftOpEx &);
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx); // @v12.5.7
 
-	PPID   WrOffOpID;       // Операция списания                        //
+	PPID   WrOffOpID;       // Операция списания //
 	PPID   WrOffObjID;      // Контрагент для операции списания //
 	PPID   WrOffComplOpID;  // Операция комплектации, для формирования остатков, списываемых операцией WrOffOpID
-	long   Reserve[10];     //
+	long   Reserve[10];
 	long   Flags;           // DROXF_XXX
 };
 //
@@ -20366,10 +20374,10 @@ public:
 	PPInventoryOpEx  * P_IOE;
 	ObjRestrictArray * P_GenList;
 	PPReckonOpEx * P_ReckonData;
-	PPBillPoolOpEx   * P_PoolData;  //
-	PPDraftOpEx * P_DraftData; //
-	PPDebtInventOpEx * P_DIOE;      //
-	PPOpCounterPacket OpCntrPack;   //
+	PPBillPoolOpEx   * P_PoolData;
+	PPDraftOpEx * P_DraftData;
+	PPDebtInventOpEx * P_DIOE;
+	PPOpCounterPacket OpCntrPack;
 };
 //
 // Флаги функции PPObjOprKind::MakeOprKindList
@@ -21487,6 +21495,7 @@ public:
 	int    Parse(const char * pCode);
 	int    GetToken(int tokenId, SString * pToken) const;
 	int    GetSpecialNaturalToken() const;
+	bool   IsSpecificOrder(const int pTokIdList[], uint tokIdListCount) const; // @v12.7.10
 	int    Debug_Output(SString & rBuf) const;
 private:
 	uint   SetupFixedLenField(const char * pSrc, const uint prefixLen, const uint fixLen, int fldId);
@@ -22884,7 +22893,7 @@ public:
 	int    SearchByBill(PPID, int reverse, short rByBill, void * = 0);
 	int    GetAcctCurID(int aco, PPID accID, PPID * pCurID);
 	void   GetAccRelIDs(const AccTurnTbl::Rec *, PPID * pDbtRelID, PPID * pCrdRelID) const;
-	int    ConvertRec(const AccTurnTbl::Rec *, PPAccTurn *, int useCache);
+	int    ConvertRec_(const BillTbl::Rec & rBillRec, const AccTurnTbl::Rec *, PPAccTurn & rAt, int useCache);
 	int    Turn(PPAccTurn & rAt, int use_ta);
 	int    RollbackTurn(PPID, short rByBill, int use_ta);
 	int    UpdateAmount(PPID, short rByBill, double newAmt, double cRate, int use_ta);
@@ -22913,7 +22922,7 @@ public:
 	//   Параметр flags задает опции расчета сальдо (см. BALRESTF_XXX)
 	//
 	int    GetBalRest(LDATE, PPID accID, double * pDbt, double * pCrd, uint flags = 0);
-	int    EnumByBill(PPID billID, int * rByBill, PPAccTurn *);
+	int    EnumByBill(/*PPID billID*/const BillTbl::Rec & rBillRec, int * rByBill, PPAccTurn *);
 	int    CalcRest(int aco, PPID accID, const DateRange *, double * pInRest, double * pOutRest);
 	int    CalcComplexRest(long aco, PPID accID, PPID curID, PPID personRelID, const DateRange *, AmtList * pInRest, AmtList * pOutRest);
 	int    CalcComplexRestOnGenList(ObjRestrictArray *, PPID curID, const DateRange *, AmtList * pInRest, AmtList * pOutRest);
@@ -35829,7 +35838,7 @@ public:
 	//
 	int    GetCorrectionBackChain(PPID billID, PPIDArray & rChainList);
 	int    GetCorrectionBackChain(const BillTbl::Rec & rBillRec, PPIDArray & rChainList);
-	int    GetAccturn(const AccTurnTbl::Rec *, PPAccTurn *, int useCache);
+	int    GetAccturn(const AccTurnTbl::Rec *, PPAccTurn & rAt, int useCache);
 	//
 	// Descr: Интерактивная функция ввода нового бухгалтерского документа.
 	// Parameters:
@@ -45582,13 +45591,11 @@ private:
 	int    FetchBill(PPID billID, BillEntry * pEntry);
 
 	AccAnlzFilt Filt;
-	// @v12.7.0 int    IsGenAcc;                // @*Init_()
-	// @v12.7.0 int    IsRegister;              // @*Init_()
-	// @v12.7.0 int    IsGenAr;                 // @*Init_()
 	enum {
 		stIsGenAcc   = 0x0001,
 		stIsRegister = 0x0002,
-		stIsGenAr    = 0x0008
+		stIsGenAr    = 0x0008,
+		stIsPersonal = 0x0010, // @v12.7.10 Персональный счет
 	};
 	uint   State;                   // @v12.7.0 @*Init_()
 	PPID   EffDlvrLocID;            // Проекция Filt.DlvrLocID (так как этот критерий применим ни при любых условиях, возможно EffDlvrLocID != Filt.DlvrLocID)
@@ -45792,7 +45799,7 @@ struct OpGroupingFilt : public PPBaseFilt {
 	enum {
 		eqxCycleStat = 0x0001
 	};
-	int    IsEqualExcept(const OpGroupingFilt & rS, long flags) const;
+	bool   IsEqualExcept(const OpGroupingFilt & rS, long flags) const;
 
 	enum {
 		fLabelOnly  = 0x0001,  // Только по WL-документам
@@ -46590,7 +46597,7 @@ struct ObjSyncFilt : public PPBaseFilt {
 	virtual int  Write(SBuffer &, long) const;
 	virtual int  Read(SBuffer &, long);
 	virtual int  Copy(const PPBaseFilt *, int);
-	virtual bool IsEq(const PPBaseFilt *, int) const;
+	virtual bool IsEq(const PPBaseFilt */*, int*/) const;
 
 	char   ReserveStart[32]; // @anchor
 	PPID   ObjType;
@@ -58042,6 +58049,32 @@ public:
 	static bool FASTCALL GetOfficialCategorySymb(int officialId, SString & rSymb);
 	static int  FASTCALL GetOfficialCatogoryId(const char * pOfficialSymb);
 	static uint FASTCALL GetCategoryIdByOfficialSymb(const char * pOfficialSymb);
+	//
+	// Descr: Результаты исполнения функции EstimateQuantityAdequacy()
+	//
+	enum {
+		eqarError          =    0, // Ошибка (never reached)
+		eqarOK             =    1, // Количество марок адекватно количеству единиц товара (но не гарантирует отсутствия несоответствий)
+		eqarUndecomposable =  -30, // Невозможно разложить количество марок на единицы товара и его упаковки. То есть, число марок неадекватно количеству единиц товара и емкостям упаковок.
+		eqarUndefPackage   =  -50, // Передана минимальная емкость упаковки меньше или равная 1
+		eqarMcZero         =  -75, // Нулевое количество марок
+		eqarMcGtQtty       = -100, // Марок больше, чем единиц товара
+	};
+	//
+	// Desc: Функция пытается детектировать ошибку в количестве просканированных марок относительно общего
+	//   количества единиц товара, которые должны быть просканированы.
+	//   Проблема состоит в том, что сканируются как отдельные единицы так и упаковки. Причем, упаковки
+	//   могут иметь различную вложенность. Однако (по условиям функции), нам известно, что минимальный объем упаковки
+	//   составляет minPackage единиц, а упаковки более высокой вместимости гарантированно имеют вместимость, кратную minPackage.
+	//   Функция не строит никаких предположений относительно емкостей упаковок, отличных от minPackage кроме упомянутой выше кратности.
+	// ARG(itemQtty IN):   количество единиц товара, для которого необходимо отсканировать марки
+	// ARG(minPackage IN): минимальная емкость упаковки товара
+	// ARG(markCount IN):  количество отсканированных марок
+	// Returns:
+	//   >0 - функция не смогла выявить рассогласования между количеством единиц товара и количеством марок 
+	//   <0 - количество марок не адекватно количеству единиц товара
+	//    0 - error (never riched)
+	//
 	static int  EstimateQuantityAdequacy(uint itemQtty, uint minPackage, uint markCount);
 
 	explicit PPChZnPrcssr(PPLogger * pOuterLogger);
@@ -58893,14 +58926,31 @@ protected:
 	int    Backend_AcceptSCard(PPID scardID, const SCardSpecialTreatment::IdentifyReplyBlock * pStirb, uint ascf);
 	int    Implement_AcceptSCard(const SCardTbl::Rec & rScRec, const SCardSpecialTreatment::IdentifyReplyBlock * pStirb);
 	double RoundDis(double d) const;
-	void   Helper_SetupDiscount(double roundingDiscount, bool distributeGiftDiscount);
+
+	struct SetupDiscontBlock {
+		SetupDiscontBlock(double roundingDiscount, bool distributeGiftDiscount);
+		~SetupDiscontBlock();
+		const  double RoundingDiscount; // @v12.7.10
+		const  bool IsRounding;
+		const  bool DistributeGiftDiscount;
+		uint8  Reserve[2]; // @alignment
+		uint   LastIndex;
+		double Amount;
+		RAssocArray GiftDisList;
+		LongArray PosList_WoDis; // Список позиций чека ([1..]) для которых действует правило "без скидки"
+		LongArray PosList_PriceAdjustment; // @v12.6.2 Список позиций чека ([1..]) для которых должно применяться выравнивание цены
+		SCardSpecialTreatment * P_Scst;
+		SCardSpecialTreatment::CardBlock ScstCb;
+	};
+
+	void   Helper_SetupDiscount(/*double roundingDiscount, bool distributeGiftDiscount*/SetupDiscontBlock & rBlk);
 	//
 	// Descr: Хелпер, вызываемый из Helper_SetupDiscount для предварительной обработки строк чека.
 	// ARG(mode IN): Режим обработки строк чека
 	//   0 - основной режим
 	//   1 - режим запроса к строронним службам
 	//
-	int    Helper_PreprocessDiscountLoop(int mode, void * pBlk);
+	int    Helper_PreprocessDiscountLoop(int mode, SetupDiscontBlock & rBlk);
 	void   SetupDiscount(bool distributeGiftDiscount);
 	int    VerifyPrices();
 	int    ProcessGift();

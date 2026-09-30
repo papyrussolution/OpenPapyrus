@@ -54,7 +54,7 @@ int DBQBrowserDef::setQuery(DBQuery & rQuery, uint aBufSize)
 	if(addColumn(&bc, (atPos >= 0) ? atPos : UNDEF)) {
 		if(GETSTYPE(typ))
 			at(getCount()-1).T = typ;
-		if(atPos >= 0 && P_Groups) {
+		if(atPos >= 0 && P_Groups && !(opt & BCO_DONTEXPANDGROUP)) { // @v12.7.10 (&& !(opt & BCO_DONTEXPANDGROUP))
 			for(uint j = 0; j < NumGroups; j++) {
 				BroGroup & r_grp = P_Groups[j];
 				if(atPos <= static_cast<int>(r_grp.First))

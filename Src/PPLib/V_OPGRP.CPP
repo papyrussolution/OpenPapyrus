@@ -1,5 +1,5 @@
 // V_OPGRP.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -24,18 +24,22 @@ OpGroupingFilt & FASTCALL OpGroupingFilt::operator = (const OpGroupingFilt & s)
 	return *this;
 }
 
-int OpGroupingFilt::IsEqualExcept(const OpGroupingFilt & rS, long flags) const
+bool OpGroupingFilt::IsEqualExcept(const OpGroupingFilt & rS, long flags) const
 {
+	bool   result = false;
 	if(flags & eqxCycleStat) {
-		OpGroupingFilt temp1, temp2;
+		OpGroupingFilt temp1;
+		OpGroupingFilt temp2;
 		temp1 = *this;
 		temp2 = rS;
 		temp1.CycleStat = 0;
 		temp2.CycleStat = 0;
-		return temp1.IsEq(&temp2, 1);
+		result = temp1.IsEq(&temp2);
 	}
-	else
-		return IsEq(&rS, 1);
+	else {
+		result = IsEq(&rS);
+	}
+	return result;
 }
 
 PPViewOpGrouping::OpGroupingStatEntry::OpGroupingStatEntry() : OpID(0), Sign(0), S(0)
@@ -97,7 +101,7 @@ int PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 		Filt.ExtGoodsTypeID = 0;
 	THROW(AdjustPeriodToRights(Filt.Period, false));
 	if(P_TempTbl) {
-		if(Filt.IsEq(&prev_filt, 1))
+		if(Filt.IsEq(&prev_filt))
 			done = 1;
 		else if(Filt.IsEqualExcept(prev_filt, OpGroupingFilt::eqxCycleStat)) {
 			create_stat = 1;

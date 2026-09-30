@@ -1,5 +1,5 @@
 // V_SYNC.CPP
-// Copyright (c) A.Sobolev 2001-2003, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 2001-2003, 2006, 2007, 2008, 2009, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -36,9 +36,9 @@ int ObjSyncFilt::Copy(const PPBaseFilt * pS, int deep)
 	return ok;
 }
 
-bool ObjSyncFilt::IsEq(const PPBaseFilt * pS, int deep) const
+bool ObjSyncFilt::IsEq(const PPBaseFilt * pS/*, int deep*/) const
 {
-	return (PPBaseFilt::IsEq(pS, deep) && 
+	return (PPBaseFilt::IsEq(pS/*, deep*/) && 
 		ObjIDList.IsEq(&static_cast<const ObjSyncFilt *>(pS)->ObjIDList) && CommIDList.IsEq(static_cast<const ObjSyncFilt *>(pS)->CommIDList));
 }
 //
@@ -232,7 +232,7 @@ int PPViewObjSync::InitIteration()
 {
 	int    ok = 1;
 	DBQ  * dbq = 0;
-	ObjSyncTbl * p_sync_tbl = P_TmpTbl ? P_TmpTbl : P_Tbl;
+	ObjSyncTbl * p_sync_tbl = NZOR(P_TmpTbl, P_Tbl);
 	ObjSyncTbl::Key0 k;
 	MEMSZERO(k);
 	BExtQuery::ZDelete(&P_IterQuery);

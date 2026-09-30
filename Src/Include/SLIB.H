@@ -1532,6 +1532,15 @@ template <class T> T * AssignPtr2Ptr(T *& prDest, const T * pSrc)
 	}
 	return prDest;
 }
+
+template <class T> bool AreObjByPtrEq(const T * p1, const T * p2) // @v12.7.10
+{
+	bool   result = true;
+	if(p1 != p2) {
+		result = (p1 && p2) ? p1->IsEq(*p2) : false;
+	}
+	return result;
+}
 //
 // Прототип функций сравнения и макросы для использования этих функций
 //
@@ -13630,7 +13639,7 @@ private:
 	TSVector <SFile::LckChunk> LckList;
 };
 //
-// Descr: Класс, реализующий механизм детекции стркутуры и параметров текстового файла данных,
+// Descr: Класс, реализующий механизм детекции структуры и параметров текстового файла данных,
 //   в котором колонки разделены символом-разделителем (comma, semicolon, space, tab, '|').
 //
 class CsvSniffer {

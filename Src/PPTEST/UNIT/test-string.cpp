@@ -134,15 +134,6 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 	else if(sstreqi_ascii(pBenchmark, "sstrnlen"))     bm = 13; // @v11.7.10
 	else SetInfo("invalid benchmark");
 	if(bm == 0) {
-		// @debug {
-		/*{
-			ued_t uv = UED::SetRaw_Ru_LicPlate("У 114 АХ 750");
-			SLCHECK_NZ(uv);
-			bool  uvr = UED::GetRaw_Ru_LicPlate(uv, str);
-			SLCHECK_NZ(uvr);
-			//SLCHECK_NZ(str == line_buf);
-		}*/
-		// } @debug
 		{
 			// Тестирование функций sstrlen и sstrnlen
 			SLCHECK_EQ(sstrlen(static_cast<const char *>(0)), static_cast<size_t>(0));
@@ -1438,18 +1429,25 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					if(f_in.IsValid()) {
 						{ // utf-8
 							f_in.Seek64(0ULL);
+							SNaturalTokenStat nts;
+							uint   line_no = 0;
 							while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
-								tr.Run(line_buf.ucptr(), line_buf.LenI(), nta.Z(), 0);
+								line_no++;
+								tr.Run(line_buf.ucptr(), line_buf.LenI(), nta.Z(), &nts);
 								const float p = nta.Has(SNTOK_RU_LICPLATE);
 								SLCHECK_LE(0.1f, p);
 								// @v12.7.9 {
-								/* @construction if(p > 0.0f) {
+								if(p > 0.0f) {
 									ued_t uv = UED::SetRaw_Ru_LicPlate(line_buf);
 									SLCHECK_NZ(uv);
 									bool  uvr = UED::GetRaw_Ru_LicPlate(uv, str);
 									SLCHECK_NZ(uvr);
-									SLCHECK_NZ(str == line_buf);
-								}*/
+									{
+										SLCHECK_NZ(tr.NormalizeToken(line_buf.ucptr(), line_buf.Len(), nts, SNTOK_RU_LICPLATE, out_buf));
+										SLCHECK_NZ(str == out_buf);
+									}
+									out_buf.Z();
+								}
 								// } @v12.7.9 
 							}
 						}
@@ -1457,18 +1455,46 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 							f_in.Seek64(0ULL);
 							while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 								line_buf.Transf(CTRANSF_UTF8_TO_OUTER);
-								tr.Run(line_buf.ucptr(), line_buf.LenI(), nta.Z(), 0);
+								tr.Run(line_buf.ucptr(), line_buf.LenI(), nta.Z(), &nts);
 								const float p = nta.Has(SNTOK_RU_LICPLATE);
 								SLCHECK_LE(0.1f, p);
+								// @v12.7.10 {
+								if(p > 0.0f) {
+									ued_t uv = UED::SetRaw_Ru_LicPlate(line_buf);
+									SLCHECK_NZ(uv);
+									bool  uvr = UED::GetRaw_Ru_LicPlate(uv, str);
+									SLCHECK_NZ(uvr);
+									{
+										SLCHECK_NZ(tr.NormalizeToken(line_buf.ucptr(), line_buf.Len(), nts, SNTOK_RU_LICPLATE, out_buf));
+										out_buf.Transf(CTRANSF_OUTER_TO_UTF8);
+										SLCHECK_NZ(str == out_buf);
+									}
+									out_buf.Z();
+								}
+								// } @v12.7.10 
 							}
 						}
 						{ // cp866
 							f_in.Seek64(0ULL);
 							while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 								line_buf.Transf(CTRANSF_UTF8_TO_INNER);
-								tr.Run(line_buf.ucptr(), line_buf.LenI(), nta.Z(), 0);
+								tr.Run(line_buf.ucptr(), line_buf.LenI(), nta.Z(), &nts);
 								const float p = nta.Has(SNTOK_RU_LICPLATE);
 								SLCHECK_LE(0.1f, p);
+								// @v12.7.10 {
+								if(p > 0.0f) {
+									ued_t uv = UED::SetRaw_Ru_LicPlate(line_buf);
+									SLCHECK_NZ(uv);
+									bool  uvr = UED::GetRaw_Ru_LicPlate(uv, str);
+									SLCHECK_NZ(uvr);
+									{
+										SLCHECK_NZ(tr.NormalizeToken(line_buf.ucptr(), line_buf.Len(), nts, SNTOK_RU_LICPLATE, out_buf));
+										out_buf.Transf(CTRANSF_INNER_TO_UTF8);
+										SLCHECK_NZ(str == out_buf);
+									}
+									out_buf.Z();
+								}
+								// } @v12.7.10 
 							}
 						}
 					}
@@ -1481,6 +1507,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 							"В78СА 716", // не хватает одной цифры в середине
 							"675-ХОУ-250"  // все буквы в одной "упряжке"
 							"Х  675ОУ-250", // разделитель в два пробела
+							"А 000 АА-010", // код региона начинается с 0
 						};
 						for(uint i = 0; i < SIZEOFARRAY(p_inv_lic_plate_list); i++) {
 							const char * p_text = p_inv_lic_plate_list[i];

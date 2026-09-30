@@ -116,8 +116,9 @@ int PPViewAccturn::DeleteItem(PPID billID)
 		THROW(P_BObj->P_Tbl->Search(billID) > 0);
 		if(GetOpType(P_BObj->P_Tbl->data.OpID) == PPOPT_ACCTURN) {
 			THROW(ok = P_BObj->RemoveObjV(billID, 0, PPObject::rmv_default, 0));
-			if(ok > 0)
+			if(ok > 0) {
 				THROW(ok = RemoveBillFromList(billID));
+			}
 		}
 	}
 	CATCHZOKPPERR
@@ -128,12 +129,13 @@ int PPViewAccturn::EditItem(PPID billID)
 {
 	int    ok = -1;
 	PPID   id = billID;
-	if(!Filt.GrpAco && id && !Filt.BillID)
+	if(!Filt.GrpAco && id && !Filt.BillID) {
 		if(P_BObj->Edit(&id, 0) == cmOK) {
 			RemoveBillFromList(id);
 			AddBillToList(id);
 			ok = 1;
 		}
+	}
 	return ok;
 }
 
@@ -186,11 +188,12 @@ int PPViewAccturn::CalcTotal(AccturnTotal * pTotal)
 	pTotal->Count = 0;
 	pTotal->Amounts.freeAll();
 	PPWaitStart();
-	if(InitIteration())
+	if(InitIteration()) {
 		while(NextIteration(&item) > 0) {
 			pTotal->Count++;
 			pTotal->Amounts.Add(0, item.CurID, item.Amount);
 		}
+	}
 	PPWaitStop();
 	return 1;
 }
@@ -353,8 +356,8 @@ int PPViewAccturn::CreateGrouping()
 				continue;
 		else
 			rec.Dt = Filt.Period.low;
-		P_ATC->ConvertAcctID(item.DbtID, &dbt_acct, &temp_cur_id, 1 /* useCache */);
-		P_ATC->ConvertAcctID(item.CrdID, &crd_acct, &temp_cur_id, 1 /* useCache */);
+		P_ATC->ConvertAcctID(item.DbtID, &dbt_acct, &temp_cur_id, 1/*useCache*/);
+		P_ATC->ConvertAcctID(item.CrdID, &crd_acct, &temp_cur_id, 1/*useCache*/);
 		rec.CurID = cur_id;
 		if(Filt.GrpAco == ACO_1) {
 			int    r;
@@ -489,7 +492,7 @@ int PPViewAccturn::InitViewItem(const AccTurnTbl::Rec * pAtRec, AccturnViewItem 
 {
 	int    ok = -1;
 	PPAccTurn aturn;
-	if(P_BObj->GetAccturn(pAtRec, &aturn, 1) > 0) {
+	if(P_BObj->GetAccturn(pAtRec, aturn, 1) > 0) {
 		if((Filt.Flags & AccturnFilt::fAllCurrencies) || aturn.CurID == Filt.CurID) {
 			if(P_TmpBillTbl || !OpList.getCount() || OpList.lsearch(aturn.Opr)) {
 				int    rt = 0;
@@ -698,7 +701,7 @@ void PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 			BrowserDef * p_def = pBrw->getDef();
 			const int col = p_def ? (p_def->getCountI()-2) : -1;
 			if(col > 0)
-				pBrw->InsColumn(col, "@currency", /*12*/8, 0, MKSFMT(6, 0), 0);
+				pBrw->InsColumn(col, "@currency", /*12*/8, 0, MKSFMT(6, 0), BCO_DONTEXPANDGROUP); // @v12.7.10 BCO_DONTEXPANDGROUP
 		}
 	}
 }
@@ -708,8 +711,8 @@ void PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 static IMPL_DBE_PROC(dbqf_accturn_checkrelrestriction_iii)
 {
 	long   ok = 1;
-	PPID   dbt_acc_id = params[0].lval;
-	PPID   crd_acc_id = params[1].lval;
+	const  PPID dbt_acc_id = params[0].lval;
+	const  PPID crd_acc_id = params[1].lval;
 	// @v12.5.1 const  AccturnFilt * p_filt = reinterpret_cast<const AccturnFilt *>(params[2].lval); // @longtoptr
 	const  AccturnFilt * p_filt = reinterpret_cast<const AccturnFilt *>(params[2].ptrval); // @v12.5.1
 	PPID   bill_id = params[0].lval;
@@ -790,12 +793,14 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 	DBE    dbe_rel_restrict;
 	DBE    dbe_acc_dbt;
 	DBE    dbe_acc_crd;
-	DBE    dbe_memo; // @v11.1.12
+	DBE    dbe_accname_dbt; // @v12.7.10
+	DBE    dbe_accname_crd; // @v12.7.10
+	DBE    dbe_memo;
 	if(Filt.GrpAco) {
+		brw_id = !Filt.Cycl ? BROWSER_ATURNGRPNG : BROWSER_ATURNGRPNG_CYCLE;
 		THROW_PP(P_TmpAGTbl, PPERR_PPVIEWNOTINITED);
 		THROW(CheckTblPtr(p_grp_tbl = new TempAccturnGrpngTbl(P_TmpAGTbl->GetName())));
 		PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, p_grp_tbl->CurID);
-		// @v12.5.1 {
 		q = &Select_(
 			p_grp_tbl->Dt,          // #00
 			p_grp_tbl->DbtAccID,    // #01
@@ -813,27 +818,10 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 		q->addField(p_grp_tbl->CrdAccName);  // #12
 		q->addField(p_grp_tbl->Count);       // #13
 		q->addField(p_grp_tbl->Amount);      // #14
-		// } @v12.5.1 
-		/*q = &Select_(
-			p_grp_tbl->Dt,          // #00
-			p_grp_tbl->DbtAccID,    // #01
-			p_grp_tbl->CrdAccID,    // #02
-			p_grp_tbl->CurID,       // #03
-			p_grp_tbl->DbtAc,       // #04
-			p_grp_tbl->DbtSb,       // #05
-			p_grp_tbl->DbtAr,       // #06
-			p_grp_tbl->CrdAc,       // #07
-			p_grp_tbl->CrdSb,       // #08
-			p_grp_tbl->CrdAr,       // #09
-			dbe_cur,                // #10
-			p_grp_tbl->DbtAccName,  // #11
-			p_grp_tbl->CrdAccName,  // #12
-			p_grp_tbl->Count,       // #13
-			p_grp_tbl->Amount,      // #14
-			0L);*/
 		q->from(p_grp_tbl, 0L).orderBy(p_grp_tbl->Dt, p_grp_tbl->DbtAc, p_grp_tbl->DbtSb, p_grp_tbl->DbtAr, 0L);
 	}
 	else {
+		brw_id = BROWSER_ATURNLIST;
 		double ip;
 		double min_amt = Filt.AmtR.low;
 		double max_amt = Filt.AmtR.upp;
@@ -848,7 +836,9 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 		PPDbqFuncPool::InitObjNameFunc(dbe_oprkind, PPDbqFuncPool::IdObjNameOprKind, bll->OpID);
 		PPDbqFuncPool::InitObjNameFunc(dbe_acc_dbt, PPDbqFuncPool::IdObjNameAcctRel, at->Acc);
 		PPDbqFuncPool::InitObjNameFunc(dbe_acc_crd, PPDbqFuncPool::IdObjNameAcctRel, at->CorrAcc);
-		PPDbqFuncPool::InitObjNameFunc(dbe_memo, PPDbqFuncPool::IdObjMemoBill, at->BillID); // @v11.1.12
+		PPDbqFuncPool::InitObjNameFunc(dbe_accname_dbt, PPDbqFuncPool::IdObjNameAccountByRel, at->Acc); // @v12.7.10
+		PPDbqFuncPool::InitObjNameFunc(dbe_accname_crd, PPDbqFuncPool::IdObjNameAccountByRel, at->CorrAcc); // @v12.7.10
+		PPDbqFuncPool::InitObjNameFunc(dbe_memo, PPDbqFuncPool::IdObjMemoBill, at->BillID);
 		{
 			dbe_rel_restrict.init();
 			dbe_rel_restrict.push(at->Acc);
@@ -859,7 +849,6 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 			dbe_rel_restrict.push(c_temp);
 			dbe_rel_restrict.push(static_cast<DBFunc>(PPViewAccturn::DynFuncCheckRelRestrictions));
 		}
-		// @v12.5.1 {
 		q = &Select_(
 			at->BillID,             // #00
 			at->Dt,                 // #01
@@ -872,20 +861,8 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 		q->addField(dbe_memo);      // #07
 		q->addField(dbe_cur);       // #08
 		q->addField(dbe_oprkind);   // #09
-		// } @v12.5.1 
-		/* @v12.5.1 q = &Select_(
-			at->BillID,             // #00
-			at->Dt,                 // #01
-			at->RByBill,            // #02
-			bll->Code,              // #03
-			dbe_acc_dbt,            // #04
-			dbe_acc_crd,            // #05
-			at->Amount,             // #06
-			// @v11.1.12 bll->Memo,              // #07
-			dbe_memo,               // #07 @v11.1.12
-			dbe_cur,                // #08
-			dbe_oprkind,            // #09
-			0L);*/
+		q->addField(dbe_accname_dbt); // #10 // @v12.7.10
+		q->addField(dbe_accname_crd); // #11 // @v12.7.10
 		if(p_tmp_bill_t) {
 			q->from(p_tmp_bill_t, at, bll, 0L);
 			dbq = & (at->BillID == p_tmp_bill_t->PrmrID);
@@ -916,14 +893,12 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 	THROW(CheckQueryPtr(q));
 	if(Filt.GrpAco) {
 		SString cursymb;
-		brw_id = !Filt.Cycl ? BROWSER_ATURNGRPNG : BROWSER_ATURNGRPNG_CYCLE;
 		PPGetSubStr(PPTXT_GRPACO, Filt.GrpAco - 1, sub_title);
 		::GetCurSymbText(((Filt.Flags & AccturnFilt::fAllCurrencies) ? -1L : Filt.CurID), cursymb);
 		sub_title.Space().Cat(cursymb);
 	}
 	else {
 		::GetCurSymbText(((Filt.Flags & AccturnFilt::fAllCurrencies) ? -1L : Filt.CurID), sub_title);
-		brw_id = BROWSER_ATURNLIST;
 	}
 	ASSIGN_PTR(pBrwId, brw_id);
 	ASSIGN_PTR(pSubTitle, sub_title);

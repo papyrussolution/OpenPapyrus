@@ -31,12 +31,13 @@ PPOpCounterPacket::~PPOpCounterPacket()
 bool FASTCALL PPOpCounterPacket::IsEq(const PPOpCounterPacket & rS) const // @v12.5.7
 {
 	bool   eq = (Head.IsEq(rS.Head) && Flags == rS.Flags);
-	if(!eq) {
-		if(LOGIC(P_Items) != LOGIC(rS.P_Items))
+	if(eq) { // @v12.7.10 @fix if(!eq)-->if(eq)
+		eq = AreObjByPtrEq(P_Items, rS.P_Items); // @v12.7.10 
+		/* @v12.7.10 if(LOGIC(P_Items) != LOGIC(rS.P_Items))
 			eq = false;
 		else if(P_Items && rS.P_Items) {
 			eq = P_Items->IsEq(*rS.P_Items);
-		}
+		}*/
 	}
 	return eq;
 }

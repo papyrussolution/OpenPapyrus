@@ -1447,6 +1447,20 @@ static int STDCALL Implement_GetObjectName(PPID objType, PPID objID, SString & r
 				case PPOBJ_PERSON: ok = GetPersonName(objID, _t); break;
 				case PPOBJ_GOODS: ok = GetGoodsNameR(objID, _t); break;
 				case PPOBJ_ARTICLE: ok = GetArticleName(objID, _t); break;
+				case PPOBJ_ACCOUNT2: // @v12.7.10
+					{
+						PPObjAccount _obj;
+						PPAccount _rec;
+						if(_obj.Fetch(objID, &_rec) > 0) {
+							_t = _rec.Name;
+							ok = 1;
+						}
+						else {
+							ideqvalstr(objID, _t);
+							ok = -1;
+						}
+					}
+					break;					
 				case PPOBJ_LOT:
 					{
 						PPObjBill * p_bobj(BillObj);

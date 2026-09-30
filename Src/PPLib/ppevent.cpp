@@ -78,7 +78,7 @@ int FASTCALL PPEventSubscriptionPacket::IsEq(const PPEventSubscriptionPacket & r
 	else if(!UserList.IsEq(rS.UserList))
 		eq = 0;
 	else if(P_Filt && rS.P_Filt) {
-		if(!P_Filt->IsEq(rS.P_Filt, 0))
+		if(!P_Filt->IsEq(rS.P_Filt))
 			eq = 0;
 	}
 	else if(P_Filt && !rS.P_Filt)

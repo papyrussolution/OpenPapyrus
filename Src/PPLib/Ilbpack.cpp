@@ -1401,7 +1401,7 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 		}
 		{
 			THROW(bpack.CreateBlank_WithoutCode(cvtToOpID, Rec.LinkBillID, dest_loc_id, 0));
-			STRNSCPY(bpack.Rec.Code, Rec.Code); // @v11.1.12 
+			STRNSCPY(bpack.Rec.Code, Rec.Code);
 		}
 		bpack.Rec.ID = Rec.ID;
 		bpack.Rec.Dt = Rec.Dt;
@@ -1426,9 +1426,11 @@ int ILBillPacket::Load__(PPID billID, long flags, PPID cvtToOpID /*=0*/)
 		// Список Amounts не должен содержать никаких сумм, кроме фиксированных
 		// и ручных (см. ниже) (если не установлен флаг ILBPF_LOADAMTNOTLOTS)
 		//
-		if(!(Rec.Flags & BILLF_FIXEDAMOUNTS) && free_amt)
+		if(!(Rec.Flags & BILLF_FIXEDAMOUNTS) && free_amt) {
 			Amounts.freeAll();
-		for(rbybill = 0; (r = p_bobj->atobj->P_Tbl->EnumByBill(billID, &rbybill, &at)) > 0;) {
+		}
+		assert(Rec.ID == billID); // @v12.7.10
+		for(rbybill = 0; (r = p_bobj->atobj->P_Tbl->EnumByBill(/*billID*/Rec, &rbybill, &at)) > 0;) {
 			at.Opr = Rec.OpID;
 			memcpy(at.BillCode, Rec.Code, sizeof(at.BillCode));
 			THROW_SL(Turns.insert(&at));
@@ -2182,7 +2184,7 @@ int BillTransmDeficit::AddItem(ILTI * pIlti, const char * pClbNumber, BillTbl::R
 			p_lc->P.low = pBillRec->Dt;
 		SETMAX(p_lc->P.upp, pBillRec->Dt);
 		// Searching total record for goods
-		const double qtty = R6(fabs(skipped ? pIlti->Quantity : pIlti->Rest));
+		const  double qtty = R6(fabs(skipped ? pIlti->Quantity : pIlti->Rest));
 		if(qtty > 0.0) {
 			if(Search(pBillRec->LocID, pIlti->GoodsID, 0, &tdt_rec) > 0) {
 				THROW(UpdateRec(&tdt_rec, pIlti, pClbNumber, pBillRec, qtty));
@@ -2212,21 +2214,16 @@ int BillTransmDeficit::AddItem(ILTI * pIlti, const char * pClbNumber, BillTbl::R
 
 int BillTransmDeficit::InitDeficitBill(PPBillPacket * pPack, PPID oprKind, LDATE dt, PPID locID, PPID supplID)
 {
+	int   ok = 1;
 	DS.SetLocation(locID);
 	if(pPack->CreateBlank(oprKind, 0, locID, 1)) {
 		pPack->Rec.Dt     = dt;
 		pPack->Rec.Object = supplID;
-		/* @v11.1.12 
-		pPack->Rec.Memo[0] = 'N';
-		pPack->Rec.Memo[1] = '2';
-		pPack->Rec.Memo[2] = 0;
-		*/
-		// pPack->SMemo = "N2"; // @v11.1.12
-		pPack->Rec.Flags2 |= BILLF2_FORCEDRECEIPT; // @v11.1.12
-		return 1;
+		pPack->Rec.Flags2 |= BILLF2_FORCEDRECEIPT;
 	}
 	else
-		return 0;
+		ok = 0;
+	return ok;
 }
 
 int BillTransmDeficit::TurnDeficit(PPID locID, LDATE dt, double pctAddition, const ObjTransmContext * pCtx)
@@ -3169,7 +3166,7 @@ int PPObjBill::NeedTransmit(PPID id, const DBDivPack & rDestDbDivPack, ObjTransm
 					rDestDbDivPack.GetExtStrData(DBDIVEXSTR_ACCLIST, temp_buf);
 					if(temp_buf.NotEmpty()) {
 						AccTurnCore * p_atc = atobj->P_Tbl;
-						for(int i = 0; ok < 0 && (r = p_atc->EnumByBill(bill_rec.ID, &i, 0)) > 0;) {
+						for(int i = 0; ok < 0 && (r = p_atc->EnumByBill(bill_rec, &i, 0)) > 0;) {
 							AcctRelTbl::Rec acr_rec;
 							THROW(p_atc->AccRel.Search(p_atc->data.Acc, &acr_rec) > 0);
 							if(IsAccBelongToList(reinterpret_cast<const Acct *>(&acr_rec.Ac), 0, temp_buf))

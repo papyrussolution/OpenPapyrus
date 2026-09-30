@@ -1511,14 +1511,15 @@ bool FASTCALL SColorSet::IsInnerEntryEq(const InnerEntry & rE1, const SColorSet 
 	else if(rE1.C != rE2.C)
 		eq = false;
 	else {
-		const ComplexColorBlock * p_ccb1 = (rE1.CcbP > 0 && rE1.CcbP <= CcC.getCount()) ? CcC.at(rE1.CcbP-1) : 0;
-		const ComplexColorBlock * p_ccb2 = (rE2.CcbP > 0 && rE2.CcbP <= rS.CcC.getCount()) ? rS.CcC.at(rE2.CcbP-1) : 0;
-		if(p_ccb1 && p_ccb2) {
+		const  ComplexColorBlock * p_ccb1 = (rE1.CcbP > 0 && rE1.CcbP <= CcC.getCount()) ? CcC.at(rE1.CcbP-1) : 0;
+		const  ComplexColorBlock * p_ccb2 = (rE2.CcbP > 0 && rE2.CcbP <= rS.CcC.getCount()) ? rS.CcC.at(rE2.CcbP-1) : 0;
+		eq = AreObjByPtrEq(p_ccb1, p_ccb2); // @v12.7.10 
+		/* @v12.7.10 if(p_ccb1 && p_ccb2) {
 			if(!p_ccb1->IsEq(*p_ccb2))
 				eq = false;
 		}
 		else if(LOGIC(p_ccb1) != LOGIC(p_ccb2))
-			eq = false;
+			eq = false;*/
 	}
 	return eq;
 }

@@ -491,20 +491,26 @@ int TrfrAnlzFilt::IsEqualExcept(const TrfrAnlzFilt & rS, long flags) const
 			return 0;
 	}
 	{
-		if(LOGIC(P_BillTagF) != LOGIC(rS.P_BillTagF))
+		if(!AreObjByPtrEq(P_BillTagF, rS.P_BillTagF)) { // @v12.7.10
+			return 0;
+		}
+		/*@v12.7.10 if(LOGIC(P_BillTagF) != LOGIC(rS.P_BillTagF))
 			return 0;
 		else if(P_BillTagF && rS.P_BillTagF) {
-			if(!P_BillTagF->IsEq(rS.P_BillTagF, 0))
+			if(!P_BillTagF->IsEq(rS.P_BillTagF))
 				return 0;
-		}
+		}*/
 	}
 	{ // @v12.7.9
-		if(LOGIC(P_DlvrLocTagF) != LOGIC(rS.P_DlvrLocTagF))
+		if(!AreObjByPtrEq(P_DlvrLocTagF, rS.P_DlvrLocTagF)) { // @v12.7.10
+			return 0;
+		}
+		/*@v12.7.9 if(LOGIC(P_DlvrLocTagF) != LOGIC(rS.P_DlvrLocTagF))
 			return 0;
 		else if(P_DlvrLocTagF && rS.P_DlvrLocTagF) {
-			if(!P_DlvrLocTagF->IsEq(rS.P_DlvrLocTagF, 0))
+			if(!P_DlvrLocTagF->IsEq(rS.P_DlvrLocTagF))
 				return 0;
-		}
+		}*/
 	}
 #undef NEQ_FLD
 	return 1;

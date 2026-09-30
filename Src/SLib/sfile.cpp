@@ -4630,7 +4630,7 @@ public:
 	}
 };
 
-int CsvSniffer::Run(const char * pFileName, const Param & rP, Result & rR) // @construction
+int CsvSniffer::Run(const char * pFileName, const Param & rP, Result & rR)
 {
 	rR.Z();
 	int    ok = -1;

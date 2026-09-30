@@ -444,6 +444,7 @@ Section -PPALDD SEC_PPALDD
 	File "${SRC_ROOT}\SRC\RSRC\DATA\editorlangmodel.xml" ; @v9.8.2
 	File "${SRC_ROOT}\SRC\RSRC\DATA\editorstyles.xml"    ; @v9.8.2
 	File "${SRC_ROOT}\SRC\RSRC\DATA\vetis-research-result.csv" ; @v12.5.12
+	File "${SRC_ROOT}\SRC\RSRC\DATA\chzn-LkReceipt-action.txt" ; @v12.7.10
 	File "${SRC_ROOT}\SRC\RSRC\DATA\PhoneNumberMetadata.json"  ; @v12.6.3
 	File "${SRC_ROOT}\SRC\RSRC\DATA\phone-carrier.txt"         ; @v12.6.3
 	; @v10.8.3 Изображения

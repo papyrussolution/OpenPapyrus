@@ -296,9 +296,9 @@ int CalcPriceParam::Restore()
 ulong GetMinVatDivisor(double rate, uint prec)
 {
 	assert(prec >= 0 && prec <= 6);
-	const double _mult = fpow10i(prec + 2);
-    const ulong  r = static_cast<ulong>(R6(rate) * _mult);
-    const ulong  d = static_cast<ulong>((1.0 + R6(rate)) * _mult);
+	const  double _mult = fpow10i(prec + 2);
+    const  ulong  r = static_cast<ulong>(R6(rate) * _mult);
+    const  ulong  d = static_cast<ulong>((1.0 + R6(rate)) * _mult);
     UlongArray r_list, d_list;
     Factorize(r, &r_list);
     Factorize(d, &d_list);

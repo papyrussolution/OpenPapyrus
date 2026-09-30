@@ -1,5 +1,5 @@
 // TEST-UED.CPP
-// Copyright (c) A.Sobolev 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2023, 2024, 2025, 2026
 // @codepage UTF-8
 // Тестирование технологии UED
 //

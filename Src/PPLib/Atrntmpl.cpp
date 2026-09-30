@@ -56,11 +56,30 @@ bool FASTCALL PPAccTurn::IsEq(const PPAccTurn & rS) const
 	return eq;
 }
 
-bool PPAccTurn::SetNonBalancedFlow(int dir/*PPATFLOW_XXX*/)
+bool PPAccTurn::SetNonBalancedFlow(int dir/*PPATFLOW_XXX*/, BillTbl::Rec & rBillRec)
 {
 	bool   ok = false;
 	if(oneof3(dir, PPATFLOW_INCOME, PPATFLOW_EXPENSE, PPATFLOW_TRANSFER)) {
-		if(Flags & (PPAF_OUTBAL|PPAF_REGISTER|PPAF_PERSONAL)) {
+		if(Flags & PPAF_PERSONAL) {
+			rBillRec.Flags2 &= ~(BILLF2_PERSONAL_INCOME|BILLF2_PERSONAL_TRANSFER);
+			if(dir == PPATFLOW_INCOME) {
+				Flags &= ~(PPAF_OUTBAL_WITHDRAWAL|PPAF_OUTBAL_TRANSFER);
+				rBillRec.Flags2 |= BILLF2_PERSONAL_INCOME;
+				ok = true;
+			}
+			else if(dir == PPATFLOW_EXPENSE) {
+				Flags &= ~(PPAF_OUTBAL_TRANSFER);
+				Flags |= (PPAF_OUTBAL_WITHDRAWAL);
+				ok = true;
+			}
+			else if(dir == PPATFLOW_TRANSFER) {
+				Flags &= ~(PPAF_OUTBAL_WITHDRAWAL);
+				Flags |= (PPAF_OUTBAL_TRANSFER);
+				rBillRec.Flags2 |= BILLF2_PERSONAL_TRANSFER;
+				ok = true;
+			}
+		}
+		else if(Flags & (PPAF_OUTBAL|PPAF_REGISTER)) {
 			if(dir == PPATFLOW_INCOME) {
 				Flags &= ~(PPAF_OUTBAL_WITHDRAWAL|PPAF_OUTBAL_TRANSFER);
 				ok = true;
@@ -80,7 +99,7 @@ bool PPAccTurn::SetNonBalancedFlow(int dir/*PPATFLOW_XXX*/)
 	return false;
 }
 
-int PPAccTurn::GetNonBalancedFlow() const
+int PPAccTurn::GetNonBalancedFlow(const BillTbl::Rec & rBillRec) const
 {
 	int    result = PPATFLOW_UNDEF;
 	if(Flags & (PPAF_OUTBAL|PPAF_REGISTER|PPAF_PERSONAL)) {

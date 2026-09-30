@@ -1489,6 +1489,10 @@
 #define PPTAG_GUA_CHZNTSPIOTURL        133L // @v12.5.11 Адрес компьютера, на котором установлен модуль тс-пиот для проверки марок честный знак 
 #define PPTAG_LOT_TECROUTESTAGE        134L // @v12.6.2  Последний завершенный этап технологического маршрута для лота в производстве
 #define PPTAG_LOT_TECROUTEASSIGNMENT   135L // @v12.6.5  Параметры лота, определяющие прохождение его по технологическому маршруту. Могут содержать ид маршрута и ид финального продукта
+#define PPTAG_BILL_CHZNRCPTACTION      136L // @v12.7.10 Причина списания марок чзн. Полный список вариантов - в файле chzn-LkReceipt-action.txt.
+	// Обращаю внимание, что есть еще тег PPTAG_BILL_CHZNDISPOSALRSN с похожим смыслом, но мы не должны забывать какие мудаки десятилетиями рулят страной 
+	// (а остальные мудаки им не препятствуют), потому не надо путать эти теги. PPTAG_BILL_CHZNDISPOSALRSN используется при экспорте документов в формате nalog.ru и имеет числовое значение,
+	// тег PPTAG_BILL_CHZNRCPTACTION применяется при перечаче непосредственно в портал чзн акта списания марок.
 //#define PPTAG_GOODS_SEMICHZNMARKED     136L // @v12.7.6  Товар подлежит chzn-маркировке, но чтобы продать оставшиеся немаркированные остатки допусткается отказ от сканирования марки
 //
 // Зарезервированные идентификаторы глобальных учетных записей
@@ -2602,6 +2606,8 @@
 	#define CTL_GOODS_CMD_GOODSMATRIX   (50 + WINDOWS_ID_BIAS)
 	#define CTL_GOODS_CMD_SUPPLCOST     (51 + WINDOWS_ID_BIAS) 
 	#define CTL_GOODS_CMD_VALUEADDEDDATA (52 + WINDOWS_ID_BIAS)
+	#define CTL_GOODS_CMD_GOODSEXTITLES (53 + WINDOWS_ID_BIAS)
+	#define CTL_GOODS_CMD_GOODSEDITTAX  (54 + WINDOWS_ID_BIAS)
 #define DLG_LOCATION               73 // Location (Warehouse)
 #define DLG_LOCATION2              75 // @v2.2.4 Location
 #define DLG_ADDRESS                76 // @v2.2.4 Address (Location)

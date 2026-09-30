@@ -3701,9 +3701,9 @@ int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontI
 	return ok;
 }
 
-void PPBillPacket::CreateAccTurn(PPAccTurn & rAt) const
+void PPBillPacket::CreateAccTurn(PPAccTurn & rAt) // @v12.7.10 const-->non-const (из-за персональных транзакций, которые меняют флаги в Rec
 {
-	memzero(&rAt, sizeof(rAt));
+	rAt.Z();
 	memcpy(rAt.BillCode, Rec.Code, sizeof(rAt.BillCode));
 	rAt.Date   = Rec.Dt;
 	rAt.BillID = Rec.ID;
@@ -3719,7 +3719,7 @@ void PPBillPacket::CreateAccTurn(PPAccTurn & rAt) const
 				rAt.DbtAcsID = acc_rec.AccSheetID;
 			}
 			{
-				rAt.SetNonBalancedFlow(PPATFLOW_EXPENSE);
+				rAt.SetNonBalancedFlow(PPATFLOW_EXPENSE, Rec);
 				if(acc_obj.SearchBySymb(PPConst::P_PredefAccountSymb_Exp, 0, &acc_rec) > 0) {
 					rAt.CrdID.AcID = acc_rec.ID;
 					rAt.CrdAcsID = acc_rec.AccSheetID;
@@ -5043,12 +5043,13 @@ int PPBillPacket::HasOneOfGoods(const ObjIdListFilt & rList) const
 	return yes;
 }
 
-bool PPBillPacket::HasChZnMarks(bool isCorrectionExp) const
+bool PPBillPacket::HasChZnMarks(bool isCorrectionExp, bool realMarksOnly) const
 {
 	bool    result = false;
 	SString temp_buf;
 	PPLotExtCodeContainer::MarkSet ext_codes_set;
 	StringSet ss;
+	PPObjGoods * p_goods_obj = 0;
 	for(uint tiidx = 0; !result && tiidx < GetTCount(); tiidx++) {
 		const  PPTransferItem & r_ti = ConstTI(tiidx);
 		const  PPID goods_id = r_ti.GoodsID;
@@ -5059,21 +5060,21 @@ bool PPBillPacket::HasChZnMarks(bool isCorrectionExp) const
 					result = true;
 			}
 		}
-		if(!result && !isCorrectionExp) {
-			PPObjGoods goods_obj;
+		if(!result && !isCorrectionExp && !realMarksOnly) {
 			Goods2Tbl::Rec goods_rec;
 			PPGoodsType2 gt_rec;
-			if(goods_obj.Fetch(goods_id, &goods_rec) > 0 && goods_rec.GoodsTypeID && goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
+			SETIFZQ(p_goods_obj, new PPObjGoods);
+			if(p_goods_obj && p_goods_obj->Fetch(goods_id, &goods_rec) > 0 && goods_rec.GoodsTypeID && p_goods_obj->FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
 				const  int chzn_prod_type = gt_rec.ChZnProdType;
 				if(PPChZnPrcssr::IsTypeSuitableForSurrogateMarking(chzn_prod_type)) {
 					PPObjGoods::ExportDataCodeSet code_set;
-					goods_obj.GetExportDataCodeSet(goods_id, code_set);
+					p_goods_obj->GetExportDataCodeSet(goods_id, code_set);
 					if(code_set.CodeForMarking.NotEmpty()) {
 						int    chzn_int_qty = 0;
 						bool   is_weighted_ware = false;
 						PPUnit u_rec;
 						const  bool is_whs_marking_ware = LOGIC(gt_rec.Flags & GTF_GMARKED_WHS);
-						if(goods_obj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
+						if(p_goods_obj->FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
 							is_weighted_ware = (u_rec.ID == SUOM_KILOGRAM || u_rec.BaseUnitID == SUOM_KILOGRAM);
 						}
 						if(chzn_prod_type == GTCHZNPT_MILK && is_weighted_ware) {
@@ -5093,6 +5094,7 @@ bool PPBillPacket::HasChZnMarks(bool isCorrectionExp) const
 			}
 		}
 	}
+	delete p_goods_obj;
 	return result;
 }
 

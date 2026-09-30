@@ -1,5 +1,5 @@
 // V_STYLOQBINDERY.CPP
-// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2021, 2022, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1298,15 +1298,11 @@ int PPViewStyloQCommand::EditItem(uint idx)
 	int    ok = -1;
 	StyloQCommandList::Item * p_item = idx ? List.Get(idx-1) : 0;
 	if(p_item) {
-		// @v11.4.3 {
-		const StyloQCommandList::Item org_item(*p_item);
+		const  StyloQCommandList::Item org_item(*p_item);
 		assert(org_item.IsEq(*p_item));
-		// } @v11.4.3
 		if(EditStyloQCommand(p_item, List) > 0) {
-			// @v11.4.3 {
 			if(!p_item->IsEq(org_item))
 				BaseState |= bsUserChangedData;
-			// } @v11.4.3
 			ok = 1;
 		}
 	}
@@ -1319,7 +1315,7 @@ int PPViewStyloQCommand::DeleteItem(uint idx)
 	StyloQCommandList::Item * p_item = idx ? List.Get(idx-1) : 0;
 	if(p_item && CONFIRM(PPCFM_DELETE)) {
 		if(List.Set(idx-1, 0)) {
-			BaseState |= bsUserChangedData; // @v11.4.3
+			BaseState |= bsUserChangedData;
 			ok = 1;
 		}
 	}

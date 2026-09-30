@@ -117,53 +117,40 @@ static const ChZnProductTypeToOfficial ChZnProductTypeToOfficialList[] = {
 	return result;
 }
 
-static uint MinMarks(uint itemQtty, uint minPackage, uint markCount)
-{
-	uint   result = 0;
-	if(minPackage > 0) {
-		uint   rem = itemQtty;
-		uint   level_size = (itemQtty / minPackage) * minPackage;
-		SETMAX(level_size, 4); // Не думаю, что может быть больше 4-х уровней упаковки (но лучше это параметром или внешней константой задать)
-		while(rem > 0) {
-			uint _count = rem / level_size;
-			result += _count;
-			rem %= level_size;
-			level_size /= minPackage;
-		}
-	}
-	else
-		result = itemQtty;
-	return result;
-}
-
 /*static*/int PPChZnPrcssr::EstimateQuantityAdequacy(uint itemQtty, uint minPackage, uint markCount)
 {
-	if(markCount == itemQtty) // всё поштучно — OK
-		return 1; 
-	else if(minPackage <= 1) // упаковка тривиальна, марок должно быть == Q
-		return -50; 
-	else if(markCount > itemQtty) // марок больше товара
-		return -100; 
-	else if(markCount == 0) // марок нет вообще
-		return -75; 
+	int    result = eqarError;
+	if(markCount == itemQtty) { // всё поштучно — OK
+		result = eqarOK;
+	}
+	else if(markCount == 0) { // марок нет вообще
+		result = eqarMcZero;
+	}
+	else if(markCount > itemQtty) { // марок больше товара
+		result = eqarMcGtQtty; 
+	}
+	else if(minPackage <= 1) { // упаковка тривиальна, марок должно быть == Q
+		result = eqarUndefPackage; 
+	}
 	else {
 		// --- Точная проверка ---
-		const uint d = itemQtty - markCount;    // суммарная 'экономия' марок
-		const uint P = minPackage;
+		const  uint d = itemQtty - markCount; // суммарная 'экономия' марок
+		const  uint P = minPackage;
 		// Минимальное число упаковок, совместимое с mod P:
 		//   каждая упаковка kP экономит (kP - 1) ≡ (P-1) ≡ -1 (mod P)
 		//   сумма экономий d = P·K - m  ⇒  m ≡ -d (mod P)
-		const uint r = d % P;
-		const uint m_min = (r > 0) ? (P - r) : P;
+		const  uint r = d % P;
+		const  uint m_min = (r > 0) ? (P - r) : P;
 		// Максимальное число упаковок:
 		//   каждая экономит ≥ P-1, значит m·(P-1) ≤ d
 		//   и, конечно, m ≤ N (на каждую упаковку нужна марка)
-		const uint m_max = smin(markCount, d / (P - 1));
+		const  uint m_max = smin(markCount, d / (P - 1));
 		if(m_min > m_max)
-			return -30; // невозможно разложить
+			result = eqarUndecomposable;
 		else
-			return 1; // OK
+			result = eqarOK;
 	}
+	return result;
 }
 
 class ChZnInterface {
@@ -1055,6 +1042,7 @@ DRAFTBEER HORECA @v11.9.4
 					ok = SNTOK_CHZN_PALLET_MOTOROIL;
 				}
 				else {
+					//dedicatedcase_sunfruit_01
 					if(rS.GetToken(GtinStruc::fldGTIN14, 0)) {
 						if(code_len == 83) {
 							while(pr != 1 && serial_len_variant_idx < SIZEOFARRAY(serial_len_variant_list_83)) {
@@ -1838,6 +1826,48 @@ static bool IsMedcineOnly(int docType)
 	return medcine_only;
 }
 
+/*
+Ошибка возникает при указании в одном УПД кодов маркировки по разным товарным группам, которые не сочетаются согласно методическим рекомендациям. 
+
+Перечень допустимых сочетаний различных товарных групп в рамках одного документа:
+Сочетание 1
+	Табачная продукция;
+	Альтернативная табачная продукция;
+	Никотиносодержащая продукция
+	{}
+
+Сочетание 2
+	Обувные товары;
+	Шины и покрышки пневматические резиновые новые;
+	Духи и туалетная вода;
+	Предметы одежды, бельё постельное, столовое, туалетное и кухонное;
+	Фотокамеры (кроме кинокамер), фотовспышки и лампы-вспышки;
+	Медицинские изделия;
+	Велосипеды и велосипедные рамы;
+	Антисептики и дезинфицирующие средства;
+	Биологически активные добавки к пище;
+	Ветеринарные препараты;
+	Игры и игрушки для детей;
+	Корма для животных;
+	Консервированная продукция;
+	Оптоволокно и оптоволоконная продукция;
+	Парфюмерные и косметические средства и бытовая химия;
+	Радиоэлектронная продукция;
+	Растительные масла
+Сочетание 3
+	Молочная продукция;
+	Морепродукты
+Сочетание 4
+	Упакованная вода;
+	Соковая продукция и безалкогольные напитки;
+	Безалкогольное пиво
+Сочетание 5
+	Пиво, напитки, изготавливаемые на основе пива и слабоалкогольные напитки
+
+Например, если вы укажете в одном УПД коды маркировки обуви и воды, то УПД будет обработан с ошибкой.
+Решение: Аннулировать документ в вашем Операторе ЭДО и разбить на документы по сочетаемым товарным группам.
+*/ 
+
 int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb, const ChZnInterface::Packet * pPack, int * pDataFormat, SString & rResult) // @v12.6.2 Вместо Make()
 {
 	rResult.Z();
@@ -1864,11 +1894,20 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 		if(p_bp) {
 			const  PPID rcvr_ar_id = p_bp->Rec.Object;
 			const  PPID rcvr_psn_id = ObjectToPerson(rcvr_ar_id, 0);
+			const  PPID subj_psn_id = main_org_id;
 			const  PPID subj_loc_id = p_bp->Rec.LocID;
 			SString sender_inn;
 			SString receiver_inn;
 			SString doc_date_text;
-			PPID   subj_psn_id = main_org_id;
+			// @v12.7.10 {
+			SString _action_symb; // action: see chzn-LkReceipt-action.txt 
+			if(p_bp->BTagL.GetItemStr(PPTAG_BILL_CHZNRCPTACTION, _action_symb) && _action_symb.NotEmptyS() && _action_symb.IsAscii()) {
+				;
+			}
+			else {
+				_action_symb = "OTHER";
+			}
+			// } @v12.7.10 
 			doc_date_text.Z().Cat(p_bp->Rec.Dt, DATF_GERMANCENT);
 			psn_obj.GetRegNumber(subj_psn_id, PPREGT_TPID, sender_inn);
 			if(rcvr_psn_id)
@@ -1878,12 +1917,29 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 			}*/
 			data_format = SFileFormat::Json; // @v12.6.9 Попробуем все грузить в json
 			if(data_format == SFileFormat::Json) {
+				
 				SJson js(SJson::tOBJECT);
 				js.InsertString("inn", sender_inn);
-				js.InsertString("action", "OTHER");
+				js.InsertString("action", _action_symb); // @v12.7.10 "OTHER"-->_action_symb
 				js.InsertString("action_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601CENT));
-				js.InsertString("withdrawal_type_other", "RETAIL");
-				js.InsertString("document_type", "OTHER");
+				if(_action_symb.IsEqiAscii("OTHER")) {
+					js.InsertString("withdrawal_type_other", "RETAIL");
+				}
+				{
+					/*
+						Возможные значения:
+						CONSIGNMENT_NOTE — «Товарная накладная»;
+						CUSTOMS_DECLARATION — «Таможенная декларация»;
+						DESTRUCTION_ACT — «Акт уничтожения (утраты/утилизации)»;
+						DIGITAL_CERTIFICATE — «Электронный сертификат» (указание доступно только в формате * .json);
+						ORTHOPEDIC_PRODUCT_ACT — «Акт протезно-ортопедического изделия» (указание доступно только в формате * .json);
+						OTHER — «Прочее»;
+						RECEIPT — «Кассовый чек»;
+						SALES_RECEIPT — «Товарный чек»;
+						UTD — «Универсальный передаточный документ».
+					*/ 
+					js.InsertString("document_type", "OTHER");
+				}
 				js.InsertString("document_number", (temp_buf = p_bp->Rec.Code).Transf(CTRANSF_INNER_TO_UTF8));
 				js.InsertString("document_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601CENT));
 				PPLoadStringUtf8("document_upd_s", temp_buf); // УПД
@@ -2573,6 +2629,7 @@ int ChZnInterface::SetupInitBlock(const PPGlobalUserAccPacket & rGuaPack, const 
 		// Требуется в доверенные еще внести сертификат Крипто-Про (в инструкции по быстрому старту про это есть). 
 	rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_CERTSUBJCN, rBlk.Cn);
 	rBlk.GuaPack.TagL.GetItemStr(PPTAG_GUA_CHZN_PM_TOKEN, rBlk.PermissiveModeToken); // @v11.9.11
+	// http://127.0.01:5995 
 	{
 		InetUrl url;
 		// @v12.3.11 {

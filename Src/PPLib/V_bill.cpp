@@ -961,7 +961,7 @@ void BillFiltDialog::SetupLocationCombo()
 
 int BillFiltDialog::setDTS(const BillFilt * pFilt)
 {
-	if(!Data.PPBaseFilt::IsEq(pFilt, 0)) {
+	if(!Data.PPBaseFilt::IsEq(pFilt)) {
 		const  PPID cur_user_id = LConfig.UserID;
 		ushort v;
 		PPID   acc_sheet_id = 0;

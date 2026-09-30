@@ -1180,7 +1180,7 @@ int PPViewTSession::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser
 				if(TSesObj.Search(id, &rec) > 0 && rec.PrcID) {
 					TSessionFilt filt;
 					filt.PrcID = rec.PrcID;
-					if(!filt.IsEq(&Filt, 1))
+					if(!filt.IsEq(&Filt))
 						::ViewTSession(&filt);
 				}
 				break;

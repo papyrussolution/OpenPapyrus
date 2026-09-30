@@ -1563,13 +1563,19 @@ browser COMPUTER north(100), 3, 0, "@{view_computer}", OWNER|GRID, 0
 	}
 }
 
-browser ATURNLIST north(100), 1, 0, "@{view_accturn} {%s}", OWNER|GRID, 0
+browser ATURNLIST north(100), 3, 0, "@{view_accturn} {%s}", OWNER|GRID, 0
 {
 	"@date",    1, notype, DATF_DMY, 8
 	"@billno",  3, notype, 0,        8
 	"@oprkind", 9, notype, 0,       10
-	"@debit",   4, notype,   ALIGN_LEFT, 7
-	"@credit",  5, notype,   ALIGN_LEFT, 7
+	group "@debit" {
+		"@accnumber",   4, notype,   ALIGN_LEFT, 7
+		"@accname",    10, notype,   ALIGN_LEFT, 15
+	}
+	group "@credit" {
+		"@accnumber",  5, notype,   ALIGN_LEFT, 7
+		"@accname",   11, notype,   ALIGN_LEFT, 15
+	}
 	"@amount",  6, notype, NMBF_DELCOMMA, 12.2
 	"@memo",    7, notype, 0, 32
 	toolbar TB_FIRST_TOOLBAR {
@@ -2352,6 +2358,7 @@ browser LOT2 north(100), 1, 0, "@{view_lot} {%s}", OWNER|GRID, 0
 	"@warehouse",      3, notype, 0, 16
 	"@ware",           4, notype, 0, 20
 	"@supplier",       5, notype, 0, 18
+	"@unitperpack_ss", 19, notype, NMBF_NOZERO, 10 // @v12.7.10
 	"@lot_initqtty",   6, notype, NMBF_NOTRAILZ,  6.3
 	"@rest",           7, notype, NMBF_NOZERO|NMBF_NOTRAILZ, 10.7 // @v12.4.8 NMBF_NOZERO
 	"@lot_closedate", 11, notype, DATF_DMY, 8
