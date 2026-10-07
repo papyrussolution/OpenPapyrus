@@ -541,8 +541,8 @@ int PPViewStaffPost::Init_(const PPBaseFilt * pFilt)
 	StaffList.Set(0);
 	ZDELETE(P_TempTbl);
 	THROW(Helper_InitBaseFilt(pFilt));
-	Filt.Period.Actualize(ZERODATE);
-	Filt.FnPeriod.Actualize(ZERODATE);
+	Filt.Period.Actualize();
+	Filt.FnPeriod.Actualize();
 	if(pFilt) {
 		if(!CheckXORFlags(Filt.Flags, StaffPostFilt::fOpenedOnly, StaffPostFilt::fClosedOnly))
 			Filt.Flags &= ~(StaffPostFilt::fOpenedOnly, StaffPostFilt::fClosedOnly);

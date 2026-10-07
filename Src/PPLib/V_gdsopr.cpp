@@ -1185,8 +1185,8 @@ int PPViewGoodsOpAnalyze::Init_(const PPBaseFilt * pFilt)
 	MEMSZERO(ufp_factor);
 	PPUserFuncProfiler ufp(PPUPRF_VIEW_GOODSOPANLZ);
 	THROW(Helper_InitBaseFilt(pFilt));
-	Filt.Period.Actualize(ZERODATE);
-	Filt.CmpPeriod.Actualize(ZERODATE);
+	Filt.Period.Actualize();
+	Filt.CmpPeriod.Actualize();
 	ZDELETE(P_GoodsList);
 	Counter.Init();
 	Total.Init();

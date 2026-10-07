@@ -361,7 +361,7 @@ SLTEST_R(LDATE)
 			const DateRangeTestEntry & r_entry = test_entries[i];
 			DateRange dr;
 			dr.FromStr(r_entry.P_Text, 0);
-			dr.Actualize(ZERODATE);
+			dr.Actualize();
 			LDATE dt_low;
 			LDATE dt_upp;
 			strtodate(r_entry.P_Low, DATF_DMY, &dt_low);

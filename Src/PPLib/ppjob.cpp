@@ -1495,7 +1495,7 @@ public:
 		CashNodeParam param;
 		THROW(param.Read(*pParam, 0));
 		THROW(!PPObjCashNode::IsLocked(param.CashNodeID));
-		param.Period.Actualize(ZERODATE);
+		param.Period.Actualize();
 		THROW(PPCashMachine::AsyncCloseSession2(param.CashNodeID, &param.Period));
 		CATCHZOK
 		return ok;

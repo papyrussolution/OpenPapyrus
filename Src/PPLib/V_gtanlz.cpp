@@ -224,7 +224,7 @@ int PPViewGoodsTaxAnalyze::Init_(const PPBaseFilt * pFilt)
 	SString temp_buf;
 	const  bool is_price_wo_excise = LOGIC(CConfig.Flags & CCFLG_PRICEWOEXCISE);
 	THROW(Helper_InitBaseFilt(pFilt));
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	OpList.Z();
 	if(Filt.OpID)
 		if(IsGenericOp(Filt.OpID) > 0)

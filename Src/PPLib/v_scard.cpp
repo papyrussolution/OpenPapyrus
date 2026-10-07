@@ -375,9 +375,9 @@ int PPViewSCard::Init_(const PPBaseFilt * pFilt)
 	Counter.Init();
 	SETMAX(Filt.PDisR.low, 0.0);
 	SETMAX(Filt.PDisR.upp, 0.0);
-	Filt.IssuePeriod.Actualize(ZERODATE);
-	Filt.ExpiryPeriod.Actualize(ZERODATE);
-	Filt.TrnovrPeriod.Actualize(ZERODATE);
+	Filt.IssuePeriod.Actualize();
+	Filt.ExpiryPeriod.Actualize();
+	Filt.TrnovrPeriod.Actualize();
 	Filt.TurnoverR.Round(2);
 	if(Filt.EmployerID)
 		SETIFZQ(P_StffObj, new PPObjStaffList);
@@ -499,7 +499,7 @@ int PPViewSCard::CreateTempTable()
 		if(Filt.P_SjF && !Filt.P_SjF->IsEmpty()) {
 			SysJournal * p_sj = DS.GetTLA().P_SysJ;
 			PPIDArray local_list;
-			Filt.P_SjF->Period.Actualize(ZERODATE);
+			Filt.P_SjF->Period.Actualize();
 			THROW(p_sj->GetObjListByEventPeriod(PPOBJ_SCARD, Filt.P_SjF->UserID,
 				&Filt.P_SjF->ActionIDList, &Filt.P_SjF->Period, local_list));
 			if(use_list) {
@@ -2612,7 +2612,7 @@ int PPViewSCardOp::Init_(const PPBaseFilt * pFilt)
 	int    ok = 1;
 	Counter.Init(0UL);
 	if(Helper_InitBaseFilt(pFilt)) {
-        Filt.Period.Actualize(ZERODATE);
+        Filt.Period.Actualize();
 	}
 	else
 		ok = 0;
@@ -3656,7 +3656,7 @@ int PPViewUhttSCardOp::Init_(const PPBaseFilt * pFilt)
 			BExtQuery  iter_query(&tbl, 1);
 			DBQ   * dbq = 0;
 			BtrDbKey k_;
-			Filt.Period.Actualize(ZERODATE);
+			Filt.Period.Actualize();
 			dbq = &daterange(tbl.Dt, &Filt.Period);
 			iter_query.selectAll().where(*dbq);
 			iter_query.initIteration(false, k_, spGe);

@@ -530,7 +530,7 @@ bool FASTCALL ObjTagItem::operator != (const ObjTagItem & a) const { return (Cmp
 
 int ObjTagItem::Put(PPID objType, PPID objID, long tagByObj, ObjTagTbl::Rec * pRec) const
 {
-	memzero(pRec, sizeof(*pRec));
+	pRec->Clear();
 	pRec->ObjType  = objType;
 	pRec->ObjID    = objID;
 	pRec->TagID    = TagID;

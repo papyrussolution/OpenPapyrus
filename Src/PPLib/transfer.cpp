@@ -1127,7 +1127,7 @@ int Transfer::FixUpPeriodForAverageRestEvaluating(const PPIDArray & rLocList, co
 {
 	int    ok = -1;
 	DateRange period(rPeriod);
-	period.Actualize(ZERODATE);
+	period.Actualize();
 	if(!period.low) {
 		if(rLocList.getCount() && rGoodsList.getCount()) {
 			PPIDArray loc_list;
@@ -1168,7 +1168,7 @@ int Transfer::EvaluateAverageRestByLot(PPID lotID, const DateRange & rPeriod, do
 	int    ok = 1;
 	double avg_qtty = 0.0;
 	DateRange period(rPeriod);
-	period.Actualize(ZERODATE);
+	period.Actualize();
 	if(checkdate(period.low) && checkdate(period.upp) && period.upp >= period.low) {
 		ReceiptTbl::Rec lot_rec;
 		if(Rcpt.Search(lotID, &lot_rec) > 0) {

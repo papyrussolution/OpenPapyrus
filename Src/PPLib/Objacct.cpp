@@ -28,7 +28,7 @@ PPObjAccount::~PPObjAccount()
 	acct.ac = rRec.A.Ac;
 	acct.sb = rRec.A.Sb;
 	acct.ar = 0;
-	acct.ToStr(ACCF_DEFAULT, buf);
+	acct.ToStr_Obsolete(ACCF_DEFAULT, buf);
 	STRNSCPY(rRec.Code, buf);
 }
 

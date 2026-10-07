@@ -1,18 +1,18 @@
 
 [hash]
-base=ppstr2.txt,eLuePzsqGzKTn5MSHFk+kvJSRmGUovwAMiNOmGBXY04=,ppstr2.bin,ulMqNIt9WG5wq4HXodUFTh3pQ9H2/DijffOwR4OwVYw=
+base=ppstr2.txt,n1iTvwyRgFVitYH7KcxQbXR/iETLnH2AAAoebmiiw8o=,ppstr2.bin,HjJj2b7LI8UN29ejrT+Y3fBkZJFH1F0N0NsotsfNGgo=
 lang-de=ppstr2-de.txt,vBHXz7GFmSlWHN5nhQWFT6WBP/qX1NctpzLNyBKBRUs=,ppstr2-de.bin,IgP0oJq+StX6/pHGw3DlOEbNMrxZZeYYfFLh/tUQQD4=
 lang-en=ppstr2-en.txt,+28p3hMfvSudDV3CqfJDOjTZKho2umy1K4C92tm3UyY=,ppstr2-en.bin,JDl8q1nkd4ILSPASoUHHH8s6KZM7kP5OUXwUOH/Kvug=
 lang-es=ppstr2-es.txt,bvkiJX8i+13kNCalRFfPxci9gmGnLr6J9xhKF+0NtLo=,ppstr2-es.bin,hebe73IxmbxJ+qOeg1vD9+iWczPBOsihVl0WLPu2McE=
 lang-nl=ppstr2-nl.txt,Qu0aihpaC9sB5/9X+XW+O/SEjNj1xI04rRvezRthdLQ=,ppstr2-nl.bin,b7LDKYhsEWl1AxDnuhKaxFsW5LwqMpWA7P8pk/Z8tqk=
 lang-pt=ppstr2-pt.txt,UCn636ls+9Wei7NF5wM/r/9urjXBchGWUIAnmqVDlGY=,ppstr2-pt.bin,pYieVsWs9JRwpEzswpHbuzr+/cRhm+Z4UUAdy5rZ3Do=
-chdr=ppstr2.h,VayUz9ynvK3VXWwulJfpOvTOQf96spRq6xOgAOR9BuY=
-java=ppstr2.java,2iuSEuDcW7jaP7ixZ54/0Zqq29ntTcLxsrFcYdjouhI=
+chdr=ppstr2.h,wGe0ELN9TEp7ckY6CBFunnsGTHB9z44aEUxmw/Q+fo4=
+java=ppstr2.java,XMp/Q+6wNiZiVVbvVQENssdttfSO5pIwu3iyZIC7OQM=
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147499219
-LastAutoCodeList=1,12483;102,10179;103,10074;110,10000;111,13066;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10314;120,10010;1001,10000;121,10000;122,10000;123,10662;124,10930;125,10128;126,10000;104,10160;105,10043
+LastSignatureCode=2147499222
+LastAutoCodeList=1,12483;102,10179;103,10074;110,10000;111,13066;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10314;120,10010;1001,10000;121,10000;122,10000;123,10662;124,10930;125,10128;126,10000;104,10162;105,10043
 
 [SignatureList]
 testsign1=2147495071
@@ -5704,6 +5704,7 @@ goods_arcodes=2147488351
 goods_arcodelist=2147488352
 goods_brand=2147496501
 goods_brutto=2147488354
+goods_avgitemmeasure=2147499220
 goods_codes=2147496502
 goods_defprc=2147496503
 goods_expiryperiod=2147496504
@@ -8026,6 +8027,7 @@ freightfilt_ffilllaggagefields=2147490482
 freightfilt_fshippedonly=2147490483
 freightfilt_funshippedonly=2147490484
 freightfilt_fusecargoparam=2147490485
+freightfilt_fshowchznmarking=2147499221
 freightfilt_loc=2147497511
 freightfilt_object=2147497512
 freightfilt_op=2147497513
@@ -9177,6 +9179,7 @@ trfranlzval_linecount=2147498000
 trfranlzval_dateanddocno=2147494306
 egaismark=2147498001
 chznmark=2147491572
+chznmarkcount=2147499222
 doscanmark=2147491573
 unmatchedmarks=2147494588
 chznmarkpmfault=2147499139
@@ -14363,6 +14366,8 @@ TCELHLD_TRFRLIST_MARKCOUNT_UNDECOMPOSABLE=6825901
 TCELHLD_TRFRLIST_MARKCOUNT_UNDEFPACKAGE=6825902
 TCELHLD_TRFRLIST_MARKCOUNT_MCZERO=6825903
 TCELHLD_TRFRLIST_MARKCOUNT_MCGTQTTY=6825904
+TCELHLD_BILL_MARKCOUNT_OK=6825905
+TCELHLD_BILL_MARKCOUNT_INADEQ=6825906
 CTLUSTTD_RULICPLATE_VALID=6891281
 CTLUSTTD_RULICPLATE_INVALID=6891282
 CTLUSTTD_BANKACCOUNT_VALID=6891283

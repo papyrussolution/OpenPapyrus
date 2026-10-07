@@ -1843,7 +1843,6 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 			}
 			pJs->InsertNz("quotkind_list", p_js_list);
 			p_js_list = 0;
-			// @v11.5.2 {
 			if(goods_list_by_qk.getCount()) {
 				goods_list_by_qk.sortAndUndup();
 				if(palm_pack.Rec.ID && palm_pack.Rec.GoodsGrpID) {
@@ -1858,7 +1857,6 @@ int PPStyloQInterchange::MakeRsrvPriceListResponse_ExportGoods(const StyloQComma
 					} while(j);
 				}
 			}
-			// } @v11.5.2 
 		}
 		{
 			PPIDArray gt_quasi_unlim_list;

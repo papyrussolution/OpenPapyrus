@@ -684,7 +684,7 @@ int PPObjTSession::SearchByGuid(const S_GUID_Base & rUuid, TSessionTbl::Rec * pR
 		ASSIGN_PTR(pRec, _rec);
 	}
 	else {
-		memzero(pRec, sizeof(*pRec));
+		CALLPTRMEMB(pRec, Clear());
 	}
 	return ok;
 }
@@ -5392,7 +5392,7 @@ int PrcssrTSessMaintenance::Init(const PrcssrTSessMaintenance::Param * pP)
 {
 	int    ok = 1;
 	RVALUEPTR(P, pP);
-	P.Period.Actualize(ZERODATE);
+	P.Period.Actualize();
 	return ok;
 }
 

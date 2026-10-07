@@ -382,8 +382,8 @@ int PPViewTSession::Init_(const PPBaseFilt * pBaseFilt)
 		State = 0;
 		PrcList.Set(0);
 		TechList.Set(0); // @v11.7.6
-		Filt.StPeriod.Actualize(ZERODATE);
-		Filt.FnPeriod.Actualize(ZERODATE);
+		Filt.StPeriod.Actualize();
+		Filt.FnPeriod.Actualize();
 		if(Filt.Flags & TSessionFilt::fCurrent && Filt.PrcID) {
 			const LDATETIME now_dtm = getcurdatetime_();
 			PPID   sess_id = 0;

@@ -78,7 +78,7 @@ int PPViewGoodsMov2::Init_(const PPBaseFilt * pFilt)
 	THROW(Helper_InitBaseFilt(pFilt));
 	THROW(p_tbl = CreateTempFile());
 	Total.Init();
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	temp_filt.Period       = Filt.Period;
 	temp_filt.LocList      = Filt.LocList;
 	temp_filt.SupplID      = Filt.SupplID;

@@ -2853,7 +2853,7 @@ int PrcssrAptekaRu::Run()
 		THROW(suppl_psn_id = ifc.GetGuaPack().Rec.PersonID); // @todo @err
 		{
 			nominal_period = P.Period;
-			nominal_period.Actualize(ZERODATE);
+			nominal_period.Actualize();
 			ext_period = nominal_period;
 			if(checkdate(ext_period.low)) {
 				ext_period.low = plusdate(ext_period.low, -unclaimed_order_gap_days);
@@ -2868,7 +2868,7 @@ int PrcssrAptekaRu::Run()
 				loc_obj.ResolveWarehouseList(&src_loc_list, temp_loc_list);
 				loc_list.Set(&temp_loc_list);
 			}
-			P.Period.Actualize(ZERODATE);
+			P.Period.Actualize();
 			ar_obj.P_Tbl->PersonToArticle(suppl_psn_id, suppl_acs_id, &suppl_ar_id);
 			THROW(suppl_ar_id);
 			{

@@ -4146,7 +4146,7 @@ table TempFreight {
 	long   BillID;        // ->Bill.ID
 	date   BillDate;      // = Bill.ID.Dt
 	long   ObjectID;      // = Bill.ID.Object
-	long   LocID;         // @v4.4.14 = Bill.ID.Location
+	long   LocID;         // = Bill.ID.Location
 	double Amount;        // = Bill.ID.Amount
 	double Brutto;        // Масса брутто
 	double PackCount;     // Количество упаковок
@@ -4156,16 +4156,14 @@ table TempFreight {
 	long   ShipID;        // ->Goods2.ID ИД транспортного средства
 	long   PortID;        // ->World.ID Порт назначения    //
 	long   DlvrAddrID;    // ->Location.ID ИД адреса доставки
-	long   AgentID;       // @v6.9.2 ->Article.ID (ИД агента по документу)
-	string Code[24];      // = Bill.ID.Code @v4.4.14 [10]->[24]
+	long   AgentID;       // ->Article.ID (ИД агента по документу)
+	long   ChZnMarkCount; // @v12.7.11 Общее количество чзн-марок в строках документа
+	string Code[48];      // = Bill.ID.Code // @v12.7.11 [24]-->[48]
 	string Shipped[2];    // Признак отгруженного документа ('X' | '\0')
-	int16  Reserve;       // @alignment
-	// @v9.8.4 string ShipName[48];  // Наименование транспортного средства
-	uint   ShipNameP;     // @v9.8.4 Ссылка на наименование транспортного средства
-	string PortName[48];  // Наименование порта назначения // @v6.9.2 [30]-->[48]
+	int16  ChZnMarkIndicator; // @v12.7.11 Индикатор адекватности числа марок количеству маркированного товара
+	uint   ShipNameP;     // Ссылка на наименование транспортного средства
+	string PortName[48];  // Наименование порта назначения //
 	string DlvrAddr[64];  // Наименование адреса доставки
-	// @v9.8.4 note   Memo[512];     // @v6.9.7 Примечание к документу
-	// @v11.1.12 uint   MemoP;       // @v9.8.4 Ссылка на примечание к документу
 index:
 	BillID (unique mod);
 	BillDate, Code (dup mod);
@@ -4174,7 +4172,6 @@ index:
 	DlvrAddr, ArrvlDate (dup mod);
 file:
 	"tmp_frgh.btr";
-	// @v9.8.4 vlr;
 	temporary;
 }
 //

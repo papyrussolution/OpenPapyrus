@@ -874,9 +874,9 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 	Cache.freeAll();
 	PPWaitStart();
 	THROW(Helper_InitBaseFilt(pFilt));
-	Filt.Period.Actualize(ZERODATE);
-	Filt.LotsPeriod.Actualize(ZERODATE);
-	Filt.DueDatePeriod.Actualize(ZERODATE);
+	Filt.Period.Actualize();
+	Filt.LotsPeriod.Actualize();
+	Filt.DueDatePeriod.Actualize();
 	THROW(AdjustPeriodToRights(Filt.Period, false));
 	ZDELETE(P_InnerIterItem);
 	if(!(Flags & fOnceInited) || !Filt.IsEqualExcept(prev_filt, TrfrAnlzFilt::eqxOrder|TrfrAnlzFilt::eqxCrosstab)) {

@@ -1173,9 +1173,9 @@ int PPViewLot::Init_(const PPBaseFilt * pFilt)
 	SString temp_buf;
 	PPObjLocation loc_obj;
 	THROW(Helper_InitBaseFilt(pFilt));
-	Filt.Period.Actualize(ZERODATE);
-	Filt.ExpiryPrd.Actualize(ZERODATE);
-	Filt.QcExpiryPrd.Actualize(ZERODATE);
+	Filt.Period.Actualize();
+	Filt.ExpiryPrd.Actualize();
+	Filt.QcExpiryPrd.Actualize();
 	SETFLAG(State, stNoTempTbl, BIN(Filt.Flags & LotFilt::fNoTempTable));
 	Filt.GetExtssData(LotFilt::extssSerialText, temp_buf);
 	SETFLAG(State, stFiltSerial, temp_buf.NotEmptyS());

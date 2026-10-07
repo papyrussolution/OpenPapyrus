@@ -252,7 +252,7 @@ int PPViewShipmAnalyze::Init_(const PPBaseFilt * pFilt)
 			PPViewBill bv;
 			BillTbl::Rec bill_rec, shipm_bill_rec, ack_bill_rec;
 			PPTransferItem ti, shipm_ti, ack_ti;
-			Filt.Period.Actualize(ZERODATE);
+			Filt.Period.Actualize();
 			THROW(AdjustPeriodToRights(Filt.Period, false));
 			Filt.TranslateToBillFilt(&flt);
 			THROW(bv.Init_(&flt));

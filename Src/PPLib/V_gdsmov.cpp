@@ -179,7 +179,7 @@ int PPViewGoodsMov::Init_(const PPBaseFilt * pFilt)
 	THROW(Helper_InitBaseFilt(pFilt));
 	THROW(p_tbl);
 	Total.Init();
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	temp_filt.Period = Filt.Period;
 	temp_filt.LocList = Filt.LocList;
 	temp_filt.SupplID = Filt.SupplID;

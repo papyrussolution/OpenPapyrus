@@ -3,6 +3,8 @@
 //
 package ru.petroglif.styloq;
 
+import static java.lang.Math.min;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -297,6 +299,66 @@ public class Document {
 		return (status == StyloQDatabase.SecStoragePacket.styloqdocstUNDEF ||
 				status == StyloQDatabase.SecStoragePacket.styloqdocstDRAFT ||
 				status == StyloQDatabase.SecStoragePacket.styloqdocstWAITFORAPPROREXEC);
+	}
+	//
+	// Descr: Результаты исполнения функции EstimateQuantityAdequacy()
+	//
+	public static final int eqarError          =    0; // Ошибка (never reached)
+	public static final int eqarOK             =    1; // Количество марок адекватно количеству единиц товара (но не гарантирует отсутствия несоответствий)
+	public static final int eqarUndecomposable =  -30; // Невозможно разложить количество марок на единицы товара и его упаковки. То есть, число марок неадекватно количеству единиц товара и емкостям упаковок.
+	public static final int eqarUndefPackage   =  -50; // Передана минимальная емкость упаковки меньше или равная 1
+	public static final int eqarMcZero         =  -75; // Нулевое количество марок
+	public static final int eqarMcGtQtty       = -100; // Марок больше, чем единиц товара
+	//
+	// Desc: Функция пытается детектировать ошибку в количестве просканированных марок относительно общего
+	//   количества единиц товара, которые должны быть просканированы.
+	//   Проблема состоит в том, что сканируются как отдельные единицы так и упаковки. Причем, упаковки
+	//   могут иметь различную вложенность. Однако (по условиям функции), нам известно, что минимальный объем упаковки
+	//   составляет minPackage единиц, а упаковки более высокой вместимости гарантированно имеют вместимость, кратную minPackage.
+	//   Функция не строит никаких предположений относительно емкостей упаковок, отличных от minPackage кроме упомянутой выше кратности.
+	// Note: Функция является репликой аналогичной функции PPChZnPrcssr::EstimateQuantityAdequacy() в проекте Papyrus
+	// ARG(itemQtty IN):   количество единиц товара, для которого необходимо отсканировать марки
+	// ARG(minPackage IN): минимальная емкость упаковки товара
+	// ARG(markCount IN):  количество отсканированных марок
+	// Returns:
+	//   >0 - функция не смогла выявить рассогласования между количеством единиц товара и количеством марок
+	//   <0 - количество марок не адекватно количеству единиц товара
+	//    0 - error (never reached)
+	//
+	public static int  ValidateChZnMarkCount(int itemQtty, int minPackage, int markCount)
+	{
+		int    result = eqarError;
+		if(markCount == itemQtty) { // всё поштучно — OK
+			result = eqarOK;
+		}
+		else if(markCount == 0) { // марок нет вообще
+			result = eqarMcZero;
+		}
+		else if(markCount > itemQtty) { // марок больше товара
+			result = eqarMcGtQtty;
+		}
+		else if(minPackage <= 1) { // упаковка тривиальна, марок должно быть == Q
+			result = eqarUndefPackage;
+		}
+		else {
+			// --- Точная проверка ---
+			final int d = itemQtty - markCount; // суммарная 'экономия' марок
+			final int P = minPackage;
+				// Минимальное число упаковок, совместимое с mod P:
+				//   каждая упаковка kP экономит (kP - 1) ≡ (P-1) ≡ -1 (mod P)
+				//   сумма экономий d = P·K - m  ⇒  m ≡ -d (mod P)
+			final int r = d % P;
+			final int m_min = (r > 0) ? (P - r) : P;
+				// Максимальное число упаковок:
+				//   каждая экономит ≥ P-1, значит m·(P-1) ≤ d
+				//   и, конечно, m ≤ N (на каждую упаковку нужна марка)
+			final int m_max = min(markCount, d / (P - 1));
+			if(m_min > m_max)
+				result = eqarUndecomposable;
+			else
+				result = eqarOK;
+		}
+		return result;
 	}
 	public static final int editactionClose  = 1; // Просто закрыть сеанс редактирования документа (изменения и передача сервису не предполагаются)
 	public static final int editactionSubmit = 2; // Подтвердить изменения документа (передача сервису не предполагается)
@@ -674,10 +736,10 @@ public class Document {
 			GoodsID = 0;
 			UnitID = 0;
 			Flags = 0;
-			CcQueue = 0; // @v11.5.2
-			Serial = null; // @v11.5.2
+			CcQueue = 0;
+			Serial = null;
 			Set = new ValuSet();
-			SetAccepted = null; // @v11.4.8
+			SetAccepted = null;
 			XcL = null;
 		}
 		public static TransferItem Copy(final TransferItem s)
@@ -689,8 +751,8 @@ public class Document {
 				copy.GoodsID = s.GoodsID;
 				copy.UnitID = s.UnitID;
 				copy.Flags = s.Flags;
-				copy.CcQueue = s.CcQueue; // @v11.5.2
-				copy.Serial = s.Serial; // @v11.5.2
+				copy.CcQueue = s.CcQueue;
+				copy.Serial = s.Serial;
 				copy.Set = ValuSet.Copy(s.Set);
 				copy.SetAccepted = ValuSet.Copy(s.SetAccepted);
 				copy.XcL = LotExtCode.Copy(s.XcL);
@@ -702,7 +764,7 @@ public class Document {
 			boolean yes = true;
 			if(!(s != null && RowIdx == s.RowIdx && GoodsID == s.GoodsID && UnitID == s.UnitID && Flags == s.Flags && CcQueue == s.CcQueue && ValuSet.ArEq(Set, s.Set)))
 				yes = false;
-			else if(!SLib.AreStringsEqual(Serial, s.Serial)) // @v11.5.2
+			else if(!SLib.AreStringsEqual(Serial, s.Serial))
 				yes = false;
 			else {
 				if(XcL != null) {
@@ -754,10 +816,10 @@ public class Document {
 		int    GoodsID; // service-domain-id
 		int    UnitID;  // service-domain-id
 		int    Flags;   //
-		int    CcQueue; // @v11.5.2 Проекция поля CCheckPacket::LineExt::Queue
-		String Serial; // @v11.5.2
+		int    CcQueue; // Проекция поля CCheckPacket::LineExt::Queue
+		String Serial;
 		ValuSet Set;
-		ValuSet SetAccepted; // @v11.4.8 Набор величин, с которыми согласна принимающая сторона (например при инвентаризации, приемке приходного документа и т.д.)
+		ValuSet SetAccepted; // Набор величин, с которыми согласна принимающая сторона (например при инвентаризации, приемке приходного документа и т.д.)
 		ArrayList <LotExtCode> XcL;
 	}
 	public static class BookingItem {

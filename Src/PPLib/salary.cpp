@@ -522,7 +522,7 @@ int PPViewSalary::Init_(const PPBaseFilt * pFilt)
 	ZDELETE(P_Ct);
 	SalChargeList.freeAll();
 	THROW(Helper_InitBaseFilt(pFilt));
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	SETFLAG(Filt.Flags, SalaryFilt::fCrosstab, GetSalChargeGroupItems(Filt.SalChargeID, &SalChargeList) > 0);
 	if(IsTempTblNeeded()) {
 		{

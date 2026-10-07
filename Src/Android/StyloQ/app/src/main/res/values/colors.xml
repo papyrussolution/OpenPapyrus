@@ -36,6 +36,12 @@
     <color name="InputValueEmpty">@color/White</color>
     <color name="ButtonBkgDisabled">#E4DCCF</color>
 
+    <color name="marktoqttyadequacy_ok">#90ee90</color>
+    <color name="marktoqttyadequacy_undecomposable">#ffb6c1</color>
+    <color name="marktoqttyadequacy_undefpackage">#ffffe0</color>
+    <color name="marktoqttyadequacy_mczero">#fffff0</color>
+    <color name="marktoqttyadequacy_mcgtqtty">#f08080</color>
+
 	<!-- TouchEffects { -->
     <color name="transparent">#00000000</color>
     <color name="color_background_dark">#1A9FA9B0</color>

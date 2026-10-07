@@ -725,10 +725,8 @@ void PPObjBill::DiagGoodsTurnError(const PPBillPacket * pPack)
 		SString advbillkind_buf, acc_buf;
 		GetObjectName(PPOBJ_ADVBILLKIND, r_item.AdvBillKindID, advbillkind_buf);
 		{
-			AccIdent acctid;
 			Acct   acct;
-			acctid.AcID = r_item.AccID;
-			acctid.ArID = r_item.ArID;
+			AccIdent acctid(r_item.AccID, r_item.ArID);
 			atobj->P_Tbl->ConvertAcctID(acctid, &acct, 0, 0);
 			acct.ToStr(ACCF_DEFAULT, acc_buf);
 		}
@@ -2772,14 +2770,15 @@ int PPObjBill::EditGoodsBill(PPID id, const EditParam * pExtraParam)
 	return ok;
 }
 
-int PPObjBill::GetAccturn(const AccTurnTbl::Rec * pATRec, PPAccTurn & rAt, int useCache)
+int PPObjBill::GetAccturn(const AccTurnTbl::Rec & rATRec, PPAccTurn & rAt, int useCache)
 {
 	int    ok = 0;
 	BillTbl::Rec bill_rec;
-	if(P_Tbl->Search(rAt.BillID, &bill_rec) > 0 && atobj->P_Tbl->ConvertRec_(bill_rec, pATRec, rAt, useCache)) {
+	if(P_Tbl->Search(rATRec.BillID, &bill_rec) > 0 && atobj->P_Tbl->ConvertRec_(bill_rec, &rATRec, rAt, useCache)) { // @v12.7.11 @fix rAt.BillID-->rATRec.BillID
 		rAt.Opr = bill_rec.OpID;
-		if(rAt.CurID)
+		if(rAt.CurID) {
 			P_Tbl->GetAmount(rAt.BillID, PPAMT_CRATE, rAt.CurID, &rAt.CRate);
+		}
 		else
 			rAt.CRate = 0.0;
 		memcpy(rAt.BillCode, bill_rec.Code, sizeof(rAt.BillCode));
@@ -2793,7 +2792,7 @@ int PPObjBill::ViewAccturns(PPID billID)
 	int    ok = -1;
 	if(billID) {
 		AccturnFilt flt;
-		flt.Flags |= (AccturnFilt::fLastOnly | AccturnFilt::fAllCurrencies);
+		flt.Flags |= (/*@v12.7.11 AccturnFilt::fLastOnly|*/AccturnFilt::fAllCurrencies);
 		flt.BillID = billID;
 		THROW(PPView::Execute(PPVIEW_ACCTURN, &flt, 0, 0));
 	}
@@ -4147,7 +4146,8 @@ static int EditBillCfgAddendum(PPBillConfig * pData) { DIALOG_PROC_BODY(BillConf
 		STRNSCPY(sn_cntr.Head.CodeTemplate, cfg.SnTemplt);
 		sn_cntr.Head.Counter = cfg.SnrCounter;
 	}
-	THROW(CheckDialogPtr(&(dlg = new BillConfigDialog(&cfg))));
+	dlg = new BillConfigDialog(&cfg);
+	THROW(CheckDialogPtr(&dlg));
 	dlg->setCtrlData(CTL_BILLCFG_OPPRFX, cfg.OpCodePrfx);
 	dlg->setCtrlData(CTL_BILLCFG_SNRCNTR, &sn_cntr.Head.Counter);
 	dlg->setCtrlData(CTL_BILLCFG_CLPRFX, cfg.ClCodePrfx);
@@ -4907,7 +4907,8 @@ int PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
 	int    ok = 1;
 	memzero(pCard, sizeof(*pCard));
 	PPID   org_lot_id = 0;
-	ReceiptTbl::Rec lot_rec, org_lot_rec;
+	ReceiptTbl::Rec lot_rec;
+	ReceiptTbl::Rec org_lot_rec;
 	if(trfr->Rcpt.SearchOrigin(lotID, &org_lot_id, &lot_rec, &org_lot_rec) > 0) {
 		const  LDATE lot_date = org_lot_rec.Dt;
 		Goods2Tbl::Rec goods_rec;
@@ -4929,9 +4930,9 @@ int PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
 			//
 			AccIdent accid;
 			PPID   acs_id = 0;
-			if(atobj->ConvertAcct(&CConfig.AssetAcct, 0 /*@curID*/, &accid, &acs_id) > 0)
+			if(atobj->ConvertAcct(&CConfig.AssetAcct, 0 /*@curID*/, &accid, &acs_id) > 0) {
 				pCard->AssetAcctID = accid;
-
+			}
 			int    op_code = 0;
 			PPID   lot_id = lotID;
 			TransferTbl::Rec rec;
@@ -4957,8 +4958,9 @@ int PPObjBill::MakeAssetCard(PPID lotID, AssetCard * pCard)
 					pCard->ExplBillID = rec.BillID;
 				}
 				if(oneof6(op_code, ASSTOPC_MOV, ASSTOPC_RCPT, ASSTOPC_RCPTEXPL, ASSTOPC_EXPEND, ASSTOPC_EXPL, ASSTOPC_EXPLOUT)) {
-					if(pCard->P_MovList == 0)
+					if(!pCard->P_MovList) {
 						THROW_MEM(pCard->P_MovList = new SVector(sizeof(AssetCard::MovItem)));
+					}
 					AssetCard::MovItem item;
 					item.BillID    = rec.BillID;
 					item.LotID     = rec.LotID;
@@ -10387,7 +10389,7 @@ int PPObjBill::SubstText(const PPBillPacket * pPack, const char * pTemplate, SSt
 								const  PPID psn_id = ObjectToPerson(pk->Rec.Object);
 								if(psn_id) {
 									PPObjPerson psn_obj;
-									if(psn_obj.GetExtName(psn_id, subst_buf) > 0) {
+									if(psn_obj.GetExtName_Direct(psn_id, subst_buf) > 0) {
 										; // ok
 									}
 									else {

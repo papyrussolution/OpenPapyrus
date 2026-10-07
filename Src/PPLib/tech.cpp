@@ -992,7 +992,7 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 								SString err_msg;
 								PPGetMessage(mfError, PPERR_TECHCANTBESELFPARENTED, 0, 1, err_msg);
 								SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления //
-								PPTooltipMessage(err_msg, 0, H(), 20000, GetColorRef(SClrRed), SMessageWindow::fStdLargeNotification);
+								PPTooltipMessage(err_msg, H(), 20000, GetColorRef(SClrRed), SMessageWindow::fStdLargeNotification);
 							}
 						}
 						UI_LOCAL_LOCK_LEAVE
@@ -1146,7 +1146,7 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 								SString err_msg;
 								PPGetMessage(mfError, PPERR_TECHCANTBESELFPARENTED, 0, 1, err_msg);
 								SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления //
-								PPTooltipMessage(err_msg, 0, H(), 20000, GetColorRef(SClrRed), SMessageWindow::fStdLargeNotification);
+								PPTooltipMessage(err_msg, H(), 20000, GetColorRef(SClrRed), SMessageWindow::fStdLargeNotification);
 							}
 						}
 						UI_LOCAL_LOCK_LEAVE
@@ -1355,7 +1355,7 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 								SString err_msg;
 								PPGetMessage(mfError, PPERR_TECHCANTBESELFPARENTED, 0, 1, err_msg);
 								SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления //
-								PPTooltipMessage(err_msg, 0, H(), 20000, GetColorRef(SClrRed), SMessageWindow::fStdLargeNotification);
+								PPTooltipMessage(err_msg, H(), 20000, GetColorRef(SClrRed), SMessageWindow::fStdLargeNotification);
 							}
 						}
 						UI_LOCAL_LOCK_LEAVE

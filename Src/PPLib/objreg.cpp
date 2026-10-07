@@ -291,7 +291,7 @@ TLP_IMPL(PPObjRegister, RegisterCore, P_Tbl);
 {
 	int    ok = 1;
 	if(pRec) {
-		memzero(pRec, sizeof(*pRec));
+		pRec->Clear();
 		pRec->RegTypeID = regTypeID;
 		if(!isempty(pNumber))
 			STRNSCPY(pRec->Num, pNumber);

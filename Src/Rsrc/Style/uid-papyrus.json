@@ -185,7 +185,12 @@
 			"autocomplete_focus_bg": "#20AC90",
 			"autocomplete_odd_bg": "#DCEDD5",
 			"extinfo_bg": "#EEE4E1",
-			"extinfobad_bg": "#E6BEAE"
+			"extinfobad_bg": "#E6BEAE",
+			"marktoqttyadequacy_ok": "#lightgreen",
+			"marktoqttyadequacy_undecomposable": "#lightpink",
+			"marktoqttyadequacy_undefpackage": "#lightyellow",
+			"marktoqttyadequacy_mczero": "#ivory",
+			"marktoqttyadequacy_mcgtqtty": "#lightcoral"
 		}
 	],
 	"layout_list": [

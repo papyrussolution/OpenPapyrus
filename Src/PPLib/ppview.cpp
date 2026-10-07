@@ -2617,7 +2617,7 @@ int PPViewBrowser::ShowCellStyleHint(long row, long col) // @v12.7.5
 			}
 			const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 			SColor color_bg = UiDescription::GetColorR(p_uid, p_cs, "popuphint_bg", SColor(0xF0, 0xF4, 0xF8));
-			PPTooltipMessage(temp_buf, 0, H(), hint_timeout, color_bg, SMessageWindow::fStdOnMouseOptions);
+			PPTooltipMessage(temp_buf, H(), hint_timeout, color_bg, SMessageWindow::fStdOnMouseOptions);
 			ok = 1;
 		}
 	}
@@ -2643,7 +2643,7 @@ int PPViewBrowser::ShowImageHint(SObjID oid, const char * pMsg) // @v12.7.6
 			}
 			const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 			SColor color_bg = UiDescription::GetColorR(p_uid, p_cs, "popupimghint_bg", SColor(0xF0, 0xF4, 0xF8));
-			PPTooltipMessage(pMsg, img_path, H(), hint_timeout, color_bg, SMessageWindow::fStdOnMouseOptions);
+			PPTooltipImage(pMsg, img_path, H(), hint_timeout, color_bg, SMessageWindow::fStdOnMouseOptions);
 			ok = 1;
 		}
 	}
@@ -2689,7 +2689,7 @@ int PPViewBrowser::Export()
 			SString fmt_buf;
 			PPLoadText(PPTXT_FILEOPENLAUNCHNOTIF, fmt_buf);
 			msg_buf.Printf(fmt_buf, result_file_name.cptr());
-			PPTooltipMessage(msg_buf, 0, 0, 20000, GetColorRef(SClrGreen), SMessageWindow::fStdNotification);
+			PPTooltipMessage(msg_buf, 0, 20000, GetColorRef(SClrGreen), SMessageWindow::fStdNotification);
 		}
 		// } @v12.3.10 
 		::ShellExecuteW(0, L"open", result_file_name_u, NULL, NULL, SW_SHOWNORMAL);

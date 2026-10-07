@@ -67,8 +67,6 @@ int STooltip::Remove(long id)
 
 SMessageWindow::SMessageWindow() : HWnd(0), Cmd(0), Extra(0), Brush(0), Font(0), P_Image(0), PrevImgProc(0), Flags(0)
 {
-	PrevMouseCoord.x = 0;
-	PrevMouseCoord.y = 0;
 }
 
 SMessageWindow::~SMessageWindow()
@@ -219,7 +217,7 @@ int SMessageWindow::SetFont(HWND hCtl)
 
 	papyrus_style/popupmsgwin_bg defcolor RGB(0xFF, 0xF7, 0x94)
 */ 
-int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, long cmd, long timer, COLORREF color, long flags, long extra)
+int SMessageWindow::Helper_Open_(SString & rText, const char * pImgPath, HWND parent, const SPoint2S * pOrigin, long timer, COLORREF color, long flags)
 {
 	int    ok = 0;
 	int    font_init = 0;
@@ -234,14 +232,18 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 		hwnd_parent = APPL->H_MainWnd; */
 	Destroy();
 	Color   = color;
-	Flags   = flags;
+	Flags   = (flags & ~fUseOuterOrigin);
 	Text    = rText;
 	ImgPath = pImgPath;
-	Cmd     = cmd;
-	Extra   = extra;
+	Cmd     = 0/*cmd*/;
+	Extra   = 0/*extra*/;
 	SMessageWindow::DestroyByParent(hwnd_parent);
 	HWnd = APPL->CreateDlg(1013/*DLG_TOOLTIP*/, hwnd_parent, SMessageWindow::Proc, reinterpret_cast<LPARAM>(this));
-	::GetCursorPos(&PrevMouseCoord);
+	{
+		POINT  local_pt;
+		::GetCursorPos(&local_pt);
+		PrevMouseCoord_ = local_pt;
+	}
 	if(HWnd) {
 		HWND   h_ctl = ::GetDlgItem(HWnd, 1201/*CTL_TOOLTIP_TEXT*/);
 		HWND   h_img = ::GetDlgItem(HWnd, 1202/*CTL_TOOLTIP_IMAGE*/);
@@ -269,35 +271,8 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 		}
 		if(h_ctl) {
 			if(Flags & SMessageWindow::fTextAlignLeft) {
-				//
-				// @v12.7.1 Как я (или кто-то другой) мог сделать такое (закомментированное) уродство?
-				// 
 				long   style = TView::SGetWindowStyle(h_ctl);
-				::SetWindowLongW(h_ctl, GWL_STYLE, ((style|SS_LEFT)&~SS_CENTER)); // @v12.7.1 
-				/* @v12.7.1 
-				RECT   ctl_rect;
-				RECT   img_rect;
-				RECT   parent_rect;
-				::GetWindowRect(h_ctl, &ctl_rect);
-				if(h_img)
-					::GetWindowRect(h_img, &img_rect);
-				else
-					MEMSZERO(img_rect);
-				::GetWindowRect(HWnd, &parent_rect);
-				ctl_rect.bottom -= ctl_rect.top;
-				ctl_rect.right  -= ctl_rect.left;
-				ctl_rect.left   -= parent_rect.left;
-				ctl_rect.top    -= (parent_rect.top + img_rect.top);
-				DestroyWindow(h_ctl);
-				style &= ~SS_CENTER;
-				h_ctl = ::CreateWindowExW(0, L"STATIC", L"", style|SS_LEFT, 
-					ctl_rect.left, ctl_rect.top, ctl_rect.right, ctl_rect.bottom, HWnd, 0, TProgram::GetInst(), 0);
-				if(h_ctl) {
-					SetFont(h_ctl);
-					::SetWindowLongW(h_ctl, GWL_ID, 1201); // CTL_TOOLTIP_TEXT==1201
-					font_init = 1;
-				}
-				*/
+				::SetWindowLongW(h_ctl, GWL_STYLE, ((style|SS_LEFT)&~SS_CENTER));
 			}
 		}
 		if(!font_init)
@@ -336,7 +311,13 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 		else {
 			Text.Transf(CTRANSF_INNER_TO_OUTER);
 		}
-		Move();
+		{
+			if(pOrigin) {
+				OuterOrigin_ = *pOrigin;
+				Flags |= fUseOuterOrigin;
+			}
+			Move();
+		}
 		::ShowWindow(HWnd, SW_SHOWNORMAL);
 		::UpdateWindow(HWnd);
 		{
@@ -360,6 +341,21 @@ int SMessageWindow::Open(SString & rText, const char * pImgPath, HWND parent, lo
 	if(Flags & fPreserveFocus && h_focus)
 		::SetFocus(h_focus);
 	return ok;
+}
+
+int SMessageWindow::Open_(SString & rText, HWND parent, long timer, COLORREF color, long flags)
+{
+	return Helper_Open_(rText, 0, parent, 0, timer, color, flags);
+}
+
+int SMessageWindow::OpenP_(SString & rText, HWND parent, SPoint2S origin, long timer, COLORREF color, long flags)
+{
+	return Helper_Open_(rText, 0, parent, &origin, timer, color, flags);
+}
+
+int SMessageWindow::OpenImage_(SString & rText, const char * pImgPath, HWND parent, long timer, COLORREF color, long flags)
+{
+	return Helper_Open_(rText, pImgPath, parent, 0, timer, color, flags);
 }
 
 void SMessageWindow::Destroy()
@@ -476,42 +472,48 @@ void SMessageWindow::Move()
 		else if(h_ctl == 0) {
 			toolt_h = img_rect.bottom - img_rect.top + 20;
 		}
-		if(Flags & SMessageWindow::fShowOnCenter) {
-			toolt_rect.top  = parent_rect.top  + (parent_rect.bottom - parent_rect.top)  / 2 - toolt_h / 2;
-			toolt_rect.left = parent_rect.left + (parent_rect.right  - parent_rect.left) / 2 - toolt_w / 2;
-		}
-		else if(Flags & SMessageWindow::fShowOnCursor) {
-			//int    delta = GetSystemMetrics(SM_CXVSCROLL) + GetSystemMetrics(SM_CXBORDER);
-			POINT  p;
-			POINT  p_;
-			::GetCursorPos(&p);
-			// @v12.7.5 {
-			p_ = p;
-			if(::ScreenToClient(GetParent(HWnd), &p_)) { 
-				p.x = p_.x;
-			}
-			// } @v12.7.5 
-			toolt_rect.top  = p.y - toolt_h + 2;
-			toolt_rect.left = p.x - 2;
-			toolt_rect.top  = (toolt_rect.top  < parent_rect.top)  ? parent_rect.top  + 1 : toolt_rect.top;
-			toolt_rect.left = (toolt_rect.left < parent_rect.left) ? parent_rect.left + 1 : toolt_rect.left;
-			toolt_rect.top  = (toolt_rect.top + toolt_h  > parent_rect.bottom) ? (parent_rect.bottom - toolt_h - 1) : toolt_rect.top;
-			toolt_rect.left = (toolt_rect.left + toolt_w > parent_rect.right)  ? (parent_rect.right - toolt_w + 2) : toolt_rect.left;
-
-			toolt_rect.top  += 8;
-			toolt_rect.left -= 8;
-		}
-		else if(Flags & SMessageWindow::fShowOnRUCorner) {
-			toolt_rect.bottom = parent_rect.top + toolt_h + 64 + 128;
-			toolt_rect.left   = parent_rect.right - toolt_w - 32;
+		if(Flags & SMessageWindow::fUseOuterOrigin) { // @v12.7.11
+			toolt_rect.left = OuterOrigin_.x;
+			toolt_rect.top = OuterOrigin_.y;
 		}
 		else {
-			toolt_rect.top  = parent_rect.bottom - toolt_h - 64;
-			toolt_rect.left = parent_rect.right  - toolt_w - 32;
-		}
-		if(Flags & SMessageWindow::fChildWindow) {
-			// toolt_rect.left -= parent_rect.left;
-			toolt_rect.top  -= parent_rect.top;
+			if(Flags & SMessageWindow::fShowOnCenter) {
+				toolt_rect.top  = parent_rect.top  + (parent_rect.bottom - parent_rect.top)  / 2 - toolt_h / 2;
+				toolt_rect.left = parent_rect.left + (parent_rect.right  - parent_rect.left) / 2 - toolt_w / 2;
+			}
+			else if(Flags & SMessageWindow::fShowOnCursor) {
+				//int    delta = GetSystemMetrics(SM_CXVSCROLL) + GetSystemMetrics(SM_CXBORDER);
+				POINT  p;
+				POINT  p_;
+				::GetCursorPos(&p);
+				// @v12.7.5 {
+				p_ = p;
+				if(::ScreenToClient(GetParent(HWnd), &p_)) { 
+					p.x = p_.x;
+				}
+				// } @v12.7.5 
+				toolt_rect.top  = p.y - toolt_h + 2;
+				toolt_rect.left = p.x - 2;
+				toolt_rect.top  = (toolt_rect.top  < parent_rect.top)  ? parent_rect.top  + 1 : toolt_rect.top;
+				toolt_rect.left = (toolt_rect.left < parent_rect.left) ? parent_rect.left + 1 : toolt_rect.left;
+				toolt_rect.top  = (toolt_rect.top + toolt_h  > parent_rect.bottom) ? (parent_rect.bottom - toolt_h - 1) : toolt_rect.top;
+				toolt_rect.left = (toolt_rect.left + toolt_w > parent_rect.right)  ? (parent_rect.right - toolt_w + 2) : toolt_rect.left;
+
+				toolt_rect.top  += 8;
+				toolt_rect.left -= 8;
+			}
+			else if(Flags & SMessageWindow::fShowOnRUCorner) {
+				toolt_rect.bottom = parent_rect.top + toolt_h + 64 + 128;
+				toolt_rect.left   = parent_rect.right - toolt_w - 32;
+			}
+			else {
+				toolt_rect.top  = parent_rect.bottom - toolt_h - 64;
+				toolt_rect.left = parent_rect.right  - toolt_w - 32;
+			}
+			if(Flags & SMessageWindow::fChildWindow) {
+				// toolt_rect.left -= parent_rect.left;
+				toolt_rect.top  -= parent_rect.top;
+			}
 		}
 		::SetWindowPos(HWnd, (Flags & fTopmost) ? HWND_TOP : 0, toolt_rect.left, toolt_rect.top, toolt_w, toolt_h, (Flags & fTopmost) ? 0 : SWP_NOZORDER);
 		TView::SSetWindowText(h_ctl, Text);
@@ -588,10 +590,10 @@ int SMessageWindow::DoCommand(SPoint2S p)
 			if(p_win->Flags & SMessageWindow::fCloseOnMouseLeave) {
 				POINT pnt;
 				::GetCursorPos(&pnt);
-				if(p_win->PrevMouseCoord.x != pnt.x || p_win->PrevMouseCoord.y != pnt.y)
+				if(p_win->PrevMouseCoord_.x != pnt.x || p_win->PrevMouseCoord_.y != pnt.y)
 					::DestroyWindow(hWnd);
 				else {
-					p_win->PrevMouseCoord = pnt;
+					p_win->PrevMouseCoord_ = pnt;
 					//
 					TRACKMOUSEEVENT tme;
 					INITWINAPISTRUCT(tme);

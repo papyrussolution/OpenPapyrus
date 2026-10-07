@@ -1446,6 +1446,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 										SLCHECK_NZ(tr.NormalizeToken(line_buf.ucptr(), line_buf.Len(), nts, SNTOK_RU_LICPLATE, out_buf));
 										SLCHECK_NZ(str == out_buf);
 									}
+									out_buf.Z().CatHex(uv);
 									out_buf.Z();
 								}
 								// } @v12.7.9 

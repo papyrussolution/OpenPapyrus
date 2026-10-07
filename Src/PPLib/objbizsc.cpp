@@ -1495,7 +1495,7 @@ int PPViewBizScoreVal::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = -1;
 	if(Helper_InitBaseFilt(pBaseFilt)) {
-		Filt.Period.Actualize(ZERODATE);
+		Filt.Period.Actualize();
 		ok = 1;
 	}
 	else
@@ -1913,7 +1913,7 @@ int PrcssrBizScore::Init(const Param * pParam)
 	int    ok = -1;
 	if(pParam) {
 		DateRange p = pParam->Period;
-		p.Actualize(ZERODATE);
+		p.Actualize();
 		THROW_PP(p.IsZero() || (p.low && p.upp), PPERR_UNCLOSEDPERIOD);
 		p.CheckAndSwap();
 		P = *pParam;
@@ -3443,7 +3443,7 @@ int PPViewBizSc2Val::EditBaseFilt(PPBaseFilt * pBaseFilt)
 	BExtQuery::ZDelete(&P_IterQuery);
 	Counter.Init();
 	//
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	BscObj.GetTerminalChildList(Filt.ScID, ScIdList);
 	CATCHZOK
 	return ok;

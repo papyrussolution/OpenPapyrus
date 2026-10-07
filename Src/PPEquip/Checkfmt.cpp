@@ -673,7 +673,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 				case symbClientExtName:
 					if(Src == srcGoodsBill) {
 						const  PPID psn_id = ObjectToPerson(p_bp->Rec.Object);
-						if(psn_id && P_Od->PsnObj.GetExtName(psn_id, temp_buf) > 0) {
+						if(psn_id && P_Od->PsnObj.GetExtName_Direct(psn_id, temp_buf) > 0) {
 							rResult.Cat(temp_buf);
 						}
 						else {
@@ -690,13 +690,13 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 				case symbBuyerINN: // BUYERINN
 					if(Src == srcCCheck) {
 						p_ccp->GetExtStrData(CCheckPacket::extssBuyerINN, temp_buf);
-						rResult.Cat(temp_buf); // @v11.6.2 @fix
+						rResult.Cat(temp_buf);
 					}
 					break;
 				case symbBuyerName: // BUYERNAME       
 					if(Src == srcCCheck) {
 						p_ccp->GetExtStrData(CCheckPacket::extssBuyerName, temp_buf);
-						rResult.Cat(temp_buf); // @v11.6.2 @fix
+						rResult.Cat(temp_buf);
 					}
 					break;
 				case symbAgent:
@@ -973,7 +973,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 						rResult.Cat(P_SessInfo->Rec.WrOffAmount, SFMT_MONEY);
 					break;
 				case symbDeficit:
-					if(Src == srcCSession)                                 // CSessionTbl
+					if(Src == srcCSession) // CSessionTbl
 						rResult.Cat(P_SessInfo->Rec.Amount - P_SessInfo->Rec.WrOffAmount, SFMT_MONEY);
 					break;
 				case symbItemNo:

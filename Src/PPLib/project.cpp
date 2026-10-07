@@ -647,8 +647,8 @@ int PPViewProject::EditBaseFilt(PPBaseFilt * pBaseFilt)
 int PPViewProject::Init_(const PPBaseFilt * pBaseFilt)
 {
 	if(Helper_InitBaseFilt(pBaseFilt)) {
-		Filt.StartPeriod.Actualize(ZERODATE);
-		Filt.EstFinishPeriod.Actualize(ZERODATE);
+		Filt.StartPeriod.Actualize();
+		Filt.EstFinishPeriod.Actualize();
 		return 1;
 	}
 	else

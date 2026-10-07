@@ -365,7 +365,7 @@ int PPViewGoodsRest::Init_(const PPBaseFilt * pFilt)
 	ZDELETE(P_InnerIterItem); // @v11.0.4
 	Filt.Date = Filt.Date.getactual(ZERODATE);
 	Filt.DeficitDt = Filt.DeficitDt.getactual(ZERODATE);
-	Filt.PrgnPeriod.Actualize(ZERODATE);
+	Filt.PrgnPeriod.Actualize();
 	if(Flags & fOnceInited && Flags & fExhaustTermInited && Filt.IsEqualExcept(prev_filt, GoodsRestFilt::eqxExhaustTerm)) {
 		ok = 1;
 	}

@@ -3513,7 +3513,7 @@ bool BillDialog::GetDateAndDueDate()
 	if(GetOpSubType(P_Pack->Rec.OpID) == OPSUBT_TRADEPLAN) {
 		DateRange period;
 		if(GetPeriodInput(this, CTL_BILL_TPLNPRD, &period)) {
-			period.Actualize(ZERODATE);
+			period.Actualize();
 			if(checkdate(period.low) && checkdate(period.upp) && period.upp >= period.low) {
 				P_Pack->Rec.Dt = period.low;
 				P_Pack->Rec.DueDate = period.upp;

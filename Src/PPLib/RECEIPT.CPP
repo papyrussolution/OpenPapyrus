@@ -382,7 +382,7 @@ int ReceiptCore::Helper_GetCurrentGoodsPrice(PPID goodsID, PPID locID, LDATE dat
 			ASSIGN_PTR(pRec, lot_rec);
 		}
 		else {
-			memzero(pRec, sizeof(*pRec));
+			CALLPTRMEMB(pRec, Clear());
 			r = (r < 0) ? GPRET_NOLOTS : GPRET_ERROR;
 		}
 	}
@@ -450,7 +450,7 @@ int ReceiptCore::Helper_GetCurrentGoodsPrice_ByLocList(PPID goodsID, const PPIDA
 			ASSIGN_PTR(pRec, lot_rec);
 		}
 		else {
-			memzero(pRec, sizeof(*pRec));
+			CALLPTRMEMB(pRec, Clear());
 			r = (r < 0) ? GPRET_NOLOTS : GPRET_ERROR;
 		}
 	}

@@ -10718,8 +10718,8 @@ static int _SetupTimeChunkByDateRange(const DateRange & rPeriod, STimeChunk & rT
 	if(pFilt__ && pFilt__->FiltKind == VetisDocumentFilt::fkInterchangeParam) {
 		VetisDocumentFilt filt;
 		filt = *pFilt__;
-		filt.Period.Actualize(ZERODATE);
-		filt.WayBillPeriod.Actualize(ZERODATE);
+		filt.Period.Actualize();
+		filt.WayBillPeriod.Actualize();
 		PPVetisInterface::Param param(filt.MainOrgID, filt.LocID__, 0);
 		THROW(PPVetisInterface::SetupParam(param));
 		{
@@ -11050,8 +11050,8 @@ int PPViewVetisDocument::Init_(const PPBaseFilt * pBaseFilt)
 	Reference * p_ref(PPRef);
 	BExtQuery::ZDelete(&P_IterQuery);
 	THROW(Helper_InitBaseFilt(pBaseFilt));
-	Filt.Period.Actualize(ZERODATE);
-	Filt.WayBillPeriod.Actualize(ZERODATE);
+	Filt.Period.Actualize();
+	Filt.WayBillPeriod.Actualize();
 	FromEntityIdList.Z();
 	LocEntityID = 0; // @v11.5.8
 	FromEnterpriseID = 0;
@@ -12349,7 +12349,7 @@ int PPViewVetisDocument::LoadDocuments()
 		PPVetisInterface ifc(&logger);
 		VetisApplicationBlock reply;
 		TSVector <VetisEntityCore::UnresolvedEntity> ure_list;
-		period.Actualize(ZERODATE);
+		period.Actualize();
 		const int is_init_period_zero = _SetupTimeChunkByDateRange(period, tc);
 		THROW(ifc.Init(param));
 		PPWaitStart();

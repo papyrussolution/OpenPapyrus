@@ -1263,7 +1263,7 @@ int PPViewCCheck::Init_(const PPBaseFilt * pFilt)
 	PPCashNode2 cn_rec;
 	PPObjSCardSeries sc_obj;
 	THROW(Helper_InitBaseFilt(pFilt));
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	THROW(ObjRts.AdjustCSessPeriod(Filt.Period, false));
 	ZDELETE(P_TmpGrpTbl);
 	ZDELETE(P_InnerIterItem);

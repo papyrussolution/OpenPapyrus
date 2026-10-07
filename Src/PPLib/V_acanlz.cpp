@@ -4,18 +4,21 @@
 //
 #include <pp.h>
 #pragma hdrstop
+
+constexpr bool _PPViewAccAnlz_v12711_ConsructionMode = SlDebugMode::CT();
+
 // @v12.3.7 #include <graph.h>
 //
 // Utility
 //
-static SString & FASTCALL GetAccAnlzTitle(int aco, PPID accID, PPID curID, SString & rStr)
+static SString & GetAccAnlzTitle(int aco, PPID accID, PPID curID, SString & rStr)
 {
 	char   acc_buf[64];
 	PPID   cur_id = 0;
 	PPCurrency cur_rec;
 	Acct   acct;
 	AccIDToAcct(accID, aco, &acct);
-	acct.ToStr(ACCF_DEFAULT, acc_buf);
+	acct.ToStr_Obsolete(ACCF_DEFAULT, acc_buf);
 	rStr = acc_buf;
 	rStr.Space();
 	if(curID < 0)
@@ -31,23 +34,88 @@ static SString & FASTCALL GetAccAnlzTitle(int aco, PPID accID, PPID curID, SStri
 	return rStr;
 }
 
-IMPLEMENT_PPFILT_FACTORY(AccAnlz); AccAnlzFilt::AccAnlzFilt() : PPBaseFilt(PPFILT_ACCANLZ, 0, 1)
+IMPLEMENT_PPFILT_FACTORY(AccAnlz); AccAnlzFilt::AccAnlzFilt() : PPBaseFilt(PPFILT_ACCANLZ, 0, 2), PPExtStrContainer() // @v12.7.11 ver 1-->2
 {
 	SetFlatChunk(offsetof(AccAnlzFilt, ReserveStart), offsetof(AccAnlzFilt, ReserveEnd) - offsetof(AccAnlzFilt, ReserveStart));
+	SetBranchSString(offsetof(AccAnlzFilt, ExtString)); // @v12.7.11
+	SetBranchObjIdListFilt(offsetof(AccAnlzFilt, BillIdList)); // @v12.7.11
 	Init(1, 0);
 }
 
-AccAnlzFilt::AccAnlzFilt(const AccAnlzFilt & rS) : PPBaseFilt(PPFILT_ACCANLZ, 0, 1) // @v12.7.0
+AccAnlzFilt::AccAnlzFilt(const AccAnlzFilt & rS) : PPBaseFilt(PPFILT_ACCANLZ, 0, 2), PPExtStrContainer() // @v12.7.0 // @v12.7.11 ver 1-->2
 {
 	SetFlatChunk(offsetof(AccAnlzFilt, ReserveStart), offsetof(AccAnlzFilt, ReserveEnd) - offsetof(AccAnlzFilt, ReserveStart));
+	SetBranchSString(offsetof(AccAnlzFilt, ExtString)); // @v12.7.11
+	SetBranchObjIdListFilt(offsetof(AccAnlzFilt, BillIdList)); // @v12.7.11
 	Init(1, 0);
-	Copy(&rS, 1);
+	PPBaseFilt::Copy(&rS, 1);
 }
 
 AccAnlzFilt & FASTCALL AccAnlzFilt::operator = (const AccAnlzFilt & rS)
 {
-	Copy(&rS, 1);
+	PPBaseFilt::Copy(&rS, 1);
 	return *this;
+}
+
+/*virtual*/int AccAnlzFilt::ReadPreviousVer(SBuffer & rBuf, int ver) // @v12.7.11
+{
+	int    ok = -1;
+	if(ver == 1) {
+		class AccAnlzFilt_v1 : public PPBaseFilt {
+		public:
+			AccAnlzFilt_v1() : PPBaseFilt(PPFILT_ACCANLZ, 0, 1)
+			{
+				SetFlatChunk(offsetof(AccAnlzFilt_v1, ReserveStart), offsetof(AccAnlzFilt_v1, ReserveEnd) - offsetof(AccAnlzFilt_v1, ReserveStart));
+				Init(1, 0);
+			}
+
+			char   ReserveStart[8]; // @anchor
+			PPID   DlvrLocID;
+			PPID   Object2ID_;
+			PPID   SubstRelTypeID;
+			PPID   AgentID;
+			DateRange Period;
+			long   Aco;
+			PPID   AccID;
+			PPID   SingleArID;
+			long   CorAco;
+			Acct   CorAcc;
+			PPCycleFilt Cycl;
+			long   InitOrder;
+			long   Flags;
+			AccIdent AcctId;
+			PPID   AccSheetID;
+			PPID   CurID;
+			PPID   LocID;
+			int    LeafNo;
+			long   ReserveEnd;     // @anchor
+		};	
+		AccAnlzFilt_v1 fv;
+		THROW(fv.Read(rBuf, 0));
+#define CPYFLD(f) f = fv.f
+		CPYFLD(DlvrLocID);
+		CPYFLD(Object2ID_);
+		CPYFLD(SubstRelTypeID);
+		CPYFLD(AgentID);
+		CPYFLD(Period);
+		CPYFLD(Aco);
+		CPYFLD(AccID);
+		CPYFLD(SingleArID);
+		CPYFLD(CorAco);
+		CPYFLD(CorAcc);
+		CPYFLD(Cycl);
+		CPYFLD(InitOrder);
+		CPYFLD(Flags);
+		CPYFLD(AcctId);
+		CPYFLD(AccSheetID);
+		CPYFLD(CurID);
+		CPYFLD(LocID);
+		CPYFLD(LeafNo);
+#undef CPYFLD
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
 }
 
 char * AccAnlzFilt::GetAccText(char * pBuf, size_t bufLen) const
@@ -80,7 +148,8 @@ char * AccAnlzFilt::GetAccText(char * pBuf, size_t bufLen) const
 //
 //
 //
-PPViewAccAnlz::PPViewAccAnlz() : PPView(0, &Filt, PPVIEW_ACCANLZ, 0, 0), P_BObj(BillObj), P_TmpAATbl(0), P_TmpATTbl(0), EffDlvrLocID(0), State(0)
+PPViewAccAnlz::PPViewAccAnlz() : PPView(0, &Filt, PPVIEW_ACCANLZ, 0, 0), P_BObj(BillObj), P_TmpAATbl(0), P_TmpATTbl(0), P_TmpAGTbl(0), P_TmpBillTbl(0),
+	EffDlvrLocID(0), State(0), OuterReportId(0)
 {
 	P_ATC = P_BObj->atobj->P_Tbl;
 }
@@ -89,6 +158,8 @@ PPViewAccAnlz::~PPViewAccAnlz()
 {
 	delete P_TmpAATbl;
 	delete P_TmpATTbl;
+	delete P_TmpAGTbl; // @v12.7.11
+	delete P_TmpBillTbl; // @v12.7.11
 	DBRemoveTempFiles();
 }
 
@@ -193,7 +264,8 @@ public:
 		SetClusterData(CTL_ACCANLZ_EXCLINNRT, Data.Flags);
 		{
 			const bool do_disable = LOGIC(Data.Flags & AccAnlzFilt::fExclInnerTrnovr);
-			disableCtrls(do_disable, CTL_ACCANLZ_ACCGRP, CTLSEL_ACCANLZ_SUBST, CTL_ACCANLZ_CORACCGRP, 0);
+			disableCtrls(do_disable, CTL_ACCANLZ_ACCGRP, CTL_ACCANLZ_CORACCGRP, 0);
+			setCtrlReadOnly(CTLSEL_ACCANLZ_SUBST, do_disable);
 			disableCtrls(do_disable, CTLSEL_ACCANLZ_CYCLE, CTL_ACCANLZ_NUMCYCLES, 0);
 		}
 		ReplyAccSelected();
@@ -204,7 +276,8 @@ public:
 	}
 	DECL_DIALOG_GETDTS()
 	{
-		int    ok = 1, r;
+		int    ok = 1;
+		int    r;
 		ushort v = 0;
 		AcctCtrlGroup::Rec  acc_rec;
 		CycleCtrlGroup::Rec cycle_rec;
@@ -217,7 +290,7 @@ public:
 		Data.Aco = (v == 1) ? ACO_1 : ((v == 2) ? ACO_2 : ACO_3);
 		Data.CorAco = getCtrlLong(CTLSEL_ACCANLZ_SUBST);
 		THROW(getGroupData(ctlgroupAcc, &acc_rec));
-		THROW_PP(acc_rec.AcctId.AcID, PPERR_ACCNOTVALID);
+		THROW_PP(acc_rec.AcctId.AcID || _PPViewAccAnlz_v12711_ConsructionMode, PPERR_ACCNOTVALID);
 		if(acc_rec.AccType == ACY_AGGR) {
 			if(acc_rec.AcctId.ArID) {
 				rel = acc_rec.AcctId.AcID;
@@ -264,8 +337,9 @@ public:
 				Data.SingleArID = acc_rec.AcctId.ArID;
 			else {
 				PPAccount acr;
-				THROW(ATObj->P_Tbl->AccObj.Search(acc_rec.AcctId.AcID, &acr) > 0);
-				if(acr.Flags & ACF_HASBRANCH && rel == 0 && !acr.AccSheetID)
+				const  int accsr = ATObj->P_Tbl->AccObj.Search(acc_rec.AcctId.AcID, &acr);
+				THROW(accsr > 0 || _PPViewAccAnlz_v12711_ConsructionMode);
+				if(accsr > 0 && acr.Flags & ACF_HASBRANCH && rel == 0 && !acr.AccSheetID)
 					Data.Aco = ACO_1;
 			}
 		}
@@ -387,7 +461,8 @@ private:
 		else {
 			disableCtrl(CTL_ACCANLZ_TRNOVR, true);
 			setCtrlUInt16(CTL_ACCANLZ_TRNOVR, 0);
-			disableCtrls(0, CTL_ACCANLZ_ACCGRP, CTLSEL_ACCANLZ_SUBST, CTL_ACCANLZ_CORACCGRP, 0);
+			disableCtrls(0, CTL_ACCANLZ_ACCGRP, CTL_ACCANLZ_CORACCGRP, 0);
+			setCtrlReadOnly(CTLSEL_ACCANLZ_SUBST, false);
 			disableCtrls(0, CTLSEL_ACCANLZ_CYCLE, CTL_ACCANLZ_NUMCYCLES, 0);
 		}
 		if(acg_rec.AccType == ACY_AGGR) {
@@ -414,7 +489,8 @@ private:
 			setCtrlLong(CTLSEL_ACCANLZ_SUBST,    0); // No grouping by CorrAcc
 			setCtrlUInt16(CTL_ACCANLZ_ORDER,     0);
 		}
-		disableCtrls(trnovr, CTL_ACCANLZ_ACCGRP, CTLSEL_ACCANLZ_SUBST, CTL_ACCANLZ_CORACCGRP, 0);
+		disableCtrls(trnovr, CTL_ACCANLZ_ACCGRP, CTL_ACCANLZ_CORACCGRP, 0);
+		setCtrlReadOnly(CTLSEL_ACCANLZ_SUBST, trnovr);
 		disableCtrls(trnovr, CTLSEL_ACCANLZ_CYCLE, CTL_ACCANLZ_NUMCYCLES, 0);
 		disableCtrl(CTL_ACCANLZ_ORDER, trnovr);
 		SetupSubstRelCombo();
@@ -1121,13 +1197,19 @@ bool PPViewAccAnlz::IsDedicatedRestEvaluationNeeded() const
 	return (Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID || Filt.Object2ID_ || EffDlvrLocID); // @v12.2.0 Filt.Object2ID_
 }
 
+void PPViewAccAnlz::SetOuterReportId(uint rptId) // @v12.7.11
+{
+	OuterReportId = rptId;
+}
+
 /*virtual*/int PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 {
 	ExpiryDate = ZERODATE;
 	IterFlags = 0;
 	State = 0;
 	EffDlvrLocID = 0;
-	ExtGenAccList.freeAll();
+	ExtGenAccList.clear();
+	OpList.Z();
 
 	int    ok = 1;
 	PPAccount acc_rec;
@@ -1142,10 +1224,21 @@ bool PPViewAccAnlz::IsDedicatedRestEvaluationNeeded() const
 	param.Bei = 0;
 	param.P_CycleOutRests = 0;
 	THROW(Helper_InitBaseFilt(pFilt));
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	ZDELETE(P_TmpAATbl);
 	ZDELETE(P_TmpATTbl);
+	ZDELETE(P_TmpAGTbl); // @v12.7.11
+	ZDELETE(P_TmpBillTbl); // @v12.7.11
 	Total.Z();
+	Filt.CurID = (Filt.Flags & AccAnlzFilt::fAllCurrencies) ? -1 : Filt.CurID;
+	// @v12.7.11 {
+	if(Filt.OpID) {
+		if(IsGenericOp(Filt.OpID) > 0)
+			GetGenericOpList(Filt.OpID, &OpList);
+		else
+			OpList.add(Filt.OpID);
+	}
+	// } @v12.7.11 
 	CycleList.init2(&Filt.Period, &Filt.Cycl);
 	if(Filt.DlvrLocID && Filt.Aco == ACO_3 && Filt.AcctId.ArID) {
 		EffDlvrLocID = Filt.DlvrLocID;
@@ -1153,417 +1246,429 @@ bool PPViewAccAnlz::IsDedicatedRestEvaluationNeeded() const
 	if(!(Filt.Flags & AccAnlzFilt::fTotalOnly && IsDedicatedRestEvaluationNeeded())) {
 		THROW(AdjustPeriodToRights(Filt.Period, false));
 	}
-	if(Filt.AccID && (!Filt.AcctId.AcID || !Filt.AcctId.ArID)) {
-		if(Filt.Aco == ACO_3)
-			P_ATC->AcctRelToID(Filt.AccID, &Filt.AcctId, &Filt.AccSheetID);
-		else {
-			Filt.AcctId.AcID = Filt.AccID;
-			Filt.AcctId.ArID = Filt.SingleArID;
-		}
+#if 0 // @construction {
+	if(!Filt.AccID && !Filt.AcctId.AcID) {
+		// ... Режим описи проводок (типа PPViewAccTurn)
+		State |= stATurnList;
 	}
-	if(AccObj.Fetch(Filt.AcctId.AcID, &acc_rec) > 0) {
-		THROW(ObjRts.CheckAccID(acc_rec.ID, PPR_READ));
-		if(acc_rec.Type == ACY_AGGR) {
-			State |= stIsGenAcc;
-			P_ATC->GetExtentAccListByGen(Filt.AcctId.AcID, &ExtGenAccList, 0);
-		}
-		else if(acc_rec.Type == ACY_REGISTER) {
-			State |= stIsRegister;
-		}
-		else if(acc_rec.Type == ACY_PERSONAL) { // @v12.7.10
-			State |= stIsPersonal;
-		}
-	}
-	if(ArObj.Fetch(Filt.AcctId.ArID, &ar_rec) > 0 && ar_rec.Flags & ARTRF_GROUP) {
-		State |= stIsGenAr;
-		ArObj.P_Tbl->GetListByGroup(Filt.AcctId.ArID, &gen_ar_list);
-	}
-	Filt.CurID = (Filt.Flags & AccAnlzFilt::fAllCurrencies) ? -1 : Filt.CurID;
-	if(IsDedicatedRestEvaluationNeeded()) {
-		Total.InRest.freeAll();
-		Total.OutRest.freeAll();
-		if(Filt.Period.low) {
-			PPViewAccAnlz temp_view;
-			AccAnlzFilt temp_filt = Filt;
-			temp_filt.Cycl.Z();
-			temp_filt.Period.Set(ZERODATE, plusdate(Filt.Period.low, -1));
-			temp_filt.Flags |= AccAnlzFilt::fTotalOnly;
-			THROW(temp_view.Init_(&temp_filt));
-			Total.InRest.Add(&temp_view.Total.DbtTrnovr);
-			Total.InRest.Sub(&temp_view.Total.CrdTrnovr);
-		}
-	}
-	else if(State & stIsGenAcc) {
-		ObjRestrictItem * p_item;
-		for(uint i = 0; ExtGenAccList.enumItems(&i, (void **)&p_item);) {
-			const int aco = GetAcoByGenFlags(p_item->Flags);
-			if(Filt.SingleArID && abs(aco) == ACO_2) {
-				if(GetAcctRel(p_item->ObjID, Filt.SingleArID, &acr_rec, 1) > 0)
-					THROW(P_ATC->CalcComplexRest((aco > 0) ? ACO_3 : -ACO_3, acr_rec.ID, Filt.CurID, Filt.SubstRelTypeID, &Filt.Period, &Total.InRest, &Total.OutRest));
-			}
+	else 
+#endif // } 0 @construction
+	{
+		if(Filt.AccID && (!Filt.AcctId.AcID || !Filt.AcctId.ArID)) {
+			if(Filt.Aco == ACO_3)
+				P_ATC->AcctRelToID(Filt.AccID, &Filt.AcctId, &Filt.AccSheetID);
 			else {
-				THROW(P_ATC->CalcComplexRest(aco, p_item->ObjID, Filt.CurID, Filt.SubstRelTypeID, &Filt.Period, &Total.InRest, &Total.OutRest));
+				Filt.AcctId.Set(Filt.AccID, Filt.SingleArID);
 			}
 		}
-	}
-	else if(State & stIsGenAr) {
-		for(uint i = 0; i < gen_ar_list.getCount(); i++) {
-			AccIdent temp_acct_id;
-			temp_acct_id.AcID = Filt.AcctId.AcID;
-			temp_acct_id.ArID = gen_ar_list.get(i);
-			PPID   temp_acrel = 0;
-			if(P_ATC->AcctIDToRel(&temp_acct_id, &temp_acrel) > 0) {
-				THROW(P_ATC->CalcComplexRest(ACO_3, temp_acrel, Filt.CurID, Filt.SubstRelTypeID, &Filt.Period, &Total.InRest, &Total.OutRest));
+		if(AccObj.Fetch(Filt.AcctId.AcID, &acc_rec) > 0) {
+			THROW(ObjRts.CheckAccID(acc_rec.ID, PPR_READ));
+			if(acc_rec.Type == ACY_AGGR) {
+				State |= stIsGenAcc;
+				P_ATC->GetExtentAccListByGen(Filt.AcctId.AcID, &ExtGenAccList, 0);
+			}
+			else if(acc_rec.Type == ACY_REGISTER) {
+				State |= stIsRegister;
+			}
+			else if(acc_rec.Type == ACY_PERSONAL) { // @v12.7.10
+				State |= stIsPersonal;
 			}
 		}
-	}
-	else {
-		THROW(P_ATC->CalcComplexRest(Filt.Aco, Filt.AccID, Filt.CurID, Filt.SubstRelTypeID, &Filt.Period, &Total.InRest, &Total.OutRest));
-	}
-	if(Filt.Flags & AccAnlzFilt::fTrnovrBySheet) {
-		//
-		// Обороты по статьям
-		//
-		int    is_person_rel = 0;
-		ArticleTbl::Rec ar_rec;
-		PPAccSheet2 acs_rec;
-		TSVector <AcctRelTbl::Rec> acr_list;
-		THROW(P_TmpATTbl = CreateTempATFile());
-		THROW(AccObj.Fetch(Filt.AccID, &acc_rec) > 0);
-		THROW_PP(acc_rec.AccSheetID, PPERR_ACCHASNTSHEET);
-		THROW(SearchObject(PPOBJ_ACCSHEET, acc_rec.AccSheetID, &acs_rec) > 0);
-		if(acs_rec.Assoc == PPOBJ_PERSON)
-			is_person_rel = 1;
-		{
-			PPViewAccAnlz temp_view;
-			BExtInsert bei(P_TmpATTbl);
-			if(State & stIsGenAcc) {
-				if(Filt.SingleArID) {
-					if(ArObj.Fetch(Filt.SingleArID, &ar_rec) > 0) {
-						acr_rec.Clear();
-						acr_rec.ID = Filt.SingleArID;
-						acr_rec.Ac = acc_rec.A.Ac;
-						acr_rec.Sb = acc_rec.A.Sb;
-						acr_rec.Ar = ar_rec.Article;
-						acr_rec.AccID = Filt.AccID;
-						acr_rec.ArticleID = Filt.SingleArID;
-						THROW_SL(acr_list.insert(&acr_rec));
-					}
+		if(ArObj.Fetch(Filt.AcctId.ArID, &ar_rec) > 0 && ar_rec.Flags & ARTRF_GROUP) {
+			State |= stIsGenAr;
+			ArObj.P_Tbl->GetListByGroup(Filt.AcctId.ArID, &gen_ar_list);
+		}
+		if(IsDedicatedRestEvaluationNeeded()) {
+			Total.InRest.freeAll();
+			Total.OutRest.freeAll();
+			if(Filt.Period.low) {
+				PPViewAccAnlz temp_view;
+				AccAnlzFilt temp_filt = Filt;
+				temp_filt.Cycl.Z();
+				temp_filt.Period.Set(ZERODATE, plusdate(Filt.Period.low, -1));
+				temp_filt.Flags |= AccAnlzFilt::fTotalOnly;
+				THROW(temp_view.Init_(&temp_filt));
+				Total.InRest.Add(&temp_view.Total.DbtTrnovr);
+				Total.InRest.Sub(&temp_view.Total.CrdTrnovr);
+			}
+		}
+		else if(State & stIsGenAcc) {
+			ObjRestrictItem * p_item;
+			for(uint i = 0; ExtGenAccList.enumItems(&i, (void **)&p_item);) {
+				const int aco = GetAcoByGenFlags(p_item->Flags);
+				if(Filt.SingleArID && abs(aco) == ACO_2) {
+					if(GetAcctRel(p_item->ObjID, Filt.SingleArID, &acr_rec, 1) > 0)
+						THROW(P_ATC->CalcComplexRest((aco > 0) ? ACO_3 : -ACO_3, acr_rec.ID, Filt.CurID, Filt.SubstRelTypeID, &Filt.Period, &Total.InRest, &Total.OutRest));
 				}
 				else {
-					for(long ar = 0; P_ATC->Art.EnumBySheet(acc_rec.AccSheetID, &ar, &ar_rec) > 0;) {
-						acr_rec.Clear();
-						acr_rec.ID = ar_rec.ID;
-						acr_rec.Ac = acc_rec.A.Ac;
-						acr_rec.Sb = acc_rec.A.Sb;
-						acr_rec.Ar = ar_rec.Article;
-						acr_rec.AccID = Filt.AccID;
-						acr_rec.ArticleID = ar_rec.ID;
-						THROW_SL(acr_list.insert(&acr_rec));
-					}
+					THROW(P_ATC->CalcComplexRest(aco, p_item->ObjID, Filt.CurID, Filt.SubstRelTypeID, &Filt.Period, &Total.InRest, &Total.OutRest));
 				}
 			}
-			else if(State & stIsGenAr) {
-				for(uint i = 0; i < gen_ar_list.getCount(); i++) {
-					const  PPID ar_id = gen_ar_list.get(i);
-					if(ArObj.Fetch(ar_id, &ar_rec) > 0 && P_ATC->GetAcctRel(acc_rec.ID, ar_id, &acr_rec, 0, 0) > 0) {
-						THROW_SL(acr_list.insert(&acr_rec));
-					}
+		}
+		else if(State & stIsGenAr) {
+			for(uint i = 0; i < gen_ar_list.getCount(); i++) {
+				AccIdent temp_acct_id;
+				temp_acct_id.Set(Filt.AcctId.AcID, gen_ar_list.get(i));
+				PPID   temp_acrel = 0;
+				if(P_ATC->AcctIDToRel(&temp_acct_id, &temp_acrel) > 0) {
+					THROW(P_ATC->CalcComplexRest(ACO_3, temp_acrel, Filt.CurID, Filt.SubstRelTypeID, &Filt.Period, &Total.InRest, &Total.OutRest));
 				}
 			}
-			else if(Filt.SingleArID) {
-				if(GetAcctRel(Filt.AccID, Filt.SingleArID, &acr_rec, 1) > 0)
-					THROW_SL(acr_list.insert(&acr_rec));
+		}
+		else {
+			if(Filt.AccID) { // @v12.7.11 @condition
+				THROW(P_ATC->CalcComplexRest(Filt.Aco, Filt.AccID, Filt.CurID, Filt.SubstRelTypeID, &Filt.Period, &Total.InRest, &Total.OutRest));
 			}
-			else {
-				AcctRelTbl::Key1 k;
-				BExtQuery q(&P_ATC->AccRel, 1);
-				q.selectAll().where(P_ATC->AccRel.AccID == Filt.AccID && P_ATC->AccRel.Closed == 0L);
-				k.AccID = Filt.AccID;
-				k.ArticleID = 0;
-				for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
-					P_ATC->AccRel.CopyBufTo(&acr_rec);
-					THROW_SL(acr_list.insert(&acr_rec));
-				}
-			}
-			for(uint i2 = 0; i2 < acr_list.getCount(); i2++) {
-				const AcctRelTbl::Rec & r_acr_rec = acr_list.at(i2);
-				PPID   rel_person_id = 0;
-				AccAnlzTotal  total;
-				TempAccTrnovrTbl::Rec rec;
-				AccAnlzFilt temp_flt = Filt;
-				temp_flt.Flags |= AccAnlzFilt::fTotalOnly;
-				temp_flt.Flags &= ~AccAnlzFilt::fTrnovrBySheet;
-				temp_flt.Aco    = ACO_3;
-				temp_flt.Cycl.Z();
+		}
+		if(Filt.Flags & AccAnlzFilt::fTrnovrBySheet) {
+			//
+			// Обороты по статьям
+			//
+			int    is_person_rel = 0;
+			ArticleTbl::Rec ar_rec;
+			PPAccSheet2 acs_rec;
+			TSVector <AcctRelTbl::Rec> acr_list;
+			THROW(P_TmpATTbl = CreateTempATFile());
+			THROW(AccObj.Fetch(Filt.AccID, &acc_rec) > 0);
+			THROW_PP(acc_rec.AccSheetID, PPERR_ACCHASNTSHEET);
+			THROW(SearchObject(PPOBJ_ACCSHEET, acc_rec.AccSheetID, &acs_rec) > 0);
+			if(acs_rec.Assoc == PPOBJ_PERSON)
+				is_person_rel = 1;
+			{
+				PPViewAccAnlz temp_view;
+				BExtInsert bei(P_TmpATTbl);
 				if(State & stIsGenAcc) {
-					temp_flt.AccID = Filt.AccID;
-					temp_flt.SingleArID = r_acr_rec.ArticleID;
-					temp_flt.AcctId.AcID = r_acr_rec.AccID;
-					temp_flt.AcctId.ArID = r_acr_rec.ArticleID;
-				}
-				else if(State & stIsGenAr) {
-					temp_flt.AccID = r_acr_rec.ID;
-					temp_flt.AcctId.ArID = r_acr_rec.ArticleID;
-				}
-				else
-					temp_flt.AccID = r_acr_rec.ID;
-				THROW(temp_view.Init_(&temp_flt));
-				temp_view.GetTotal(&total);
-				Total.DbtTrnovr.Add(&total.DbtTrnovr);
-				Total.CrdTrnovr.Add(&total.CrdTrnovr);
-				if(r_acr_rec.ArticleID && ArObj.Fetch(r_acr_rec.ArticleID, &ar_rec) > 0) {
-					STRNSCPY(rec.Name, ar_rec.Name);
-					if(is_person_rel)
-						rel_person_id = ar_rec.ObjID;
-				}
-				else {
-					rec.Name[0] = '\xFA'; /*250*/
-					ideqvalstr(r_acr_rec.ArticleID, rec.Name+1, sizeof(rec.Name)-1);
-				}
-				if(Filt.Flags & AccAnlzFilt::fTrnovrBySuppl) {
-					GoodsRestParam gp;
-					gp.CalcMethod  = GoodsRestParam::pcmSum;
-					gp.Date        = Filt.Period.upp;
-					gp.SupplID     = ar_rec.ID;
-					gp.LocID       = Filt.LocID;
-					THROW(P_BObj->trfr->GetRest(gp));
-					rec.GoodsRest  = gp.Total.Cost;
-				}
-				cur_list.clear();
-				total.GetCurList(&cur_list);
-				for(uint i = 0; i < cur_list.getCount(); i++) {
-					if(total.GetCut(cur_list.get(i), &cut) > 0) {
-						rec.AccRelID = r_acr_rec.ID;
-						rec.Ac       = r_acr_rec.Ac;
-						rec.Sb       = r_acr_rec.Sb;
-						rec.Ar       = r_acr_rec.Ar;
-						rec.CurID    = cur_list.get(i);
-						rec.RelPersonID = rel_person_id;
-						rec.Count    = cut.CDbtCount + cut.CCrdCount;
-						rec.InRest   = cut.CInRest;
-						rec.OutRest  = cut.COutRest;
-						rec.Dbt      = cut.CDbtTrnovr;
-						rec.Crd      = cut.CCrdTrnovr;
-						if(!Filt.SingleArID) {
-							if(Filt.Flags & AccAnlzFilt::fSpprZTrnovr && rec.Count == 0)
-								continue;
-							else if(Filt.Flags & AccAnlzFilt::fSpprZSaldo && rec.OutRest == 0.0)
-								continue;
-						}
-						THROW_DB(bei.insert(&rec));
-						Total.Count++;
-					}
-				}
-				PPWaitPercent(i2+1, acr_list.getCount());
-			}
-			THROW_DB(bei.flash());
-		}
-		//
-		// Без вызова этой функции печать оборотной ведомости выдает
-		// непонятно откуда взявшуюся ошибку "Счет не найден"
-		// Только в release-версии.
-		//
-		CalcTotalAccTrnovr(&Total);
-	}
-	else if(Filt.Cycl.Cycle && !(Filt.Flags & AccAnlzFilt::fGroupByCorAcc)) {
-		AccAnlzTotal  total;
-		PPViewAccAnlz temp_view;
-		AccAnlzFilt   temp_flt = Filt;
-		temp_flt.Flags |= AccAnlzFilt::fTotalOnly;
-		temp_flt.Cycl.Z();
-		THROW(P_TmpATTbl = CreateTempATFile());
-		{
-			BExtInsert bei(P_TmpATTbl);
-			for(uint cycle_no = 0; cycle_no < CycleList.getCount(); cycle_no++) {
-				TempAccTrnovrTbl::Rec rec;
-				CycleList.getPeriod(cycle_no, &temp_flt.Period);
-				THROW(temp_view.Init_(&temp_flt));
-				temp_view.GetTotal(&total);
-				Total.DbtTrnovr.Add(&total.DbtTrnovr);
-				Total.CrdTrnovr.Add(&total.CrdTrnovr);
-				Total.Count += total.Count;
-				cur_list.clear();
-				total.GetCurList(&cur_list);
-				for(uint i = 0; i < cur_list.getCount(); i++) {
-					if(total.GetCut(cur_list.get(i), &cut) > 0 && (cut.CDbtTrnovr != 0.0 || cut.CCrdTrnovr != 0.0)) {
-						rec.Dt      = CycleList.at(cycle_no).low;
-						rec.CurID   = cur_list.get(i);
-						rec.Count   = total.Count;
-						rec.InRest  = cut.CInRest;
-						rec.OutRest = cut.COutRest;
-						rec.Dbt     = cut.CDbtTrnovr;
-						rec.Crd     = cut.CCrdTrnovr;
-						THROW_DB(bei.insert(&rec));
-					}
-				}
-				PPWaitPercent(cycle_no, CycleList.getCount());
-			}
-			THROW_DB(bei.flash());
-		}
-	}
-	else {
-		Filt.Flags &= ~AccAnlzFilt::fTrnovrBySuppl;
-		if(!(State & stIsGenAcc) && !(State & stIsGenAr)) {
-			THROW(P_ATC->IdentifyAcc(&Filt.Aco, &Filt.AccID, Filt.CurID, Filt.SubstRelTypeID, &acc_list));
-		}
-		param.IsRegister = BIN(State & stIsRegister);
-		param.P_BObj = P_BObj;
-		param.P_TmpATTbl = 0;
-		param.P_ATC = P_ATC;
-		param.Filt  = &Filt;
-		param.CycleList = &CycleList;
-		param.Total = &Total;
-		param.InRest.copy(Total.InRest);
-		param.P_CycleOutRests = 0;
-		if(Filt.Flags & AccAnlzFilt::fGroupByCorAcc) {
-			if(!(Filt.Flags & AccAnlzFilt::fTotalOnly)) {
-				THROW(P_TmpATTbl = CreateTempATFile());
-				if(Filt.Cycl.Cycle)
-					THROW_MEM(param.P_CycleOutRests = new AmtList);
-			}
-			param.P_TmpATTbl = P_TmpATTbl;
-			enum_proc = IterProc_CrtTmpATTbl;
-		}
-		else {
-			if(!(Filt.Flags & AccAnlzFilt::fTotalOnly)) {
-				THROW(P_TmpAATbl = CreateTempAAFile());
-				THROW_MEM(param.Bei = new BExtInsert(P_TmpAATbl));
-			}
-			enum_proc = IterProc_CrtTmpAATbl;
-		}
-		{
-			LAssocArray aco_list;
-			if(State & stIsGenAcc) {
-				for(uint i = 0; ok > 0 && i < ExtGenAccList.getCount(); i++) {
-					const  PPID acc_id = ExtGenAccList.at(i).ObjID;
-					const int  aco    = GetAcoByGenFlags(ExtGenAccList.at(i).Flags);
-					if(Filt.SingleArID && abs(aco) == ACO_2) {
-						if(GetAcctRel(acc_id, Filt.SingleArID, &acr_rec, 1) > 0) {
-							aco_list.Add(acr_rec.ID, (aco > 0) ? ACO_3 : -ACO_3, 0);
+					if(Filt.SingleArID) {
+						if(ArObj.Fetch(Filt.SingleArID, &ar_rec) > 0) {
+							acr_rec.Clear();
+							acr_rec.ID = Filt.SingleArID;
+							acr_rec.Ac = acc_rec.A.Ac;
+							acr_rec.Sb = acc_rec.A.Sb;
+							acr_rec.Ar = ar_rec.Article;
+							acr_rec.AccID = Filt.AccID;
+							acr_rec.ArticleID = Filt.SingleArID;
+							THROW_SL(acr_list.insert(&acr_rec));
 						}
 					}
 					else {
-						aco_list.Add(acc_id, aco, 0);
+						for(long ar = 0; P_ATC->Art.EnumBySheet(acc_rec.AccSheetID, &ar, &ar_rec) > 0;) {
+							acr_rec.Clear();
+							acr_rec.ID = ar_rec.ID;
+							acr_rec.Ac = acc_rec.A.Ac;
+							acr_rec.Sb = acc_rec.A.Sb;
+							acr_rec.Ar = ar_rec.Article;
+							acr_rec.AccID = Filt.AccID;
+							acr_rec.ArticleID = ar_rec.ID;
+							THROW_SL(acr_list.insert(&acr_rec));
+						}
 					}
 				}
-			}
-			else if(State & stIsGenAr) {
-				for(uint i = 0; i < gen_ar_list.getCount(); i++) {
-					AccIdent temp_acct_id;
-					temp_acct_id.AcID = Filt.AcctId.AcID;
-					temp_acct_id.ArID = gen_ar_list.get(i);
-					PPID   temp_acrel = 0;
-					if(P_ATC->AcctIDToRel(&temp_acct_id, &temp_acrel) > 0) {
-						aco_list.Add(temp_acrel, ACO_3, 0);
+				else if(State & stIsGenAr) {
+					for(uint i = 0; i < gen_ar_list.getCount(); i++) {
+						const  PPID ar_id = gen_ar_list.get(i);
+						if(ArObj.Fetch(ar_id, &ar_rec) > 0 && P_ATC->GetAcctRel(acc_rec.ID, ar_id, &acr_rec, 0, 0) > 0) {
+							THROW_SL(acr_list.insert(&acr_rec));
+						}
 					}
 				}
-			}
-			else {
-				aco_list.Add(Filt.AccID, Filt.Aco, 0);
-			}
-			PPIDArray __acc_list;
-			for(uint i = 0; ok > 0 && i < aco_list.getCount(); i++) {
-				long   aco = aco_list.at(i).Val;
-				PPID   acc_id = aco_list.at(i).Key;
-				int    sign = (aco < 0) ? -1 : 1;
-				__acc_list.Z();
-				aco = abs(aco);
-				THROW(P_ATC->IdentifyAcc(&aco, &acc_id, Filt.CurID, Filt.SubstRelTypeID, &__acc_list));
-				if(!__acc_list.isList()) {
-					THROW(ok = EnumerateByIdentifiedAcc(aco * sign, acc_id, enum_proc, &param));
+				else if(Filt.SingleArID) {
+					if(GetAcctRel(Filt.AccID, Filt.SingleArID, &acr_rec, 1) > 0)
+						THROW_SL(acr_list.insert(&acr_rec));
 				}
 				else {
-					for(uint j = 0; ok > 0 && j < __acc_list.getCount(); j++) {
-						const   PPID iter_acc_id = __acc_list.get(j);
-						THROW(ok = EnumerateByIdentifiedAcc(aco * sign, iter_acc_id, enum_proc, &param));
+					AcctRelTbl::Key1 k;
+					BExtQuery q(&P_ATC->AccRel, 1);
+					q.selectAll().where(P_ATC->AccRel.AccID == Filt.AccID && P_ATC->AccRel.Closed == 0L);
+					k.AccID = Filt.AccID;
+					k.ArticleID = 0;
+					for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
+						P_ATC->AccRel.CopyBufTo(&acr_rec);
+						THROW_SL(acr_list.insert(&acr_rec));
 					}
 				}
+				for(uint i2 = 0; i2 < acr_list.getCount(); i2++) {
+					const AcctRelTbl::Rec & r_acr_rec = acr_list.at(i2);
+					PPID   rel_person_id = 0;
+					AccAnlzTotal  total;
+					TempAccTrnovrTbl::Rec rec;
+					AccAnlzFilt temp_flt = Filt;
+					temp_flt.Flags |= AccAnlzFilt::fTotalOnly;
+					temp_flt.Flags &= ~AccAnlzFilt::fTrnovrBySheet;
+					temp_flt.Aco    = ACO_3;
+					temp_flt.Cycl.Z();
+					if(State & stIsGenAcc) {
+						temp_flt.AccID = Filt.AccID;
+						temp_flt.SingleArID = r_acr_rec.ArticleID;
+						temp_flt.AcctId.AcID = r_acr_rec.AccID;
+						temp_flt.AcctId.ArID = r_acr_rec.ArticleID;
+					}
+					else if(State & stIsGenAr) {
+						temp_flt.AccID = r_acr_rec.ID;
+						temp_flt.AcctId.ArID = r_acr_rec.ArticleID;
+					}
+					else
+						temp_flt.AccID = r_acr_rec.ID;
+					THROW(temp_view.Init_(&temp_flt));
+					temp_view.GetTotal(&total);
+					Total.DbtTrnovr.Add(&total.DbtTrnovr);
+					Total.CrdTrnovr.Add(&total.CrdTrnovr);
+					if(r_acr_rec.ArticleID && ArObj.Fetch(r_acr_rec.ArticleID, &ar_rec) > 0) {
+						STRNSCPY(rec.Name, ar_rec.Name);
+						if(is_person_rel)
+							rel_person_id = ar_rec.ObjID;
+					}
+					else {
+						rec.Name[0] = '\xFA'; /*250*/
+						ideqvalstr(r_acr_rec.ArticleID, rec.Name+1, sizeof(rec.Name)-1);
+					}
+					if(Filt.Flags & AccAnlzFilt::fTrnovrBySuppl) {
+						GoodsRestParam gp;
+						gp.CalcMethod  = GoodsRestParam::pcmSum;
+						gp.Date        = Filt.Period.upp;
+						gp.SupplID     = ar_rec.ID;
+						gp.LocID       = Filt.LocID;
+						THROW(P_BObj->trfr->GetRest(gp));
+						rec.GoodsRest  = gp.Total.Cost;
+					}
+					cur_list.clear();
+					total.GetCurList(&cur_list);
+					for(uint i = 0; i < cur_list.getCount(); i++) {
+						if(total.GetCut(cur_list.get(i), &cut) > 0) {
+							rec.AccRelID = r_acr_rec.ID;
+							rec.Ac       = r_acr_rec.Ac;
+							rec.Sb       = r_acr_rec.Sb;
+							rec.Ar       = r_acr_rec.Ar;
+							rec.CurID    = cur_list.get(i);
+							rec.RelPersonID = rel_person_id;
+							rec.Count    = cut.CDbtCount + cut.CCrdCount;
+							rec.InRest   = cut.CInRest;
+							rec.OutRest  = cut.COutRest;
+							rec.Dbt      = cut.CDbtTrnovr;
+							rec.Crd      = cut.CCrdTrnovr;
+							if(!Filt.SingleArID) {
+								if(Filt.Flags & AccAnlzFilt::fSpprZTrnovr && rec.Count == 0)
+									continue;
+								else if(Filt.Flags & AccAnlzFilt::fSpprZSaldo && rec.OutRest == 0.0)
+									continue;
+							}
+							THROW_DB(bei.insert(&rec));
+							Total.Count++;
+						}
+					}
+					PPWaitPercent(i2+1, acr_list.getCount());
+				}
+				THROW_DB(bei.flash());
+			}
+			//
+			// Без вызова этой функции печать оборотной ведомости выдает
+			// непонятно откуда взявшуюся ошибку "Счет не найден"
+			// Только в release-версии.
+			//
+			CalcTotalAccTrnovr(&Total);
+		}
+		else if(Filt.Cycl.Cycle && !(Filt.Flags & AccAnlzFilt::fGroupByCorAcc)) {
+			AccAnlzTotal  total;
+			PPViewAccAnlz temp_view;
+			AccAnlzFilt   temp_flt = Filt;
+			temp_flt.Flags |= AccAnlzFilt::fTotalOnly;
+			temp_flt.Cycl.Z();
+			THROW(P_TmpATTbl = CreateTempATFile());
+			{
+				BExtInsert bei(P_TmpATTbl);
+				for(uint cycle_no = 0; cycle_no < CycleList.getCount(); cycle_no++) {
+					TempAccTrnovrTbl::Rec rec;
+					CycleList.getPeriod(cycle_no, &temp_flt.Period);
+					THROW(temp_view.Init_(&temp_flt));
+					temp_view.GetTotal(&total);
+					Total.DbtTrnovr.Add(&total.DbtTrnovr);
+					Total.CrdTrnovr.Add(&total.CrdTrnovr);
+					Total.Count += total.Count;
+					cur_list.clear();
+					total.GetCurList(&cur_list);
+					for(uint i = 0; i < cur_list.getCount(); i++) {
+						if(total.GetCut(cur_list.get(i), &cut) > 0 && (cut.CDbtTrnovr != 0.0 || cut.CCrdTrnovr != 0.0)) {
+							rec.Dt      = CycleList.at(cycle_no).low;
+							rec.CurID   = cur_list.get(i);
+							rec.Count   = total.Count;
+							rec.InRest  = cut.CInRest;
+							rec.OutRest = cut.COutRest;
+							rec.Dbt     = cut.CDbtTrnovr;
+							rec.Crd     = cut.CCrdTrnovr;
+							THROW_DB(bei.insert(&rec));
+						}
+					}
+					PPWaitPercent(cycle_no, CycleList.getCount());
+				}
+				THROW_DB(bei.flash());
 			}
 		}
-		if(param.Bei) {
-			THROW(param.Bei->flash());
-			ZDELETE(param.Bei);
-		}
-		if(Filt.Flags & AccAnlzFilt::fGroupByCorAcc && Filt.CorAco == AccAnlzFilt::aafgByLoc) {
-			//
-			// Установка исходящих остатков в группировке по складам
-			//
-			if(P_TmpATTbl) {
-				TempAccTrnovrTbl::Rec & r_iter_rec = P_TmpATTbl->data;
-				TempAccTrnovrTbl::Key0 k;
-				if(Filt.Period.low) {
-					PPIDArray loc_list;
-					PPViewAccAnlz temp_view; // @v12.7.0 (moved out of the loop)
-					AccAnlzFilt temp_filt = Filt;
-					temp_filt.Cycl.Z();
-					temp_filt.Period.Set(ZERODATE, plusdate(Filt.Period.low, -1));
-					temp_filt.Flags &= ~AccAnlzFilt::fGroupByCorAcc;
-					temp_filt.Flags |= AccAnlzFilt::fTotalOnly;
-					for(MEMSZERO(k); P_TmpATTbl->search(0, &k, spGt);) {
- 						loc_list.addUnique(r_iter_rec.Ar);
+		else {
+			Filt.Flags &= ~AccAnlzFilt::fTrnovrBySuppl;
+			if(!(State & stIsGenAcc) && !(State & stIsGenAr)) {
+				if(Filt.AccID) { // @v12.7.11 @condition
+					THROW(P_ATC->IdentifyAcc(&Filt.Aco, &Filt.AccID, Filt.CurID, Filt.SubstRelTypeID, &acc_list));
+				}
+			}
+			param.IsRegister = BIN(State & stIsRegister);
+			param.P_BObj = P_BObj;
+			param.P_TmpATTbl = 0;
+			param.P_ATC = P_ATC;
+			param.Filt  = &Filt;
+			param.CycleList = &CycleList;
+			param.Total = &Total;
+			param.InRest.copy(Total.InRest);
+			param.P_CycleOutRests = 0;
+			if(Filt.Flags & AccAnlzFilt::fGroupByCorAcc) {
+				if(!(Filt.Flags & AccAnlzFilt::fTotalOnly)) {
+					THROW(P_TmpATTbl = CreateTempATFile());
+					if(Filt.Cycl.Cycle) {
+						THROW_MEM(param.P_CycleOutRests = new AmtList);
 					}
-					for(uint i = 0; i < loc_list.getCount(); i++) {
-						temp_filt.LocID = loc_list.at(i);
-						// @v12.7.0 (moved up out of the loop) PPViewAccAnlz temp_view;
-						THROW(temp_view.Init_(&temp_filt));
-						for(MEMSZERO(k); P_TmpATTbl->search(0, &k, spGt);) {
-							if(r_iter_rec.Ar == temp_filt.LocID) {
-								r_iter_rec.OutRest = temp_view.Total.OutRest.Get(0, r_iter_rec.CurID) + r_iter_rec.Dbt - r_iter_rec.Crd;
-								THROW_DB(P_TmpATTbl->updateRec());
+				}
+				param.P_TmpATTbl = P_TmpATTbl;
+				enum_proc = IterProc_CrtTmpATTbl;
+			}
+			else {
+				if(!(Filt.Flags & AccAnlzFilt::fTotalOnly)) {
+					THROW(P_TmpAATbl = CreateTempAAFile());
+					THROW_MEM(param.Bei = new BExtInsert(P_TmpAATbl));
+				}
+				enum_proc = IterProc_CrtTmpAATbl;
+			}
+			{
+				LAssocArray aco_list;
+				if(State & stIsGenAcc) {
+					for(uint i = 0; ok > 0 && i < ExtGenAccList.getCount(); i++) {
+						const  PPID acc_id = ExtGenAccList.at(i).ObjID;
+						const  int  aco    = GetAcoByGenFlags(ExtGenAccList.at(i).Flags);
+						if(Filt.SingleArID && abs(aco) == ACO_2) {
+							if(GetAcctRel(acc_id, Filt.SingleArID, &acr_rec, 1) > 0) {
+								aco_list.Add(acr_rec.ID, (aco > 0) ? ACO_3 : -ACO_3, 0);
 							}
+						}
+						else {
+							aco_list.Add(acc_id, aco, 0);
+						}
+					}
+				}
+				else if(State & stIsGenAr) {
+					for(uint i = 0; i < gen_ar_list.getCount(); i++) {
+						AccIdent temp_acct_id;
+						temp_acct_id.Set(Filt.AcctId.AcID, gen_ar_list.get(i));
+						PPID   temp_acrel = 0;
+						if(P_ATC->AcctIDToRel(&temp_acct_id, &temp_acrel) > 0) {
+							aco_list.Add(temp_acrel, ACO_3, 0);
 						}
 					}
 				}
 				else {
-					for(MEMSZERO(k); P_TmpATTbl->search(0, &k, spGt);) {
-						r_iter_rec.OutRest = r_iter_rec.Dbt - r_iter_rec.Crd;
+					aco_list.Add(Filt.AccID, Filt.Aco, 0);
+				}
+				PPIDArray __acc_list;
+				for(uint i = 0; ok > 0 && i < aco_list.getCount(); i++) {
+					long   aco = aco_list.at(i).Val;
+					PPID   acc_id = aco_list.at(i).Key;
+					int    sign = (aco < 0) ? -1 : 1;
+					__acc_list.Z();
+					aco = abs(aco);
+					THROW(P_ATC->IdentifyAcc(&aco, &acc_id, Filt.CurID, Filt.SubstRelTypeID, &__acc_list));
+					if(!__acc_list.isList()) {
+						THROW(ok = EnumerateByIdentifiedAcc(aco * sign, acc_id, enum_proc, &param));
+					}
+					else {
+						for(uint j = 0; ok > 0 && j < __acc_list.getCount(); j++) {
+							const   PPID iter_acc_id = __acc_list.get(j);
+							THROW(ok = EnumerateByIdentifiedAcc(aco * sign, iter_acc_id, enum_proc, &param));
+						}
+					}
+				}
+			}
+			if(param.Bei) {
+				THROW(param.Bei->flash());
+				ZDELETE(param.Bei);
+			}
+			if(Filt.Flags & AccAnlzFilt::fGroupByCorAcc && Filt.CorAco == AccAnlzFilt::aafgByLoc) {
+				//
+				// Установка исходящих остатков в группировке по складам
+				//
+				if(P_TmpATTbl) {
+					TempAccTrnovrTbl::Rec & r_iter_rec = P_TmpATTbl->data;
+					TempAccTrnovrTbl::Key0 k;
+					if(Filt.Period.low) {
+						PPIDArray loc_list;
+						PPViewAccAnlz temp_view; // @v12.7.0 (moved out of the loop)
+						AccAnlzFilt temp_filt = Filt;
+						temp_filt.Cycl.Z();
+						temp_filt.Period.Set(ZERODATE, plusdate(Filt.Period.low, -1));
+						temp_filt.Flags &= ~AccAnlzFilt::fGroupByCorAcc;
+						temp_filt.Flags |= AccAnlzFilt::fTotalOnly;
+						for(MEMSZERO(k); P_TmpATTbl->search(0, &k, spGt);) {
+ 							loc_list.addUnique(r_iter_rec.Ar);
+						}
+						for(uint i = 0; i < loc_list.getCount(); i++) {
+							temp_filt.LocID = loc_list.at(i);
+							// @v12.7.0 (moved up out of the loop) PPViewAccAnlz temp_view;
+							THROW(temp_view.Init_(&temp_filt));
+							for(MEMSZERO(k); P_TmpATTbl->search(0, &k, spGt);) {
+								if(r_iter_rec.Ar == temp_filt.LocID) {
+									r_iter_rec.OutRest = temp_view.Total.OutRest.Get(0, r_iter_rec.CurID) + r_iter_rec.Dbt - r_iter_rec.Crd;
+									THROW_DB(P_TmpATTbl->updateRec());
+								}
+							}
+						}
+					}
+					else {
+						for(MEMSZERO(k); P_TmpATTbl->search(0, &k, spGt);) {
+							r_iter_rec.OutRest = r_iter_rec.Dbt - r_iter_rec.Crd;
+							THROW_DB(P_TmpATTbl->updateRec());
+						}
+					}
+				}
+			}
+			else if(param.P_CycleOutRests) {
+				uint   i;
+				TempAccTrnovrTbl::Key0 k;
+				cur_list.clear();
+				param.InRest.GetCurList(0L, &cur_list);
+				for(i = 0; i < CycleList.getCount(); i++) {
+					for(uint j = 0; j < cur_list.getCount(); j++) {
+						const  PPID c = cur_list.get(j);
+						param.P_CycleOutRests->Add(i, c, param.InRest.Get(0L, c));
+					}
+				}
+				for(MEMSZERO(k); P_TmpATTbl->search(0, &k, spGt);) {
+					if(CycleList.searchDate(k.Dt, &(i = 0))) {
+						P_TmpATTbl->data.OutRest = param.P_CycleOutRests->Get(i, k.CurID);
 						THROW_DB(P_TmpATTbl->updateRec());
 					}
 				}
 			}
-		}
-		else if(param.P_CycleOutRests) {
-			uint   i;
-			TempAccTrnovrTbl::Key0 k;
-			cur_list.clear();
-			param.InRest.GetCurList(0L, &cur_list);
-			for(i = 0; i < CycleList.getCount(); i++) {
-				for(uint j = 0; j < cur_list.getCount(); j++) {
-					const  PPID c = cur_list.get(j);
-					param.P_CycleOutRests->Add(i, c, param.InRest.Get(0L, c));
-				}
-			}
-			for(MEMSZERO(k); P_TmpATTbl->search(0, &k, spGt);) {
-				if(CycleList.searchDate(k.Dt, &(i = 0))) {
-					P_TmpATTbl->data.OutRest = param.P_CycleOutRests->Get(i, k.CurID);
-					THROW_DB(P_TmpATTbl->updateRec());
+			else if((State & stIsGenAcc) || acc_list.getCount() > 1) {
+				if(P_TmpAATbl) {
+					TempAccAnlzTbl::Key1 k1;
+					MEMSZERO(k1);
+					AmtList rest(Total.InRest);
+					while(P_TmpAATbl->searchForUpdate(1, &k1, spGt)) {
+						rest.Add(0, P_TmpAATbl->data.CurID, P_TmpAATbl->data.Dbt - P_TmpAATbl->data.Crd);
+						P_TmpAATbl->data.Rest = rest.Get(0, P_TmpAATbl->data.CurID);
+						THROW_DB(P_TmpAATbl->updateRec()); // @sfu
+					}
 				}
 			}
 		}
-		else if((State & stIsGenAcc) || acc_list.getCount() > 1) {
-			if(P_TmpAATbl) {
-				TempAccAnlzTbl::Key1 k1;
-				MEMSZERO(k1);
-				AmtList rest = Total.InRest;
-				while(P_TmpAATbl->searchForUpdate(1, &k1, spGt)) {
-					rest.Add(0, P_TmpAATbl->data.CurID, P_TmpAATbl->data.Dbt - P_TmpAATbl->data.Crd);
-					P_TmpAATbl->data.Rest = rest.Get(0, P_TmpAATbl->data.CurID);
-					THROW_DB(P_TmpAATbl->updateRec()); // @sfu
-				}
-			}
+		if(IsDedicatedRestEvaluationNeeded()) {
+			Total.OutRest.Add(&Total.InRest);
+			Total.OutRest.Add(&Total.DbtTrnovr);
+			Total.OutRest.Sub(&Total.CrdTrnovr);
 		}
-	}
-	if(IsDedicatedRestEvaluationNeeded()) {
-		Total.OutRest.Add(&Total.InRest);
-		Total.OutRest.Add(&Total.DbtTrnovr);
-		Total.OutRest.Sub(&Total.CrdTrnovr);
 	}
 	CATCH
 		ok = 0;
 		ZDELETE(param.Bei);
 		ZDELETE(P_TmpATTbl);
 		ZDELETE(P_TmpAATbl);
+		ZDELETE(P_TmpAGTbl); // @v12.7.11
+		ZDELETE(P_TmpBillTbl); // @v12.7.11
 	ENDCATCH
 	ZDELETE(param.P_CycleOutRests);
 	return ok;
@@ -1738,108 +1843,259 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 	TempAccTrnovrTbl * ttt = 0;
 	AccTurnTbl * rat = 0;
 	AcctRelTbl * rt = 0;
-	GetAccAnlzTitle(Filt.Aco, Filt.AccID, Filt.CurID, sub_title).Space().Cat(Filt.Period);
-	if(Filt.Flags & AccAnlzFilt::fTrnovrBySheet) {
-		DBE  * p_dbe1 = 0, * p_dbe2 = 0;
-		THROW(CheckTblPtr(ttt = new TempAccTrnovrTbl(P_TmpATTbl->GetName())));
-		PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, ttt->CurID);
-		p_dbe1 = &(0 - ttt->InRest);  // @warn unary '-' not defined in class DBField
-		p_dbe2 = &(0 - ttt->OutRest); // @warn unary '-' not defined in class DBField
-		q = &Select_(
-			ttt->AccRelID,  // #00
-			ttt->Dt,        // #01
-			ttt->Ac,        // #02
-			ttt->Sb,        // #03
-			ttt->Ar,        // #04
-			ttt->CurID,     // #05
-			0L);
-		q->addField(dbe_cur);        // #06
-		q->addField(ttt->InRest);    // #07
-		q->addField(ttt->Dbt);       // #08
-		q->addField(ttt->Crd);       // #09
-		q->addField(ttt->OutRest);   // #10
-		q->addField(ttt->Name);      // #11
-		q->addField(ttt->GoodsRest); // #12
-		q->addField(*p_dbe1);        // #13
-		q->addField(*p_dbe2);        // #14
-		//q->addField(ttt->DispFlags); // #15 @v7.1.2
-		q->from(ttt, 0L).orderBy(ttt->Dt, ttt->Name, 0L);
-		delete p_dbe1;
-		delete p_dbe2;
-		if(Filt.Flags & AccAnlzFilt::fTrnovrBySuppl)
-			brw_id = BROWSER_SUPPLTRNOVR;
-		else
-			brw_id = BROWSER_ACCTRNOVR;
-	}
-	else if(Filt.Flags & AccAnlzFilt::fGroupByCorAcc || Filt.Cycl.Cycle) {
-		THROW(CheckTblPtr(ttt = new TempAccTrnovrTbl(P_TmpATTbl->GetName())));
-		PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, ttt->CurID);
-		q = &Select_(
-			ttt->AccRelID,  // #00
-			ttt->Dt,        // #01
-			ttt->Ac,        // #02
-			ttt->Sb,        // #03
-			ttt->Ar,        // #04
-			ttt->CurID,     // #05
-			0L);
-		q->addField(dbe_cur);        // #06
-		q->addField(ttt->InRest);    // #07
-		q->addField(ttt->Dbt);       // #08
-		q->addField(ttt->Crd);       // #09
-		q->addField(ttt->OutRest);   // #10
-		q->addField(ttt->Name);      // #11
-		q->addField(ttt->GoodsRest); // #12
-		q->from(ttt, 0L).orderBy(ttt->Dt, ttt->Name, 0L);
-		if(Filt.Flags & AccAnlzFilt::fGroupByCorAcc) {
-			if(Filt.CorAco == AccAnlzFilt::aafgByOp)
-				brw_id = !Filt.Cycl ? BROWSER_ACCTOOP : BROWSER_ACCTOOP_CYCLE;
-			else if(Filt.CorAco == AccAnlzFilt::aafgByLoc)
-				brw_id = !Filt.Cycl ? BROWSER_ACCTOLOC : BROWSER_ACCTOLOC_CYCLE;
-			else
-				brw_id = !Filt.Cycl ? BROWSER_ACCTOBAL : BROWSER_ACCTOBAL_CYCLE;
+	// @v12.7.11 {
+	BillTbl    * bll = 0;
+	//AccTurnTbl * at  = 0;
+	TempAssocTbl * p_tmp_bill_t = 0;
+	TempAccturnGrpngTbl * p_grp_tbl = 0;
+	// } @v12.7.11 
+#if 0 // @construction {
+	if(State & stATurnList) {
+		PPViewAccturn::RegisterDynFunc();
+		//
+		DBE    dbe_oprkind;
+		DBE    dbe_rel_restrict;
+		DBE    dbe_acc_dbt;
+		DBE    dbe_acc_crd;
+		DBE    dbe_accname_dbt; // @v12.7.10
+		DBE    dbe_accname_crd; // @v12.7.10
+		DBE    dbe_memo;
+		const  PPID single_bill_id = Filt.BillIdList.GetSingle();
+		if(/*Filt.GrpAco*/false) {
+			brw_id = !Filt.Cycl ? BROWSER_ATURNGRPNG : BROWSER_ATURNGRPNG_CYCLE;
+			THROW_PP(P_TmpAGTbl, PPERR_PPVIEWNOTINITED);
+			THROW(CheckTblPtr(p_grp_tbl = new TempAccturnGrpngTbl(P_TmpAGTbl->GetName())));
+			PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, p_grp_tbl->CurID);
+			q = &Select_(
+				p_grp_tbl->Dt,          // #00
+				p_grp_tbl->DbtAccID,    // #01
+				p_grp_tbl->CrdAccID,    // #02
+				p_grp_tbl->CurID,       // #03
+				p_grp_tbl->DbtAc,       // #04
+				p_grp_tbl->DbtSb,       // #05
+				p_grp_tbl->DbtAr,       // #06
+				p_grp_tbl->CrdAc,       // #07
+				p_grp_tbl->CrdSb,       // #08
+				p_grp_tbl->CrdAr,       // #09
+				0L);
+			q->addField(dbe_cur);                // #10
+			q->addField(p_grp_tbl->DbtAccName);  // #11
+			q->addField(p_grp_tbl->CrdAccName);  // #12
+			q->addField(p_grp_tbl->Count);       // #13
+			q->addField(p_grp_tbl->Amount);      // #14
+			q->from(p_grp_tbl, 0L).orderBy(p_grp_tbl->Dt, p_grp_tbl->DbtAc, p_grp_tbl->DbtSb, p_grp_tbl->DbtAr, 0L);
 		}
-		else
-			brw_id = BROWSER_ACCTOTAL_CYCLE;
-	}
-	else {
-		if(State & stIsRegister) {
-			if(Filt.Aco == ACO_3) {
-				DBE * dbe_crd = 0;
-				THROW(CheckTblPtr(rat = new AccTurnTbl));
-				THROW(CheckTblPtr(rt = new AcctRelTbl));
-				PPDbqFuncPool::InitFunc2Arg(dbe_ar, PPDbqFuncPool::IdObjNameArByAcc, rt->ArticleID, rt->AccID);
-				dbe_crd = & (rat->Amount * -1);
-				PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, rat->BillID);
-				PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, rat->BillID);
-				q = &Select_(
-					rat->Dt,       // #00
-					rat->OprNo,    // #01
-					rat->BillID,   // #02
-					rat->Acc,      // #03
-					rt->AccID,     // #04
-					0L);
-				q->addField(dbe_bill_code); // #05
-				q->addField(dbe_ar);        // #06
-				q->addField(rat->Amount);   // #07
-				q->addField(*dbe_crd);      // #08
-				q->addField(rat->Rest);     // #09
-				q->addField(dbe_bill_memo); // #10
-				q->from(rat, rt, 0L);
-				delete dbe_crd;
-				dbq = & (daterange(rat->Dt, &Filt.Period) && rt->ID == rat->Acc);
-				brw_id = BROWSER_ACCREGISTEROPS;
-				if(Filt.Aco == ACO_3)
-					q->where(rat->Acc == Filt.AccID && *dbq).orderBy(rat->Acc, rat->Dt, rat->OprNo, 0L);
-				else // if(Filt.Aco == ACO_2)
-					q->where(rat->Bal == Filt.AccID && *dbq).orderBy(rat->Bal, rat->Dt, rat->OprNo, 0L);
+		else {
+			brw_id = BROWSER_ATURNLIST;
+			double ip;
+			double min_amt = Filt.AmtR.low;
+			double max_amt = Filt.AmtR.upp;
+			DBFieldList fld_list;
+			DBQ  * dbq = 0;
+			bll = new BillTbl;
+			rat  = new AccTurnTbl;
+			if(P_TmpBillTbl)
+				p_tmp_bill_t = new TempAssocTbl(P_TmpBillTbl->GetName());
+			THROW(CheckTblPtr(rat) && CheckTblPtr(bll));
+			PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPViewAccturn::DynFuncCurSymbByAccRelID, rat->Acc);
+			PPDbqFuncPool::InitObjNameFunc(dbe_oprkind, PPDbqFuncPool::IdObjNameOprKind, bll->OpID);
+			PPDbqFuncPool::InitObjNameFunc(dbe_acc_dbt, PPDbqFuncPool::IdObjNameAcctRel, rat->Acc);
+			PPDbqFuncPool::InitObjNameFunc(dbe_acc_crd, PPDbqFuncPool::IdObjNameAcctRel, rat->CorrAcc);
+			PPDbqFuncPool::InitObjNameFunc(dbe_accname_dbt, PPDbqFuncPool::IdObjNameAccountByRel, rat->Acc); // @v12.7.10
+			PPDbqFuncPool::InitObjNameFunc(dbe_accname_crd, PPDbqFuncPool::IdObjNameAccountByRel, rat->CorrAcc); // @v12.7.10
+			PPDbqFuncPool::InitObjNameFunc(dbe_memo, PPDbqFuncPool::IdObjMemoBill, rat->BillID);
+			{
+				dbe_rel_restrict.init();
+				dbe_rel_restrict.push(rat->Acc);
+				dbe_rel_restrict.push(rat->CorrAcc);
+				DBConst c_temp;
+				// @v12.5.1 c_temp.init((long)&Filt); // @x64crit
+				c_temp.init(&Filt); // @v12.5.1 
+				dbe_rel_restrict.push(c_temp);
+				dbe_rel_restrict.push(static_cast<DBFunc>(PPViewAccturn::DynFuncCheckRelRestrictions));
 			}
-			else { // if(Filt.Aco == ACO_2 || Filt.Aco == ACO_1)
-				//DBE * dbe_crd = 0;
-				THROW(CheckTblPtr(att = new TempAccAnlzTbl(P_TmpAATbl->GetName()))); // @v12.1.5
-				//THROW(CheckTblPtr(rat = new AccTurnTbl));
+			q = &Select_(
+				rat->BillID,             // #00
+				rat->Dt,                 // #01
+				rat->RByBill,            // #02
+				bll->Code,              // #03
+				0L);
+			q->addField(dbe_acc_dbt);   // #04
+			q->addField(dbe_acc_crd);   // #05
+			q->addField(rat->Amount);    // #06
+			q->addField(dbe_memo);      // #07
+			q->addField(dbe_cur);       // #08
+			q->addField(dbe_oprkind);   // #09
+			q->addField(dbe_accname_dbt); // #10 // @v12.7.10
+			q->addField(dbe_accname_crd); // #11 // @v12.7.10
+			if(p_tmp_bill_t) {
+				q->from(p_tmp_bill_t, rat, bll, 0L);
+				dbq = & (rat->BillID == p_tmp_bill_t->PrmrID);
+			}
+			else {
+				q->from(rat, bll, 0L);
+				if(/*@v12.7.11 Filt.Flags & AccturnFilt::fLastOnly &&*/Filt.BillIdList.GetCount()) {
+					dbq = &(rat->Reverse == 0L && *ppcheckfiltidlist(dbq, rat->BillID, &Filt.BillIdList.Get()));
+					//dbq = & (*dbq && rat->BillID == Filt.BillID && rat->Reverse == 0L);
+				}
+				else {
+					dbq = & daterange(rat->Dt, &Filt.Period);
+				}
+			}
+			dbq = & (*dbq && dbe_rel_restrict > 0L);
+			if(min_amt == max_amt && min_amt != 0.0) {
+				min_amt = (modf(min_amt, &ip) == 0.0) ? (ip - 1.0) : ip;
+				max_amt = ip + 1.0;
+			}
+			dbq = & (*dbq && realrange(rat->Amount, min_amt, max_amt) && (rat->Reverse == 0L));
+			if(OpList.getCount())
+				dbq = &(*dbq && bll->ID == rat->BillID && ppidlist(bll->OpID, &OpList));
+			else
+				dbq = &(*dbq && (bll->ID += rat->BillID));
+			q->where(*dbq);
+			{
+				if(/*@v12.7.11 Filt.Flags & AccturnFilt::fLastOnly &&*/single_bill_id)
+					q->orderBy(rat->BillID, 0L);
+				else
+					q->orderBy(rat->Dt, rat->OprNo, 0L);
+			}
+		}
+	}
+	else 
+#endif // } 0 @construction
+	{
+		GetAccAnlzTitle(Filt.Aco, Filt.AccID, Filt.CurID, sub_title).Space().Cat(Filt.Period);
+		if(Filt.Flags & AccAnlzFilt::fTrnovrBySheet) {
+			DBE  * p_dbe1 = 0, * p_dbe2 = 0;
+			THROW(CheckTblPtr(ttt = new TempAccTrnovrTbl(P_TmpATTbl->GetName())));
+			PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, ttt->CurID);
+			p_dbe1 = &(0 - ttt->InRest);  // @warn unary '-' not defined in class DBField
+			p_dbe2 = &(0 - ttt->OutRest); // @warn unary '-' not defined in class DBField
+			q = &Select_(
+				ttt->AccRelID,  // #00
+				ttt->Dt,        // #01
+				ttt->Ac,        // #02
+				ttt->Sb,        // #03
+				ttt->Ar,        // #04
+				ttt->CurID,     // #05
+				0L);
+			q->addField(dbe_cur);        // #06
+			q->addField(ttt->InRest);    // #07
+			q->addField(ttt->Dbt);       // #08
+			q->addField(ttt->Crd);       // #09
+			q->addField(ttt->OutRest);   // #10
+			q->addField(ttt->Name);      // #11
+			q->addField(ttt->GoodsRest); // #12
+			q->addField(*p_dbe1);        // #13
+			q->addField(*p_dbe2);        // #14
+			//q->addField(ttt->DispFlags); // #15 @v7.1.2
+			q->from(ttt, 0L).orderBy(ttt->Dt, ttt->Name, 0L);
+			delete p_dbe1;
+			delete p_dbe2;
+			if(Filt.Flags & AccAnlzFilt::fTrnovrBySuppl)
+				brw_id = BROWSER_SUPPLTRNOVR;
+			else
+				brw_id = BROWSER_ACCTRNOVR;
+		}
+		else if(Filt.Flags & AccAnlzFilt::fGroupByCorAcc || Filt.Cycl.Cycle) {
+			THROW(CheckTblPtr(ttt = new TempAccTrnovrTbl(P_TmpATTbl->GetName())));
+			PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, ttt->CurID);
+			q = &Select_(
+				ttt->AccRelID,  // #00
+				ttt->Dt,        // #01
+				ttt->Ac,        // #02
+				ttt->Sb,        // #03
+				ttt->Ar,        // #04
+				ttt->CurID,     // #05
+				0L);
+			q->addField(dbe_cur);        // #06
+			q->addField(ttt->InRest);    // #07
+			q->addField(ttt->Dbt);       // #08
+			q->addField(ttt->Crd);       // #09
+			q->addField(ttt->OutRest);   // #10
+			q->addField(ttt->Name);      // #11
+			q->addField(ttt->GoodsRest); // #12
+			q->from(ttt, 0L).orderBy(ttt->Dt, ttt->Name, 0L);
+			if(Filt.Flags & AccAnlzFilt::fGroupByCorAcc) {
+				if(Filt.CorAco == AccAnlzFilt::aafgByOp)
+					brw_id = !Filt.Cycl ? BROWSER_ACCTOOP : BROWSER_ACCTOOP_CYCLE;
+				else if(Filt.CorAco == AccAnlzFilt::aafgByLoc)
+					brw_id = !Filt.Cycl ? BROWSER_ACCTOLOC : BROWSER_ACCTOLOC_CYCLE;
+				else
+					brw_id = !Filt.Cycl ? BROWSER_ACCTOBAL : BROWSER_ACCTOBAL_CYCLE;
+			}
+			else
+				brw_id = BROWSER_ACCTOTAL_CYCLE;
+		}
+		else {
+			if(State & stIsRegister) {
+				if(Filt.Aco == ACO_3) {
+					DBE * dbe_crd = 0;
+					THROW(CheckTblPtr(rat = new AccTurnTbl));
+					THROW(CheckTblPtr(rt = new AcctRelTbl));
+					PPDbqFuncPool::InitFunc2Arg(dbe_ar, PPDbqFuncPool::IdObjNameArByAcc, rt->ArticleID, rt->AccID);
+					dbe_crd = & (rat->Amount * -1);
+					PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, rat->BillID);
+					PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, rat->BillID);
+					q = &Select_(
+						rat->Dt,       // #00
+						rat->OprNo,    // #01
+						rat->BillID,   // #02
+						rat->Acc,      // #03
+						rt->AccID,     // #04
+						0L);
+					q->addField(dbe_bill_code); // #05
+					q->addField(dbe_ar);        // #06
+					q->addField(rat->Amount);   // #07
+					q->addField(*dbe_crd);      // #08
+					q->addField(rat->Rest);     // #09
+					q->addField(dbe_bill_memo); // #10
+					q->from(rat, rt, 0L);
+					delete dbe_crd;
+					dbq = & (daterange(rat->Dt, &Filt.Period) && rt->ID == rat->Acc);
+					brw_id = BROWSER_ACCREGISTEROPS;
+					if(Filt.Aco == ACO_3)
+						q->where(rat->Acc == Filt.AccID && *dbq).orderBy(rat->Acc, rat->Dt, rat->OprNo, 0L);
+					else // if(Filt.Aco == ACO_2)
+						q->where(rat->Bal == Filt.AccID && *dbq).orderBy(rat->Bal, rat->Dt, rat->OprNo, 0L);
+				}
+				else { // if(Filt.Aco == ACO_2 || Filt.Aco == ACO_1)
+					//DBE * dbe_crd = 0;
+					THROW(CheckTblPtr(att = new TempAccAnlzTbl(P_TmpAATbl->GetName()))); // @v12.1.5
+					//THROW(CheckTblPtr(rat = new AccTurnTbl));
+					THROW(CheckTblPtr(rt = new AcctRelTbl));
+					PPDbqFuncPool::InitFunc2Arg(dbe_ar, PPDbqFuncPool::IdObjNameArByAcc, rt->ArticleID, rt->AccID);
+					//dbe_crd = & (att->Amount * -1);
+					PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, att->BillID);
+					PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, att->BillID);
+					q = &Select_(
+						att->Dt,       // #00
+						att->OprNo,    // #01
+						att->BillID,   // #02
+						att->Acc,      // #03
+						rt->AccID,     // #04
+						0L);
+					q->addField(dbe_bill_code); // #05
+					q->addField(dbe_ar);        // #06
+					//q->addField(att->Amount);   // #07
+					q->addField(att->Dbt);      // #07
+					//q->addField(*dbe_crd);      // #08
+					q->addField(att->Crd);      // #08
+					q->addField(att->Rest);     // #09
+					q->addField(dbe_bill_memo); // #10
+					q->from(att, rt, 0L);
+					//delete dbe_crd;
+					//dbq = & (daterange(att->Dt, &Filt.Period) /*&& (rt->ID += att->Acc)*/);
+					brw_id = BROWSER_ACCREGISTEROPS;
+					//q->where(rat->Bal == Filt.AccID && *dbq).orderBy(rat->Bal, rat->Dt, rat->OprNo, 0L);
+					q->where((rt->ID += att->Acc));
+				}
+			}
+			else {
+				THROW(CheckTblPtr(att = new TempAccAnlzTbl(P_TmpAATbl->GetName())));
 				THROW(CheckTblPtr(rt = new AcctRelTbl));
 				PPDbqFuncPool::InitFunc2Arg(dbe_ar, PPDbqFuncPool::IdObjNameArByAcc, rt->ArticleID, rt->AccID);
-				//dbe_crd = & (att->Amount * -1);
+				PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, att->CurID);
 				PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, att->BillID);
 				PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, att->BillID);
 				q = &Select_(
@@ -1850,48 +2106,19 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 					rt->AccID,     // #04
 					0L);
 				q->addField(dbe_bill_code); // #05
-				q->addField(dbe_ar);        // #06
-				//q->addField(att->Amount);   // #07
-				q->addField(att->Dbt);      // #07
-				//q->addField(*dbe_crd);      // #08
-				q->addField(att->Crd);      // #08
-				q->addField(att->Rest);     // #09
-				q->addField(dbe_bill_memo); // #10
-				q->from(att, rt, 0L);
-				//delete dbe_crd;
-				//dbq = & (daterange(att->Dt, &Filt.Period) /*&& (rt->ID += att->Acc)*/);
-				brw_id = BROWSER_ACCREGISTEROPS;
-				//q->where(rat->Bal == Filt.AccID && *dbq).orderBy(rat->Bal, rat->Dt, rat->OprNo, 0L);
-				q->where((rt->ID += att->Acc));
+				q->addField(att->Ac);       // #06
+				q->addField(att->Sb);       // #07
+				q->addField(att->Ar);       // #08
+				q->addField(att->CurID);    // #09
+				q->addField(dbe_cur);       // #10
+				q->addField(att->Dbt);      // #11
+				q->addField(att->Crd);      // #12
+				q->addField(att->Rest);     // #13
+				q->addField(dbe_bill_memo); // #14
+				q->addField(dbe_ar);        // #15
+				q->from(att, rt, 0L).where((rt->ID += att->Acc));
+				brw_id = BROWSER_ACCTOACC;
 			}
-		}
-		else {
-			THROW(CheckTblPtr(att = new TempAccAnlzTbl(P_TmpAATbl->GetName())));
-			THROW(CheckTblPtr(rt = new AcctRelTbl));
-			PPDbqFuncPool::InitFunc2Arg(dbe_ar, PPDbqFuncPool::IdObjNameArByAcc, rt->ArticleID, rt->AccID);
-			PPDbqFuncPool::InitObjNameFunc(dbe_cur, PPDbqFuncPool::IdObjSymbCurrency, att->CurID);
-			PPDbqFuncPool::InitObjNameFunc(dbe_bill_code, PPDbqFuncPool::IdObjCodeBill, att->BillID);
-			PPDbqFuncPool::InitObjNameFunc(dbe_bill_memo, PPDbqFuncPool::IdObjMemoBill, att->BillID);
-			q = &Select_(
-				att->Dt,       // #00
-				att->OprNo,    // #01
-				att->BillID,   // #02
-				att->Acc,      // #03
-				rt->AccID,     // #04
-				0L);
-			q->addField(dbe_bill_code); // #05
-			q->addField(att->Ac);       // #06
-			q->addField(att->Sb);       // #07
-			q->addField(att->Ar);       // #08
-			q->addField(att->CurID);    // #09
-			q->addField(dbe_cur);       // #10
-			q->addField(att->Dbt);      // #11
-			q->addField(att->Crd);      // #12
-			q->addField(att->Rest);     // #13
-			q->addField(dbe_bill_memo); // #14
-			q->addField(dbe_ar);        // #15
-			q->from(att, rt, 0L).where((rt->ID += att->Acc));
-			brw_id = BROWSER_ACCTOACC;
 		}
 	}
 	THROW(CheckQueryPtr(q));
@@ -2282,7 +2509,8 @@ static int SelectPrintingAccSheetTrnovr(int * pWhat, LDATE * pExpiry, uint * pFl
 
 /*virtual*/int PPViewAccAnlz::Print(const void *)
 {
-	int    ok = 1, done = 0;
+	int    ok = 1;
+	int    done = 0;
 	int    disable_grpng = 0;
 	uint   rpt_id = 0;
 	TDialog * dlg = 0;
@@ -2318,13 +2546,19 @@ static int SelectPrintingAccSheetTrnovr(int * pWhat, LDATE * pExpiry, uint * pFl
 	}
 	else if(Filt.Flags & AccAnlzFilt::fAsCashBook) {
 		ushort v = 0;
-		THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PRNCASHBOOK))));
-		dlg->setCtrlData(CTL_PRNCASHBOOK_WHAT, &v);
-		if(ExecView(dlg) == cmOK)
-			rpt_id = dlg->getCtrlUInt16(CTL_PRNCASHBOOK_WHAT) ? REPORT_CASHBOOK2 : REPORT_CASHBOOK;
-		else
-			ok = -1;
-		ZDELETE(dlg);
+		if(OuterReportId) {
+			rpt_id = OuterReportId;
+		}
+		else {
+			dlg = new TDialog(DLG_PRNCASHBOOK);
+			THROW(CheckDialogPtr(&dlg));
+			dlg->setCtrlData(CTL_PRNCASHBOOK_WHAT, &v);
+			if(ExecView(dlg) == cmOK)
+				rpt_id = dlg->getCtrlUInt16(CTL_PRNCASHBOOK_WHAT) ? REPORT_CASHBOOK2 : REPORT_CASHBOOK;
+			else
+				ok = -1;
+			ZDELETE(dlg);
+		}
 		if(ok > 0 && Filt.Period.low != Filt.Period.upp) {
 			int    leaf_no = Filt.LeafNo;
 			PPViewAccAnlz temp_view;
@@ -2334,6 +2568,7 @@ static int SelectPrintingAccSheetTrnovr(int * pWhat, LDATE * pExpiry, uint * pFl
 				temp_flt.Period.SetDate(dt);
 				temp_flt.LeafNo = leaf_no;
 				THROW(temp_view.Init_(&temp_flt));
+				temp_view.SetOuterReportId(rpt_id); // @v12.7.11
 				THROW(r = temp_view.Print(0));
 				leaf_no = temp_flt.LeafNo+1;
 				if(r < 0)
@@ -2787,7 +3022,7 @@ int PPALDD_CurRateView::NextIteration(PPIterID iterId)
 	I.BaseCurID  = item.RelCurID;
 	I.RateTypeID = item.RateTypeID;
 	I.Dt = item.Dt;
-	I.Rate       = item.Rate;
+	I.Rate = item.Rate;
 	FINISH_PPVIEW_ALDD_ITER();
 }
 //
@@ -2797,11 +3032,10 @@ int PPALDD_CurRateView::NextIteration(PPIterID iterId)
 struct UhttCurRateIdentBlock {
 	UhttCurRateIdentBlock()
 	{
-		Z();
 	}
 	UhttCurRateIdentBlock & Z()
 	{
-		MEMSZERO(Rec);
+		Rec.Z();
 		return *this;
 	}
 	CurRateCore  CrCore;

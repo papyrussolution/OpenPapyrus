@@ -25,10 +25,7 @@ int AccTurnCore::AcctRelToID(PPID relID, AccIdent * pAcctId, PPID * pAccSheetID)
 	PPID   acc_sheet_id = 0;
 	AcctRelTbl::Rec acrel_rec;
 	if(AccRel.Search(relID, &acrel_rec) > 0) {
-		if(pAcctId) {
-			pAcctId->AcID = acrel_rec.AccID;
-			pAcctId->ArID = acrel_rec.ArticleID;
-		}
+		CALLPTRMEMB(pAcctId, Set(acrel_rec.AccID, acrel_rec.ArticleID));
 		acc_sheet_id = (Art.Search(acrel_rec.ArticleID) > 0) ? Art.data.AccSheetID : 0;
 		ok = 1;
 	}
@@ -460,19 +457,22 @@ int AccTurnCore::IdentifyAcc(long * pAco, PPID * pAccID, PPID curID, PPID person
 	if(aco == ACO_1 || (aco == ACO_2 && curID < 0)) {
 		if(curID < 0) {
 			cur_id = -1;
-			if(aco == ACO_2)
+			if(aco == ACO_2) {
 				THROW(AccObj.SearchBase(*pAccID, pAccID, 0) > 0);
+			}
 		}
 		else {
 			cur_id = curID;
-			if(aco == ACO_2)
+			if(aco == ACO_2) {
 				THROW(AccObj.SearchCur(*pAccID, curID, pAccID, 0) > 0);
+			}
 		}
 		THROW(AccObj.Search(*pAccID, &acc_rec) > 0);
 		sb = (aco == ACO_1) ? -1 : acc_rec.A.Sb;
 		THROW(AccObj.GetSubacctList(acc_rec.A.Ac, sb, cur_id, pAccList));
-		if(curID < 0 && aco == ACO_2)
+		if(curID < 0 && aco == ACO_2) {
 			THROW(pAccList->addUnique(*pAccID));
+		}
 		if(pAccList->getCount() == 1) {
 			aco = ACO_2;
 			*pAccID = pAccList->at(0);
@@ -484,7 +484,8 @@ int AccTurnCore::IdentifyAcc(long * pAco, PPID * pAccID, PPID curID, PPID person
 	}
 	else if(aco == ACO_3) {
 		AcctRelTbl::Rec acr_rec;
-		PPIDArray ar_list, temp_list;
+		PPIDArray ar_list;
+		PPIDArray temp_list;
 		THROW(AccRel.Search(*pAccID, &acr_rec) > 0);
 		const  PPID acc_id = acr_rec.AccID;
 		if(personRelID) {
@@ -494,8 +495,7 @@ int AccTurnCore::IdentifyAcc(long * pAco, PPID * pAccID, PPID curID, PPID person
 		}
 		ar_list.addUnique(acr_rec.ArticleID);
 		for(uint j = 0; j < ar_list.getCount(); j++) {
-			AccIdent acctid;
-			acctid.Set(acc_id, ar_list.get(j));
+			AccIdent acctid(acc_id, ar_list.get(j));
 			if(curID < 0) {
 				temp_list.clear();
 				THROW(AccObj.SearchBase(acctid.AcID, &acctid.AcID, 0) > 0);
@@ -503,8 +503,9 @@ int AccTurnCore::IdentifyAcc(long * pAco, PPID * pAccID, PPID curID, PPID person
 				THROW_SL(temp_list.addUnique(acctid.AcID));
 				for(uint i = 0; i < temp_list.getCount(); i++) {
 					acctid.AcID = temp_list.get(i);
-					if(AccRel.SearchAcctID(&acctid, &acr_rec) > 0)
+					if(AccRel.SearchAcctID(&acctid, &acr_rec) > 0) {
 						THROW_SL(pAccList->addUnique(acr_rec.ID));
+					}
 				}
 			}
 			else {
@@ -557,7 +558,7 @@ int AccTurnCore::RemoveEmptyAcctRels()
 		THROW(tra);
 		while(AccRel.search(0, &rel, spGt)) {
 			char msg_buf[64];
-			reinterpret_cast<const Acct *>(&AccRel.data.Ac)->ToStr(ACCF_DEFAULT, msg_buf);
+			reinterpret_cast<const Acct *>(&AccRel.data.Ac)->ToStr_Obsolete(ACCF_DEFAULT, msg_buf);
 			PPWaitMsg(msg_buf);
 			AccTurnTbl::Key1 k;
 			MEMSZERO(k);
@@ -886,8 +887,7 @@ static bool ValidateAccKind(int k) { return oneof3(k, ACCK_ACTIVE, ACCK_PASSIVE,
 int AccTurnCore::GetAcctRel(PPID accID, PPID arID, AcctRelTbl::Rec * pRec, int createIfNExists, int use_ta)
 {
 	int    ok = -1;
-	AccIdent acctid;
-	acctid.Set(accID, arID);
+	AccIdent acctid(accID, arID);
 	if(AccRel.SearchAcctID(&acctid, pRec) > 0) {
 		ok = 1;
 	}
@@ -1657,7 +1657,7 @@ int AccTurnCore::RecalcBalance(const RecoverBalanceParam * pParam, PPLogger & rL
 	return ok;
 }
 
-int AccTurnCore::_CheckBalance(PPID accID, LDATE dt, double dbt, double crd, char * pAccStr, bool correct, PPLogger & rLogger, int use_ta)
+int AccTurnCore::_CheckBalance(PPID accID, LDATE dt, double dbt, double crd, const char * pAccStr, bool correct, PPLogger & rLogger, int use_ta)
 {
 	int    err = 0;
 	SString fmt_buf;
@@ -1785,7 +1785,8 @@ int AccTurnCore::_RecalcBalance(PPID balID, const RecoverBalanceParam * pParam, 
 	char   sdate[32];
 	char   sdbt[32];
 	char   scrd[32];
-	char   sbal[32];
+	// @v12.7.11 char   sbal[32];
+	SString sbal_;
 	double dbt = 0.0;
 	double crd = 0.0;
 	Acct   acct;
@@ -1799,7 +1800,8 @@ int AccTurnCore::_RecalcBalance(PPID balID, const RecoverBalanceParam * pParam, 
 	acct.ac = acc_rec.A.Ac;
 	acct.sb = acc_rec.A.Sb;
 	acct.ar = 0;
-	acct.ToStr(ACCF_BAL | ACCF_DELDOT, sbal);
+	// @v12.7.11 acct.ToStr_Obsolete(ACCF_BAL|ACCF_DELDOT, sbal);
+	acct.ToStr(ACCF_BAL|ACCF_DELDOT, sbal_); // @v12.7.3
 	if(pParam->Period.low) {
 		THROW(GetBalRest(pParam->Period.low, balID, &dbt, &crd, BALRESTF_INCOMING));
 	}
@@ -1811,13 +1813,13 @@ int AccTurnCore::_RecalcBalance(PPID balID, const RecoverBalanceParam * pParam, 
 		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 			if(data.Dt != prev) {
 				if(prev) {
-					THROW(err = _CheckBalance(balID, prev, dbt, crd, sbal, correct_flag, rLogger, 1));
+					THROW(err = _CheckBalance(balID, prev, dbt, crd, sbal_, correct_flag, rLogger, 1));
 					if(err < 0)
 						err = 0;
 					else
 						errflag = 1;
 				}
-				PPWaitMsg((log_msg = sbal).CatCharN(' ', 2).Cat(data.Dt));
+				PPWaitMsg((log_msg = sbal_).CatCharN(' ', 2).Cat(data.Dt));
 				prev = data.Dt;
 			}
 			if(data.Reverse)
@@ -1826,7 +1828,7 @@ int AccTurnCore::_RecalcBalance(PPID balID, const RecoverBalanceParam * pParam, 
 				dbt = R2(dbt + MONEYTOLDBL(data.Amount));
 		}
 		if(prev) {
-			THROW(err = _CheckBalance(balID, prev, dbt, crd, sbal, correct_flag, rLogger, 1));
+			THROW(err = _CheckBalance(balID, prev, dbt, crd, sbal_, correct_flag, rLogger, 1));
 			if(err < 0)
 				err = 0;
 			else
@@ -1834,8 +1836,7 @@ int AccTurnCore::_RecalcBalance(PPID balID, const RecoverBalanceParam * pParam, 
 		}
 	}
 	//
-	// Проверка на отсутствие записей баланса за дни, в которые не было
-	// проводок по этому балансовому счету
+	// Проверка на отсутствие записей баланса за дни, в которые не было проводок по этому балансовому счету
 	//
 	{
 		PPTransaction tra(1);
@@ -1851,18 +1852,18 @@ int AccTurnCore::_RecalcBalance(PPID balID, const RecoverBalanceParam * pParam, 
 				datefmt(&bk.Dt, DATF_DMY, sdate);
 				realfmt(MONEYTOLDBL(BalTurn.data.DbtRest), MKSFMTD(0, 2, NMBF_TRICOMMA), sdbt);
 				realfmt(MONEYTOLDBL(BalTurn.data.CrdRest), MKSFMTD(0, 2, NMBF_TRICOMMA), scrd);
-				rLogger.Log(log_msg.Printf(fmt_buf, sdate, sdbt, scrd, sbal));
+				rLogger.Log(log_msg.Printf(fmt_buf, sdate, sdbt, scrd, sbal_.cptr()));
 				if(correct_flag)
 					THROW_DB(BalTurn.deleteRec());
 			}
-			PPWaitMsg((log_msg = sbal).CatChar('^').Space().Cat(bk.Dt));
+			PPWaitMsg((log_msg = sbal_).CatChar('^').Space().Cat(bk.Dt));
 		}
 		THROW(tra.Commit());
 	}
 	CATCHZOK
 	if(!errflag) {
 		PPLoadString(PPMSG_ERROR, PPERR_BALCORRUPT_OK, fmt_buf);
-		rLogger.Log(log_msg.Printf(fmt_buf, sbal));
+		rLogger.Log(log_msg.Printf(fmt_buf, sbal_.cptr()));
 	}
 	return ok;
 }
@@ -1934,8 +1935,8 @@ int AccTurnCore::RevalCurRest(const CurRevalParam & rParam, const Acct * pAcc, c
 			if(base_rest > new_base_rest) {
 				const Acct * p_acct = rParam.NegCorrAcc.ac ? &rParam.NegCorrAcc : &rParam.CorrAcc;
 				THROW(ConvertAcct(p_acct, 0L, &p_at->DbtID, &p_at->DbtAcsID));
-				p_at->CrdID    = base_acc_id;
-				p_at->Amount   = base_rest - new_base_rest;
+				p_at->CrdID  = base_acc_id;
+				p_at->Amount = base_rest - new_base_rest;
 			}
 			else {
 				THROW(ConvertAcct(&rParam.CorrAcc, 0L, &p_at->CrdID, &p_at->CrdAcsID));

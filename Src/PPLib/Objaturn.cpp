@@ -184,9 +184,8 @@ int PPObjAccTurn::EditRecoverBalanceParam(RecoverBalanceParam * pParam)
 	int    valid_data = 0;
 	Acct   acct;
 	PPID   cur_id = 0;
-	AccIdent acct_id;
+	AccIdent acct_id(pParam->BalAccID, 0);
 	TDialog * dlg = new TDialog(DLG_CBAL);
-	acct_id.Set(pParam->BalAccID, 0);
 	acct.Z();
 	THROW(CheckDialogPtr(&dlg));
 	FileBrowseCtrlGroup::Setup(dlg, CTLBRW_CBAL_LOG, CTL_CBAL_LOG, 1, 0, 0, FileBrowseCtrlGroup::fbcgfLogFile);

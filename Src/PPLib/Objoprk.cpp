@@ -1793,8 +1793,8 @@ void OprKindDialog::setup()
 	setCtrlData(CTL_OPRKIND_RANK, &P_Data->Rec.Rank);
 	setCtrlUInt16(CTL_OPRKIND_PASSIVE, BIN(P_Data->Rec.Flags & OPKF_PASSIVE));
 	setCtrlUInt16(CTL_OPRKIND_PAYMF, BIN(P_Data->Rec.Flags & OPKF_RECKON));
-	disableCtrl(CTL_OPRKIND_ID,      (!PPMaster || P_Data->Rec.ID));
-	disableCtrl(CTLSEL_OPRKIND_TYPE, P_Data->Rec.ID || op_type_id);
+	setCtrlReadOnly(CTL_OPRKIND_ID, (!PPMaster || P_Data->Rec.ID)); // @v12.7.11 disableCtrl-->setCtrlReadOnly
+	setCtrlReadOnly(CTLSEL_OPRKIND_TYPE, P_Data->Rec.ID || op_type_id); // @v12.7.11 disableCtrl-->setCtrlReadOnly
 	enableCommand(cmOprKindPaymList, BIN(P_Data->Rec.Flags & OPKF_RECKON));
 	if(!IsGeneric) {
 		enableCommand(cmaInsert, modatt);

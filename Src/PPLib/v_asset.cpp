@@ -266,9 +266,9 @@ int PPViewAsset::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	THROW(AdjustPeriodToRights(Filt.Period, false));
-	Filt.OperPeriod.Actualize(ZERODATE);
+	Filt.OperPeriod.Actualize();
 	THROW(AdjustPeriodToRights(Filt.OperPeriod, false));
 	ZDELETE(P_TempTbl);
 	{

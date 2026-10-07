@@ -3097,7 +3097,7 @@ int PrcssrUniFindObj::Init(const UniFindObjFilt * pParam)
 {
 	int    ok = 1;
 	RVALUEPTR(P, pParam);
-	P.Period.Actualize(ZERODATE);
+	P.Period.Actualize();
 	return ok;
 }
 

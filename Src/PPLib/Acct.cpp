@@ -43,7 +43,7 @@ char * STAcct::tostr(const void * pData, long fmt, char * pBuf) const
 	}
 	if(S > sizeof(Acct)) {
 		if(!(fmt & ACCF_NAMEONLY)) {
-			static_cast<const Acct *>(pData)->ToStr(fmt, pBuf);
+			static_cast<const Acct *>(pData)->ToStr_Obsolete(fmt, pBuf);
 			ofs = accflen;
 		}
 		else
@@ -52,7 +52,7 @@ char * STAcct::tostr(const void * pData, long fmt, char * pBuf) const
 		strnzcpy(pBuf+ofs, static_cast<const char *>(pData)+sz, S-sz);
 	}
 	else
-		static_cast<const Acct *>(pData)->ToStr(fmt, pBuf);
+		static_cast<const Acct *>(pData)->ToStr_Obsolete(fmt, pBuf);
 	return pBuf;
 }
 
@@ -115,18 +115,19 @@ static int delim(long format)
 	return c;
 }
 
-// char * ToStr(long format, char * pBuf) const; // ACCBIN_NATURE
+// char * ToStr(long format, char * pBuf) const; // ACCBIN_NATURAL
 // SString & ToStr(long format, SString & rBuf) const;
-// int    FromStr(long format, const char *); // ACCBIN_NATURE
+// int    FromStr(long format, const char *); // ACCBIN_NATURAL
 
 //char * AccToStr(const Acct * acc, long format, char * buf)
-char * Acct::ToStr(long format, char * pBuf) const // ACCBIN_NATURE
+char * Acct::ToStr_Obsolete(long format, char * pBuf) const // ACCBIN_NATURAL
 {
 	char * b = pBuf;
 	int    dlm = delim(format);
 	if(ac != 0) {
-		if(ac < 10 && ac > 0 && (format & ACCF_PADACC))
+		if(ac < 10 && ac > 0 && (format & ACCF_PADACC)) {
 			*b++ = '0';
+		}
 		b += sstrlen(_itoa(ac, b, 10));
 		if(sb) {
 			if(dlm)
@@ -225,7 +226,7 @@ static int parseAccString(const char * pStr, int pTok[], int * pSide)
 }
 
 //int StrToAcc(Acct * pAcct, long, const char * pStr)
-int Acct::FromStr(long format, const char * pStr) // ACCBIN_NATURE
+int Acct::FromStr(long format, const char * pStr) // ACCBIN_NATURAL
 {
 	int    tok[3];
 	parseAccString(pStr, tok, 0);
@@ -272,6 +273,14 @@ int IsAccBelongToList(const Acct * pAcct, int side, const char * pList)
 //
 //
 AccIdent::AccIdent() : AcID(0), ArID(0)
+{
+}
+
+AccIdent::AccIdent(const AccIdent & rS) : AcID(rS.AcID), ArID(rS.ArID)
+{
+}
+	
+AccIdent::AccIdent(PPID acID, PPID arID) : AcID(acID), ArID(arID)
 {
 }
 

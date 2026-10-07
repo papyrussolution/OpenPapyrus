@@ -2514,6 +2514,9 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 						MessageCommandToOwner(cmCBSelected);
 				}
 			}
+			else {
+				return 0; // @v12.7.11
+			}
 			break;
 	 }
 	 return 1;
@@ -2694,6 +2697,11 @@ void ComboBox::setState(uint aState, bool enable)
 			P_ILink->setState(sf, enable);
 	}
 	TView::setState(aState, enable);
+	// @v12.7.11 {
+	if(aState == sfReadOnly) {
+		TView::setState(sfDisabled, enable);
+	}
+	// } @v12.7.11 
 	if(aState & (sfSelected|sfActive))
 		Draw_();
 }

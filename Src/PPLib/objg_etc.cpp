@@ -1253,7 +1253,7 @@ int PPObjComputer::SearchByMacAddr(const MACAddr & rKey, PPID * pID, PPComputerP
 {
 	int    ok = 1;
 	if(pRec) {
-		memzero(pRec, sizeof(*pRec));
+		pRec->Z();
 		if(rGoodsRec.Kind == PPGDSK_COMPUTER) {
 			pRec->ID = rGoodsRec.ID;
 			STRNSCPY(pRec->Name, rGoodsRec.Name);
@@ -2064,7 +2064,7 @@ int PPObjSwProgram::Put(PPID * pID, PPSwProgramPacket * pPack, int use_ta)
 {
 	int    ok = 1;
 	if(pRec) {
-		memzero(pRec, sizeof(*pRec));
+		pRec->Z();
 		if(rGoodsRec.Kind == PPGDSK_SWPROGRAM) {
 			pRec->ID = rGoodsRec.ID;
 			STRNSCPY(pRec->Name, rGoodsRec.Name);

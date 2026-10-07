@@ -455,7 +455,7 @@ int PPViewSStat::Init_(const PPBaseFilt * pBaseFilt)
 	int    ok = 1, use_ta = 1;
 	SStatFilt prev_filt = Filt;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	Filt.RestDate = Filt.RestDate.getactual(ZERODATE);
 	CreatedBillList.clear();
 	if(P_TempTbl && prev_filt.IsEqualExceptOrder(&Filt)) {

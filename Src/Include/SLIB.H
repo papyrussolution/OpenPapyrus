@@ -4019,6 +4019,10 @@ struct DateRange { // @persistent @size=8
 	//   относительно даты rel. Если rel == ZERODATE, то rel считается равной getcurdate_()
 	//
 	DateRange & FASTCALL Actualize(LDATE rel);
+	//
+	// Descr: То же, что и _Actualize(ZERODATE)
+	//
+	DateRange & Actualize();
 	DateRange & ActualizeCmp(LDATE rel, LDATE cmp);
 	//
 	// Descr: Преобразует строку pStr в экземпляр this.
@@ -14802,6 +14806,98 @@ long   GetTranspositionNumber(const long list[], long count);
 int    GetNthTransposition(long list[], long count, long n);
 void   RationalBestApproximation(ulong givenNumerator, ulong givenDenominator, ulong maxNumerator, ulong maxDenominator, ulong * pBestNumerator, ulong * pBestDenominator);
 //
+// Descr: Класс, реализующий базовый механизм распределения действительной скидки по группе элементов DiscountDistribution::Item
+//
+class DiscountDistribution { // @v12.7.10 @construction
+public:
+	static bool CheckInvariant();
+
+	enum {
+		fNoDiscount = 0x0001 // Если флаг установлен, то на элемент общая скидка не распределяется //
+	};
+	struct Item {
+		DECL_INVARIANT_C();
+
+		Item(int64 refId, uint64 price, double qtty, uint flags);
+		bool   IsVariable() const { return (!(Flags & fNoDiscount) && Price != 0ULL && Qtty != 0.0); }
+		bool   FASTCALL IsEqExceptDiscount(const Item & rS) const
+		{
+			return (RefId == rS.RefId && Price == rS.Price && Qtty == rS.Qtty && Flags == rS.Flags);
+		}
+		bool   FASTCALL IsEq(const Item & rS) const
+		{
+			return (IsEqExceptDiscount(rS) && Discount == rS.Discount);
+		}
+		const  int64  RefId; // Идентификатор, с помощью которого можно ссылаться на внешние данные
+		const  uint64 Price; // Начальная цена за единицу. Если Price == 0, то элемент не участвует в распределении скидки
+		const  double Qtty;  // Количество единиц. Если Qtty == 0, то элемент не участвует в распределении скидки
+		const  uint   Flags; // DiscountDistribution::fXXX
+		int64  Discount;     // Результатная скидка за единицу. assert(Discount <= Price). Отрицательная скидка - наценка. 
+		  // Наценка может быть сколь угодно большой (не переходя за границу представления, само собой)
+		  // assert(!(Flags & fNoDiscount) || Discount == 0)
+		  // assert((Price != 0) || Discount == 0)
+		  // assert((Qtty != 0.0) || Discount == 0)
+	};
+	class Result : public TSVector <Item> {
+	public:
+		Result();
+		bool   CheckInvariants(double reqDiscount) const;
+		//
+		// Descr: То же, что и CheckInvariants() но с дополнительной проверкой случая
+		//   (reqDiscount > initAmount) -> foreach item: if(item.IsVariable()) then item.Price == item.Discount
+		//
+		bool   CheckInvariants(double reqDiscount, double initAmount) const;
+		//
+		// Descr: Вычисляет сумму выражений ((Item.Price-Item.Discount) * Item.Qtty) по всем элементам списка
+		//
+		double EvaluateAmount() const;
+		//
+		// Descr: Вычисляет сумму выражений (Item.Price * Item.Qtty) по всем элементам списка
+		//
+		double EvaluateInitialAmount(bool variableItemsOnly = false) const;
+		//
+		// Descr: Вычисляет сумму выражений (Item.Discount * Item.Qtty) по всем элементам списка
+		//
+		double EvaluateDiscount() const;
+
+		double TotalDiscount;
+	};
+	DiscountDistribution();
+	int    AddItem(int64 refId, uint64 price, double qtty, uint flags);
+	//
+	// Descr: Основная функция алгоритма. Реализует распределение общей скидки totalDiscount по элементам 
+	//   предварительно сформированного списка так, чтобы: 
+	//   (a) минимизировать разницу abs(totalDiscount - rResult.EvaluateDiscount())
+	//   (b) минимизировать разницу abs(rResult.EvaluateInitialAmount()-totalDiscount-rResult.EvaluateAmount()).
+	//   Замечание: оба критерия выглядят идентичными, но это не совсем так, учитывая накапливающиеся ошибки округления при суммировании (Qtty: real).
+	//   Первичный критерий (a), критерий (b) трактуется как поддерживающий (контроль и оптимизация алгоритма)
+	// 
+	//   Жестких требований к распределению скидки по разным строкам не формулируем, но желательно, чтобы скидка на каждую строку была
+	//   близка к пропорциональной величине относительно иных строк. Практика показывает, что люди иногда замечают наличие неравновесной 
+	//   скидки на одной из строк (в случае, если на такую строку сброшен общий дисбаланс по остальным позициям).
+	//   Формулируем этот критерий так (только для строк, на которые распространяется скидка):
+	//   mininum of abs((totalDiscount / rResult.EvaluateInitialAmount(true)) - ((Item.Discount * Item.Qtty) / (Item.Price * Item.Qtty)))
+	//
+	int    Run_01(double totalDiscount, Result & rResult);
+	int    Run_02(double totalDiscount, Result & rResult);
+private:
+	//
+	// Descr: Метрики качества распределения
+	//
+	struct EvalMetrics {
+		EvalMetrics();
+		//
+		// Descr: Компаратор строго по приоритетам спецификации: (this) -> (rS) -> Proportionality
+		//
+		bool FASTCALL IsBetterThan(const EvalMetrics & rS) const;
+
+		double Ea;   // abs(totalDiscount - EvaluateDiscount())
+		double Eb;   // abs(InitialAmount - totalDiscount - EvaluateAmount())
+		double Prop; // Мера непропорциональности: sum(abs(Discount/Price - target_rate))
+	};
+	Result WorkingList;
+};
+//
 // Descr: Базовые структуры для представления 128-битного целого числа для low-endian и big-endian
 // архитектур.
 // Note: Я заимствовал дифференциацию представления по le/be-архитектурам у библиотеки abseil.
@@ -20540,7 +20636,7 @@ int  FASTCALL DummyFunc(void * ptr);
 struct SInvariantParam {
 	SInvariantParam();
 	int    LocalOk;
-	ulong  Time;           // Время исполнения //
+	ulong  Time;    // Время исполнения //
 	SString MsgBuf;
 };
 
@@ -20711,6 +20807,7 @@ public:
 	int    _check_le(long a, long b, const char * pA, const char * pB);
 	int    _check_le(uint a, uint b, const char * pA, const char * pB);
 	int    _check_le(uint64 a, uint64 b, const char * pA, const char * pB);
+	int    _check_le(int64 a, int64 b, const char * pA, const char * pB); // @v12.7.11
 	int    _check_le(ulong a, ulong b, const char * pA, const char * pB);
 	int    _check_le(double a, double b, const char * pA, const char * pB);
 	int    _check_lt(int a, int b, const char * pA, const char * pB);

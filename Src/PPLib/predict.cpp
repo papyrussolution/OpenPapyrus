@@ -354,7 +354,7 @@ DateRange PrcssrPrediction::Param::GetPeriod() const { return Period; }
 DateRange PrcssrPrediction::Param::GetNormPeriod() const
 {
 	DateRange norm = Period;
-	norm.Actualize(ZERODATE);
+	norm.Actualize();
 	return norm;
 }
 
@@ -895,7 +895,7 @@ int PrcssrPrediction::Run()
 		LDATE last_dt = ZERODATE;
 		DateRange period = P.GetPeriod();
 		THROW(T.GetTblUpdateDt(&last_dt));
-		period.Actualize(ZERODATE);
+		period.Actualize();
 		if(!period.upp || period.upp > last_dt)
 			period.upp = last_dt;
 		SETIFZ(period.low, plusdate(period.upp, -1));

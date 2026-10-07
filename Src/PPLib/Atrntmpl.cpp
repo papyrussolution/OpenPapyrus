@@ -561,8 +561,8 @@ int PPAccTurnTempl::SetupAccounts(ATBillParam & rParam, PPID curID, PPAccTurn * 
 	ATSubstObjects  atso;
 	PPObjAccount & r_acc_obj = BillObj->atobj->P_Tbl->AccObj;
 	PPAccount acc_rec;
-	AccIdent dbt = DbtID;
-	AccIdent crd = CrdID;
+	AccIdent dbt(DbtID);
+	AccIdent crd(CrdID);
 	if(curID != 0 && curID != LConfig.BaseCurID) {
 		rParam.P_Pack->Amounts.Get(PPAMT_CRATE, curID, &cur_rate);
 		if(cur_rate == 0.0)

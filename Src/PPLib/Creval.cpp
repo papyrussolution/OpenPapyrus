@@ -180,12 +180,14 @@ int CRevalDialog::setupList()
 {
 	int    ok = 1;
 	PPID * p_acc_id = 0;
+	SString temp_buf;
+	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; ok && Data.AccList.enumItems(&i, (void **)&p_acc_id);) {
 		PPAccount acc_rec;
 		if(AccObj.Search(*p_acc_id, &acc_rec) > 0) {
-			char   sub[64];
-			StringSet ss(SLBColumnDelim);
-			ss.add(((const Acct*)&acc_rec.A.Ac)->ToStr(ACCF_BAL|ACCF_DEFAULT, sub));
+			ss.Z();
+			reinterpret_cast<const Acct *>(&acc_rec.A.Ac)->ToStr(ACCF_BAL|ACCF_DEFAULT, temp_buf);
+			ss.add(temp_buf);
 			ss.add(acc_rec.Name);
 			if(!addStringToList(acc_rec.ID, ss.getBuf()))
 				return 0;

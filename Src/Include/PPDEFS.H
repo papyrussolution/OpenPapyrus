@@ -2472,6 +2472,11 @@
 	#define CTL_OPRKIND_INITST          (28 + WINDOWS_ID_BIAS)
 	#define CTLSEL_OPRKIND_INITST       (29 + WINDOWS_ID_BIAS)
 	#define CTL_OPRKIND_EXPSYMB         (30 + WINDOWS_ID_BIAS)
+	#define CTL_OPRKIND_CMD_OPRKINDPAYMLIST (31 + WINDOWS_ID_BIAS)
+	#define CTL_OPRKIND_CMD_OPRKINDPRNOPT   (32 + WINDOWS_ID_BIAS)
+	#define CTL_OPRKIND_CMD_OPRKINDCOUNTER  (33 + WINDOWS_ID_BIAS)
+	#define CTL_OPRKIND_CMD_OPRKINDEXAMT    (34 + WINDOWS_ID_BIAS) 
+	#define CTL_OPRKIND_CMD_OPRKINDEXT      (35 + WINDOWS_ID_BIAS)  
 #define DLG_AMOUNTTYPE             62 // Тип суммы документа
 	#define cmDistribCost             101
 	#define CTL_AMOUNTTYPE_NAME          (1 + WINDOWS_ID_BIAS)
@@ -5995,7 +6000,7 @@
 	#define CTL_GOODSVAD_MINSHQTTY       (25 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSVAD_MULTMINSH       (26 + WINDOWS_ID_BIAS)
 	#define CTL_GOODSVAD_NTBRTCOEF       (27 + WINDOWS_ID_BIAS)
-
+	#define CTL_GOODSVAD_AVGITEMMSR      (28 + WINDOWS_ID_BIAS) // @v12.7.11 AvgItemMeasure
 #define DLG_SELQUOT               511 // Выбор котировки в диалоге строки товарного документа
 	#define CTL_SELQUOT_LIST             (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELQUOT_FLAGS            (2 + WINDOWS_ID_BIAS)
@@ -6040,6 +6045,10 @@
 	#define CTLCAL_BILLCFG_LOWDEBTDATE   (24 + WINDOWS_ID_BIAS)
 	#define CTL_BILLCFG_WLED             (25 + WINDOWS_ID_BIAS)
 	#define CTL_BILLCFG_WLEF             (26 + WINDOWS_ID_BIAS)
+	#define CTL_BILLCFG_CMD_TDISMETHOD   (27 + WINDOWS_ID_BIAS)
+	#define CTL_BILLCFG_CMD_VALUATION    (28 + WINDOWS_ID_BIAS)
+	#define CTL_BILLCFG_CMD_TAGINDFILT   (29 + WINDOWS_ID_BIAS) 
+	#define CTL_BILLCFG_CMD_LOTTAGINDFILT (30 + WINDOWS_ID_BIAS) 
 //                                514 // Occupied
 #define DLG_GFLTADVOPT            515 // GFADVOPT Дополнительные опции фильтра по товарам
 	#define CTL_GFLTADVOPT_LOTPERIOD     (1 + WINDOWS_ID_BIAS)

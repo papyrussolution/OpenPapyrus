@@ -2937,12 +2937,25 @@ IMPL_HANDLE_EVENT(ReplacePersonDialog)
 	return ok;
 }
 
-int PPObjPerson::GetExtName(PPID id, SString & rBuf)
+int PPObjPerson::GetExtName_Direct(PPID id, SString & rBuf)
 {
-	int    r = PPRef->GetPropVlrString(Obj, id, PSNPRP_EXTSTRDATA, rBuf);
-	if(r > 0 && rBuf.IsEmpty())
-		r = -1;
-	return r;
+	 // @v12.7.11 @fix Здесь не было поправки на новый механизм хранения строк расширения персоналии
+	rBuf.Z();
+	int    ok = -1;
+	SString temp_buf;
+	int    r2 = PPRef->GetPropVlrString(Obj, id, PSNPRP_EXTSTRDATA, temp_buf);
+	if(!r2) {
+		ok = 0;
+	}
+	else if(r2 > 0) {
+		const  int r = PPGetExtStrData_def(PPPersonPacket::extssExtName, PPPersonPacket::extssExtName, temp_buf, rBuf);
+		//PPExtStrContainer::GetExtStrData(extssExtName, rBuf);
+		//rBuf = ExtString;
+		//return rBuf.NotEmptyS();
+		if(rBuf.NotEmpty())
+			ok = 1;
+	}
+	return ok;
 }
 
 int PPObjPerson::GetRelPersonList(PPID personID, PPID relTypeID, int reverse,
@@ -3180,7 +3193,7 @@ int PPObjPerson::GetBankData(PPID id, PPBank * pData)
 		STRNSCPY(pData->CorrAcc, temp_buf);
 		LocObj.GetCity(bnk_rec.MainLoc, 0, &temp_buf.Z(), 1/*useCache*/);
 		STRNSCPY(pData->City, temp_buf);
-		GetExtName(id, temp_buf);
+		GetExtName_Direct(id, temp_buf);
 		STRNSCPY(pData->ExtName, temp_buf);
 	}
 	else
@@ -7020,7 +7033,7 @@ int MessagePersonBirthDay(TDialog * pDlg, PPID psnID)
 			SString msg_buf, fmt_buf;
 			PPLoadText(PPTXT_CLIBIRTHDAY, fmt_buf);
 			PPFormat(fmt_buf, &msg_buf, name_buf.cptr(), (int)(getcurdate_().year() - dob.year()));
-			PPTooltipMessage(msg_buf, 0, pDlg->H(), 20000, GetColorRef(SClrPink), SMessageWindow::fStdNotification);
+			PPTooltipMessage(msg_buf, pDlg->H(), 20000, GetColorRef(SClrPink), SMessageWindow::fStdNotification);
 			ok = 1;
 		}
 	}
@@ -7689,7 +7702,7 @@ void PPALDD_Person::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack &
 		temp_buf.Z();
 		PPObjPerson * p_obj = static_cast<PPObjPerson *>(Extra[0].Ptr);
 		if(p_obj) {
-			p_obj->GetExtName(H.ID, temp_buf);
+			p_obj->GetExtName_Direct(H.ID, temp_buf);
 			if(temp_buf.IsEmpty()) {
 				PersonTbl::Rec psn_rec;
 				if(p_obj->Fetch(H.ID, &psn_rec) > 0)

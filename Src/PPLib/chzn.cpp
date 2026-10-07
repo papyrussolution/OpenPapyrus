@@ -290,7 +290,7 @@ public:
 		doctGisMt_Aggregation            = 1002,
 		doctGisMt_Disaggregation         = 1003,
 		doctGisMt_Reaggregation          = 1004,
-		doctGisMt_LpIntroduceGoods       = 1005,
+		doctGisMt_LpIntroduceGoods       = 1005, // LP_INTRODUCE_GOODS
 		doctGisMt_LkIndiCommissioning    = 1006,
 		doctGisMt_LpGoodsImport          = 1007,
 		doctGisMt_Crossborder            = 1008,
@@ -1369,6 +1369,7 @@ ChZnInterface::Packet::Packet(int docType) : DocType(docType), Flags(0), P_Data(
 		case doctypMdlpAccept: // @v12.3.6
 		case doctGisMt_LkReceipt:
 		case doctGisMt_LpShipReceipt:
+		case doctGisMt_LpIntroduceGoods: // @v12.7.11
 			P_Data = new PPBillPacket; 
 			break; 
 		case doctypMdlpRetailSale:
@@ -1390,6 +1391,7 @@ ChZnInterface::Packet::~Packet()
 		case doctypMdlpAccept: // @v12.3.6
 		case doctGisMt_LkReceipt:
 		case doctGisMt_LpShipReceipt:
+		case doctGisMt_LpIntroduceGoods: // @v12.7.11
 			delete static_cast<PPBillPacket *>(P_Data); 
 			break;
 		case doctypMdlpRetailSale:
@@ -1398,7 +1400,7 @@ ChZnInterface::Packet::~Packet()
 	}
 }
 
-void ChZnInterface::Packet::GetSpecialProps(SpecialProps & rP) const // @v12.6.2 @construction
+void ChZnInterface::Packet::GetSpecialProps(SpecialProps & rP) const // @v12.6.2
 {
 	rP.Flags = 0;
 	rP.ReqOutputFormat = 0;
@@ -1414,7 +1416,8 @@ void ChZnInterface::Packet::GetSpecialProps(SpecialProps & rP) const // @v12.6.2
 		case doctypMdlpPosting:
 		case doctypMdlpAccept:
 		case doctGisMt_LkReceipt:
-		case doctGisMt_LpShipReceipt: p_bp = static_cast<const PPBillPacket *>(P_Data); break;
+		case doctGisMt_LpShipReceipt: 
+		case doctGisMt_LpIntroduceGoods: p_bp = static_cast<const PPBillPacket *>(P_Data); break;
 		case doctypMdlpRetailSale:    p_ccp = static_cast<const CCheckPacket *>(P_Data); break;					
 	}
 	assert((!p_bp && !p_ccp) || (LOGIC(p_bp) == LOGIC(p_ccp)));
@@ -1889,7 +1892,71 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 	PPGoodsType2 gt_rec;
 	Packet::SpecialProps spcprp;
 	pPack->GetSpecialProps(spcprp);
-	if(pPack->DocType == doctGisMt_LkReceipt) {
+	if(pPack->DocType == doctGisMt_LpIntroduceGoods) { // @v12.7.11 @construction
+		const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
+		if(p_bp) {
+			/*
+				{
+					"participant_inn":"1111111111",
+					"producer_inn":"1111111111",
+					"owner_inn":"1111111111",
+					"production_date":"2021-07-06",
+					"production_type":"OWN_PRODUCTION",
+					"products":[
+						{
+							"uit_code":"010461111111111121LLLLLLLLLLLLL",
+							"tnved_code":"0000000000",
+							"certificate_document_data":[
+								{
+									"certificate_type":"CONFORMITY_CERTIFICATE",
+									"certificate_number":"RU С-ХХ.АА00.B.00001/21",
+									"certificate_date":"2021-07-07"
+								},
+								{
+									"certificate_type":"CONFORMITY_CERTIFICATE",
+									"certificate_number":"RU С-ХХ.АА00.B.00002/21",
+									"certificate_date":"2021-07-07"
+								}
+							]
+						}
+					]
+				}
+			*/ 
+			const  PPID participant_psn_id = main_org_id;
+			const  PPID producer_psn_id = main_org_id;
+			const  PPID producer_loc_id = p_bp->Rec.LocID;
+			SString participant_inn;
+			SString producer_inn;
+			psn_obj.GetRegNumber(participant_psn_id, PPREGT_TPID, participant_inn);
+			psn_obj.GetRegNumber(producer_psn_id, PPREGT_TPID, producer_inn);
+			data_format = SFileFormat::Json; // @v12.6.9 Попробуем все грузить в json
+			if(data_format == SFileFormat::Json) {
+				SJson js(SJson::tOBJECT);
+				js.InsertString("participant_inn", participant_inn);
+				js.InsertString("producer_inn", producer_inn);
+				js.InsertString("owner_inn", participant_inn);
+				js.InsertString("production_date", temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601CENT));
+				js.InsertString("production_type", "OWN_PRODUCTION");
+				{
+					SJson * p_js_prod_list = SJson::CreateArr();
+					//
+					js.Insert("products", p_js_prod_list);
+					for(uint i = 0; i < p_bp->GetTCount(); i++) {
+						const  PPTransferItem & r_ti = p_bp->ConstTI(i);
+						p_bp->XcL.Get(i+1, 0, lotxcode_set);
+						lotxcode_set.GetByBoxID(0, ss);
+						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
+							if(PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, 0)) > 0) {
+								SJson * p_js_code = SJson::CreateObj();
+								p_js_code->InsertString("uit_code", temp_buf.Escape());
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	else if(pPack->DocType == doctGisMt_LkReceipt) {
 		const PPBillPacket * p_bp = static_cast<const PPBillPacket *>(pPack->P_Data);
 		if(p_bp) {
 			const  PPID rcvr_ar_id = p_bp->Rec.Object;
@@ -1917,7 +1984,6 @@ int ChZnInterface::Document::MakeDataBuffer(const ChZnInterface::InitBlock & rIb
 			}*/
 			data_format = SFileFormat::Json; // @v12.6.9 Попробуем все грузить в json
 			if(data_format == SFileFormat::Json) {
-				
 				SJson js(SJson::tOBJECT);
 				js.InsertString("inn", sender_inn);
 				js.InsertString("action", _action_symb); // @v12.7.10 "OTHER"-->_action_symb
@@ -6991,6 +7057,14 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 											rList.Flags |= CodeStatusCollection::fCheckedOffline;
 										}
 									}
+									// @v12.7.11 @fix (перемещено из внутренней части codes) {
+									else if(p_cur2->Text.IsEqiAscii("inst")) { // Идентификатор экземпляра ПО "Локальный модуль чзн"
+										SJson::GetChildGuid(p_cur2, rList.ChZnPmRT.LocalModuleInstance);
+									}
+									else if(p_cur2->Text.IsEqiAscii("version")) { // Версия ПО "Локальный модуль чзн"
+										SJson::GetChildGuid(p_cur2, rList.ChZnPmRT.LocalModuleDbVer);
+									}
+									// } @v12.7.11 
 									else if(p_cur2->Text.IsEqiAscii("codes")) {
 										if(SJson::IsArray(p_cur2->P_Child)) {
 											for(const SJson * p_js_ci = p_cur2->P_Child->P_Child; p_js_ci; p_js_ci = p_js_ci->P_Next) {
@@ -7125,10 +7199,6 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 															// Параметр возвращается только для товарной группы «Медицинские изделия»
 														}
 														else if(p_cur3->Text.IsEqiAscii("packageQuantity")) { // Ёмкость КИГУ. Количество потенциально вмещаемых вложений
-														}
-														else if(p_cur3->Text.IsEqiAscii("inst")) { // Идентификатор экземпляра ПО "Локальный модуль чзн"
-														}
-														else if(p_cur3->Text.IsEqiAscii("version")) { //Версия ПО "Локальный модуль чзн"
 														}
 													}
 													rList.SetupResultEntry(position, new_item);

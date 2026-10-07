@@ -156,18 +156,12 @@ Builder::Chars Normalize(const Builder::CharsMap &chars_map,
 		key[i] = kv[i].first.c_str();
 		value[i] = kv[i].second;
 	}
-
 	Darts::DoubleArray trie;
-	CHECK_EQ_OR_RETURN(0, trie.build(key.size(), const_cast<char **>(&key[0]),
-	    nullptr, &value[0]))
-		<< "cannot build double-array";
-
+	CHECK_EQ_OR_RETURN(0, trie.build(key.size(), const_cast<char **>(&key[0]), nullptr, &value[0])) << "cannot build double-array";
 	int max_nodes_size = 0;
-	std::vector<Darts::DoubleArray::result_pair_type> results(
-		2 * Normalizer::kMaxTrieResultsSize);
+	std::vector<Darts::DoubleArray::result_pair_type> results(2 * Normalizer::kMaxTrieResultsSize);
 	for(const char * str : key) {
-		const int num_nodes = trie.commonPrefixSearch(str, results.data(),
-			results.size(), strlen(str));
+		const int num_nodes = trie.commonPrefixSearch(str, results.data(), results.size(), strlen(str));
 		max_nodes_size = std::max(num_nodes, max_nodes_size);
 	}
 	CHECK_LT_OR_RETURN(max_nodes_size, Normalizer::kMaxTrieResultsSize)
@@ -186,16 +180,11 @@ Builder::Chars Normalize(const Builder::CharsMap &chars_map,
 	chars_map->clear();
 	absl::string_view trie_blob, normalized;
 	std::string buf;
-	RETURN_IF_ERROR(Normalizer::DecodePrecompiledCharsMap(blob, &trie_blob,
-	    &normalized, &buf));
-
+	RETURN_IF_ERROR(Normalizer::DecodePrecompiledCharsMap(blob, &trie_blob, &normalized, &buf));
 	Darts::DoubleArray trie;
-	trie.set_array(const_cast<char *>(trie_blob.data()),
-	    trie_blob.size() / trie.unit_size());
-
+	trie.set_array(const_cast<char *>(trie_blob.data()), trie_blob.size() / trie.unit_size());
 	std::string key;
 	std::function<void(size_t, size_t)> traverse;
-
 	// Given a Trie node at `node_pos` and the key position at `key_position`,
 	// Expands children nodes from `node_pos`.
 	// When leaf nodes are found, stores them into `chars_map`.
@@ -225,9 +214,7 @@ Builder::Chars Normalize(const Builder::CharsMap &chars_map,
 			    key.pop_back();
 		    }
 	    };
-
 	traverse(0, 0);
-
 	return util::OkStatus();
 }
 
@@ -246,8 +233,7 @@ Builder::Chars Normalize(const Builder::CharsMap &chars_map,
 			return util::OkStatus();
 		}
 	}
-	return util::StatusBuilder(util::StatusCode::kNotFound, GTL_LOC)
-		<< "No precompiled charsmap is found: " << name;
+	return util::StatusBuilder(util::StatusCode::kNotFound, GTL_LOC) << "No precompiled charsmap is found: " << name;
 }
 
 /*static*/util::Status Builder::BuildNFKCMap(CharsMap * chars_map) 

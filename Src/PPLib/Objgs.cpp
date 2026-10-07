@@ -3778,7 +3778,7 @@ int PPObjGoodsStruc::LoadGiftList(SaGiftArray * pList)
 	Goods2Tbl::Rec goods_rec;
 	pList->freeAll();
 	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
-		rec.Period.Actualize(ZERODATE);
+		rec.Period.Actualize();
 		if(!(rec.Flags & GSF_FOLDER) && rec.Flags & GSF_PRESENT && rec.Period.CheckDate(getcurdate_())) {
 			double qtty = 0.0;
 			PPGoodsStruc gs;
@@ -3980,7 +3980,7 @@ int PPObjGoodsStruc::LoadSubstBlock(SaSubstBlock & rBlk) // @v11.6.6
 	PPIDArray struc_id_list;
 	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 		if(!(rec.Flags & GSF_FOLDER) && PPGoodsStruc::GetStrucKind(rec.Flags) == PPGoodsStruc::kSubst) {
-			rec.Period.Actualize(ZERODATE);
+			rec.Period.Actualize();
 			if(rec.Period.CheckDate(getcurdate_()))
 				struc_id_list.add(rec.ID);
 		}
@@ -4034,7 +4034,7 @@ int PPObjGoodsStruc::LoadAutoDecomplList(TSVector <SaAutoDecomplItem> & rList) /
 	for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
 		const int gs_kind = PPGoodsStruc::GetStrucKind(rec.Flags);
 		if(!(rec.Flags & GSF_FOLDER) && gs_kind == PPGoodsStruc::kBOM && (rec.Flags & GSF_DECOMPL) && (rec.Flags & GSF_AUTODECOMPL)) {
-			rec.Period.Actualize(ZERODATE);
+			rec.Period.Actualize();
 			if(rec.Period.CheckDate(getcurdate_()))
 				struc_id_list.add(rec.ID);
 		}

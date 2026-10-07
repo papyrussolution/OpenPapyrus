@@ -4267,7 +4267,7 @@ LocalStateBinderySelExtra::LocalStateBinderySelExtra(const LocalStateBinderyCore
 /*virtual*/StrAssocArray * LocalStateBinderySelExtra::GetList(const char * pText)
 {
 	StrAssocArray * p_result = 0;
-	if(!isempty(pText)) {
+	if(!isempty(pText) && !(APPL->GetUiSettings().Flags & UserInterfaceSettings::fStringHistoryDisabled)) { // @v12.7.11 ограничение по fStringHistoryDisabled
 		LocalStateBinderyCore * p_lstb = DS.GetTLA().GetLocalStateBindery();
 		if(p_lstb) {
 			SString temp_buf;

@@ -1889,7 +1889,7 @@ int PPViewGoods::Init_(const PPBaseFilt * pFilt)
 	THROW(Helper_InitBaseFilt(pFilt));
 	Filt.Setup();
 	if(Filt.P_SjF)
-		Filt.P_SjF->Period.Actualize(ZERODATE);
+		Filt.P_SjF->Period.Actualize();
 	if(Filt.Flags2 & GoodsFilt::f2ShowWhPlace) {
 		const  PPID assoc_type = NZOR(Filt.GoodsLocAssocID, PPASS_GOODS2WAREPLACE);
 		delete P_G2OAssoc;

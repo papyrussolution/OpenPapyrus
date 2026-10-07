@@ -673,7 +673,7 @@ static int SetupQuotList(const QuotUpdFilt & rFilt, PPID locID, PPID goodsID, PP
 		ar_list.add(0L);
 	//
 	DateRange _period = rFilt.QuotValPeriod;
-	_period.Actualize(ZERODATE);
+	_period.Actualize();
 	const DateRange * p_period = _period.IsZero() ? 0 : &_period;
 	switch(rFilt.ByWhat) {
 		case QuotUpdFilt::byLots: // Установка котировок по цене реализации в последнем лоте

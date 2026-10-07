@@ -589,6 +589,13 @@ DateRange & FASTCALL DateRange::Actualize(LDATE rel)
 	return *this;
 }
 
+DateRange & DateRange::Actualize()
+{
+	low = low.getactual(ZERODATE);
+	upp = upp.getactual(ZERODATE);
+	return *this;
+}
+
 DateRange & DateRange::ActualizeCmp(LDATE rel, LDATE cmp)
 {
 	low = low.getactualcmp(rel, cmp);

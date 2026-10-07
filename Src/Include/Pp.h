@@ -567,7 +567,8 @@ int    FASTCALL PPError(int errcode);
 int    FASTCALL PPError(int errcode, const char * pAddInfo);
 int    STDCALL  PPError(int errcode, const char * pAddInfo, uint extraMfOptions);
 int    PPTooltipMessage(uint options, int msgcode, const char * pAddInfo);
-int    PPTooltipMessage(const char * pMsg, const char * pImgPath, HWND parent, long timer, COLORREF color, long flags);
+int    PPTooltipMessage(const char * pMsg, HWND parent, long timer, COLORREF color, long flags);
+int    PPTooltipImage(const char * pMsg, const char * pImgPath, HWND parent, long timer, COLORREF color, long flags); // @v12.7.11
 //
 // Descr: Единственная польза от следующей функции - снижение размера
 //   бинарного кода за счет устранения передачи лишних параметров.
@@ -4932,6 +4933,8 @@ struct GoodsStockExt { // @persistent(DBX) @size=28+2*sizeof(SArray)
 	int16  GseFlags;       //
 	double MinShippmQtty;  // Минимальное количество, которое можно отгрузить в одном документе
 	float  NettBruttCoeff; // Коэффициент пересчета брутто-массы в нетто (для товарных структур)
+	float  AvgItemMeasure; // @v12.7.11 Приблизительная количественная характиристика одной единицы товара. Существенно для //
+		// специфических позиций типа головок сыра или чего-то в этом же роде.
 	PPDimention RtlDim;    // Габаритные размеры торговой единицы, мм
 	RAssocArray MinStockList; // @anchor Минимальный запас товара по складам
 	TSVector <Pallet> PltList; // Список описаний укладки упаковок на паллете
@@ -5310,8 +5313,8 @@ private:
 // Структуры представления счетов. Существенно,
 // что обе структуры имеют одинаковый размер.
 //
-#define ACCBIN_NATURE 1
-#define ACCBIN_DB     2
+#define ACCBIN_NATURAL 1
+#define ACCBIN_DB      2
 //
 // Бух. счет в формате внешнего представления (Nature format)
 //
@@ -5319,19 +5322,21 @@ struct Acct {
 	Acct & Z();
 	Acct & FASTCALL operator = (const AcctRelTbl::Rec &);
 	Acct & FASTCALL operator = (const PPAccount &);
-	char * ToStr(long format, char * pBuf) const; // ACCBIN_NATURE
+	char * ToStr_Obsolete(long format, char * pBuf) const; // ACCBIN_NATURAL
 	SString & ToStr(long format, SString & rBuf) const;
-	int    FromStr(long format, const char *); // ACCBIN_NATURE
+	int    FromStr(long format, const char *); // ACCBIN_NATURAL
 
-	int16  ac;            // Счет
-	int16  sb;            // Субсчет
-	long   ar;            // Аналитическая статья //
+	int16  ac; // Счет
+	int16  sb; // Субсчет
+	long   ar; // Аналитическая статья //
 };
 //
 // Бух. счет в форме ид-ров баз данных (DB format);
 //
 struct AccIdent {
 	AccIdent();
+	AccIdent(const AccIdent & rS);
+	AccIdent(PPID acID, PPID arID);
 	AccIdent & Z();
 	AccIdent & Set(PPID acID, PPID arID); // @v12.7.9
 	bool   FASTCALL operator == (AccIdent s) const;
@@ -5359,7 +5364,7 @@ public:
 
 void RegisterSTAcct();
 
-#define PPAF_DBFORMAT          0x0001L // Формат ACCBIN_DB (иначе ACCBIN_NATURE)
+#define PPAF_DBFORMAT          0x0001L // Формат ACCBIN_DB (иначе ACCBIN_NATURAL)
 #define PPAF_TEMPLATE          0x0010L // Шаблон бухгалтерской проводки
 #define PPAF_AUTOBILL          0x0020L // Проводка автоматически генерирует документ
 #define PPAF_OUTBAL            0x0040L // Забалансовая проводка
@@ -10206,6 +10211,7 @@ struct AmtEntry { // @persistent @flat
 class AmtList : public TSVector <AmtEntry> { // @persistent
 public:
 	AmtList();
+	AmtList(const AmtList & rS);
 	AmtList & FASTCALL operator = (const AmtList &);
 	AmtList & Z();
 	bool   Search(PPID amtTypeID, PPID curID, uint * pPos) const;
@@ -10221,9 +10227,9 @@ public:
 	int    GetAmtTypeList(PPIDArray *) const;
 	int    Get(PPID amtTypeID, PPID curID, double *) const;
 	double Get(PPID amtTypeID, PPID curID) const;
-	int    Put(PPID amtID, PPID curID, double, int ignoreZero /*= 1*/, int replace /*= 0*/);
-	int    Put(const AmtEntry *, int ignoreZero /*= 1*/, int replace /*= 0*/);
-	int    Put(const AmtList  *, int ignoreZero /*= 1*/, int replace /*= 0*/);
+	int    Put(PPID amtID, PPID curID, double, int ignoreZero/*= 1*/, int replace/*= 0*/);
+	int    Put(const AmtEntry *, int ignoreZero/*= 1*/, int replace/*= 0*/);
+	int    Put(const AmtList  *, int ignoreZero/*= 1*/, int replace/*= 0*/);
 	int    Add(PPID amtID, PPID curID, double, int ignoreZero = 1);
 	int    Add(const AmtEntry *, int ignoreZero = 1);
 	int    Add(const AmtList  *, int ignoreZero = 1);
@@ -12733,7 +12739,7 @@ public:
 	int    InitACPacket();
 	void   CreateAccTurn(PPAccTurn & rAt); // @v12.7.10 const-->non-const (из-за персональных транзакций, которые меняют флаги в Rec
 	int    UngetCounter();
-	void   FASTCALL SetQuantitySign(int minus /*= -1*/);
+	void   FASTCALL SetQuantitySign(int minus/*= -1*/);
 	//
 	// Descr: Сортирует строки по параметру PPTransferItem::RByBill
 	// Note: Использовать очень аккуратно, поскольку существуют привязки к позициям строк в массиве Lots
@@ -12827,6 +12833,23 @@ public:
 	// ARG(realMarksOnly IN): Возвращает true лишь в том, случае, если в пакете есть реальные (а не суррогатные) марки.
 	//
 	bool   HasChZnMarks(bool isCorrectionExp, bool realMarksOnly) const;
+	//
+	// Returns: 
+	//   <0 - нет маркированных позиций
+	//    0 - есть маркированные позиции и по крайней мере в одной строке число марок не адекватно количеству единиц товара
+	//   >0 - есть маркированные позиции и во всех строках число марок адекватно количеству единиц товара
+	//
+	int    GetChZnMarksCountIndicator(uint * pMarkCount) const; // @v12.7.11
+	//
+	// Descr: Специализированная функция, определяющая целое число единиц весового товара при продаже оптом для передачи в ебаный чзн.
+	//   Вкратце суть такова: весовой товара (типа сыра или сметаны) фасуется в крупные юниты (головки сыра, емкости со сметаной).
+	//   В строке документа указываются килограммы. Если торговец отгружает такой товар целыми юнитами, то существует два способа
+	//   определить сколько таких юнитов в строке документа. 
+	//   1) Зарезервированный тег PPTAG_LOT_CHZNINTQTTY в котором оператор может указать количество
+	//   2) Параметр GoodsStockExt::AvgItemMeasure в карточке товара, показывающий приблизительный вес юнита. В этом варианте
+	//    количество в строке делится на GoodsStockExt::AvgItemMeasure и результат, округленный до ближайшего целого, трактуется как количество юнитов.
+	//
+	bool   GetChZnWeightedIntQtty(uint itemIdx/*0..GetTCount()-1*/, int * pResult) const; // @v12.7.11
 	//
 	// Descr: Функция определяет является ли пакет this документом коррекции расхода.
 	//
@@ -19579,6 +19602,8 @@ private:
 // Валютные курсы
 //
 struct CurRateIdent { // @flat
+	CurRateIdent();
+	CurRateIdent & Z();
 	PPID   CurID;
 	PPID   BaseCurID;
 	PPID   RateTypeID;
@@ -19586,6 +19611,9 @@ struct CurRateIdent { // @flat
 };
 
 struct UhttCurRateIdent { // @flat
+	UhttCurRateIdent() : Rate(0.0)
+	{
+	}
 	CurRateIdent Ident;
 	double Rate;
 };
@@ -22979,7 +23007,7 @@ private:
 	int    _RollbackTurn(int side, LDATE date, long oprNo, PPID bal, PPID rel, double);
 	int    _UpdateTurn(PPID billID, short rByBill, double newAmt, double cRate, int use_ta);
 	int    _RecalcBalance(PPID, const RecoverBalanceParam *, PPLogger &);
-	int    _CheckBalance(PPID, LDATE, double, double, char *, bool correct, PPLogger &, int use_ta);
+	int    _CheckBalance(PPID, LDATE, double, double, const char *, bool correct, PPLogger &, int use_ta);
 	int    LockFRR(PPID accRelID, LDATE dt);
 	int    RevalCurRest(const CurRevalParam & rParam, const Acct * pAcc, const PPIDArray * pCurList, int use_ta);
 	int    UpdateItemInExtGenAccList(PPID objID, long f, PPID accID, ObjRestrictArray *, PPIDArray *);
@@ -28175,7 +28203,7 @@ public:
 	//   Если персоналия не найдена либо не имеет адреса, то rBuf = 0.
 	//
 	int    GetAddress(PPID id, SString & rBuf);
-	int    GetExtName(PPID id, SString & rBuf);
+	int    GetExtName_Direct(PPID id, SString & rBuf);
 	int    FormatRegister(PPID, PPID regTypeID, char * buf, size_t buflen);
 	int    GetBnkAcctData(PPID bnkAcctID, const PPBankAccount *, BnkAcctData *);
 	int    GetPersonReq(PPID, PersonReq *);
@@ -32620,6 +32648,7 @@ public:
 
 struct PPBrand {           // @persistent @store(GoodsTbl)
 	PPBrand();
+	PPBrand & Z();
 	int    FASTCALL CheckForFilt(const BrandFilt * pFilt) const;
 	bool   FASTCALL IsEq(const PPBrand & rS) const;
 	PPID   ID;             // @id
@@ -35838,7 +35867,7 @@ public:
 	//
 	int    GetCorrectionBackChain(PPID billID, PPIDArray & rChainList);
 	int    GetCorrectionBackChain(const BillTbl::Rec & rBillRec, PPIDArray & rChainList);
-	int    GetAccturn(const AccTurnTbl::Rec *, PPAccTurn & rAt, int useCache);
+	int    GetAccturn(const AccTurnTbl::Rec & rATRec, PPAccTurn & rAt, int useCache);
 	//
 	// Descr: Интерактивная функция ввода нового бухгалтерского документа.
 	// Parameters:
@@ -41570,7 +41599,7 @@ private:
 //
 struct AccturnFilt : public PPBaseFilt {
 	enum {
-		fLastOnly      = 0x0001,
+		// @v12.7.11 fLastOnly      = 0x0001,
 		fLabelOnly     = 0x0002,
 		fAllCurrencies = 0x0004
 	};
@@ -41581,14 +41610,13 @@ struct AccturnFilt : public PPBaseFilt {
 	DateRange Period;
 	PPID   OpID;
 	PPID   CurID;
-	PPID   BillID;         // Показать проводки только по одному документу
-		// одновременно должен быть установлен флаг fLastOnly. Остальные поля фильтра при этом не используются.
+	PPID   BillID;   // Показать проводки только по одному документу.
+		// /* @v12.7.11 Одновременно должен быть установлен флаг fLastOnly.*/ Остальные поля фильтра при этом не используются.
 	uint   Flags;
 	RealRange AmtR;
-	int    GrpAco;         // Порядок счета, по которому следует группировать отчет. Если GrpAco == 0, то не группировать.
+	int    GrpAco;   // Порядок счета, по которому следует группировать отчет. Если GrpAco == 0, то не группировать.
 	//
-	// Параметры отбора проводок по счетам
-	// (для деталировки сгруппированного отчета)
+	// Параметры отбора проводок по счетам (для деталировки сгруппированного отчета)
 	//
 	int    Aco;
 	Acct   DbtAcct;
@@ -41614,6 +41642,10 @@ struct AccturnTotal {
 
 class PPViewAccturn : public PPView {
 public:
+	static int  DynFuncCheckRelRestrictions;
+	static int  DynFuncCurSymbByAccRelID;
+	static void RegisterDynFunc(); // @v12.7.11
+
 	struct Hdr {
 		PPID Id;
 	};
@@ -41641,11 +41673,9 @@ private:
 	int    CreateGrouping();
 	int    AddBillToList(PPID billID);
 	int    RemoveBillFromList(PPID billID);
-	int    InitViewItem(const AccTurnTbl::Rec *, AccturnViewItem *);
-	int    InitViewItem(const TempAccturnGrpngTbl::Rec *, AccturnViewItem *);
+	int    InitViewItem(const AccTurnTbl::Rec & rRec, AccturnViewItem * pItem);
+	int    InitViewItem(const TempAccturnGrpngTbl::Rec & rRec, AccturnViewItem * pItem);
 
-	static int DynFuncCheckRelRestrictions;
-	static int DynFuncCurSymbByAccRelID;
 	TempAssocTbl * P_TmpBillTbl;
 	AccturnFilt Filt;
 	TempAccturnGrpngTbl * P_TmpAGTbl;
@@ -42085,7 +42115,8 @@ public:
 		fUseCargoParam     = 0x0004, // Документы с установленным флагом "Грузовые параметры" // AHTOXA
 		fStrictPort        = 0x0008, // Фильтрация по PortID и PortOfLoading - строго по
 			// пункту назначения (не принимать во внимание адрес доставки и дочерние географические объекты)
-		fShippedOnly       = 0x0010  // Только отгруженные
+		fShippedOnly       = 0x0010, // Только отгруженные
+		fShowChZnMarking   = 0x0020, // @v12.7.11 Показывать количество марок в документе и индикацию адекватности этого количества
 	};
 	char   ReserveStart[20]; // @anchor
 	PPID   DlvrLocID;        // 
@@ -42109,15 +42140,16 @@ public:
 struct FreightViewItem {
 	PPID   BillID;        // -> Bill.ID
 	LDATE  BillDate;      // = Bill.ID.Dt
-	char   Code[48];      // = Bill.ID.Code // @v11.1.12 [24]-->[48]
+	char   Code[48];      // = Bill.ID.Code
 	PPID   ObjectID;      // = Bill.ID.ObjectID
 	PPID   AgentID;       // Ид агента по документу
 	double Amount;        // = Bill.ID.Amount
 	double Brutto;        // Масса брутто
 	double PackCount;     // Количество упаковок
 	double Volume;        // Объем (m*m*m)
+	uint   ChZnMarkCount; // @v12.7.11 Общее количество марок в строках
 	int16  IsShipped;     // Признак отгруженного документа
-	int16  Reserve;       // @alignment
+	int16  ChZnMarkIndicator; // @alignment // @v12.7.11 Reserve-->ChZnMarkingIndicator
 	LDATE  ShipmDate;     // Дата отправления //
 	LDATE  ArrvlDate;     // Дата прибытия    //
 	PPID   ShipID;        // ->Goods2.ID ИД транспортного средства
@@ -42130,6 +42162,12 @@ struct FreightViewItem {
 
 class PPViewFreight : public PPView {
 public:
+	struct BrwHdr {
+		PPID   ID;
+		LDATE  Dt;
+		char   Code[48];
+		int16  ChZnMarkIndicator;
+	};
 	enum IterOrder {
 		OrdByDefault = 0,
 		OrdByBillID,
@@ -42144,6 +42182,7 @@ public:
 	virtual int EditBaseFilt(PPBaseFilt *);
 	int    InitIteration(IterOrder);
 	int    FASTCALL NextIteration(FreightViewItem *);
+	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw); // @v12.7.11
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
@@ -45386,7 +45425,7 @@ enum AccAnlzKind {
 	aakndSupplTrnovr = AAKND_SUPPLTRNOVR  // Обороты по поставщикам
 };
 
-class AccAnlzFilt : public PPBaseFilt {
+class AccAnlzFilt : public PPBaseFilt, public PPExtStrContainer { // @v12.7.11 PPExtStrContainer
 public:
 	enum {
 		aafgByAco1        = ACO_1,
@@ -45443,17 +45482,24 @@ public:
 			// подсчитывает только итоги по фильтру, но не готовит данные для просмотра и печати
 		fExclInnerTrnovr = 0x0200  // Исключать обороты, сделанные между подсчетами выбранного счета
 	};
+	//
+	// Descr: Идентификаторы текстовых субполей, содержащихся в строке PPExtStrContainer
+	//
+	enum { // @persistent // @v12.7.11
+		extssMemoText   = 1,
+	};
 	AccAnlzFilt();
 	AccAnlzFilt(const AccAnlzFilt & rS); // @v12.7.0
 	AccAnlzFilt & FASTCALL operator = (const AccAnlzFilt & rS);
 	char * GetAccText(char * pBuf, size_t bufLen) const;
 
-	char   ReserveStart[8]; // @anchor
+	char   ReserveStart[64]; // @anchor // @v12.7.11 [8]-->[64]
+	DateRange Period;
+	PPID   OpID;           // @v12.7.11  
 	PPID   DlvrLocID;      // Адрес доставки документов, по которым осуществляется фильтрация проводок
 	PPID   Object2ID_;     // Дополнительный объект по документу
 	PPID   SubstRelTypeID; // Подстановка статьи по персональному отношению
 	PPID   AgentID;        // ->Article.ID Агент по документу
-	DateRange Period;      //
 	long   Aco;            // Порядок ведущего счета ACO_XXX
 	PPID   AccID;          // Ведущий счет (aco == ACO_3 ? AcctRel.ID : Account.ID)
 	PPID   SingleArID;     // (fTrnovrBySheet only) Оборотка только по одной статье
@@ -45462,18 +45508,24 @@ public:
 	PPCycleFilt Cycl;      // Цикл анализа (If CorAco == 0 then ignored)
 	long   InitOrder;      // PPViewAccAnlz::IterOrder
 	long   Flags;          // Опции (AccAnlzFilt::fXXX)
-	AccIdent AcctId;         //
-	PPID   AccSheetID;     //
+	AccIdent AcctId;
+	PPID   AccSheetID;
 	//
 	// If (Flags & AccAnlzFilt::fAllCurrencies) then CurID = -1.
 	// В применении к PPViewAccAnlz это делает функция PPViewAccAnlz::Init.
 	// Все функции PPViewAccAnlz, которым логически должна предшествовать
 	// Init полагаются на это.
 	//
-	PPID   CurID;          //
+	PPID   CurID;          // Валюта
 	PPID   LocID;          // Склад
 	int    LeafNo;         // Для кассовой книги
+	RealRange AmtR;        // @v12.7.11
+	AccIdent DetailDbtAcctId; // @v12.7.11 Два поля для детализации группировки проводок
+	AccIdent DetailCrdAcctId; // @v12.7.11
 	long   ReserveEnd;     // @anchor
+	ObjIdListFilt BillIdList; // @v12.7.11
+private:
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver);
 };
 
 struct AccAnlzViewItem {
@@ -45564,6 +45616,7 @@ public:
 	int    GetTotal(AccAnlzTotal *) const;
 	void   FormatCycle(LDATE, char * pBuf, size_t bufLen);
 	int    GetBrwHdr(const void * pRow, BrwHdr * pHdr) const;
+	void   SetOuterReportId(uint rptId); // @v12.7.11
 
 	LDATE  ExpiryDate; //
 	uint   IterFlags;  // PPViewAccAnlz::fIterXXX
@@ -45596,11 +45649,14 @@ private:
 		stIsRegister = 0x0002,
 		stIsGenAr    = 0x0008,
 		stIsPersonal = 0x0010, // @v12.7.10 Персональный счет
+		stATurnList  = 0x0020, // @v12.7.11 Ведущий счет не выбран: мы в режиме просмотра проводок
 	};
-	uint   State;                   // @v12.7.0 @*Init_()
-	PPID   EffDlvrLocID;            // Проекция Filt.DlvrLocID (так как этот критерий применим ни при любых условиях, возможно EffDlvrLocID != Filt.DlvrLocID)
+	uint   State;           // @v12.7.0 @*Init_()
+	PPID   EffDlvrLocID;    // Проекция Filt.DlvrLocID (так как этот критерий применим ни при любых условиях, возможно EffDlvrLocID != Filt.DlvrLocID)
+	uint   OuterReportId;   // @v12.7.11 Ид отчета, установленный вызывающим модулем дабы при вызове функции печати не надо было запрашивать пользователя //
 	ObjRestrictArray ExtGenAccList; // @*Init_()
-	PPCycleArray CycleList;         // @*Init_()
+	PPIDArray    OpList;    // @v12.7.11 @*Init_() // Включен в связи с вводом в фильтр поля OpID 
+	PPCycleArray CycleList; // @*Init_()
 	AccAnlzTotal Total;
 	PPObjAccount AccObj;
 	PPObjArticle ArObj;
@@ -45608,6 +45664,8 @@ private:
 	AccTurnCore * P_ATC;
 	TempAccAnlzTbl   * P_TmpAATbl;
 	TempAccTrnovrTbl * P_TmpATTbl;
+	TempAccturnGrpngTbl * P_TmpAGTbl; // @v12.7.11 stATurnList
+	TempAssocTbl * P_TmpBillTbl; // @v12.7.11 stATurnList
 };
 //
 // @ModuleDecl(PPViewVatBook)
@@ -49315,7 +49373,7 @@ public:
 //
 // @ModuleDecl(PPViewPrjTask)
 //
-struct PrjTaskFilt : public PPBaseFilt {
+struct PrjTaskFilt : public PPBaseFilt, public PPExtStrContainer { // @v12.7.11 PPExtStrContainer
 public:
 	PrjTaskFilt();
 	virtual int Init(int fullyDestroy, long extraData);
@@ -49330,7 +49388,14 @@ public:
 	SString & GetStatusListText(SString &) const;
 	SString & GetPriorListText(SString &) const;
 	//
-	char   ReserveStart[32];   // @anchor
+	enum {
+		fUnbindedOnly         = 0x0001, // Показывать только задачи, не привязанные к проектам
+		fUnviewedOnly         = 0x0002, // Показывать только те задачи, которые не были кем-либо просмотрены
+		fUnviewedEmployerOnly = 0x0004, // Показывать только те задачи, которые не были просмотрены исполнителем
+		fNotShowPPWaitOnInit  = 0x0008, // Не выдавать сообщение "Подождите" в PPViewPrjTask::Init()
+		fNoTempTable          = 0x0010, // Не строить временную таблицу
+		fInMemView            = 0x0020, // @v12.6.1 @construction Данные для отображения строятся в виде массива. Не всегда может быть обработано.
+	};
 	enum EnumOrder {
 		// Строки, соответствующие порядку сортировки перечислены в PPTXT_TODOORDER
 		ordByDefault = 0,
@@ -49342,7 +49407,7 @@ public:
 		ordByEmployer,
 		ordByClient,
 		ordByCode
-	} Order;
+	};
 	enum EnumTabType {
 		// Строки, соответствующие кросстабу перечислены в PPTXT_TODOCROSSTAB
 		crstNone = 0,
@@ -49351,22 +49416,26 @@ public:
 		crstEmployerDate,
 		crstClientEmployer,
 		crstEmployerHour,
-	} TabType;
+	};
 	enum EnumTabParam {
 		ctpNone           = 0,
 		ctpUnComplTask    = 1,
 		ctpComplTaskRatio = 2,
 		ctpWrofBillPrct   = 3,
 		ctpTaskCount      = 4
-	} TabParam;
-	enum {
-		fUnbindedOnly         = 0x0001, // Показывать только задачи, не привязанные к проектам
-		fUnviewedOnly         = 0x0002, // Показывать только те задачи, которые не были кем-либо просмотрены
-		fUnviewedEmployerOnly = 0x0004, // Показывать только те задачи, которые не были просмотрены исполнителем
-		fNotShowPPWaitOnInit  = 0x0008, // Не выдавать сообщение "Подождите" в PPViewPrjTask::Init()
-		fNoTempTable          = 0x0010, // Не строить временную таблицу
-		fInMemView            = 0x0020, // @v12.6.1 @construction Данные для отображения строятся в виде массива. Не всегда может быть обработано.
 	};
+	//
+	// Descr: Идентификаторы текстовых субполей, содержащихся в строке PPExtStrContainer
+	//
+	enum { // @persistent // @v12.7.11
+		extssMemoText   = 1,
+		extssDescrText  = 2,
+	};
+
+	char   ReserveStart[32];   // @anchor
+	EnumOrder Order;
+	EnumTabType TabType;
+	EnumTabParam TabParam;
 	long   Kind;               // TODOKIND_XXX
 	PPID   ProjectID;          // ->Project.ID Проект, к которому привязана задача
 	PPID   ClientID;           // ->Person.ID  Клиент
@@ -49387,7 +49456,12 @@ public:
 	LTIME  StartTmPeriodEnd;   // используется только для построения детализации кросстаба
 	SubstGrpDate Sgd;          //
 	long   Reserve;            // @anchor Заглушка для отмера "плоского" участка фильтра
+	ObjIdListFilt ClientList;   // @v12.7.11 
+	ObjIdListFilt EmployerList; // @v12.7.11
+	ObjIdListFilt CreatorList;  // @v12.7.11
+	TagFilt * P_TagF;           // @v12.7.11
 private:
+	virtual int ReadPreviousVer(SBuffer & rBuf, int ver); // @v12.7.11
 	int    InclInList(int16 * pList, size_t listSize, int16 val);
 	int    ExclFromList(int16 * pList, size_t listSize, int16, int16, int16 val);
 	int    GetList(const int16 * pList, size_t listSize, PPIDArray & rResultList) const;
@@ -58073,7 +58147,7 @@ public:
 	// Returns:
 	//   >0 - функция не смогла выявить рассогласования между количеством единиц товара и количеством марок 
 	//   <0 - количество марок не адекватно количеству единиц товара
-	//    0 - error (never riched)
+	//    0 - error (never reached)
 	//
 	static int  EstimateQuantityAdequacy(uint itemQtty, uint minPackage, uint markCount);
 
@@ -60677,8 +60751,8 @@ public:
 	PPID   OpID;
 	PPID   LocID;
 	PPID   PosNodeID;
-	PPID   GuaID;        // Глобальная учетная запись
-	DateRange Period;    // Период за который следует импортировать документы
+	PPID   GuaID;          // Глобальная учетная запись
+	DateRange BillPeriod_; // Период за который следует импортировать документы
 	PPBillImpExpParam BillParam;
 	PPBillImpExpParam BRowParam;
 	SString CfgNameBill;
@@ -64610,7 +64684,7 @@ void   FASTCALL PPWaitDate(LDATE);
 //   отрицательного - (-1). Если Esc не была нажата - (1).
 //
 int    PPCheckUserBreak();
-int    PPShowCtrlIndicatorHint(const char * pText); // @v12.7.7
+int    PPShowCtrlIndicatorHint(const TWindow * pWin, const TView * pCtrl, const char * pText); // @v12.7.7
 int    PPShowCtrlIndicatorHintOnInputLine(TWindow * pWin, uint ctlId); // @v12.7.9
 int    SetupComboByBuddyList(TDialog * pDlg, uint ctlCombo, const ObjIdListFilt & rList);
 //

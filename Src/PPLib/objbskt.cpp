@@ -1391,7 +1391,7 @@ public:
 		setCtrlReadOnly(CTL_GBITEM_BRUTTO, true); // @v12.6.3 
 		disableCtrls(!(Flags & fEnableChangeBasket), CTLSEL_GBITEM_BASKET, CTLSEL_GBITEM_SUPPL, CTL_GBITEM_PRIVATE, 0);
 		addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_GBITEM_GGRP, CTLSEL_GBITEM_GOODS));
-		getLotInfo(Data.GoodsID, &lot_rec);
+		getLotInfo(Data.GoodsID, lot_rec);
 		SetupPPObjCombo(this, CTLSEL_GBITEM_BASKET, PPOBJ_GOODSBASKET, R_Cart.Pack.Head.ID, OLW_LOADDEFONOPEN|OLW_CANINSERT, 0);
 		SetupArCombo(this, CTLSEL_GBITEM_SUPPL, R_Cart.Pack.Head.SupplID, OLW_LOADDEFONOPEN, GetSupplAccSheet(), sacfDisableIfZeroSheet);
 		setCtrlUInt16(CTL_GBITEM_PRIVATE, BIN(R_Cart.Pack.Head.Flags & GBASKF_PRIVATE));
@@ -1451,10 +1451,10 @@ public:
 		ASSIGN_PTR(pData, Data);
 		return ok;
 	}
-	int    getLotInfo(PPID goodsID, ReceiptTbl::Rec * pRec)
+	int    getLotInfo(PPID goodsID, ReceiptTbl::Rec & rRec)
 	{
-		memzero(pRec, sizeof(*pRec));
-		return goodsID ? ::GetCurGoodsPrice(goodsID, DefLocID, GPRET_INDEF | GPRET_OTHERLOC, 0, pRec) : -1;
+		rRec.Clear();
+		return goodsID ? ::GetCurGoodsPrice(goodsID, DefLocID, GPRET_INDEF|GPRET_OTHERLOC, 0, &rRec) : -1;
 	}
 private:
 	DECL_HANDLE_EVENT;
@@ -1569,7 +1569,7 @@ IMPL_HANDLE_EVENT(GBItemDialog)
 	else if(event.isCbSelected(CTLSEL_GBITEM_GOODS)) {
 		ReceiptTbl::Rec lot_rec;
 		const  PPID goods_id = getCtrlLong(CTLSEL_GBITEM_GOODS);
-		getLotInfo(goods_id, &lot_rec);
+		getLotInfo(goods_id, lot_rec);
 		setCtrlReal(CTL_GBITEM_VALUE,  0.0);
 		setCtrlReal(CTL_GBITEM_PRICE,  R5(lot_rec.Cost));
 		setCtrlReal(CTL_GBITEM_UPPACK, lot_rec.UnitPerPack);

@@ -1263,3 +1263,534 @@ SLTEST_R(STimeSeries)
 	CATCHZOK
 	return ok;
 }
+
+SLTEST_R(DiscountDistribution_Main) // variant 1
+{
+	bool   debug_mark = false;
+	SString temp_buf;
+	{ // Граничные и краевые ситуации
+		DiscountDistribution dd;
+		DiscountDistribution::Result res1;
+		DiscountDistribution::Result res2;
+
+		// Пустой список
+		SLCHECK_Z(dd.Run_01(100.0, res1) == 1); // Ожидается отказ (-1)
+		SLCHECK_Z(dd.Run_02(100.0, res2) == 1);
+
+		// Только нескидочные позиции
+		dd.AddItem(1, 1000, 1.0, DiscountDistribution::fNoDiscount);
+		dd.AddItem(2, 0,    5.0, 0); // Price == 0
+		dd.AddItem(3, 500,  0.0, 0); // Qtty == 0
+		SLCHECK_Z(dd.Run_01(50.0, res1) == 1);
+		SLCHECK_Z(dd.Run_02(50.0, res2) == 1);
+		{
+			dd.AddItem(4, 2000, 1.0, 0);
+			// Нулевая скидка на непустом списке с валидной позицией
+			{
+				SLCHECK_NZ(dd.Run_01(0.0, res1) == 1);
+				SLCHECK_NZ(res1.CheckInvariants(0.0, 2000.0));
+				SLCHECK_EQ(res1.TotalDiscount, 0.0);
+			}
+			{
+				SLCHECK_NZ(dd.Run_02(0.0, res2) == 1);
+				SLCHECK_NZ(res2.CheckInvariants(0.0, 2000.0));
+				SLCHECK_EQ(res2.TotalDiscount, 0.0);
+			}
+		}
+
+		// 100% скидка и превышение скидки (насыщение / cap)
+		SLCHECK_NZ(dd.Run_01(2000.0, res1) == 1);
+		SLCHECK_NZ(res1.CheckInvariants(2000.0, 2000.0));
+		SLCHECK_EQ(res1.at(3).Discount, 2000LL); // 100%
+
+		SLCHECK_NZ(dd.Run_01(5000.0, res1) == 1); // Превышение
+		SLCHECK_NZ(res1.CheckInvariants(5000.0, 2000.0));
+		SLCHECK_EQ(res1.at(3).Discount, 2000LL); // Уперлись в цену
+	}
+	{  // Наценка (Отрицательный totalDiscount)
+		DiscountDistribution dd;
+		DiscountDistribution::Result res1, res2;
+		dd.AddItem(1, 1000, 2.0, 0); // init = 2000
+		dd.AddItem(2, 2000, 1.0, 0); // init = 2000
+		dd.AddItem(3, 500,  1.0, DiscountDistribution::fNoDiscount); // Не участвует
+
+		const double markup = -600.0; // Требуется наценка 600 (по 300 на каждую валидную группу)
+		SLCHECK_NZ(dd.Run_01(markup, res1) == 1);
+		SLCHECK_NZ(res1.CheckInvariants(markup, 4000.0));
+		SLCHECK_NZ(res1.at(0).Discount <= 0);
+		SLCHECK_NZ(res1.at(1).Discount <= 0);
+		SLCHECK_EQ(res1.at(2).Discount, 0LL); // fNoDiscount неприкосновенен
+		SLCHECK_NZ(feqeps(res1.TotalDiscount, markup, 1e-5));
+
+		SLCHECK_NZ(dd.Run_02(markup, res2) == 1);
+		SLCHECK_NZ(res2.CheckInvariants(markup, 4000.0));
+		SLCHECK_NZ(res2.at(0).Discount <= 0);
+		SLCHECK_NZ(res2.at(1).Discount <= 0);
+		SLCHECK_EQ(res2.at(2).Discount, 0LL);
+	}
+	{ // Тест на «козла отпущения» (Scapegoat Proportionality Trap)
+		// Ситуация: дорогая весовая позиция с крошечным весом (специи: 5000 руб/кг, вес 5 грамм)
+		// и обычный штучный товар.
+		// Алгоритм без жесткого коридора [floor, ceil] может накрутить десятки шагов на специи.
+		DiscountDistribution dd;
+		DiscountDistribution::Result res1, res2;
+
+		dd.AddItem(1, 500000, 0.005, 0); // Исходная сумма строки = 2500 копеек
+		dd.AddItem(2, 10000,  2.0,   0); // Исходная сумма строки = 20000 копеек
+		// Итого база = 22500. Скидка 10% = 2250 копеек.
+		// Идеальная скидка на строку 1 = 250 копеек -> d1* = 250 / 0.005 = 50000 (10% от 500000).
+		const double target_disc = 2251.0; // Неделимый 1 копейка остатка
+
+		SLCHECK_NZ(dd.Run_01(target_disc, res1) == 1);
+		SLCHECK_NZ(res1.CheckInvariants(target_disc, 22500.0));
+
+		// В Run_01 скидка за единицу ОБЯЗАНА быть строго FloorVal (50022) или CeilVal (50023)
+		const int64 d1_01_00 = res1.at(0).Discount;
+		const int64 d1_01_01 = res1.at(1).Discount;
+		SLCHECK_NZ(d1_01_00 >= 50022L && d1_01_00 <= 50023L);
+		SLCHECK_NZ(d1_01_01 >= 1000L  && d1_01_01 <= 1001L);
+
+		SLCHECK_NZ(dd.Run_02(target_disc, res2) == 1);
+		SLCHECK_NZ(res2.CheckInvariants(target_disc, 22500.0));
+		const int64 d1_02_00 = res2.at(0).Discount;
+		const int64 d1_02_01 = res2.at(1).Discount;
+
+		// Фиксируем порок Run_02: он вылетел за пределы [floor, ceil] коридора
+		// из-за сброса остатка на мелкий вес:
+		SLCHECK_NZ(labs(d1_02_00 - 50022L) > 10L);
+	}
+	{ // Интенсивный стресс-тест / Монте-Карло (500 разнообразных корзин)
+		uint   invariant_fails_01 = 0;
+		uint   invariant_fails_02 = 0;
+		double max_ea_01 = 0.0;
+		double max_ea_02 = 0.0;
+		double sum_ea_01 = 0.0;
+		double sum_ea_02 = 0.0;
+		uint   win_ea_01 = 0;
+		uint   win_ea_02 = 0;
+		double max_prop_dev_01 = 0.0;
+		double max_prop_dev_02 = 0.0;
+
+		const uint num_iterations = 500;
+		uint32 lcg_seed = 0x12345678; // Детерминированный LCG для воспроизводимости
+		auto NextRand = [&lcg_seed]() -> uint32 {
+			lcg_seed = lcg_seed * 1664525u + 1013904223u;
+			return lcg_seed;
+		};
+
+		for(uint iter = 0; iter < num_iterations; iter++) {
+			DiscountDistribution dd;
+			const uint items_count = 3 + (NextRand() % 25); // от 3 до 27 позиций
+
+			for(uint i = 0; i < items_count; i++) {
+				const uint64 price = 100 + (NextRand() % 100000); // 1.00 .. 1000.00
+				double qtty;
+				if((NextRand() % 100) < 40) {
+					// 40% весовые товары с дробным весом
+					qtty = 0.050 + static_cast<double>(NextRand() % 5000) / 1000.0; // 0.050 .. 5.049 кг
+				}
+				else {
+					// 60% штучные целые
+					qtty = static_cast<double>(1 + (NextRand() % 10));
+				}
+				uint flags = ((NextRand() % 10) == 0) ? DiscountDistribution::fNoDiscount : 0;
+				dd.AddItem(static_cast<int64>(i + 1), price, qtty, flags);
+			}
+
+			// Вычисляем базу для формирования скидки
+			DiscountDistribution::Result probe_res;
+			dd.Run_01(0.0, probe_res);
+			const double var_amount = probe_res.EvaluateInitialAmount(true);
+			if(var_amount <= 0.0) 
+				continue;
+
+			// Генерируем скидку: от -30% (наценка) до +90% (скидка)
+			const double disc_percent = -30.0 + static_cast<double>(NextRand() % 120);
+			const double total_discount = var_amount * (disc_percent / 100.0);
+
+			DiscountDistribution::Result r1, r2;
+			int ok1 = dd.Run_01(total_discount, r1);
+			int ok2 = dd.Run_02(total_discount, r2);
+
+			SLCHECK_NZ(ok1 == 1);
+			SLCHECK_NZ(ok2 == 1);
+
+			// 1. Проверка контракта
+			if(!r1.CheckInvariants(total_discount, var_amount))
+				invariant_fails_01++;
+			if(!r2.CheckInvariants(total_discount, var_amount))
+				invariant_fails_02++;
+
+			// 2. Расчет критериев (a) и (b)
+			const double ea1 = fabs(total_discount - r1.EvaluateDiscount());
+			const double ea2 = fabs(total_discount - r2.EvaluateDiscount());
+
+			max_ea_01 = MAX(max_ea_01, ea1);
+			max_ea_02 = MAX(max_ea_02, ea2);
+			sum_ea_01 += ea1;
+			sum_ea_02 += ea2;
+
+			if(ea1 < ea2 - 1e-6)
+				win_ea_01++;
+			else if(ea2 < ea1 - 1e-6)
+				win_ea_02++;
+
+			// 3. Контроль пропорциональности: проверяем max |d_i - ideal_d_i|
+			const double target_rate = total_discount / var_amount;
+			for(uint i = 0; i < r1.getCount(); i++) {
+				const auto & item1 = r1.at(i);
+				if(item1.IsVariable()) {
+					const double ideal_d = static_cast<double>(item1.Price) * target_rate;
+					const double dev1 = fabs(static_cast<double>(item1.Discount) - ideal_d);
+					max_prop_dev_01 = MAX(max_prop_dev_01, dev1);
+				}
+				const auto & item2 = r2.at(i);
+				if(item2.IsVariable()) {
+					const double ideal_d = static_cast<double>(item2.Price) * target_rate;
+					const double dev2 = fabs(static_cast<double>(item2.Discount) - ideal_d);
+					max_prop_dev_02 = MAX(max_prop_dev_02, dev2);
+				}
+			}
+		}
+		//
+		// АНАЛИЗ РЕЗУЛЬТАТОВ ТЕСТИРОВАНИЯ
+		//
+		// Инварианты спецификации обязаны выполняться в 100% случаев без исключений
+		SLCHECK_EQ(invariant_fails_01, 0u);
+		SLCHECK_EQ(invariant_fails_02, 0u);
+
+		// В Run_01 максимальное отклонение скидки за единицу от идеала НЕ МОЖЕТ быть >= 1.0
+		// по определению коридора {Floor, Ceil}. Проверяем это фундаментальное математическое свойство:
+		SLCHECK_NZ(max_prop_dev_01 <= 1.0000001);
+
+		// Формируем сводный лог точности
+		temp_buf.Z().Cat("DiscountDistribution Stress Analysis:").CR();
+		//temp_buf.CatFormat("  Run_01: Avg Ea = %lf, Max Ea = %lf, Wins = %u, Max Unit Dev = %lf\n", (sum_ea_01 / num_iterations), max_ea_01, win_ea_01, max_prop_dev_01);
+		temp_buf.Tab().Cat("Run_01").CatDiv(':', 2).CatEq("Avg Ea", (sum_ea_01 / num_iterations), MKSFMTD(0, 6, NMBF_NOTRAILZ)).CatDiv(',', 2).
+			CatEq("Max Ea", max_ea_01, MKSFMTD(0, 6, NMBF_NOTRAILZ)).CatDiv(',', 2).
+			CatEq("Wins", win_ea_01).CatDiv(',', 2).CatEq("Max Unit Dev", max_prop_dev_01, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+		//temp_buf.CatFormat("  Run_02: Avg Ea = %lf, Max Ea = %lf, Wins = %u, Max Unit Dev = %lf\n", (sum_ea_02 / num_iterations), max_ea_02, win_ea_02, max_prop_dev_02);
+		temp_buf.Tab().Cat("Run_02").CatDiv(':', 2).CatEq("Avg Ea", (sum_ea_02 / num_iterations), MKSFMTD(0, 6, NMBF_NOTRAILZ)).CatDiv(',', 2).
+			CatEq("Max Ea", max_ea_02, MKSFMTD(0, 6, NMBF_NOTRAILZ)).CatDiv(',', 2).
+			CatEq("Wins", win_ea_02).CatDiv(',', 2).CatEq("Max Unit Dev", max_prop_dev_02, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+		// Тест признается пройденным, если средняя невязка не превышает кванта копейки (1.0)
+		SLCHECK_NZ((sum_ea_01 / num_iterations) < 1.0);
+	}
+	{ // Другой набор тестов
+		//
+		// Детерминированный ГПСЧ (воспроизводимость прогона)
+		//
+		uint64 rng_state = 0x853C49E6748FEA9BULL;
+		auto next_rand = [&rng_state]() -> uint64
+		{
+			rng_state = rng_state * 6364136223846793005ULL + 1442695040888963407ULL;
+			return (rng_state >> 16);
+		};
+		auto rand_range = [&next_rand](uint64 lo, uint64 hi) -> uint64 // [lo..hi]
+		{
+			return (hi > lo) ? (lo + (next_rand() % (hi - lo + 1))) : lo;
+		};
+		//
+		// Проверка всех инвариантов результата. Возвращает diff = totalDiscount - EvaluateDiscount()
+		//
+		auto verify_invariants = [&](const TSVector <DiscountDistribution::Item> & rSrc, double totalDiscount, const DiscountDistribution::Result & rR, const char * pVariantTag) -> double
+		{
+			// 1. Структурная целостность: количество, порядок, неизменность const-полей
+			SLCHECK_EQ(rR.getCount(), rSrc.getCount());
+			if(rR.getCount() == rSrc.getCount()) {
+				for(uint i = 0; i < rR.getCount(); i++) {
+					const DiscountDistribution::Item & r_item = rR.at(i);
+					const DiscountDistribution::Item & r_se = rSrc.at(i);
+					SLCHECK_NZ(r_item.IsEqExceptDiscount(r_se));
+				}
+			}
+			SLCHECK_NZ(rR.CheckInvariants(totalDiscount));
+			return (totalDiscount - rR.EvaluateDiscount());
+		};
+		//
+		// Прогон одного кейса через оба варианта с общими проверками
+		//
+		struct CaseStat {
+			CaseStat() : Count(0), WinCount01(0), WinCount02(0), MaxAbsDiff01(0.0), MaxAbsDiff02(0.0), SumAbsDiff01(0.0), SumAbsDiff02(0.0)
+			{
+			}
+			uint   Count;
+			uint   WinCount01;
+			uint   WinCount02;
+			double MaxAbsDiff01;
+			double MaxAbsDiff02;
+			double SumAbsDiff01;
+			double SumAbsDiff02;
+		};
+		CaseStat stat;
+		auto run_case = [&](const TSVector <DiscountDistribution::Item> & rSrc, double totalDiscount, int expectedOk) -> void
+		{
+			DiscountDistribution dd1;
+			DiscountDistribution dd2;
+			for(uint i = 0; i < rSrc.getCount(); i++) {
+				const DiscountDistribution::Item & r_se = rSrc.at(i);
+				SLCHECK_NZ(dd1.AddItem(r_se.RefId, r_se.Price, r_se.Qtty, r_se.Flags));
+				SLCHECK_NZ(dd2.AddItem(r_se.RefId, r_se.Price, r_se.Qtty, r_se.Flags));
+			}
+			DiscountDistribution::Result result_01;
+			DiscountDistribution::Result result_02;
+			const int ok1 = dd1.Run_01(totalDiscount, result_01);
+			const int ok2 = dd2.Run_02(totalDiscount, result_02);
+			// Коды возврата обоих вариантов обязаны совпадать между собой и с ожиданием
+			SLCHECK_EQ(ok1, expectedOk);
+			SLCHECK_EQ(ok2, expectedOk);
+			if(ok1 > 0 && ok2 > 0) {
+				const double diff1 = verify_invariants(rSrc, totalDiscount, result_01, "Run_01");
+				const double diff2 = verify_invariants(rSrc, totalDiscount, result_02, "Run_02");
+				//
+				// Оценка достижимой точности для Run_02 (greedy):
+				// если ни одна активная строка не упёрлась в клэмп (0 либо Price), то жадный спуск обязан
+				// остановиться с невязкой не более 0.5 * min(Qtty) по активным строкам.
+				//
+				{
+					double min_qtty = SMathConst::Max;
+					bool   any_clamped = false;
+					double capacity = 0.0;
+					for(uint i = 0; i < result_02.getCount(); i++) {
+						const DiscountDistribution::Item & r_item = result_02.at(i);
+						if(r_item.IsVariable()) {
+							SETMIN(min_qtty, r_item.Qtty);
+							capacity += (static_cast<double>(r_item.Price) * r_item.Qtty);
+							if(r_item.Discount == static_cast<int64>(r_item.Price) || r_item.Discount == 0)
+								any_clamped = true;
+						}
+					}
+					if(!any_clamped && min_qtty < SMathConst::Max) {
+						SLCHECK_LE(fabs(diff2), 0.5 * min_qtty + 1E-6 * (fabs(totalDiscount) + 1.0));
+					}
+					// Грубая санитарная граница для обоих вариантов: невязка не может превышать
+					// запрошенную скидку плюс ёмкость (случай полного клэмпа)
+					SLCHECK_LE(fabs(diff1), fabs(totalDiscount) + capacity + 1.0);
+					SLCHECK_LE(fabs(diff2), fabs(totalDiscount) + capacity + 1.0);
+				}
+				// Сравнительная статистика по первичному критерию (a)
+				stat.Count++;
+				stat.SumAbsDiff01 += fabs(diff1);
+				stat.SumAbsDiff02 += fabs(diff2);
+				SETMAX(stat.MaxAbsDiff01, fabs(diff1));
+				SETMAX(stat.MaxAbsDiff02, fabs(diff2));
+				if(fabs(diff1) < fabs(diff2) - 1E-9)
+					stat.WinCount01++;
+				else if(fabs(diff2) < fabs(diff1) - 1E-9)
+					stat.WinCount02++;
+			}
+		};
+		//
+		// ===== Блок 1. Детерминированные кейсы =====
+		//
+		{
+			// 1.1 Классика: 3 x (Price=100, Qtty=1), скидка 100 -> {33,33,34}, diff == 0
+			TSVector <DiscountDistribution::Item> src;
+			{ DiscountDistribution::Item e(1, 100, 1.0, 0); src.insert(&e); }
+			{ DiscountDistribution::Item e(2, 100, 1.0, 0); src.insert(&e); }
+			{ DiscountDistribution::Item e(3, 100, 1.0, 0); src.insert(&e); }
+			DiscountDistribution dd;
+			for(uint i = 0; i < src.getCount(); i++) {
+				SLCHECK_NZ(dd.AddItem(src.at(i).RefId, src.at(i).Price, src.at(i).Qtty, src.at(i).Flags));
+			}
+			DiscountDistribution::Result result;
+			SLCHECK_EQ(dd.Run_02(100.0, result), 1);
+			SLCHECK_NZ(feqeps(result.TotalDiscount, 100.0, 1E-9));
+			{
+				// Мультимножество скидок {33,33,34} (какая строка получила 34 - не регламентируется)
+				int64 d_min = result.at(0).Discount;
+				int64 d_max = result.at(0).Discount;
+				int64 d_sum = 0;
+				for(uint i = 0; i < result.getCount(); i++) {
+					SETMIN(d_min, result.at(i).Discount);
+					SETMAX(d_max, result.at(i).Discount);
+					d_sum += result.at(i).Discount;
+				}
+				SLCHECK_EQ(d_min, static_cast<int64>(33));
+				SLCHECK_EQ(d_max, static_cast<int64>(34));
+				SLCHECK_EQ(d_sum, static_cast<int64>(100));
+			}
+			run_case(src, 100.0, 1); // и через оба варианта с полной проверкой инвариантов
+		}
+		{
+			// 1.2 Ровное деление: diff строго 0
+			TSVector <DiscountDistribution::Item> src;
+			{ DiscountDistribution::Item e(1, 500, 2.0, 0); src.insert(&e); }
+			{ DiscountDistribution::Item e(2, 300, 1.0, 0); src.insert(&e); }
+			{ DiscountDistribution::Item e(3, 200, 1.0, 0); src.insert(&e); }
+			// Сумма 1500, скидка 150 (10%): идеал 50/30/20 на единицу - делится без остатка
+			run_case(src, 150.0, 1);
+		}
+		{
+			// 1.3 Весовой товар
+			TSVector <DiscountDistribution::Item> src;
+			{ DiscountDistribution::Item e(1, 9990, 1.335, 0); src.insert(&e); }
+			{ DiscountDistribution::Item e(2, 4550, 0.755, 0); src.insert(&e); }
+			{ DiscountDistribution::Item e(3, 125, 12.0, 0); src.insert(&e); }
+			run_case(src, 1000.0, 1);
+		}
+		{
+			// 1.4 fNoDiscount и инертные строки: скидка уходит только на активные
+			TSVector <DiscountDistribution::Item> src;
+			{ DiscountDistribution::Item e(1, 1000, 1.0, 0); src.insert(&e); }
+			{ DiscountDistribution::Item e(2, 1000, 1.0, DiscountDistribution::fNoDiscount); src.insert(&e); }
+			{ DiscountDistribution::Item e(3, 0, 5.0, 0); src.insert(&e); }
+			{ DiscountDistribution::Item e(4, 700, 0.0, 0); src.insert(&e); }
+			{ DiscountDistribution::Item e(5, 1000, 2.0, 0); src.insert(&e); }
+			run_case(src, 300.0, 1);
+		}
+		{
+			// 1.5 Скидка больше ёмкости: полный клэмп, Discount == Price у всех активных
+			TSVector <DiscountDistribution::Item> src;
+			{ DiscountDistribution::Item e(1, 100, 1.0, 0); src.insert(&e); }
+			{ DiscountDistribution::Item e(2, 200, 2.0, 0); src.insert(&e); }
+			DiscountDistribution dd;
+			for(uint i = 0; i < src.getCount(); i++)
+				SLCHECK_NZ(dd.AddItem(src.at(i).RefId, src.at(i).Price, src.at(i).Qtty, src.at(i).Flags));
+			DiscountDistribution::Result result;
+			SLCHECK_EQ(dd.Run_02(10000.0, result), 1);
+			SLCHECK_EQ(result.at(0).Discount, static_cast<int64>(100));
+			SLCHECK_EQ(result.at(1).Discount, static_cast<int64>(200));
+			SLCHECK_NZ(feqeps(result.TotalDiscount, 500.0, 1E-9)); // 100*1 + 200*2
+			run_case(src, 10000.0, 1);
+		}
+		{
+			// 1.6 Наценка (регрессия на бывший 0ULL-баг в Run_01: раньше TotalDiscount молча получался 0)
+			TSVector <DiscountDistribution::Item> src;
+			{ DiscountDistribution::Item e(1, 1000, 1.0, 0); src.insert(&e); }
+			{ DiscountDistribution::Item e(2, 2000, 1.5, 0); src.insert(&e); }
+			DiscountDistribution dd;
+			for(uint i = 0; i < src.getCount(); i++)
+				SLCHECK_NZ(dd.AddItem(src.at(i).RefId, src.at(i).Price, src.at(i).Qtty, src.at(i).Flags));
+			DiscountDistribution::Result result;
+			SLCHECK_EQ(dd.Run_01(-400.0, result), 1);
+			SLCHECK_NZ(result.TotalDiscount < 0.0); // наценка реально распределена, не потеряна
+			run_case(src, -400.0, 1);
+		}
+		{
+			// 1.7 Нулевая скидка
+			TSVector <DiscountDistribution::Item> src;
+			{ DiscountDistribution::Item e(1, 100, 1.0, 0); src.insert(&e); }
+			run_case(src, 0.0, 1);
+		}
+		{
+			// 1.8 Нет активных строк -> ok == -1
+			TSVector <DiscountDistribution::Item> src;
+			{ DiscountDistribution::Item e(1, 100, 1.0, DiscountDistribution::fNoDiscount); src.insert(&e); }
+			{ DiscountDistribution::Item e(2, 0, 1.0, 0); src.insert(&e); }
+			run_case(src, 50.0, -1);
+		}
+		{
+			// 1.9 Пустой список -> ok == -1
+			TSVector <DiscountDistribution::Item> src;
+			run_case(src, 50.0, -1);
+		}
+		{
+			// 1.10 Грубая сетка: единственная строка Qtty=3, цель 2.
+			// Достижимые значения Sum(Discount*Qtty): 0, 3, 6... Лучшее - 3 (|2-3|=1) либо 0 (|2-0|=2).
+			TSVector <DiscountDistribution::Item> src;
+			{ DiscountDistribution::Item e(1, 100, 3.0, 0); src.insert(&e); }
+			DiscountDistribution dd;
+			for(uint i = 0; i < src.getCount(); i++)
+				SLCHECK_NZ(dd.AddItem(src.at(i).RefId, src.at(i).Price, src.at(i).Qtty, src.at(i).Flags));
+			DiscountDistribution::Result result;
+			SLCHECK_EQ(dd.Run_02(2.0, result), 1);
+			SLCHECK_LE(fabs(2.0 - result.TotalDiscount), 1.0 + 1E-9); // невязка не хуже оптимума на сетке
+			run_case(src, 2.0, 1);
+		}
+		{
+			// 1.11 AddItem: дубликат RefId отвергается, RefId == 0 дубликатом не считается
+			DiscountDistribution dd;
+			SLCHECK_NZ(dd.AddItem(77, 100, 1.0, 0));
+			SLCHECK_Z(dd.AddItem(77, 200, 1.0, 0));  // дубликат -> ошибка
+			SLCHECK_NZ(dd.AddItem(0, 100, 1.0, 0));  // нулевой RefId - без контроля уникальности
+			SLCHECK_NZ(dd.AddItem(0, 200, 2.0, 0));
+			SLCHECK_Z(dd.AddItem(78, 100, -1.0, 0)); // отрицательное количество -> ошибка
+		}
+		//
+		// ===== Блок 2. Стресс-цикл: случайные чеки через оба варианта =====
+		//
+		{
+			const uint stress_iter_count = 600; // ограничено сложностью Run_01 (2-flip ~ O(n^3))
+			for(uint iter = 0; iter < stress_iter_count; iter++) {
+				TSVector <DiscountDistribution::Item> src;
+				const uint line_count = static_cast<uint>(rand_range(1, 24));
+				double capacity = 0.0;
+				for(uint i = 0; i < line_count; i++) {
+					//DiscountDistribution::Item e;
+					//e.RefId = static_cast<int64>(i + 1);
+					//e.Flags = 0;
+					const uint kind = static_cast<uint>(rand_range(0, 99));
+					if(kind < 6) { // ~6% строк fNoDiscount
+						DiscountDistribution::Item e((i + 1), rand_range(1, 100000), static_cast<double>(rand_range(1, 10)), DiscountDistribution::fNoDiscount);
+						if(e.IsVariable())
+							capacity += (static_cast<double>(e.Price) * e.Qtty);
+						src.insert(&e);
+					}
+					else if(kind < 9) { // ~3% инертных (Price == 0)
+						DiscountDistribution::Item e((i + 1), 0, static_cast<double>(rand_range(1, 10)), 0);
+						if(e.IsVariable())
+							capacity += (static_cast<double>(e.Price) * e.Qtty);
+						src.insert(&e);
+					}
+					else if(kind < 12) { // ~3% инертных (Qtty == 0)
+						DiscountDistribution::Item e((i + 1), rand_range(1, 100000), 0.0, 0);
+						if(e.IsVariable())
+							capacity += (static_cast<double>(e.Price) * e.Qtty);
+						src.insert(&e);
+					}
+					else if(kind < 55) { // штучный товар
+						DiscountDistribution::Item e((i + 1), rand_range(1, 1000000), static_cast<double>(rand_range(1, 50)), 0);
+						if(e.IsVariable())
+							capacity += (static_cast<double>(e.Price) * e.Qtty);
+						src.insert(&e);
+					}
+					else { // весовой товар: Qtty с 3 знаками, 0.001..25.000
+						DiscountDistribution::Item e((i + 1), rand_range(1, 1000000), static_cast<double>(rand_range(1, 25000)) / 1000.0, 0);
+						if(e.IsVariable())
+							capacity += (static_cast<double>(e.Price) * e.Qtty);
+						src.insert(&e);
+					}
+				}
+				// Цель: от наценки -30% до скидки 130% ёмкости (включая заведомый клэмп)
+				double total_discount = 0.0;
+				if(capacity > 0.0) {
+					const int pct = static_cast<int>(rand_range(0, 160)) - 30; // [-30..130]
+					total_discount = capacity * static_cast<double>(pct) / 100.0;
+					// иногда - дробная цель, не кратная ничему
+					if(rand_range(0, 3) == 0)
+						total_discount += (static_cast<double>(rand_range(1, 999)) / 1000.0);
+				}
+				const int expected_ok = (capacity > 0.0) ? 1 : -1;
+				run_case(src, total_discount, expected_ok);
+				if(!CurrentStatus) {
+					debug_mark = true;
+				}
+			}
+		}
+		//
+		// ===== Блок 3. Анализ сравнительной статистики =====
+		//
+		{
+			// Содержательные ожидания:
+			// - средняя невязка Run_02 не должна быть хуже Run_01 (greedy не ограничен решёткой floor/ceil);
+			// - катастрофических выбросов нет (проверено санитарной границей в run_case).
+			if(stat.Count) {
+				const double avg1 = stat.SumAbsDiff01 / static_cast<double>(stat.Count);
+				const double avg2 = stat.SumAbsDiff02 / static_cast<double>(stat.Count);
+				temp_buf.Z().Cat("DiscountDistribution stress").CatDiv(':', 2).
+					CatEq("cases", stat.Count).Space().
+					CatEq("win01", stat.WinCount01).Space().
+					CatEq("win02", stat.WinCount02).Space().
+					CatEq("avg_diff01", avg1, MKSFMTD(0, 6, 0)).Space().
+					CatEq("avg_diff02", avg2, MKSFMTD(0, 6, 0)).Space().
+					CatEq("max_diff01", stat.MaxAbsDiff01, MKSFMTD(0, 6, 0)).Space().
+					CatEq("max_diff02", stat.MaxAbsDiff02, MKSFMTD(0, 6, 0));
+				SetInfo(temp_buf); // фиксируем сводку в протоколе теста
+				// Run_02 в среднем обязан быть не хуже Run_01 (допуск - на кейсы равной точности)
+				SLCHECK_LE(avg2, avg1 + 1E-6);
+			}
+		}
+	}
+	return CurrentStatus;
+}

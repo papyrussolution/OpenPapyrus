@@ -303,7 +303,7 @@ int PPViewStaffCal::Init_(const PPBaseFilt * pFilt)
 	PPWaitStart();
 	Grid.freeAll();
 	THROW(Helper_InitBaseFilt(pFilt));
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	ObjNameList.Z();
 	CalList.clear();
 	if(Filt.CalList.IsEmpty()) {

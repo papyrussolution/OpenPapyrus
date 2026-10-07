@@ -4008,9 +4008,10 @@ int PPObjGoods::SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & rBuf, 
 		if(dir > 0) {
 			if(pPack->P_Quots) {
 				for(int32 i = 0; i < pPack->P_Quots->getCountI(); i++) {
-					const PPQuot & r_item = pPack->P_Quots->at(i);
-					if(!pDestDbDiv || pDestDbDiv->ResponsibleForLoc(r_item.LocID, 1 /*for quot*/))
+					const  PPQuot & r_item = pPack->P_Quots->at(i);
+					if(!pDestDbDiv || pDestDbDiv->ResponsibleForLoc(r_item.LocID, 1/*for quot*/)) {
 						THROW_SL(quot_list.insert(&r_item));
+					}
 				}
 			}
 		}
@@ -4033,8 +4034,9 @@ int PPObjGoods::SerializePacket(int dir, PPGoodsPacket * pPack, SBuffer & rBuf, 
 				else
 					THROW_MEM(pPack->P_Quots = new PPQuotArray(quot_list));
 			}
-			else
+			else {
 				ZDELETE(pPack->P_Quots);
+			}
 		}
 	}
 	CATCHZOK
@@ -4292,28 +4294,24 @@ bool GoodsStockExt::IsEmpty() const
 	uint   min_stock_count = MinStockList.getCount();
 	for(uint i = 0; min_stock_empty && i < min_stock_count; i++)
 		min_stock_empty = (MinStockList.at(i).Val != 0.0) ? 0 : 1;
-	return (min_stock_empty && !Brutto && !PckgDim && !RtlDim && !Package && !ExpiryPeriod && !MinShippmQtty && !NettBruttCoeff && !PltList.getCount());
+	return (min_stock_empty && !Brutto && !PckgDim && !RtlDim && !Package && !ExpiryPeriod && !MinShippmQtty && !NettBruttCoeff && 
+		AvgItemMeasure != 0.0f && !PltList.getCount());
 }
 
 int FASTCALL GoodsStockExt::IsEq(const GoodsStockExt & rS) const
 {
-	if(Brutto != rS.Brutto)
-		return 0;
-	else if(PckgDim != rS.PckgDim)
-		return 0;
-	else if(Package != rS.Package)
-		return 0;
-	else if(ExpiryPeriod != rS.ExpiryPeriod)
-		return 0;
-	else if(GseFlags != rS.GseFlags)
-		return 0;
-	else if(MinShippmQtty != rS.MinShippmQtty)
-		return 0;
-	else if(NettBruttCoeff != rS.NettBruttCoeff)
-		return 0;
-	else if(RtlDim != rS.RtlDim)
-		return 0;
-	else if(!MinStockList.IsEq(rS.MinStockList))
+#define CMPFLD(f) if(f != rS.f) return 0
+	CMPFLD(Brutto);
+	CMPFLD(PckgDim);
+	CMPFLD(Package);
+	CMPFLD(ExpiryPeriod);
+	CMPFLD(GseFlags);
+	CMPFLD(MinShippmQtty);
+	CMPFLD(NettBruttCoeff);
+	CMPFLD(RtlDim);
+	CMPFLD(AvgItemMeasure); // @v12.7.11
+#undef CMPFLD
+	if(!MinStockList.IsEq(rS.MinStockList))
 		return 0;
 	else if(!PltList.IsEq(rS.PltList))
 		return 0;
@@ -4323,19 +4321,43 @@ int FASTCALL GoodsStockExt::IsEq(const GoodsStockExt & rS) const
 
 int GoodsStockExt::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 {
+	constexpr uint32 GoodsStockExt_Signature = 0x3F230FA2U; // @v12.7.11
 	int    ok = 1;
+	int    is_format_ver_12711 = 1;
+	uint32 signature = 0;
+	if(dir < 0) {
+		THROW_SL(rBuf.Read(&signature, sizeof(signature)));
+		if(signature == GoodsStockExt_Signature) {
+			is_format_ver_12711 = 1;
+		}
+		else {
+			is_format_ver_12711 = 0;
+			rBuf.Unread(sizeof(signature));
+		}
+	}
+	else if(dir > 0) {
+		signature = GoodsStockExt_Signature;
+		THROW_SL(rBuf.Write(&signature, sizeof(signature)));
+	}
 	THROW_SL(pCtx->Serialize(dir, Brutto, rBuf));
 	THROW(PckgDim.Serialize(dir, rBuf, pCtx));
 	THROW_SL(pCtx->Serialize(dir, Package, rBuf));
 	THROW_SL(pCtx->Serialize(dir, ExpiryPeriod, rBuf));
-	// @todo RtlDim, MinShippmQtty, NettBruttCoeff
-	if(dir < 0) {
+	// @done (@v12.7.11) @todo RtlDim, MinShippmQtty, NettBruttCoeff, AvgItemMeasure
+	THROW_SL(pCtx->Serialize(dir, &MinStockList, rBuf));
+	THROW_SL(pCtx->Serialize(dir, &PltList, rBuf));
+	if(dir < 0 && !is_format_ver_12711) { 
 		RtlDim.Z();
 		MinShippmQtty = 0.0;
 		NettBruttCoeff = 0.0f;
+		AvgItemMeasure = 0.0f;
 	}
-	THROW_SL(pCtx->Serialize(dir, &MinStockList, rBuf));
-	THROW_SL(pCtx->Serialize(dir, &PltList, rBuf));
+	else {
+		THROW_SL(RtlDim.Serialize(dir, rBuf, pCtx));
+		THROW_SL(pCtx->Serialize(dir, MinShippmQtty, rBuf));
+		THROW_SL(pCtx->Serialize(dir, NettBruttCoeff, rBuf));
+		THROW_SL(pCtx->Serialize(dir, AvgItemMeasure, rBuf));
+	}
 	CATCHZOK
 	return ok;
 }

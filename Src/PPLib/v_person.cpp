@@ -144,7 +144,7 @@ int ViewPersonInfoBySCard(const char * pCode)
 					}
 				}
 			}
-			PPTooltipMessage(buf, img_path, 0, 5000, 0, SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow|SMessageWindow::fLargeText|SMessageWindow::fShowOnCenter|SMessageWindow::fPreserveFocus);
+			PPTooltipImage(buf, img_path, 0, 5000, 0, SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow|SMessageWindow::fLargeText|SMessageWindow::fShowOnCenter|SMessageWindow::fPreserveFocus);
 			ok = 1;
 		}
 	}
@@ -259,7 +259,7 @@ int PPViewPerson::BuildIdList(PPIDArray & rResult) // @v12.5.12 @construction
 		if(Filt.P_SjF && !Filt.P_SjF->IsEmpty()) {
 			SysJournal * p_sj = DS.GetTLA().P_SysJ;
 			local_list.Z();
-			Filt.P_SjF->Period.Actualize(ZERODATE);
+			Filt.P_SjF->Period.Actualize();
 			THROW(p_sj->GetObjListByEventPeriod(PPOBJ_PERSON, Filt.P_SjF->UserID, &Filt.P_SjF->ActionIDList, &Filt.P_SjF->Period, local_list));
 			if(use_list)
 				rResult.intersect(&local_list);
@@ -448,7 +448,7 @@ int PPViewPerson::BuildIdList(PPIDArray & rResult) // @v12.5.12 @construction
 					PROFILE_START
 					PPIDArray sj_id_list;
 					SysJournal * p_sj = DS.GetTLA().P_SysJ;
-					Filt.P_SjF->Period.Actualize(ZERODATE);
+					Filt.P_SjF->Period.Actualize();
 					THROW(p_sj->GetObjListByEventPeriod(PPOBJ_LOCATION, Filt.P_SjF->UserID, &Filt.P_SjF->ActionIDList, &Filt.P_SjF->Period, sj_id_list));
 					for(uint i = 0; i < sj_id_list.getCount(); i++) {
 						const  PPID loc_id = sj_id_list.get(i);

@@ -1200,9 +1200,9 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 	THROW(Helper_InitBaseFilt(pFilt) > 0);
 	if(Filt.Flags & BillFilt::fShippedOnly && Filt.Flags & BillFilt::fUnshippedOnly)
 		Filt.Flags &= ~BillFilt::fShippedOnly;
-	Filt.Period.Actualize(ZERODATE);
-	Filt.PaymPeriod.Actualize(ZERODATE);
-	Filt.DuePeriod.Actualize(ZERODATE);
+	Filt.Period.Actualize();
+	Filt.PaymPeriod.Actualize();
+	Filt.DuePeriod.Actualize();
 	GoodsList.Z();
 	ArFBlk.Z(); // @v11.9.6
 	ZDELETE(P_TempTbl);
@@ -1317,7 +1317,7 @@ int PPViewBill::Init_(const PPBaseFilt * pFilt)
 		if(p_sjf && !p_sjf->IsEmpty()) {
 			SysJournal * p_sj = DS.GetTLA().P_SysJ;
 			PPIDArray local_id_list;
-			p_sjf->Period.Actualize(ZERODATE);
+			p_sjf->Period.Actualize();
 			THROW(p_sj->GetObjListByEventPeriod(PPOBJ_BILL, p_sjf->UserID, &p_sjf->ActionIDList, &p_sjf->Period, local_id_list));
 			if(IdList.IsExists())
 				local_id_list.intersect(&IdList.Get());
@@ -2941,7 +2941,9 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 /*virtual*/void PPViewBill::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	int    caption = 0;
-	SString title, sub_title, temp_buf;
+	SString title;
+	SString sub_title;
+	SString temp_buf;
 	if(pBrw) {
 		const  BrowserDef * p_def = pBrw->getDef();
 		const  PPID single_loc_id = LocList_.getSingle();
@@ -3048,10 +3050,8 @@ int PPViewBill::CellStyleFunc_(const void * pData, long col, int paintAction, Br
 						pBrw->InsColumn(next_pos++, "@daddress", 16, 0, 0, 0);
 					if(Filt.Dl.GetItemByDataId(BillFilt::dliAlcoLic, 0) && P_Arp) // #15
 						pBrw->InsColumn(next_pos++, "@alcolic", 15, 0, 0, 0);
-					// @v11.6.12 {
 					if(Filt.Dl.GetItemByDataId(BillFilt::dliTSessLinkTo, 0)) // #18
 						pBrw->InsColumn(next_pos++, "@billfilt_dlitsesslinkto", 18, 0, 0, 0);
-					// } @v11.6.12 
 				}
 			}
 		}
@@ -4484,7 +4484,7 @@ int PPViewBill::AttachBillToDraft(PPID billID, const BrowserWindow * pBrw)
 			if(PPLoadText(msg_id, fmt_buf)) {
 				PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddOpName, bill_text);
 				msg_buf.Printf(fmt_buf, bill_text.cptr());
-				PPTooltipMessage(msg_buf, 0, pBrw->H(), 10000, GetColorRef(SClrOrange), SMessageWindow::fShowOnCursor|SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
+				PPTooltipMessage(msg_buf, pBrw->H(), 10000, GetColorRef(SClrOrange), SMessageWindow::fShowOnCursor|SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow);
 			}
 		}
 	}
@@ -6014,7 +6014,7 @@ int PPViewBill::Browse(bool modeless)
 	const  PPConfig & r_cfg = LConfig;
 	const  PPID save_loc = r_cfg.Location;
 	PPID   single_loc_id = LocList_.getSingle();
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	THROW((Filt.Flags & BillFilt::fDebtOnly) || AdjustPeriodToRights(Filt.Period, false));
 	if(single_loc_id && single_loc_id != r_cfg.Location)
 		DS.SetLocation(single_loc_id);
@@ -6722,7 +6722,7 @@ int PPViewBill::HandleNotifyEvent(int kind, const PPNotifyEvent * pEv, PPViewBro
 							temp_buf.ReplaceChar('\n', ' ');
 							temp_buf.ReplaceChar('\r', ' ');
 							temp_buf.ReplaceStr(PPConst::P_ObjMemoDelim, "\n", 0);
-							PPTooltipMessage(temp_buf, 0, pBrw->H(), 10000, 0, SMessageWindow::fStdOnMouseOptions);
+							PPTooltipMessage(temp_buf, pBrw->H(), 10000, 0, SMessageWindow::fStdOnMouseOptions);
 						}
 						else { // @v12.7.5 
 							pBrw->ShowCellStyleHint(row, col);

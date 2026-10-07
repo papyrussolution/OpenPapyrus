@@ -29,8 +29,7 @@ int FreightFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 		public:
 			FreightFilt_v0() : PPBaseFilt(PPFILT_FREIGHT, 0, 0)
 			{
-				SetFlatChunk(offsetof(FreightFilt, ReserveStart),
-					offsetof(FreightFilt, Reserve)-offsetof(FreightFilt, ReserveStart)+sizeof(Reserve));
+				SetFlatChunk(offsetof(FreightFilt, ReserveStart), offsetof(FreightFilt, Reserve)-offsetof(FreightFilt, ReserveStart)+sizeof(Reserve));
 				Init(1, 0);
 			}
 			char   ReserveStart[24]; // @anchor
@@ -106,9 +105,10 @@ public:
 		SetPeriodInput(this, CTL_FRGHTFLT_PERIOD, Data.BillPeriod);
 		SetPeriodInput(this, CTL_FRGHTFLT_SHIPMPERIOD, Data.ShipmPeriod);
 		SetPeriodInput(this, CTL_FRGHTFLT_ARRVLPERIOD, Data.ArrvlPeriod);
-		for(op_id = 0; EnumOperations(/*PPOPT_GOODSEXPEND*/0, &op_id, &op_rec) > 0;)
+		for(op_id = 0; EnumOperations(/*PPOPT_GOODSEXPEND*/0, &op_id, &op_rec) > 0;) {
 			if(op_rec.Flags & OPKF_FREIGHT)
 				op_list.add(op_id);
+		}
 		for(op_id = 0; EnumOperations(PPOPT_GENERIC, &op_id, 0) > 0;) {
 			gen_op_list.clear();
 			if(GetGenericOpList(op_id, &gen_op_list)) {
@@ -146,6 +146,7 @@ public:
 		AddClusterAssoc(CTL_FRGHTFLT_FLAGS, 0, FreightFilt::fUnshippedOnly);
 		AddClusterAssoc(CTL_FRGHTFLT_FLAGS, 1, FreightFilt::fShippedOnly);
 		AddClusterAssoc(CTL_FRGHTFLT_FLAGS, 2, FreightFilt::fFillLaggageFields);
+		AddClusterAssoc(CTL_FRGHTFLT_FLAGS, 3, FreightFilt::fShowChZnMarking); // @v12.7.11
 		SetClusterData(CTL_FRGHTFLT_FLAGS, Data.Flags);
 
 		v = 0;
@@ -254,9 +255,9 @@ int PPViewFreight::Init_(const PPBaseFilt * pFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pFilt));
-	Filt.BillPeriod.Actualize(ZERODATE);
-	Filt.ShipmPeriod.Actualize(ZERODATE);
-	Filt.ArrvlPeriod.Actualize(ZERODATE);
+	Filt.BillPeriod.Actualize();
+	Filt.ShipmPeriod.Actualize();
+	Filt.ArrvlPeriod.Actualize();
 	StrPool.ClearS();
 	{
 		ZDELETE(P_TmpTbl);
@@ -312,9 +313,9 @@ int PPViewFreight::Init_(const PPBaseFilt * pFilt)
 				r = (r < 0) ? -1 : P_BObj->P_Tbl->GetListByFreightFilt(Filt, fr_bill_list);
 				THROW(r);
 				if(r > 0) {
+					BillTbl::Rec bill_rec;
 					for(ulong uid = 0; fr_bill_list.Enum(&uid);) {
 						const  PPID bill_id = static_cast<PPID>(uid);
-						BillTbl::Rec bill_rec;
 						if(P_BObj->Search(bill_id, &bill_rec) > 0 && v_bill.CheckIDForFilt(bill_id, 0)) {
 							if(FillTempTableRec(&bill_rec, &rec) > 0)
 								THROW_DB(bei.insert(&rec));
@@ -343,7 +344,7 @@ int PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFreightTb
 {
 	int    ok = -1;
 	int    is_freight = 0;
-	int    is_cargo = 0;
+	bool   is_cargo = false;
 	BillTotalData btd;
 	PPBillPacket pack;
 	SString temp_buf;
@@ -352,19 +353,19 @@ int PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFreightTb
 		PPFreight freight;
 		if(P_BObj->P_Tbl->GetFreight(pBillRec->ID, &freight) > 0)
 			is_freight = 1;
-		else if(Filt.Flags & FreightFilt::fUseCargoParam)
+		else if(Filt.Flags & FreightFilt::fUseCargoParam) {
 			if(P_BObj->ExtractPacket(pBillRec->ID, &pack) > 0) {
 				pack.CalcTotal(btd, 0);
-				is_cargo = BIN(btd.Brutto > 0.0 || btd.Volume > 0.0 || btd.PackCount > 0.0);
+				is_cargo = (btd.Brutto > 0.0 || btd.Volume > 0.0 || btd.PackCount > 0.0);
 			}
+		}
 		if((is_freight || is_cargo) && freight.CheckForFilt(Filt)) {
 			Goods2Tbl::Rec tr_rec;
 			WorldTbl::Rec city_rec;
-			memzero(pRec, sizeof(*pRec));
+			pRec->Clear();
 			pRec->BillID     = pBillRec->ID;
 			pRec->BillDate   = pBillRec->Dt;
 			STRNSCPY(pRec->Code, pBillRec->Code);
-			// @v11.1.12 StrPool.AddS(pBillRec->Memo, &pRec->MemoP);
 			pRec->LocID      = pBillRec->LocID;
 			pRec->ObjectID   = pBillRec->Object;
 			pRec->Amount     = BR2(pBillRec->Amount);
@@ -375,11 +376,13 @@ int PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFreightTb
 			pRec->ShipID     = freight.ShipID;
 			pRec->PortID     = freight.PortOfDischarge;
 			pRec->DlvrAddrID = freight.DlvrAddrID__;
+			pRec->ChZnMarkIndicator = -1;
 			if(pRec->ShipID && TrObj.Search(pRec->ShipID, &tr_rec) > 0) {
 				StrPool.AddS(tr_rec.Name, &pRec->ShipNameP);
 			}
-			if(pRec->PortID && WObj.Fetch(pRec->PortID, &city_rec) > 0)
+			if(pRec->PortID && WObj.Fetch(pRec->PortID, &city_rec) > 0) {
 				STRNSCPY(pRec->PortName, city_rec.Name);
+			}
 			if(pRec->DlvrAddrID) {
 				LocObj.GetAddress(pRec->DlvrAddrID, 0, temp_buf);
 				temp_buf.CopyTo(pRec->DlvrAddr, sizeof(pRec->DlvrAddr));
@@ -406,6 +409,16 @@ int PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFreightTb
 						pRec->AgentID = ext.AgentID;
 				}
 			}
+			// @v12.7.11 {
+			if(Filt.Flags & FreightFilt::fShowChZnMarking) {
+				if(pack.Rec.ID || P_BObj->ExtractPacket(pBillRec->ID, &pack) > 0) {
+					uint  mark_count = 0;
+					const  int r = pack.GetChZnMarksCountIndicator(&mark_count);
+					pRec->ChZnMarkCount = static_cast<long>(mark_count);
+					pRec->ChZnMarkIndicator = static_cast<int16>(r);
+				}
+			}
+			// } @v12.7.11 
 			ok = 1;
 		}
 	}
@@ -513,6 +526,95 @@ void PPViewFreight::ViewTotal()
 	}
 }
 
+static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr) // @v12.7.11
+{
+	int    ok = -1;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
+	if(p_brw) {
+		PPViewFreight * p_view = static_cast<PPViewFreight *>(p_brw->P_View);
+		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
+	}
+	return ok;
+}
+
+int PPViewFreight::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw) // @v12.7.11
+{
+	int    ok = -1;
+	const  BrowserDef * p_def = pBrw ? pBrw->getDef() : 0;
+	if(p_def && pData && pStyle) {
+		if(col >= 0 && col < p_def->getCountI()) {
+			const  BroColumn & r_col = p_def->at(col);
+			const  UiDescription * p_uid = SLS.GetUiDescription();
+			const  SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+			const  BrwHdr * p_hdr = static_cast<const BrwHdr *>(pData);
+			if(r_col.OrgOffs == 2) { // BillNo // @v12.7.11 практически полная копия аналогичного блока из PPViewBill
+				BillTbl::Rec bill_rec;
+				if(P_BObj->Fetch(p_hdr->ID, &bill_rec) > 0) {
+					const TagFilt & r_tag_filt = P_BObj->GetConfig().TagIndFilt;
+					if(!r_tag_filt.IsEmpty()) {
+						SColor clr;
+						const  uint tag_ind_idx = r_tag_filt.SelectIndicator(p_hdr->ID, clr);
+						if(tag_ind_idx) {
+							ok = pStyle->SetLeftBottomCornerColor(static_cast<COLORREF>(clr));
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								SString & r_text = SLS.AcquireRvlStr();
+								SString & r_prefix = PPLoadStringS(PPSTR_TCELHLD, TCELHLD_BILL_TAGINDICATOR, SLS.AcquireRvlStr());
+								r_tag_filt.MakeIndicatorDescrText(tag_ind_idx, r_prefix, r_text);
+								pStyle->CatDescriptionText(r_text);
+							}
+						}
+					}
+					if(P_BObj->GetConfig().Flags & BCF_PAINTSHIPPEDBILLS) {
+						if(bill_rec.Flags & BILLF_SHIPPED) {
+							ok = pStyle->SetFullCellColor(LightenColor(GetColorRef(SClrBlue), 0.7f));
+							if(paintAction == BrowserWindow::paintQueryDescription) {
+								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_BILL_SHIPPED, SLS.AcquireRvlStr()));
+							}
+						}
+					}
+					if(bill_rec.Flags & BILLF_WHITELABEL) {
+						ok = pStyle->SetRightFigTriangleColor(SClrHotpink);
+						if(paintAction == BrowserWindow::paintQueryDescription) {
+							// Документ имеет специальную метку white-label
+							pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, TCELHLD_BILL_WL, SLS.AcquireRvlStr()));
+						}
+					}
+				}
+			}
+			else if(r_col.OrgOffs == 17) { // ChZnMarkCount
+				int   msg_id = 0;
+				if(p_hdr->ChZnMarkIndicator > 0) {
+					msg_id = TCELHLD_BILL_MARKCOUNT_OK;
+					ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_ok", SClrLightgreen));
+				}
+				else if(p_hdr->ChZnMarkIndicator == 0) {
+					msg_id = TCELHLD_BILL_MARKCOUNT_INADEQ;
+					ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_undecomposable", SClrLightpink));
+				}
+				if(ok) {
+					if(msg_id && paintAction == BrowserWindow::paintQueryDescription) {
+						pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, msg_id, SLS.AcquireRvlStr()));
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+void PPViewFreight::PreprocessBrowser(PPViewBrowser * pBrw)
+{
+	if(pBrw) {
+		if(Filt.LocID == 0) {
+			pBrw->InsColumn(1, "@warehouse", 14, 0, 0, 0); // @v12.7.11 +#1
+		}
+		if(Filt.Flags & FreightFilt::fShowChZnMarking) { // @v12.7.11
+			pBrw->InsColumn(3, "@chznmarkcount", 17, 0, NMBF_NOZERO, 0);
+		}
+		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw); // @v12.7.11
+	}
+}
+
 DBQuery * PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 {
 	uint   brw_id = (Filt.Flags & FreightFilt::fFillLaggageFields) ? BROWSER_FREIGHT_LAGG : BROWSER_FREIGHT;
@@ -529,45 +631,27 @@ DBQuery * PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,   PPDbqFuncPool::IdObjNameLoc, tbl->LocID);
 	PPDbqFuncPool::InitStrPoolRefFunc(dbe_ship, tbl->ShipNameP, &StrPool);
 	PPDbqFuncPool::InitObjNameFunc(dbe_memo, PPDbqFuncPool::IdObjMemoBill, tbl->BillID);
-	// @v12.6.1 {
 	q = &Select_(
 		tbl->BillID,    //  #0
 		tbl->BillDate,  //  #1
 		tbl->Code,      //  #2
 		0L);
-	q->addField(dbe_ar);         //  #3
-	q->addField(tbl->ArrvlDate); //  #4
-	q->addField(dbe_ship);       //  #5 
-	q->addField(tbl->PortName);  //  #6
-	q->addField(tbl->DlvrAddr);  //  #7
-	q->addField(tbl->Amount);    //  #8
-	q->addField(tbl->Brutto);    //  #9
-	q->addField(tbl->Volume);    // #10
-	q->addField(tbl->PackCount); // #11
-	q->addField(tbl->Shipped);   // #12
-	q->addField(dbe_loc);        // #13
-	q->addField(dbe_agent);      // #14
-	q->addField(dbe_memo);       // #15
-	// } @v12.6.1 
-	/* @v12.6.1
-	q = &Select_(
-		tbl->BillID,    //  #0
-		tbl->BillDate,  //  #1
-		tbl->Code,      //  #2
-		dbe_ar,         //  #3
-		tbl->ArrvlDate, //  #4
-		dbe_ship,       //  #5 
-		tbl->PortName,  //  #6
-		tbl->DlvrAddr,  //  #7
-		tbl->Amount,    //  #8
-		tbl->Brutto,    //  #9
-		tbl->Volume,    // #10
-		tbl->PackCount, // #11
-		tbl->Shipped,   // #12
-		dbe_loc,        // #13
-		dbe_agent,      // #14
-		dbe_memo,       // #15
-		0L);*/
+	q->addField(tbl->ChZnMarkIndicator); // #3 // @v12.7.11 
+	q->addField(dbe_ar);         //  #4 // @v12.7.11 +1
+	q->addField(tbl->ArrvlDate); //  #5 // @v12.7.11 +1
+	q->addField(dbe_ship);       //  #6 // @v12.7.11 +1
+	q->addField(tbl->PortName);  //  #7 // @v12.7.11 +1
+	q->addField(tbl->DlvrAddr);  //  #8 // @v12.7.11 +1
+	q->addField(tbl->Amount);    //  #9 // @v12.7.11 +1
+	q->addField(tbl->Brutto);    // #10 // @v12.7.11 +1
+	q->addField(tbl->Volume);    // #11 // @v12.7.11 +1
+	q->addField(tbl->PackCount); // #12 // @v12.7.11 +1
+	q->addField(tbl->Shipped);   // #13 // @v12.7.11 +1
+	q->addField(dbe_loc);        // #14 // @v12.7.11 +1
+	q->addField(dbe_agent);      // #15 // @v12.7.11 +1
+	q->addField(dbe_memo);       // #16 // @v12.7.11 +1
+	q->addField(tbl->ChZnMarkCount); // #17 // @v12.7.11 
+	
 	q->from(tbl, 0L);
 	if(Filt.Order == OrdByBillID)
 		q->orderBy(tbl->BillID, 0L);
@@ -589,13 +673,6 @@ DBQuery * PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	ENDCATCH
 	ASSIGN_PTR(pBrwId, brw_id);
 	return q;
-}
-
-void PPViewFreight::PreprocessBrowser(PPViewBrowser * pBrw)
-{
-	if(pBrw && Filt.LocID == 0) {
-		pBrw->InsColumn(1, "@warehouse", 13, 0, 0, 0);
-	}
 }
 
 int PPViewFreight::GetBillList(ObjIdListFilt * pList)
@@ -906,6 +983,15 @@ int PPViewFreight::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 	if(ok == -2) {
 		PPID   id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 		switch(ppvCmd) {
+			case PPVCMD_BROWSE: // @v12.7.11
+				{
+					ok = -1;
+					PPBillPacket bpack;
+					if(id && P_BObj->ExtractPacketWithFlags(id, &bpack, BPLD_FORCESERIALS)) {
+						ViewBillDetails(bpack, 2, P_BObj);
+					}
+				}
+				break;
 			case PPVCMD_TOGGLE:
 				ok = -1;
 				if(id) {
@@ -939,6 +1025,12 @@ int PPViewFreight::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 				ok = -1;
 				if(CONFIRM(PPCFM_RECOVERFREIGHT))
 					P_BObj->RecoverUnitedFreightPorts();
+				break;
+			case PPVCMD_MOUSEHOVER: // @v12.7.11
+				if(pBrw) {
+					pBrw->ShowCellStyleHint();
+					ok = -1;
+				}
 				break;
 		}
 	}

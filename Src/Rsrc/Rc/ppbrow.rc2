@@ -4984,19 +4984,20 @@ browser SSTAT_SORD_CT north(100), 3, 1, "@{ordertosuppliercalculation} {%s}", OW
 
 browser FREIGHT north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 {
-	"@shipped",               12, notype, 0, 2
+	"@shipped",               13, notype, 0, 2 // @v12.7.11 +#1
 	"@billdate",               1, notype, DATF_DMY, 8
 	"@billno",                 2, notype, 0, 9
-	"@contractor",             3, notype, 0, 20
-	"@agent",                 14, notype, 0, 20
-	"@bill_freight_dlvrdate",  4, notype, DATF_DMY, 8
-	"@transport",              5, notype, 0, 20
-	"@bill_freight_dlvrcity",  6, notype, 0, 20
-	"@daddress",               7, notype, 0, 30
-	"@memo",                  15, notype, 0, 60
+	"@contractor",             4, notype, 0, 20 // @v12.7.11 +#1
+	"@agent",                 15, notype, 0, 20 // @v12.7.11 +#1
+	"@bill_freight_dlvrdate",  5, notype, DATF_DMY, 8 // @v12.7.11 +#1
+	"@transport",              6, notype, 0, 20 // @v12.7.11 +#1
+	"@bill_freight_dlvrcity",  7, notype, 0, 20 // @v12.7.11 +#1
+	"@daddress",               8, notype, 0, 30 // @v12.7.11 +#1
+	"@memo",                  16, notype, 0, 60 // @v12.7.11 +#1
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL            : kbEnter,  PPDV_DOCUMENT_PL02,  "@{document}\tEnter"
 		EDITBILLFREIGHT   : kbCtrlF4, PPDV_FREIGHT02,      "@{freight}\tCtrl-F4"
+		BROWSE            : kbF3,     PPDV_LINS02,         "@{viewbillitems}\tF3" // @v12.7.11
 		separator
 		TOGGLE            : kbF8,     TBBM_TOGGLESHIPMTAG, "@{dotoggleshipmentfeature}\tF8"
 		separator
@@ -5021,23 +5022,24 @@ browser FREIGHT north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 
 browser FREIGHT_LAGG north(100), 2, 1, "@{freight}", OWNER|GRID, 0
 {
-	"@shipped",               12, notype, 0, 2
+	"@shipped",               13, notype, 0, 2 // @v12.7.11 +#1
 	"@billdate",               1, notype, DATF_DMY, 8
 	"@billno",                 2, notype, 0, 9
-	"@contractor",             3, notype, 0, 20
-	"@agent",                 14, notype, 0, 20
-	"@bill_freight_dlvrdate",  4, notype, DATF_DMY, 8
-	"@transport",              5, notype, 0, 20
-	"@bill_freight_dlvrcity",  6, notype, 0, 20
-	"@daddress",               7, notype, 0, 30
-	"@amount",                 8, notype, 0, 10.2
-	"@cargobrutto",            9, notype, NMBF_NOTRAILZ, 8.3
-	"@volume",                10, notype, NMBF_NOTRAILZ, 8.3
-	"Мест",                   11, notype, 0, 8
-	"@memo",                  15, notype, 0, 60
+	"@contractor",             4, notype, 0, 20 // @v12.7.11 +#1
+	"@agent",                 15, notype, 0, 20 // @v12.7.11 +#1
+	"@bill_freight_dlvrdate",  5, notype, DATF_DMY, 8 // @v12.7.11 +#1
+	"@transport",              6, notype, 0, 20 // @v12.7.11 +#1
+	"@bill_freight_dlvrcity",  7, notype, 0, 20 // @v12.7.11 +#1
+	"@daddress",               8, notype, 0, 30 // @v12.7.11 +#1
+	"@amount",                 9, notype, 0, 10.2 // @v12.7.11 +#1
+	"@cargobrutto",           10, notype, NMBF_NOTRAILZ, 8.3 // @v12.7.11 +#1
+	"@volume",                11, notype, NMBF_NOTRAILZ, 8.3 // @v12.7.11 +#1
+	"Мест",                   12, notype, 0, 8 // @v12.7.11 +#1
+	"@memo",                  16, notype, 0, 60 // @v12.7.11 +#1
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL            : kbEnter,  PPDV_DOCUMENT_PL02,  "@{document}\tEnter"
 		EDITBILLFREIGHT   : kbCtrlF4, PPDV_FREIGHT02,      "@{freight}\tCtrl-F4"
+		BROWSE            : kbF3,     PPDV_LINS02,         "@{viewbillitems}\tF3" // @v12.7.11
 		separator
 		TOGGLE            : kbF8,     TBBM_TOGGLESHIPMTAG, "@{dotoggleshipmentfeature}\tF8"
 		separator

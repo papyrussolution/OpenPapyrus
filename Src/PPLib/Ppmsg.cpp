@@ -611,16 +611,32 @@ int PPOutputMessage(const char * pMsg, uint options)
 	}
 }
 
-int PPTooltipMessage(const char * pMsg, const char * pImgPath, HWND parent, long timer, COLORREF color, long flags)
+int PPTooltipMessage(const char * pMsg, HWND parent, long timer, COLORREF color, long flags)
+{
+	int    ok = 0;
+	if(DS.IsThreadInteractive()) {
+		if(!isempty(pMsg)/*|| !isempty(pImgPath)*/) {
+			SMessageWindow * p_win = new SMessageWindow;
+			if(p_win) {
+				SString msg_buf(pMsg);
+				msg_buf.ReplaceChar('\003', ' ').Strip();
+				ok = p_win->Open_(msg_buf, parent, timer, color, flags);
+			}
+		}
+	}
+	return ok;
+}
+
+int PPTooltipImage(const char * pMsg, const char * pImgPath, HWND parent, long timer, COLORREF color, long flags) // @v12.7.11
 {
 	int    ok = 0;
 	if(DS.IsThreadInteractive()) {
 		if(!isempty(pMsg) || !isempty(pImgPath)) {
 			SMessageWindow * p_win = new SMessageWindow;
 			if(p_win) {
-				SString buf(pMsg);
-				buf.ReplaceChar('\003', ' ').Strip();
-				ok = p_win->Open(buf, pImgPath, parent, 0, timer, color, flags, 0);
+				SString msg_buf(pMsg);
+				msg_buf.ReplaceChar('\003', ' ').Strip();
+				ok = p_win->OpenImage_(msg_buf, pImgPath, parent, timer, color, flags);
 			}
 		}
 	}
@@ -631,8 +647,8 @@ int PPTooltipMessage(uint options, int msgcode, const char * pAddInfo)
 {
 	int    ok = 0;
 	if(DS.IsThreadInteractive()) {
-		SString buf;
-		if(PPGetMessage(options, msgcode, pAddInfo, DS.CheckExtFlag(ECF_SYSSERVICE), buf)) {
+		SString msg_buf;
+		if(PPGetMessage(options, msgcode, pAddInfo, DS.CheckExtFlag(ECF_SYSSERVICE), msg_buf)) {
 			SMessageWindow * p_win = new SMessageWindow;
 			if(p_win) {
 				const  COLORREF color = GetColorRef((options & mfError) ? SClrRed : SClrSteelblue);
@@ -640,8 +656,8 @@ int PPTooltipMessage(uint options, int msgcode, const char * pAddInfo)
 				if(options & mfError) {
 					flags |= SMessageWindow::fShowOnRUCorner|SMessageWindow::fTopmost;
 				}
-				buf.ReplaceChar('\003', ' ').Strip();
-				ok = p_win->Open(buf, 0, 0, 0, 30000, color, flags, 0);
+				msg_buf.ReplaceChar('\003', ' ').Strip();
+				ok = p_win->Open_(msg_buf, 0, 30000, color, flags);
 			}
 		}
 	}
@@ -916,7 +932,7 @@ static bool FASTCALL CheckEscKey(int cmd)
 	return PeekMessage(&msg, 0, WM_KEYDOWN, WM_KEYDOWN, cmd ? PM_NOREMOVE : PM_REMOVE) ? (msg.wParam == VK_ESCAPE) : false;
 }
 
-int PPShowCtrlIndicatorHint(const char * pText) // @v12.7.7
+int PPShowCtrlIndicatorHint(const TWindow * pWin, const TView * pCtrl, const char * pText) // @v12.7.7
 {
 	int    ok = -1;
 	if(!isempty(pText)) {
@@ -930,9 +946,38 @@ int PPShowCtrlIndicatorHint(const char * pText) // @v12.7.7
 		}
 		const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 		SColor color_bg = UiDescription::GetColorR(p_uid, p_cs, "popuphint_bg", SColor(0xF0, 0xF4, 0xF8));
-		long   o = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fTopmost;
-		PPTooltipMessage(pText, 0, /*H()*/0, hint_timeout, color_bg, o);
-		ok = 1;
+		long   o = SMessageWindow::fShowOnCursor|SMessageWindow::fCloseOnMouseLeave|SMessageWindow::fTextAlignLeft|
+			SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fTopmost;
+		// @v12.7.11 SMessageWindow::fPreserveFocus {
+		HWND   h_parent = pWin ? pWin->H() : 0;
+		if(h_parent) {
+			o |= SMessageWindow::fPreserveFocus;
+		}
+		// } @v12.7.11 
+		//PPTooltipMessage(pText, h_parent, hint_timeout, color_bg, o);
+		//int PPTooltipMessage(const char * pMsg, HWND parent, long timer, COLORREF color, long flags)
+		{
+			SMessageWindow * p_win = new SMessageWindow;
+			if(p_win) {
+				SString msg_buf(pText);
+				msg_buf.ReplaceChar('\003', ' ').Strip();
+				{
+					HWND h_ctl = pCtrl ? pCtrl->getHandle() : 0;
+					if(h_ctl) {
+						RECT   ctl_rect;
+						SPoint2S origin;
+						GetWindowRect(h_ctl, &ctl_rect);
+						origin.x = ctl_rect.left+40;
+						origin.y = ctl_rect.bottom+2;
+						ok = p_win->OpenP_(msg_buf, h_parent, origin, hint_timeout, color_bg, o);
+					}
+					else {
+						ok = p_win->Open_(msg_buf, h_parent, hint_timeout, color_bg, o);
+					}
+				}
+			}
+		}
+		//ok = 1;
 	}
 	return ok;
 }
@@ -946,7 +991,7 @@ int PPShowCtrlIndicatorHintOnInputLine(TWindow * pWin, uint ctlId) // @v12.7.9
 			uint64 _state = 0;
 			SString descr_buf;
 			if(p_il->GetIndicatorState(&_state, &descr_buf) && descr_buf.NotEmptyS()) {
-				PPShowCtrlIndicatorHint(descr_buf);
+				PPShowCtrlIndicatorHint(pWin, p_il/*ctrl*/, descr_buf);
 				ok = 1;
 			}
 			else {

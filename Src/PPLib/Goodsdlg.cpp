@@ -1820,10 +1820,11 @@ public:
 	{
 		RVALUEPTR(Data, pData);
 		SString ex_titles;
+		SString temp_buf;
 		if(Data.Rec.Name[0]) {
-			SString title_buf(getTitle());
-			title_buf.CatDiv('-', 1).Cat(Data.Rec.Name);
-			setTitle(title_buf);
+			temp_buf = getTitle();
+			temp_buf.CatDiv('-', 1).Cat(Data.Rec.Name);
+			setTitle(temp_buf);
 		}
 		PPObjGoods::ReadGoodsExTitles(Data.Rec.ParentID, ex_titles);
 		double brutto = R6(fdiv1000i(Data.Stock.Brutto));
@@ -1836,6 +1837,10 @@ public:
 
 		setCtrlData(CTL_GOODSVAD_BRUTTO, &brutto);
 		setCtrlData(CTL_GOODSVAD_PACKAGE, &Data.Stock.Package);
+		{ // @v12.7.11
+			// @todo Здесь поменять подпись поля (единицу измерения добавить) и, если единица измерения не физическая, то залочить поле.
+			setCtrlData(CTL_GOODSVAD_AVGITEMMSR, &Data.Stock.AvgItemMeasure); 
+		}
 		setDimentions();
 		setCtrlReal(CTL_GOODSVAD_VOLUME, Data.Stock.CalcVolume(1.0));
 		ushort v = BIN(Data.Rec.Flags & GF_VOLUMEVAL);
@@ -1868,6 +1873,7 @@ public:
 		getCtrlData(CTL_GOODSVAD_BRUTTO,   &brutto);
 		Data.Stock.Brutto = R0i(brutto * 1000.0);
 		getCtrlData(CTL_GOODSVAD_PACKAGE, &Data.Stock.Package);
+		getCtrlData(CTL_GOODSVAD_AVGITEMMSR, &Data.Stock.AvgItemMeasure); // @v12.7.11 
 		getDimentions();
 		ushort v = getCtrlUInt16(CTL_GOODSVAD_VOLUMEVAL);
 		if(v)
@@ -2072,10 +2078,12 @@ GoodsVadDialog::ExtStrCtlEntry GoodsVadDialog::ExtStrCtlList[] = {
 
 const GoodsVadDialog::ExtStrCtlEntry * GoodsVadDialog::GetExtStrEntryByCtl(uint ctlId) const
 {
-	for(uint i = 0; i < SIZEOFARRAY(ExtStrCtlList); i++)
+	const GoodsVadDialog::ExtStrCtlEntry * p_result = 0;
+	for(uint i = 0; !p_result && i < SIZEOFARRAY(ExtStrCtlList); i++) {
 		if(ExtStrCtlList[i].CtlId == ctlId)
-			return (ExtStrCtlList+i);
-	return 0;
+			p_result = (ExtStrCtlList+i);
+	}
+	return p_result;
 }
 
 void GoodsVadDialog::setExtStrData(uint ctlID, /*uint titleCtlID, uint strID,*/ SString & rTitleBuf)

@@ -3160,13 +3160,13 @@ void BrowserWindow::SpecialMenu() // @v12.4.12
 				long   vpos = 0;
 				if(p_view->HeaderByPoint(tp, hdrzoneAny, &vpos) && p_view->P_Def->IsValidIdx(vpos)) {
 					const BroColumn & r_column = p_view->P_Def->at(vpos);
-					SString temp_buf(r_column.P_Text);
+					SString msg_buf(r_column.P_Text);
 					SMessageWindow * p_win = new SMessageWindow;
 					if(p_win) {
-						temp_buf.ReplaceChar('\003', ' ').Strip();
+						msg_buf.ReplaceChar('\003', ' ').Strip();
 						COLORREF color = GetColorRef(SClrLightyellow);
 						long   flags = SMessageWindow::fShowOnCursor|SMessageWindow::fSizeByText|SMessageWindow::fOpaque|SMessageWindow::fPreserveFocus;
-						p_win->Open(temp_buf, 0, 0, 0, 3000, color, flags, 0);
+						p_win->Open_(msg_buf, 0, 3000, color, flags);
 					}
 				}
 			}
@@ -3454,7 +3454,7 @@ int BrowserWindow::search(void * pPattern, CompFunc fcmp, int srchMode)
 				SString fmt_buf;
 				SLS.LoadString_("strnfound", fmt_buf);
 				msg_buf.Printf(fmt_buf, static_cast<const char *>(pPattern));
-				p_win->Open(msg_buf, 0, H(), 0, 5000, GetColorRef(SClrRed), SMessageWindow::fShowOnCenter|SMessageWindow::fChildWindow, 0);
+				p_win->Open_(msg_buf, H(), 5000, GetColorRef(SClrRed), SMessageWindow::fShowOnCenter|SMessageWindow::fChildWindow);
 			}
 		}
 	}

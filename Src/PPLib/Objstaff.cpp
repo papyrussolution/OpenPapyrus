@@ -1171,8 +1171,9 @@ int PPObjStaffList::GetFixedPostOnDate(PPID orgID, PPID fixID, LDATE dt, PersonP
 	if(pos >= 0) {
 		ASSIGN_PTR(pRec, post_list.at(pos));
 	}
-	else
-		memzero(pRec, sizeof(*pRec));
+	else {
+		CALLPTRMEMB(pRec, Clear());
+	}
 	return ok;
 }
 

@@ -2006,9 +2006,21 @@ int PPObjTransport::GetNameByTemplate(PPTransport * pPack, const char * pTemplat
 //
 // @ModuleDef(PPObjBrand)
 //
-PPBrand::PPBrand()
+PPBrand::PPBrand() : ID(0), OwnerID(0), ParentID(0), Flags(0)
 {
-	THISZERO();
+	Name[0] = 0;
+	memzero(Reserve, sizeof(Reserve));
+}
+
+PPBrand & PPBrand::Z()
+{
+	ID = 0;
+	Name[0] = 0;
+	OwnerID = 0;
+	ParentID = 0;
+	Flags = 0;
+	memzero(Reserve, sizeof(Reserve));
+	return *this;
 }
 
 bool FASTCALL PPBrand::IsEq(const PPBrand & rS) const
@@ -2095,7 +2107,7 @@ PPObjBrand::PPObjBrand(void * extraPtr) : PPObjGoods(PPOBJ_BRAND, PPGDSK_BRAND, 
 {
 	int    ok = 1;
 	if(pRec) {
-		memzero(pRec, sizeof(*pRec));
+		pRec->Z();
 		if(rGoodsRec.Kind == PPGDSK_BRAND) {
 			pRec->ID = rGoodsRec.ID;
 			STRNSCPY(pRec->Name, rGoodsRec.Name);

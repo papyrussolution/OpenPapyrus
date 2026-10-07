@@ -554,11 +554,87 @@ int VCalendar::GetDtm(const SString & rBuf, LDATETIME * pDtm)
 //
 // @ModuleDef(PPViewPrjTask)
 //
-IMPLEMENT_PPFILT_FACTORY(PrjTask); PrjTaskFilt::PrjTaskFilt() : PPBaseFilt(PPFILT_PRJTASK, 0, 0)
+IMPLEMENT_PPFILT_FACTORY(PrjTask); PrjTaskFilt::PrjTaskFilt() : PPBaseFilt(PPFILT_PRJTASK, 0, 1),  // @v12.7.11 version 0-->1
+	PPExtStrContainer(), P_TagF(0)
 {
 	SetFlatChunk(offsetof(PrjTaskFilt, ReserveStart),
 		offsetof(PrjTaskFilt, Reserve)-offsetof(PrjTaskFilt, ReserveStart)+sizeof(Reserve));
+	SetBranchSString(offsetof(PrjTaskFilt, ExtString)); // @v12.7.11 
+	SetBranchObjIdListFilt(offsetof(PrjTaskFilt, ClientList)); // @v12.7.11 
+	SetBranchObjIdListFilt(offsetof(PrjTaskFilt, EmployerList)); // @v12.7.11 
+	SetBranchObjIdListFilt(offsetof(PrjTaskFilt, CreatorList)); // @v12.7.11 
+	SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(PrjTaskFilt, P_TagF)); // @v12.7.11 
 	Init(1, 0);
+}
+
+/*virtual*/int PrjTaskFilt::ReadPreviousVer(SBuffer & rBuf, int ver) // @v12.7.11 @construction
+{
+	int    ok = -1;
+	if(ver == 0) {
+		struct PrjTaskFilt_v0 : public PPBaseFilt {
+		public:
+			PrjTaskFilt_v0() : PPBaseFilt(PPFILT_PRJTASK, 0, 0)
+			{
+				SetFlatChunk(offsetof(PrjTaskFilt_v0, ReserveStart),
+					offsetof(PrjTaskFilt_v0, Reserve)-offsetof(PrjTaskFilt_v0, ReserveStart)+sizeof(Reserve));
+				Init(1, 0);
+			}
+
+			char   ReserveStart[32];   // @anchor
+			PrjTaskFilt::EnumOrder Order;
+			PrjTaskFilt::EnumTabType TabType;
+			PrjTaskFilt::EnumTabParam TabParam;
+			long   Kind;
+			PPID   ProjectID;
+			PPID   ClientID;
+			PPID   EmployerID;
+			PPID   TemplateID;
+			PPID   CreatorID;
+			PPID   CliCityID;
+			PPID   LinkTaskID;
+			int16  PriorList[10];
+			int16  StatusList[10];
+			DateRange Period;
+			DateRange StartPeriod;
+			DateRange EstFinishPeriod;
+			DateRange FinishPeriod;
+			long   Flags;
+			LTIME  StartTmPeriodBeg;
+			LTIME  StartTmPeriodEnd;
+			SubstGrpDate Sgd;
+			long   Reserve;
+		};
+		PrjTaskFilt_v0 fv0;
+		THROW(fv0.Read(rBuf, 0));
+		memzero(ReserveStart, sizeof(ReserveStart));
+		memzero(&Reserve, sizeof(Reserve));
+		memcpy(PriorList, fv0.PriorList, sizeof(PriorList));
+		memcpy(StatusList, fv0.StatusList, sizeof(StatusList));
+#define CPYFLD(f) f = fv0.f
+			CPYFLD(Order);
+			CPYFLD(TabType);
+			CPYFLD(TabParam);
+			CPYFLD(Kind);
+			CPYFLD(ProjectID);
+			CPYFLD(ClientID);
+			CPYFLD(EmployerID);
+			CPYFLD(TemplateID);
+			CPYFLD(CreatorID);
+			CPYFLD(CliCityID);
+			CPYFLD(LinkTaskID);
+			CPYFLD(Period);
+			CPYFLD(StartPeriod);
+			CPYFLD(EstFinishPeriod);
+			CPYFLD(FinishPeriod);
+			CPYFLD(Flags);
+			CPYFLD(StartTmPeriodBeg);
+			CPYFLD(StartTmPeriodEnd);
+			CPYFLD(Sgd);
+#undef CPYFLD
+		ok = 1;
+	}
+	CATCHZOK
+	return ok;
 }
 
 int PrjTaskFilt::Init(int fullyDestroy, long extraData)
@@ -1199,10 +1275,10 @@ int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 	PrjTaskTbl::Rec rec;
 	Grid.freeAll();
 	THROW(Helper_InitBaseFilt(pFilt));
-	Filt.Period.Actualize(ZERODATE);
-	Filt.StartPeriod.Actualize(ZERODATE);
-	Filt.EstFinishPeriod.Actualize(ZERODATE);
-	Filt.FinishPeriod.Actualize(ZERODATE);
+	Filt.Period.Actualize();
+	Filt.StartPeriod.Actualize();
+	Filt.EstFinishPeriod.Actualize();
+	Filt.FinishPeriod.Actualize();
 	TodoObj.LinkTaskID__ = Filt.LinkTaskID;
 	if(!(Filt.Flags & PrjTaskFilt::fNotShowPPWaitOnInit)) {
 		PPWaitStart();
@@ -2443,7 +2519,7 @@ int PPViewPrjTask::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 										(memo = pt_pack.SMemo).ReplaceChar('\n', ' ').ReplaceChar('\r', ' ');
 										buf.CR().CR().Cat(word).Cat(memo);
 									}
-									PPTooltipMessage(buf, 0, pBrw->H(), 10000, 0, SMessageWindow::fStdOnMouseOptions);
+									PPTooltipMessage(buf, pBrw->H(), 10000, 0, SMessageWindow::fStdOnMouseOptions);
 								}
 							}
 						}

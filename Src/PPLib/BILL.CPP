@@ -1773,6 +1773,19 @@ int BillCore::GetLocListByOp(PPID opID, PPIDArray & rList)
 //
 //
 //
+CurRateIdent::CurRateIdent() : CurID(0), BaseCurID(0), RateTypeID(0), Dt(ZERODATE)
+{
+}
+
+CurRateIdent & CurRateIdent::Z()
+{
+	CurID = 0;
+	BaseCurID = 0;
+	RateTypeID = 0;
+	Dt = ZERODATE;
+	return *this;
+}
+
 CurRateCore::CurRateCore() : CurrencyRateTbl()
 {
 }

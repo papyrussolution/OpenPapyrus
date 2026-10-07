@@ -166,7 +166,7 @@ int FASTCALL PPViewUnitEc::NextIteration(UnitEcViewItem * pItem)
 	int    ok = -1;
 	if(Helper_InitBaseFilt(pBaseFilt)) {
 		IndicatorList.freeAll();
-		Filt.Period.Actualize(ZERODATE);
+		Filt.Period.Actualize();
 		MakeProcessingList(IndicatorList);
 		ok = 1;
 	}

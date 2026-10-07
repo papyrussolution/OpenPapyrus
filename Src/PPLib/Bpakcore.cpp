@@ -28,6 +28,10 @@ AmtList::AmtList() : TSVector <AmtEntry> ()
 {
 }
 
+AmtList::AmtList(const AmtList & rS) : TSVector <AmtEntry> (rS)
+{
+}
+
 AmtList & AmtList::Z()
 {
 	TSVector <AmtEntry>::clear();
@@ -5043,6 +5047,89 @@ int PPBillPacket::HasOneOfGoods(const ObjIdListFilt & rList) const
 	return yes;
 }
 
+bool PPBillPacket::GetChZnWeightedIntQtty(uint itemIdx/*0..GetTCount()-1*/, int * pResult) const // @v12.7.11
+{
+	bool    ok = false;
+	int     chzn_int_qty = 0; 
+	if(itemIdx < GetTCount()) {
+		const  PPTransferItem & r_ti = ConstTI(itemIdx);
+		const  PPID goods_id = r_ti.GoodsID;
+		const double qtty = fabs(r_ti.Qtty());
+		if(qtty != 0.0) {
+			PPObjGoods goods_obj;
+			Goods2Tbl::Rec goods_rec;
+			if(goods_obj.Fetch(goods_id, &goods_rec) > 0 && goods_rec.GoodsTypeID) {
+				PPGoodsType2 gt_rec;
+				if(goods_obj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
+					if(gt_rec.ChZnProdType == GTCHZNPT_MILK) {
+						PPUnit u_rec;
+						const  bool is_weighted_ware = (goods_obj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) ? (u_rec.ID == SUOM_KILOGRAM || u_rec.BaseUnitID == SUOM_KILOGRAM) : false;
+						if(is_weighted_ware) {
+							const ObjTagItem * p_local_tag_item = LTagL.GetTag(itemIdx, PPTAG_LOT_CHZNINTQTTY);
+							int   temp_int = 0;
+							if(p_local_tag_item && p_local_tag_item->GetInt(&temp_int) && temp_int > 0 && temp_int < 1000) {
+								chzn_int_qty = temp_int;
+								ok = true;
+							}
+							else {
+								GoodsStockExt gse;
+								if(goods_obj.GetStockExt(goods_id, &gse, 1) > 0 && gse.AvgItemMeasure > 0.0f) {
+									chzn_int_qty = R0i(qtty / gse.AvgItemMeasure);
+									ok = true;
+								}
+								else {
+									chzn_int_qty = 1;
+									ok = true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pResult, chzn_int_qty);
+	return ok;
+}
+
+int PPBillPacket::GetChZnMarksCountIndicator(uint * pMarkCount) const // @v12.7.11
+{
+	int    result = -1;
+	uint   total_mark_count = 0;
+	PPObjGoods * p_goods_obj = 0;
+	if(GetTCount()) {
+		PPLotExtCodeContainer::MarkSet ext_codes_set;
+		for(uint tiidx = 0; tiidx < GetTCount(); tiidx++) {
+			const  PPTransferItem & r_ti = ConstTI(tiidx);
+			const  PPID goods_id = r_ti.GoodsID;
+			Goods2Tbl::Rec goods_rec;
+			PPGoodsType2 gt_rec;
+			XcL.Get(tiidx+1, 0, ext_codes_set);
+			const  uint mark_count = ext_codes_set.GetCount();
+			total_mark_count += mark_count;
+			SETIFZQ(p_goods_obj, new PPObjGoods);
+			if(p_goods_obj && p_goods_obj->Fetch(goods_id, &goods_rec) > 0 && goods_rec.GoodsTypeID && p_goods_obj->FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
+				const  int chzn_prod_type = gt_rec.ChZnProdType;
+				if(chzn_prod_type && (gt_rec.Flags & GTF_GMARKED) && (gt_rec.Flags & GTF_GMARKED_WHS)) {
+					const  int  r = PPChZnPrcssr::EstimateQuantityAdequacy(R0i(fabs(r_ti.Qtty())), static_cast<uint>(fabs(r_ti.UnitPerPack)), mark_count);
+					if(r == PPChZnPrcssr::eqarOK) {
+						if(result < 0)
+							result = 1;
+					}
+					else {
+						result = 0;
+					}
+				}
+			}
+			if(!pMarkCount && result == 0)
+				break;
+		}
+	}
+	delete p_goods_obj;
+	ASSIGN_PTR(pMarkCount, total_mark_count);
+	return result;
+}
+
 bool PPBillPacket::HasChZnMarks(bool isCorrectionExp, bool realMarksOnly) const
 {
 	bool    result = false;
@@ -5077,11 +5164,12 @@ bool PPBillPacket::HasChZnMarks(bool isCorrectionExp, bool realMarksOnly) const
 						if(p_goods_obj->FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
 							is_weighted_ware = (u_rec.ID == SUOM_KILOGRAM || u_rec.BaseUnitID == SUOM_KILOGRAM);
 						}
-						if(chzn_prod_type == GTCHZNPT_MILK && is_weighted_ware) {
+						/* @v12.7.11 if(chzn_prod_type == GTCHZNPT_MILK && is_weighted_ware) {
 							const ObjTagItem * p_local_tag_item = LTagL.GetTag(tiidx, PPTAG_LOT_CHZNINTQTTY);
 							int   temp_int = 0;
 							chzn_int_qty = (p_local_tag_item && p_local_tag_item->GetInt(&temp_int) && temp_int > 0 && temp_int < 1000) ? temp_int : 1;
-						}
+						}*/
+						GetChZnWeightedIntQtty(tiidx, &chzn_int_qty); // @v12.7.11
 						//
 						if(chzn_int_qty > 0 && chzn_int_qty < 1000) {
 							result = true;

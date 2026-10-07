@@ -4495,7 +4495,7 @@ int PPMarketplaceInterface_Wildberries::RequestSalesReportDetailedByPeriod(const
 	THROW(Helper_InitRequest(methSalesReportDetailedByPeriod, url_buf, hdr_flds));
 	{
 		DateRange period(rPeriod);
-		period.Actualize(ZERODATE);
+		period.Actualize();
 		if(!checkdate(period.low)) {
 			if(checkdate(period.upp))
 				period.low = period.upp;

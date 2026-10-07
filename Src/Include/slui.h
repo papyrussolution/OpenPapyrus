@@ -5682,6 +5682,7 @@ public:
 		fMaxImgSize        = 0x00008000, // Максимальный размер окна для подробного отображения картинки
 		fShowOnRUCorner    = 0x00010000, // Отображать окно в правом верхнем углу
 		fUtf8              = 0x00020000, // @v12.7.0 Текст передается в кодировке utf8
+		fUseOuterOrigin    = 0x00040000, // @v12.7.11 @internal Начало координат окна определяется точкой, заданной клиентом. Флаг устанавливается автоматом если задана такая точка.
 		
 		fStdOnMouseOptions    = fShowOnCursor|fCloseOnMouseLeave|fTextAlignLeft|fOpaque|fSizeByText|fChildWindow, // @v12.7.6
 		fStdNotification      = fTopmost|fSizeByText|fPreserveFocus, // @v12.7.6
@@ -5694,7 +5695,9 @@ public:
 	static void FASTCALL DestroyByParent(HWND parent);
 	SMessageWindow();
 	~SMessageWindow();
-	int    Open(SString & rText, const char * pImgPath, HWND parent, long cmd, long timer, COLORREF color, long flags, long extra);
+	int    Open_(SString & rText, HWND parent, long timer, COLORREF color, long flags);
+	int    OpenP_(SString & rText, HWND parent, SPoint2S origin, long timer, COLORREF color, long flags);
+	int    OpenImage_(SString & rText, const char * pImgPath, HWND parent, long timer, COLORREF color, long flags);
 	void   Destroy();
 	int    Paint();
 	void   Move();
@@ -5707,11 +5710,14 @@ public:
 private:
 	static INT_PTR CALLBACK Proc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	int    SetFont(HWND hCtl);
+	int    Helper_Open_(SString & rText, const char * pImgPath, HWND parent, const SPoint2S * pOrigin, long timer, COLORREF color, long flags);
 
 	long   Cmd;
 	long   Flags;
 	long   Extra;
-	POINT  PrevMouseCoord;
+	// @v12.7.11 POINT  PrevMouseCoord;
+	SPoint2S PrevMouseCoord_; // @v12.7.11
+	SPoint2S OuterOrigin_; // @v12.7.11
 	SString Text;
 	SString ImgPath;
 	HWND   HWnd;

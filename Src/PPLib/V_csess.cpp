@@ -239,7 +239,7 @@ int PPViewCSess::Init_(const PPBaseFilt * pBaseFilt)
 	PPWaitStart();
 	ZDELETE(P_TempTbl);
 	ZDELETE(P_TempOrd);
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	THROW(r_rt.AdjustCSessPeriod(Filt.Period, false));
 	CurrentViewOrder = Filt.InitOrder;
 	{

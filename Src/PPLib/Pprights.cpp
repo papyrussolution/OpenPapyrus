@@ -1056,7 +1056,7 @@ int PPAccessRestriction::GetRBillPeriod(DateRange * pPeriod) const
 {
 	DateRange  period = RBillPeriod;
 	if(!ShowInnerDates) {
-		period.Actualize(ZERODATE);
+		period.Actualize();
 	}
 	ASSIGN_PTR(pPeriod, period);
 	return pPeriod ? 1 : -1;
@@ -1066,7 +1066,7 @@ int PPAccessRestriction::GetWBillPeriod(DateRange * pPeriod) const
 {
 	DateRange  period = WBillPeriod;
 	if(!ShowInnerDates) {
-        period.Actualize(ZERODATE);
+        period.Actualize();
 	}
 	ASSIGN_PTR(pPeriod, period);
 	return pPeriod ? 1 : -1;

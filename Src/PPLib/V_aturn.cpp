@@ -8,7 +8,6 @@
 //
 class TempAssoc {
 public:
-	static TempAssoc * CreateInstance();
 	TempAssoc();
 	bool   IsValid() const { return LOGIC(P_Tbl); }
 	int    Add(PPID prmrID, PPID scndID);
@@ -19,15 +18,6 @@ private:
 };
 
 PP_CREATE_TEMP_FILE_PROC(CreateTempFile, TempAssoc);
-
-/*static*/TempAssoc * TempAssoc::CreateInstance()
-{
-	TempAssoc * p_assc = new TempAssoc;
-	if(!p_assc)
-		return (PPSetErrorNoMem(), (TempAssoc *)0);
-	else
-		return p_assc->IsValid() ? p_assc : 0;
-}
 
 TempAssoc::TempAssoc() : P_Tbl(CreateTempFile())
 {
@@ -45,16 +35,17 @@ int TempAssoc::Add(PPID prmrID, PPID scndID)
 
 int TempAssoc::EnumPrmr(PPID * pPrmrID)
 {
+	int    ok = -1;
 	if(P_Tbl) {
 		TempAssocTbl::Key0 k0;
 		k0.PrmrID = *pPrmrID;
 		k0.ScndID = MAXLONG;
 		if(P_Tbl->search(0, &k0, spGt)) {
 			*pPrmrID = P_Tbl->data.PrmrID;
-			return 1;
+			ok = 1;
 		}
 	}
-	return -1;
+	return ok;
 }
 
 int TempAssoc::GetList(PPID prmrID, PPIDArray * pList)
@@ -66,9 +57,10 @@ int TempAssoc::GetList(PPID prmrID, PPIDArray * pList)
 		q.select(P_Tbl->ScndID, 0L).where(P_Tbl->PrmrID == prmrID);
 		k0.PrmrID = prmrID;
 		k0.ScndID = -MAXLONG;
-		for(q.initIteration(false, &k0, spGe); ok && q.nextIteration() > 0;)
+		for(q.initIteration(false, &k0, spGe); ok && q.nextIteration() > 0;) {
 			if(!pList->add(P_Tbl->data.ScndID))
 				ok = 0;
+		}
 	}
 	else
 		ok = 0;
@@ -284,14 +276,11 @@ int PPViewAccturn::CreateGrouping()
 			}
 			return ok;
 		}
-		uint GetCount() const
-		{
-			return List.getCount();
-		}
+		uint GetCount() const { return List.getCount(); }
 		int Get(uint pos, TempAccturnGrpngTbl::Rec * pRec)
 		{
 			int    ok = 1;
-			memzero(pRec, sizeof(*pRec));
+			pRec->Clear();
 			if(pos < List.getCount()) {
 				ACGREC & r_item = List.at(pos);
 				pRec->Dt = r_item.Dt;
@@ -346,14 +335,18 @@ int PPViewAccturn::CreateGrouping()
 	THROW(p_temp_view->Init_(&temp_flt));
 	for(p_temp_view->InitIteration(); p_temp_view->NextIteration(&item) > 0;) {
 		uint   cycle_pos = 0;
-		Acct   dbt_acct, crd_acct;
-		PPID   cur_id = item.CurID, temp_cur_id = 0;
+		Acct   dbt_acct;
+		Acct   crd_acct;
+		const  PPID cur_id = item.CurID;
+		PPID   temp_cur_id = 0;
 		TempAccturnGrpngTbl::Rec rec;
-		if(Filt.Cycl.Cycle)
-			if(CycleList.searchDate(item.Date, &cycle_pos))
+		if(Filt.Cycl.Cycle) {
+			if(CycleList.searchDate(item.Date, &cycle_pos)) {
 				rec.Dt = CycleList.at(cycle_pos).low;
+			}
 			else
 				continue;
+		}
 		else
 			rec.Dt = Filt.Period.low;
 		P_ATC->ConvertAcctID(item.DbtID, &dbt_acct, &temp_cur_id, 1/*useCache*/);
@@ -415,17 +408,18 @@ int PPViewAccturn::CreateGrouping()
 	IterBillPos = 0;
 	IterRByBill = 0;
 	OpList.freeAll();
-	Filt.Period.Actualize(ZERODATE);
-	if(Filt.Flags & AccturnFilt::fLastOnly && !Filt.BillID) {
+	Filt.Period.Actualize();
+	/*@v12.7.11 if(Filt.Flags & AccturnFilt::fLastOnly && !Filt.BillID) {
 		THROW_MEM(P_TmpBillTbl = CreateTempFile());
 		//THROW(AddBillToList(Filt.BillID));
 	}
-	else if(AdjustPeriodToRights(Filt.Period, false)) {
-		if(Filt.OpID)
+	else*/ if(AdjustPeriodToRights(Filt.Period, false)) {
+		if(Filt.OpID) {
 			if(IsGenericOp(Filt.OpID) > 0)
 				GetGenericOpList(Filt.OpID, &OpList);
 			else
 				OpList.add(Filt.OpID);
+		}
 		if(Filt.GrpAco) {
 			if(!CreateGrouping())
 				ok = 0;
@@ -442,7 +436,7 @@ int PPViewAccturn::InitIteration()
 	int    ok = 1;
 	DBQ  * dbq = 0;
 	BExtQuery::ZDelete(&P_IterQuery);
-	if(Filt.Flags & AccturnFilt::fLastOnly && Filt.BillID) {
+	if(/*@v12.7.11 Filt.Flags & AccturnFilt::fLastOnly &&*/ Filt.BillID) {
 		AccTurnTbl::Key0 k0;
 		MEMSZERO(k0);
 		k0.BillID = Filt.BillID;
@@ -488,11 +482,11 @@ int PPViewAccturn::InitIteration()
 	return ok;
 }
 
-int PPViewAccturn::InitViewItem(const AccTurnTbl::Rec * pAtRec, AccturnViewItem * pItem)
+int PPViewAccturn::InitViewItem(const AccTurnTbl::Rec & rAtRec, AccturnViewItem * pItem)
 {
 	int    ok = -1;
 	PPAccTurn aturn;
-	if(P_BObj->GetAccturn(pAtRec, aturn, 1) > 0) {
+	if(P_BObj->GetAccturn(rAtRec, aturn, 1) > 0) {
 		if((Filt.Flags & AccturnFilt::fAllCurrencies) || aturn.CurID == Filt.CurID) {
 			if(P_TmpBillTbl || !OpList.getCount() || OpList.lsearch(aturn.Opr)) {
 				int    rt = 0;
@@ -514,8 +508,8 @@ int PPViewAccturn::InitViewItem(const AccTurnTbl::Rec * pAtRec, AccturnViewItem 
 						if(aturn.Flags & PPAF_OUTBAL_WITHDRAWAL)
 							aturn.Amount = -aturn.Amount;
 						*static_cast<PPAccTurn *>(pItem) = aturn;
-						pItem->OprNo = pAtRec->OprNo;
-						P_ATC->GetAccRelIDs(pAtRec, &pItem->DbtAccRelID, &pItem->CrdAccRelID);
+						pItem->OprNo = rAtRec.OprNo;
+						P_ATC->GetAccRelIDs(&rAtRec, &pItem->DbtAccRelID, &pItem->CrdAccRelID);
 					}
 					ok = 1;
 				}
@@ -525,29 +519,27 @@ int PPViewAccturn::InitViewItem(const AccTurnTbl::Rec * pAtRec, AccturnViewItem 
 	return ok;
 }
 
-int PPViewAccturn::InitViewItem(const TempAccturnGrpngTbl::Rec * pATGRec, AccturnViewItem * pItem)
+int PPViewAccturn::InitViewItem(const TempAccturnGrpngTbl::Rec & rATGRec, AccturnViewItem * pItem)
 {
 	int    ok = 1;
-	if(pItem && pATGRec) {
+	if(pItem) {
 		memzero(pItem, sizeof(AccturnViewItem));
-		pItem->Date   = pATGRec->Dt;
-		pItem->CurID  = pATGRec->CurID;
-		pItem->Amount = pATGRec->Amount;
+		pItem->Date   = rATGRec.Dt;
+		pItem->CurID  = rATGRec.CurID;
+		pItem->Amount = rATGRec.Amount;
 		if(oneof2(Filt.GrpAco, ACO_1, ACO_2)) {
-			pItem->DbtID.AcID = pATGRec->DbtAccID;
-			pItem->CrdID.AcID = pATGRec->CrdAccID;
+			pItem->DbtID.AcID = rATGRec.DbtAccID;
+			pItem->CrdID.AcID = rATGRec.CrdAccID;
 		}
 		else {
 			AcctRelTbl::Rec rec;
-			if(P_ATC->AccRel.Fetch(pATGRec->DbtAccID, &rec) > 0) {
+			if(P_ATC->AccRel.Fetch(rATGRec.DbtAccID, &rec) > 0) {
 				pItem->DbtAccRelID = rec.ID;
-				pItem->DbtID.AcID = rec.AccID;
-				pItem->DbtID.ArID = rec.ArticleID;
+				pItem->DbtID.Set(rec.AccID, rec.ArticleID);
 			}
-			if(P_ATC->AccRel.Fetch(pATGRec->CrdAccID, &rec) > 0) {
+			if(P_ATC->AccRel.Fetch(rATGRec.CrdAccID, &rec) > 0) {
 				pItem->CrdAccRelID = rec.ID;
-				pItem->CrdID.AcID = rec.AccID;
-				pItem->CrdID.ArID = rec.ArticleID;
+				pItem->CrdID.Set(rec.AccID, rec.ArticleID);
 			}
 		}
 	}
@@ -562,7 +554,7 @@ int FASTCALL PPViewAccturn::NextIteration(AccturnViewItem * pItem)
 	if(P_IterQuery)
 		while(ok < 0 && P_IterQuery->nextIteration() > 0) {
 			if(Filt.GrpAco) {
-				if(InitViewItem(&P_TmpAGTbl->data, pItem) > 0)
+				if(InitViewItem(P_TmpAGTbl->data, pItem) > 0)
 					ok = 1;
 			}
 			else {
@@ -577,7 +569,7 @@ int FASTCALL PPViewAccturn::NextIteration(AccturnViewItem * pItem)
 					if(P_ATC->AccBelongToOrd(crd_rel_id, Filt.Aco, &Filt.CrdAcct, Filt.CurID, 1) <= 0)
 						continue;
 				}
-				if(InitViewItem(&at_rec, pItem) > 0)
+				if(InitViewItem(at_rec, pItem) > 0)
 					ok = 1;
 			}
 		}
@@ -621,9 +613,10 @@ void PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 			SetupOprKindCombo(this, CTLSEL_ATFLT_OPRKIND, Data.OpID, 0, &types, 0);
 			SetupCurrencyCombo(this, CTLSEL_ATFLT_CUR, Data.CurID, 0, 1, 0);
 			SetRealRangeInput(this, CTL_ATFLT_AMOUNT, &Data.AmtR);
+			/*@v12.7.11 
 			v = 0;
 			SETFLAG(v, 0x01, Data.Flags & AccturnFilt::fLastOnly);
-			setCtrlData(CTL_ATFLT_LASTONLY, &v);
+			setCtrlData(CTL_ATFLT_LASTONLY, &v);*/
 			v = 0;
 			SETFLAG(v, 1, Data.Flags & AccturnFilt::fAllCurrencies);
 			setCtrlData(CTL_ATFLT_ALLCUR, &v);
@@ -640,19 +633,20 @@ void PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 			setCtrlData(CTL_ATFLT_GRPACO, &v);
 			cycle_rec.C = Data.Cycl;
 			setGroupData(ctrgroupCycle, &cycle_rec);
-			disableCtrls(((Data.Flags & AccturnFilt::fLastOnly) || Data.GrpAco == 0), CTLSEL_ATFLT_CYCLE, CTL_ATFLT_NUMCYCLES, 0);
+			disableCtrls((/*@v12.7.11 (Data.Flags & AccturnFilt::fLastOnly) ||*/ Data.GrpAco == 0), CTLSEL_ATFLT_CYCLE, CTL_ATFLT_NUMCYCLES, 0);
 			return 1;
 		}
 		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			uint   sel = 0;
+			ushort v = 0;
 			CycleCtrlGroup::Rec cycle_rec;
 			THROW(GetPeriodInput(this, sel = CTL_ATFLT_PERIOD, &Data.Period));
-			ushort v = getCtrlUInt16(CTL_ATFLT_LASTONLY);
-			SETFLAG(Data.Flags, AccturnFilt::fLastOnly,   v & 0x01);
+			/*@v12.7.11 v = getCtrlUInt16(CTL_ATFLT_LASTONLY);
+			SETFLAG(Data.Flags, AccturnFilt::fLastOnly,   v & 0x01);*/
 			SETFLAG(Data.Flags, AccturnFilt::fLabelOnly, getWL());
-			THROW(Data.Flags & AccturnFilt::fLastOnly || AdjustPeriodToRights(Data.Period, true));
+			THROW(/*@v12.7.11 Data.Flags & AccturnFilt::fLastOnly ||*/AdjustPeriodToRights(Data.Period, true));
 			getCtrlData(CTL_ATFLT_ALLCUR, &v);
 			SETFLAG(Data.Flags, AccturnFilt::fAllCurrencies, v & 1);
 			getCtrlData(CTLSEL_ATFLT_OPRKIND, &Data.OpID);
@@ -697,7 +691,7 @@ void PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 			pBrw->ViewOrigin.y = 15;
 			pBrw->ViewSize.y = 8;
 		}
-		if((Filt.Flags & (AccturnFilt::fAllCurrencies|AccturnFilt::fLastOnly)) && !Filt.GrpAco) {
+		if((Filt.Flags & (AccturnFilt::fAllCurrencies/*@v12.7.11 |AccturnFilt::fLastOnly*/)) && !Filt.GrpAco) {
 			BrowserDef * p_def = pBrw->getDef();
 			const int col = p_def ? (p_def->getCountI()-2) : -1;
 			if(col > 0)
@@ -725,10 +719,10 @@ static IMPL_DBE_PROC(dbqf_accturn_checkrelrestriction_iii)
 		if(r_tbl.Fetch(crd_acc_id, &crd_rec) <= 0)
 			crd_rec.Clear();
 		if(p_filt->Aco) {
-			if(dbt_rec.Ac != (long)p_filt->DbtAcct.ac || crd_rec.Ac != (long)p_filt->CrdAcct.ac)
+			if(dbt_rec.Ac != p_filt->DbtAcct.ac || crd_rec.Ac != p_filt->CrdAcct.ac)
 				ok = 0;
 			else if(p_filt->Aco != ACO_1) {
-				if(dbt_rec.Sb != (long)p_filt->DbtAcct.sb || crd_rec.Sb != (long)p_filt->CrdAcct.sb)
+				if(dbt_rec.Sb != p_filt->DbtAcct.sb || crd_rec.Sb != p_filt->CrdAcct.sb)
 					ok = 0;
 			}
 			if(ok && p_filt->Aco != ACO_1 && p_filt->Aco != ACO_2) {
@@ -776,11 +770,15 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 /*static*/int PPViewAccturn::DynFuncCheckRelRestrictions = 0;
 /*static*/int PPViewAccturn::DynFuncCurSymbByAccRelID = 0;
 
-/*virtual*/DBQuery * PPViewAccturn::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+/*static*/void PPViewAccturn::RegisterDynFunc() // @v12.7.11
 {
 	DbqFuncTab::RegisterDyn(&DynFuncCheckRelRestrictions, BTS_INT,    dbqf_accturn_checkrelrestriction_iii, 3, BTS_INT, BTS_INT, BTS_INT);
 	DbqFuncTab::RegisterDyn(&DynFuncCurSymbByAccRelID,    BTS_STRING, dbqf_objname_cursymbbyacctrel_i, 1, BTS_INT);
+}
 
+/*virtual*/DBQuery * PPViewAccturn::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
+{
+	PPViewAccturn::RegisterDynFunc();
 	uint   brw_id = 0;
 	SString sub_title;
 	DBQuery    * q   = 0;
@@ -869,10 +867,12 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 		}
 		else {
 			q->from(at, bll, 0L);
-			if(Filt.Flags & AccturnFilt::fLastOnly && Filt.BillID)
+			if(/*@v12.7.11 Filt.Flags & AccturnFilt::fLastOnly &&*/ Filt.BillID) {
 				dbq = & (*dbq && at->BillID == Filt.BillID && at->Reverse == 0L);
-			else
+			}
+			else {
 				dbq = & daterange(at->Dt, &Filt.Period);
+			}
 		}
 		dbq = & (*dbq && dbe_rel_restrict > 0L);
 		if(min_amt == max_amt && min_amt != 0.0) {
@@ -885,7 +885,7 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 		else
 			dbq = &(*dbq && (bll->ID += at->BillID));
 		q->where(*dbq);
-		if(Filt.Flags & AccturnFilt::fLastOnly && Filt.BillID)
+		if(/*@v12.7.11 Filt.Flags & AccturnFilt::fLastOnly &&*/ Filt.BillID)
 			q->orderBy(at->BillID, 0L);
 		else
 			q->orderBy(at->Dt, at->OprNo, 0L);

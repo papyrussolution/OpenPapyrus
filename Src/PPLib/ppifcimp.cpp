@@ -1318,7 +1318,7 @@ SDateRange DL6ICLS_PPUtil::StrToDateRange(SString & str)
 	SDateRange outer_period;
 	DateRange period;
 	if(period.FromStr(str, 0)) {
-		period.Actualize(ZERODATE);
+		period.Actualize();
 		if(checkdate(period.low, 1) && checkdate(period.upp, 1) && (!period.upp || diffdate(period.upp, period.low) >= 0)) {
 			outer_period.Low = period.low.GetOleDate();
 			outer_period.Upp = period.upp.GetOleDate();

@@ -22,20 +22,9 @@ STestDataArray::STestDataArray()
 	HexPool.add("$"); // zero index - is empty string
 }
 
-const STestDataArray::Item & STestDataArray::Get(uint idx) const
-{
-	return (idx < L.getCount()) ? L.at(idx) : EmptyItem;
-}
-
-bool STestDataArray::GetDataByPos(uint pos, SString & rData) const
-{
-	return HexPool.getnz(pos, rData);
-}
-
-uint STestDataArray::GetCount() const
-{
-	return L.getCount();
-}
+const  STestDataArray::Item & STestDataArray::Get(uint idx) const { return (idx < L.getCount()) ? L.at(idx) : EmptyItem; }
+bool   STestDataArray::GetDataByPos(uint pos, SString & rData) const { return HexPool.getnz(pos, rData); }
+uint   STestDataArray::GetCount() const { return L.getCount(); }
 
 int STestDataArray::ReadBotanTestSequence(int formatVer, const char * pFileName, const char * pZone)
 {
@@ -317,6 +306,17 @@ int STestCase::_check_le(uint a, uint b, const char * pA, const char * pB)
 }
 
 int STestCase::_check_le(uint64 a, uint64 b, const char * pA, const char * pB)
+{
+	if(a > b) {
+		SString buf;
+		SetInfo(catval(b, pB, catval(a, pA, buf).Cat(">")), 0);
+		return 0;
+	}
+	else
+		return 1;
+}
+
+int STestCase::_check_le(int64 a, int64 b, const char * pA, const char * pB)
 {
 	if(a > b) {
 		SString buf;

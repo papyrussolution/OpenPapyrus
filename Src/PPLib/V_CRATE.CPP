@@ -256,7 +256,7 @@ int PPViewCurRate::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 	int    ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
 	if(ok == -2) {
 		CurRateIdent ident;
-		MEMSZERO(ident);
+		// @v12.7.11 @ctr MEMSZERO(ident);
 		const struct _H {
 			PPID   RateTypeID;
 			PPID   CurID;
@@ -385,17 +385,19 @@ void SelCRateDialog::addRate()
 void SelCRateDialog::editRate()
 {
 	CurRateIdent ident;
-	if(getIdent(&ident))
+	if(getIdent(&ident)) {
 		if(CRV.EditItem(&ident) > 0)
 			updateList();
+	}
 }
 
 void SelCRateDialog::delRate()
 {
 	CurRateIdent ident;
-	if(getIdent(&ident))
+	if(getIdent(&ident)) {
 		if(CRV.DeleteItem(&ident) > 0)
 			updateList();
+	}
 }
 
 int SelCRateDialog::getSelectedRate(CurRateIdent * pIdent, double * pRate)

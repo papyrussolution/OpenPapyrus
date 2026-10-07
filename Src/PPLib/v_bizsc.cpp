@@ -263,7 +263,7 @@ int PPBizScTemplPacket::CalcValues(long colId, long rowId, BizScoreCore * pBizSc
 					BExtQuery q(pBizScTbl, 0, 8);
 					MEMSZERO(k0);
 					period.Set(col.DtLow, col.DtUp);
-					period.Actualize(ZERODATE);
+					period.Actualize();
 					k0.ActualDate = period.upp;
 					k0.ScoreID    = score_id;
 					k0.ObjID      = MAXLONG;

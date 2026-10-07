@@ -1291,7 +1291,7 @@ SCardChargeRule::SCardChargeRule() : SerID(0), Period(0)
 			GetPeriodInput(this, CTL_SSAUTODIS_AP, &Data.Ap);
 			if(Data.Period == SCARDSER_AUTODIS_ARBITRARYPRD) {
 				DateRange temp_range(Data.Ap);
-				temp_range.Actualize(ZERODATE);
+				temp_range.Actualize();
 				sel = CTL_SSAUTODIS_AP;
 				THROW_SL(checkdate(temp_range.low) && checkdate(temp_range.upp));
 				THROW(temp_range.low <= temp_range.upp);
@@ -2563,7 +2563,7 @@ int PPObjSCard::UpdateBySeriesRule2(PPID seriesID, /*int prevTrnovrPrd*/const SC
 		if(pack.Rec.GetType() == scstBonus && pack.BonusRule.getCount()) {
 			if(rRule.Period == SCARDSER_AUTODIS_ARBITRARYPRD) {
 				bonus_period = rRule.Ap;
-				bonus_period.Actualize(ZERODATE);
+				bonus_period.Actualize();
 			}
 			else if(oneof6(pack.BonusRule.TrnovrPeriod, PRD_DAY, PRD_WEEK, PRD_MONTH, PRD_QUART, PRD_SEMIAN, PRD_ANNUAL)) {
 				THROW_SL(bonus_period.SetPeriod(_cur_date, pack.BonusRule.TrnovrPeriod));
@@ -2573,7 +2573,7 @@ int PPObjSCard::UpdateBySeriesRule2(PPID seriesID, /*int prevTrnovrPrd*/const SC
 			}
 			/*else {
 				bonus_period = rRule.Ap;
-				bonus_period.Actualize(ZERODATE);
+				bonus_period.Actualize();
 			}*/
 			/* @v11.3.5 
 			if(pack.BonusRule.TrnovrPeriod) {
@@ -2592,7 +2592,7 @@ int PPObjSCard::UpdateBySeriesRule2(PPID seriesID, /*int prevTrnovrPrd*/const SC
 		if(pack.Rule.getCount()) {
 			if(rRule.Period == SCARDSER_AUTODIS_ARBITRARYPRD) {
 				dscnt_period = rRule.Ap;
-				dscnt_period.Actualize(ZERODATE);
+				dscnt_period.Actualize();
 			}
 			else if(oneof6(pack.Rule.TrnovrPeriod, PRD_DAY, PRD_WEEK, PRD_MONTH, PRD_QUART, PRD_SEMIAN, PRD_ANNUAL)) {
 				THROW_SL(dscnt_period.SetPeriod(_cur_date, pack.Rule.TrnovrPeriod));
@@ -2602,7 +2602,7 @@ int PPObjSCard::UpdateBySeriesRule2(PPID seriesID, /*int prevTrnovrPrd*/const SC
 			}
 			/*else {
 				dscnt_period = rRule.Ap;
-				dscnt_period.Actualize(ZERODATE);
+				dscnt_period.Actualize();
 			}*/
 			/* @v11.3.5 
 			if(pack.Rule.TrnovrPeriod) {

@@ -435,7 +435,7 @@ int PrcssrWrOffDraft::InitParam(PrcssrWrOffDraftFilt * pP)
 int PrcssrWrOffDraft::Init(const PrcssrWrOffDraftFilt * pP)
 {
 	RVALUEPTR(P, pP);
-	P.Period.Actualize(ZERODATE);
+	P.Period.Actualize();
 	return 1;
 }
 

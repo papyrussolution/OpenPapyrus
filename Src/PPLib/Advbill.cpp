@@ -620,10 +620,9 @@ static int SetAdvBillItemEntry(AdvBillItemEntry * pEntry, const PPAdvBillItemLis
 	pEntry->Amount = pItem->Amount;
 	GetObjectName(PPOBJ_ADVBILLKIND, pItem->AdvBillKindID, temp_buf);
 	temp_buf.CopyTo(pEntry->BillKind, sizeof(pEntry->BillKind));
-	acctid.AcID = pItem->AccID;
-	acctid.ArID = pItem->ArID;
+	acctid.Set(pItem->AccID, pItem->ArID);
 	pBObj->atobj->P_Tbl->ConvertAcctID(acctid, &acct, 0, 0);
-	acct.ToStr(ACCF_DEFAULT, acc_buf);
+	acct.ToStr_Obsolete(ACCF_DEFAULT, acc_buf);
 	GetAcctIDName(acctid, 0, temp_buf);
 	(result_buf = acc_buf).Space().Space().Cat(temp_buf).CopyTo(pEntry->Account, sizeof(pEntry->Account));
 	CATCHZOK

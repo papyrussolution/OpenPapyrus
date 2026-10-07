@@ -513,6 +513,16 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 		const  LongArray & r_price_dev_list = p_brw->GetPriceDevList();
 		const  PPBillPacket & r_pack = p_brw->GetPacket();
 		if(p_def) {
+			const  UiDescription * p_uid = SLS.GetUiDescription();
+			const  SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
+			/*{
+				SColor _color = UiDescription::GetColorR(p_uid, p_cs, "invalid_value_input_bg", SClrCoral);
+				Ptb.SetBrush(brushInvalidNumber, SPaintObj::bsSolid, _color, 0);
+			}
+			{
+				SColor _color = UiDescription::GetColorR(p_uid, p_cs, "valid_value_input_bg", SClrAqua);
+				Ptb.SetBrush(brushValidNumber,   SPaintObj::bsSolid, _color,  0);
+			}*/
 			if(col >= 0 && col < p_def->getCountI()) {
 				const  BroColumn & r_col = p_def->at(col);
 				if(r_col.OrgOffs == 0) {
@@ -685,28 +695,29 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 						const  long unit_per_pack = R0i(r_ti.UnitPerPack);
 						const  int r = PPChZnPrcssr::EstimateQuantityAdequacy(iqtty, unit_per_pack, ecs_count);
 						int   msg_id = 0;
+						SColor _color;
 						switch(r) {
 							case PPChZnPrcssr::eqarOK:
 								msg_id = TCELHLD_TRFRLIST_MARKCOUNT_OK;
-								ok = pStyle->SetFullCellColor(SClrLightgreen);
+								ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_ok", SClrLightgreen));
 								break;
 							case PPChZnPrcssr::eqarUndecomposable:
 								msg_id = TCELHLD_TRFRLIST_MARKCOUNT_UNDECOMPOSABLE;
-								ok = pStyle->SetFullCellColor(SClrLightpink);
+								ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_undecomposable", SClrLightpink));
 								break;
 							case PPChZnPrcssr::eqarUndefPackage:
 								msg_id = TCELHLD_TRFRLIST_MARKCOUNT_UNDEFPACKAGE;
-								ok = pStyle->SetFullCellColor(SClrLightyellow);
+								ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_undefpackage", SClrLightyellow));
 								break;
 							case PPChZnPrcssr::eqarMcZero:
 								if(is_marked_ware) {
 									msg_id = TCELHLD_TRFRLIST_MARKCOUNT_MCZERO;
-									ok = pStyle->SetFullCellColor(SClrIvory);
+									ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_mczero", SClrIvory));
 								}
 								break;
 							case PPChZnPrcssr::eqarMcGtQtty:
 								msg_id = TCELHLD_TRFRLIST_MARKCOUNT_MCGTQTTY;
-								ok = pStyle->SetFullCellColor(SClrLightcoral);
+								ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_mcgtqtty", SClrLightcoral));
 								break;
 						}
 						if(ok) {
@@ -3364,7 +3375,7 @@ int ImportStyloScannerEntriesForBillPacket(PPBillPacket & rBp, PPLotExtCodeConta
 		for(uint ssp = 0; msg_list.get(&ssp, temp_buf);) {
 			msg_buf.Cat(temp_buf).CR();
 		}
-		PPTooltipMessage(msg_buf, 0, 0, 20000, GetColorRef(SClrLightgreen), SMessageWindow::fStdNotification|SMessageWindow::fChildWindow|SMessageWindow::fTextAlignLeft);
+		PPTooltipMessage(msg_buf, 0, 20000, GetColorRef(SClrLightgreen), SMessageWindow::fStdNotification|SMessageWindow::fChildWindow|SMessageWindow::fTextAlignLeft);
 	}*/
 	return ok;
 }
@@ -3775,7 +3786,7 @@ IMPL_HANDLE_EVENT(ValidateLotXCodeListDialog)
 						SString info_buf;
 						CodeInfoList.EntryToStr(cilidx, 0, info_buf);
 						SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления //
-						PPTooltipMessage(info_buf, 0, H(), 20000, GetColorRef(SClrSnow), SMessageWindow::fStdNotification|SMessageWindow::fUtf8|SMessageWindow::fTextAlignLeft|SMessageWindow::fShowOnCursor);
+						PPTooltipMessage(info_buf, H(), 20000, GetColorRef(SClrSnow), SMessageWindow::fStdNotification|SMessageWindow::fUtf8|SMessageWindow::fTextAlignLeft|SMessageWindow::fShowOnCursor);
 						PopupInfoIdx = item_idx+1;
 					}
 				}
@@ -4544,7 +4555,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 				if(ItemByPoint(point, &col, &row)) {
 					SString temp_buf;
 					if(ProblemsList.GetText(row, temp_buf) > 0) {
-						PPTooltipMessage(temp_buf, 0, H(), 10000, 0, SMessageWindow::fStdOnMouseOptions);
+						PPTooltipMessage(temp_buf, H(), 10000, 0, SMessageWindow::fStdOnMouseOptions);
 						hover_done = true;
 					}
 					if(!hover_done) {
@@ -4562,7 +4573,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 								const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 								SColor color_bg = UiDescription::GetColorR(p_uid, p_cs, "popuphint_bg", SColor(0xF0, 0xF4, 0xF8));
 								// } @v12.7.6 
-								PPTooltipMessage(temp_buf, 0, H(), hint_timeout, color_bg, SMessageWindow::fStdOnMouseOptions);
+								PPTooltipMessage(temp_buf, H(), hint_timeout, color_bg, SMessageWindow::fStdOnMouseOptions);
 							}
 						}
 					}
@@ -5539,7 +5550,7 @@ IMPL_HANDLE_EVENT(CompleteBrowser)
 						const SColorSet * p_cs = p_uid ? p_uid->GetColorSetC("papyrus_style") : 0;
 						SColor color_bg = UiDescription::GetColorR(p_uid, p_cs, "popuphint_bg", SColor(0xF0, 0xF4, 0xF8));
 						// } @v12.7.6 
-						PPTooltipMessage(temp_buf, 0, H(), hint_timeout, color_bg, SMessageWindow::fStdOnMouseOptions);
+						PPTooltipMessage(temp_buf, H(), hint_timeout, color_bg, SMessageWindow::fStdOnMouseOptions);
 					}
 				}
 			}

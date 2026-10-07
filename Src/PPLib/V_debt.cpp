@@ -585,9 +585,9 @@ int PPViewDebtTrnovr::Init_(const PPBaseFilt * pBaseFilt)
 	IsDlvrAddrListInited = 0;
 	//
 	//
-	Filt.Period.Actualize(ZERODATE);
-	Filt.PaymPeriod.Actualize(ZERODATE);
-	Filt.ExpiryPeriod.Actualize(ZERODATE);
+	Filt.Period.Actualize();
+	Filt.PaymPeriod.Actualize();
+	Filt.ExpiryPeriod.Actualize();
 	//
 	// Инициализация параметров цикличности отчета
 	//
@@ -2264,7 +2264,7 @@ int PPViewDebtTrnovr::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 							r = 1;
 						}
 						if(r > 0)
-							PPTooltipMessage(buf, 0, pBrw->H(), 10000, 0, SMessageWindow::fStdOnMouseOptions);
+							PPTooltipMessage(buf, pBrw->H(), 10000, 0, SMessageWindow::fStdOnMouseOptions);
 					}
 				}
 				break;
@@ -2892,7 +2892,7 @@ int PPDebtorStatArray::CalcRating(Total * pTotal, int outMatrixStyle, TSVector <
 	double exp_weight = (ds_cfg.ExpiryWeight >= 0.0 && ds_cfg.ExpiryWeight <= 1.0) ? ds_cfg.ExpiryWeight : 0.5;
 	long   simple_duration = 0;
 	DateRange _period = ds_cfg.Period;
-	_period.Actualize(ZERODATE);
+	_period.Actualize();
 	if(ds_cfg.Flags & PPDebtorStatConfig::fSimpleLimitAlg) {
 		if(_period.low && _period.upp) {
 			simple_duration = diffdate(_period.upp, _period.low);
@@ -3460,7 +3460,7 @@ int PrcssrDebtRate::GatherPaymDelayStat(PPLogger * pLogger, int use_ta)
 	// @v6.0.11 { Пока не задействовано
 	DateRange period;
 	period = Cfg.Period;
-	period.Actualize(ZERODATE);
+	period.Actualize();
 	// } @v6.0.11
 	dd_obj.FetchAgentList(&dd_agent_list);
 	for(i = 0; i < op_list.getCount(); i++) {
@@ -3800,7 +3800,7 @@ int PrcssrDebtRate::Run()
 			}
 			DateRange period;
 			period = Cfg.Period;
-			period.Actualize(ZERODATE);
+			period.Actualize();
 			THROW(op_obj.GetPayableOpList(P.AccSheetID, &op_list));
 			THROW(ArObj.P_Tbl->GetListBySheet(P.AccSheetID, &ar_list, 0));
 			for(i = 0; i < ar_list.getCount(); i++) {

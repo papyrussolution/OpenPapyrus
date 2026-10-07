@@ -215,7 +215,7 @@ int PPViewCheckOpJrnl::Init_(const PPBaseFilt * pFilt)
 	PPObjCashNode cn_obj; // @vmiller
 	Counter.Init();
 	THROW(Helper_InitBaseFilt(pFilt));
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	CATCHZOK
 	BExtQuery::ZDelete(&P_IterQuery);
 	return ok;

@@ -90,9 +90,9 @@ int PPViewOpGrouping::Init_(const PPBaseFilt * pBaseFilt)
 	BExtQuery::ZDelete(&P_IterQuery);
 	ZDELETE(P_ViewTrfrAnlz);
 	ZDELETE(P_ViewBill);
-	Filt.Period.Actualize(ZERODATE);
-	Filt.LotsPeriod.Actualize(ZERODATE);
-	Filt.ShipmentPeriod.Actualize(ZERODATE);
+	Filt.Period.Actualize();
+	Filt.LotsPeriod.Actualize();
+	Filt.ShipmentPeriod.Actualize();
 	CycleList.init2(&Filt.Period, &Filt.Cycl);
 	//
 	// Если заданы группа товара или товар, то колонки по дополнительному типу товара получить нельзя.

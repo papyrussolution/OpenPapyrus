@@ -125,7 +125,7 @@ PPViewGoodsTrnovr::~PPViewGoodsTrnovr()
 	GoodsGrpngArray gga;
 
 	THROW(Helper_InitBaseFilt(pBaseFilt));
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	if(P_DsList)
 		P_DsList->clear();
 	else {

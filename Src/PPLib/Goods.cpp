@@ -725,18 +725,20 @@ struct __GoodsStockExt {  // @persistent @store(PropertyTbl)
 		uint32 Count;
 		GoodsStockExt::Pallet Item[1];
 	};
-	long    ObjType;      // const PPOBJ_GOODS
-	long    ObjID;        // ->Goods2.ID
-	long    Prop;         // const GDSPRP_STOCKDATA
-	long    Brutto;       // Масса брутто, г (Если Package != 0, то масса упаковки)
+	long   ObjType;      // const PPOBJ_GOODS
+	long   ObjID;        // ->Goods2.ID
+	long   Prop;         // const GDSPRP_STOCKDATA
+	long   Brutto;       // Масса брутто, г (Если Package != 0, то масса упаковки)
 	PPDimention PckgDim;  // Габаритные размеры упаковки поставки
-	uint32  Reserve3;     //
-	float   NettBruttCoeff; //
-	double  Package;      // Емкость упаковки при поставке (торговых единиц)
-	int16   ExpiryPeriod;
-	int16   GseFlags;     //
-	double  MinShippmQtty; //
-	char    Reserve2[12];
+	// @v12.7.11 uint32  Reserve3;     //
+	float  AvgItemMeasure; // @v12.7.11 Приблизительная количественная характиристика одной единицы товара. Существенно для //
+		// специфических позиций типа головок сыра или чего-то в этом же роде.
+	float  NettBruttCoeff; //
+	double Package;      // Емкость упаковки при поставке (торговых единиц)
+	int16  ExpiryPeriod;
+	int16  GseFlags;     //
+	double MinShippmQtty; //
+	char   Reserve2[12];
 	PalletList PltList;   // @last
 };
 
@@ -758,6 +760,7 @@ int GoodsCore::PutStockExt(PPID id, const GoodsStockExt * pData, int use_ta)
 		p_strg->Prop     = GDSPRP_STOCKDATA;
 		p_strg->Brutto   = pData->Brutto;
 		p_strg->PckgDim  = pData->PckgDim;
+		p_strg->AvgItemMeasure = pData->AvgItemMeasure; // @v12.7.11
 		p_strg->NettBruttCoeff = pData->NettBruttCoeff;
 		p_strg->Package  = pData->Package;
 		p_strg->ExpiryPeriod = pData->ExpiryPeriod;
@@ -807,11 +810,13 @@ int GoodsCore::GetStockExt(PPID id, GoodsStockExt * pData, int useCache/*=0*/)
 			// }
 			pData->Brutto   = p_strg->Brutto;
 			pData->PckgDim  = p_strg->PckgDim;
+			pData->AvgItemMeasure = p_strg->AvgItemMeasure; // @v12.7.11
 			pData->NettBruttCoeff = p_strg->NettBruttCoeff;
 			pData->Package  = (SIEEE754::IsValid(p_strg->Package) && p_strg->Package > 0) ? R6(p_strg->Package) : 0;
 			pData->ExpiryPeriod = p_strg->ExpiryPeriod;
 			pData->GseFlags      = p_strg->GseFlags;
 			pData->MinShippmQtty = p_strg->MinShippmQtty;
+			pData->AvgItemMeasure = p_strg->AvgItemMeasure; // @v12.7.11
 			for(uint i = 0; i < p_strg->PltList.Count; i++) {
 				THROW_SL(pData->PltList.insert(&p_strg->PltList.Item[i]));
 			}
@@ -2410,7 +2415,7 @@ int GoodsCore::GetGroupFilt(PPID grpID, GoodsFilt * pFilt)
 	if(ok > 0) {
 		if(pFilt) {
 			if(pFilt->P_SjF)
-				pFilt->P_SjF->Period.Actualize(ZERODATE);
+				pFilt->P_SjF->Period.Actualize();
 			pFilt->Setup();
 		}
 	}
@@ -2638,6 +2643,7 @@ private:
 		PPDimention PckgDim;
 		double Package;
 		double MinShippmQtty;
+		float  AvgItemMeasure; // @v12.7.11
 		int16  ExpiryPeriod;
 		int16  GseFlags;
 		RAssocArray MinStockList;
@@ -2795,6 +2801,7 @@ void FASTCALL GoodsCache::AssignGoodsStockExtCacheRec(const GoodsCache::StockExt
 	pExt->PckgDim = rSrc.PckgDim;
 	pExt->Package  = rSrc.Package;
 	pExt->MinShippmQtty = rSrc.MinShippmQtty;
+	pExt->AvgItemMeasure = rSrc.AvgItemMeasure; // @v12.7.11
 	pExt->ExpiryPeriod = rSrc.ExpiryPeriod;
 	pExt->GseFlags     = rSrc.GseFlags;
 	pExt->MinStockList = rSrc.MinStockList;
@@ -2829,7 +2836,7 @@ int GoodsCache::GetStockExt(PPID goodsID, GoodsStockExt * pExt)
 			if(!ok) {
 				PPObjGoods goods_obj(SConstructorLite);
 				GoodsStockExt temp;
-				int    r = goods_obj.P_Tbl->GetStockExt(goodsID, &temp, 0 /* not using cache! */);
+				int    r = goods_obj.P_Tbl->GetStockExt(goodsID, &temp, 0/*not using cache!*/);
 				if(r > 0) {
 					StockExt ext;
 					ext.GoodsID = goodsID;
@@ -2837,6 +2844,7 @@ int GoodsCache::GetStockExt(PPID goodsID, GoodsStockExt * pExt)
 					ext.PckgDim = temp.PckgDim;
 					ext.Package  = temp.Package;
 					ext.MinShippmQtty = temp.MinShippmQtty;
+					ext.AvgItemMeasure = temp.AvgItemMeasure; // @v12.7.11
 					ext.ExpiryPeriod = temp.ExpiryPeriod;
 					ext.GseFlags = temp.GseFlags;
 					ext.MinStockList = temp.MinStockList;

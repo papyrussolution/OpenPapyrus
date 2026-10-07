@@ -35,7 +35,7 @@ int PPViewBalance::Init_(const PPBaseFilt * pBaseFilt)
 {
 	int    ok = 1;
 	THROW(Helper_InitBaseFilt(pBaseFilt));
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	THROW(AdjustPeriodToRights(Filt.Period, false));
 	const   LDATE end_date = checkdate(Filt.Period.upp) ? Filt.Period.upp : MAXDATEVALID; // @v12.7.0
 	List.freeAll();

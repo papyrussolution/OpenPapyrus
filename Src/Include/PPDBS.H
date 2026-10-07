@@ -7378,9 +7378,10 @@ public:
 		int32  PortID;
 		int32  DlvrAddrID;
 		int32  AgentID;
-		char   Code[24];
+		int32  ChZnMarkCount;
+		char   Code[48];
 		char   Shipped[2];
-		int16  Reserve;
+		int16  ChZnMarkIndicator;
 		uint32 ShipNameP;
 		char   PortName[48];
 		char   DlvrAddr[64];
@@ -7390,7 +7391,7 @@ public:
 	};
 	struct Key1 {
 		LDATE  BillDate;
-		char   Code[24];
+		char   Code[48];
 	};
 	struct Key2 {
 		LDATE  ArrvlDate;
@@ -7418,9 +7419,10 @@ public:
 	DBField PortID;
 	DBField DlvrAddrID;
 	DBField AgentID;
+	DBField ChZnMarkCount;
 	DBField Code;
 	DBField Shipped;
-	DBField Reserve;
+	DBField ChZnMarkIndicator;
 	DBField ShipNameP;
 	DBField PortName;
 	DBField DlvrAddr;

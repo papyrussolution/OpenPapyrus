@@ -1445,7 +1445,7 @@ PPViewGeoTracking::~PPViewGeoTracking()
 	int    ok = 1;
 	Counter.Init();
 	THROW(Helper_InitBaseFilt(pFilt));
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	CATCHZOK
 	return ok;
 }

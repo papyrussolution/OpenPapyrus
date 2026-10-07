@@ -2724,6 +2724,8 @@ TCELHLD_BILL_DESADV_IN_RECADV_ACC   "На документ, полученный
 TCELHLD_BILL_DESADV_IN_RECADV_PACC  "На документ, полученный от отправителя в виде DESADV, отправлен RECADV 'частично принят'"
 TCELHLD_BILL_DESADV_IN_RECADV_REJ   "На документ, полученный от отправителя в виде DESADV, отправлен RECADV 'отклонен'"
 TCELHLD_BILL_EDISTATUS_UNKN         "Неизвестный EDI-статус документа"
+TCELHLD_BILL_MARKCOUNT_OK           "Число марок выглядит адекватным общему количеству единиц товара"
+TCELHLD_BILL_MARKCOUNT_INADEQ       "Число марок в строках документа не соотносится с количеством единиц товаров"
 
 TCELHLD_CCHECK_ORDER           "Чек заказа"
 TCELHLD_CCHECK_ZREP            "Чек Z-отчета"
@@ -12324,6 +12326,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goods_arcodelist                         "Список кодов товара" // synonym of @goods_arcodes
 @goods_brand                              "@{brand}"
 @goods_brutto                             "Масса брутто одной упаковки поставки, @{munit_kg}"
+@goods_avgitemmeasure                     "Приблизительный размер штуки" // @v12.7.11
 @goods_codes                              "@{barcode}"
 @goods_defprc                             "@{processor}"
 @goods_expiryperiod                       "@{expirationdate}, @{days}"
@@ -14802,6 +14805,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @freightfilt_fshippedonly                 "Только отгруженные"
 @freightfilt_funshippedonly               "Только не отгруженные"
 @freightfilt_fusecargoparam               "Грузовые параметры независимо от фрахта"
+@freightfilt_fshowchznmarking             "Показывать индикатор маркировки"
 @freightfilt_loc                          "@{warehouse}"
 @freightfilt_object                       "@{contractor}"
 @freightfilt_op                           "@{oprkind}"
@@ -16017,6 +16021,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 
 @egaismark                                "Марка @{brand_egais}"
 @chznmark                                 "Марка @{brand_chzn}"
+@chznmarkcount                            "Число марок @{brand_chzn}" // @v12.7.11
 @doscanmark                               "Считайте марку сканером"
 @unmatchedmarks                           "Несопоставленные марки"
 @chznmarkpmfault                          "Ошибка валидации марки @{brand_chzn} '%s'" // Просто повторяющийся паттерн

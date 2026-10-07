@@ -920,7 +920,7 @@ int DL2_CI::ToStr(char * pBuf, size_t bufLen) const
 			break;
 		case DL2CIT_ACC:
 			*p++ = '[';
-			A.Acc.ToStr(ACCF_DEFAULT, p);
+			A.Acc.ToStr_Obsolete(ACCF_DEFAULT, p);
 			p += sstrlen(p);
 			if(A.Flags & DL2_Acc::fRest)
 				*p++ = 'R';
@@ -948,7 +948,7 @@ int DL2_CI::ToStr(char * pBuf, size_t bufLen) const
 			}
 			if(A.GetCorrAco()) {
 				*p++ = ':';
-				A.CorrAcc.ToStr(ACCF_DEFAULT, p);
+				A.CorrAcc.ToStr_Obsolete(ACCF_DEFAULT, p);
 				p += sstrlen(p);
 				if(A.Flags & DL2_Acc::fCorAco1) {
 					*p++ = 'O';

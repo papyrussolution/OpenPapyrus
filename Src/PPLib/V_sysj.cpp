@@ -222,7 +222,7 @@ int PPViewSysJournal::Init_(const PPBaseFilt * pFilt)
 	StrPool.ClearS();
 	ObjNameList.clear();
 	EvVerList.clear();
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	LastRefreshDtm = getcurdatetime_();
 	if(IsTempTblNeeded()) {
 		if(InitIteration()) {
@@ -1376,7 +1376,7 @@ int PPViewGtaJournal::Init_(const PPBaseFilt * pFilt)
 	Counter.Init();
 	ZDELETE(P_TmpTbl);
 	THROW(Helper_InitBaseFilt(pFilt));
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	LastRefreshDtm = getcurdatetime_();
 	StrPool.ClearS();
 	ObjNameList.clear();

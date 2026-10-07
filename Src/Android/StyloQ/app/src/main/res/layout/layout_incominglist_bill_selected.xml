@@ -184,6 +184,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/CTL_DOCUMENT_TOTAL_MARKQTTY"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:minWidth="20dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginLeft="2dp"
+                    android:layout_marginBottom="4dp"
+                    android:textSize="10sp"
+                    android:textAlignment="center"
+                    android:textColor="@color/TextPrimary"
+                    android:background="@drawable/shape_scan_qtty"
+                    android:onClick="OnButtonClk"
+                    />
                 <View style="@style/FakeView"/>
                 <TextView style="@style/FormText"
                     android:id="@+id/CTL_DOCUMENT_AMOUNT"

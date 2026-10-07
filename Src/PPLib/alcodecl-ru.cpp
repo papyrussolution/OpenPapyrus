@@ -318,7 +318,7 @@ void PPViewAlcoDeclRu::GetManufList(PPID divID, long alcoCodeId, PPIDArray & rLi
 			ManufStatusList.clear(); // Список состояний производителей/импортеров
 			SupplStatusList.clear(); // Список состояний поставщиков
 			BExtQuery::ZDelete(&P_IterQuery);
-			Filt.Period.Actualize(ZERODATE);
+			Filt.Period.Actualize();
 			PPIDArray goods_list;
 			PPIDArray div_list;
 			PPIDArray suppl_rcpt_op_list;

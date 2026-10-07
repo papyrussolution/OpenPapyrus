@@ -3131,10 +3131,10 @@ int PPObjBHT::PrepareBillData2(const PPBhtTerminalPacket * pPack, PPIDArray * pG
 				new_entry.OpID = op_id;
 				if(r_item.Flags & StyloBhtIIConfig::foprUseDueDate) {
 					new_entry.Flags |= BHT_BillOpEntry::fUseDueDate;
-					(new_entry.DuePeriod = pPack->P_SBIICfg->ExportBillsPeriod).Actualize(ZERODATE);
+					(new_entry.DuePeriod = pPack->P_SBIICfg->ExportBillsPeriod).Actualize();
 				}
 				else {
-					(new_entry.Period = pPack->P_SBIICfg->ExportBillsPeriod).Actualize(ZERODATE);
+					(new_entry.Period = pPack->P_SBIICfg->ExportBillsPeriod).Actualize();
 				}
 				if(IsDraftOp(op_id)) {
 					new_entry.Bbt = bbtDraftBills;

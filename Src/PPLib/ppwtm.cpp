@@ -1577,7 +1577,8 @@ int WhatmanObjectCafeTable::HandleCommand(int cmd, void * pExt)
 	else if(cmd == cmdMouseHover) {
 		TWindow * p_owner_win = GetOwnerWindow();
 		if(p_owner_win) {
-			SString text, temp_buf;
+			SString text;
+			SString temp_buf;
 			PPLoadString("ftable", text);
 			text.Space().Cat(TableNo).CR();
 			switch(Status.Status) {
@@ -1618,7 +1619,7 @@ int WhatmanObjectCafeTable::HandleCommand(int cmd, void * pExt)
 				SMessageWindow * p_win = new SMessageWindow;
 				if(p_win) {
 					text.ReplaceChar('\003', ' ').Strip();
-					p_win->Open(text, 0, p_owner_win->H(), 0, 5000, 0, SMessageWindow::fStdOnMouseOptions, 0);
+					p_win->Open_(text, p_owner_win->H(), 5000, 0, SMessageWindow::fStdOnMouseOptions);
 				}
 			}
 		}

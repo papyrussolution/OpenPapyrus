@@ -93,7 +93,7 @@ int AcctCtrlGroup::getData(TDialog * dlg, void * pData)
 void AcctCtrlGroup::setup(TDialog * dlg, const Acct * pAcct, int sheetChanged, int accSelParamChanged)
 {
 	char   b[32];
-	dlg->setCtrlData(CtlAcc, pAcct->ToStr(ACCF_DEFAULT|ACCF_BAL, b));
+	dlg->setCtrlData(CtlAcc, pAcct->ToStr_Obsolete(ACCF_DEFAULT|ACCF_BAL, b));
 	if(AccSheetID && pAcct->ar)
 		ltoa(pAcct->ar, b, 10);
 	else

@@ -3,6 +3,8 @@
 //
 package ru.petroglif.styloq;
 
+import static java.lang.Math.abs;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -280,6 +282,32 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 			CPM.OnCurrentDocumentModification();
 			HandleEvent(SLib.EV_SETVIEWDATA, tab_entry.TabView.getView(), null);
 		}
+	}
+	private int ValidateChZnMarkTotalCount() // @v12.7.11
+	{
+		int    result = -1;
+		Document cur_doc = CPM.GetCurrentDocument();
+		if(cur_doc != null && cur_doc.TiList != null) {
+			for(int i = 0; result != 0 && i < cur_doc.TiList.size(); i++) {
+				final Document.TransferItem ti = cur_doc.TiList.get(i);
+				CommonPrereqModule.WareEntry goods_item = (ti != null) ? CPM.FindGoodsItemByGoodsID(ti.GoodsID) : null;
+				if(goods_item != null && goods_item.Item.ChZnMarkedWhs) {
+					int mark_count = 0;
+					if(ti.XcL != null && ti.XcL.size() > 0) {
+						mark_count = ti.XcL.size();
+					}
+					double unit_per_pack = goods_item.Item.UnitPerPack;
+					int vmcr = Document.ValidateChZnMarkCount(abs((int) ti.Set.Qtty), (int) unit_per_pack, mark_count);
+					if(vmcr == Document.eqarOK) {
+						result = 1;
+					}
+					else {
+						result = 0;
+					}
+				}
+			}
+		}
+		return result;
 	}
 	private void SetupCurrentDocument(boolean gotoTabIfNotEmpty, boolean removeTabIfEmpty)
 	{
@@ -599,7 +627,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 													mark_qtty++;
 												}
 											}
-											qtty_text = Integer.toString(mark_qtty) + "/" + Integer.toString(Math.abs(item_qtty));
+											qtty_text = Integer.toString(mark_qtty) + "/" + Integer.toString(abs(item_qtty));
 											SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_QTTYTEXT, qtty_text);
 											if(_data.SelectedIdx == ev_subj.ItemIdx)
 												iv.setBackgroundResource(R.drawable.shape_listitem_focused);
@@ -1148,15 +1176,19 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 													if((CPM.GetActionFlags() & Document.actionDocSettingMarks) != 0) {
 														ImageView ctl = (ImageView)iv.findViewById(R.id.CTL_DOCUMENT_TI_LOCAL_STATUS);
 														int mark_count = 0;
+														boolean is_mark_needed = false; // @v12.7.11
 														if(ctl != null) {
 															int rcid = 0;
-															if(goods_item != null && goods_item.Item != null && goods_item.Item.ChZnCat > 0 && goods_item.Item.ChZnMarkedWhs) { // @v12.5.11 (&& goods_item.Item.ChZnMarkedWhs)
-																mark_count = (ti.XcL != null) ? ti.XcL.size() : 0;
-																if(mark_count > 0) {
-																	rcid = R.drawable.ic_qrcode01scan;
-																}
-																else {
-																	rcid = R.drawable.ic_qrcode01absent;
+															if(goods_item != null && goods_item.Item != null && goods_item.Item.ChZnCat > 0) {
+																if(goods_item.Item.ChZnMarkedWhs) { // @v12.5.11 @condition
+																	is_mark_needed = true; // @v12.7.11
+																	mark_count = (ti.XcL != null) ? ti.XcL.size() : 0;
+																	if(mark_count > 0) {
+																		rcid = R.drawable.ic_qrcode01scan;
+																	}
+																	else {
+																		rcid = R.drawable.ic_qrcode01absent;
+																	}
 																}
 															}
 															if(rcid != 0) {
@@ -1166,12 +1198,37 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 															else
 																ctl.setVisibility(View.GONE);
 														}
-														if(mark_count > 0) {
-															SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_TI_MARKQTTY, View.VISIBLE);
-															SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_MARKQTTY, Integer.toString(mark_count));
-														}
-														else {
-															SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_TI_MARKQTTY, View.GONE);
+														{
+															View ctl_mc = SLib.FindViewById(iv, R.id.CTL_DOCUMENT_TI_MARKQTTY);
+															if(ctl_mc != null) {
+																ctl_mc.setTag(ti); // @v12.7.11
+																if(mark_count > 0) {
+																	// @v12.7.11 {
+																	double unit_per_pack = (goods_item != null) ? goods_item.Item.UnitPerPack : 1.0;
+																	int vmcr = Document.ValidateChZnMarkCount(abs((int) ti.Set.Qtty), (int) unit_per_pack, mark_count);
+																	// } @v12.7.11
+																	// @v12.7.11 SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_TI_MARKQTTY, View.VISIBLE);
+																	ctl_mc.setVisibility(View.VISIBLE); // @v12.7.11
+																	SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_MARKQTTY, Integer.toString(mark_count));
+																	int color_id = 0;
+																	switch(vmcr) {
+																		case Document.eqarOK: color_id = R.color.marktoqttyadequacy_ok; break;
+																		case Document.eqarUndecomposable: color_id = R.color.marktoqttyadequacy_undecomposable; break;
+																		case Document.eqarUndefPackage: color_id = R.color.marktoqttyadequacy_undefpackage; break;
+																		case Document.eqarMcZero: color_id = R.color.marktoqttyadequacy_mczero; break;
+																		case Document.eqarMcGtQtty: color_id = R.color.marktoqttyadequacy_mcgtqtty; break;
+																	}
+																	if(color_id != 0) {
+																		int color = getResources().getColor(color_id, getTheme());
+																		if(color != 0)
+																			ctl_mc.setBackgroundColor(color);
+																	}
+																}
+																else {
+																	// @v12.7.11 SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_TI_MARKQTTY, View.GONE);
+																	ctl_mc.setVisibility(View.GONE); // @v12.7.11
+																}
+															}
 														}
 													}
 													// } @v12.5.6
@@ -1522,6 +1579,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_ACTIONBUTTON4, View.GONE);
 							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_DUEDATE_NEXT, View.GONE);
 							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_DUEDATE_PREV, View.GONE);
+							SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_TOTAL_MARKQTTY, View.GONE); // @v12.7.11
 						}
 						else {
 							Document _doc = CPM.GetCurrentDocument();
@@ -1606,6 +1664,32 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DLVRLOC, addr);
 							}
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO, _doc.H.Memo);
+							// @v12.7.11 {
+							{
+								View ctl_mc = vg.findViewById(R.id.CTL_DOCUMENT_TOTAL_MARKQTTY);
+								if(ctl_mc != null) {
+									int vmtcr = ValidateChZnMarkTotalCount(); // @v12.7.11
+									if(vmtcr < 0) {
+										SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_TOTAL_MARKQTTY, View.GONE);
+									}
+									else {
+										SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_TOTAL_MARKQTTY, View.VISIBLE);
+										int color_id = 0;
+										if(vmtcr > 0) {
+											color_id = R.color.marktoqttyadequacy_ok;
+										}
+										else {
+											color_id = R.color.marktoqttyadequacy_undecomposable;
+										}
+										if(color_id != 0) {
+											int color = getResources().getColor(color_id, getTheme());
+											if(color != 0)
+												ctl_mc.setBackgroundColor(color);
+										}
+									}
+								}
+							}
+							// } @v12.7.11
 							{
 								double amount = CPM.GetAmountOfCurrentDocument();
 								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_AMOUNT, CPM.FormatCurrency(amount));
@@ -1922,9 +2006,60 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 				break;
 			case SLib.EV_COMMAND:
 				{
+					boolean debug_mark = false;
 					Document.EditAction acn = null;
 					final int view_id = (srcObj != null && srcObj instanceof View) ? ((View)srcObj).getId() : 0;
 					switch(view_id) {
+						case R.id.CTL_DOCUMENT_TOTAL_MARKQTTY: // @v12.7.11 @construction
+							{
+								int vmtcr = ValidateChZnMarkTotalCount(); // @v12.7.11
+								int text_id = 0;
+								if(vmtcr > 0) {
+									text_id = ppstr2.TCELHLD_BILL_MARKCOUNT_OK;
+								}
+								else if(vmtcr == 0) {
+									text_id = ppstr2.TCELHLD_BILL_MARKCOUNT_INADEQ;
+								}
+								if(text_id != 0) {
+									StyloQApp app_ctx = GetAppCtx();
+									app_ctx.DisplayMessage(this, 104, text_id, 1000);
+								}
+							}
+							break;
+						case R.id.CTL_DOCUMENT_TI_MARKQTTY: // @v12.7.11
+							{
+								View ctl_mc = (View)srcObj;
+								final Document _doc = CPM.GetCurrentDocument();
+								final Document.TransferItem ti = (Document.TransferItem)ctl_mc.getTag();
+								if(_doc != null && ti != null) {
+									int mark_count = 0;
+									boolean is_mark_needed = false; // @v12.7.11
+									CommonPrereqModule.WareEntry goods_item = CPM.FindGoodsItemByGoodsID(ti.GoodsID);
+									if(goods_item != null && goods_item.Item != null && goods_item.Item.ChZnCat > 0) {
+										if(goods_item.Item.ChZnMarkedWhs) { // @v12.5.11 @condition
+											is_mark_needed = true; // @v12.7.11
+											mark_count = (ti.XcL != null) ? ti.XcL.size() : 0;
+											{
+												double unit_per_pack = (goods_item != null) ? goods_item.Item.UnitPerPack : 1.0;
+												int vmcr = Document.ValidateChZnMarkCount(abs((int) ti.Set.Qtty), (int) unit_per_pack, mark_count);
+												int text_id = 0;
+												switch(vmcr) {
+													case Document.eqarOK: text_id = ppstr2.TCELHLD_TRFRLIST_MARKCOUNT_OK; break;
+													case Document.eqarUndecomposable: text_id = ppstr2.TCELHLD_TRFRLIST_MARKCOUNT_UNDECOMPOSABLE; break;
+													case Document.eqarUndefPackage: text_id = ppstr2.TCELHLD_TRFRLIST_MARKCOUNT_UNDEFPACKAGE; break;
+													case Document.eqarMcZero: text_id = ppstr2.TCELHLD_TRFRLIST_MARKCOUNT_MCZERO; break;
+													case Document.eqarMcGtQtty: text_id = ppstr2.TCELHLD_TRFRLIST_MARKCOUNT_MCGTQTTY; break;
+												}
+												if(text_id != 0) {
+													StyloQApp app_ctx = GetAppCtx();
+													app_ctx.DisplayMessage(this, 104, text_id, 1000);
+												}
+											}
+										}
+									}
+								}
+							}
+							break;
 						case R.id.tbButtonBack: finish(); break;
 						case R.id.tbButtonSearch:
 							CPM.GotoSearchTab(R.id.VIEWPAGER_INCOMINGLISTBILL, 0);

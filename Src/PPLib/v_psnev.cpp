@@ -158,7 +158,7 @@ int PPViewPersonEvent::Init_(const PPBaseFilt * pFilt)
 	THROW(Helper_InitBaseFilt(pFilt));
 	save_filt = Filt;
 	filt_saved = 1;
-	Filt.Period.Actualize(ZERODATE);
+	Filt.Period.Actualize();
 	Counter.Init();
 	ZDELETE(P_TempGrpTbl);
 	ZDELETE(P_TempTbl);

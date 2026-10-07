@@ -1310,10 +1310,12 @@ static IMPL_DBE_PROC(dbqf_objname_acctrel_i)
 		if(id) {
 			AcctRel * p_tbl = &BillObj->atobj->P_Tbl->AccRel;
 			if(p_tbl->Fetch(id, &rec) > 0) {
-				if(ObjRts.CheckAccID(rec.AccID, PPR_READ))
-					reinterpret_cast<const Acct *>(&rec.Ac)->ToStr(ACCF_DEFAULT, name_buf);
-				else
+				if(ObjRts.CheckAccID(rec.AccID, PPR_READ)) {
+					reinterpret_cast<const Acct *>(&rec.Ac)->ToStr_Obsolete(ACCF_DEFAULT, name_buf);
+				}
+				else {
 					STRNSCPY(name_buf, "ACCS DENIED");
+				}
 			}
 			else
 				ideqvalstr(id, name_buf, sizeof(name_buf));

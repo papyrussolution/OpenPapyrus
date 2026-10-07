@@ -1442,11 +1442,11 @@ void PPObjBill::Helper_PopupReckonInfo(PPIDArray & rResultBillList)
 	{
 		if(result_count) {
 			PPFormatT(PPTXT_RECKON_NZ_INFO, &msg_buf, result_count, result_amount);
-			PPTooltipMessage(msg_buf, 0, 0, 20000, GetColorRef(SClrGreen), SMessageWindow::fStdNotification);
+			PPTooltipMessage(msg_buf, 0, 20000, GetColorRef(SClrGreen), SMessageWindow::fStdNotification);
 		}
 		else {
 			PPLoadText(PPTXT_RECKON_ZERO_INFO, msg_buf);
-			PPTooltipMessage(msg_buf, 0, 0, 10000, GetColorRef(SClrPink), SMessageWindow::fStdNotification);
+			PPTooltipMessage(msg_buf, 0, 10000, GetColorRef(SClrPink), SMessageWindow::fStdNotification);
 		}
 	}
 	PPLogMessage(PPFILNAM_INFO_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);

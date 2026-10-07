@@ -205,12 +205,12 @@ int RegisterArray::SelectRegister(PPID regTyp, LDATE dt, uint * pPos, RegisterTb
         }
 	}
 	if(ok > 0) {
-		assert(optimal_pos >= 0 && optimal_pos < static_cast<int>(getCount()));
+		assert(optimal_pos >= 0 && optimal_pos < getCountI());
 		ASSIGN_PTR(pPos, static_cast<uint>(optimal_pos+1));
 		ASSIGN_PTR(pRec, at(optimal_pos));
 	}
 	else {
-		memzero(pRec, sizeof(*pRec));
+		CALLPTRMEMB(pRec, Clear());
 	}
 	return ok;
 }

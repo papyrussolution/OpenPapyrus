@@ -639,13 +639,14 @@ DL2_CI * DL2_Resolver::Helper_Resolve(const DL2_Column * pCol, const DL2_CI * pI
 		}
 		else if(dl2ac.Flags & DL2_Acc::fAco3)
 			aco = ACO_3;
-		else
+		else {
 			if(dl2ac.Acc.ar)
 				aco = ACO_3;
 			else if(dl2ac.Acc.sb)
 				aco = ACO_2;
 			else
 				aco = ACO_1;
+		}
 		mask = (DL2_Acc::fInRest | DL2_Acc::fRest | DL2_Acc::fTurnover);
 		if(!(dl2ac.Flags & mask)) {
 			if(p_col_ac)
@@ -693,8 +694,8 @@ DL2_CI * DL2_Resolver::Helper_Resolve(const DL2_Column * pCol, const DL2_CI * pI
 				AccAnlzTotal t_accanlz;
 				v_accanlz.Init_(&flt);
 				v_accanlz.GetTotal(&t_accanlz);
-				double dbt = t_accanlz.DbtTrnovr.Get(0, 0L /* curID */);
-				double crd = t_accanlz.CrdTrnovr.Get(0, 0L /* curID */);
+				const  double dbt = t_accanlz.DbtTrnovr.Get(0, 0L /* curID */);
+				const  double crd = t_accanlz.CrdTrnovr.Get(0, 0L /* curID */);
 				if(is_net_trnovr)
 					val = dbt-crd;
 				else if(dl2ac.Flags & DL2_Acc::fDebit)
@@ -709,12 +710,12 @@ DL2_CI * DL2_Resolver::Helper_Resolve(const DL2_Column * pCol, const DL2_CI * pI
 				// конкретно по дебету либо по кредиту счета (субсчета). В остальных случаях
 				// опция fSpread игнорируется.
 				//
-				if((dl2ac.Flags & DL2_Acc::fSpread) && (dl2ac.Flags & (DL2_Acc::fDebit | DL2_Acc::fCredit)) &&
-					oneof2(aco, ACO_1, ACO_2)) {
+				if((dl2ac.Flags & DL2_Acc::fSpread) && (dl2ac.Flags & (DL2_Acc::fDebit | DL2_Acc::fCredit)) && oneof2(aco, ACO_1, ACO_2)) {
 					uint   brf = BALRESTF_SPREADBYSUBACC;
 					if(aco == ACO_1)
 						brf |= BALRESTF_ACO1GROUPING;
-					double dbt = 0.0, crd = 0.0;
+					double dbt = 0.0;
+					double crd = 0.0;
 					if(dl2ac.Flags & DL2_Acc::fRest) {
 						THROW(AtObj.P_Tbl->GetBalRest(period.upp, acc_id, &dbt, &crd, brf));
 					}
@@ -727,7 +728,8 @@ DL2_CI * DL2_Resolver::Helper_Resolve(const DL2_Column * pCol, const DL2_CI * pI
 						val = crd;
 				}
 				else {
-					AmtList al_in, al_out;
+					AmtList al_in;
+					AmtList al_out;
 					THROW(AtObj.P_Tbl->CalcComplexRest(aco, acc_id, 0, 0, &period, &al_in, &al_out));
 					if(dl2ac.Flags & DL2_Acc::fRest) {
 						val = al_out.Get(0, 0);
@@ -747,13 +749,16 @@ DL2_CI * DL2_Resolver::Helper_Resolve(const DL2_Column * pCol, const DL2_CI * pI
 								val = 0;
 						}
 					}
-					else // if(is_net_trnovr)
+					else { // if(is_net_trnovr)
 						val = al_out.Get(0, 0) - al_in.Get(0, 0);
+					}
 				}
 			}
 			else { // if(dl2ac.Flags & DL2_Acc::fTurnover) {
-				double in_dbt = 0.0, in_crd = 0.0;
-				double out_dbt = 0.0, out_crd = 0.0;
+				double in_dbt = 0.0;
+				double in_crd = 0.0;
+				double out_dbt = 0.0;
+				double out_crd = 0.0;
 				if(oneof2(aco, ACO_1, ACO_2)) {
 					uint   i;
 					long   _aco = aco;

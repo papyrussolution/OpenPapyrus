@@ -1753,12 +1753,12 @@ int PPRights::AdjustBillPeriod(DateRange & rPeriod, bool checkOnly) const
 		DateRange r_bill_period;
 		DateRange in_period;
 		in_period = rPeriod;
-		in_period.Actualize(ZERODATE);
+		in_period.Actualize();
 		LDATE b = in_period.low;
 		LDATE e = in_period.upp;
 		PPAccessRestriction accsr;
 		GetAccessRestriction(accsr).GetRBillPeriod(&r_bill_period);
-		r_bill_period.Actualize(ZERODATE);
+		r_bill_period.Actualize();
 		if(r_bill_period.low)
 			b = MAX(b, r_bill_period.low);
 		if(r_bill_period.upp)
@@ -1783,11 +1783,11 @@ int PPRights::AdjustCSessPeriod(DateRange & rPeriod, bool checkOnly) const
 			DateRange r_bill_period;
 			DateRange in_period;
 			in_period = rPeriod;
-			in_period.Actualize(ZERODATE);
+			in_period.Actualize();
 			LDATE b = in_period.low;
 			LDATE e = in_period.upp;
 			accsr.GetRBillPeriod(&r_bill_period);
-			r_bill_period.Actualize(ZERODATE);
+			r_bill_period.Actualize();
 			if(r_bill_period.low)
 				b = MAX(b, r_bill_period.low);
 			if(r_bill_period.upp)

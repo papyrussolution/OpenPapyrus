@@ -15359,8 +15359,8 @@ int PrcssrSupplInterchange::InitExecuteBlock(const SupplInterchangeFilt * pParam
 	{
 		rBlk.Ep = suppl_agt.Ep;
 		rBlk.P = *pParam;
-		rBlk.P.ExpPeriod.Actualize(ZERODATE);
-		rBlk.P.ImpPeriod.Actualize(ZERODATE);
+		rBlk.P.ExpPeriod.Actualize();
+		rBlk.P.ImpPeriod.Actualize();
 	}
 	CATCHZOK
 	return ok;
@@ -15385,8 +15385,8 @@ int PrcssrSupplInterchange::Init(const PPBaseFilt * pBaseFilt)
 		THROW_MEM(P_Eb = new ExecuteBlock);
 		P_Eb->Ep = suppl_agt.Ep;
 		P_Eb->P = temp_filt;
-		P_Eb->P.ExpPeriod.Actualize(ZERODATE);
-		P_Eb->P.ImpPeriod.Actualize(ZERODATE);
+		P_Eb->P.ExpPeriod.Actualize();
+		P_Eb->P.ImpPeriod.Actualize();
 		P_Eb->ArName = ar_rec.Name;
 	}
 	State |= stInited;
