@@ -1197,10 +1197,7 @@ bool PPViewAccAnlz::IsDedicatedRestEvaluationNeeded() const
 	return (Filt.Flags & AccAnlzFilt::fLabelOnly || Filt.LocID || Filt.Object2ID_ || EffDlvrLocID); // @v12.2.0 Filt.Object2ID_
 }
 
-void PPViewAccAnlz::SetOuterReportId(uint rptId) // @v12.7.11
-{
-	OuterReportId = rptId;
-}
+void PPViewAccAnlz::SetOuterReportId(uint rptId) { OuterReportId = rptId; } // @v12.7.11
 
 /*virtual*/int PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 {
@@ -1246,7 +1243,7 @@ void PPViewAccAnlz::SetOuterReportId(uint rptId) // @v12.7.11
 	if(!(Filt.Flags & AccAnlzFilt::fTotalOnly && IsDedicatedRestEvaluationNeeded())) {
 		THROW(AdjustPeriodToRights(Filt.Period, false));
 	}
-#if 0 // @construction {
+#if 1 // @construction {
 	if(!Filt.AccID && !Filt.AcctId.AcID) {
 		// ... Режим описи проводок (типа PPViewAccTurn)
 		State |= stATurnList;
@@ -1849,7 +1846,7 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 	TempAssocTbl * p_tmp_bill_t = 0;
 	TempAccturnGrpngTbl * p_grp_tbl = 0;
 	// } @v12.7.11 
-#if 0 // @construction {
+#if 1 // @construction {
 	if(State & stATurnList) {
 		PPViewAccturn::RegisterDynFunc();
 		//
@@ -2137,7 +2134,10 @@ int PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 	MEMSZERO(hdr);
 	if(pRow) {
 		const  char * p_hdr = static_cast<const char *>(pRow);
-		if((Filt.Flags & (AccAnlzFilt::fGroupByCorAcc |	AccAnlzFilt::fTrnovrBySheet)) || Filt.Cycl.Cycle) {
+		if(State & stATurnList) { // @v12.7.12
+			hdr.BillID = *reinterpret_cast<const PPID *>(p_hdr);
+		}
+		else if((Filt.Flags & (AccAnlzFilt::fGroupByCorAcc |	AccAnlzFilt::fTrnovrBySheet)) || Filt.Cycl.Cycle) {
 			hdr.AccRelID = *reinterpret_cast<const PPID *>(p_hdr);
 			hdr.Dt = *reinterpret_cast<const LDATE *>(p_hdr + sizeof(PPID));
 			hdr.A = *reinterpret_cast<const Acct *>(p_hdr + sizeof(PPID) + sizeof(LDATE));

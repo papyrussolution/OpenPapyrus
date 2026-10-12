@@ -2812,9 +2812,11 @@ long FASTCALL ATTF_TO_ATDF(long attf)
 
 int PPObjBill::AddAccturnBySample(PPID * pBillID, PPID sampleBillID)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r = 0;
 	long   flags = 0;
-	PPBillPacket pack, sample_pack;
+	PPBillPacket pack;
+	PPBillPacket sample_pack;
 	THROW(ExtractPacketWithFlags(sampleBillID, &sample_pack, BPLD_SKIPTRFR) > 0);
 	if(CheckOpFlags(sample_pack.Rec.OpID, OPKF_EXTACCTURN)) {
 		AddBlock ab;
@@ -2828,11 +2830,14 @@ int PPObjBill::AddAccturnBySample(PPID * pBillID, PPID sampleBillID)
 		THROW(atobj->CreateBlankAccTurnBySample(&pack, &sample_pack, &flags));
 		do {
 			THROW(r = EditGenericAccTurn(pack, flags));
-			if(r == cmOK)
-				if(!TurnPacket(&pack, 1))
+			if(r == cmOK) {
+				if(!TurnPacket(&pack, 1)) {
 					r = PPErrorZ();
-				else
+				}
+				else {
 					ASSIGN_PTR(pBillID, pack.Rec.ID);
+				}
+			}
 		} while(r == 0);
 		if(r != cmOK)
 			pack.UngetCounter();
@@ -2843,8 +2848,9 @@ int PPObjBill::AddAccturnBySample(PPID * pBillID, PPID sampleBillID)
 
 int PPObjBill::AddGenAccturn(PPID * pBillID, PPID opID, PPID registerID)
 {
-	int    ok = 1, r;
-	long   flags;
+	int    ok = 1;
+	int    r = 0;
+	long   flags = 0;
 	PPBillPacket pack;
 	THROW(atobj->CheckRights(PPR_INS));
 	THROW(atobj->CreateBlankAccTurn(opID, &pack, &flags, 1));
@@ -2869,9 +2875,10 @@ int PPObjBill::AddGenAccturn(PPID * pBillID, PPID opID, PPID registerID)
 
 int PPObjBill::AddAccturn(PPID * pBillID, const AddBlock * pBlk)
 {
-	int    ok = 1, r = 1;
-	const  PPID save_loc_id = LConfig.Location;
-	PPID   loc_id = save_loc_id;
+	int    ok = 1;
+	int    r = 1;
+	const  PPID preserve_loc_id = LConfig.Location;
+	PPID   loc_id = preserve_loc_id;
 	PPBillPacket pack;
 	AddBlock blk(pBlk);
 	if(blk.OpID == 0) {
@@ -2889,11 +2896,12 @@ int PPObjBill::AddAccturn(PPID * pBillID, const AddBlock * pBlk)
 		}
 		else
 			op_list.add(PPOPT_ACCTURN);
-		if(blk.OpID == 0)
+		if(blk.OpID == 0) {
 			if(BillPrelude(&op_list, opfl, 0, &blk.OpID, &loc_id) > 0)
 				DS.SetLocation(loc_id);
 			else
 				blk.OpID = 0;
+		}
 	}
 	if(blk.OpID > 0) {
 		r = (CheckOpFlags(blk.OpID, OPKF_EXTACCTURN) && !blk.RegisterID) ?
@@ -2901,14 +2909,14 @@ int PPObjBill::AddAccturn(PPID * pBillID, const AddBlock * pBlk)
 	}
 	THROW(r);
 	CATCHZOKPPERR
-	DS.SetLocation(save_loc_id);
+	DS.SetLocation(preserve_loc_id);
 	return ok ? r : 0;
 }
 
 int PPObjBill::EditAccTurn(PPID id)
 {
 	int    ok = cmCancel;
-	int    r;
+	int    r = 0;
 	long   flags = 0;
 	PPAccTurnTemplArray att_list;
 	PPID   org_loc_id = 0;
@@ -4177,6 +4185,7 @@ static int EditBillCfgAddendum(PPBillConfig * pData) { DIALOG_PROC_BODY(BillConf
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  8, BCF_INHSERIAL);
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2,  9, BCF_DONTVERIFEXTCODECHAIN);
 	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2, 10, BCF_NEWDOCBYFILTUSEFLTDATE);
+	dlg->AddClusterAssoc(CTL_BILLCFG_FLAGS2, 11, BCF_EVALMARKCOUNTADEQ); // @v12.7.12
 	dlg->SetClusterData(CTL_BILLCFG_FLAGS2, cfg.Flags);
 	dlg->AddClusterAssoc(CTL_BILLCFG_SHOWADDFLD, 0, BCF_SHOWBARCODESINGBLINES);
 	dlg->AddClusterAssoc(CTL_BILLCFG_SHOWADDFLD, 1, BCF_SHOWSERIALSINGBLINES);

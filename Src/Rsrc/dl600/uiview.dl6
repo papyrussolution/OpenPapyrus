@@ -1526,7 +1526,7 @@ dialog DLG_TESTSVRPRINT [vertical title: "@testserverprint" size: (400, 140) min
 	}
 }
 
-dialog DLG_TODOFILT [vertical title: "@prjtaskfilt" size: (740, 580) minsize: (740, 580) padding: 4] {
+dialog DLG_TODOFILT [vertical title: "@prjtaskfilt" size: (740, 520) minsize: (740, 520) padding: 4 justifycontent: spacebetween] {
 	view [horizontal width: bycontainer height: 40] {
 		view [horizontal growfactor: 1] {
 		}
@@ -1539,7 +1539,7 @@ dialog DLG_TODOFILT [vertical title: "@prjtaskfilt" size: (740, 580) minsize: (7
 		}
 	}
 	view [horizontal width: bycontainer growfactor: 3] {
-		view [vertical growfactor: 1 height: bycontainer] {
+		view [vertical growfactor: 0.8 height: bycontainer] {
 			radiocluster CTL_TODOFILT_KIND [vertical width: bycontainer margin: 4] {
 				radiobutton [title: "@prjtaskfilt_kind_tasks"];
 				radiobutton [title: "@prjtaskfilt_kind_templates"];
@@ -1554,20 +1554,23 @@ dialog DLG_TODOFILT [vertical title: "@prjtaskfilt" size: (740, 580) minsize: (7
 					supplement daterangecalbutton(CTLCAL_TODOFILT_FINISH);
 			}
 		}
-		view [vertical growfactor: 1 height: bycontainer] {
+		view [vertical growfactor: 1.5 height: bycontainer] {
 			framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
-				combobox CTLSEL_TODOFILT_CREATOR [tabstop width: bycontainer height: 21 margin: 4 label: "@prjtaskfilt_creator" cblinesymb: CTL_TODOFILT_CREATOR];
-				combobox CTLSEL_TODOFILT_EMPLOYER [tabstop width: bycontainer height: 21 margin: 4 label: "@prjtaskfilt_employer" cblinesymb: CTL_TODOFILT_EMPLOYER];
+				combobox CTLSEL_TODOFILT_CREATOR [tabstop width: bycontainer height: 21 margin: 4 label: "@prjtaskfilt_creator" cblinesymb: CTL_TODOFILT_CREATOR]
+					supplement listbutton(CTL_TODOFILT_CMD_CREATORLIST cmCreatorList);
+				combobox CTLSEL_TODOFILT_EMPLOYER [tabstop width: bycontainer height: 21 margin: 4 label: "@prjtaskfilt_employer" cblinesymb: CTL_TODOFILT_EMPLOYER]
+					supplement listbutton(CTL_TODOFILT_CMD_EMPLIST cmEmployerList);
 			}
 			framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
-				combobox CTLSEL_TODOFILT_CROSSTAB [tabstop width: bycontainer height: 21 margin: 4 label: "@crosstab" cblinesymb: CTL_TODOFILT_CROSSTAB];
-				combobox CTLSEL_TODOFILT_CTPAR [tabstop width: bycontainer height: 21 margin: 4 label: "@indicator" cblinesymb: CTL_TODOFILT_CTPAR];
+				combobox CTLSEL_TODOFILT_CLIENT [tabstop width: bycontainer height: 21 margin: 4 label: "@prjtaskfilt_client" cblinesymb: CTL_TODOFILT_CLIENT]
+					supplement listbutton(CTL_TODOFILT_CMD_CLIENTLIST cmClientList);
+				combobox CTLSEL_TODOFILT_CITY [tabstop width: bycontainer height: 21 margin: 4 label: "@prjtaskfilt_clicity" cblinesymb: CTL_TODOFILT_CITY];
 			}
 		}
 		view [vertical growfactor: 1 height: bycontainer] {
 			framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
-				combobox CTLSEL_TODOFILT_CLIENT [tabstop width: bycontainer height: 21 margin: 4 label: "@prjtaskfilt_client" cblinesymb: CTL_TODOFILT_CLIENT];
-				combobox CTLSEL_TODOFILT_CITY [tabstop width: bycontainer height: 21 margin: 4 label: "@prjtaskfilt_clicity" cblinesymb: CTL_TODOFILT_CITY];
+				combobox CTLSEL_TODOFILT_CROSSTAB [tabstop width: bycontainer height: 21 margin: 4 label: "@crosstab" cblinesymb: CTL_TODOFILT_CROSSTAB];
+				combobox CTLSEL_TODOFILT_CTPAR [tabstop width: bycontainer height: 21 margin: 4 label: "@indicator" cblinesymb: CTL_TODOFILT_CTPAR];
 			}
 			framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
 				combobox CTLSEL_TODOFILT_ORDER [tabstop width: bycontainer height: 21 margin: 4 label: "@sorting" cblinesymb: CTL_TODOFILT_ORDER];
@@ -1582,7 +1585,7 @@ dialog DLG_TODOFILT [vertical title: "@prjtaskfilt" size: (740, 580) minsize: (7
 			combobox CTLSEL_TODOFILT_PRJ [tabstop growfactor: 2 height: 21 margin: 4 label: "@project" cblinesymb: CTL_TODOFILT_PRJ];
 		}
 	}
-	view [horizontal width: bycontainer growfactor: 2] {
+	view [horizontal width: bycontainer growfactor: 1.6] {
 		view [vertical growfactor: 1 height: bycontainer] {
 			checkcluster CTL_TODOFILT_PRIOR [tabstop title: "@prjtaskfilt_priorlist" width: bycontainer margin: 4] {
 				checkbox [title: "@todoprior_highest"];
@@ -1609,7 +1612,7 @@ dialog DLG_TODOFILT [vertical title: "@prjtaskfilt" size: (740, 580) minsize: (7
 			}
 		}
 	}
-	view [horizontal width: bycontainer(100) height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (8, 4, 4, 4) command: cmCancel];
 	}
@@ -8137,7 +8140,229 @@ dialog DLG_FRGHTFLT [vertical title: "@freightfilt" size: (590, 435) minsize: (5
 	}
 }
 
-// @20261005 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+dialog DLG_ACCANLZ [vertical title: "@accanlz" size: (600, 450) minsize: (600, 450) padding: 4 justifycontent: spacebetween] { // @v12.7.0
+	view [horizontal width: bycontainer height: 35 justifycontent: spacebetween] {
+		input CTL_ACCANLZ_PERIOD [size: (180, 21) margin: 4 tabstop label: "@accanlz_period"] string[30] supplement daterangecalbutton(CTLCAL_ACCANLZ_PERIOD);
+		statictext CTL_ACCANLZ_LABEL [size: (16, 16) margin: (4, 17, 4, 4) staticedge];
+	}
+	framebox [vertical width: bycontainer height: 150 margin: 4 padding: 4] {
+		view [horizontal width: bycontainer growfactor: 1.7] {
+			input CTL_ACCANLZ_ACC [size: (65, 21) margin: (4, 4, 1, 4) tabstop label: "@accanlz_acc_acc"] string[10];
+			combobox CTLSEL_ACCANLZ_ACCNAME [growfactor: 3 height: 21 margin: (1, 17, 4, 4) tabstop cblinesymb: CTL_ACCANLZ_ACCNAME];
+			view [vertical growfactor: 1 height: bycontainer] {
+				combobox CTLSEL_ACCANLZ_CUR [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@accanlz_cur" cblinesymb: CTL_ACCANLZ_CUR];
+				checkbox CTL_ACCANLZ_ALLCUR [title: "@accanlz_fallcurrencies" tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4)];
+			}
+		}
+		view [horizontal width: bycontainer growfactor: 1] {
+			input CTL_ACCANLZ_ART [size: (65, 21) margin: (4, 4, 1, 4) tabstop label: "@accanlz_acc_ar"] string[10];
+			combobox CTLSEL_ACCANLZ_ARTNAME [growfactor: 3 height: 21 margin: (1, 17, 4, 4) tabstop cblinesymb: CTL_ACCANLZ_ARTNAME];
+			view [vertical growfactor: 1 height: bycontainer] { // @stub
+			}
+		}
+		combobox CTLSEL_ACCANLZ_RELSUBST [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@accanlz_substreltype" cblinesymb: CTL_ACCANLZ_RELSUBST];
+	}
+	view [horizontal width: bycontainer growfactor: 1] {
+		view [vertical growfactor: 1 height: bycontainer] {
+			checkcluster CTL_ACCANLZ_TRNOVR [width: bycontainer margin: 4 padding: 4] {
+				checkbox [title: "@accanlz_ftrnovrbysheet"];
+				checkbox [title: "@accanlz_fspprztrnovr"];
+			}
+			checkbox CTL_ACCANLZ_EXCLINNRT [title: "@accanlz_fexclinnertrnovr" tabstop width: bycontainer height: 21 margin: (12, 4, 4, 4)];
+			radiocluster CTL_ACCANLZ_ACCGRP [title: "@accanlz_aco" width: bycontainer margin: 4 padding: (4, 13, 4, 4)] {
+				radiobutton [title: "@accanlz_aco_no"];
+				radiobutton [title: "@accanlz_aco_acc"];
+				radiobutton [title: "@accanlz_aco_subacc"];
+			}
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			combobox CTLSEL_ACCANLZ_SUBST [width: bycontainer height: 21 margin: 4 tabstop label: "@accanlz_coraco" cblinesymb: CTL_ACCANLZ_SUBST];
+			framebox [horizontal width: bycontainer height: 50 margin: 4 padding: 4] {
+				combobox CTLSEL_ACCANLZ_CYCLE [growfactor: 1 height: 21 margin: 4 tabstop label: "@accanlz_cycl_cycle" cblinesymb: CTL_ACCANLZ_CYCLE];
+				input CTL_ACCANLZ_NUMCYCLES [growfactor: 1 height: 21 margin: 4 tabstop label: "@accanlz_cycl_numcycles"] int16;
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 32 margin_right: 12] {
+		view [horizontal growfactor: 1 height: bycontainer] {
+			button STDCTL_MORE [title: "@but_addendum" tabstop size: (160, 21) margin: 4 command: cmaMore];
+		}
+		view [horizontal growfactor: 2 height: bycontainer justifycontent: end alignitems: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_CASHBOOK [vertical title: "@accanlz_aakndcashbook" size: (495, 320) minsize: (495, 320) padding: 4 justifycontent: spacebetween] { // @v12.7.11 
+	view [horizontal width: bycontainer height: 35 justifycontent: spacebetween] {
+		input CTL_ACCANLZ_PERIOD [size: (180, 21) margin: 4 tabstop label: "@accanlz_period"] string[30] supplement daterangecalbutton(CTLCAL_ACCANLZ_PERIOD);
+		input CTL_ACCANLZ_LEAF [size: (70, 21) margin: 4 tabstop label: "@accanlz_leafno"] int16;
+		statictext CTL_ACCANLZ_LABEL [size: (16, 16) margin: (4, 17, 4, 4) staticedge];
+	}
+	framebox [vertical width: bycontainer height: 110 margin: 4 padding: 4] {
+		view [horizontal width: bycontainer growfactor: 1] {
+			input CTL_ACCANLZ_ACC [size: (65, 21) margin: (4, 4, 1, 4) tabstop label: "@accanlz_acc_acc"] string[10];
+			combobox CTLSEL_ACCANLZ_ACCNAME [growfactor: 1 height: 21 margin: (1, 17, 4, 4) tabstop cblinesymb: CTL_ACCANLZ_ACCNAME];
+		}
+		view [horizontal width: bycontainer growfactor: 1] {
+			input CTL_ACCANLZ_ART [size: (65, 21) margin: (4, 4, 1, 4) tabstop label: "@accanlz_acc_ar"] string[10];
+			combobox CTLSEL_ACCANLZ_ARTNAME [growfactor: 1 height: 21 margin: (1, 17, 4, 4) tabstop cblinesymb: CTL_ACCANLZ_ARTNAME];
+		}
+	}
+	view [horizontal width: bycontainer height: 90] {
+		radiocluster CTL_ACCANLZ_ACCGRP [title: "@accanlz_aco" growfactor: 1 margin: 4 padding: (4, 12, 4, 4)] {
+			radiobutton [title: "@accanlz_aco_no"];
+			radiobutton [title: "@accanlz_aco_acc"];
+			radiobutton [title: "@accanlz_aco_subacc"];
+		}
+		combobox CTLSEL_ACCANLZ_SUBST [growfactor: 1 height: 21 margin: 4 tabstop label: "@accanlz_coraco" cblinesymb: CTL_ACCANLZ_SUBST];
+	}
+	//framebox [origin: (15, 65) size: (450, 106) ];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_PRNCASHBOOK [vertical title: "@printcashledger" size: (300, 165) minsize: (300, 165) padding: 4 justifycontent: spacebetween] { // @v12.7.11
+	radiocluster CTL_PRNCASHBOOK_WHAT [vertical tabstop width: bycontainer margin: 4 padding: 4] {
+		radiobutton [title: "@printcashledger_arasmemo"];
+		radiobutton [title: "@printcashledger_arandmemo"];
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_BILLCFG [vertical title: "@cfg_bill" size: (800, 620) minsize: (800, 620) padding: 4 justifycontent: spacebetween] { // @v12.7.11
+	view [horizontal width: bycontainer growfactor: 1] {
+		view [vertical growfactor: 1.5 height: bycontainer] {
+			checkcluster CTL_BILLCFG_FLAGS [width: bycontainer margin: (4, 4, 4, 2) padding: 4] {
+				checkbox [title: "@cfgbill_bcf_confirmwl"];
+				checkbox [title: "@cfgbill_bcf_allowzsupplincostreval"];
+				checkbox [title: "@cfgbill_bcf_warnmatclidebt"];
+				checkbox [title: "@cfgbill_bcf_warnagreement"];
+				checkbox [title: "@cfgbill_bcf_signdifflotcost"];
+				checkbox [title: "@cfgbill_bcf_warnaddbillnoflt"];
+				checkbox [title: "@cfgbill_bcf_allowmultiprint"];
+				checkbox [title: "@cfgbill_bcf_addautoqttybybrcode"];
+				checkbox [title: "@cfgbill_bcf_dontwarndupgoods"];
+				checkbox [title: "@cfgbill_bcf_retailedpriceinlabel"];
+				checkbox [title: "@cfgbill_bcf_autoserial"];
+				checkbox [title: "@cfgbill_bcf_autocomploutbyquot"];
+				checkbox [title: "@cfgbill_bcf_paintshippedbills"];
+				checkbox [title: "@cfgbill_bcf_ovrrdagtquot"];
+			}
+			checkcluster CTL_BILLCFG_FLAGS2 [width: bycontainer margin: (4, 2, 4, 4) padding: 4] {
+				checkbox [title: "@cfgbill_bcf_checkreservedorders"];
+				checkbox [title: "@cfgbill_bcf_ordpricelowpriority"];
+				checkbox [title: "@cfgbill_bcf_extobjasmainorg"];
+				checkbox [title: "@cfgbill_bcf_acceptgoodsbillchg"];
+				checkbox [title: "@xchg_sendattachment"];
+				checkbox [title: "@cfgbill_bcf_dontinhqcert"];
+				checkbox [title: "@cfgbill_bcf_retinheritfreight"];
+				checkbox [title: "@cfgbill_bcf_picklots"];
+				checkbox [title: "@cfgbill_bcf_inhserial"];
+				checkbox [title: "@cfgbill_bcf_dontverifextcodechain"];
+				checkbox [title: "@cfgbill_bcf_newdocbyfiltusefltdate"];
+				checkbox [title: "@cfgbill_bcf_evalmarkcountadeq"];
+			}
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			combobox CTLSEL_BILLCFG_CLCODEREG [width: bycontainer height: 21 margin: 4 tabstop label: "@cfgbill_contractregtype" cblinesymb: CTL_BILLCFG_CLCODEREG];
+			combobox CTLSEL_BILLCFG_INITST [width: bycontainer height: 21 margin: 4 tabstop label: "@cfgbill_initstatus" cblinesymb: CTL_BILLCFG_INITST];
+			checkcluster CTL_BILLCFG_SHOWADDFLD [title: "@cfgbill_showcodesingbrows" width: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
+				checkbox [title: "@barcode"];
+				checkbox [title: "@serial"];
+			}
+			radiocluster CTL_BILLCFG_DEFICITSUBST [title: "@cfgbill_goodssubstmethod" width: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
+				radiobutton [title: "@cfgbill_gsmgeneric"];
+				radiobutton [title: "@cfgbill_gsmsubststruc"];
+				radiobutton [title: "@cfgbill_gsmnone"];
+			}
+			framebox [vertical width: bycontainer growfactor: 1.5 margin: 4 padding: 4] {
+				input CTL_BILLCFG_SNTEMPLT [width: bycontainer height: 21 margin: 4 tabstop label: "@cfgbill_sntemplt"] string[32];
+				input CTL_BILLCFG_INVSNTEMPLT [width: bycontainer height: 21 margin: 4 tabstop label: "@cfgbill_invsntemplt"] string[32];
+				input CTL_BILLCFG_SNRCNTR [width: bycontainer height: 21 margin: 4 tabstop label: "@cfgbill_snrcounter"] int32;
+				input CTL_BILLCFG_UNIQSNSFX [width: bycontainer height: 21 margin: 4 tabstop label: "@cfgbill_uniqserialsfx"] string[16];
+			}
+			view [vertical width: bycontainer growfactor: 1] {
+				button CTL_BILLCFG_CMD_TAGINDFILT [title: "@{cfgbill_tagindfilt}..." tabstop size: (220, 21) margin: 4 command: cmTagIndFilt];
+				button CTL_BILLCFG_CMD_LOTTAGINDFILT [title: "@{cfgbill_lottagindfilt}..." tabstop size: (220, 21) margin: 4 command: cmLotTagIndFilt];
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 4 height: bycontainer justifycontent: start] {
+			button STDCTL_MORE [title: "@but_addendum" tabstop size: (100, 21) margin: 4 command: cmaMore];
+			button CTL_BILLCFG_CMD_TDISMETHOD [title: "@{cfgbill_discountevaluation}..." tabstop size: (100, 21) margin: 4 command: cmBillCfgTDisMethod];
+			button CTL_BILLCFG_CMD_VALUATION [title: "@{cfgbill_valuation_s}..." tabstop size: (100, 21) margin: 4 command: cmBillCfgValuation];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_ATURNTOTAL [vertical title: "@ttl_accturntotal" size: (335, 185) minsize: (335, 185) padding: 4 justifycontent: spacebetween] {
+	view [horizontal width: bycontainer height: 30] {
+		input CTL_ATURNTOTAL_COUNT [design: B size: (75, 21) margin: 4 tabstop readonly label: "@accountingturncount"] int32;
+	}
+	listbox CTL_ATURNTOTAL_AMTLIST [width: bycontainer growfactor: 1 margin: 4 columns: "8,L,;8,L,@currency;14,R,@amount"];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_CANCELBUTTON [title: "@but_close" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_PP_SALARY [vertical title: "@salaryaccrual" size: (460, 310) minsize: (460, 310) padding: 4 justifycontent: spacebetween] {
+	input CTL_PP_SALARY_PERIOD [width: bycontainer(70) height: 21 margin: 4 tabstop label: "@daterange"] string[30] supplement daterangecalbutton(CTLCAL_PP_SALARY_PERIOD);
+	combobox CTLSEL_PP_SALARY_ORG [width: bycontainer height: 21 margin: 4 tabstop label: "@employer" cblinesymb: CTL_PP_SALARY_ORG];
+	combobox CTLSEL_PP_SALARY_DIV [width: bycontainer(70) height: 21 margin: 4 tabstop label: "@division" cblinesymb: CTL_PP_SALARY_DIV];
+	combobox CTLSEL_PP_SALARY_STAFF [width: bycontainer(70) height: 21 margin: 4 tabstop label: "@person_position" cblinesymb: CTL_PP_SALARY_STAFF];
+	checkbox CTL_PP_SALARY_FLAGS [title: "@salaryaccrual_fverbose" tabstop width: bycontainer height: 21 margin: 4];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_SALARYFLT [vertical title: "@salaryfilt" size: (390, 380) minsize: (390, 380) padding: 4 justifycontent: spacebetween] {
+	input CTL_SALARYFLT_PERIOD [width: bycontainer(70) height: 21 margin: 4 tabstop label: "@daterange"] string[30] supplement daterangecalbutton(CTLCAL_SALARYFLT_PERIOD);
+	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 8 justifycontent: spacebetween] {
+		combobox CTLSEL_SALARYFLT_ORG [width: bycontainer height: 21 margin: 4 tabstop label: "@salaryfilt_org" cblinesymb: CTL_SALARYFLT_ORG];
+		combobox CTLSEL_SALARYFLT_DIV [width: bycontainer height: 21 margin: 4 tabstop label: "@division" cblinesymb: CTL_SALARYFLT_DIV];
+		combobox CTLSEL_SALARYFLT_STAFF [width: bycontainer height: 21 margin: 4 tabstop label: "@person_position" cblinesymb: CTL_SALARYFLT_STAFF];
+		combobox CTLSEL_SALARYFLT_POST [width: bycontainer height: 21 margin: 4 tabstop label: "@salaryfilt_post" cblinesymb: CTL_SALARYFLT_POST];
+	}
+	combobox CTLSEL_SALARYFLT_CHARGE [width: bycontainer height: 21 margin: 4 tabstop label: "@salaryfilt_salcharge" cblinesymb: CTL_SALARYFLT_CHARGE];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_SALARY [vertical title: "@salaryaccrual" size: (465, 400) minsize: (465, 400) padding: 4 justifycontent: spacebetween] {
+	input CTL_SALARY_PERIOD [width: bycontainer(50) height: 21 margin: 4 tabstop label: "@daterange"] string[30] supplement daterangecalbutton(CTLCAL_SALARY_PERIOD);
+	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 8 justifycontent: spacebetween] {
+		combobox CTLSEL_SALARY_ORG [width: bycontainer height: 21 margin: 4 tabstop label: "@employer" cblinesymb: CTL_SALARY_ORG];
+		combobox CTLSEL_SALARY_DIV [width: bycontainer height: 21 margin: 4 tabstop label: "@division" cblinesymb: CTL_SALARY_DIV];
+		combobox CTLSEL_SALARY_STAFF [width: bycontainer height: 21 margin: 4 tabstop label: "@person_position" cblinesymb: CTL_SALARY_STAFF];
+	}
+	combobox CTLSEL_SALARY_POST [width: bycontainer height: 21 margin: 4 tabstop label: "@staffpost" cblinesymb: CTL_SALARY_POST];
+	combobox CTLSEL_SALARY_CHARGE [width: bycontainer height: 21 margin: 4 tabstop label: "@salarychargekind" cblinesymb: CTL_SALARY_CHARGE];
+	view [horizontal width: bycontainer(50) height: 30] {
+		input CTL_SALARY_AMOUNT [design: B width: 100 height: 21 margin: 4 tabstop fmtf: (nozero) fmtprec: 2 label: "@amount"] double;
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+// @20261012 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 
 // @construction
@@ -8549,168 +8774,3 @@ dialog DLG_ATURNPERSONAL [vertical size: (600, 480) minsize: (600, 480) padding:
 	}
 }
 
-dialog DLG_ACCANLZ [vertical title: "@accanlz" size: (600, 450) minsize: (600, 450) padding: 4 justifycontent: spacebetween] { // @v12.7.0
-	view [horizontal width: bycontainer height: 35 justifycontent: spacebetween] {
-		input CTL_ACCANLZ_PERIOD [size: (180, 21) margin: 4 tabstop label: "@accanlz_period"] string[30] supplement daterangecalbutton(CTLCAL_ACCANLZ_PERIOD);
-		statictext CTL_ACCANLZ_LABEL [size: (16, 16) margin: (4, 17, 4, 4) staticedge];
-	}
-	framebox [vertical width: bycontainer height: 150 margin: 4 padding: 4] {
-		view [horizontal width: bycontainer growfactor: 1.7] {
-			input CTL_ACCANLZ_ACC [size: (65, 21) margin: (4, 4, 1, 4) tabstop label: "@accanlz_acc_acc"] string[10];
-			combobox CTLSEL_ACCANLZ_ACCNAME [growfactor: 3 height: 21 margin: (1, 17, 4, 4) tabstop cblinesymb: CTL_ACCANLZ_ACCNAME];
-			view [vertical growfactor: 1 height: bycontainer] {
-				combobox CTLSEL_ACCANLZ_CUR [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@accanlz_cur" cblinesymb: CTL_ACCANLZ_CUR];
-				checkbox CTL_ACCANLZ_ALLCUR [title: "@accanlz_fallcurrencies" tabstop width: bycontainer height: 21 margin: (4, 1, 4, 4)];
-			}
-		}
-		view [horizontal width: bycontainer growfactor: 1] {
-			input CTL_ACCANLZ_ART [size: (65, 21) margin: (4, 4, 1, 4) tabstop label: "@accanlz_acc_ar"] string[10];
-			combobox CTLSEL_ACCANLZ_ARTNAME [growfactor: 3 height: 21 margin: (1, 17, 4, 4) tabstop cblinesymb: CTL_ACCANLZ_ARTNAME];
-			view [vertical growfactor: 1 height: bycontainer] { // @stub
-			}
-		}
-		combobox CTLSEL_ACCANLZ_RELSUBST [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@accanlz_substreltype" cblinesymb: CTL_ACCANLZ_RELSUBST];
-	}
-	view [horizontal width: bycontainer growfactor: 1] {
-		view [vertical growfactor: 1 height: bycontainer] {
-			checkcluster CTL_ACCANLZ_TRNOVR [width: bycontainer margin: 4 padding: 4] {
-				checkbox [title: "@accanlz_ftrnovrbysheet"];
-				checkbox [title: "@accanlz_fspprztrnovr"];
-			}
-			checkbox CTL_ACCANLZ_EXCLINNRT [title: "@accanlz_fexclinnertrnovr" tabstop width: bycontainer height: 21 margin: (12, 4, 4, 4)];
-			radiocluster CTL_ACCANLZ_ACCGRP [title: "@accanlz_aco" width: bycontainer margin: 4 padding: (4, 13, 4, 4)] {
-				radiobutton [title: "@accanlz_aco_no"];
-				radiobutton [title: "@accanlz_aco_acc"];
-				radiobutton [title: "@accanlz_aco_subacc"];
-			}
-		}
-		view [vertical growfactor: 1 height: bycontainer] {
-			combobox CTLSEL_ACCANLZ_SUBST [width: bycontainer height: 21 margin: 4 tabstop label: "@accanlz_coraco" cblinesymb: CTL_ACCANLZ_SUBST];
-			framebox [horizontal width: bycontainer height: 50 margin: 4 padding: 4] {
-				combobox CTLSEL_ACCANLZ_CYCLE [growfactor: 1 height: 21 margin: 4 tabstop label: "@accanlz_cycl_cycle" cblinesymb: CTL_ACCANLZ_CYCLE];
-				input CTL_ACCANLZ_NUMCYCLES [growfactor: 1 height: 21 margin: 4 tabstop label: "@accanlz_cycl_numcycles"] int16;
-			}
-		}
-	}
-	view [horizontal width: bycontainer height: 32 margin_right: 12] {
-		view [horizontal growfactor: 1 height: bycontainer] {
-			button STDCTL_MORE [title: "@but_addendum" tabstop size: (160, 21) margin: 4 command: cmaMore];
-		}
-		view [horizontal growfactor: 2 height: bycontainer justifycontent: end alignitems: end] {
-			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
-			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
-		}
-	}
-}
-
-dialog DLG_CASHBOOK [vertical title: "@accanlz_aakndcashbook" size: (495, 320) minsize: (495, 320) padding: 4 justifycontent: spacebetween] { // @v12.7.11 
-	view [horizontal width: bycontainer height: 35 justifycontent: spacebetween] {
-		input CTL_ACCANLZ_PERIOD [size: (180, 21) margin: 4 tabstop label: "@accanlz_period"] string[30] supplement daterangecalbutton(CTLCAL_ACCANLZ_PERIOD);
-		input CTL_ACCANLZ_LEAF [size: (70, 21) margin: 4 tabstop label: "@accanlz_leafno"] int16;
-		statictext CTL_ACCANLZ_LABEL [size: (16, 16) margin: (4, 17, 4, 4) staticedge];
-	}
-	framebox [vertical width: bycontainer height: 110 margin: 4 padding: 4] {
-		view [horizontal width: bycontainer growfactor: 1] {
-			input CTL_ACCANLZ_ACC [size: (65, 21) margin: (4, 4, 1, 4) tabstop label: "@accanlz_acc_acc"] string[10];
-			combobox CTLSEL_ACCANLZ_ACCNAME [growfactor: 1 height: 21 margin: (1, 17, 4, 4) tabstop cblinesymb: CTL_ACCANLZ_ACCNAME];
-		}
-		view [horizontal width: bycontainer growfactor: 1] {
-			input CTL_ACCANLZ_ART [size: (65, 21) margin: (4, 4, 1, 4) tabstop label: "@accanlz_acc_ar"] string[10];
-			combobox CTLSEL_ACCANLZ_ARTNAME [growfactor: 1 height: 21 margin: (1, 17, 4, 4) tabstop cblinesymb: CTL_ACCANLZ_ARTNAME];
-		}
-	}
-	view [horizontal width: bycontainer height: 90] {
-		radiocluster CTL_ACCANLZ_ACCGRP [title: "@accanlz_aco" growfactor: 1 margin: 4 padding: (4, 12, 4, 4)] {
-			radiobutton [title: "@accanlz_aco_no"];
-			radiobutton [title: "@accanlz_aco_acc"];
-			radiobutton [title: "@accanlz_aco_subacc"];
-		}
-		combobox CTLSEL_ACCANLZ_SUBST [growfactor: 1 height: 21 margin: 4 tabstop label: "@accanlz_coraco" cblinesymb: CTL_ACCANLZ_SUBST];
-	}
-	//framebox [origin: (15, 65) size: (450, 106) ];
-	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
-		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
-	}
-}
-
-dialog DLG_PRNCASHBOOK [vertical title: "@printcashledger" size: (300, 165) minsize: (300, 165) padding: 4 justifycontent: spacebetween] { // @v12.7.11
-	radiocluster CTL_PRNCASHBOOK_WHAT [vertical tabstop width: bycontainer margin: 4 padding: 4] {
-		radiobutton [title: "@printcashledger_arasmemo"];
-		radiobutton [title: "@printcashledger_arandmemo"];
-	}
-	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
-		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
-	}
-}
-
-dialog DLG_BILLCFG [vertical title: "@cfg_bill" size: (800, 620) minsize: (800, 620) padding: 4 justifycontent: spacebetween] { // @v12.7.11
-	view [horizontal width: bycontainer growfactor: 1] {
-		view [vertical growfactor: 1.5 height: bycontainer] {
-			checkcluster CTL_BILLCFG_FLAGS [width: bycontainer margin: (4, 4, 4, 2) padding: 4] {
-				checkbox [title: "@cfgbill_bcf_confirmwl"];
-				checkbox [title: "@cfgbill_bcf_allowzsupplincostreval"];
-				checkbox [title: "@cfgbill_bcf_warnmatclidebt"];
-				checkbox [title: "@cfgbill_bcf_warnagreement"];
-				checkbox [title: "@cfgbill_bcf_signdifflotcost"];
-				checkbox [title: "@cfgbill_bcf_warnaddbillnoflt"];
-				checkbox [title: "@cfgbill_bcf_allowmultiprint"];
-				checkbox [title: "@cfgbill_bcf_addautoqttybybrcode"];
-				checkbox [title: "@cfgbill_bcf_dontwarndupgoods"];
-				checkbox [title: "@cfgbill_bcf_retailedpriceinlabel"];
-				checkbox [title: "@cfgbill_bcf_autoserial"];
-				checkbox [title: "@cfgbill_bcf_autocomploutbyquot"];
-				checkbox [title: "@cfgbill_bcf_paintshippedbills"];
-				checkbox [title: "@cfgbill_bcf_ovrrdagtquot"];
-			}
-			checkcluster CTL_BILLCFG_FLAGS2 [width: bycontainer margin: (4, 2, 4, 4) padding: 4] {
-				checkbox [title: "@cfgbill_bcf_checkreservedorders"];
-				checkbox [title: "@cfgbill_bcf_ordpricelowpriority"];
-				checkbox [title: "@cfgbill_bcf_extobjasmainorg"];
-				checkbox [title: "@cfgbill_bcf_acceptgoodsbillchg"];
-				checkbox [title: "@xchg_sendattachment"];
-				checkbox [title: "@cfgbill_bcf_dontinhqcert"];
-				checkbox [title: "@cfgbill_bcf_retinheritfreight"];
-				checkbox [title: "@cfgbill_bcf_picklots"];
-				checkbox [title: "@cfgbill_bcf_inhserial"];
-				checkbox [title: "@cfgbill_bcf_dontverifextcodechain"];
-				checkbox [title: "@cfgbill_bcf_newdocbyfiltusefltdate"];
-			}
-		}
-		view [vertical growfactor: 1 height: bycontainer] {
-			combobox CTLSEL_BILLCFG_CLCODEREG [width: bycontainer height: 21 margin: 4 tabstop label: "@cfgbill_contractregtype" cblinesymb: CTL_BILLCFG_CLCODEREG];
-			combobox CTLSEL_BILLCFG_INITST [width: bycontainer height: 21 margin: 4 tabstop label: "@cfgbill_initstatus" cblinesymb: CTL_BILLCFG_INITST];
-			checkcluster CTL_BILLCFG_SHOWADDFLD [title: "@cfgbill_showcodesingbrows" width: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
-				checkbox [title: "@barcode"];
-				checkbox [title: "@serial"];
-			}
-			radiocluster CTL_BILLCFG_DEFICITSUBST [title: "@cfgbill_goodssubstmethod" width: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
-				radiobutton [title: "@cfgbill_gsmgeneric"];
-				radiobutton [title: "@cfgbill_gsmsubststruc"];
-				radiobutton [title: "@cfgbill_gsmnone"];
-			}
-			framebox [vertical width: bycontainer growfactor: 1.5 margin: 4 padding: 4] {
-				input CTL_BILLCFG_SNTEMPLT [width: bycontainer height: 21 margin: 4 tabstop label: "@cfgbill_sntemplt"] string[32];
-				input CTL_BILLCFG_INVSNTEMPLT [width: bycontainer height: 21 margin: 4 tabstop label: "@cfgbill_invsntemplt"] string[32];
-				input CTL_BILLCFG_SNRCNTR [width: bycontainer height: 21 margin: 4 tabstop label: "@cfgbill_snrcounter"] int32;
-				input CTL_BILLCFG_UNIQSNSFX [width: bycontainer height: 21 margin: 4 tabstop label: "@cfgbill_uniqserialsfx"] string[16];
-			}
-			view [vertical width: bycontainer growfactor: 1] {
-				button CTL_BILLCFG_CMD_TAGINDFILT [title: "@{cfgbill_tagindfilt}..." tabstop size: (220, 21) margin: 4 command: cmTagIndFilt];
-				button CTL_BILLCFG_CMD_LOTTAGINDFILT [title: "@{cfgbill_lottagindfilt}..." tabstop size: (220, 21) margin: 4 command: cmLotTagIndFilt];
-			}
-		}
-	}
-	view [horizontal width: bycontainer height: 30] {
-		view [horizontal growfactor: 4 height: bycontainer justifycontent: start] {
-			button STDCTL_MORE [title: "@but_addendum" tabstop size: (100, 21) margin: 4 command: cmaMore];
-			button CTL_BILLCFG_CMD_TDISMETHOD [title: "@{cfgbill_discountevaluation}..." tabstop size: (100, 21) margin: 4 command: cmBillCfgTDisMethod];
-			button CTL_BILLCFG_CMD_VALUATION [title: "@{cfgbill_valuation_s}..." tabstop size: (100, 21) margin: 4 command: cmBillCfgValuation];
-		}
-		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
-			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
-			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
-		}
-	}
-}

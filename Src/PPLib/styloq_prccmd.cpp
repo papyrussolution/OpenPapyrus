@@ -773,7 +773,6 @@ int PPStyloQInterchange::ProcessCommand_PersonEvent(const StyloQCommandList::Ite
 		if(param.PePack.Rec.SecondID == ROBJID_CONTEXT) {
 			THROW(FetchPersonFromClientPacket(rCliPack, &param.PePack.Rec.SecondID, true/*logResult*/) > 0);
 		}
-		// @v11.3.12 {
 		if(pJsCmd) {
 			const SJson * p_js_memo = pJsCmd->FindChildByKey("memo");
 			if(p_js_memo) {
@@ -782,7 +781,6 @@ int PPStyloQInterchange::ProcessCommand_PersonEvent(const StyloQCommandList::Ite
 					param.PePack.SMemo = temp_buf;
 			}
 		}
-		// } @v11.3.12 
 		THROW(psnevobj.PutPacket(&new_id, &param.PePack, 1));
 	}
 	CATCHZOK
@@ -801,8 +799,6 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 	SJson * p_js_reply = 0;
 	StyloQCommandList::Item org_cmd_item; // Если org_cmd_item.BaseCmdId == 0, то считаем, что экземпляр не инициализирован
 	StyloQDocumentPrereqParam * p_cmd_doc_filt = 0;
-	//PPID   result_bill_id = 0;
-	//PPID   result_tses_id = 0;
 	SBinaryChunk cli_ident;
 	Document doc;
 	DocumentDeclaration ddecl(0, 0);
@@ -1098,9 +1094,9 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 			else {
 				PPIDArray loc_list;
 				THROW_PP_S(doc.InterchangeOpID == PPEDIOP_ORDER, PPERR_SQ_INDOCINVIXOP, doc_text);
-				if(p_cmd_doc_filt) { // @v11.5.0
-					GetContextualOpAndLocForOrder(*p_cmd_doc_filt, &_op_id, &loc_list); // @v11.4.9
-					loc_id = loc_list.getSingle(); // @v11.4.9
+				if(p_cmd_doc_filt) {
+					GetContextualOpAndLocForOrder(*p_cmd_doc_filt, &_op_id, &loc_list);
+					loc_id = loc_list.getSingle();
 				}
 			}
 			const LDATE due_date = ValidDateOr(doc.DueTime.d, ZERODATE);
@@ -1166,13 +1162,11 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 							STRNSCPY(bpack_.Rec.Code, doc.Code);
 							bpack_.SetupEdiAttributes(PPEDIOP_ORDER, "STYLOQ", 0); // @!
 							bpack_.SetGuid(doc.Uuid);
-							// @v11.4.8 {
 							if(checkdate(doc.CreationTime.d)) {
 								ObjTagItem tag_item;
 								tag_item.SetTimestamp(PPTAG_BILL_CREATEDTM, doc.CreationTime);
 								bpack_.BTagL.PutItem(PPTAG_BILL_CREATEDTM, &tag_item);
 							}
-							// } @v11.4.8 
 							// @v11.6.2 {
 							if(doc.CreationGeoLoc.IsValid() && !doc.CreationGeoLoc.IsZero()) {
 								bpack_.BTagL.PutItemStr(PPTAG_BILL_GPSCOORD, temp_buf.Z().Cat(doc.CreationGeoLoc.Lat).CatChar(',').Cat(doc.CreationGeoLoc.Lon));
@@ -1194,13 +1188,11 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 							p_bpack->Rec.DueDate = due_date;
 						if(is_new_pack || !ddecl.ActionFlags || (ddecl.ActionFlags & (StyloQIncomingListParam::actionDocAcceptance|StyloQIncomingListParam::actionDocStatus)))
 							(p_bpack->SMemo = doc.Memo).Strip().Transf(CTRANSF_UTF8_TO_INNER);
-						// @v11.5.1 {
 						if(is_new_pack || ddecl.ActionFlags & StyloQIncomingListParam::actionDocStatus) {
 							if(doc.StatusSurrId > 0 && p_cli_status_list) {
 								Document::CliStatus::SetToBill(*p_cli_status_list, doc.StatusSurrId, *p_bpack);
 							}
 						}
-						// } @v11.5.1 
 						{
 							const  PPID agent_acs_id = GetAgentAccSheet();
 							PPID  person_id = 0;
@@ -1245,7 +1237,6 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 								}
 							}
 						}
-						// @v11.4.8 {
 						if(!is_new_pack) {
 							// @v11.7.0 {
 							if(acceptance == StyloQIncomingListParam::acceptanceLinkDraft) {
@@ -1323,7 +1314,6 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 								}
 							}
 						}
-						// } @v11.4.8 
 						{
 							PPLotExtCodeContainer::MarkSet ms;
 							for(uint i = 0; i < doc.TiList.getCount(); i++) {
@@ -1637,7 +1627,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 		js.InsertString("orgcmduuid", temp_buf.Z().Cat(rCmdItem.Uuid, S_GUID::fmtIDL).Escape());
 	js.InsertString("time", temp_buf.Z().Cat(now_dtm, DATF_ISO8601CENT, 0));
 	// } @v11.6.2 
-	StqInsertIntoJs_BaseCurrency(&js); // @v11.3.12
+	StqInsertIntoJs_BaseCurrency(&js);
 	{
 		//if(rCmdItem.GetAttendanceParam(param) > 0) {
 		if(rCmdItem.GetSpecialParam<StyloQAttendancePrereqParam>(param) > 0) {
@@ -1645,14 +1635,12 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 			SJson * p_js_param = SJson::CreateObj();
 			if(param.PrcTitle.NotEmpty())
 				p_js_param->InsertString("prctitle", (temp_buf = param.PrcTitle).Transf(CTRANSF_INNER_TO_UTF8).Escape());
-			p_js_param->InsertInt("MaxScheduleDays", max_schedule_days); // @v11.3.10
-			// @v11.4.3 {
+			p_js_param->InsertInt("MaxScheduleDays", max_schedule_days);
 			if(oneof3(param.TimeSheetDiscreteness, 5, 10, 15))
 				time_sheet_discreteness = param.TimeSheetDiscreteness;
 			else 
 				time_sheet_discreteness = 5;
 			p_js_param->InsertInt("TimeSheetDiscreteness", time_sheet_discreteness); 
-			// } @v11.4.3 
 			js.Insert("param", p_js_param);
 		}
 	}
@@ -2832,7 +2820,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 	const LDATETIME * pIfChangedSince, SString & rResult, SString & rDocDeclaration, uint prccmdFlags)
 {
 	int    ok = 1;
-	const LDATETIME now_dtm = getcurdatetime_();
+	const  LDATETIME now_dtm = getcurdatetime_();
 	SJson * p_js_doc_list = 0;
 	SBinaryChunk bc_own_ident;
 	StyloQIncomingListParam param;
@@ -2901,17 +2889,21 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 				}
 			}
 			if(temp_entry_list.getCount()) {
-				// @v11.6.2 {
 				if(!!rCmdItem.Uuid)
 					js.InsertString("orgcmduuid", temp_buf.Z().Cat(rCmdItem.Uuid, S_GUID::fmtIDL).Escape());
 				js.InsertString("time", temp_buf.Z().Cat(now_dtm, DATF_ISO8601CENT, 0));
-				// } @v11.6.2 
 				StqInsertIntoJs_BaseCurrency(&js);
 				if(param.ActionFlags) {
 					Document::IncomingListActionsToString(param.ActionFlags, temp_buf);
 					if(temp_buf.NotEmptyS())
 						js.InsertString("actions", temp_buf);
 				}
+				// @v12.7.12 {
+				{
+					const  bool do_eval_chznmark_count_adeq = LOGIC(p_bobj->GetConfig().Flags & BCF_EVALMARKCOUNTADEQ);
+					js.InsertBool("eval_chzn_count_adeq", do_eval_chznmark_count_adeq);
+				}
+				// } @v12.7.12 
 				if(param.StatusList.getCount()) {
 					SJson * p_js_list = SJson::CreateArr();
 					for(uint i = 0; i < param.StatusList.getCount(); i++) {
@@ -2929,7 +2921,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 				temp_entry_list.sort2(PTR_CMPFUNC(LDATE));
 				uint _c = temp_entry_list.getCount();
 				if(_c) do {
-					const ListEntry & r_entry = *static_cast<const ListEntry *>(temp_entry_list.at(--_c));
+					const  ListEntry & r_entry = *static_cast<const ListEntry *>(temp_entry_list.at(--_c));
 					PPBillPacket bpack;
 					if(p_bobj->ExtractPacketWithFlags(r_entry.ID, &bpack, BPLD_LOADINVLINES) > 0) {
 						bool do_skip = false;
@@ -2941,7 +2933,7 @@ int PPStyloQInterchange::ProcessCommand_IncomingListOrder(const StyloQCommandLis
 						if(!do_skip && param.Flags & StyloQIncomingListParam::fBillWithMarkedGoodsOnly) {
 							bool is_there_wanted_goods = false;
 							for(uint i = 0; !is_there_wanted_goods && i < bpack.GetTCount(); i++) {
-								const PPTransferItem & r_ti = bpack.ConstTI(i);
+								const  PPTransferItem & r_ti = bpack.ConstTI(i);
 								const  PPID goods_id = labs(r_ti.GoodsID);
 								PPGoodsType2 gt_rec;
 								if(mige_blk.GObj.Fetch(goods_id, &goods_rec) > 0 && goods_rec.GoodsTypeID && mige_blk.GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {

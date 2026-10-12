@@ -2175,7 +2175,7 @@ static int ReadPrjTaskPacket(PPPrjTaskPacket * pPack, SBuffer & rBuf, long)
 	THROW_SL(rBuf.Read(code));
 	THROW_SL(rBuf.Read(pPack->Rec.CreatorID));
 	THROW_SL(rBuf.Read(pPack->Rec.GroupID));
-	THROW_SL(rBuf.Read(pPack->Rec.EmployerID));
+	THROW_SL(rBuf.Read(pPack->Rec.EmployeeID));
 	THROW_SL(rBuf.Read(pPack->Rec.ClientID));
 	THROW_SL(rBuf.Read(pPack->Rec.TemplateID));
 	THROW_SL(rBuf.Read(pPack->Rec.Dt));
@@ -2222,7 +2222,7 @@ static int WritePrjTaskPacket(const PPPrjTaskPacket * pPack, SBuffer & rBuf, lon
 	THROW_SL(rBuf.Write(code));
 	THROW_SL(rBuf.Write(pPack->Rec.CreatorID));
 	THROW_SL(rBuf.Write(pPack->Rec.GroupID));
-	THROW_SL(rBuf.Write(pPack->Rec.EmployerID));
+	THROW_SL(rBuf.Write(pPack->Rec.EmployeeID));
 	THROW_SL(rBuf.Write(pPack->Rec.ClientID));
 	THROW_SL(rBuf.Write(pPack->Rec.TemplateID));
 	THROW_SL(rBuf.Write(pPack->Rec.Dt));

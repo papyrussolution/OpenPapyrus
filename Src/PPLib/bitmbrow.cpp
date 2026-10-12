@@ -682,47 +682,49 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 						ok = 1;
 					}
 					else if(col == posblk.MarkCountPos) { // @v12.7.10 #35
-						const  PPTransferItem & r_ti = r_pack.ConstTI(pos);
-						bool   is_marked_ware = false;
-						Goods2Tbl::Rec goods_rec;
-						PPGoodsType2 gt_rec;
-						if(p_brw->GObj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && p_brw->GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
-							is_marked_ware = (gt_rec.Flags & GTF_GMARKED && gt_rec.ChZnProdType);
-						}
-						PPLotExtCodeContainer::MarkSet ecs;
-						const  long ecs_count = (r_pack.XcL.Get(p_item->Pos+1, 0, ecs) > 0) ? ecs.GetCount() : 0;
-						const  long iqtty = R0i(fabs(r_ti.Qtty()));
-						const  long unit_per_pack = R0i(r_ti.UnitPerPack);
-						const  int r = PPChZnPrcssr::EstimateQuantityAdequacy(iqtty, unit_per_pack, ecs_count);
-						int   msg_id = 0;
-						SColor _color;
-						switch(r) {
-							case PPChZnPrcssr::eqarOK:
-								msg_id = TCELHLD_TRFRLIST_MARKCOUNT_OK;
-								ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_ok", SClrLightgreen));
-								break;
-							case PPChZnPrcssr::eqarUndecomposable:
-								msg_id = TCELHLD_TRFRLIST_MARKCOUNT_UNDECOMPOSABLE;
-								ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_undecomposable", SClrLightpink));
-								break;
-							case PPChZnPrcssr::eqarUndefPackage:
-								msg_id = TCELHLD_TRFRLIST_MARKCOUNT_UNDEFPACKAGE;
-								ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_undefpackage", SClrLightyellow));
-								break;
-							case PPChZnPrcssr::eqarMcZero:
-								if(is_marked_ware) {
-									msg_id = TCELHLD_TRFRLIST_MARKCOUNT_MCZERO;
-									ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_mczero", SClrIvory));
+						if(p_brw->P_BObj->GetConfig().Flags & BCF_EVALMARKCOUNTADEQ) { // @v12.7.12 @condition
+							const  PPTransferItem & r_ti = r_pack.ConstTI(pos);
+							bool   is_marked_ware = false;
+							Goods2Tbl::Rec goods_rec;
+							PPGoodsType2 gt_rec;
+							if(p_brw->GObj.Fetch(r_ti.GoodsID, &goods_rec) > 0 && goods_rec.GoodsTypeID && p_brw->GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
+								is_marked_ware = (gt_rec.Flags & GTF_GMARKED && gt_rec.ChZnProdType);
+							}
+							PPLotExtCodeContainer::MarkSet ecs;
+							const  long ecs_count = (r_pack.XcL.Get(p_item->Pos+1, 0, ecs) > 0) ? ecs.GetCount() : 0;
+							const  long iqtty = R0i(fabs(r_ti.Qtty()));
+							const  long unit_per_pack = R0i(r_ti.UnitPerPack);
+							const  int r = PPChZnPrcssr::EstimateQuantityAdequacy(iqtty, unit_per_pack, ecs_count);
+							int   msg_id = 0;
+							SColor _color;
+							switch(r) {
+								case PPChZnPrcssr::eqarOK:
+									msg_id = TCELHLD_TRFRLIST_MARKCOUNT_OK;
+									ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_ok", SClrLightgreen));
+									break;
+								case PPChZnPrcssr::eqarUndecomposable:
+									msg_id = TCELHLD_TRFRLIST_MARKCOUNT_UNDECOMPOSABLE;
+									ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_undecomposable", SClrLightpink));
+									break;
+								case PPChZnPrcssr::eqarUndefPackage:
+									msg_id = TCELHLD_TRFRLIST_MARKCOUNT_UNDEFPACKAGE;
+									ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_undefpackage", SClrLightyellow));
+									break;
+								case PPChZnPrcssr::eqarMcZero:
+									if(is_marked_ware) {
+										msg_id = TCELHLD_TRFRLIST_MARKCOUNT_MCZERO;
+										ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_mczero", SClrIvory));
+									}
+									break;
+								case PPChZnPrcssr::eqarMcGtQtty:
+									msg_id = TCELHLD_TRFRLIST_MARKCOUNT_MCGTQTTY;
+									ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_mcgtqtty", SClrLightcoral));
+									break;
+							}
+							if(ok) {
+								if(msg_id && paintAction == BrowserWindow::paintQueryDescription) {
+									pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, msg_id, SLS.AcquireRvlStr()));
 								}
-								break;
-							case PPChZnPrcssr::eqarMcGtQtty:
-								msg_id = TCELHLD_TRFRLIST_MARKCOUNT_MCGTQTTY;
-								ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_mcgtqtty", SClrLightcoral));
-								break;
-						}
-						if(ok) {
-							if(msg_id && paintAction == BrowserWindow::paintQueryDescription) {
-								pStyle->CatDescriptionText(PPLoadStringS(PPSTR_TCELHLD, msg_id, SLS.AcquireRvlStr()));
 							}
 						}
 					}

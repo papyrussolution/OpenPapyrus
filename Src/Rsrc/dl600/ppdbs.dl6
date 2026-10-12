@@ -1752,7 +1752,7 @@ table PrjTask {         // size = 144
 	string Code[24];    // @v6.2.2 Code[16]-->Code[24]
 	long   CreatorID;   // ->Person.ID
 	long   GroupID;     // @unused
-	long   EmployerID;  // ->Person.ID
+	long   EmployeeID;  // ->Person.ID // @v12.7.12 EmployerID-->EmployeeID
 	long   ClientID;    // ->Person.ID
 	long   TemplateID;  // ->PrjTask(Kind = Template) Шаблон задачи
 	date   Dt;          // Дата создания записи
@@ -1787,7 +1787,7 @@ index:
 	Dt, Tm (unique mod);              // #1
 	ProjectID, Dt, Tm (unique mod);   // #2
 	TemplateID, Dt, Tm (unique mod);  // #3
-	EmployerID, Dt, Tm (unique mod);  // #4
+	EmployeeID, Dt, Tm (unique mod);  // #4 // @v12.7.12 EmployerID-->EmployeeID
 	ClientID, Dt, Tm (unique mod);    // #5
 	LinkTaskID, Dt, Tm (unique mod);  // #6
 	LinkBillID, Dt, Tm (unique mod);  // #7 // @v12.4.7
@@ -4457,17 +4457,17 @@ file:
 //
 table TempPrjTask {        //
 	long   TabID;          //
-	long   EmployerID;     // ->Person.ID
+	long   EmployeeID;     // ->Person.ID // @v12.7.12 EmployerID-->EmployeeID
 	long   ClientID;       // ->Person.ID
 	date   StartDt;        // Дата начала работы
 	string ClientName[128];   // @v6.2.2 [48]-->[128]
-	string EmployerName[128]; // @v6.2.2 [48]-->[128]
+	string EmployeeName[128]; // @v6.2.2 [48]-->[128] // @v12.7.12 EmployerName-->EmployeeName
 	double TabParam;       // Кол-во невыполненных задач
 	double TaskCount;
 index:
 	TabID, StartDt    (dup mod);
 	TabID, ClientID   (dup mod);
-	TabID, EmployerID (dup mod);
+	TabID, EmployeeID (dup mod); // @v12.7.12 EmployerID-->EmployeeID
 file:
 	"tmp_ptsk.btr";
 	temporary;

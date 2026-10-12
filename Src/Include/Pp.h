@@ -34960,6 +34960,8 @@ struct CfmReckoningParam {
 #define BCF_INHSERIAL              0x08000000L  // Наследовать в приходах серийный номер от последнего лота
 #define BCF_DONTVERIFEXTCODECHAIN  0x10000000L  // Не проверять цепочки кодов расширения лотов при расходе
 #define BCF_NEWDOCBYFILTUSEFLTDATE 0x20000000L  // При создании документа по фильтру к документу применять верхнюю дату периода фильтра. Иначе - текущую системную.
+#define BCF_EVALMARKCOUNTADEQ      0x40000000L  // @v12.7.12 Оценивать адекватность числа марок количеству единиц товаров (если да, то будет цветовая индикация //
+	// в строках документа и в PPViewFreight. Так же этот флаг передается на Stylo-Q.
 
 struct PPBillConfig {        // @persistent @store(cvt:PropertyTbl)
 	PPBillConfig();
@@ -46408,7 +46410,7 @@ public:
 		fPrintDetail      = 0x10000000, // По умолчанию печатать детализированный отчет по структуре CCheckViewDetail
 		fNotSpFinished    = 0x20000000, // На чеке не установлен флаг CCHKF_SPFINISHED
 		fAvoidExt         = 0x40000000, // По возможности избегать чтения расширенных данных чека для улучшения производительности
-		fWithMarkOnly     = 0x80000000  // @v11.0.0 Только чеки, среди строк которых имеются маркированные
+		fWithMarkOnly     = 0x80000000  // Только чеки, среди строк которых имеются маркированные
 	};
 	enum { // @v11.9.1
 		f2ImportedOnly    = 0x00000001 // @v11.9.1 Только импортированные чеки (в записи установлен флаг CCHKF_IMPORTED)
@@ -46610,6 +46612,7 @@ private:
 	int    GetReportId() const;
 	int    Recover();
 	int    ExportToChZn();
+	int    Export();
 
 	static int DynFuncPosText;
 
@@ -49304,7 +49307,7 @@ struct iCalendarImportParam {
 	iCalendarImportParam & Z();
 	PPID   TodoDefCreatorID;
 	PPID   TodoDefClientID;
-	PPID   TodoDefEmployerID;
+	PPID   TodoDefEmployeeID;
 	SString FilePath;
 };
 
@@ -49338,7 +49341,7 @@ public:
 	int    WritePacketWithPredefinedFormat(const PPPrjTaskPacket * pPack, int format, SString & rBuf, void * pCtx);
 	int    ImportFromOuterFormat(const char * pInput, const iCalendarImportParam * pParam, TSCollection <PPPrjTaskPacket> & rList);
 	int    SearchAnalog(const PPPrjTaskPacket * pPack, PPID * pAnalogID);
-	int    InitPacket_(PPPrjTaskPacket & rPack, int kind/*TODOKIND_XXX*/, PPID prjID, PPID clientID, PPID employerID, int use_ta);
+	int    InitPacket_(PPPrjTaskPacket & rPack, int kind/*TODOKIND_XXX*/, PPID prjID, PPID clientID, PPID employeeID, int use_ta);
 	int    InitPacketByTemplate(const PPPrjTaskPacket & rTemplPack, LDATE startDt, PPPrjTaskPacket & rPack, int use_ta);
 	int    AddBySample(PPID * pID, PPID sampleID);
 	SString & GetItemDescr(PPID id, SString & rBuf);
@@ -49457,7 +49460,7 @@ public:
 	SubstGrpDate Sgd;          //
 	long   Reserve;            // @anchor Заглушка для отмера "плоского" участка фильтра
 	ObjIdListFilt ClientList;   // @v12.7.11 
-	ObjIdListFilt EmployerList; // @v12.7.11
+	ObjIdListFilt EmployeeList; // @v12.7.11
 	ObjIdListFilt CreatorList;  // @v12.7.11
 	TagFilt * P_TagF;           // @v12.7.11
 private:
@@ -49501,7 +49504,7 @@ private:
 		char   Code[24];
 		long   CreatorID;
 		long   GroupID;
-		long   EmployerID;
+		long   EmployeeID;
 		long   ClientID;
 		long   TemplateID;
 		LDATETIME Dtm;
@@ -49579,7 +49582,7 @@ private:
 	};
 	PrjTaskTimeChunkGrid Grid;
 	ObjIdListFilt CreatorList;
-	ObjIdListFilt EmployerList;
+	ObjIdListFilt EmployeeList;
 	ObjIdListFilt ClientList;
 	SStrGroup StrPool; // Пул строковых полей, на который ссылаются поля в TempPrjTask
 };
@@ -56243,7 +56246,7 @@ class AcctCtrlGroup : public CtrlGroup {
 public:
 	struct Rec {
 		Rec();
-		AccIdent AcctId;      // @INOUT
+		AccIdent AcctId;    // @INOUT
 		PPID   AccSheetID;  // @INOUT
 		long   AccSelParam; // @IN (ACY_SEL_XXX, -1, -100)
 		long   AccType;     // @OUT Type of selected account (ACY_XXX). -1 - undefined
@@ -56429,7 +56432,7 @@ public:
 		fCanInsert         = 0x0001, // OLW_CANINSERT
 		fLoadDefOnOpen     = 0x0002, // OLW_LOADDEFONOPEN
 		fDefComboFlags     = fCanInsert,
-		fUseByContextValue = 0x0004  // @v11.1.10 OLW_INSCONTEXTEDITEMS
+		fUseByContextValue = 0x0004  // OLW_INSCONTEXTEDITEMS
 	};
 	PersonCtrlGroup(uint ctlsel, uint ctlSCardCode, long psnKindID, long flags = fDefComboFlags);
 	void   SetAnonymCtrlId(uint ctl);

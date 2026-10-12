@@ -7426,6 +7426,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @stateorganization                   "Государственное предприятие"
 @individualentrepreneur              "Индивидуальный предприниматель"
 @employer                            "Работодатель"
+@employee                            "Сотрудник" // @v12.7.12
 @personnel                           "Персонал" // В смысле сотрудники организации. Символ staff не применяем из-за его многозначности
 @captain                             "Капитан" // Капитан судна
 @chauffeur                           "Водитель" // Водитель транспортного средства
@@ -11220,6 +11221,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgbill_bcf_warnmatclidebt               "Предупреждать о наличии у клиента просроченной задолженности"
 @cfgbill_bcf_dontverifextcodechain        "Не проверять цепочки кодов расширения лотов"
 @cfgbill_bcf_newdocbyfiltusefltdate       "При создании документа по фильтру использовать дату фильтра"
+@cfgbill_bcf_evalmarkcountadeq            "Оценивать адекватность числа марок количеству единиц товара" // @v12.7.12
 @cfgbill_showcodesingbrows                "Показывать коды в строках документов" // generic
 @cfgbill_cashnode                         "Кассовый узел для печати чеков по документам"
 @cfgbill_clcodeprfx                       "Префикс кода клиента"
@@ -13479,7 +13481,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @prjtask_dt                               "@{creationdate}"
 @prjtask_tm                               "Время создания"
 @prjtask_datetime                         "Дата и время создания" // generic
-@prjtask_employer                         "@{employer}"
+@prjtask_employer                         "@{executor}" // @todo Исправить @prjtask_employer-->@prjtask_employee
 @prjtask_estfinishdt                      "Предполагаемая дата завершения"
 @prjtask_estfinishdt_s                    "Дата завершения" // @v12.6.1 для использования в таблицах
 @prjtask_estfinishtm                      "Предполагаемое время завершения"
@@ -13506,7 +13508,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @prjtaskfilt_kind_templates               "@{template_pl}"
 @prjtaskfilt_project                      ""
 @prjtaskfilt_client                       "@{client}"
-@prjtaskfilt_employer                     "@{executor}"
+@prjtaskfilt_employer                     "@{executor}" // @todo Исправить @prjtaskfilt_employer-->@prjtaskfilt_employee
 @prjtaskfilt_template                     "@{template}"
 @prjtaskfilt_creator                      "@{creator}"
 @prjtaskfilt_clicity                      "Город клиента"
@@ -17414,10 +17416,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 
 @restorelostprjtperson                    "Восстановление утерянных персоналий для задач"
 @restorelostprjtperson_resolvecreator     "Восстановить создателя"
-@restorelostprjtperson_resolveemployer    "Восстановить исполнителя"
+@restorelostprjtperson_resolveemployer    "Восстановить исполнителя" // @todo Исправить @restorelostprjtperson_resolveemployer-->@restorelostprjtperson_resolveemployee
 @restorelostprjtperson_resolveclient      "Восстановить клиента"
 @restorelostprjtperson_viewbycreator      "Задачи с создателем"
-@restorelostprjtperson_viewbyemployer     "Задачи с исполнителем"
+@restorelostprjtperson_viewbyemployer     "Задачи с исполнителем" // @todo Исправить @restorelostprjtperson_viewbyemployer-->@restorelostprjtperson_viewbyemployee
 @restorelostprjtperson_viewbyclient       "Задачи с клиентом"
 
 @replacecardinchecks                      "Перенос операций по персональной карте"
@@ -17805,7 +17807,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @vcalimportparam                          "Импорт задач из vCalendar/iCalendar"
 @vcalimportparam_defcreator               "Создатель по умолчанию"
 @vcalimportparam_defclient                "Клиент по умолчанию"
-@vcalimportparam_defemployer              "Исполнитель по умолчанию"
+@vcalimportparam_defemployer              "Исполнитель по умолчанию" // @todo Исправить @vcalimportparam_defemployer-->@vcalimportparam_defemployee
 @vcalimportparam_filepath                 "@{filename}"
 
 @bankstmntassocitem                       "Настройка ассоциации импорта клиент-банк"

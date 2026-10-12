@@ -3928,6 +3928,7 @@ browser CCHECK north(100), 1, 1, "@{poscheck_pl}", OWNER|GRID, 0
 		ADDITEM     : kbIns,    PPDV_ADDFILE02,         "@{add}\tInsert"
 		ADDBYSAMPLE : kbF2,     PPDV_CREATEBYEXAMPLE01, "@{createnewdraftbillbyccheck}\tF2"
 		ADDTOBASKET : kbCtrlF4, PPDV_SHOPPINGCART01,    "@{doputtobasket_goodsfromccheck}\tCtrl-F4"
+		EXPORT      : kbCtrlE,  PPDV_EXPORT01,          "@{export}\tCtrl-E" // @v12.7.12
 		EXPORTCHZN  : kbAltF8,  PPDV_LOGOCHZN,          "Отправить чеки в @{brand_chzn}\tAlt-F8"
 		separator
 		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,      "@{delete}\tDelete"

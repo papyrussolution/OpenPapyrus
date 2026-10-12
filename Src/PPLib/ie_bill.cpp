@@ -10035,7 +10035,7 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName, StringSet &
 								if(brutto <= 0.0)
 									brutto = 1.0 * qtty_local; // @default value
 								total_brutto += brutto;
-								temp_buf.Z().Cat(brutto, MKSFMTD(0, 0, 0));
+								temp_buf.Z().Cat(brutto, MKSFMTD(0, 3, NMBF_NOTRAILZ)); // @v12.7.12 MKSFMTD(0, 0, 0)-->MKSFMTD(0, 3, NMBF_NOTRAILZ)
 								n4.PutAttrib(G.GetToken_Ansi(PPHSC_RU_PAYLOAD_BRUTTO), temp_buf);
 							}
 						}
@@ -10251,7 +10251,9 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName, StringSet &
 						n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_DPRTTIME), temp_buf);
 						n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_DPRTUTCTAG), "1");
 					}
-					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_BRUTTO), temp_buf.Z().Cat(total_brutto, MKSFMTD(0, 0, 0)));
+					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_BRUTTO), temp_buf.Z().
+						Cat(R0i(total_brutto))); // @v12.7.12
+						// @v12.7.12 Cat(total_brutto, MKSFMTD(0, 0, 0)));
 					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_BRUTTOMETH), "01");
 					n2.PutAttrib(G.GetToken_Ansi(PPHSC_RU_LOADINGINFO_PACKCOUNT), temp_buf.Z().Cat(total_place_count));
 					{

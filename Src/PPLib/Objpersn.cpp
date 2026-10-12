@@ -2958,10 +2958,10 @@ int PPObjPerson::GetExtName_Direct(PPID id, SString & rBuf)
 	return ok;
 }
 
-int PPObjPerson::GetRelPersonList(PPID personID, PPID relTypeID, int reverse,
-	PPIDArray * pList, int lastInHierarhy /*=0*/, PPIDArray * pHierarhIDList/*=0*/)
+int PPObjPerson::GetRelPersonList(PPID personID, PPID relTypeID, int reverse, PPIDArray * pList, int lastInHierarhy/*=0*/, PPIDArray * pHierarhIDList/*=0*/)
 {
-	int    ok = -1, first_iter = 0;
+	int    ok = -1;
+	int    first_iter = 0;
 	LAssocArray rel_list;
 	if(P_Tbl->GetRelList(personID, &rel_list, reverse) > 0) {
 		LAssoc * p_item = 0;
@@ -2975,13 +2975,14 @@ int PPObjPerson::GetRelPersonList(PPID personID, PPID relTypeID, int reverse,
 		for(uint i = 0; rel_list.enumItems(&i, (void **)&p_item);) {
 			if(p_item->Val == relTypeID && p_item->Key) {
 				if(lastInHierarhy) {
-					if(!pHierarhIDList->lsearch(p_item->Key))
+					if(!pHierarhIDList->lsearch(p_item->Key)) {
 						if(GetRelPersonList(p_item->Key, relTypeID, reverse, pList, 1, pHierarhIDList) <= 0) {
 							if(pList) {
 								pList->addUnique(p_item->Key);
 								ok = 1;
 							}
 						}
+					}
 					if(first_iter)
 						ok = 1;
 				}

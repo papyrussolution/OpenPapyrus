@@ -7068,6 +7068,9 @@
 	#define CTLTM_TODO_FINISHTM          (43 + WINDOWS_ID_BIAS)
 	#define CTL_TODO_ID                  (44 + WINDOWS_ID_BIAS)
 #define DLG_TODOFILT              656 // Фильтр по задачам
+	#define cmCreatorList                101 // @v12.7.12 
+	#define cmEmployerList               102 // @v12.7.12
+	#define cmClientList                 103 // @v12.7.12
 	#define CTL_TODOFILT_PERIOD          (1 + WINDOWS_ID_BIAS)
 	#define CTLCAL_TODOFILT_PERIOD       (2 + WINDOWS_ID_BIAS)
 	#define CTL_TODOFILT_START           (3 + WINDOWS_ID_BIAS)
@@ -7102,6 +7105,9 @@
 	#define CTLSEL_TODOFILT_SUBST        (32 + WINDOWS_ID_BIAS)
 	#define CTL_TODOFILT_PRJ             (33 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TODOFILT_PRJ          (34 + WINDOWS_ID_BIAS)
+	#define CTL_TODOFILT_CMD_CREATORLIST (35 + WINDOWS_ID_BIAS) // @v12.7.12
+	#define CTL_TODOFILT_CMD_EMPLIST     (36 + WINDOWS_ID_BIAS) // @v12.7.12
+	#define CTL_TODOFILT_CMD_CLIENTLIST  (37 + WINDOWS_ID_BIAS) // @v12.7.12
 //                                657 // Occupied (DLG_PALMGROUP)
 #define DLG_SELNEWPALM            658 // Выбор вида новой записи для StyloPalm (устройство или группа)
 	#define CTL_SELNEWPALM_WHAT          (1 + WINDOWS_ID_BIAS)

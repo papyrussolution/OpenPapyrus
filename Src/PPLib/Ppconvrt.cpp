@@ -6008,7 +6008,7 @@ public:
 		char   Code[16];
 		long   CreatorID;
 		long   GroupID;
-		long   EmployerID;
+		long   EmployeeID;
 		long   ClientID;
 		long   TemplateID;
 		LDATE  Dt;
@@ -6041,7 +6041,7 @@ public:
 		char   Code[24];
 		int32  CreatorID;
 		int32  GroupID;
-		int32  EmployerID;
+		int32  EmployeeID;
 		int32  ClientID;
 		int32  TemplateID;
 		LDATE  Dt;
@@ -6116,7 +6116,7 @@ public:
 			FLD_ASSIGN(Kind);
 			FLD_ASSIGN(CreatorID);
 			FLD_ASSIGN(GroupID);
-			FLD_ASSIGN(EmployerID);
+			FLD_ASSIGN(EmployeeID);
 			FLD_ASSIGN(ClientID);
 			FLD_ASSIGN(TemplateID);
 			FLD_ASSIGN(Dt);
@@ -6154,7 +6154,7 @@ public:
 			FLD_ASSIGN(Kind);
 			FLD_ASSIGN(CreatorID);
 			FLD_ASSIGN(GroupID);
-			FLD_ASSIGN(EmployerID);
+			FLD_ASSIGN(EmployeeID);
 			FLD_ASSIGN(ClientID);
 			FLD_ASSIGN(TemplateID);
 			FLD_ASSIGN(Dt);
@@ -7860,7 +7860,7 @@ public:
 		char   Code[24];
 		int32  CreatorID;
 		int32  GroupID;
-		int32  EmployerID;
+		int32  EmployeeID;
 		int32  ClientID;
 		int32  TemplateID;
 		LDATE  Dt;
@@ -7908,7 +7908,7 @@ public:
 		CPYFLD(Kind);
 		CPYFLD(CreatorID);
 		CPYFLD(GroupID);
-		CPYFLD(EmployerID);
+		CPYFLD(EmployeeID);
 		CPYFLD(ClientID);
 		CPYFLD(TemplateID);
 		CPYFLD(Dt);

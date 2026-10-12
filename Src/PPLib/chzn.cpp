@@ -811,8 +811,9 @@ DRAFTBEER HORECA @v11.9.4
 				}
 			}
 			if(!dedicated_case) { // @v12.6.2
+				// @todo проверить строку "010290000149084921"
 				//dedicatedcase_motoroil_01      = 12, // @v12.6.2  "^01(\\d{14})21(.+?)91(.+?)92(.+)$"
-				const char * p_re_dedicatedcase_motoroil_01 = "^01(\\d{14})21(.{4,13}?)91(.{4})92(.+)$";
+				const char * p_re_dedicatedcase_motoroil_01 = "^01(\\d{14})21(.{4,13})91(.{4})92(.+)$"; // @v12.7.12 "^01(\\d{14})21(.{4,13}?)91(.{4})92(.+)$"-->"^01(\\d{14})21(.{4,13})91(.{4})92(.+)$"
 				SRegExp2 re(p_re_dedicatedcase_motoroil_01, cpANSI, SRegExp2::syntaxDefault, 0);
 				if(re.IsValid()) {
 					SRegExp2::FindResult reresult;
@@ -959,7 +960,8 @@ DRAFTBEER HORECA @v11.9.4
 			}
 			if(!dedicated_case) { // @v12.7.2
 				//dedicatedcase_sunfruit_02      = 14, // @v12.7.2  "^01(\\d{14})21(.{8,15}?)93(.+)$";
-				const char * p_re_01_21_93 = "^01(\\d{14})21(.{8,15}?)93(.+)$";
+				// @v12.7.12 const char * p_re_01_21_93 = "^01(\\d{14})21(.{8,15}?)93(.+)$";
+				const char * p_re_01_21_93 = "^01(\\d{14})21(.{7,15}?)93(.{4,8})$"; // @v12.7.12
 				SRegExp2 re(p_re_01_21_93, cpANSI, SRegExp2::syntaxDefault, 0);
 				if(re.IsValid()) {
 					SRegExp2::FindResult reresult;

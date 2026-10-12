@@ -279,6 +279,7 @@ public class CommonPrereqModule {
 			UseCliDebt = false;
 			DueDateAsNominal = false;
 			HideStock = false; // @v11.6.4
+			DoEvalChZnCountAdeq = false; // @v12.7.12
 			BarcodeWeightPrefix = null;
 			BarcodeCountPrefix = null;
 			SvcDtm = null;
@@ -315,6 +316,7 @@ public class CommonPrereqModule {
 				HideStock = jsHead.optBoolean("hidestock", false); // @v11.6.4
 				BarcodeWeightPrefix = jsHead.optString("barcodeweightprefix", null); // @v11.5.0
 				BarcodeCountPrefix = jsHead.optString("barcodecountprefix", null); // @v11.5.0
+				DoEvalChZnCountAdeq = jsHead.optBoolean("eval_chzn_count_adeq", false); // @v12.7.12
 				// @v11.6.2 {
 				OrgCmdUuid = SLib.strtouuid(jsHead.optString("orgcmduuid", null));
 				SvcDtm = SLib.strtodatetime(jsHead.optString("time", null), SLib.DATF_ISO8601, SLib.TIMF_HMS);
@@ -339,6 +341,7 @@ public class CommonPrereqModule {
 		public boolean UseCliDebt; // @v11.5.4 Если true, то для агентских заказов можно просматривать долги по клиентам
 		public boolean DueDateAsNominal; // @v11.6.4 Если true, то дата исполнения документа трактуется как номинальная //
 		public boolean HideStock;        // @v11.6.4 Не отображать остатки
+		public boolean DoEvalChZnCountAdeq; // @v12.7.12 Оценивать адекватность числа марок количеству единиц товаров
 		public String BarcodeWeightPrefix; // @v11.5.0 Если строка не пустая, то трактуется как префикс весового штрихкода.
 			// Передается сервисом с тегом "barcodeweightprefix". Обязанность проверки валидности префикса лежит на сервисе.
 		public String BarcodeCountPrefix; // @v11.5.0 Если строка не пустая, то трактуется как префикс счетного штрихкода.
@@ -1632,6 +1635,7 @@ public class CommonPrereqModule {
 	boolean GetOption_UseCliDebt() { return CSVCP.UseCliDebt; }
 	boolean GetOption_DueDateAsNominal() { return CSVCP.DueDateAsNominal; } // @v11.6.4
 	boolean GetOption_HideStock() { return CSVCP.HideStock; } // @v11.6.4
+	boolean GetOption_DoEvalChZnCountAdeq() { return CSVCP.DoEvalChZnCountAdeq; } // @v12.7.12
 	final StyloQCommand.DocDeclaration GetDocDeclaration() { return CSVCP.DocDecl; } // @v11.6.6
 	public void GetAttributesFromIntent(Intent intent)
 	{

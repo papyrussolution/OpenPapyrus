@@ -14895,6 +14895,17 @@ private:
 		double Eb;   // abs(InitialAmount - totalDiscount - EvaluateAmount())
 		double Prop; // Мера непропорциональности: sum(abs(Discount/Price - target_rate))
 	};
+	//
+	// Descr: Структура для фиксации диапазона скидки по изменяемым строкам
+	//
+	struct VarItemEntry {
+		uint   OrigIdx;
+		uint64 Price;
+		double Qtty;
+		int64  FloorVal;
+		int64  CeilVal;
+		double Remainder; // Дробный остаток идеальной скидки над FloorVal
+	};
 	Result WorkingList;
 };
 //

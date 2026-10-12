@@ -1,5 +1,5 @@
 // PHNPAN.CPP
-// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2023, 2024, 2025, 2026
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -873,7 +873,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 							new_entry.LocID = todo_rec.DlvrAddrID;
 							new_entry.OpID = 0;
 							new_entry.ClientID = todo_rec.ClientID;
-							new_entry.ExecutorID = todo_rec.EmployerID;
+							new_entry.ExecutorID = todo_rec.EmployeeID;
 							new_entry.Amount = todo_rec.Amount;
 							new_list.AddS(todo_rec.Code, &new_entry.CodeP);
 							TodoObj.GetItemDescr(todo_rec.ID, temp_buf);
@@ -893,7 +893,7 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 							new_entry.LocID = todo_rec.DlvrAddrID;
 							new_entry.OpID = 0;
 							new_entry.ClientID = todo_rec.ClientID;
-							new_entry.ExecutorID = todo_rec.EmployerID;
+							new_entry.ExecutorID = todo_rec.EmployeeID;
 							new_entry.Amount = todo_rec.Amount;
 							new_list.AddS(todo_rec.Code, &new_entry.CodeP);
 							TodoObj.GetItemDescr(todo_rec.ID, temp_buf);

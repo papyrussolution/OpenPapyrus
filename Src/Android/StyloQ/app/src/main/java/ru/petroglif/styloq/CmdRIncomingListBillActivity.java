@@ -1203,25 +1203,27 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 															if(ctl_mc != null) {
 																ctl_mc.setTag(ti); // @v12.7.11
 																if(mark_count > 0) {
-																	// @v12.7.11 {
-																	double unit_per_pack = (goods_item != null) ? goods_item.Item.UnitPerPack : 1.0;
-																	int vmcr = Document.ValidateChZnMarkCount(abs((int) ti.Set.Qtty), (int) unit_per_pack, mark_count);
-																	// } @v12.7.11
-																	// @v12.7.11 SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_TI_MARKQTTY, View.VISIBLE);
 																	ctl_mc.setVisibility(View.VISIBLE); // @v12.7.11
 																	SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_TI_MARKQTTY, Integer.toString(mark_count));
-																	int color_id = 0;
-																	switch(vmcr) {
-																		case Document.eqarOK: color_id = R.color.marktoqttyadequacy_ok; break;
-																		case Document.eqarUndecomposable: color_id = R.color.marktoqttyadequacy_undecomposable; break;
-																		case Document.eqarUndefPackage: color_id = R.color.marktoqttyadequacy_undefpackage; break;
-																		case Document.eqarMcZero: color_id = R.color.marktoqttyadequacy_mczero; break;
-																		case Document.eqarMcGtQtty: color_id = R.color.marktoqttyadequacy_mcgtqtty; break;
-																	}
-																	if(color_id != 0) {
-																		int color = getResources().getColor(color_id, getTheme());
-																		if(color != 0)
-																			ctl_mc.setBackgroundColor(color);
+																	if(CPM.GetOption_DoEvalChZnCountAdeq()) {
+																		// @v12.7.11 {
+																		double unit_per_pack = (goods_item != null) ? goods_item.Item.UnitPerPack : 1.0;
+																		int vmcr = Document.ValidateChZnMarkCount(abs((int) ti.Set.Qtty), (int) unit_per_pack, mark_count);
+																		// } @v12.7.11
+																		// @v12.7.11 SLib.SetCtrlVisibility(iv, R.id.CTL_DOCUMENT_TI_MARKQTTY, View.VISIBLE);
+																		int color_id = 0;
+																		switch(vmcr) {
+																			case Document.eqarOK: color_id = R.color.marktoqttyadequacy_ok; break;
+																			case Document.eqarUndecomposable: color_id = R.color.marktoqttyadequacy_undecomposable; break;
+																			case Document.eqarUndefPackage: color_id = R.color.marktoqttyadequacy_undefpackage; break;
+																			case Document.eqarMcZero: color_id = R.color.marktoqttyadequacy_mczero; break;
+																			case Document.eqarMcGtQtty: color_id = R.color.marktoqttyadequacy_mcgtqtty; break;
+																		}
+																		if(color_id != 0) {
+																			int color = getResources().getColor(color_id, getTheme());
+																			if(color != 0)
+																				ctl_mc.setBackgroundColor(color);
+																		}
 																	}
 																}
 																else {
@@ -1668,7 +1670,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 							{
 								View ctl_mc = vg.findViewById(R.id.CTL_DOCUMENT_TOTAL_MARKQTTY);
 								if(ctl_mc != null) {
-									int vmtcr = ValidateChZnMarkTotalCount(); // @v12.7.11
+									int vmtcr = CPM.GetOption_DoEvalChZnCountAdeq() ? ValidateChZnMarkTotalCount() : -1; // @v12.7.11
 									if(vmtcr < 0) {
 										SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_TOTAL_MARKQTTY, View.GONE);
 									}
@@ -2012,7 +2014,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 					switch(view_id) {
 						case R.id.CTL_DOCUMENT_TOTAL_MARKQTTY: // @v12.7.11 @construction
 							{
-								int vmtcr = ValidateChZnMarkTotalCount(); // @v12.7.11
+								int vmtcr = CPM.GetOption_DoEvalChZnCountAdeq() ? ValidateChZnMarkTotalCount() : -1; // @v12.7.11
 								int text_id = 0;
 								if(vmtcr > 0) {
 									text_id = ppstr2.TCELHLD_BILL_MARKCOUNT_OK;
@@ -2037,9 +2039,9 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 									CommonPrereqModule.WareEntry goods_item = CPM.FindGoodsItemByGoodsID(ti.GoodsID);
 									if(goods_item != null && goods_item.Item != null && goods_item.Item.ChZnCat > 0) {
 										if(goods_item.Item.ChZnMarkedWhs) { // @v12.5.11 @condition
-											is_mark_needed = true; // @v12.7.11
-											mark_count = (ti.XcL != null) ? ti.XcL.size() : 0;
-											{
+											if(CPM.GetOption_DoEvalChZnCountAdeq()) {
+												is_mark_needed = true; // @v12.7.11
+												mark_count = (ti.XcL != null) ? ti.XcL.size() : 0;
 												double unit_per_pack = (goods_item != null) ? goods_item.Item.UnitPerPack : 1.0;
 												int vmcr = Document.ValidateChZnMarkCount(abs((int) ti.Set.Qtty), (int) unit_per_pack, mark_count);
 												int text_id = 0;

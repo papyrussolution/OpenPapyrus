@@ -3599,6 +3599,138 @@ int PPViewCCheck::Recover()
 	return ok;
 }
 
+int PPViewCCheck::Export()
+{
+	int    ok = -1;
+	CCheckViewItem item;
+	SString temp_buf;
+	PPIDArray cc_id_list;
+	SJson js_result(SJson::tOBJECT);
+	SJson * p_js_list = SJson::CreateArr();
+	THROW_SL(p_js_list);
+	for(InitIteration(0); NextIteration(&item) > 0;) {
+		cc_id_list.add(item.ID);
+	}
+	cc_id_list.sortAndUndup();
+	for(uint cci = 0; cci < cc_id_list.getCount(); cci++) {
+		const  PPID cc_id = cc_id_list.get(cci);
+		CCheckPacket cc_pack;
+		if(P_CC->LoadPacket(cc_id, 0, &cc_pack) > 0) {
+			SJson * p_js_cc = SJson::CreateObj();
+			THROW_SL(p_js_cc);
+			p_js_cc->InsertInt("id", cc_pack.Rec.ID);
+			p_js_cc->InsertInt("cod", cc_pack.Rec.Code);
+			p_js_cc->InsertInt("nodeid", cc_pack.Rec.PosNodeID);
+			p_js_cc->InsertInt("userid", cc_pack.Rec.UserID);
+			p_js_cc->InsertInt("sessid", cc_pack.Rec.SessID);
+			{
+				LDATETIME dtm;
+				dtm.Set(cc_pack.Rec.Dt, cc_pack.Rec.Tm);
+				temp_buf.Z().Cat(dtm, DATF_ISO8601CENT, 0);
+				p_js_cc->InsertString("time", temp_buf);
+			}
+			{
+				temp_buf.Z().CatHex(cc_pack.Rec.Flags);
+				p_js_cc->InsertString("flags", temp_buf);
+			}
+			p_js_cc->InsertDouble("amount", MONEYTOLDBL(cc_pack.Rec.Amount), MKSFMTD(0, 2, 0));
+			p_js_cc->InsertDouble("discount", MONEYTOLDBL(cc_pack.Rec.Discount), MKSFMTD(0, 2, 0));
+			p_js_cc->InsertIntNz("scardid", cc_pack.Rec.SCardID);
+			if(cc_pack.Rec.Flags & CCHKF_EXT) {
+				p_js_cc->InsertIntNz("agentid", cc_pack.Ext.SalerID);
+				p_js_cc->InsertIntNz("tableno", cc_pack.Ext.TableNo);
+				p_js_cc->InsertIntNz("guestcount", cc_pack.Ext.GuestCount);
+				p_js_cc->InsertIntNz("op", cc_pack.Ext.Op_);
+				p_js_cc->InsertIntNz("addrid", cc_pack.Ext.AddrID);
+				p_js_cc->InsertIntNz("cruserid", cc_pack.Ext.CreationUserID);
+				p_js_cc->InsertIntNz("linkccid", cc_pack.Ext.LinkCheckID);
+				if(checkdate(cc_pack.Ext.CreationDtm.d)) {
+					p_js_cc->InsertString("crtime", temp_buf.Z().Cat(cc_pack.Ext.CreationDtm, DATF_ISO8601CENT, 0));
+				}
+				if(checkdate(cc_pack.Ext.StartOrdDtm.d)) {
+					p_js_cc->InsertString("startordtime", temp_buf.Z().Cat(cc_pack.Ext.StartOrdDtm, DATF_ISO8601CENT, 0));
+				}
+				if(checkdate(cc_pack.Ext.EndOrdDtm.d)) {
+					p_js_cc->InsertString("endordtime", temp_buf.Z().Cat(cc_pack.Ext.EndOrdDtm, DATF_ISO8601CENT, 0));
+				}
+			}
+			{
+				uint   tab_count = 0;
+				const  SIntToSymbTabEntry * p_tab = CCheckPacket::GetExtssNameSymbTab(&tab_count);
+				if(tab_count && p_tab) {
+					for(uint i = 0; i < tab_count; i++) {
+						if(cc_pack.GetExtStrData(p_tab[i].Id, temp_buf) > 0) {
+							if(temp_buf.NotEmptyS()) {
+								p_js_cc->InsertString(p_tab[i].P_Symb, temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Escape());
+							}
+						}
+					}
+				}
+			}
+			if(cc_pack.GetCount()) {
+				SJson * p_js_cc_item_list = SJson::CreateArr();
+				THROW_SL(p_js_cc_item_list);
+				for(uint i = 0; i < cc_pack.GetCount(); i++) {
+					const CCheckLineTbl::Rec & r_line = cc_pack.GetLineC(i);
+					SJson * p_js_cc_item = SJson::CreateObj();
+					THROW_SL(p_js_cc_item);
+					p_js_cc_item->InsertInt("row", r_line.RByCheck);
+					p_js_cc_item->InsertIntNz("div", r_line.DivID);
+					p_js_cc_item->InsertInt("goodsid", r_line.GoodsID);
+					p_js_cc_item->InsertDouble("qtty", r_line.Quantity, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+					p_js_cc_item->InsertDouble("price", intmnytodbl(r_line.Price), MKSFMTD(0, 6, NMBF_NOTRAILZ));
+					if(r_line.Dscnt != 0.0)
+						p_js_cc_item->InsertDouble("discount", r_line.Dscnt, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+					//
+					CCheckPacket::LineExt le;
+					if(cc_pack.GetLineExt(i+1, le)) {
+						p_js_cc_item->InsertIntNz("queue", le.Queue);
+						if(le.Flags) {
+							temp_buf.Z().CatHex(le.Flags);
+							p_js_cc_item->InsertString("flags", temp_buf);
+						}
+					}
+					{
+						uint   tab_count = 0;
+						const  SIntToSymbTabEntry * p_tab = CCheckPacket::GetLnExtssNameSymbTab(&tab_count);
+						if(tab_count && p_tab) {
+							for(uint i = 0; i < tab_count; i++) {
+								const int cclnext_id = p_tab[i].Id;
+								cc_pack.GetLineTextExt(i+1, cclnext_id, temp_buf);
+								if(temp_buf.NotEmptyS()) {
+									p_js_cc_item->InsertString(p_tab[i].P_Symb, temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Escape());
+								}
+							}
+						}
+					}
+					p_js_cc_item_list->InsertChild(p_js_cc_item);
+				}
+				p_js_cc->Insert("detail", p_js_cc_item_list);
+				p_js_cc_item_list = 0;
+			}
+			//
+			p_js_list->InsertChild(p_js_cc);
+			p_js_cc = 0;
+		}
+	}
+	js_result.Insert("list", p_js_list);
+	p_js_list = 0;
+	{
+		SString file_path;
+		PPGetFilePath(PPPATH_OUT, "ccview_list.json", file_path);
+		js_result.ToStr(temp_buf);
+		{
+			SFile f_out(file_path, SFile::mWrite);
+			THROW_SL(f_out.IsValid());
+			f_out.WriteLine(temp_buf.cptr());
+			ok = 1;
+		}
+	}
+	CATCHZOK
+	delete p_js_list;
+	return ok;
+}
+
 int PPViewCCheck::ExportToChZn()
 {
 	int    ok = -1;
@@ -3757,6 +3889,9 @@ int PPViewCCheck::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 				break;
 			case PPVCMD_EXPORTCHZN:
 				ok = ExportToChZn();
+				break;
+			case PPVCMD_EXPORT: // @12.7.12 
+				Export();
 				break;
 			case PPVCMD_MOUSEHOVER: // @v12.7.5
 				CALLPTRMEMB(pBrw, ShowCellStyleHint());

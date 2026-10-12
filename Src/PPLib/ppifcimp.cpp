@@ -6915,7 +6915,8 @@ static void FASTCALL FillPrjTaskRec(const PPPrjTaskPacket * pInner, SPpyO_PrjTas
 		FLD(ProjectID);
 		FLD(CreatorID);
 		FLD(GroupID);
-		FLD(EmployerID);
+		// @v12.7.12 FLD(EmployeeID);
+		pOuter->EmployerID = pInner->Rec.EmployeeID; // @v12.7.12
 		FLD(ClientID);
 		FLD(TemplateID);
 		FLD(DrPrd);
@@ -6952,7 +6953,8 @@ static void FASTCALL FillPrjTaskRec(const SPpyO_PrjTask * pInner, PPPrjTaskPacke
 		FLD(ProjectID);
 		FLD(CreatorID);
 		FLD(GroupID);
-		FLD(EmployerID);
+		// @v12.7.12 FLD(EmployeeID);
+		pOuter->Rec.EmployeeID = pInner->EmployerID; // @v12.7.12
 		FLD(ClientID);
 		FLD(TemplateID);
 		FLD(Priority);
@@ -7021,7 +7023,7 @@ int32 DL6ICLS_PPObjPrjTask::Create(PPYOBJREC pRec, int32 flags, int32* pID)
 		PPTransaction tra((flags & 0x0001) ? 0 : 1);
 		THROW(tra);
 		FillPrjTaskRec(p_rec, &pack);
-		THROW(p_obj->InitPacket_(init_pack, pack.Rec.Kind, pack.Rec.ProjectID, pack.Rec.ClientID, pack.Rec.EmployerID, 0));
+		THROW(p_obj->InitPacket_(init_pack, pack.Rec.Kind, pack.Rec.ProjectID, pack.Rec.ClientID, pack.Rec.EmployeeID, 0));
 		STRNSCPY(pack.Rec.Code, init_pack.Rec.Code);
 		pack.Rec.Kind = init_pack.Rec.Kind;
 		THROW(p_obj->PutPacket(pID, &pack, 0));
@@ -9598,7 +9600,8 @@ int32 DL6ICLS_PPViewPrjTask::NextIteration(PPYVIEWITEM item)
 			FLD(ProjectID);
 			FLD(CreatorID);
 			FLD(GroupID);
-			FLD(EmployerID);
+			// @v12.7.12 FLD(EmployeeID);
+			p_item->EmployerID = inner_item.EmployeeID; // @v12.7.12
 			FLD(ClientID);
 			FLD(TemplateID);
 			FLD(DrPrd);

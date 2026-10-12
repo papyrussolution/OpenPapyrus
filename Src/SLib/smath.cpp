@@ -1816,15 +1816,6 @@ int DiscountDistribution::Run_01(double totalDiscount, Result & rResult)
 		rResult.TotalDiscount = 0.0;
 	}
 	else {
-		// 2. Структура для фиксации диапазона скидки по изменяемым строкам
-		struct VarItemEntry {
-			uint   OrigIdx;
-			uint64 Price;
-			double Qtty;
-			int64  FloorVal;
-			int64  CeilVal;
-			double Remainder; // Дробный остаток идеальной скидки над FloorVal
-		};
 		TSVector <VarItemEntry> var_items;
 		const double target_rate = totalDiscount / init_amount_var;
 		for(uint i = 0; i < WorkingList.getCount(); i++) {
@@ -1857,13 +1848,13 @@ int DiscountDistribution::Run_01(double totalDiscount, Result & rResult)
 		const uint var_count = var_items.getCount();
 		if(var_count) {
 			// Функция вычисления метрик для заданного вектора выборов (0 - FloorVal, 1 - CeilVal)
-			auto eval_solution = [&](const LongArray & choices) -> EvalMetrics {
+			auto eval_solution = [&](const TSVector <VarItemEntry> & rVarItemList, const LongArray & rChoices) -> EvalMetrics {
 				double cur_discount = 0.0;
 				double cur_amount   = unvar_amount;
 				double prop_penalty = 0.0;
-				for(uint k = 0; k < var_count; k++) {
-					const VarItemEntry & r_ve = var_items.at(k);
-					const int64 d = (choices.at(k) != 0) ? r_ve.CeilVal : r_ve.FloorVal;
+				for(uint k = 0; k < rVarItemList.getCount(); k++) {
+					const VarItemEntry & r_ve = rVarItemList.at(k);
+					const int64 d = (rChoices.at(k) != 0) ? r_ve.CeilVal : r_ve.FloorVal;
 					const double d_flt = static_cast<double>(d);
 					cur_discount += (d_flt * r_ve.Qtty);
 					cur_amount   += ((static_cast<double>(r_ve.Price) - d_flt) * r_ve.Qtty);
@@ -1881,11 +1872,11 @@ int DiscountDistribution::Run_01(double totalDiscount, Result & rResult)
 			// 4. Базис №1: Округление к ближайшему целому (максимум пропорциональности)
 			LongArray best_choices;
 			for(uint k = 0; k < var_count; k++) {
-				const VarItemEntry & r_ve = var_items.at(k);
-				long choice = (r_ve.CeilVal > r_ve.FloorVal && r_ve.Remainder >= 0.5) ? 1 : 0;
+				const  VarItemEntry & r_ve = var_items.at(k);
+				long   choice = (r_ve.CeilVal > r_ve.FloorVal && r_ve.Remainder >= 0.5) ? 1 : 0;
 				best_choices.add(choice);
 			}
-			EvalMetrics best_metrics = eval_solution(best_choices);
+			EvalMetrics best_metrics = eval_solution(var_items, best_choices);
 
 			// 5. Базис №2: Квотный метод Хэйра-Гамильтона (Largest Remainder)
 			LongArray cand_indices;
@@ -1907,11 +1898,11 @@ int DiscountDistribution::Run_01(double totalDiscount, Result & rResult)
 			LongArray ham_choices;
 			for(uint k = 0; k < var_count; k++)
 				ham_choices.add(0L);
-			EvalMetrics cur_ham_metrics = eval_solution(ham_choices);
+			EvalMetrics cur_ham_metrics = eval_solution(var_items, ham_choices);
 			for(uint i = 0; i < cand_indices.getCount(); i++) {
 				const  uint k = static_cast<uint>(cand_indices.at(i));
 				ham_choices.at(k) = 1;
-				EvalMetrics next_m = eval_solution(ham_choices);
+				EvalMetrics next_m = eval_solution(var_items, ham_choices);
 				if(next_m.IsBetterThan(cur_ham_metrics)) {
 					cur_ham_metrics = next_m;
 				}
@@ -1937,7 +1928,7 @@ int DiscountDistribution::Run_01(double totalDiscount, Result & rResult)
 					const VarItemEntry & r_ve = var_items.at(k);
 					if(r_ve.CeilVal > r_ve.FloorVal) {
 						best_choices.at(k) = 1 - best_choices.at(k);
-						EvalMetrics m = eval_solution(best_choices);
+						EvalMetrics m = eval_solution(var_items, best_choices);
 						if(m.IsBetterThan(best_flip_metrics)) {
 							best_flip_metrics = m;
 							best_flip_idx = static_cast<long>(k);
@@ -1962,7 +1953,7 @@ int DiscountDistribution::Run_01(double totalDiscount, Result & rResult)
 								if(var_items.at(j).CeilVal > var_items.at(j).FloorVal && best_choices.at(j) == 0) {
 									best_choices.at(i) = 0;
 									best_choices.at(j) = 1;
-									EvalMetrics m = eval_solution(best_choices);
+									EvalMetrics m = eval_solution(var_items, best_choices);
 									if(m.IsBetterThan(best_swap_metrics)) {
 										best_swap_metrics = m;
 										best_swap_i = static_cast<long>(i);

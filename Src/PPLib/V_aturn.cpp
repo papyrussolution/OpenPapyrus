@@ -708,9 +708,19 @@ static IMPL_DBE_PROC(dbqf_accturn_checkrelrestriction_iii)
 	const  PPID dbt_acc_id = params[0].lval;
 	const  PPID crd_acc_id = params[1].lval;
 	// @v12.5.1 const  AccturnFilt * p_filt = reinterpret_cast<const AccturnFilt *>(params[2].lval); // @longtoptr
-	const  AccturnFilt * p_filt = reinterpret_cast<const AccturnFilt *>(params[2].ptrval); // @v12.5.1
-	PPID   bill_id = params[0].lval;
-	if(p_filt && p_filt->GetSignature() == PPFILT_ACCTURN) {
+	const  PPBaseFilt * p_base_filt = reinterpret_cast<const PPBaseFilt *>(params[2].ptrval); // @v12.7.12
+	if(!p_base_filt) {
+		ok = 0;
+	}
+	else {
+		const  AccturnFilt * p_at_filt = 0;
+		const  AccAnlzFilt * p_aa_filt = 0;
+		if(p_base_filt->GetSignature() == PPFILT_ACCTURN) {
+			p_at_filt = reinterpret_cast<const AccturnFilt *>(params[2].ptrval);
+		}
+		else if(p_base_filt->GetSignature() == PPFILT_ACCANLZ) {
+			p_aa_filt = reinterpret_cast<const AccAnlzFilt *>(params[2].ptrval);
+		}
 		AcctRelTbl::Rec dbt_rec;
 		AcctRelTbl::Rec crd_rec;
 		AcctRel & r_tbl = BillObj->atobj->P_Tbl->AccRel;
@@ -718,30 +728,39 @@ static IMPL_DBE_PROC(dbqf_accturn_checkrelrestriction_iii)
 			dbt_rec.Clear();
 		if(r_tbl.Fetch(crd_acc_id, &crd_rec) <= 0)
 			crd_rec.Clear();
-		if(p_filt->Aco) {
-			if(dbt_rec.Ac != p_filt->DbtAcct.ac || crd_rec.Ac != p_filt->CrdAcct.ac)
-				ok = 0;
-			else if(p_filt->Aco != ACO_1) {
-				if(dbt_rec.Sb != p_filt->DbtAcct.sb || crd_rec.Sb != p_filt->CrdAcct.sb)
+		if(p_at_filt) {
+			if(p_at_filt->Aco) {
+				if(dbt_rec.Ac != p_at_filt->DbtAcct.ac || crd_rec.Ac != p_at_filt->CrdAcct.ac)
 					ok = 0;
+				else if(p_at_filt->Aco != ACO_1) {
+					if(dbt_rec.Sb != p_at_filt->DbtAcct.sb || crd_rec.Sb != p_at_filt->CrdAcct.sb)
+						ok = 0;
+				}
+				if(ok && p_at_filt->Aco != ACO_1 && p_at_filt->Aco != ACO_2) {
+					if(dbt_rec.Ar != p_at_filt->DbtAcct.ar || crd_rec.Ar != p_at_filt->CrdAcct.ar)
+						ok = 0;
+				}
 			}
-			if(ok && p_filt->Aco != ACO_1 && p_filt->Aco != ACO_2) {
-				if(dbt_rec.Ar != p_filt->DbtAcct.ar || crd_rec.Ar != p_filt->CrdAcct.ar)
+			if(ok) {
+				if(!(p_at_filt->Flags & AccturnFilt::fAllCurrencies) && dbt_rec.CurID != p_at_filt->CurID)
 					ok = 0;
 			}
 		}
-		if(ok) {
-			if(!(p_filt->Flags & AccturnFilt::fAllCurrencies) && dbt_rec.CurID != p_filt->CurID)
-				ok = 0;
+		else if(p_aa_filt) {
+			if(ok) {
+				if(!(p_aa_filt->Flags & AccturnFilt::fAllCurrencies) && dbt_rec.CurID != p_aa_filt->CurID)
+					ok = 0;
+			}
 		}
+		else
+			ok = 0;
+		//
 		if(ok) {
 			const PPRights & r_orts = ObjRts;
 			if(!r_orts.CheckAccID(dbt_rec.AccID, PPR_READ) && !r_orts.CheckAccID(crd_rec.AccID, PPR_READ))
 				ok = 0;
 		}
 	}
-	else
-		ok = 0;
 	result->init(ok);
 }
 

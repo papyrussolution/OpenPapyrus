@@ -998,7 +998,7 @@ int PPViewTrfrAnlz::Init_(const PPBaseFilt * pFilt)
 				}
 				else if(Filt.ArList.GetSingle()) {
 					LDATE  start_dt = Filt.Period.low;
-					if(checkdate(start_dt)) // @v11.3.0 start_dt-->checkdate(start_dt)
+					if(checkdate(start_dt))
 						start_dt = plusdate(start_dt, -1);
 					GetSaldo(Filt.GoodsID, Filt.ArList.GetSingle(), Filt.DlvrAddrID, start_dt, &InRest, 0);
 				}

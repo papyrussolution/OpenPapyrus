@@ -415,7 +415,9 @@ int PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFreightTb
 					uint  mark_count = 0;
 					const  int r = pack.GetChZnMarksCountIndicator(&mark_count);
 					pRec->ChZnMarkCount = static_cast<long>(mark_count);
-					pRec->ChZnMarkIndicator = static_cast<int16>(r);
+					if(P_BObj->GetConfig().Flags & BCF_EVALMARKCOUNTADEQ) { // @v12.7.12 @condition
+						pRec->ChZnMarkIndicator = static_cast<int16>(r);
+					}
 				}
 			}
 			// } @v12.7.11 

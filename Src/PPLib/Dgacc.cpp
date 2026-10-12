@@ -183,7 +183,7 @@ void AcctCtrlGroup::processAccCombo(TDialog * dlg)
 		else {
 			AccSheetID = 0;
 			acct.Z();
-			PPError();
+			// @v12.7.12 PPError();
 		}
 		AcctId.AcID = bal_id;
 		AcctId.ArID = acct.ar = 0;

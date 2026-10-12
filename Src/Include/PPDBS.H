@@ -3079,7 +3079,7 @@ public:
 		char   Code[24];
 		int32  CreatorID;
 		int32  GroupID;
-		int32  EmployerID;
+		int32  EmployeeID;
 		int32  ClientID;
 		int32  TemplateID;
 		LDATE  Dt;
@@ -3122,7 +3122,7 @@ public:
 		LTIME  Tm;
 	};
 	struct Key4 {
-		int32  EmployerID;
+		int32  EmployeeID;
 		LDATE  Dt;
 		LTIME  Tm;
 	};
@@ -3147,7 +3147,7 @@ public:
 	DBField Code;
 	DBField CreatorID;
 	DBField GroupID;
-	DBField EmployerID;
+	DBField EmployeeID;
 	DBField ClientID;
 	DBField TemplateID;
 	DBField Dt;
@@ -7894,11 +7894,11 @@ public:
 		Rec();
 		Rec & Clear();
 		int32  TabID;
-		int32  EmployerID;
+		int32  EmployeeID;
 		int32  ClientID;
 		LDATE  StartDt;
 		char   ClientName[128];
-		char   EmployerName[128];
+		char   EmployeeName[128];
 		double TabParam;
 		double TaskCount;
 	} data;
@@ -7912,14 +7912,14 @@ public:
 	};
 	struct Key2 {
 		int32  TabID;
-		int32  EmployerID;
+		int32  EmployeeID;
 	};
 	DBField TabID;
-	DBField EmployerID;
+	DBField EmployeeID;
 	DBField ClientID;
 	DBField StartDt;
 	DBField ClientName;
-	DBField EmployerName;
+	DBField EmployeeName;
 	DBField TabParam;
 	DBField TaskCount;
 };

@@ -19,8 +19,9 @@ PPProjectConfig & PPProjectConfig::Z()
 /*static*/int FASTCALL PPObjProject::ReadConfig(PPProjectConfig * pCfg)
 {
 	int    r = PPRef->GetPropMainConfig(PPPRP_PROJECTCFG, pCfg, sizeof(*pCfg));
-	if(r <= 0)
-		memzero(pCfg, sizeof(*pCfg));
+	if(r <= 0) {
+		CALLPTRMEMB(pCfg, Z());
+	}
 	return r;
 }
 
@@ -925,7 +926,7 @@ BExtQuery * PrjTaskCore::StartupEnumQuery(int idx, int options)
 {
 	BExtQuery * q = new BExtQuery(this, idx);
 	if(q) {
-		q->select(this->ID, this->ProjectID, this->Kind, this->Code, this->CreatorID, this->EmployerID,
+		q->select(this->ID, this->ProjectID, this->Kind, this->Code, this->CreatorID, this->EmployeeID,
 			this->ClientID, this->TemplateID, this->Dt, this->Tm, this->StartDt, this->StartTm,
 			this->EstFinishDt, this->EstFinishTm, this->FinishDt, this->FinishTm, this->Priority,
 			this->Status, this->Flags, this->DlvrAddrID, this->LinkTaskID, this->Amount, 0L);
@@ -952,10 +953,10 @@ SEnum::Imp * PrjTaskCore::EnumByEmployer(PPID emplPersonID, const DateRange * pP
 	long   h = -1;
 	int    idx = 4;
 	BExtQuery * q = StartupEnumQuery(idx, options);
-	q->where(this->EmployerID == emplPersonID && daterange(this->Dt, pPeriod));
+	q->where(this->EmployeeID == emplPersonID && daterange(this->Dt, pPeriod));
 	PrjTaskTbl::Key4 k4;
 	MEMSZERO(k4);
-	k4.EmployerID = emplPersonID;
+	k4.EmployeeID = emplPersonID;
 	k4.Dt = pPeriod ? pPeriod->low : ZERODATE;
 	q->initIteration(false, &k4, spGe);
 	return EnumList.RegisterIterHandler(q, &h) ? new PPTblEnum <PrjTaskCore>(this, h) : 0;
@@ -1077,7 +1078,7 @@ int PrjTaskCore::SearchAnyRef(PPID objType, PPID objID, PPID * pID)
 	MEMSZERO(k_);
 	if(objType == PPOBJ_PERSON) {
 		BExtQuery q(this, 0, 1);
-		q.select(this->ID, 0).where(this->CreatorID == objID || this->EmployerID == objID || this->ClientID == objID);
+		q.select(this->ID, 0).where(this->CreatorID == objID || this->EmployeeID == objID || this->ClientID == objID);
 		q.initIteration(false, &k_, spFirst);
 		if(q.nextIteration() > 0) {
 			ASSIGN_PTR(pID, data.ID);
@@ -1145,7 +1146,7 @@ int PrjTaskCore::ReplaceRefs(PPID objType, PPID replacedID, PPID newID, int use_
 		BExtQuery q(this, 0);
 		DBQ * dbq = 0;
 		if(objType == PPOBJ_PERSON)
-			dbq = &(this->CreatorID == replacedID || this->EmployerID == replacedID || this->ClientID == replacedID);
+			dbq = &(this->CreatorID == replacedID || this->EmployeeID == replacedID || this->ClientID == replacedID);
 		else if(objType == PPOBJ_ARTICLE)
 			dbq = &(this->BillArID == replacedID);
 		else if(objType == PPOBJ_LOCATION)
@@ -1168,8 +1169,8 @@ int PrjTaskCore::ReplaceRefs(PPID objType, PPID replacedID, PPID newID, int use_
 								rec.CreatorID = newID;
 								do_update = 1;
 							}
-							if(rec.EmployerID == replacedID) {
-								rec.EmployerID = newID;
+							if(rec.EmployeeID == replacedID) {
+								rec.EmployeeID = newID;
 								do_update = 1;
 							}
 							if(rec.ClientID == replacedID) {
@@ -1265,7 +1266,7 @@ static SString & _GetEnumText(uint strId, int i, SString & rBuf)
 	{ return _GetEnumText(PPTXT_TODO_PRIOR, priorId, rBuf); }
 
 
-iCalendarImportParam::iCalendarImportParam() : TodoDefCreatorID(0), TodoDefClientID(0), TodoDefEmployerID(0)
+iCalendarImportParam::iCalendarImportParam() : TodoDefCreatorID(0), TodoDefClientID(0), TodoDefEmployeeID(0)
 {
 }
 
@@ -1273,7 +1274,7 @@ iCalendarImportParam & iCalendarImportParam::Z()
 {
 	TodoDefCreatorID = 0;
 	TodoDefClientID = 0;
-	TodoDefEmployerID = 0;
+	TodoDefEmployeeID = 0;
 	FilePath.Z();
 	return *this;
 }
@@ -1312,7 +1313,7 @@ public:
 		if(!RVALUEPTR(Data, pData))
 			Data.Z();
 		SetupPersonCombo(this, CTLSEL_VCALPAR_CREATOR, Data.TodoDefCreatorID,  0, PPPRK_EMPL, 0);
-		SetupPersonCombo(this, CTLSEL_VCALPAR_EMPL,    Data.TodoDefEmployerID, 0, PPPRK_EMPL, 0);
+		SetupPersonCombo(this, CTLSEL_VCALPAR_EMPL,    Data.TodoDefEmployeeID, 0, PPPRK_EMPL, 0);
 		SetupPersonCombo(this, CTLSEL_VCALPAR_CLIENT,  Data.TodoDefClientID,   0, PPPRK_CLIENT, 0);
 		CALLPTRMEMB(p_grp, addPattern(PPTXT_FILPAT_VCALENDAR));
 		return 1;
@@ -1324,7 +1325,7 @@ public:
 		getCtrlData(sel = CTLSEL_VCALPAR_CREATOR, &Data.TodoDefCreatorID);
 		// @v11.0.3 THROW_PP(Data.TodoDefCreatorID, PPERR_INVDEFCREATOR);
 		getCtrlData(CTLSEL_VCALPAR_EMPL,    &Data.TodoDefClientID);
-		getCtrlData(CTLSEL_VCALPAR_CLIENT,  &Data.TodoDefEmployerID);
+		getCtrlData(CTLSEL_VCALPAR_CLIENT,  &Data.TodoDefEmployeeID);
 		{
 			getCtrlString(sel = CTL_VCALPAR_FILE, Data.FilePath);
 			SLibError = SLERR_OPENFAULT;
@@ -1672,8 +1673,8 @@ int PPObjPrjTask::ImportFromOuterFormat(const char * pInput, const iCalendarImpo
 																		}
 																	}
 																	else if(p_ic_person->RefAs == iCalendarParsingBlock::Person::refasAttendee) {
-																		if(!p_curr_todo_pack->Rec.EmployerID) {
-																			p_curr_todo_pack->Rec.EmployerID = resolved_id;
+																		if(!p_curr_todo_pack->Rec.EmployeeID) {
+																			p_curr_todo_pack->Rec.EmployeeID = resolved_id;
 																		}
 																	}
 																}
@@ -1684,7 +1685,7 @@ int PPObjPrjTask::ImportFromOuterFormat(const char * pInput, const iCalendarImpo
 											}
 											if(pParam) {
 												SETIFZ(p_curr_todo_pack->Rec.CreatorID, pParam->TodoDefCreatorID);
-												SETIFZ(p_curr_todo_pack->Rec.EmployerID, pParam->TodoDefEmployerID);
+												SETIFZ(p_curr_todo_pack->Rec.EmployeeID, pParam->TodoDefEmployeeID);
 												SETIFZ(p_curr_todo_pack->Rec.ClientID, pParam->TodoDefClientID);
 											}
 										}
@@ -1837,8 +1838,8 @@ int PPObjPrjTask::ImportFromVCal()
 								PPID   analog_id = 0;
 								int sar = todo_obj.SearchAnalog(p_pack, &analog_id);
 								todo_buf.Z().Cat(p_pack->Rec.Dt, DATF_DMY).Space().Cat(p_pack->Rec.Tm, TIMF_HMS).Space().Cat(p_pack->Rec.Code);
-								if(p_pack->Rec.EmployerID) {
-									GetPersonName(p_pack->Rec.EmployerID, temp_buf);
+								if(p_pack->Rec.EmployeeID) {
+									GetPersonName(p_pack->Rec.EmployeeID, temp_buf);
 									todo_buf.Space().Cat(temp_buf);
 								}
 								if(sar > 0) {
@@ -1948,7 +1949,7 @@ bool FASTCALL PPPrjTaskPacket::IsEq(const PPPrjTaskPacket & rS) const
 	CMP_FLD(Kind);
 	CMP_FLD(CreatorID);
 	CMP_FLD(GroupID);
-	CMP_FLD(EmployerID);
+	CMP_FLD(EmployeeID);
 	CMP_FLD(ClientID);
 	CMP_FLD(TemplateID);
 	CMP_FLD(Dt);
@@ -2097,7 +2098,7 @@ int PPObjPrjTask::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace,
 		PPPrjTaskPacket * p_pack = static_cast<PPPrjTaskPacket *>(p->Data);
 		THROW(ProcessObjRefInArray(PPOBJ_PROJECT,  &p_pack->Rec.ProjectID,   ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_PERSON,   &p_pack->Rec.CreatorID,   ary, replace));
-		THROW(ProcessObjRefInArray(PPOBJ_PERSON,   &p_pack->Rec.EmployerID,  ary, replace));
+		THROW(ProcessObjRefInArray(PPOBJ_PERSON,   &p_pack->Rec.EmployeeID,  ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_PERSON,   &p_pack->Rec.ClientID,    ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_PRJTASK,  &p_pack->Rec.TemplateID,  ary, replace));
 		THROW(ProcessObjRefInArray(PPOBJ_PRJTASK,  &p_pack->Rec.LinkTaskID,  ary, replace));
@@ -2396,7 +2397,7 @@ int PPObjPrjTask::WritePacketWithPredefinedFormat(const PPPrjTaskPacket * pPack,
 				}
 				psn_obj.Helper_WritePersonInfoInICalendarFormat(pPack->Rec.CreatorID, VCalendar::tokORGANIZER, 0, rBuf);
 				VCalendar::WriteToken(VCalendar::tokREQPARTICIPANT, temp_buf);
-				psn_obj.Helper_WritePersonInfoInICalendarFormat(pPack->Rec.EmployerID,  VCalendar::tokATTENDEE, temp_buf, rBuf);
+				psn_obj.Helper_WritePersonInfoInICalendarFormat(pPack->Rec.EmployeeID,  VCalendar::tokATTENDEE, temp_buf, rBuf);
 				psn_obj.Helper_WritePersonInfoInICalendarFormat(pPack->Rec.ClientID,  VCalendar::tokCONTACT, 0, rBuf);
 				if(pPack->Rec.DlvrAddrID) {
 					PPLocationPacket loc_pack;
@@ -2456,7 +2457,7 @@ int PPObjPrjTask::WritePacketWithPredefinedFormat(const PPPrjTaskPacket * pPack,
 	return ok;
 }
 
-int PPObjPrjTask::InitPacket_(PPPrjTaskPacket & rPack, int kind, PPID prjID, PPID clientID, PPID employerID, int use_ta)
+int PPObjPrjTask::InitPacket_(PPPrjTaskPacket & rPack, int kind, PPID prjID, PPID clientID, PPID employeeID, int use_ta)
 {
 	PPProjectConfig cfg;
 	PPObjProject::ReadConfig(&cfg);
@@ -2473,7 +2474,7 @@ int PPObjPrjTask::InitPacket_(PPPrjTaskPacket & rPack, int kind, PPID prjID, PPI
 		opc_obj.GetCode(cntr_id, &counter, rPack.Rec.Code, sizeof(rPack.Rec.Code), 0, use_ta);
 	rPack.Rec.ProjectID  = prjID;
 	rPack.Rec.ClientID   = clientID;
-	rPack.Rec.EmployerID = employerID;
+	rPack.Rec.EmployeeID = employeeID;
 	rPack.Rec.Priority   = TODOPRIOR_NORMAL;
 	rPack.Rec.Status     = TODOSTTS_NEW;
 	rPack.Rec.LinkTaskID = LinkTaskID__;
@@ -2639,7 +2640,7 @@ int PPObjPrjTask::InitPacketByTemplate(const PPPrjTaskPacket & rTemplPack, LDATE
 {
 	int    ok = 1;
 	THROW_INVARG(/*pTemplPack && pPack &&*/startDt != ZERODATE);
-	THROW(InitPacket_(rPack, TODOKIND_TASK, rTemplPack.Rec.ProjectID, rTemplPack.Rec.ClientID, rTemplPack.Rec.EmployerID, use_ta));
+	THROW(InitPacket_(rPack, TODOKIND_TASK, rTemplPack.Rec.ProjectID, rTemplPack.Rec.ClientID, rTemplPack.Rec.EmployeeID, use_ta));
 	getcurdatetime(&rPack.Rec.Dt, &rPack.Rec.Tm);
 	rPack.Rec.TemplateID = rTemplPack.Rec.ID;
 	rPack.Rec.DlvrAddrID = rTemplPack.Rec.DlvrAddrID;
@@ -2749,7 +2750,7 @@ public:
 		setCtrlData(CTL_TODO_FINISHTM,    &Data.Rec.FinishTm);
 		SetupPPObjCombo(this, CTLSEL_TODO_TEMPLATE, PPOBJ_PRJTASK, Data.Rec.TemplateID, 0, reinterpret_cast<void *>(TODOKIND_TEMPLATE));
 		SetupPersonCombo(this, CTLSEL_TODO_CREATOR,  Data.Rec.CreatorID,  OLW_CANINSERT, PPPRK_EMPL,   0);
-		SetupPersonCombo(this, CTLSEL_TODO_EMPLOYER, Data.Rec.EmployerID, OLW_CANINSERT, PPPRK_EMPL,   0);
+		SetupPersonCombo(this, CTLSEL_TODO_EMPLOYER, Data.Rec.EmployeeID, OLW_CANINSERT, PPPRK_EMPL,   0);
 		SetupPersonCombo(this, CTLSEL_TODO_CLIENT,   Data.Rec.ClientID,   OLW_CANINSERT, PPPRK_CLIENT, 0);
 		PsnObj.SetupDlvrLocCombo(this, CTLSEL_TODO_DLVRADDR, Data.Rec.ClientID, Data.Rec.DlvrAddrID);
 		SetupStringCombo(this, CTLSEL_TODO_PRIOR,  PPTXT_TODO_PRIOR,  Data.Rec.Priority);
@@ -2822,7 +2823,7 @@ public:
 		getCtrlData(CTL_TODO_FINISHTM, &Data.Rec.FinishTm);
 		getCtrlData(CTLSEL_TODO_TEMPLATE, &Data.Rec.TemplateID);
 		getCtrlData(CTLSEL_TODO_CREATOR,  &Data.Rec.CreatorID);
-		getCtrlData(CTLSEL_TODO_EMPLOYER, &Data.Rec.EmployerID);
+		getCtrlData(CTLSEL_TODO_EMPLOYER, &Data.Rec.EmployeeID);
 		getCtrlData(CTLSEL_TODO_CLIENT,   &Data.Rec.ClientID);
 		getCtrlData(CTLSEL_TODO_DLVRADDR, &Data.Rec.DlvrAddrID);
 		if(getCtrlData(CTLSEL_TODO_PRIOR, &(temp_id = 0)))
@@ -2883,9 +2884,9 @@ IMPL_HANDLE_EVENT(PrjTaskDialog)
 			PPObjPrjTask todo_obj;
 			PPPrjTaskPacket templ_pack;
 			if(todo_obj.GetPacket(Data.Rec.TemplateID, &templ_pack) > 0) {
-				getCtrlData(CTLSEL_TODO_EMPLOYER, &Data.Rec.EmployerID);
-				if(!Data.Rec.EmployerID)
-					SetupPPObjCombo(this, CTLSEL_TODO_EMPLOYER, PPOBJ_PERSON, templ_pack.Rec.EmployerID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPL));
+				getCtrlData(CTLSEL_TODO_EMPLOYER, &Data.Rec.EmployeeID);
+				if(!Data.Rec.EmployeeID)
+					SetupPPObjCombo(this, CTLSEL_TODO_EMPLOYER, PPOBJ_PERSON, templ_pack.Rec.EmployeeID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_EMPL));
 				getCtrlData(CTLSEL_TODO_CLIENT, &Data.Rec.ClientID);
 				if(!Data.Rec.ClientID)
 					SetupPPObjCombo(this, CTLSEL_TODO_CLIENT, PPOBJ_PERSON, templ_pack.Rec.ClientID, OLW_CANINSERT, reinterpret_cast<void *>(PPPRK_CLIENT));
@@ -2950,25 +2951,25 @@ int PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 	int    r = 0;
 	bool   is_new = false;
 	int    task_finished = 0;
-	PPID   prev_employer = 0;
+	PPID   prev_employee = 0;
 	PPID   parent_prj = 0;
 	PPID   client = 0;
-	PPID   employer = 0;
+	PPID   employee = 0;
 	PPPrjTaskPacket pack;
 	THROW(CheckRightsModByID(pID));
 	if(*pID) {
 		THROW(GetPacket(*pID, &pack) > 0);
-		prev_employer = pack.Rec.EmployerID;
+		prev_employee = pack.Rec.EmployeeID;
 	}
 	else {
 		if(extra_param & PRJTASKBIAS_CLIENT)
 			client = extra_param & ~(PRJTASKBIAS_CLIENT|PRJTASKBIAS_EMPLOYER|PRJTASKBIAS_TEMPLATE);
 		else if(extra_param & PRJTASKBIAS_EMPLOYER)
-			employer = extra_param & ~(PRJTASKBIAS_CLIENT|PRJTASKBIAS_EMPLOYER|PRJTASKBIAS_TEMPLATE);
+			employee = extra_param & ~(PRJTASKBIAS_CLIENT|PRJTASKBIAS_EMPLOYER|PRJTASKBIAS_TEMPLATE);
 		else
 			parent_prj = extra_param & ~(PRJTASKBIAS_CLIENT|PRJTASKBIAS_EMPLOYER|PRJTASKBIAS_TEMPLATE);
 		int    kind = (extra_param & PRJTASKBIAS_TEMPLATE) ? TODOKIND_TEMPLATE : TODOKIND_TASK;
-		InitPacket_(pack, kind, parent_prj, client, employer, 1);
+		InitPacket_(pack, kind, parent_prj, client, employee, 1);
 		is_new = true;
 	}
 	task_finished = BIN(pack.Rec.Status == TODOSTTS_COMPLETED && pack.Rec.FinishDt != ZERODATE);
@@ -2986,28 +2987,28 @@ int PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 		// @todo Плохой блок. Необходимо переработать.
 		//
 		int    output_to_status_win = 0;
-		int    employer_changed = BIN(prev_employer && prev_employer != pack.Rec.EmployerID);
-		PPObjPerson::GetCurUserPerson(&employer, 0);
-		int    employer_equal = BIN(employer && employer == pack.Rec.EmployerID);
-		if(is_new && ok == cmOK && employer_equal) {
+		int    employee_changed = BIN(prev_employee && prev_employee != pack.Rec.EmployeeID);
+		PPObjPerson::GetCurUserPerson(&employee, 0);
+		int    employee_equal = BIN(employee && employee == pack.Rec.EmployeeID);
+		if(is_new && ok == cmOK && employee_equal) {
 			pack.Rec.Flags |= TODOF_OPENEDBYEMPL;
 			PutPacket(pID, &pack, 1);
    			output_to_status_win = 1;
 		}
 		else if(!is_new && ok != 0 && GetPacket(*pID, &pack) > 0) {
-			employer = 0;
+			employee = 0;
 			SysJournal * p_sj = DS.GetTLA().P_SysJ;
 			pack.Rec.OpenCount++;
 			pack.Rec.Flags |= TODOF_ACTIONVIEWED;
-			if(p_sj && employer_changed) {
+			if(p_sj && employee_changed) {
 				PPID   user_id = 0;
 				PPIDArray act_list;
 				act_list.add(PPACN_OBJVIEWED);
-				GetUserByPerson(pack.Rec.EmployerID, &user_id);
+				GetUserByPerson(pack.Rec.EmployeeID, &user_id);
 				SETFLAG(pack.Rec.Flags, TODOF_OPENEDBYEMPL,
-					employer_equal || p_sj->IsEventExists(PPOBJ_PRJTASK, pack.Rec.ID, user_id, &act_list) > 0);
+					employee_equal || p_sj->IsEventExists(PPOBJ_PRJTASK, pack.Rec.ID, user_id, &act_list) > 0);
 			}
-			else if(employer_equal)
+			else if(employee_equal)
 				pack.Rec.Flags |= TODOF_OPENEDBYEMPL;
 			PutPacket(pID, &pack, 1);
 			output_to_status_win = 1;
@@ -3151,10 +3152,10 @@ int ViewTasksDialog::editItem(long pos, long id)
 
 struct LostPrjTPersonItem { // @flat
 	PPID   CreatorID;
-	PPID   EmployerID;
+	PPID   EmployeeID;
 	PPID   ClientID;
 	PPID   ResolveCreatorID;
-	PPID   ResolveEmployerID;
+	PPID   ResolveEmployeeID;
 	PPID   ResolveClientID;
 	long   Flags;
 };
@@ -3208,7 +3209,7 @@ IMPL_HANDLE_EVENT(RestoreLostPrjTPersonDlg)
 					if(creator)
 						p_item->ResolveCreatorID = psn_id;
 					else if(employer)
-						p_item->ResolveEmployerID = psn_id;
+						p_item->ResolveEmployeeID = psn_id;
 					else
 						p_item->ResolveClientID = psn_id;
 					updateList(-1);
@@ -3219,10 +3220,10 @@ IMPL_HANDLE_EVENT(RestoreLostPrjTPersonDlg)
 			LostPrjTPersonItem * p_item = GetCurItem();
 			if(p_item) {
 				enableCommand(cmResolveCreator,      p_item->CreatorID  && !p_item->ResolveCreatorID);
-				enableCommand(cmResolveEmployer,     p_item->EmployerID && !p_item->ResolveEmployerID);
+				enableCommand(cmResolveEmployer,     p_item->EmployeeID && !p_item->ResolveEmployeeID);
 				enableCommand(cmResolveClient,       p_item->ClientID   && !p_item->ResolveClientID);
 				enableCommand(cmViewTasksByCreator,  p_item->CreatorID  && !p_item->ResolveCreatorID);
-				enableCommand(cmViewTasksByEmployer, p_item->EmployerID && !p_item->ResolveEmployerID);
+				enableCommand(cmViewTasksByEmployer, p_item->EmployeeID && !p_item->ResolveEmployeeID);
 				enableCommand(cmViewTasksByClient,   p_item->ClientID   && !p_item->ResolveClientID);
 			}
 			else {
@@ -3275,12 +3276,12 @@ int RestoreLostPrjTPersonDlg::GetText(PPID id, const SString & rWord, SString & 
 	for(uint i = 0; i < Data.getCount(); i++) {
 		const LostPrjTPersonItem * p_item = &Data.at(i);
 		const int resolve_creator  = BIN(p_item->CreatorID  && !p_item->ResolveCreatorID);
-		const int resolve_employer = BIN(p_item->EmployerID && !p_item->ResolveEmployerID);
+		const int resolve_employee = BIN(p_item->EmployeeID && !p_item->ResolveEmployeeID);
 		const int resolve_client   = BIN(p_item->ClientID   && !p_item->ResolveClientID);
-		if(resolve_creator || resolve_employer || resolve_client) {
+		if(resolve_creator || resolve_employee || resolve_client) {
 			temp_buf.Z();
 			GetText(p_item->CreatorID,  creator_word,  temp_buf, resolve_creator);
-			GetText(p_item->EmployerID, employer_word, temp_buf, resolve_employer);
+			GetText(p_item->EmployeeID, employer_word, temp_buf, resolve_employee);
 			GetText(p_item->ClientID,   client_word,   temp_buf, resolve_client);
 			THROW(addStringToList(i, temp_buf));
 		}
@@ -3304,7 +3305,6 @@ int RestoreLostPrjTPersonDlg::ViewTasks(uint cm, const LostPrjTPersonItem * pIte
 		uint idx = 0;
 		DBQ * dbq = 0;
 		StrAssocArray list;
-		//PrjTaskTbl prjt_tbl;
 		PPObjPrjTask todo_obj;
 		PrjTaskTbl * p_t = todo_obj.P_Tbl;
 		SString temp_buf;
@@ -3316,9 +3316,9 @@ int RestoreLostPrjTPersonDlg::ViewTasks(uint cm, const LostPrjTPersonItem * pIte
 		}
 		else if(cm == cmViewTasksByEmployer) {
 			idx = 4;
-			k.k4.EmployerID = pItem->EmployerID;
+			k.k4.EmployeeID = pItem->EmployeeID;
 			k_ = &k.k4;
-			dbq = ppcheckfiltid(dbq, p_t->EmployerID, pItem->EmployerID);
+			dbq = ppcheckfiltid(dbq, p_t->EmployeeID, pItem->EmployeeID);
 		}
 		else {
 			idx = 5;
@@ -3358,7 +3358,7 @@ int PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int todoP
 		if(todoPerson == TODOPSN_CREATOR)
 			dbq = & (*dbq && P_Tbl->CreatorID == prevID);
 		else if(todoPerson == TODOPSN_EMPLOYER)
-			dbq = & (*dbq && P_Tbl->EmployerID == prevID);
+			dbq = & (*dbq && P_Tbl->EmployeeID == prevID);
 		else if(todoPerson == TODOPSN_CLIENT)
 			dbq = & (*dbq && P_Tbl->ClientID == prevID);
 		p_q->select(P_Tbl->ID, 0L).where(*dbq);
@@ -3370,7 +3370,7 @@ int PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int todoP
 			if(todoPerson == TODOPSN_CREATOR)
 				prjt_pack.Rec.CreatorID  = newID;
 			if(todoPerson == TODOPSN_EMPLOYER)
-				prjt_pack.Rec.EmployerID  = newID;
+				prjt_pack.Rec.EmployeeID  = newID;
 			if(todoPerson == TODOPSN_CLIENT)
 				prjt_pack.Rec.ClientID  = newID;
 			THROW(PutPacket(&prjt_pack.Rec.ID, &prjt_pack, 0));
@@ -3394,20 +3394,20 @@ int PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int todoP
 #define PSN_NOTF_SRCH(notfFlag, personID, offs) if(notfFlag) notfFlag = list.lsearch(&personID, 0, CMPF_LONG, offs) ? 0 : 1
 	MEMSZERO(k0);
 	THROW_MEM(p_q = new BExtQuery(obj_prjt.P_Tbl, 0));
-	p_q->select(obj_prjt.P_Tbl->ID, obj_prjt.P_Tbl->CreatorID, obj_prjt.P_Tbl->EmployerID, obj_prjt.P_Tbl->ClientID, 0L);
+	p_q->select(obj_prjt.P_Tbl->ID, obj_prjt.P_Tbl->CreatorID, obj_prjt.P_Tbl->EmployeeID, obj_prjt.P_Tbl->ClientID, 0L);
 	PPWaitStart();
 	for(p_q->initIteration(false, &k0); p_q->nextIteration() > 0;) {
 		int creator_notf  = BIN(obj_prjt.P_Tbl->data.CreatorID && obj_psn.Search(obj_prjt.P_Tbl->data.CreatorID)   <= 0);
-		int employer_notf = BIN(obj_prjt.P_Tbl->data.EmployerID && obj_psn.Search(obj_prjt.P_Tbl->data.EmployerID) <= 0);
+		int employee_notf = BIN(obj_prjt.P_Tbl->data.EmployeeID && obj_psn.Search(obj_prjt.P_Tbl->data.EmployeeID) <= 0);
 		int client_notf   = BIN(obj_prjt.P_Tbl->data.ClientID && obj_psn.Search(obj_prjt.P_Tbl->data.ClientID)     <= 0);
 		PSN_NOTF_SRCH(creator_notf,  obj_prjt.P_Tbl->data.CreatorID,  offsetof(LostPrjTPersonItem, CreatorID));
-		PSN_NOTF_SRCH(employer_notf, obj_prjt.P_Tbl->data.EmployerID, offsetof(LostPrjTPersonItem, EmployerID));
+		PSN_NOTF_SRCH(employee_notf, obj_prjt.P_Tbl->data.EmployeeID, offsetof(LostPrjTPersonItem, EmployeeID));
 		PSN_NOTF_SRCH(client_notf,   obj_prjt.P_Tbl->data.ClientID,   offsetof(LostPrjTPersonItem, ClientID));
-		if(creator_notf || employer_notf || client_notf) {
+		if(creator_notf || employee_notf || client_notf) {
 			LostPrjTPersonItem item;
 			MEMSZERO(item);
 			item.CreatorID  = (creator_notf)  ? obj_prjt.P_Tbl->data.CreatorID  : 0;
-			item.EmployerID = (employer_notf) ? obj_prjt.P_Tbl->data.EmployerID : 0;
+			item.EmployeeID = (employee_notf) ? obj_prjt.P_Tbl->data.EmployeeID : 0;
 			item.ClientID   = (client_notf)   ? obj_prjt.P_Tbl->data.ClientID   : 0;
 			THROW_SL(list.insert(&item));
 		}
@@ -3425,7 +3425,7 @@ int PPObjPrjTask::ResolveAbsencePersonHelper_(PPID newID, PPID prevID, int todoP
 				THROW(tra);
 				for(uint i = 0; i < list.getCount(); i++) {
 		  			THROW(obj_prjt.ResolveAbsencePersonHelper_(list.at(i).ResolveCreatorID,  list.at(i).CreatorID,  TODOPSN_CREATOR));
-					THROW(obj_prjt.ResolveAbsencePersonHelper_(list.at(i).ResolveEmployerID, list.at(i).EmployerID, TODOPSN_EMPLOYER));
+					THROW(obj_prjt.ResolveAbsencePersonHelper_(list.at(i).ResolveEmployeeID, list.at(i).EmployeeID, TODOPSN_EMPLOYER));
 					THROW(obj_prjt.ResolveAbsencePersonHelper_(list.at(i).ResolveClientID,   list.at(i).ClientID,   TODOPSN_CLIENT));
 					PPWaitPercent(i + 1, list.getCount());
 				}

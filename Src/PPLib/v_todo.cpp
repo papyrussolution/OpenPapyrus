@@ -561,7 +561,7 @@ IMPLEMENT_PPFILT_FACTORY(PrjTask); PrjTaskFilt::PrjTaskFilt() : PPBaseFilt(PPFIL
 		offsetof(PrjTaskFilt, Reserve)-offsetof(PrjTaskFilt, ReserveStart)+sizeof(Reserve));
 	SetBranchSString(offsetof(PrjTaskFilt, ExtString)); // @v12.7.11 
 	SetBranchObjIdListFilt(offsetof(PrjTaskFilt, ClientList)); // @v12.7.11 
-	SetBranchObjIdListFilt(offsetof(PrjTaskFilt, EmployerList)); // @v12.7.11 
+	SetBranchObjIdListFilt(offsetof(PrjTaskFilt, EmployeeList)); // @v12.7.11 
 	SetBranchObjIdListFilt(offsetof(PrjTaskFilt, CreatorList)); // @v12.7.11 
 	SetBranchBaseFiltPtr(PPFILT_TAG, offsetof(PrjTaskFilt, P_TagF)); // @v12.7.11 
 	Init(1, 0);
@@ -826,7 +826,7 @@ int PPViewPrjTask::CheckRecForFilt(const PrjTaskTbl::Rec * pRec)
 		return 0;
 	if(CreatorList.IsExists() && !CreatorList.CheckID(pRec->CreatorID))
 		return 0;
-	if(EmployerList.IsExists() && !EmployerList.CheckID(pRec->EmployerID))
+	if(EmployeeList.IsExists() && !EmployeeList.CheckID(pRec->EmployeeID))
 		return 0;
 	if(!Filt.Period.CheckDate(pRec->Dt))
 		return 0;
@@ -872,7 +872,7 @@ TempOrderTbl::Rec & PPViewPrjTask::MakeTempEntry(const PrjTaskTbl::Rec & rRec, T
 		case PrjTaskFilt::ordByEstFinishDt: ord_buf.Cat(rRec.EstFinishDt, DATF_YMD|DATF_CENTURY); break;
 		case PrjTaskFilt::ordByFinishDt: ord_buf.Cat(rRec.FinishDt, DATF_YMD|DATF_CENTURY); break;
 		case PrjTaskFilt::ordByCreator: GetPersonName(rRec.CreatorID, ord_buf); break;
-		case PrjTaskFilt::ordByEmployer: GetPersonName(rRec.EmployerID, ord_buf); break;
+		case PrjTaskFilt::ordByEmployer: GetPersonName(rRec.EmployeeID, ord_buf); break;
 		case PrjTaskFilt::ordByClient: GetPersonName(rRec.ClientID, ord_buf); break;
 		case PrjTaskFilt::ordByCode: ord_buf.Cat(rRec.Code); break;
 		default: ord_buf.Cat(rRec.Dt, DATF_YMD|DATF_CENTURY); break;
@@ -938,7 +938,7 @@ int CrosstabProcessor::Finish()
 		TempPrjTaskTbl::Key0 k, k_;
 		THROW(CheckTblPtr(p_tbl = new TempPrjTaskTbl(P_TempTbl->GetName())));
 		BExtQuery q(p_tbl, 0);
-		q.select(p_tbl->StartDt, p_tbl->ClientID, p_tbl->EmployerID, p_tbl->TabParam, 0L);
+		q.select(p_tbl->StartDt, p_tbl->ClientID, p_tbl->EmployeeID, p_tbl->TabParam, 0L);
 		MEMSZERO(k);
 		k_ = k;
 		counter.Init(q.countIterations(0, &k_, spGt));
@@ -952,7 +952,7 @@ int CrosstabProcessor::Finish()
 			else if(oneof2(tab_type, PrjTaskFilt::crstClientDate, PrjTaskFilt::crstClientEmployer))
 				add_i.id = p_tbl->data.ClientID;
 			else if(oneof2(tab_type, PrjTaskFilt::crstEmployerDate, PrjTaskFilt::crstEmployerHour))
-				add_i.id = p_tbl->data.EmployerID;
+				add_i.id = p_tbl->data.EmployeeID;
 			counter.Increment();
 			SearchRec(p_tbl->data.TabID, &add_i, 0);
 			const  double task_count = P_TempTbl->data.TaskCount;
@@ -1017,7 +1017,7 @@ int CrosstabProcessor::ProcessRec(PrjTaskTbl::Rec * pRec)
 				THROW(AddRec(tab_id, tab_param_val, 1, pRec));
 				break;
 			case PrjTaskFilt::crstClientEmployer:
-				tab_id = pRec->EmployerID;
+				tab_id = pRec->EmployeeID;
 				if(oneof2(tab_param, PrjTaskFilt::ctpUnComplTask, PrjTaskFilt::ctpComplTaskRatio)) {
 					tab_param_val = BIN(Filt.StartPeriod.CheckDate(pRec->StartDt) && (!pRec->FinishDt || !Filt.StartPeriod.CheckDate(pRec->FinishDt)));
 					if(tab_param == PrjTaskFilt::ctpComplTaskRatio)
@@ -1048,12 +1048,12 @@ int CrosstabProcessor::AddRec(PPID tabID, double tabParam, double addParam, PrjT
 		SString buf;
 		TempPrjTaskTbl::Rec temp_rec;
 		temp_rec.TabID       = tabID;
-		temp_rec.EmployerID  = pRec->EmployerID;
+		temp_rec.EmployeeID  = pRec->EmployeeID;
 		temp_rec.ClientID    = pRec->ClientID;
 		temp_rec.StartDt     = pRec->StartDt;
 		if(tab_type != PrjTaskFilt::crstDateHour) {
-            GetPersonName(pRec->EmployerID, buf);
-			buf.CopyTo(temp_rec.EmployerName, sizeof(temp_rec.EmployerName));
+            GetPersonName(pRec->EmployeeID, buf);
+			buf.CopyTo(temp_rec.EmployeeName, sizeof(temp_rec.EmployeeName));
 			GetPersonName(pRec->ClientID, buf);
 			buf.CopyTo(temp_rec.ClientName, sizeof(temp_rec.ClientName));
 		}
@@ -1070,7 +1070,7 @@ int CrosstabProcessor::AddRec(PPID tabID, double tabParam, double addParam, PrjT
 			else if(tab_type == PrjTaskFilt::crstClientDate || tab_type == PrjTaskFilt::crstClientEmployer)
 				add_i.id = temp_rec.ClientID;
 			else if(tab_type == PrjTaskFilt::crstEmployerDate || tab_type == PrjTaskFilt::crstEmployerHour)
-				add_i.id = temp_rec.EmployerID;
+				add_i.id = temp_rec.EmployeeID;
 			if((found = SearchRec(tabID, (void *)&add_i, 0)) > 0) {
 				switch(Filt.TabParam) {
 					case PrjTaskFilt::ctpComplTaskRatio:
@@ -1115,7 +1115,7 @@ int CrosstabProcessor::SearchRec(PPID tabID, void * pAddInfo, TempPrjTaskTbl::Re
 	}
 	else if(oneof2(tab_type, PrjTaskFilt::crstEmployerDate, PrjTaskFilt::crstEmployerHour)) {
 		k.k2.TabID      = tabID;
-		k.k2.EmployerID = *static_cast<const PPID *>(pAddInfo);
+		k.k2.EmployeeID = *static_cast<const PPID *>(pAddInfo);
 		idx = 2;
 	}
 	return SearchByKey(P_TempTbl, idx, &k, pRec);
@@ -1134,7 +1134,7 @@ int PPViewPrjTask::GetItem(PPID id, PrjTaskViewItem * pItem)
 
 int PPViewPrjTask::AddItemToTimeGrid(const PrjTaskViewItem * pItem, int rmv)
 {
-	const long row_id = (Filt.Order == PrjTaskFilt::ordByClient) ? pItem->ClientID : pItem->EmployerID;
+	const  long row_id = (Filt.Order == PrjTaskFilt::ordByClient) ? pItem->ClientID : pItem->EmployeeID;
 	if(rmv)
 		Grid.RemoveChunk(row_id, pItem->ID);
 	else {
@@ -1177,7 +1177,7 @@ void PPViewPrjTask::GetTabTitle(PPID tabID, SString & rBuf)
 					FormatSubstDate(Filt.Sgd, dt, rBuf);
 			}
 			else if(Filt.TabType == PrjTaskFilt::crstClientEmployer)
-				rBuf.CopyFrom(P_TempTbl->data.EmployerName);
+				rBuf.CopyFrom(P_TempTbl->data.EmployeeName);
 		}
 		else
 			rBuf.Z();
@@ -1198,7 +1198,7 @@ PPViewPrjTask::InternalViewItem::InternalViewItem(const PrjTaskTbl::Rec & rS)
 	CPYFLD(Kind);
 	CPYFLD(CreatorID);
 	CPYFLD(GroupID);
-	CPYFLD(EmployerID);
+	CPYFLD(EmployeeID);
 	CPYFLD(ClientID);
 	CPYFLD(TemplateID);
 	CPYFLD(Priority);
@@ -1287,10 +1287,10 @@ int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 	UndefPriorList  = !(Filt.GetPriorList(PriorList) > 0);
 	UndefStatusList = !(Filt.GetStatusList(StatusList) > 0);
 	CreatorList.Set(0);
-	EmployerList.Set(0);
+	EmployeeList.Set(0);
 	ClientList.Set(0);
 	StrPool.ClearS();
-	if(Filt.ClientID || Filt.CreatorID || Filt.EmployerID) {
+	if(Filt.ClientList.GetCount() || Filt.CreatorList.GetCount() || Filt.EmployeeList.GetCount()) {
 		PPObjPersonRelType prt_obj;
 		PPIDArray grp_prt_list;
 		if(prt_obj.GetGroupingList(&grp_prt_list) > 0) {
@@ -1298,30 +1298,53 @@ int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 			PPIDArray creator_list;
 			PPIDArray client_list;
 			for(uint i = 0; i < grp_prt_list.getCount(); i++) {
-				if(Filt.CreatorID)
-					PsnObj.GetRelPersonList(Filt.CreatorID,  grp_prt_list.get(i), 1, &creator_list);
-				if(Filt.EmployerID)
-					PsnObj.GetRelPersonList(Filt.EmployerID, grp_prt_list.get(i), 1, &empl_list);
-				if(Filt.ClientID)
-					PsnObj.GetRelPersonList(Filt.ClientID,   grp_prt_list.get(i), 1, &client_list);
+				if(/*Filt.CreatorID*/Filt.CreatorList.GetCount()) {
+					for(uint pi = 0; pi < Filt.CreatorList.GetCount(); pi++) {
+						const PPID local_psn_id = Filt.CreatorList.Get(pi);
+						if(local_psn_id) {
+							creator_list.add(local_psn_id);
+							PsnObj.GetRelPersonList(local_psn_id, grp_prt_list.get(i), 1, &creator_list);
+						}
+					}
+				}
+				if(/*Filt.EmployerID*/Filt.EmployeeList.GetCount()) {
+					for(uint pi = 0; pi < Filt.EmployeeList.GetCount(); pi++) {
+						const PPID local_psn_id = Filt.EmployeeList.Get(pi);
+						if(local_psn_id) {
+							empl_list.add(local_psn_id);
+							PsnObj.GetRelPersonList(local_psn_id, grp_prt_list.get(i), 1, &empl_list);
+						}
+					}
+				}
+				if(/*Filt.ClientID*/Filt.ClientList.GetCount()) {
+					for(uint pi = 0; pi < Filt.ClientList.GetCount(); pi++) {
+						const PPID local_psn_id = Filt.ClientList.Get(pi);
+						if(local_psn_id) {
+							client_list.add(local_psn_id);
+							PsnObj.GetRelPersonList(local_psn_id,   grp_prt_list.get(i), 1, &client_list);
+						}
+					}
+				}
 			}
-			creator_list.addnz(Filt.CreatorID);
-			empl_list.addnz(Filt.EmployerID);
-			client_list.addnz(Filt.ClientID);
-			creator_list.sort();
+			creator_list.sortAndUndup();
 			if(creator_list.getCount())
 				CreatorList.Set(&creator_list);
-			empl_list.sort();
+			empl_list.sortAndUndup();
 			if(empl_list.getCount())
-				EmployerList.Set(&empl_list);
-			client_list.sort();
+				EmployeeList.Set(&empl_list);
+			client_list.sortAndUndup();
 			if(client_list.getCount())
 				ClientList.Set(&client_list);
 		}
+		else {
+			CreatorList = Filt.CreatorList;
+			EmployeeList = Filt.EmployeeList;
+			ClientList = Filt.ClientList;
+		}
 		if(!CreatorList.IsExists())
 			CreatorList.Add(Filt.CreatorID);
-		if(!EmployerList.IsExists())
-			EmployerList.Add(Filt.EmployerID);
+		if(!EmployeeList.IsExists())
+			EmployeeList.Add(Filt.EmployerID);
 		if(!ClientList.IsExists())
 			ClientList.Add(Filt.ClientID);
 	}
@@ -1412,8 +1435,8 @@ int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 					P_Ct->AddInheritedFixField(P_TempTbl->ClientName);
 				}
 				else if(oneof2(Filt.TabType, PrjTaskFilt::crstEmployerDate, PrjTaskFilt::crstEmployerHour)) {
-					P_Ct->AddIdxField(P_TempTbl->EmployerID);
-					P_Ct->AddInheritedFixField(P_TempTbl->EmployerName);
+					P_Ct->AddIdxField(P_TempTbl->EmployeeID);
+					P_Ct->AddInheritedFixField(P_TempTbl->EmployeeName);
 				}
 				P_Ct->AddAggrField(P_TempTbl->TabParam);
 				total_list.Add(P_TempTbl->TabParam);
@@ -1437,12 +1460,20 @@ int PPViewPrjTask::Init_(const PPBaseFilt * pFilt)
 class PrjTaskFiltDialog : public TDialog {
 	DECL_DIALOG_DATA(PrjTaskFilt);
 public:
+	enum {
+		ctlgroupCreator   = 1,
+		ctlgroupEmployer  = 2,
+		ctlgroupClient    = 3,
+	};
 	PrjTaskFiltDialog() : TDialog(DLG_TODOFILT)
 	{
 		SetupCalPeriod(CTLCAL_TODOFILT_PERIOD, CTL_TODOFILT_PERIOD);
 		SetupCalPeriod(CTLCAL_TODOFILT_START, CTL_TODOFILT_START);
 		SetupCalPeriod(CTLCAL_TODOFILT_ESTFINISH, CTL_TODOFILT_ESTFINISH);
 		SetupCalPeriod(CTLCAL_TODOFILT_FINISH, CTL_TODOFILT_FINISH);
+		addGroup(ctlgroupCreator, new PersonListCtrlGroup(CTLSEL_TODOFILT_CREATOR, 0, cmCreatorList, 0));
+		addGroup(ctlgroupEmployer, new PersonListCtrlGroup(CTLSEL_TODOFILT_EMPLOYER, 0, cmEmployerList, 0));
+		addGroup(ctlgroupClient, new PersonListCtrlGroup(CTLSEL_TODOFILT_CLIENT, 0, cmClientList, 0));
 	}
 	DECL_DIALOG_SETDTS()
 	{
@@ -1459,9 +1490,27 @@ public:
 		SetPeriodInput(this, CTL_TODOFILT_ESTFINISH, Data.EstFinishPeriod);
 		SetPeriodInput(this, CTL_TODOFILT_FINISH,  Data.FinishPeriod);
 		SetupPPObjCombo(this,  CTLSEL_TODOFILT_TEMPLATE, PPOBJ_PRJTASK, Data.TemplateID, 0, reinterpret_cast<void *>(TODOKIND_TEMPLATE));
-		SetupPersonCombo(this, CTLSEL_TODOFILT_CREATOR,  Data.CreatorID, 0, PPPRK_EMPL, 0);
-		SetupPersonCombo(this, CTLSEL_TODOFILT_EMPLOYER, Data.EmployerID, 0, PPPRK_EMPL, 0);
-		SetupPersonCombo(this, CTLSEL_TODOFILT_CLIENT,   Data.ClientID, 0, PPPRK_CLIENT, 0);
+		{
+			if(Data.CreatorList.IsEmpty() && Data.CreatorID)
+				Data.CreatorList.Add(Data.CreatorID);
+			PersonListCtrlGroup::Rec _grp_rec(PPPRK_EMPL, Data.CreatorList.GetP());
+			setGroupData(ctlgroupCreator, &_grp_rec);
+			//SetupPersonCombo(this, CTLSEL_TODOFILT_CREATOR,  Data.CreatorID, 0, PPPRK_EMPL, 0);
+		}
+		{
+			if(Data.EmployeeList.IsEmpty() && Data.EmployerID)
+				Data.EmployeeList.Add(Data.EmployerID);
+			PersonListCtrlGroup::Rec _grp_rec(PPPRK_EMPL, Data.EmployeeList.GetP());
+			setGroupData(ctlgroupEmployer, &_grp_rec);
+			//SetupPersonCombo(this, CTLSEL_TODOFILT_EMPLOYER, Data.EmployerID, 0, PPPRK_EMPL, 0);
+		}
+		{
+			if(Data.ClientList.IsEmpty() && Data.ClientID)
+				Data.ClientList.Add(Data.ClientID);
+			PersonListCtrlGroup::Rec _grp_rec(PPPRK_CLIENT, Data.ClientList.GetP());
+			setGroupData(ctlgroupClient, &_grp_rec);
+			//SetupPersonCombo(this, CTLSEL_TODOFILT_CLIENT,   Data.ClientID, 0, PPPRK_CLIENT, 0);
+		}
 		SetupPPObjCombo(this,  CTLSEL_TODOFILT_CITY,     PPOBJ_WORLD,     Data.CliCityID, OLW_WORDSELECTOR, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
 		SetupPPObjCombo(this, CTLSEL_TODOFILT_PRJ,       PPOBJ_PROJECT, Data.ProjectID, OLW_CANINSERT, 0);
 		SetupStringCombo(this, CTLSEL_TODOFILT_ORDER,    PPTXT_TODOORDER,     Data.Order);
@@ -1502,9 +1551,27 @@ public:
 		THROW(GetPeriodInput(this, sel = CTL_TODOFILT_ESTFINISH, &Data.EstFinishPeriod));
 		THROW(GetPeriodInput(this, sel = CTL_TODOFILT_FINISH,    &Data.FinishPeriod));
 		getCtrlData(CTLSEL_TODOFILT_TEMPLATE, &Data.TemplateID);
-		getCtrlData(CTLSEL_TODOFILT_CREATOR,  &Data.CreatorID);
-		getCtrlData(CTLSEL_TODOFILT_EMPLOYER, &Data.EmployerID);
-		getCtrlData(CTLSEL_TODOFILT_CLIENT,   &Data.ClientID);
+		{
+			//getCtrlData(CTLSEL_TODOFILT_CREATOR,  &Data.CreatorID);
+			PersonListCtrlGroup::Rec _grp_rec;
+			getGroupData(ctlgroupCreator, &_grp_rec);
+			Data.CreatorList.Set(&_grp_rec.List);
+			Data.CreatorID = Data.CreatorList.GetSingle(); 
+		}
+		{
+			//getCtrlData(CTLSEL_TODOFILT_EMPLOYER, &Data.EmployerID);
+			PersonListCtrlGroup::Rec _grp_rec;
+			getGroupData(ctlgroupEmployer, &_grp_rec);
+			Data.EmployeeList.Set(&_grp_rec.List);
+			Data.EmployerID = Data.EmployeeList.GetSingle();
+		}
+		{
+			//getCtrlData(CTLSEL_TODOFILT_CLIENT,   &Data.ClientID);
+			PersonListCtrlGroup::Rec _grp_rec;
+			getGroupData(ctlgroupClient, &_grp_rec);
+			Data.ClientList.Set(&_grp_rec.List);
+			Data.ClientID = Data.ClientList.GetSingle();
+		}
 		getCtrlData(CTLSEL_TODOFILT_CITY,     &Data.CliCityID);
 		getCtrlData(CTLSEL_TODOFILT_PRJ,      &Data.ProjectID);
 		getCtrlData(CTLSEL_TODOFILT_ORDER,    &Data.Order);
@@ -1628,7 +1695,7 @@ int PPViewPrjTask::CheckIDForFilt(PPID id, const PrjTaskTbl::Rec * pRec)
 			ok = 0;
 		else if(CreatorList.IsExists() && !CreatorList.CheckID(pRec->CreatorID))
 			ok = 0;
-		else if(EmployerList.IsExists() && !EmployerList.CheckID(pRec->EmployerID))
+		else if(EmployeeList.IsExists() && !EmployeeList.CheckID(pRec->EmployeeID))
 			ok = 0;
 		else if(ClientList.IsExists() && !ClientList.CheckID(pRec->ClientID))
 			ok = 0;
@@ -1697,9 +1764,9 @@ int PPViewPrjTask::InitIteration()
 				k.k5.ClientID = ClientList.GetSingle();
 				k.k5.Dt = Filt.Period.low;
 			}
-			else if(EmployerList.GetSingle()) {
+			else if(EmployeeList.GetSingle()) {
 				idx = 4;
-				k.k4.EmployerID = EmployerList.GetSingle();
+				k.k4.EmployeeID = EmployeeList.GetSingle();
 				k.k4.Dt = Filt.Period.low;
 			}
 			else if(Filt.TemplateID) {
@@ -1714,7 +1781,7 @@ int PPViewPrjTask::InitIteration()
 			P_IterQuery = new BExtQuery(t, idx, 128);
 			dbq = ppcheckfiltid(dbq, t->ProjectID,  Filt.ProjectID);
 			dbq = ppcheckfiltid(dbq, t->ClientID,   ClientList.GetSingle());
-			dbq = ppcheckfiltid(dbq, t->EmployerID, EmployerList.GetSingle());
+			dbq = ppcheckfiltid(dbq, t->EmployeeID, EmployeeList.GetSingle());
 			dbq = ppcheckfiltid(dbq, t->TemplateID, Filt.TemplateID);
 			dbq = ppcheckfiltid(dbq, t->CreatorID,  CreatorList.GetSingle());
 			dbq = ppcheckfiltid(dbq, t->LinkTaskID, Filt.LinkTaskID);
@@ -1809,7 +1876,7 @@ int PPViewPrjTask::NextOuterIteration()
 				const TempPrjTaskTbl::Rec & r_src_rec = P_TempTbl->data;
 				rec.ID = r_src_rec.TabID;
 				rec.Dt.v       = (ulong)r_src_rec.TabParam;
-				rec.EmployerID = r_src_rec.EmployerID;
+				rec.EmployeeID = r_src_rec.EmployeeID;
 				rec.ClientID   = r_src_rec.ClientID;
 				rec.StartDt    = r_src_rec.StartDt;
 			}
@@ -1829,7 +1896,7 @@ int FASTCALL PPViewPrjTask::NextIteration(PrjTaskViewItem * pItem)
 		if(NextInnerIteration(pItem) > 0) {
 			if(CreatorList.IsExists() && !CreatorList.CheckID(Item.CreatorID))
 				continue;
-			else if(EmployerList.IsExists() && !EmployerList.CheckID(Item.EmployerID))
+			else if(EmployeeList.IsExists() && !EmployeeList.CheckID(Item.EmployeeID))
 				continue;
 			else if(ClientList.IsExists() && !ClientList.CheckID(Item.ClientID))
 				continue;
@@ -2062,8 +2129,8 @@ void * PPViewPrjTask::GetEditExtraParam()
 	PPID   extra_param = 0;
 	if(Filt.ProjectID)
 		extra_param = Filt.ProjectID;
-	else if(EmployerList.GetSingle())
-		extra_param = EmployerList.GetSingle() + PRJTASKBIAS_EMPLOYER;
+	else if(EmployeeList.GetSingle())
+		extra_param = EmployeeList.GetSingle() + PRJTASKBIAS_EMPLOYER;
 	else if(ClientList.GetSingle())
 		extra_param = ClientList.GetSingle() + PRJTASKBIAS_CLIENT;
 	if(Filt.Kind == TODOKIND_TEMPLATE)
@@ -2132,7 +2199,7 @@ int PPViewPrjTask::_GetDataForBrowser(SBrowserDataProcBlock * pBlk) // @v12.6.1
 			pBlk->Set(temp_buf);
 			break;
 		case 9: // employer
-			GetPersonName(p_item->EmployerID, temp_buf);
+			GetPersonName(p_item->EmployeeID, temp_buf);
 			pBlk->Set(temp_buf);
 			break;
 		case 10: // description
@@ -2217,7 +2284,7 @@ DBQuery * PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		THROW(CheckTblPtr(p_ord = new TempOrderTbl(P_TempOrd->GetName())));
 		THROW(CheckTblPtr(t = new PrjTaskTbl));
 		PPDbqFuncPool::InitObjNameFunc(dbe_psn_cli, PPDbqFuncPool::IdObjNamePerson, t->ClientID);
-		PPDbqFuncPool::InitObjNameFunc(dbe_psn_emp, PPDbqFuncPool::IdObjNamePerson, t->EmployerID);
+		PPDbqFuncPool::InitObjNameFunc(dbe_psn_emp, PPDbqFuncPool::IdObjNamePerson, t->EmployeeID);
 		{
 			dbe_descr.init();
 			dbe_descr.push(dbconst(PPOBJ_PRJTASK));
@@ -2228,7 +2295,6 @@ DBQuery * PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		dbe_prior  = & enumtoa(t->Priority, 5, prior_subst.Get(PPTXT_TODO_PRIOR));
 		dbe_status = & enumtoa(t->Status,   5, status_subst.Get(PPTXT_TODO_STATUS));
 		dbq = &(*dbq && t->ID == p_ord->ID);
-		// @v12.5.1 {
 		q = &Select_(
 			t->ID,          // #0
 			t->Code,        // #1
@@ -2242,20 +2308,6 @@ DBQuery * PPViewPrjTask::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		q->addField(dbe_psn_cli); // #8
 		q->addField(dbe_psn_emp); // #9
 		q->addField(dbe_descr);   // #10
-		// } @v12.5.1 
-		/* @v12.5.1 q = &Select_(
-			t->ID,          // #0
-			t->Code,        // #1
-			t->Dt,          // #2
-			t->StartDt,     // #3
-			t->EstFinishDt, // #4
-			t->FinishDt,    // #5
-			*dbe_prior,     // #6
-			*dbe_status,    // #7
-			dbe_psn_cli,    // #8
-			dbe_psn_emp,    // #9
-			dbe_descr,      // #10
-			0L);*/
 		q->from(p_ord, t, 0L).where(*dbq);
 		delete dbe_prior;
 		delete dbe_status;
@@ -2360,8 +2412,8 @@ int PPViewPrjTask::ChangeTasks(PPIDArray * pAry)
 				{
 					SString & r_nm1 = SLS.AcquireRvlStr();
 					SString & r_nm2 = SLS.AcquireRvlStr();
-					GetPersonName(p1->EmployerID, r_nm1); 
-					GetPersonName(p2->EmployerID, r_nm2);
+					GetPersonName(p1->EmployeeID, r_nm1); 
+					GetPersonName(p2->EmployeeID, r_nm2);
 					si = r_nm1.CmpNC(r_nm2);
 				}
 				break;
@@ -2696,8 +2748,8 @@ int PPViewPrjTask::GetTimeGridItemText(PPID taskID, SString & rBuf)
 		}
 		else {
 			if(Filt.Order == PrjTaskFilt::ordByClient) {
-				if(pack.Rec.EmployerID) {
-					GetPersonName(pack.Rec.EmployerID, rBuf);
+				if(pack.Rec.EmployeeID) {
+					GetPersonName(pack.Rec.EmployeeID, rBuf);
 					ok = 1;
 				}
 			}
@@ -2832,7 +2884,7 @@ int PPALDD_PrjTask::InitData(PPFilt & rFilt, long rsrv)
 			H.ProjectID   = pack.Rec.ProjectID;
 			H.CreatorID   = pack.Rec.CreatorID;
 			H.GroupID     = pack.Rec.GroupID;
-			H.EmployerID  = pack.Rec.EmployerID;
+			H.EmployerID  = pack.Rec.EmployeeID;
 			H.ClientID    = pack.Rec.ClientID;
 			H.DlvrAddrID  = pack.Rec.DlvrAddrID;
 			H.BillArID    = pack.Rec.BillArID;
@@ -2997,7 +3049,7 @@ int PPALDD_PrjTaskViewCt::NextIteration(PPIterID iterId)
 	}
 	else if(oneof2(p_filt->TabType, PrjTaskFilt::crstClientDate, PrjTaskFilt::crstEmployerDate)) {
 		LDATE dt = ZERODATE;
-		GetPersonName((p_filt->TabType == PrjTaskFilt::crstEmployerDate) ? item.EmployerID : item.ClientID, idx_name);
+		GetPersonName((p_filt->TabType == PrjTaskFilt::crstEmployerDate) ? item.EmployeeID : item.ClientID, idx_name);
 		dt.v = item.ID;
 		tab_name.Cat(dt);
 	}
