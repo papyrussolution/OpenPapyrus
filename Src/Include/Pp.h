@@ -448,6 +448,7 @@ struct PPTransportConfig; // @v12.5.5
 struct ExecSessionOnTechRouteBlock; // @v12.6.1
 class  ExtCodeRefCore;
 class  PPSyncCashNode;
+class  SalaryContext; // @v12.8.0
 
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef int32 PPID; // @v11.6.8 long-->int32
@@ -629,6 +630,15 @@ public:
 	//   0 - объекты this и rS не эквивалентны
 	//
 	bool   IsEq(const PPExtStrContainer & rS, int fieldCount, const int * pFldList) const;
+	//
+	// Descr: Определяет эквивалентность объекта this объекту rS по всему множеству подстрок
+	//   за исключением перечисленных в массиве длиной exclFieldCount по указателю pExclFldList.
+	//   Если exclFieldCount == 0 или pExclFldList == 0, то сравнивает по всем множеству подстрок без исключений.
+	// Descr:
+	//   !0 - объекты this и rS эквивалентны при заданных условиях 
+	//   0 - объекты this и rS не эквивалентны
+	//
+	bool   IsEqExclude(const PPExtStrContainer & rS, uint exclFieldCount, const int * pExclFldList) const; // @v12.8.0
 	int    GetExtStrData(int fldID, SString & rBuf) const;
 	int    PutExtStrData(int fldID, const char * pStr);
 	int    SerializeB(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -1659,7 +1669,8 @@ public:
 	static int IdObjMemoTech;       // @v12.5.12 (fldTechID)
 	static int IdObjNameGoodsType;  // @v12.7.9 (fldGoodsTypeID)
 	static int IdObjNameAccountByRel; // @v12.7.10 (fldAccRelID)
-
+	static int IdUedTime;             // @v12.8.0 (fldUedTime) 
+	
 	static int Register();
 	static void STDCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
 	static void STDCALL InitObjTagTextFunc(DBE & rDbe, PPID tagID, DBField & rFld, int dontUseCache = 0);
@@ -7418,14 +7429,14 @@ public:
 	// Descr: Возвращает true если в потоке задана внешняя сигнатура.
 	//
 	bool   HasSignatureAttr(uint orSignatureAttrFlags) const;
-	void   FASTCALL SetOuterSignature(const char * pSignature); // @v11.1.12
+	void   FASTCALL SetOuterSignature(const char * pSignature);
 	void   FASTCALL SetSvcIdent(const void * pIdent, size_t identSize); // @v12.3.1
 	//
 	// Descr: Если !isempty(pS) и сигнатура потока равена pS, то возвращает true.
 	//   Если isempty(pS) и сигнатура потока пустая, то возвращает true.
 	//   В остальных случаях возвращает false.
 	//
-	bool   FASTCALL CheckOuterSignature(const char * pS) const; // @v11.1.12
+	bool   FASTCALL CheckOuterSignature(const char * pS) const;
 	bool   FASTCALL CheckSvcIdent(const void * pIdent, size_t identSize) const; // @v12.3.1
 	//
 	// Descr: Если время жизни сигнатуры в секундах превысило таймаут, заданный параметром timeoutSec,
@@ -7460,7 +7471,7 @@ private:
 	int32  UniqueSessID; // Фактически, идентификатор потока. Инициируется функцией PPThread::Startup() как {UniqueSessID = DS.GetTLA().GetId();}
 	LDATETIME StartMoment;
 	//
-	// @v11.1.12 Сигнатура потока, заданная внешним актором. Назначение ее в том, чтобы при
+	//   Сигнатура потока, заданная внешним актором. Назначение ее в том, чтобы при
 	//   повторном обращении с этой же сигнатурой можно было бы найти поток, который "занимался вопросом" ранее.
 	//   Текущая мотивация заключается в асинхронной обработке запросов к серверу.
 	//   Важно: в общем случае нелья гарантировать, что эта сигнатура уникальна, поскольку эмитирована
@@ -8462,9 +8473,14 @@ public:
 	//
 	int    Get(const SString & rLine, int fldID, SString & rBuf);
 	int    Enum(const SString & rLine, uint * pPos, int * pFldID, SString & rBuf);
+	//
+	// Descr: Сканирует буфер rLine и извлекает список идентификаторов строк.
+	// Note: Если каким-то образом в rLine обнаруживается нулевой или нецифровой идентификатор, то он пропускается.
+	//
+	int    GetFieldIdList(const SString & rLine, LongArray & rIdList) const; // @v12.8.0
 private:
 	int    Excise(SString & rLine, int fldID);
-	const SRegExp2 Re;
+	const  SRegExp2 Re;
 };
 //
 // Descr: Извлекает из пула-хранилища строк rLine строку с идентификатором fldID и присваивает
@@ -9591,7 +9607,7 @@ public:
 	int    Search(PPID id, PersonTbl::Rec * pRec = 0);
 	int    SearchByName(const char * pName, PPID * pID, PersonTbl::Rec * pRec = 0);
 	int    SearchByName(const char * pName, PPIDArray & rList);
-	SString & GetItemMemo(PPID id, SString & rBuf); // @v11.1.12
+	SString & GetItemMemo(PPID id, SString & rBuf);
 	int    SearchMainOrg(PersonTbl::Rec * pRec);
 	int    GetKindList(PPID personID, PPIDArray * pList);
 	int    AddKind(PPID id, PPID kind, int use_ta);
@@ -10283,6 +10299,7 @@ public:
 class CCheckLineArray : public TSVector <CCheckLineTbl::Rec> { // @v12.3.4 typedef-->class
 public:
 	CCheckLineArray();
+	bool  FASTCALL IsEq(const CCheckLineArray & rS) const;
 	int   EvaluateVatAmounts(BVATAccmArray & rResult) const;
 };
 
@@ -10359,7 +10376,7 @@ private:
 //
 enum {
 	cifIsPrinted     = 0x0001, // Строка напечатана
-	cifGift  = 0x0002, // Товар в строке является подарком
+	cifGift          = 0x0002, // Товар в строке является подарком
 	cifUsedByGift    = 0x0004, // По строке был предоставлен подарок
 	cifQuotedByGift  = 0x0008, // Подарок по строке был предоставлен в виде котировочной цены
 		// @#{!cifQuotedByGift || cifUsedByGift}
@@ -10474,6 +10491,7 @@ struct CcTotal {
 struct CcAmountEntry {
 	CcAmountEntry();
 	bool   FASTCALL IsEq(const CcAmountEntry & rS) const;
+	bool   FASTCALL operator == (const CcAmountEntry & rS) const { return IsEq(rS); }
 	int    GetTypeText(SString & rBuf) const;
 
 	PPID   CheckID;    // Идентификатор чека. Важен, если собираются однотипные суммы по выборке чеков
@@ -10490,6 +10508,7 @@ class CcAmountList : public TSVector <CcAmountEntry> {
 public:
 	CcAmountList();
 	CcAmountList & Z();
+	bool   FASTCALL IsEq(const CcAmountList & rS) const;
 	int    GetSign() const;
 	int    Search(int type, int32 addedID, uint * pPos) const;
 	int    SearchAddedID(int32 addedID, uint * pPos) const;
@@ -10536,6 +10555,7 @@ public:
 		};
 		LineExt();
 		bool   IsEmpty() const;
+		bool   FASTCALL IsEq(const LineExt & rS) const;
 
 		uint32 ItemIdx;    // Индекс позиции (+1) в Items_
 		int8   Queue;
@@ -10725,7 +10745,7 @@ public:
 	~CCheckPacket();
 	CCheckPacket & FASTCALL operator = (const CCheckPacket & rS);
 	CCheckPacket & Z();
-	int    IsEq(const CCheckPacket & rS, long options) const;
+	int    IsEq_(const CCheckPacket & rS, long options) const;
 	int    FASTCALL Copy(const CCheckPacket & rS);
 	//
 	// Descr: Возвращает !0 если есть не пустые поля расширения чека (Ext).
@@ -10764,10 +10784,10 @@ public:
 	int    SetLineTextExt(int pos/*[1..]*/, int lnextId, const char *);
 	int    GetLineTextExt(int pos/*[1..]*/, int lnextId, SString & rBuf) const;
 	bool   HasAnyLineTextExt(int pos/*[1..]*/) const;
-	int    SetLineExt(int pos /*[1..]*/, const LineExt & pExt);
-	int    GetLineExt(int pos /*[1..]*/, LineExt & rExt) const;
-	int    SetLineChZnPreprocessResult(int pos /*[1..]*/, const PreprocessChZnCodeResult * pResult); // @v11.1.11
-	const  PreprocessChZnCodeResult * GetLineChZnPreprocessResult(int pos /*[1..]*/) const; // @v11.1.11
+	int    SetLineExt(int pos/*[1..]*/, const LineExt & pExt);
+	int    GetLineExt(int pos/*[1..]*/, LineExt & rExt) const;
+	int    SetLineChZnPreprocessResult(int pos /*[1..]*/, const PreprocessChZnCodeResult * pResult);
+	const  PreprocessChZnCodeResult * GetLineChZnPreprocessResult(int pos /*[1..]*/) const;
 	//
 	// Descr: Объединяет позиции, у которых одинаковые идентификаторы товаров
 	// Note: В дальнейшем критерии объединения будут усложнены.
@@ -10784,11 +10804,19 @@ public:
 	// Descr: Флаги функции SetTotalDiscount
 	//
 	enum {
-		stdfPctDis      = 0x0001, // Параметр dis задает размер скидки в процентах. Иначе - абсолютное значение.
-		stdfPlus        = 0x0002  // Скидка увеличивает сумму чека
+		stdfPctDis = 0x0001, // Параметр dis задает размер скидки в процентах. Иначе - абсолютное значение.
+		stdfPlus   = 0x0002  // Скидка увеличивает сумму чека
 	};
 	void   SetTotalDiscount__(double dis, long flags);
-	double CalcAmount_Obsolete(double * pAmt, double * pDscnt) const;
+
+	struct SetupTotalDiscountResult {
+		double OrgAmount;
+		double Amount;
+		double ReqDiscount;
+		double tDiscount;
+	};
+
+	int    SetTotalDiscount_Debug(uint method/*1||2*/, double dis, long flags, SetupTotalDiscountResult * pResult); // @v12.8.0
 	double CalcAmount(CcTotal * pResult) const;
 	//
 	// Descr: Расчитывает суммы чека по строкам и устанавливает их в поля Rec.Amount и Rec.Discount.
@@ -10819,6 +10847,9 @@ public:
 	int    SetSCardSpecialTreatmentIdentifyReplyBlock(const void * pStirb);
 	int    GetSCardSpecialTreatmentIdentifyReplyBlock(void * pStirb) const;
 
+	SJson * ToJsonObj() const; // @v12.8.0
+	bool   FromJsonObj(const SJson * pJs); // @v12.8.0
+
 	enum {
 		ufCheckInvariant = 0x0001, // Функция CCheckCore::TurnCheck не допускает проведение пакета,
 			// если он не проходит тест CCheckPacket::InvariantC.
@@ -10843,7 +10874,7 @@ private:
 	TSVector <LineExt> ExtList;
 	CcAmountList CcAl;      // Список оплат по чеку. Используется только, если по чеку было более одного типа оплаты. Например: безналичная оплата + доплата наличными.
 	//
-	// Серийные номера храняться в виде ассоциаций {position, serial}.
+	// Серийные номера хранятся в виде ассоциаций {position, serial}.
 	// position - позиция соответствующей строки в Items_ плюс 1.
 	// То есть, серия для первой строки (индекс 0) хранится с номером 1.
 	//
@@ -11657,12 +11688,18 @@ struct PPBankingOrder { // @persistent @store(PropertyTbl)
 //
 #pragma pack(push,1)
 struct PPFreight { // @persistent @store(PropertyTbl)
+	// (??dtmqDlvry)
 	PPFreight();
 	PPFreight & Z();
 	bool   IsEmpty() const;
 	bool   FASTCALL IsEq(const PPFreight &) const;
 	int    FASTCALL CheckForFilt(const FreightFilt & rFilt) const;
 	int    SetupDlvrAddr(PPID dlvrAddrID);
+	LDATETIME GetDespatchTime() const; // @v12.8.0 
+	LDATETIME GetArrivalTime() const; // @v12.8.0
+	bool   SetDespatchTime(LDATETIME dtm); // @v12.8.0
+	bool   SetArrivalTime(LDATETIME dtm); // @v12.8.0
+	
 	static constexpr size_t GetSizeBeforeV12610() { return offsetof(PPFreight, UedTmLoading); }
 	PPID   Tag;            // Const=PPOBJ_BILL
 	PPID   ID;             // ->Bill.ID
@@ -11678,14 +11715,16 @@ struct PPFreight { // @persistent @store(PropertyTbl)
 	long   TrType;         // PPTRTYP_XXX
 	PPID   PortOfLoading;  // ->City.ID
 	PPID   PortOfDischarge; // ->City.ID
-	LDATE  IssueDate;      // Дата отправления из пункта погрузки
-	LDATE  ArrivalDate;    // Дата прибытия на конечный пункт
+	LDATE  IssueDate_Obsolete;   // Дата отправления из пункта погрузки // @v12.8.0 IssueDate-->IssueDate_Obsolete
+	LDATE  ArrivalDate_Obsolete; // Дата прибытия на конечный пункт     // @v12.8.0 ArrivalDate-->ArrivalDate_Obsolete
 	PPID   CaptainID;      // ->Person.ID (Командиры транспортных средств)
 	double Cost;           // Стоимость фрахта
 	PPID   AgentID;        // ->Person.ID (Транспортные агентства)
 	PPID   ShipID;         // ->Ship.ID
 	PPID   Captain2ID;     // 2-й командир транспорта
-	uint8  Reserve2[16];   // @reserve
+	// @v12.8.0 uint8  Reserve2[16];   // @reserve
+	ued_t  UedTmDespatch;  // @v12.8.0 Время отправления (вместо IssueDate) //
+	ued_t  UedTmArrival;   // @v12.8.0 Время прибытия на конечный пункт (вместо ArrivalDate) //
 	// Далее следуют поля, введенные в версии @v12.6.10 из-за необходимости формировать сложную электронную товарно-транспортную накладную
 	// И да, я по-тихоньку начинаю внедрять UED. Здесь используется UED time там, где раньше я использовал бы LDATETIME
 	ued_t  UedTmLoading;   // @anchor @v12.6.10 Заявленное время начала погрузки
@@ -12140,7 +12179,7 @@ public:
 //
 struct PPCurTransit {      // @transient
 	PPID   BillID;         // Идентификатор документа
-	char   BillCode[48];   // Код документа // @v11.1.12 [24]--[48]
+	char   BillCode[48];   // Код документа
 	LDATE  Date;
 	PPID   OpID;
 	PPID   AccSheetID;
@@ -13290,9 +13329,6 @@ class BillCore : public BillTbl {
 public:
 	friend class PPTblEnum <BillCore>;
 
-	// @v11.1.12 static char * FASTCALL SetCode(char * code, long f);
-	// @v11.1.12 static char * FASTCALL GetCode(char * code);
-	// @v11.1.12 static SString & FASTCALL GetCode(SString & rCode);
 	static double GetQttyEpsilon();
 	//
 	// Descr: Возвращает значение статуса ответа (RECADV) на уведомление об отгрузке (DESADV)
@@ -13306,8 +13342,8 @@ public:
 
 	BillCore();
 	int    Search(PPID id, BillTbl::Rec * pRec = 0);
-	int    PutItemMemo(PPID id, SString * pBuf, int use_ta); // @v11.1.12
-	SString & GetItemMemo(PPID id, SString & rBuf); // @v11.1.12
+	int    PutItemMemo(PPID id, SString * pBuf, int use_ta);
+	SString & GetItemMemo(PPID id, SString & rBuf);
 	int    GetAmountList(PPID billID, AmtList * pList);
 	int    GetAmount(PPID billID, PPID amtTypeID, PPID curID, double *);
 	//
@@ -13420,7 +13456,7 @@ public:
 		safDefault    = 0x0000,
 		safIgnoreOp   = 0x0001,
 		safCheckEdiOp = 0x0002,
-		safIgnoreDate = 0x0004  // @v11.4.2 Не принимать во внимание дату документа (только номер и, возможно, вид операции)
+		safIgnoreDate = 0x0004  // Не принимать во внимание дату документа (только номер и, возможно, вид операции)
 	};
 	int    SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID, BillTbl::Rec * pRec);
 	int    GetRentCondition(PPID, PPRentCondition *);
@@ -22772,9 +22808,10 @@ public:
 	int    GenerateNumber(PPAccount * pRec);
 	int    FASTCALL Fetch(PPID id, PPAccount * pRec);
 	int    FetchNum(int ac, int sb, PPID curID, PPAccount * pRec);
-	int    GetChildList(PPID acctID, StrAssocArray * pChildList);
-	int    GetParentList(PPID acctID, StrAssocArray * pParentList);
-	int    BelongTo(PPID acctID, PPID parentID);
+	int    GetChildList_(PPID acctID, StrAssocArray * pChildList);
+	int    GetParentList_(PPID acctID, StrAssocArray * pParentList);
+	int    GetChildList(PPID accID, bool recursive, PPIDArray & rIdList); // @v12.8.0
+	int    IsChildOf(PPID acctID, PPID parentID);
 	int    GetListByAccSheet(PPID accSheetID, PPIDArray & rList);
 	int    LockFRR(PPID accID, LDATE dt, int doUnlock);
 private:
@@ -27770,7 +27807,7 @@ struct PersonReq { // @flat
 		// Если персоналия относится к нескольким видам, то тип поискового регистра берется из первого
 		// встреченного вида, которому принадлежит персоналия и для которого определен тип поискового регистра.
 	BnkAcctData BnkAcct;
-	char   Memo[256];     // @memo // @v11.1.12 [128]-->[256]
+	char   Memo[256];     // @memo 
 };
 //
 //
@@ -29231,6 +29268,14 @@ class SalaryCore : public SalaryTbl {
 public:
 	SalaryCore();
 	bool   Validate(const SalaryTbl::Rec * pRec);
+
+	enum {
+		eqfIgnoreID       = 0x0001,
+		eqfIgnoreGenBill  = 0x0002,
+		eqfIgnoreLinkBill = 0x0004,
+	};
+
+	bool   AreRecEq(const SalaryTbl::Rec & rRec1, const SalaryTbl::Rec & rRec2, uint flags) const;
 	int    Search(PPID id, SalaryTbl::Rec * pRec);
 	int    Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta);
 	//
@@ -29360,7 +29405,7 @@ public:
 
 	PersonEventCore();
 	int    Search(PPID id, PersonEventTbl::Rec * pRec = 0);
-	SString & GetItemMemo(PPID id, SString & rBuf); // @v11.1.12
+	SString & GetItemMemo(PPID id, SString & rBuf);
 	//
 	// Descr: Блок, управляющий поиском парной или аналогичной операции PersonEventCore::SearchPair()
 	//
@@ -29434,7 +29479,6 @@ private:
 
 class PPObjPersonEvent : public PPObject {
 public:
-	// @v11.1.12 (no more used) static SString & FASTCALL MakeCodeString_(const PersonEventTbl::Rec * pRec, int options, SString & rBuf);
 	explicit PPObjPersonEvent(void * extraPtr = 0);
 	~PPObjPersonEvent();
 	virtual int  Search(PPID, void * = 0);
@@ -29693,6 +29737,7 @@ private:
 	int    ParseAmtType(const char * pText, FuncDescr & rDescr);
 	int    GetFunc(int id, FuncDescr * pDescr) const;
 	int    Helper_GetPeriod(double arg, const DateRange & rInitPeriod, DateRange & rPeriod);
+	int    Helper_PutEntry(PPID postID, const PPSalChargePacket & rScPack, long extObjID, SalaryContext & rFCtx, UintHashTable * pIdList);
 
 	Param P;
 	StrAssocArray AmtTypeList;
@@ -30772,11 +30817,11 @@ struct RetailGoodsInfo { // @transient
 	//
 	PPID   LotID;
 	LDATE  BillDate;       // Дата прихода (для техн сессий - дата производства)
-	char   BillCode[48];   // Номер документа прихода (для техн сессий - номер сессии) // @v11.1.12 [24]--[48]
+	char   BillCode[48];   // Номер документа прихода (для техн сессий - номер сессии)
 	char   Serial[32];     // Серийный номер лота
 	int16  LabelCount;     // Количество этикеток, которое требуется напечатать. [1..999], default=1
 	int16  Reserve;        // @alignment
-	int    ChZnMarkCat;    // @v11.5.0 GTCHZNPT_XXX Категория маркировки честный знак
+	int    ChZnMarkCat;    // GTCHZNPT_XXX Категория маркировки честный знак
 	LDATETIME ManufDtm;    // Дата/время производства
 	long   Flags;          //
 	double Qtty;           // Количество торговых единиц
@@ -33837,7 +33882,7 @@ private:
 	int    Recover();
 	int    MakeList(PPViewBrowser * pBrw);
 	int    SortList(PPViewBrowser * pBrw);
-	int    MakeTreeListView(PPViewBrowser * pBrw); // @v11.1.12 @construction
+	int    MakeTreeListView(PPViewBrowser * pBrw);
 
 	uint    IterIdx;
 	IterOrder CurrentViewOrder;
@@ -33845,7 +33890,7 @@ private:
 	GoodsStrucProcessingBlock Cb;
 	TSArray  <GoodsStrucProcessingBlock::ItemEntry> * P_DsList__;
 	TSCollection <PPObjGoodsStruc::CheckGsProblem> Problems; // Список проблем, выявленных функцией Recover()
-	void * H_AsideListWindow; // @v11.1.12 Список иерархии структур
+	void * H_AsideListWindow; // Список иерархии структур
 };
 //
 // @ModuleDecl(PPViewGoodsToObjAssoc)
@@ -42140,6 +42185,10 @@ public:
 };
 
 struct FreightViewItem {
+	FreightViewItem();
+	FreightViewItem & Z();
+	LDATETIME GetDespatchTime() const; // @v12.8.0 
+	LDATETIME GetArrivalTime() const; // @v12.8.0
 	PPID   BillID;        // -> Bill.ID
 	LDATE  BillDate;      // = Bill.ID.Dt
 	char   Code[48];      // = Bill.ID.Code
@@ -42152,8 +42201,8 @@ struct FreightViewItem {
 	uint   ChZnMarkCount; // @v12.7.11 Общее количество марок в строках
 	int16  IsShipped;     // Признак отгруженного документа
 	int16  ChZnMarkIndicator; // @alignment // @v12.7.11 Reserve-->ChZnMarkingIndicator
-	LDATE  ShipmDate;     // Дата отправления //
-	LDATE  ArrvlDate;     // Дата прибытия    //
+	ued_t  UedTmDespatch; // Время отправления //  @v12.8.0 ShipmDate-->UedTmDespatch
+	ued_t  UedTmArrvl;    // Время прибытия    //  @v12.8.0 ArrvlDate-->UedTmArrvl
 	PPID   ShipID;        // ->Goods2.ID ИД транспортного средства
 	char   ShipName[64];  // Наименование транспортного средства
 	long   PortID;        // ->World.ID Порт назначения //
@@ -45421,10 +45470,11 @@ private:
 // @ModuleDecl(PPViewAccAnlz)
 //
 enum AccAnlzKind {
-	aakndGeneric     = AAKND_GENERIC,     // Общая форма анализа счета
-	aakndCashBook    = AAKND_CASHBOOK,    // Кассовая книга
-	aakndAccTrnovr   = AAKND_ACCTRNOVR,   // Обороты по аналитическим статьям счета
-	aakndSupplTrnovr = AAKND_SUPPLTRNOVR  // Обороты по поставщикам
+	aakndGeneric         = AAKND_GENERIC,         // Общая форма анализа счета
+	aakndCashBook        = AAKND_CASHBOOK,        // Кассовая книга
+	aakndAccTrnovr       = AAKND_ACCTRNOVR,       // Обороты по аналитическим статьям счета
+	aakndSupplTrnovr     = AAKND_SUPPLTRNOVR,     // Обороты по поставщикам
+	aakndPersonalFinance = AAKND_PERSONALFINANCE, // @v12.8.0 Персональный финансы
 };
 
 class AccAnlzFilt : public PPBaseFilt, public PPExtStrContainer { // @v12.7.11 PPExtStrContainer
@@ -45482,7 +45532,8 @@ public:
 		fSpprZSaldo      = 0x0080, // Не показывать строки с нулевым исходящим остатком
 		fTotalOnly       = 0x0100, // Если флаг fTotalOnly установлен, то PPViewAccAnlz::Init
 			// подсчитывает только итоги по фильтру, но не готовит данные для просмотра и печати
-		fExclInnerTrnovr = 0x0200  // Исключать обороты, сделанные между подсчетами выбранного счета
+		fExclInnerTrnovr = 0x0200, // Исключать обороты, сделанные между подсчетами выбранного счета
+		fPersonalFinance = 0x0400, // @v12.8.0 Анализ персональных счетов (и проводок)
 	};
 	//
 	// Descr: Идентификаторы текстовых субполей, содержащихся в строке PPExtStrContainer
@@ -46612,7 +46663,7 @@ private:
 	int    GetReportId() const;
 	int    Recover();
 	int    ExportToChZn();
-	int    Export();
+	int    ExportToJson();
 
 	static int DynFuncPosText;
 
@@ -49315,7 +49366,9 @@ class PPObjPrjTask : public PPObject {
 public:
 	static SString & GetStatusText(int statusId, SString &);
 	static SString & GetPriorText(int priorId, SString &);
-	static int ImportFromVCal();
+	static long GetEstExecutionTime(const PrjTaskTbl::Rec & rRec); // @v12.8.0
+	static long GetRealExecutionTime(const PrjTaskTbl::Rec & rRec); // @v12.8.0
+	static int  ImportFromVCal();
 	//
 	// Descr: восстанавливает CreatorID, EmployerID, ClientID если такой персоналии не существует
 	//
@@ -49470,6 +49523,19 @@ private:
 	int    GetList(const int16 * pList, size_t listSize, PPIDArray & rResultList) const;
 };
 
+struct PrjTaskTotal {
+	PrjTaskTotal();
+	PrjTaskTotal & Z();
+
+	uint   Count; // Количество записей
+	uint   CreatorCount;
+	uint   ExecutorCount;
+	uint   ClientCount;
+	uint   EstExecutionTime;  // Суммарное ожидаемое время закрытия //
+	uint   RealExecutionTime; // Суммарное реальное время закрытия //
+	LAssocArray CountByStatus;
+};
+
 typedef PrjTaskTbl::Rec PrjTaskViewItem;
 
 class PPViewPrjTask : public PPView {
@@ -49493,6 +49559,7 @@ public:
 	// ARG(kind IN): 0 - передать данные синхронизации; 2 - экспорт в формате vCalendar
 	//
 	int    Transmit(PPID id, int kind);
+	int    CalcTotal(PrjTaskTotal & rTotal); // @v12.8.0
 private:
 	struct InternalViewItem { // @v12.6.1 @flat
 		InternalViewItem();
@@ -59138,14 +59205,14 @@ protected:
 		double Discount;         // Скидка
 		double SettledDiscount;  // Установленная скидка (в процентах), в результате вызова CheckPaneDialog::SetupDiscount
 		double RestByCrdCard;
-		double UsableBonus;      //
+		double UsableBonus;
 		double MaxCreditByCrdCard;
 		double AdditionalPayment;  // Доплата наличными
 		PPSCardSerRule * P_DisByAmtRule; //
 		RetailPriceExtractor::ExtQuotBlock * P_Eqb; //
 	private:
-		PPID   SCardID;          // ИД дисконтной карты
-		char   Code[32];         // Номер карты
+		PPID   SCardID;  // ИД дисконтной карты
+		char   Code[32]; // Номер карты
 	};
 	//
 	// Descr: Блок параметров ручной скидки на весь чек. Скидка может быть предоставлена как в процентах,
@@ -59173,8 +59240,8 @@ protected:
 
 		int    _Op;       // @v12.2.8 CPosProcessor::opXXX
 		PPID   _CcID;     // Ид чека, по которому осуществляется возврат или корректировка
-		double _CcAmount; //
-		double _CcCredit; //
+		double _CcAmount;
+		double _CcCredit;
 		CcAmountList AmL; // Список оплат чека, по которому осуществляется возврат
 		SString FiscalTag; // @v12.2.9 Фискальный признак для чека коррекции (_Op == opCorrection)
 	};

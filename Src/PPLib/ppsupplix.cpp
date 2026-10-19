@@ -1400,7 +1400,7 @@ int PPSupplExchange_Baltika::ExportBills(const BillExpParam & rExpParam, const c
 						}
 					}
 					else {
-						GetInfoFromMemo(item.SMemo, &ord_dt, ord_num, 1); // @v11.1.12 item.Memo-->item.SMemo
+						GetInfoFromMemo(item.SMemo, &ord_dt, ord_num, 1);
 					}
 				}
 				else if(oneof2(doc_type_idx, BALTIKA_DOCTYPES_MOVINGTO, BALTIKA_DOCTYPES_MOVINGFROM)) {
@@ -1867,9 +1867,7 @@ int PPSupplExchange_Baltika::ExportSaldo2(const PPIDArray & rExclArList, const c
 											STRNSCPY(sdr_saldo_doc.CompanyId, temp_buf);
 											temp_buf.Z().Cat(loc_id);
 											STRNSCPY(sdr_saldo_doc.AddressId, temp_buf);
-											// @v11.1.12 BillCore::GetCode(temp_buf = bill_rec.Code);
-											// @v11.1.12 STRNSCPY(sdr_saldo_doc.DocumentNumber, temp_buf);
-											STRNSCPY(sdr_saldo_doc.DocumentNumber, bill_rec.Code); // @v11.1.12 
+											STRNSCPY(sdr_saldo_doc.DocumentNumber, bill_rec.Code);
 											sdr_saldo_doc.DocumentDate = bill_rec.Dt;
 											sdr_saldo_doc.ActionDate = bill_rec.Dt;
 											{
@@ -1997,7 +1995,7 @@ int PPSupplExchange_Baltika::GetConsigLocInfo(const BillViewItem * pItem, PPID c
 	if(pItem && consigLocGrpID) {
 		PPObjLocation obj_loc;
 		if(obj_loc.IsMemberOfGroup(pItem->LocID, consigLocGrpID) > 0)
-			ok = GetInfoFromMemo(pItem->SMemo, pParentDt, rParentCode); // @v11.1.12 item.Memo-->item.SMemo
+			ok = GetInfoFromMemo(pItem->SMemo, pParentDt, rParentCode);
 	}
 	return ok;
 }
@@ -4199,9 +4197,7 @@ int iSalesPepsi::SendStocks()
 
 void iSalesPepsi::Helper_Make_iSalesIdent(const BillTbl::Rec & rRec, int outerDocType, SString & rIdent) const
 {
-	// @v11.1.12 rIdent.Z();
-	// @v11.1.12 BillCore::GetCode(rIdent = rRec.Code);
-	rIdent = rRec.Code; // @v11.1.12 
+	rIdent = rRec.Code;
 	rIdent.Space().Cat(rRec.Dt, DATF_GERMANCENT).Space().Cat(labs(outerDocType));
 }
 
@@ -4330,14 +4326,12 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 			p_new_pack->ExtCode.Z();
 			p_new_pack->ExtDtm.Z();
 			//
-			// @v11.1.12 BillCore::GetCode(p_new_pack->Code = pBp->Rec.Code);
-			p_new_pack->Code = pBp->Rec.Code; // @v11.1.12 
+			p_new_pack->Code = pBp->Rec.Code;
 			p_new_pack->Code.Transf(CTRANSF_INNER_TO_UTF8);
 			p_new_pack->Dtm.Set(pBp->Rec.Dt, ZEROTIME);
 			if(outerDocType == 6 && pBp->Rec.LinkBillID) {
 				if(link_bill_rec.ID && GetOpType(link_bill_rec.OpID) == PPOPT_DRAFTRECEIPT) {
-					// @v11.1.12 BillCore::GetCode(p_new_pack->Code = link_bill_rec.Code);
-					p_new_pack->Code = link_bill_rec.Code; // @v11.1.12 
+					p_new_pack->Code = link_bill_rec.Code;
 					p_new_pack->Code.Transf(CTRANSF_INNER_TO_UTF8);
 					p_new_pack->Dtm.Set(link_bill_rec.Dt, ZEROTIME);
 				}
@@ -4376,8 +4370,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 					iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem();
 					THROW_SL(p_new_ref);
 					p_new_ref->DocType = 13;
-					// @v11.1.12 BillCore::GetCode(p_new_ref->Code.Z().CatChar('O').Cat(p_new_pack->Code));
-					p_new_ref->Code.Z().CatChar('O').Cat(p_new_pack->Code); // @v11.1.12 
+					p_new_ref->Code.Z().CatChar('O').Cat(p_new_pack->Code);
 					p_new_ref->Code.Transf(CTRANSF_INNER_TO_UTF8);
 					p_new_ref->Dtm.Z();
 				}
@@ -4394,8 +4387,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 					iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem();
 					THROW_SL(p_new_ref);
 					p_new_ref->DocType = 1;
-					// @v11.1.12 BillCore::GetCode(p_new_ref->Code = link_bill_rec.Code);
-					p_new_ref->Code = link_bill_rec.Code; // @v11.1.12 
+					p_new_ref->Code = link_bill_rec.Code;
 					p_new_ref->Code.Transf(CTRANSF_INNER_TO_UTF8);
 					p_new_ref->Dtm.Set(link_bill_rec.Dt, ZEROTIME);
 				}
@@ -4424,8 +4416,7 @@ int iSalesPepsi::Helper_MakeBillEntry(PPID billID, PPBillPacket * pBp, int outer
 								iSalesBillRef * p_new_ref = p_new_pack->Refs.CreateNewItem();
 								THROW_SL(p_new_ref);
 								p_new_ref->DocType = 13;
-								// @v11.1.12 BillCore::GetCode(p_new_ref->Code = ord_rec.Code);
-								p_new_ref->Code = ord_rec.Code; // @v11.1.12 
+								p_new_ref->Code = ord_rec.Code;
 								p_new_ref->Code.Transf(CTRANSF_INNER_TO_UTF8);
 								p_new_ref->Dtm.Z();
 							}
@@ -5772,20 +5763,17 @@ int SapEfes::Helper_MakeBillList(PPID opID, TSCollection <SapEfesBillPacket> & r
 							}
 							p_new_item->Date = pack.Rec.Dt;
 							p_new_item->DocType = SapEfesBillPacket::tRetail;
-							// @v11.1.12 BillCore::GetCode(p_new_item->NativeCode = pack.Rec.Code);
-							p_new_item->NativeCode = pack.Rec.Code; // @v11.1.12 
+							p_new_item->NativeCode = pack.Rec.Code;
 							p_new_item->DueDate = (is_own_order && ord_rec.DueDate) ? ord_rec.DueDate : pack.Rec.Dt;
 							p_new_item->BuyerCode = cli_code;
 							p_new_item->DlvrLocCode = loc_code;
 							if(is_own_order) {
-								// @v11.1.12 BillCore::GetCode(p_new_item->OrderCode = ord_rec.Code);
-								p_new_item->OrderCode = ord_rec.Code; // @v11.1.12 
+								p_new_item->OrderCode = ord_rec.Code;
 								p_new_item->Flags |= p_new_item->fHasOrderRef;
 							}
 							else
 								p_new_item->Flags &= ~p_new_item->fHasOrderRef;
-							// @v11.1.12 p_new_item->Memo = pack.Rec.Memo;
-							p_new_item->Memo = pack.SMemo; // @v11.1.12
+							p_new_item->Memo = pack.SMemo;
 							{
 								long   tiiterpos = 0;
 								for(TiIter tiiter(&pack, ETIEF_UNITEBYGOODS|ETIEF_FORCEUNITEGOODS, 0); pack.EnumTItemsExt(&tiiter, &ti, &tiext) > 0;) {
@@ -5882,7 +5870,6 @@ int SapEfes::SendInvoices()
 					SString * p_new_code = to_cancel_code_list.CreateNewItem();
 					THROW_SL(p_new_code);
 					*p_new_code = bill_rec.Code;
-					// @v11.1.12 BillCore::GetCode(*p_new_code);
 				}
 			}
 		}
@@ -6473,9 +6460,7 @@ int SfaHeineken::ReceiveOrders()
 								R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_CLLTAGNTTOORD, &msg_buf, temp_buf.cptr()));
 							}
 						}
-						// @v11.1.12 STRNSCPY(pack.Rec.Memo, p_src_pack->Memo);
-						pack.SMemo = p_src_pack->Memo; // @v11.1.12
-						//if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, &ex_bill_id, &ex_bill_rec) > 0) {
+						pack.SMemo = p_src_pack->Memo;
 						if(p_ref->Ot.SearchObjectsByStrExactly(PPOBJ_BILL, PPTAG_BILL_EDIIDENT, bill_uuid_text, &ex_bill_id_list) > 0) {
 							;
 						}
@@ -6636,11 +6621,9 @@ int SfaHeineken::Helper_MakeBillEntry(PPID billID, int outerDocType, TSCollectio
 		SString bill_code;
 		SString bill_ack_tag_value;
 		pack.BTagL.GetItemStr(bill_ack_tag_id, bill_ack_tag_value);
-		// @v11.1.12 BillCore::GetCode(bill_code = pack.Rec.Code);
-		bill_code = pack.Rec.Code; // @v11.1.12 
+		bill_code = pack.Rec.Code;
 		bill_code.Transf(CTRANSF_INNER_TO_UTF8);
-		// @v11.1.12 if(strstr(pack.Rec.Memo, "#heineken-delete")) {
-		if(pack.SMemo.Search("#heineken-delete", 0, 1, 0)) { // @v11.1.12
+		if(pack.SMemo.Search("#heineken-delete", 0, 1, 0)) {
 			SfaHeinekenInvoice * p_new_entry = rToDeleteList.CreateNewItem();
 			THROW_SL(p_new_entry);
 			p_new_entry->Code = bill_code;

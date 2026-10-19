@@ -752,8 +752,7 @@ int PPObjBill::Helper_WrOffDrft_Acct(WrOffDraftBlock & rBlk, int use_ta)
 	THROW_MEM(p_pack = new PPBillPacket);
 	THROW(InitDraftWrOffPacket(rBlk.P_WrOffParam, &rBlk.SrcDraftPack, p_pack, use_ta));
 	{
-		// @v11.1.12 p_pack->Rec.Memo[0] = 0;
-		p_pack->SMemo.Z(); // @v11.1.12
+		p_pack->SMemo.Z();
 		p_pack->InitAmounts();
 		p_pack->Rec.Amount = rBlk.SrcDraftPack.Rec.Amount;
 		p_pack->Amounts = rBlk.SrcDraftPack.Amounts;
@@ -875,8 +874,7 @@ int PPObjBill::Helper_WrOffDrft_ExpDrftRcp(WrOffDraftBlock & rBlk, int use_ta)
 		}
 	}
 	if(ok > 0) {
-		// @v11.1.12 p_pack->Rec.Memo[0] = 0;
-		p_pack->SMemo.Z(); // @v11.1.12
+		p_pack->SMemo.Z();
 		p_pack->InitAmounts();
 		p_pack->Amounts = rBlk.SrcDraftPack.Amounts;
 		p_pack->Rec.Flags |= BILLF_FIXEDAMOUNTS;

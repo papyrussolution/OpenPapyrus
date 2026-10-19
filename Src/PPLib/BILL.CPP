@@ -1304,7 +1304,7 @@ int BillCore::SearchAnalog(const BillTbl::Rec * pSample, long flags, PPID * pID,
 		dbq = & (this->Dt == pSample->Dt);
 		idx = 1;
 	}
-	if(idx == 7 && k.k7.Code[0]) { // @v11.4.2
+	if(idx == 7 && k.k7.Code[0]) {
 		if(search(idx, &k, spGe) && stricmp866(data.Code, scode) == 0) do {
 			if(((flags & safIgnoreOp) || data.OpID == pSample->OpID) && (!(flags & safCheckEdiOp) || data.EdiOp == pSample->EdiOp)) {
 				if(((flags & safIgnoreDate) || data.Dt == pSample->Dt) && (!pSample->Object || data.Object == pSample->Object)) {

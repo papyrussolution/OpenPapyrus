@@ -222,7 +222,7 @@ bool PPMarketplaceInterface_Wildberries::Warehouse::FromJsonObj(const SJson * pJ
 {
 	Z();
 	bool   ok = false;
-	if(pJs && pJs->Type == SJson::tOBJECT) {
+	if(SJson::IsObject(pJs)) {
 		SString temp_buf;
 		SGeoPosLL geoloc;
 		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
@@ -286,7 +286,7 @@ bool PPMarketplaceInterface_Wildberries::ProductCategory::FromJsonObj(const SJso
 {
 	Z();
 	bool   ok = false;
-	if(pJs && pJs->Type == SJson::tOBJECT) {
+	if(SJson::IsObject(pJs)) {
 		enum {
 			ocfName         = 0x0001,
 			ocfSubjectName  = 0x0002,
@@ -1150,7 +1150,7 @@ bool PPMarketplaceInterface_Wildberries::Promotion::FromJsonObj(const SJson * pJ
 {
 	Z();
 	bool   ok = false;
-	if(pJs && pJs->Type == SJson::tOBJECT) {
+	if(SJson::IsObject(pJs)) {
 		/*
 			{
 				"id": 618,
@@ -1515,7 +1515,7 @@ bool PPMarketplaceInterface_Wildberries::Stock::FromJsonObj(const SJson * pJs)
 {
 	Z();
 	bool   ok = false;
-	if(pJs && pJs->Type == SJson::tOBJECT) {
+	if(SJson::IsObject(pJs)) {
 		SString temp_buf;
 		Ware.FromJsonObj(pJs);
 		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
@@ -1585,7 +1585,7 @@ bool PPMarketplaceInterface_Wildberries::Income::FromJsonObj(const SJson * pJs)
 {
 	Z();
 	bool   ok = false;
-	if(pJs && pJs->Type == SJson::tOBJECT) {
+	if(SJson::IsObject(pJs)) {
 		SString temp_buf;
 		LDATETIME dtm;
 		Ware.FromJsonObj(pJs);
@@ -1664,7 +1664,7 @@ bool PPMarketplaceInterface_Wildberries::Sale::FromJsonObj(const SJson * pJs)
 {
 	Z();
 	bool   ok = false;
-	if(pJs && pJs->Type == SJson::tOBJECT) {
+	if(SJson::IsObject(pJs)) {
 		SString temp_buf;
 		LDATETIME dtm;
 		Ware.FromJsonObj(pJs);
@@ -1837,7 +1837,7 @@ bool PPMarketplaceInterface_Wildberries::SalesRepDbpEntry::FromJsonObj(const SJs
 {
 	Z();
 	bool   ok = false;
-	if(pJs && pJs->Type == SJson::tOBJECT) {
+	if(SJson::IsObject(pJs)) {
 		SString temp_buf;
 		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Text.IsEqiAscii("realizationreport_id")) {

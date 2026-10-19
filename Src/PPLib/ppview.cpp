@@ -2987,7 +2987,7 @@ IMPL_HANDLE_EVENT(PPViewBrowser)
 						}
 					}
 					break;
-				case cmNotifyForeignFocus: // @v11.1.12
+				case cmNotifyForeignFocus:
 					r = P_View->ProcessCommand(PPVCMD_FOREIGNFOCUCNOTIFICATION, event.message.infoPtr, this);
 					break;
 				default:

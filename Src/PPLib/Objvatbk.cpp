@@ -711,7 +711,17 @@ int PPObjVATBook::EditObj(PPID * pID, void * pData, int use_ta)
 		PPTransaction tra(use_ta);
 		THROW(tra);
 		if(*pID) {
-			THROW(UpdateByID(P_Tbl, Obj, *pID, p_rec, 0));
+			if(p_rec) { // @v12.8.0 @condition
+				// @v12.8.0 {
+				VATBookTbl::Key2 k2;
+				k2.Dt = p_rec->Dt;
+				k2.LineNo = p_rec->LineNo;
+				if(P_Tbl->search(2, &k2, spEq) && P_Tbl->data.ID != p_rec->ID) {
+					THROW(IncDateKey(P_Tbl, 2, p_rec->Dt, &p_rec->LineNo));
+				}
+				// } @v12.8.0 
+				THROW(UpdateByID(P_Tbl, Obj, *pID, p_rec, 0));
+			}
 		}
 		else {
 			THROW(IncDateKey(P_Tbl, 2, p_rec->Dt, &p_rec->LineNo));
@@ -792,13 +802,14 @@ int PPObjVATBook::Edit(PPID * pID, void * extraPtr /*kind*/)
 		p_dlg = (_kind == PPVTB_SIMPLELEDGER) ? static_cast<TDialog *>(new SimpleLedgerDialog(this)) : static_cast<TDialog *>(new VATBookDialog(res_id, this));
 		THROW(CheckDialogPtr(&p_dlg));
 		THROW(SETVATBOOKDTS(p_dlg, &rec, _kind));
-		while(!valid_data && ExecView(p_dlg) == cmOK)
+		while(!valid_data && ExecView(p_dlg) == cmOK) {
 			if((valid_data = GETVATBOOKDTS(p_dlg, &rec, _kind)) != 0) {
 				THROW(EditObj(pID, &rec, 1));
 				ok = cmOK;
 			}
 			else
 				PPError();
+		}
 	}
 	CATCHZOKPPERR
 	delete p_dlg;

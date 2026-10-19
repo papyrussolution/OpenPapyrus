@@ -398,7 +398,7 @@
 #define WM_USER_CLOSETREEWNDITEM     WM_USER+16 // Закрывает один из списков бокового окна
 #define WM_USER_NOTIFYBRWFRAME       WM_USER+00 // Извещение фрэйма об изменении стека окон
 #define WM_USER_CLOSEBROWSER         WM_USER+01 // Команда закрытия немодального броузера. Генерируется служебным окном CloseWndProc (TProgram.cpp)
-#define WM_USER_NOTIFYOTHERWNDEVNT   WM_USER+17 // @v11.1.12 Адресное извещение, передаваемое от одного окна другому. Payload передается в по указателю LPARAM
+#define WM_USER_NOTIFYOTHERWNDEVNT   WM_USER+17 // Адресное извещение, передаваемое от одного окна другому. Payload передается в по указателю LPARAM
 //
 // Button types
 //

@@ -346,10 +346,10 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			SLCHECK_Z(text.HasPrefixIAscii((prefix = "На дворе трАва").Transf(CTRANSF_UTF8_TO_INNER)));
 			SLCHECK_Z(text.HasPrefixIAscii((prefix = "НА ДВОРЕ ТРАВА").Transf(CTRANSF_UTF8_TO_INNER)));
 		}
-		//
-		// Тестирование функции CopyTo
-		//
 		{
+			//
+			// Тестирование функции CopyTo
+			//
 			char   buffer[1024];
 			char   preserve_buffer[sizeof(buffer)];
 			SObfuscateBuffer(buffer, sizeof(buffer));
@@ -598,10 +598,72 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 			(str = "$ab$$cab$c$").ReplaceStr("$", "$$", 0);
 			SLCHECK_EQ(str, "$$ab$$$$cab$$c$$");
 		}
-		//
-		// Тестирование функций EncodeMime64 и DecodeMime64
-		//
 		{
+			//
+			// Тестирование функции SString::DecodeHex
+			// 
+			{
+				const uint32 dedicated_case_list[] = { 0x00U, 0x10U, 0x10000U, _FFFF32, 0x01010101U, 0x10101010U };
+				for(uint dci = 0; dci < SIZEOFARRAY(dedicated_case_list); dci++) {
+					const  uint32 i = dedicated_case_list[dci];
+					str.Z().CatHex(i);
+					uint32 r = 0;
+					size_t real_len = 0;
+					str.DecodeHex(0, &r, sizeof(r), &real_len);
+					SLCHECK_LE(real_len, sizeof(r));
+					SLCHECK_EQ(i, r);
+				}
+			}
+			{
+				const uint16 base_list[] = { 0x01, 0x3, 17, 790, 0x0101, 0x1010 };
+				for(uint bi = 0; bi < SIZEOFARRAY(base_list); bi++) {
+					for(uint shft = 0; shft < 16; shft++) {
+						const  uint16 i = (base_list[bi] << shft);
+						str.Z().CatHex(i);
+						uint16 r = 0;
+						size_t real_len = 0;
+						str.DecodeHex(0, &r, sizeof(r), &real_len);
+						SLCHECK_LE(real_len, sizeof(r));
+						SLCHECK_EQ(i, r);						
+					}
+				}
+			}
+			{
+				const uint32 base_list[] = { 0x01U, 0x3U, 17U, 790U, 0x01010101U, 0x10101010U };
+				for(uint bi = 0; bi < SIZEOFARRAY(base_list); bi++) {
+					for(uint shft = 0; shft < 32; shft++) {
+						const  uint32 i = (base_list[bi] << shft);
+						str.Z().CatHex(i);
+						uint32 r = 0;
+						size_t real_len = 0;
+						str.DecodeHex(0, &r, sizeof(r), &real_len);
+						SLCHECK_LE(real_len, sizeof(r));
+						SLCHECK_EQ(i, r);						
+					}
+				}
+			}
+			{
+				const uint64 base_list[] = { 0x01ULL, 0x3ULL, 17ULL, 790ULL, 0x0101010101010101ULL, 0x1010101010101010ULL };
+				for(uint bi = 0; bi < SIZEOFARRAY(base_list); bi++) {
+					for(uint shft = 0; shft < 64; shft++) {
+						const  uint64 i = (base_list[bi] << shft);
+						str.Z().CatHex(i);
+						uint64 r = 0;
+						size_t real_len = 0;
+						str.DecodeHex(0, &r, sizeof(r), &real_len);
+						SLCHECK_LE(real_len, sizeof(r));
+						SLCHECK_EQ(i, r);						
+					}
+				}
+			}
+			{
+				// @todo Здесь еще нужен тест с опцией SString::dhfStream
+			}
+		}
+		{
+			//
+			// Тестирование функций EncodeMime64 и DecodeMime64
+			//
 			SString org_bin_file_name;
 			SString test_bin_file_name;
 			size_t actual_size = 0;
@@ -640,12 +702,12 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 				}
 			}
 			SLCHECK_LT(0, SFile::Compare(org_bin_file_name, test_bin_file_name, 0));
-			//
-			// Тестирование функций конвертации между различными кодировкам
-			// Файл rustext.txt должен быть размером более 2048 байт и содержать русский
-			// текст в кодировке windows-1251
-			//
 			{
+				//
+				// Тестирование функций конвертации между различными кодировкам
+				// Файл rustext.txt должен быть размером более 2048 байт и содержать русский
+				// текст в кодировке windows-1251
+				//
 				(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("rustext.txt");
 				SFile inf(in_buf, SFile::mRead);
 				(in_buf = GetSuiteEntry()->OutPath).SetLastSlash().Cat("rustext.out");
@@ -681,10 +743,10 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 
 				outf.WriteLine(out_buf);
 			}
-			//
-			// Тестирование функции Tokenize
-			//
 			{
+				//
+				// Тестирование функции Tokenize
+				//
 				(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("tokenize.txt");
 				SFile inf(in_buf, SFile::mRead);
 				StringSet ss_line(";"), ss_result(",");
@@ -705,12 +767,12 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					}
 				}
 			}
-			//
-			// Тестирование распознавания и валидации email адресов и одновременное тестирование функций
-			// sstreq и sstreqi_ascii (воспользуемся теми фактами, что все адреса написаны латиницей и
-			// имеют разбросанную длину).
-			//
 			{
+				//
+				// Тестирование распознавания и валидации email адресов и одновременное тестирование функций
+				// sstreq и sstreqi_ascii (воспользуемся теми фактами, что все адреса написаны латиницей и
+				// имеют разбросанную длину).
+				//
 				SStrScan scan;
 				(in_buf = GetSuiteEntry()->InPath).SetLastSlash().Cat("email-list.txt");
 				SFile inf(in_buf, SFile::mRead);

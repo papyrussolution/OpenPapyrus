@@ -820,9 +820,8 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 							new_entry.OpID = bill_rec.OpID;
 							new_entry.Amount = bill_rec.Amount;
 							new_list.AddS(bill_rec.Code, &new_entry.CodeP);
-							// @v11.1.12 new_list.AddS(bill_rec.Memo, &new_entry.MemoP);
-							p_bobj->P_Tbl->GetItemMemo(bill_rec.ID, temp_buf); // @v11.1.12
-							new_list.AddS(temp_buf, &new_entry.MemoP); // @v11.1.12
+							p_bobj->P_Tbl->GetItemMemo(bill_rec.ID, temp_buf);
+							new_list.AddS(temp_buf, &new_entry.MemoP);
 							new_list.insert(&new_entry);
 						}
 					}
@@ -953,9 +952,8 @@ void PhonePaneDialog::ShowList(int mode, int onInit)
 					new_entry.LocID = pe_rec.LocationID;
 					new_entry.ClientID = pe_rec.SecondID; // ! person (not article)
 					{
-						// @v11.1.12 new_list.AddS(pe_rec.Memo, &new_entry.MemoP);
-						PeObj.P_Tbl->GetItemMemo(pe_rec.ID, temp_buf); // @v11.1.12
-						new_list.AddS(temp_buf, &new_entry.MemoP); // @v11.1.12
+						PeObj.P_Tbl->GetItemMemo(pe_rec.ID, temp_buf);
+						new_list.AddS(temp_buf, &new_entry.MemoP);
 					}
 					if(pe_rec.EstDuration)
 						(new_entry.DueDtm = new_entry.Dtm).addsec(pe_rec.EstDuration * 3600 * 24);

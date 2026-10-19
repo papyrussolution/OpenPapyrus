@@ -1504,14 +1504,14 @@ int PPObjAccount::FetchNum(int ac, int sb, PPID curID, PPAccount * pRec)
 	return p_cache ? p_cache->FetchNum(ac, sb, curID, pRec) : SearchNum(ac, sb, curID, pRec);
 }
 
-int PPObjAccount::GetChildList(PPID parentID, StrAssocArray * pChildList)
+int PPObjAccount::GetChildList_(PPID parentID, StrAssocArray * pChildList)
 {
 	int    ok = -1;
 	StrAssocArray * p_list = MakeStrAssocList(reinterpret_cast<void *>(ACY_SEL_BUDGET));
 	if(p_list) {
 		for(uint i = 0; i < p_list->getCount(); i++) {
 			StrAssocArray::Item item = p_list->Get(i);
-			if(BelongTo(item.Id, parentID) > 0) {
+			if(IsChildOf(item.Id, parentID) > 0) {
 				CALLPTRMEMB(pChildList, Add(item.Id, item.ParentId, item.Txt));
 				ok = 1;
 			}
@@ -1521,14 +1521,14 @@ int PPObjAccount::GetChildList(PPID parentID, StrAssocArray * pChildList)
 	return ok;
 }
 
-int PPObjAccount::GetParentList(PPID acctID, StrAssocArray * pParentList)
+int PPObjAccount::GetParentList_(PPID acctID, StrAssocArray * pParentList)
 {
 	int    ok = -1;
 	StrAssocArray * p_list = MakeStrAssocList(reinterpret_cast<void *>(ACY_SEL_BUDGET));
 	if(p_list) {
 		for(uint i = 0; i < p_list->getCount(); i++) {
 			StrAssocArray::Item item = p_list->Get(i);
-			if(BelongTo(acctID, item.Id) > 0) {
+			if(IsChildOf(acctID, item.Id) > 0) {
 				CALLPTRMEMB(pParentList, Add(item.Id, item.ParentId, item.Txt));
 				ok = 1;
 			}
@@ -1538,7 +1538,7 @@ int PPObjAccount::GetParentList(PPID acctID, StrAssocArray * pParentList)
 	return ok;
 }
 
-int PPObjAccount::BelongTo(PPID acctID, PPID parentID)
+int PPObjAccount::IsChildOf(PPID acctID, PPID parentID)
 {
 	int    ok = -1;
 	PPAccount rec;
@@ -1549,5 +1549,31 @@ int PPObjAccount::BelongTo(PPID acctID, PPID parentID)
 		else
 			rec.ID = rec.ParentID;
 	}
+	return ok;
+}
+
+int PPObjAccount::GetChildList(PPID accID, bool recursive, PPIDArray & rIdList) // @v12.8.0
+{
+	rIdList.Z();
+	int    ok = -1;
+	if(accID) {
+		PPAccount rec;
+		PPIDArray local_list;
+		for(SEnum en = P_Ref->Enum(Obj, 0); en.Next(&rec) > 0;) {
+			if(rec.ParentID == accID) {
+				local_list.add(rec.ID);
+			}
+		}
+		if(local_list.getCount()) {
+			if(recursive) {
+				for(uint i = 0; i < local_list.getCount(); i++) {
+					const  PPID local_id = local_list.get(i);
+					THROW(GetChildList(local_id, recursive, rIdList));
+				}
+			}
+			rIdList.add(&local_list);
+		}
+	}
+	CATCHZOK
 	return ok;
 }

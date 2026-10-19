@@ -1730,6 +1730,18 @@ DiscountDistribution::DiscountDistribution()
 {
 }
 
+const DiscountDistribution::Item * DiscountDistribution::Result::GetItemByRef(int64 ref) const
+{
+	const  DiscountDistribution::Item * p_result = 0;
+	for(uint i = 0; !p_result && i < getCount(); i++) {
+		const Item & r_item = at(i);
+		if(r_item.RefId == ref) {
+			p_result = &r_item;
+		}
+	}
+	return p_result;
+}
+
 double DiscountDistribution::Result::EvaluateInitialAmount(bool variableItemsOnly/*=false*/) const
 {
 	double result = 0.0;

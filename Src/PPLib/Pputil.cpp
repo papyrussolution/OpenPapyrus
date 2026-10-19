@@ -637,8 +637,9 @@ int STDCALL IncDateKey(DBTable * tbl, int idx, LDATE date, long * pOprNo)
 	} k;
 	k.dt    = date;
 	k.oprno = MAXLONG;
-	if(tbl->searchKey(idx, &k, spLt))
+	if(tbl->searchKey(idx, &k, spLt)) {
 		*pOprNo = (k.dt == date) ? (k.oprno + 1) : 1;
+	}
 	else {
 		*pOprNo = 1;
 		if(!BTRNFOUND)
@@ -1358,7 +1359,7 @@ int PPExtStringStorage::Get(const SString & rLine, int fldID, SString & rBuf)
 			scan.Get(r_temp_buf).TrimRight().ShiftLeft();
 			size_t tag_offs = scan.IncrLen();
 			if(r_temp_buf.ToLong() == fldID) {
-				size_t start = scan.Offs;
+				const size_t start = scan.Offs;
 				if(Re.Find(&scan, 0))
 					rBuf.CopyFromN(rLine+start, scan.Offs-start);
 				else
@@ -1367,6 +1368,26 @@ int PPExtStringStorage::Get(const SString & rLine, int fldID, SString & rBuf)
 			}
 			else
 				ok = 0;
+		}
+	}
+	return ok;
+}
+
+int PPExtStringStorage::GetFieldIdList(const SString & rLine, LongArray & rIdList) const // @v12.8.0
+{
+	rIdList.Z();
+	int    ok = 0;
+	if(rLine.NotEmpty()) {
+		SStrScan scan(rLine);
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		while(Re.Find(&scan, 0)) {
+			scan.Get(r_temp_buf);
+			scan.IncrLen();
+			const  long fld_id = r_temp_buf.ToLong();
+			if(fld_id) {
+				rIdList.add(fld_id);
+				ok = 1;
+			}
 		}
 	}
 	return ok;
@@ -1487,6 +1508,52 @@ int    PPExtStrContainer::PutExtStrData(int fldID, const char * pStr) { return P
 int    PPExtStrContainer::SerializeB(int dir, SBuffer & rBuf, SSerializeContext * pSCtx) { return pSCtx->Serialize(dir, ExtString, rBuf) ? 1 : PPSetErrorSLib(); }
 void   FASTCALL PPExtStrContainer::SetBuffer(const char * pSrc) { ExtString = pSrc; }
 const  SString & PPExtStrContainer::GetBuffer() const { return ExtString; }
+
+bool PPExtStrContainer::IsEqExclude(const PPExtStrContainer & rS, uint exclFieldCount, const int * pExclFldList) const // @v12.8.0
+{
+	bool   yes = true;
+	if(ExtString.IsEmpty()) {
+		if(rS.ExtString.IsEmpty()) {
+			; // equal!
+		}
+		else
+			yes = false;
+	}
+	else if(rS.ExtString.IsEmpty()) {
+		yes = false;
+	}
+	else {
+		PPExtStringStorage ess;
+		LongArray fl;
+		LongArray fl2;
+		ess.GetFieldIdList(ExtString, fl);
+		ess.GetFieldIdList(rS.ExtString, fl2);
+		fl.sort();
+		fl2.sort();
+		if(exclFieldCount && pExclFldList) {
+			for(uint i = 0; i < exclFieldCount; i++) {
+				const  int excl_fld_id = pExclFldList[i];
+				fl.freeByKey(excl_fld_id, 1);
+				fl2.freeByKey(excl_fld_id, 1);
+			}
+		}
+		if(fl != fl2)
+			yes = false;
+		else {
+			SString buf;
+			SString buf2;
+			for(uint i = 0; yes && i < fl.getCount(); i++) {
+				const  long fld_id = fl.get(i);
+				/*const  int r  = */ess.Get(ExtString, fld_id, buf);
+				/*const  int r2 = */ess.Get(rS.ExtString, fld_id, buf2);
+				if(buf != buf2) {
+					yes = false;
+				}
+			}
+		}
+	}
+	return yes;
+}
 
 bool PPExtStrContainer::IsEq(const PPExtStrContainer & rS, int fieldCount, const int * pFldList) const
 {

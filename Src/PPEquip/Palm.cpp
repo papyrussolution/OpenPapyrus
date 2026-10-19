@@ -1683,8 +1683,7 @@ int PPObjStyloPalm::ImportOrder(PalmBillPacket * pSrcPack, PPID opID, PPID locID
 		pack.Rec.LocID = locID;
 	MakeBillCode(palm_rec, rCfg.OrderCodeFormatType, pSrcPack->Hdr.Code, temp_buf);
 	STRNSCPY(pack.Rec.Code, temp_buf);
-	// @v11.1.12 STRNSCPY(pack.Rec.Memo, pSrcPack->Hdr.Memo);
-	pack.SMemo = pSrcPack->Hdr.Memo; // @v11.1.12
+	pack.SMemo = pSrcPack->Hdr.Memo;
 	pack.Rec.EdiOp = PPEDIOP_SALESORDER;
 	if(ar_obj.Fetch(pSrcPack->Hdr.ClientID, &ar_rec) > 0) {
 		PPOprKind2 op_rec;
@@ -1839,8 +1838,7 @@ int PPObjStyloPalm::ImportInventory(PalmBillPacket * pSrcPack, PPID opID, PPID l
 		if(GetOpData(opID, &op_rec) > 0 && op_rec.AccSheetID == ar_rec.AccSheetID)
 			pack.Rec.Object = pSrcPack->Hdr.ClientID;
 	}
-	// @v11.1.12 STRNSCPY(pack.Rec.Memo, pSrcPack->Hdr.Memo);
-	pack.SMemo = pSrcPack->Hdr.Memo; // @v11.1.12
+	pack.SMemo = pSrcPack->Hdr.Memo;
 	if(p_bobj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, 0, 0) > 0) {
 		ok = -100;
 	}
@@ -3734,7 +3732,6 @@ int PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock & rBlk
 									ss.get(&pos, memo);
 							}
 							*/
-							// @v11.1.12 BillCore::GetCode(bill_rec.Code);
 							if(use_omt_paym_amt)
 								paym = bill_rec.PaymAmount;
 							else

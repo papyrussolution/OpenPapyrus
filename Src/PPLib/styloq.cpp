@@ -6285,7 +6285,6 @@ int PPStyloQInterchange::InitRoundTripBlock(RoundTripBlock & rB)
 	if(do_generate_public_ident) {
 		THROW(P_T->GeneratePublicIdent(rB.StP.Pool, svc_ident, SSecretTagPool::tagClientIdent, StyloQCore::gcisfMakeSecret, rB.Sess));
 	}
-	// @v11.1.12 {
 	{
 		rB.Uuid.Generate();
 		// Включение этого идентификатора в общий пул сомнительно. Дело в том, что
@@ -6293,7 +6292,6 @@ int PPStyloQInterchange::InitRoundTripBlock(RoundTripBlock & rB)
 		// когда общий пакет сообщения еще не распакован (не расшифрован и т.д.)
 		THROW_SL(rB.Sess.Put(SSecretTagPool::tagRoundTripIdent, &rB.Uuid, sizeof(rB.Uuid))); // ? 
 	}
-	// } @v11.1.12 
 	CATCHZOK
 	return ok;
 }
@@ -8652,7 +8650,7 @@ bool PPStyloQInterchange::Document::CliStatus::FromJsonObj(const SJson * pJs)
 	Z();
 	bool   ok = false;
 		//SurrogateId = pJs->Get
-	if(pJs && pJs->Type == SJson::tOBJECT) {
+	if(SJson::IsObject(pJs)) {
 		SString temp_buf;
 		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
 			if(p_cur->Text.IsEqiAscii("surrid")) {

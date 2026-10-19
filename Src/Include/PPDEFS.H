@@ -1627,6 +1627,7 @@
 #define AAKND_CASHBOOK          1
 #define AAKND_ACCTRNOVR         2
 #define AAKND_SUPPLTRNOVR       3
+#define AAKND_PERSONALFINANCE   4 // @v12.8.0
 
 #define BBT_UNDEF              -1
 #define BBT_GOODSBILLS          0
@@ -4475,6 +4476,7 @@
 	#define CTL_CCHECKFLT_CRUSER         (30 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CCHECKFLT_CRUSER      (31 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKFLT_FLAGS2         (32 + WINDOWS_ID_BIAS)
+	#define CTL_CCHECKFLT_CMD_CROSSTAB   (33 + WINDOWS_ID_BIAS)
 #define DLG_CORLOTS               306 // C_LOTS Корректировка лотов
 	#define CTL_CORLOTS_LOG              (1 + WINDOWS_ID_BIAS)
 	#define CTL_CORLOTS_FLAGS            (2 + WINDOWS_ID_BIAS)
@@ -5839,6 +5841,10 @@
 	#define CTLCAL_FREIGHT_LDDPRTDT      (35 + WINDOWS_ID_BIAS) // @v12.6.11
 	#define CTL_FREIGHT_LDDPRTTM         (36 + WINDOWS_ID_BIAS) // @v12.6.11
 	#define CTLTM_FREIGHT_LDDPRTTM       (37 + WINDOWS_ID_BIAS) // @v12.6.11  
+	#define CTL_FREIGHT_ISSTM            (38 + WINDOWS_ID_BIAS) // @v12.8.0
+	#define CTLTM_FREIGHT_ISSTM          (39 + WINDOWS_ID_BIAS) // @v12.8.0
+	#define CTL_FREIGHT_ARRIVTM          (40 + WINDOWS_ID_BIAS) // @v12.8.0
+	#define CTLTM_FREIGHT_ARRIVTM        (41 + WINDOWS_ID_BIAS) // @v12.8.0
 #define DLG_SELBBSMPL             492 // Выбор способа создания документа по образцу
 	#define CTL_SELBBSMPL_WHAT           (1 + WINDOWS_ID_BIAS)
 	#define CTL_SELBBSMPL_OP             (2 + WINDOWS_ID_BIAS)
@@ -7478,6 +7484,12 @@
 //                                694 // @occupied DLG_SELLITEMDRAFT
 #define DLG_TODOTOTAL             695 // Итоги по выборке задач
 	#define CTL_TODOTOTAL_COUNT          (1 + WINDOWS_ID_BIAS)
+	#define CTL_TODOTOTAL_CRTCOUNT       (2 + WINDOWS_ID_BIAS)
+	#define CTL_TODOTOTAL_EXECOUNT       (3 + WINDOWS_ID_BIAS)
+	#define CTL_TODOTOTAL_CLICOUNT       (4 + WINDOWS_ID_BIAS)
+	#define CTL_TODOTOTAL_ESTEXECTIME    (5 + WINDOWS_ID_BIAS)
+	#define CTL_TODOTOTAL_REALEXECTIME   (6 + WINDOWS_ID_BIAS)
+
 #define DLG_DYNOBJSVIEW           696 // Динамические объекты
 //                                697 // @occupied DLG_GDSCLSPROP2
 #define DLG_GDSCLSVIEW            698 // Классы товаров

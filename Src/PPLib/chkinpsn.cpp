@@ -1044,12 +1044,7 @@ private:
 		SString temp_buf;
 		if(Data.GetPerson()) {
 			PPObjPerson psn_obj;
-			/* @v11.1.12
-			PersonTbl::Rec psn_rec;
-			if(psn_obj.Search(Data.GetPerson(), &psn_rec) > 0) {
-				temp_buf = psn_rec.Memo;
-			}*/
-			psn_obj.P_Tbl->GetItemMemo(Data.GetPerson(), temp_buf); // @v11.1.12
+			psn_obj.P_Tbl->GetItemMemo(Data.GetPerson(), temp_buf);
 		}
 		setStaticText(CTL_CHKINP_ST_PSNMEMO, temp_buf);
 		SetupPinCode();

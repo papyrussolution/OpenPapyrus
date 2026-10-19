@@ -2455,12 +2455,9 @@ int PPALDD_Tech::InitData(PPFilt & rFilt, long rsrv)
 			H.Cost     = rec.Cost;
 			H.Capacity = rec.Capacity;
 			{
-				// @v11.1.12 STRNSCPY(H.Memo, rec.Memo);
-				// @v11.1.12 {
 				SString r_temp_buf = SLS.AcquireRvlStr();
 				p_obj->GetItemMemo(rFilt.ID, r_temp_buf);
 				STRNSCPY(H.Memo, r_temp_buf); 
-				// } @v11.1.12 
 			}
 			ok = DlRtm::InitData(rFilt, rsrv);
 		}

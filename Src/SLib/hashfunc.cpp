@@ -202,9 +202,10 @@ int BdtTestItem::Buffer::Put(const void * pData, size_t dataLen)
 	int    ok = 1;
 	size_t req_size = rSrc.Len(); // На самом деле Len()/2 но подстрахуемся
 	size_t real_bin_size = 0;
-	if(req_size > rTempBuffer.GetSize())
+	if(req_size > rTempBuffer.GetSize()) {
 		THROW(rTempBuffer.Alloc(req_size));
-	THROW(rSrc.DecodeHex(0, rTempBuffer, rTempBuffer.GetSize(), &real_bin_size));
+	}
+	THROW(rSrc.DecodeHex(SString::dhfStream, rTempBuffer, rTempBuffer.GetSize(), &real_bin_size));
 	THROW(rDest.Put(rTempBuffer, real_bin_size));
 	CATCHZOK
 	return ok;

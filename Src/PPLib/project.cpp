@@ -1260,11 +1260,44 @@ static SString & _GetEnumText(uint strId, int i, SString & rBuf)
 	return rBuf;
 }
 
-/*static*/SString & PPObjPrjTask::GetStatusText(int statusId, SString & rBuf)
-	{ return _GetEnumText(PPTXT_TODO_STATUS, statusId, rBuf); }
-/*static*/SString & PPObjPrjTask::GetPriorText(int priorId, SString & rBuf)
-	{ return _GetEnumText(PPTXT_TODO_PRIOR, priorId, rBuf); }
+/*static*/SString & PPObjPrjTask::GetStatusText(int statusId, SString & rBuf) { return _GetEnumText(PPTXT_TODO_STATUS, statusId, rBuf); }
+/*static*/SString & PPObjPrjTask::GetPriorText(int priorId, SString & rBuf) { return _GetEnumText(PPTXT_TODO_PRIOR, priorId, rBuf); }
 
+/*static*/long PPObjPrjTask::GetEstExecutionTime(const PrjTaskTbl::Rec & rRec) // @v12.8.0
+{
+	long   result = -1;
+	if(checkdate(rRec.EstFinishDt)) {
+		STimeChunk tc;
+		tc.Finish.Set(rRec.EstFinishDt, rRec.EstFinishTm);
+		if(checkdate(rRec.StartDt)) {
+			tc.Start.Set(rRec.StartDt, rRec.StartTm);
+			result = tc.GetDuration();
+		}
+		else if(checkdate(rRec.Dt)) {
+			tc.Start.Set(rRec.Dt, rRec.Tm);
+			result = tc.GetDuration();
+		}
+	}
+	return result;
+}
+
+/*static*/long PPObjPrjTask::GetRealExecutionTime(const PrjTaskTbl::Rec & rRec) // @v12.8.0
+{
+	long   result = -1;
+	if(checkdate(rRec.FinishDt)) {
+		STimeChunk tc;
+		tc.Finish.Set(rRec.FinishDt, rRec.FinishTm);
+		if(checkdate(rRec.StartDt)) {
+			tc.Start.Set(rRec.StartDt, rRec.StartTm);
+			result = tc.GetDuration();
+		}
+		else if(checkdate(rRec.Dt)) {
+			tc.Start.Set(rRec.Dt, rRec.Tm);
+			result = tc.GetDuration();
+		}
+	}
+	return result;
+}
 
 iCalendarImportParam::iCalendarImportParam() : TodoDefCreatorID(0), TodoDefClientID(0), TodoDefEmployeeID(0)
 {

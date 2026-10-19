@@ -688,7 +688,7 @@ toolbar export PERSON TB_FIRST_TOOLBAR {
 	VIEWSCARDS     : kbCtrlS,     PPDV_CARD03,          "@{view_scard}\tCtrl-S"
 	UNITEOBJ       : kbCtrlU,     PPDV_MERGE01,         "@{unite_persons}\tCtrl-U"
 	EDITFIXSTAFF   : kbCtrlQ,     PPDV_NOICON,          "@{doeditfixedstaff}\tCtrl-Q"
-	STAFFCAL       : kbCtrlE,     TBBM_STAFFCAL,        "@{view_staffcal}\tCtrl-E"
+	STAFFCAL       : kbCtrlE,     PPDV_CALENDAR01,      "@{view_staffcal}\tCtrl-E" // @v12.8.0 TBBM_STAFFCAL-->PPDV_CALENDAR01
 	TRANSPOWNER    : kbCtrlG,     TBBM_TRANSPORT,       "@{doshowownedvehicles}\tCtrl-R"
 	TOTAL          : kbF9,        PPDV_SIGMA02,         "@{totals}\tF9"
 	DORECOVER      : kbCtrlR,     PPDV_REPAIR02,        "@{verificationandrecovery}\tCtrl-R"
@@ -1292,7 +1292,7 @@ browser CLIACTIVITY north(100), 1, 1, "@{view_clientactivity}", OWNER|GRID, 0
 		VIEWSCARDS     : kbCtrlS,     PPDV_CARD03,          "@{view_scard}\tCtrl-S"
 		UNITEOBJ       : kbCtrlU,     PPDV_MERGE01,         "@{unite_persons}\tCtrl-U"
 		//EDITFIXSTAFF   : kbCtrlQ,     PPDV_NOICON,          "@{doeditfixedstaff}\tCtrl-Q"
-		//STAFFCAL       : kbCtrlE,     TBBM_STAFFCAL,        "@{view_staffcal}\tCtrl-E"
+		//STAFFCAL       : kbCtrlE,     PPDV_CALENDAR01,      "@{view_staffcal}\tCtrl-E" // @v12.8.0 TBBM_STAFFCAL-->PPDV_CALENDAR01
 		//TRANSPOWNER    : kbCtrlG,     TBBM_TRANSPORT,       "@{doshowownedvehicles}\tCtrl-R"
 		TOTAL          : kbF9,        PPDV_SIGMA02,         "@{totals}\tF9"
 		//DORECOVER      : kbCtrlR,     PPDV_REPAIR02,        "@{verificationandrecovery}\tCtrl-R"
@@ -1768,6 +1768,23 @@ browser ACCTOACC north(100), 1, 0, "@{view_accanlz} {%s}", OWNER|GRID, 0
 	"@currency",              10, notype, 0, 6
 	"@debit",                 11, notype, NMBF_NOZERO, 12.2
 	"@credit",                12, notype, NMBF_NOZERO, 12.2
+	"@rest",                  13, notype, NMBF_NOZERO, 14.2
+	"@article",               15, notype, 0, 20
+	"@memo",                  14, notype, 0, 64
+	toolbar ACCANLZ2
+}
+
+browser ACCTOACC_PERSONAL north(100), 1, 0, "@{view_accanlz} {%s}", OWNER|GRID, 0
+{
+	"@date",                   0, notype, DATF_DMY, 8
+	"@billno",                 5, notype, 0, 7
+	
+	//"@correspondentaccount_s", 6, acct,   ACCF_DELDOT | ACCF_PADACC | ALIGN_LEFT, 6
+	"@correspondentaccount_s", 16, notype, 0, 10
+	
+	"@currency",              10, notype, 0, 6
+	"@incoming",              11, notype, NMBF_NOZERO, 12.2
+	"@expend",                12, notype, NMBF_NOZERO, 12.2
 	"@rest",                  13, notype, NMBF_NOZERO, 14.2
 	"@article",               15, notype, 0, 20
 	"@memo",                  14, notype, 0, 64
@@ -4272,7 +4289,7 @@ browser STAFFLIST north(100), 2, 1, "@{stafflist} {%s}", OWNER|GRID, 0
 		DELETEITEM : kbDel,     PPDV_DELETEFILE02, "@{delete}\tDelete"
 		separator
 		STAFFPOST  : kbF3,      TBBM_PERSONS,      "@{view_staffpost}\tF3"
-		STAFFCAL   : kbCtrlE,   TBBM_STAFFCAL,     "@{view_staffcal}\tCtrl-E"
+		STAFFCAL   : kbCtrlE,   PPDV_CALENDAR01,   "@{view_staffcal}\tCtrl-E" // @v12.8.0 TBBM_STAFFCAL-->PPDV_CALENDAR01
 		AMOUNTS    : kbF4,      TBBM_AMOUNTS,      "@{staffamount_s_pl}\tF4"
 		SALARY     : kbF5,      TBBM_SALARY,       "@{accrual_pl}\tF5"
 		PRINT      : kbF7,      PPDV_PRINTER01,    "@{print}\tF7"
@@ -4297,7 +4314,7 @@ browser PERSONPOST south(65), 1, 0, "@{view_staffpost} {%s}", OWNER|GRID, 0
 		DELETEITEM : kbDel,     PPDV_DELETEFILE02, "@{delete}\tDelete"
 		separator
 		EDITPERSON : kbF2,      TBBM_PERSONS,      "@{person}\tF2"
-		STAFFCAL   : kbCtrlE,   TBBM_STAFFCAL,     "@{view_staffcal}\tCtrl-E"
+		STAFFCAL   : kbCtrlE,   PPDV_CALENDAR01,   "@{view_staffcal}\tCtrl-E" // @v12.8.0 TBBM_STAFFCAL-->PPDV_CALENDAR01
 		AMOUNTS    : kbF4,      TBBM_AMOUNTS,      "@{staffamount_s_pl}\tF4"
 		SALARY     : kbF5,      TBBM_SALARY,       "@{accrual_pl}\tF5"
 		//PRINT      : kbF7,    PPDV_PRINTER01,    "@{print}\tF7"
@@ -4326,7 +4343,7 @@ browser STAFF north(100), 1, 1, "@{view_stafflist} {%s}", OWNER|GRID, 0
 		DELETEITEM : kbDel,   PPDV_DELETEFILE02, "@{delete}\tDelete"
 		separator
 		EDITPERSON : kbF2,    TBBM_PERSONS,      "@{person}\tF2"
-		STAFFCAL   : kbCtrlE, TBBM_STAFFCAL,     "@{view_staffcal}\tCtrl-E"
+		STAFFCAL   : kbCtrlE, PPDV_CALENDAR01,   "@{view_staffcal}\tCtrl-E" // @v12.8.0 TBBM_STAFFCAL-->PPDV_CALENDAR01
 		//PRINT      : kbF7,    PPDV_PRINTER01,  "@{print}\tF7"
 		separator
 		CHANGEFILT : kbCtrlV, PPDV_FILTER01,     "@{filter}\tCtrl-V"

@@ -1973,10 +1973,17 @@ PPID FASTCALL PPObjSCard::GetChargeGoodsID(PPID cardID)
 	if(cardID) {
 		SCardTbl::Rec sc_rec;
 		if(Fetch(cardID, &sc_rec) > 0) {
-			PPObjSCardSeries scs_obj;
-			PPSCardSeries scs_rec;
-			if(scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0 && scs_rec.GetType() == scstCredit && scs_rec.ChargeGoodsID)
-				charge_goods_id = scs_rec.ChargeGoodsID;
+			// @v12.8.0 {
+			if(sc_rec.AutoGoodsID) {
+				charge_goods_id = sc_rec.AutoGoodsID;
+			}
+			else /*} @v12.8.0*/ {
+				PPObjSCardSeries scs_obj;
+				PPSCardSeries scs_rec;
+				if(scs_obj.Fetch(sc_rec.SeriesID, &scs_rec) > 0 && scs_rec.GetType() == scstCredit && scs_rec.ChargeGoodsID) {
+					charge_goods_id = scs_rec.ChargeGoodsID;
+				}
+			}
 		}
 	}
 	return charge_goods_id;

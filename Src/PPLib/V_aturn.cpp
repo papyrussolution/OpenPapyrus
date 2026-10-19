@@ -105,8 +105,9 @@ int PPViewAccturn::DeleteItem(PPID billID)
 {
 	int    ok = -1;
 	if(!Filt.GrpAco && billID && !Filt.BillID) {
-		THROW(P_BObj->P_Tbl->Search(billID) > 0);
-		if(GetOpType(P_BObj->P_Tbl->data.OpID) == PPOPT_ACCTURN) {
+		BillTbl::Rec bill_rec;
+		THROW(P_BObj->P_Tbl->Search(billID, &bill_rec) > 0);
+		if(GetOpType(bill_rec.OpID) == PPOPT_ACCTURN) {
 			THROW(ok = P_BObj->RemoveObjV(billID, 0, PPObject::rmv_default, 0));
 			if(ok > 0) {
 				THROW(ok = RemoveBillFromList(billID));
@@ -748,8 +749,38 @@ static IMPL_DBE_PROC(dbqf_accturn_checkrelrestriction_iii)
 		}
 		else if(p_aa_filt) {
 			if(ok) {
-				if(!(p_aa_filt->Flags & AccturnFilt::fAllCurrencies) && dbt_rec.CurID != p_aa_filt->CurID)
+				if(!(p_aa_filt->Flags & AccAnlzFilt::fAllCurrencies) && dbt_rec.CurID != p_aa_filt->CurID)
 					ok = 0;
+				// @v12.8.0 {
+				else if(p_aa_filt->Flags & AccAnlzFilt::fPersonalFinance) {
+					PPAccount acc_rec;
+					PPObjAccount & r_acc_obj = BillObj->atobj->P_Tbl->AccObj;
+					if(dbt_rec.AccID) {
+						if(r_acc_obj.Fetch(dbt_rec.AccID, &acc_rec) > 0) {
+							if(ObjRts.CheckAccID(acc_rec.ID, PPR_READ)) {
+								if(acc_rec.Type != ACY_PERSONAL)
+									ok = 0;
+							}
+							else
+								ok = 0;
+						}
+						else
+							ok = 0;
+					}
+					if(ok && crd_rec.AccID) {
+						if(r_acc_obj.Fetch(crd_rec.AccID, &acc_rec) > 0) {
+							if(ObjRts.CheckAccID(acc_rec.ID, PPR_READ)) {
+								if(acc_rec.Type != ACY_PERSONAL)
+									ok = 0;
+							}
+							else
+								ok = 0;
+						}
+						else
+							ok = 0;
+					}
+				}
+				// } @v12.8.0 
 			}
 		}
 		else
@@ -983,13 +1014,14 @@ int PPViewAccturn::RemoveBillFromList(PPID billID)
 					update = 1;
 				break;
 			case PPVCMD_DELETEITEM:
-				if((ok = DeleteItem(hdr.Id)) > 0)
+				ok = DeleteItem(hdr.Id);
+				if(ok > 0)
 					update = 1;
 				break;
 			case PPVCMD_ADDBYSAMPLE:
 				ok = -1;
 				if(hdr.Id && !Filt.GrpAco && P_BObj->atobj->CheckRights(PPR_INS) && !Filt.BillID) {
-					PPID id = 0;
+					PPID   id = 0;
 					if(P_BObj->AddAccturnBySample(&id, hdr.Id) == cmOK) {
 						AddBillToList(id);
 						ok = update = 1;

@@ -143,6 +143,11 @@ CcAmountList & CcAmountList::Z()
 	return *this;
 }
 
+bool FASTCALL CcAmountList::IsEq(const CcAmountList & rS) const
+{
+	return TSVector <CcAmountEntry>::IsEq_Simple(&rS);
+}
+
 int CcAmountList::GetSign() const
 {
 	int    sign = 0;
@@ -359,7 +364,7 @@ double CcAmountList::Implement_Replace(int type, double amt, int32 addedID, int 
 		const double p2 = r2 ? Get(r2) : 0.0;
 		if(amt > ex_amt) {
 			if(result < amt && p1 > 0.0) {
-				double _addendum = MIN(p1, (amt - result));
+				double _addendum = smin(p1, (amt - result));
 				result += _addendum;
 				uint c = getCount();
 				if(c) do {
@@ -377,7 +382,7 @@ double CcAmountList::Implement_Replace(int type, double amt, int32 addedID, int 
 				} while(c && _addendum > 0.0);
 			}
 			if(result < amt && p2 > 0.0) {
-				double _addendum = MIN(p2, (amt - result));
+				double _addendum = smin(p2, (amt - result));
 				result += _addendum;
 				uint c = getCount();
 				if(c) do {
@@ -399,7 +404,7 @@ double CcAmountList::Implement_Replace(int type, double amt, int32 addedID, int 
 			const double up_diff_p1 = total - p1;
 			const double up_diff_p2 = total - p2;
 			if(r1 && result > amt && up_diff_p1 > 0.0) {
-				double _sub = MIN((result - amt), up_diff_p1);
+				double _sub = smin((result - amt), up_diff_p1);
 				uint c = getCount();
 				if(c) do {
 					CcAmountEntry & r_entry = at(--c);
@@ -416,7 +421,7 @@ double CcAmountList::Implement_Replace(int type, double amt, int32 addedID, int 
 				}
 			}
 			if(r2 && result > amt && up_diff_p2 > 0.0) {
-				double _sub = MIN((result - amt), up_diff_p2);
+				double _sub = smin((result - amt), up_diff_p2);
 				uint c = getCount();
 				if(c) do {
 					CcAmountEntry & r_entry = at(--c);
@@ -680,6 +685,34 @@ CCheckLineArray::CCheckLineArray() : TSVector <CCheckLineTbl::Rec>()
 {
 }
 
+bool FASTCALL CCheckLineArray::IsEq(const CCheckLineArray & rS) const
+{
+	bool   eq = true;
+	if(getCount() != rS.getCount())
+		eq = false;
+	else {
+		for(uint i = 0; eq && i < getCount(); i++) {
+			const  CCheckLineTbl::Rec & r_item = at(i);
+			const  CCheckLineTbl::Rec & r_item2 = rS.at(i);
+			if(r_item.CheckID != r_item2.CheckID)
+				eq = false;
+			else if(r_item.RByCheck != r_item2.RByCheck)
+				eq = false;
+			else if(r_item.DivID != r_item2.DivID)
+				eq = false;
+			else if(r_item.GoodsID != r_item2.GoodsID)
+				eq = false;
+			else if(!feqeps(r_item.Quantity, r_item2.Quantity, 1E-8))
+				eq = false;
+			else if(r_item.Price != r_item2.Price)
+				eq = false;
+			else if(r_item.Dscnt != r_item2.Dscnt)
+				eq = false;
+		}
+	}
+	return eq;
+}
+
 int CCheckLineArray::EvaluateVatAmounts(BVATAccmArray & rResult) const
 {
 	return rResult.CalcCCheckLineArray(*this);
@@ -773,6 +806,11 @@ CCheckPacket::LineExt::LineExt()
 bool CCheckPacket::LineExt::IsEmpty() const
 {
 	return (Queue <= 0 && !(Flags & (fGroup|fModifier|fPartOfComplex|fQuotedByGift|fFixedPrice)));
+}
+
+bool FASTCALL CCheckPacket::LineExt::IsEq(const CCheckPacket::LineExt & rS) const
+{
+	return (ItemIdx == rS.ItemIdx && Queue == rS.Queue && Flags == rS.Flags);
 }
 
 CCheckPacket::PreprocessChZnCodeResult::PreprocessChZnCodeResult() : LineIdx(0), CheckResult(0), Reason(0), ProcessingResult(0), ProcessingCode(0), Status(0), ForceAcceptMark(0)
@@ -941,40 +979,95 @@ int FASTCALL CCheckPacket::Copy(const CCheckPacket & rS)
 	return ok;
 }
 
-int CCheckPacket::IsEq(const CCheckPacket & rS, long options) const
+int CCheckPacket::IsEq_(const CCheckPacket & rS, long options) const
 {
-	#define CMP_FLD(f) if(Rec.f != rS.Rec.f) return 0
-	if(options == 0) {
-		CMP_FLD(ID);
-		CMP_FLD(Code);
-		CMP_FLD(PosNodeID);
-		CMP_FLD(UserID);
-		CMP_FLD(SessID);
-		CMP_FLD(Dt);
-		CMP_FLD(Tm);
+	{
+		#define CMP_FLD(f) if(Rec.f != rS.Rec.f) return 0
+		if(options == 0) {
+			CMP_FLD(ID);
+			CMP_FLD(Code);
+			CMP_FLD(PosNodeID);
+			CMP_FLD(UserID);
+			CMP_FLD(SessID);
+			CMP_FLD(Dt);
+			CMP_FLD(Tm);
+		}
+		CMP_FLD(Flags);
+		CMP_FLD(SCardID);
+		#undef CMP_FLD
 	}
-	CMP_FLD(Flags);
-	CMP_FLD(SCardID);
-	#undef CMP_FLD
 	if(MONEYTOLDBL(Rec.Amount) != MONEYTOLDBL(rS.Rec.Amount))
 		return 0;
 	if(MONEYTOLDBL(Rec.Discount) != MONEYTOLDBL(rS.Rec.Discount))
 		return 0;
-	#define CMP_FLD(f) if(Ext.f != rS.Ext.f) return 0
-	CMP_FLD(SalerID);
-	CMP_FLD(TableNo);
-	CMP_FLD(AddPaym_unused);
-	CMP_FLD(GuestCount);
-	CMP_FLD(AddrID);
-	CMP_FLD(AddCrdCardID_unused);
-	CMP_FLD(CreationUserID);
-	CMP_FLD(LinkCheckID);
-	CMP_FLD(StartOrdDtm);
-	CMP_FLD(EndOrdDtm);
-	CMP_FLD(CreationDtm);
-	#undef CMP_FLD
-	if(!sstreq(Ext.Memo, rS.Ext.Memo))
+	{
+		#define CMP_FLD(f) if(Ext.f != rS.Ext.f) return 0
+		CMP_FLD(SalerID);
+		CMP_FLD(TableNo);
+		CMP_FLD(AddPaym_unused);
+		CMP_FLD(GuestCount);
+		CMP_FLD(AddrID);
+		CMP_FLD(AddCrdCardID_unused);
+		CMP_FLD(CreationUserID);
+		CMP_FLD(LinkCheckID);
+		CMP_FLD(StartOrdDtm);
+		CMP_FLD(EndOrdDtm);
+		CMP_FLD(CreationDtm);
+		#undef CMP_FLD
+	}
+	if(!Items_.IsEq(rS.Items_))
 		return 0;
+	else if(!CcAl.IsEq(rS.CcAl))
+		return 0;
+	else if(!sstreq(Ext.Memo, rS.Ext.Memo))
+		return 0;
+	else {
+		SString text1;
+		SString text2;
+		{
+			uint   ext_tab_count = 0;
+			const  SIntToSymbTabEntry * p_ext_tab = CCheckPacket::GetExtssNameSymbTab(&ext_tab_count);
+			if(p_ext_tab && ext_tab_count) {
+				for(uint ti = 0; ti < ext_tab_count; ti++) {
+					const  int fld_id = p_ext_tab[ti].Id;
+					GetExtStrData(fld_id, text1);
+					rS.GetExtStrData(fld_id, text2);
+					if(text1 != text2) {
+						return 0;
+					}
+				}
+			}
+		}
+		{
+			const  uint cclc = Items_.getCount();
+			assert(cclc == rS.Items_.getCount()); // see above (if(!Items_.IsEq(rS.Items_)))
+
+			uint   cclext_tab_count = 0;
+			const  SIntToSymbTabEntry * p_cclext_tab = CCheckPacket::GetLnExtssNameSymbTab(&cclext_tab_count);
+			for(uint i = 0; i < cclc; i++) {
+				CCheckPacket::LineExt le;
+				CCheckPacket::LineExt le2;
+				GetLineExt(i+1, le);
+				rS.GetLineExt(i+1, le2);
+				if(!le.IsEq(le2))
+					return 0;
+				else {
+					if(p_cclext_tab && cclext_tab_count) {
+						for(uint ti = 0; ti < cclext_tab_count; ti++) {
+							const  int fld_id = p_cclext_tab[ti].Id;
+							if(!oneof2(fld_id, lnextChZnSerial, lnextChZnGtin)) {
+								GetLineTextExt(i+1, fld_id, text1);
+								rS.GetLineTextExt(i+1, fld_id, text2);
+								if(text1 != text2) {
+									return 0;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 	return 1;
 }
 
@@ -1438,7 +1531,7 @@ int CCheckPacket::_SetLineGoodsID(uint lineIdx/*0..*/, PPID goodsID)
 		return -1;
 }
 
-int CCheckPacket::GetLineExt(int pos /* 1.. */, LineExt & rExt) const
+int CCheckPacket::GetLineExt(int pos/*1..*/, LineExt & rExt) const
 {
 	int    ok = 0;
 	uint   _p = 0;
@@ -1676,13 +1769,75 @@ int CCheckPacket::SetupPaymList(const CcAmountList * pList)
 	return ok;
 }
 
+int CCheckPacket::SetTotalDiscount_Debug(uint method/*1||2*/, double dis, long flags, SetupTotalDiscountResult * pResult) // @v12.8.0 @construction
+{
+	int    ok = 1;
+	THROW(oneof2(method, 1, 2));
+	{
+		DiscountDistribution dd;
+		DiscountDistribution::Result r_;
+
+		double discount_to_setup = 0.0;
+		CcTotal init_total;
+		CalcAmount(&init_total);
+		if(flags & stdfPlus) {
+			discount_to_setup = (flags & stdfPctDis) ? ((dis * init_total.Amount) / (100.0 - dis)) : dis;
+			//amount += discount;
+		}
+		else
+			discount_to_setup = (flags & stdfPctDis) ? (dis * fdiv100r(init_total.Amount)) : dis;
+		{
+			for(uint i = 0; i < Items_.getCount(); i++) {
+				const  CCheckLineTbl::Rec & r_ccl = Items_.at(i);
+				LineExt le;
+				GetLineExt(i+1, le);
+				//const double ccl_price = intmnytodbl(r_ccl.Price);
+				//uint64 init_price = R0i64((ccl_price) * 100.0);
+				uint64 init_price = r_ccl.Price;
+				uint   item_flags = 0;
+				if(le.Flags & LineExt::fFixedPrice)
+					item_flags |= DiscountDistribution::fNoDiscount;
+				THROW(dd.AddItem(i+1, init_price, fabs(r_ccl.Quantity), item_flags));
+			}
+		}
+		if(method == 1) {
+			dd.Run_01(discount_to_setup, r_);
+		}
+		else if(method == 2) {
+			dd.Run_02(discount_to_setup, r_);
+		}
+		else
+			ok = 0;
+		if(ok) {
+			for(uint i = 0; i < Items_.getCount(); i++) {
+				CCheckLineTbl::Rec & r_ccl = Items_.at(i);
+				const DiscountDistribution::Item * p_dd_item = r_.GetItemByRef(i+1);
+				assert(p_dd_item);
+				if(p_dd_item) {
+					r_ccl.Dscnt = p_dd_item->Discount / 100.0;
+				}
+				else {
+					; 
+				}
+			}
+		}
+	}
+	CATCH
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
 void CCheckPacket::SetTotalDiscount__(double dis, long flags/*int pctdis, int plusDiscount*/)
 {
 	uint   i;
 	uint   last_index = 0;
 	double min_qtty = SMathConst::Max;
 	double max_price = 0.0;
-	double amount = 0.0, qtty, p, d;
+	double amount = 0.0;
+	double qtty;
+	double p;
+	double d;
 	CCheckLineTbl::Rec * p_item;
 	for(i = 0; Items_.enumItems(&i, (void **)&p_item);) {
 		qtty = fabs(p_item->Quantity);
@@ -1772,23 +1927,6 @@ double CCheckPacket::CalcAmount(CcTotal * pResult) const
 	}
 	ASSIGN_PTR(pResult, cct);
 	return cct.Amount;
-}
-
-double CCheckPacket::CalcAmount_Obsolete(double * pAmt, double * pDscnt) const
-{
-	double amount = 0.0;
-	double discount = 0.0;
-	CCheckLineTbl::Rec item;
-	for(uint i = 0; EnumLines(&i, &item);) {
-		const double qtty = item.Quantity;
-		const double s  = intmnytodbl(item.Price) * qtty;
-		const double ds = item.Dscnt * qtty;
-		amount   = R2(amount + s - ds);
-		discount = R2(discount + ds);
-	}
-	ASSIGN_PTR(pAmt, amount);
-	ASSIGN_PTR(pDscnt, discount);
-	return amount;
 }
 
 void CCheckPacket::SetupAmount(double * pAmt, double * pDscnt)
@@ -1926,6 +2064,433 @@ SString & CCheckPacket::MakeBarcodeIdent(SString & rBuf) const { return rBuf.Z()
 	}
 	ASSIGN_PTR(pResult, result);
 	return ok;
+}
+
+bool CCheckPacket::FromJsonObj(const SJson * pJs) // @v12.8.0 @construction
+{
+	Z();
+	bool   ok = false;
+	if(SJson::IsObject(pJs)) {
+		SString temp_buf;
+		//
+		uint   lnextss_tab_count = 0;
+		const  SIntToSymbTabEntry * p_lnextss_tab = CCheckPacket::GetLnExtssNameSymbTab(&lnextss_tab_count);
+		//
+		uint   extss_tab_count = 0;
+		const  SIntToSymbTabEntry * p_extss_tab = CCheckPacket::GetExtssNameSymbTab(&extss_tab_count);
+		//
+		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			const SString & r_text = p_cur->P_Child->Text;
+			LDATETIME dtm = ZERODATETIME;
+			if(p_cur->Text.IsEqiAscii("id")) {
+				Rec.ID = r_text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("code")) {
+				Rec.Code = r_text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("nodeid")) {
+				Rec.PosNodeID = r_text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("userid")) {
+				Rec.UserID = r_text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("sessid")) {
+				Rec.SessID = r_text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("time")) {
+				if(strtodatetime(r_text, dtm, DATF_ISO8601, 0)) {
+					Rec.Dt = dtm.d;
+					Rec.Tm = dtm.t;
+				}
+			}
+			else if(p_cur->Text.IsEqiAscii("flags")) {
+				uint32 _f = 0;
+				size_t real_len = 0;
+				r_text.DecodeHex(0, &_f, sizeof(_f), &real_len);
+				Rec.Flags = static_cast<int32>(_f);
+			}
+			else if(p_cur->Text.IsEqiAscii("amount")) {
+				LDBLTOMONEY(r_text.ToReal_Plain(), Rec.Amount);
+			}
+			else if(p_cur->Text.IsEqiAscii("discount")) {
+				LDBLTOMONEY(r_text.ToReal_Plain(), Rec.Discount);
+			}
+			else if(p_cur->Text.IsEqiAscii("scardid")) {
+				Rec.SCardID = r_text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("agentid")) {
+				Ext.SalerID = r_text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("tableno")) {
+				Ext.TableNo = r_text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("guestcount")) {
+				Ext.GuestCount = static_cast<int16>(r_text.ToLong());
+			}
+			else if(p_cur->Text.IsEqiAscii("op")) {
+				Ext.Op_ = static_cast<int16>(r_text.ToLong());
+			}
+			else if(p_cur->Text.IsEqiAscii("addrid")) {
+				Ext.AddrID = r_text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("cruserid")) {
+				Ext.CreationUserID = r_text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("linkccid")) {
+				Ext.LinkCheckID = r_text.ToLong();
+			}
+			else if(p_cur->Text.IsEqiAscii("crtime")) {
+				if(strtodatetime(r_text, dtm, DATF_ISO8601, 0)) {
+					Ext.CreationDtm = dtm;
+				}
+			}
+			else if(p_cur->Text.IsEqiAscii("startordtime")) {
+				if(strtodatetime(r_text, dtm, DATF_ISO8601, 0)) {
+					Ext.StartOrdDtm = dtm;
+				}
+			}
+			else if(p_cur->Text.IsEqiAscii("endordtime")) {
+				if(strtodatetime(r_text, dtm, DATF_ISO8601, 0)) {
+					Ext.EndOrdDtm = dtm;
+				}
+			}
+			else if(p_cur->Text.IsEqiAscii("detail")) {
+				if(SJson::IsArray(p_cur->P_Child)) {
+					for(const SJson * p_js_ccl = p_cur->P_Child->P_Child; p_js_ccl; p_js_ccl = p_js_ccl->P_Next) {
+						if(SJson::IsObject(p_js_ccl)) {
+							CCheckLineTbl::Rec line_rec;
+							CCheckPacket::LineExt le;
+							{
+								for(const SJson * p_cur2 = p_js_ccl->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
+									const SString & r_text = p_cur2->P_Child->Text;
+									if(p_cur2->Text.IsEqiAscii("id")) {
+										line_rec.RByCheck = static_cast<int16>(r_text.ToLong());
+									}
+									else if(p_cur2->Text.IsEqiAscii("div")) {
+										line_rec.DivID = static_cast<int16>(r_text.ToLong());
+									}
+									else if(p_cur2->Text.IsEqiAscii("goodsid")) {
+										line_rec.GoodsID = r_text.ToLong();
+									}
+									else if(p_cur2->Text.IsEqiAscii("qtty")) {
+										line_rec.Quantity = r_text.ToReal_Plain();
+									}
+									else if(p_cur2->Text.IsEqiAscii("price")) {
+										line_rec.Price = dbltointmny(r_text.ToReal_Plain());
+									}
+									else if(p_cur2->Text.IsEqiAscii("discount")) {
+										line_rec.Dscnt = r_text.ToReal_Plain();
+									}
+									else if(p_cur2->Text.IsEqiAscii("goodsname")) {
+										;
+									}
+									else if(p_cur2->Text.IsEqiAscii("nodiscount")) {
+										;
+									}
+									else if(p_cur2->Text.IsEqiAscii("queue")) {
+										le.Queue = static_cast<int8>(r_text.ToLong());
+									}
+									else if(p_cur2->Text.IsEqiAscii("flags")) {
+										uint32 _f = 0;
+										size_t real_len = 0;
+										r_text.DecodeHex(0, &_f, sizeof(_f), &real_len);
+										le.Flags = static_cast<uint8>(_f);
+									}
+								}
+							}
+							line_rec.CheckID = Rec.ID;
+							InsertCclRec(&line_rec, 0, 0);
+							const int line_idx = Items_.getCountI(); // [1..getCount()]
+							if(!le.IsEmpty()) {
+								SetLineExt(line_idx, le);
+							}
+							{
+								for(const SJson * p_cur2 = p_js_ccl->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
+									const SString & r_text = p_cur2->P_Child->Text;
+									bool  local_done = false;
+									if(p_lnextss_tab && lnextss_tab_count) {
+										for(uint i = 0; !local_done && i < lnextss_tab_count; i++) {
+											if(p_cur2->Text.IsEqiAscii(p_lnextss_tab[i].P_Symb)) {
+												const int cclnext_id = p_lnextss_tab[i].Id;
+												(temp_buf = r_text).Unescape().Transf(CTRANSF_UTF8_TO_INNER);
+												SetLineTextExt(line_idx, cclnext_id, temp_buf);
+												local_done = true;
+											}
+										}
+									}
+									if(!local_done) {
+										int    cclnext_id = 0;
+										if(p_cur2->Text.IsEqiAscii("serial")) {
+											cclnext_id = CCheckPacket::lnextSerial;
+										}
+										else if(p_cur2->Text.IsEqiAscii("egaismark")) {
+											cclnext_id = CCheckPacket::lnextEgaisMark;
+										}
+										else if(p_cur2->Text.IsEqiAscii("chznmark")) {
+											cclnext_id = CCheckPacket::lnextChZnMark;
+										}
+										else if(p_cur2->Text.IsEqiAscii("remoteprocessingta")) {
+											cclnext_id = CCheckPacket::lnextRemoteProcessingTa;
+										}
+										if(cclnext_id) {
+											(temp_buf = r_text).Unescape().Transf(CTRANSF_UTF8_TO_INNER);
+											SetLineTextExt(line_idx, cclnext_id, temp_buf);
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			else if(p_cur->Text.IsEqiAscii("payment")) {
+				if(SJson::IsArray(p_cur->P_Child)) {
+					CcAmountList amt_list;
+					for(const SJson * p_js_pl = p_cur->P_Child->P_Child; p_js_pl; p_js_pl = p_js_pl->P_Next) {
+						if(SJson::IsObject(p_js_pl)) {
+							CcAmountEntry amt_entry;
+							for(const SJson * p_cur2 = p_js_pl->P_Child; p_cur2; p_cur2 = p_cur2->P_Next) {
+								const SString & r_text = p_cur2->P_Child->Text;
+								if(p_cur2->Text.IsEqiAscii("amount")) {
+									amt_entry.Amount = r_text.ToReal_Plain();
+								}
+								else if(p_cur2->Text.IsEqiAscii("type")) {
+									if(r_text.IsEqiAscii("cash")) {
+										amt_entry.Type = CCAMTTYP_CASH;
+									}
+									else if(r_text.IsEqiAscii("bank")) {
+										amt_entry.Type = CCAMTTYP_BANK;
+									}
+									else if(r_text.IsEqiAscii("card")) {
+										amt_entry.Type = CCAMTTYP_CRDCARD;
+									}
+								}
+								else if(p_cur2->Text.IsEqiAscii("cardid")) {
+									amt_entry.AddedID = r_text.ToLong();
+								}
+							}
+							if(amt_entry.Type && amt_entry.Amount != 0.0) {
+								if(amt_entry.Type != CCAMTTYP_CRDCARD) {
+									amt_entry.AddedID = 0;
+								}
+								amt_list.insert(&amt_entry);
+							}
+						}
+					}
+					SetupPaymList(&amt_list);
+				}
+			}
+			else {
+				{
+					bool  local_done = false;
+					if(extss_tab_count && p_extss_tab) {
+						for(uint i = 0; i < extss_tab_count; i++) {
+							if(p_cur->Text.IsEqiAscii(p_extss_tab[i].P_Symb)) {
+								(temp_buf = r_text).Unescape().Transf(CTRANSF_UTF8_TO_INNER);
+								PutExtStrData(p_extss_tab[i].Id, temp_buf);
+								local_done = true;
+							}
+						}
+					}
+				}
+			}
+		}
+		if(HasExt()) {
+			Rec.Flags |= CCHKF_EXT;
+		}
+		ok = true;
+	}
+	return ok;
+}
+
+SJson * CCheckPacket::ToJsonObj() const // @v12.8.0
+{
+	SString temp_buf;
+	const  double cc_amount = MONEYTOLDBL(Rec.Amount);
+	const  double cc_discount = MONEYTOLDBL(Rec.Discount);
+	SJson * p_js_cc = SJson::CreateObj();
+	THROW_SL(p_js_cc);
+	p_js_cc->InsertInt("id", Rec.ID);
+	p_js_cc->InsertInt("code", Rec.Code);
+	p_js_cc->InsertInt("nodeid", Rec.PosNodeID);
+	p_js_cc->InsertInt("userid", Rec.UserID);
+	p_js_cc->InsertInt("sessid", Rec.SessID);
+	{
+		LDATETIME dtm;
+		dtm.Set(Rec.Dt, Rec.Tm);
+		temp_buf.Z().Cat(dtm, DATF_ISO8601CENT, TIMF_HMS|TIMF_MSEC);
+		p_js_cc->InsertString("time", temp_buf);
+	}
+	if(Rec.Flags) {
+		p_js_cc->InsertString("flags", temp_buf.Z().CatHex(Rec.Flags));
+		if(Rec.Flags & CCHKF_RETURN) {
+			p_js_cc->InsertBool("return", true);
+		}
+	}
+	p_js_cc->InsertDouble("amount", cc_amount, MKSFMTD(0, 2, 0));
+	if(cc_discount != 0.0) {
+		p_js_cc->InsertDouble("discount", cc_discount, MKSFMTD(0, 2, 0));
+	}
+	p_js_cc->InsertIntNz("scardid", Rec.SCardID);
+	if(Rec.Flags & CCHKF_EXT) {
+		p_js_cc->InsertIntNz("agentid", Ext.SalerID);
+		p_js_cc->InsertIntNz("tableno", Ext.TableNo);
+		p_js_cc->InsertIntNz("guestcount", Ext.GuestCount);
+		p_js_cc->InsertIntNz("op", Ext.Op_);
+		p_js_cc->InsertIntNz("addrid", Ext.AddrID);
+		p_js_cc->InsertIntNz("cruserid", Ext.CreationUserID);
+		p_js_cc->InsertIntNz("linkccid", Ext.LinkCheckID);
+		if(checkdate(Ext.CreationDtm.d)) {
+			p_js_cc->InsertString("crtime", temp_buf.Z().Cat(Ext.CreationDtm, DATF_ISO8601CENT, 0));
+		}
+		if(checkdate(Ext.StartOrdDtm.d)) {
+			p_js_cc->InsertString("startordtime", temp_buf.Z().Cat(Ext.StartOrdDtm, DATF_ISO8601CENT, 0));
+		}
+		if(checkdate(Ext.EndOrdDtm.d)) {
+			p_js_cc->InsertString("endordtime", temp_buf.Z().Cat(Ext.EndOrdDtm, DATF_ISO8601CENT, 0));
+		}
+	}
+	{
+		uint   tab_count = 0;
+		const  SIntToSymbTabEntry * p_tab = CCheckPacket::GetExtssNameSymbTab(&tab_count);
+		if(tab_count && p_tab) {
+			for(uint i = 0; i < tab_count; i++) {
+				if(GetExtStrData(p_tab[i].Id, temp_buf) > 0) {
+					if(temp_buf.NotEmptyS()) {
+						p_js_cc->InsertString(p_tab[i].P_Symb, temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Escape());
+					}
+				}
+			}
+		}
+	}
+	if(GetCount()) {
+		PPObjGoods goods_obj;
+		SJson * p_js_cc_item_list = SJson::CreateArr();
+		THROW_SL(p_js_cc_item_list);
+		for(uint cii = 0; cii < GetCount(); cii++) {
+			const CCheckLineTbl::Rec & r_line = GetLineC(cii);
+			SJson * p_js_cc_item = SJson::CreateObj();
+			THROW_SL(p_js_cc_item);
+			p_js_cc_item->InsertInt("id", r_line.RByCheck);
+			p_js_cc_item->InsertIntNz("div", r_line.DivID);
+			p_js_cc_item->InsertInt("goodsid", r_line.GoodsID);
+			p_js_cc_item->InsertDouble("qtty", r_line.Quantity, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+			p_js_cc_item->InsertDouble("price", intmnytodbl(r_line.Price), MKSFMTD(0, 5, NMBF_NOTRAILZ));
+			if(r_line.Dscnt != 0.0)
+				p_js_cc_item->InsertDouble("discount", r_line.Dscnt, MKSFMTD(0, 5, NMBF_NOTRAILZ));
+			{
+				Goods2Tbl::Rec goods_rec;
+				if(goods_obj.Fetch(r_line.GoodsID, &goods_rec) > 0) {
+					(temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape();
+					p_js_cc_item->InsertString("goodsname", temp_buf);
+					//
+					// Следующий признак передается в отладочных целях. А именно, для тестирования функции распределения скидки.
+					//
+					if(goods_rec.Flags & GF_NODISCOUNT) {
+						p_js_cc_item->InsertBool("nodiscount", true);
+					}
+				}
+			}
+			CCheckPacket::LineExt le;
+			if(GetLineExt(cii+1, le)) {
+				p_js_cc_item->InsertIntNz("queue", le.Queue);
+				if(le.Flags) {
+					temp_buf.Z().CatHex(le.Flags);
+					p_js_cc_item->InsertString("flags", temp_buf);
+				}
+			}
+			{
+				uint   tab_count = 0;
+				const  SIntToSymbTabEntry * p_tab = CCheckPacket::GetLnExtssNameSymbTab(&tab_count);
+				if(tab_count && p_tab) {
+					for(uint i = 0; i < tab_count; i++) {
+						const int cclnext_id = p_tab[i].Id;
+						GetLineTextExt(cii+1, cclnext_id, temp_buf);
+						if(temp_buf.NotEmptyS()) {
+							const char * p_tag = 0;
+							switch(cclnext_id) {
+								case CCheckPacket::lnextSerial: p_tag = "serial"; break;
+								case CCheckPacket::lnextEgaisMark: p_tag = "egaismark"; break;
+								case CCheckPacket::lnextChZnMark: p_tag = "chznmark"; break;
+								case CCheckPacket::lnextRemoteProcessingTa: p_tag = "remoteprocessingta"; break;
+								case CCheckPacket::lnextChZnSerial: break; // skip
+								case CCheckPacket::lnextChZnGtin: break; // skip
+								default: p_tag = p_tab[i].P_Symb; break;
+							}
+							if(!isempty(p_tag)) {
+								p_js_cc_item->InsertString(p_tag, temp_buf.Transf(CTRANSF_INNER_TO_UTF8).Escape());
+							}
+						}
+					}
+				}
+			}
+			p_js_cc_item_list->InsertChild(p_js_cc_item);
+		}
+		p_js_cc->Insert("detail", p_js_cc_item_list);
+		p_js_cc_item_list = 0;
+		//
+		{
+			const CcAmountList & r_al = AL_Const();
+			SJson * p_js_paym_list = SJson::CreateArr();
+			THROW_SL(p_js_paym_list);
+			if(r_al.getCount()) {
+				for(uint pi = 0; pi < r_al.getCount(); pi++) {
+					const CcAmountEntry & r_ai = r_al.at(pi);
+					SJson * p_js_paym = SJson::CreateObj();
+					THROW_SL(p_js_paym);
+					{
+						p_js_paym->InsertDouble("amount", r_ai.Amount, MKSFMTD(0, 2, 0));
+						if(r_ai.Type == CCAMTTYP_CASH) {
+							p_js_paym->InsertString("type", "cash");
+						}
+						else if(r_ai.Type == CCAMTTYP_BANK) {
+							p_js_paym->InsertString("type", "bank");
+						}
+						else if(r_ai.Type == CCAMTTYP_CRDCARD) {
+							p_js_paym->InsertString("type", "card");
+							if(r_ai.AddedID) {
+								p_js_paym->InsertInt("cardid", r_ai.AddedID);
+							}
+							/*if(r_ai.AddedID && ScObj.Search(r_ai.AddedID, &sc_rec) > 0) {
+								SXml::WNode w_sc(rB.P_Xw, "card");
+								w_sc.PutInner("code", CorrectAndEncText(sc_rec.Code));
+							}*/
+						}
+						else {
+							p_js_paym->InsertString("type", "unkn");
+						}
+					}
+					p_js_paym_list->InsertChild(p_js_paym);
+					p_js_paym = 0;
+				}
+			}
+			else {
+				SJson * p_js_paym = SJson::CreateObj();
+				THROW_SL(p_js_paym);
+				p_js_paym->InsertDouble("amount", cc_amount, MKSFMTD(0, 2, 0));
+				if(Rec.Flags & CCHKF_BANKING) {
+					p_js_paym->InsertString("type", "bank");
+				}
+				else if(Rec.Flags & CCHKF_INCORPCRD) {
+					p_js_paym->InsertString("type", "card");
+					if(Rec.SCardID) {
+						p_js_paym->InsertInt("cardid", Rec.SCardID);
+					}
+				}
+				else {
+					p_js_paym->InsertString("type", "cash");
+				}
+				p_js_paym_list->InsertChild(p_js_paym);
+				p_js_paym = 0;
+			}
+			p_js_cc->Insert("payment", p_js_paym_list);
+			p_js_paym_list = 0;
+		}
+	}
+	CATCH
+		ZDELETE(p_js_cc);
+	ENDCATCH
+	return p_js_cc;
 }
 //
 //
@@ -2612,7 +3177,7 @@ int CCheckCore::LoadLines(PPID checkID, PPID goodsID, CCheckPacket * pPack)
 				SETFLAG(le.Flags, le.fModifier, lx_rec.Flags & le.fModifier);
 				SETFLAG(le.Flags, le.fPartOfComplex, lx_rec.Flags & le.fPartOfComplex);
 				SETFLAG(le.Flags, le.fQuotedByGift,  lx_rec.Flags & le.fQuotedByGift);
-				SETFLAG(le.Flags, le.fFixedPrice,    lx_rec.Flags & le.fFixedPrice); // @v10.1.7
+				SETFLAG(le.Flags, le.fFixedPrice,    lx_rec.Flags & le.fFixedPrice);
 				pPack->SetLineExt(pos+1, le);
 			}
 		}
@@ -3102,7 +3667,7 @@ int CCheckCore::UpdateCheck(CCheckPacket * pPack, int use_ta)
 				if(P_LnExt) {
 					CCheckPacket::LineExt le;
 					pPack->GetLineExt(i, le);
-					if(le.Queue || (le.Flags & (le.fGroup|le.fModifier|le.fPartOfComplex|le.fQuotedByGift|le.fFixedPrice))) { // @v10.1.7 le.fFixedPrice
+					if(le.Queue || (le.Flags & (le.fGroup|le.fModifier|le.fPartOfComplex|le.fQuotedByGift|le.fFixedPrice))) {
 						CCheckLineExtTbl::Rec lx_rec;
 						lx_rec.CheckID = ccl.CheckID;
 						lx_rec.RByCheck = ccl.RByCheck;
@@ -3238,7 +3803,7 @@ int CCheckCore::TurnCheck(CCheckPacket * pPack, int use_ta)
 				if(P_LnExt) {
 					CCheckPacket::LineExt le;
 					pPack->GetLineExt(i, le);
-					if(le.Queue || (le.Flags & (le.fGroup|le.fModifier|le.fPartOfComplex|le.fQuotedByGift|le.fFixedPrice))) { // @v10.1.7 le.fFixedPrice
+					if(le.Queue || (le.Flags & (le.fGroup|le.fModifier|le.fPartOfComplex|le.fQuotedByGift|le.fFixedPrice))) {
 						CCheckLineExtTbl::Rec lx_rec;
 						lx_rec.CheckID = ccl.CheckID;
 						lx_rec.RByCheck = ccl.RByCheck;
@@ -3247,7 +3812,7 @@ int CCheckCore::TurnCheck(CCheckPacket * pPack, int use_ta)
 						SETFLAG(lx_rec.Flags, le.fModifier, le.Flags & le.fModifier);
 						SETFLAG(lx_rec.Flags, le.fPartOfComplex, le.Flags & le.fPartOfComplex);
 						SETFLAG(lx_rec.Flags, le.fQuotedByGift,  le.Flags & le.fQuotedByGift);
-						SETFLAG(lx_rec.Flags, le.fFixedPrice,    le.Flags & le.fFixedPrice); // @v10.1.7
+						SETFLAG(lx_rec.Flags, le.fFixedPrice,    le.Flags & le.fFixedPrice);
 						THROW_DB(P_LnExt->insertRecBuf(&lx_rec));
 						ufp_factor += 1.0;
 					}

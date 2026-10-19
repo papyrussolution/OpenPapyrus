@@ -3565,8 +3565,7 @@ int PrcssrPersonImport::Run()
 						else if(IeParam.DefCategoryID && pc_obj.Fetch(IeParam.DefCategoryID, &pc_rec) > 0)
 							pack.Rec.CatID = IeParam.DefCategoryID;
 					}
-					// @v11.1.12 (temp_buf = rec.Memo).Strip().CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
-					(pack.SMemo = rec.Memo).Strip(); // @v11.1.12
+					(pack.SMemo = rec.Memo).Strip();
 					{
 						SString accno;
 						PPBank bnk_rec;

@@ -459,8 +459,7 @@ static int TurnBankImportPacket(const Assoc * pAssoc, BankStmntItem * pItem, PPI
 	pack.Rec.Object2 = obj2ID;
 	pack.Ext.AgentID = agentID;
 	STRNSCPY(pack.Rec.Code, pItem->Code);
-	// @v11.1.12 STRNSCPY(pack.Rec.Memo, pItem->Purpose);
-	pack.SMemo = pItem->Purpose; // @v11.1.12
+	pack.SMemo = pItem->Purpose;
 	const int sar = p_bobj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, 0, 0);
 	THROW(sar);
 	if(sar > 0) {
@@ -841,9 +840,8 @@ int Helper_ClientBank2::PutRecord(const PPBillPacket * pPack, PPID debtBillID, P
 			data_buf.Sequence = p_order->BnkQueueing;
 			data_buf.VatSum   = p_order->VATSum;
 			STRNSCPY(data_buf.Code, _EncodeStr(pPack->Rec.Code, temp_buf));
-			// @v11.1.12 STRNSCPY(data_buf.Purpose, _EncodeStr(pPack->Rec.Memo, temp_buf));
-			STRNSCPY(data_buf.Purpose, _EncodeStr(pPack->SMemo, temp_buf)); // @v11.1.12
-			(buf = pPack->SMemo).Space().Cat(MakeVatText(pPack, temp_buf)). // @v11.1.12 pPack->Rec.Memo-->pPack->SMemo
+			STRNSCPY(data_buf.Purpose, _EncodeStr(pPack->SMemo, temp_buf));
+			(buf = pPack->SMemo).Space().Cat(MakeVatText(pPack, temp_buf)).
 				Transf(CTRANSF_INNER_TO_OUTER).CopyTo(data_buf.PurposePlusVat, sizeof(data_buf.PurposePlusVat));
 			{
 				long   paym_method = 0;
@@ -1398,7 +1396,7 @@ int GenerateCliBnkImpData()
 		PPID   ID;
 		PPID   ArID;
 		long   Flags;
-		char   Code[48];  // @v11.1.12 [24]-->[48]
+		char   Code[48];
 		double Amount;
 	};
 	int    ok = 1;
@@ -1545,8 +1543,7 @@ int GenerateCliBnkImpData()
 					}
 				}
 			}
-			// @v11.1.12 temp_buf.CopyTo(pack.Rec.Memo, sizeof(pack.Rec.Memo));
-			pack.SMemo = temp_buf; // @v11.1.12
+			pack.SMemo = temp_buf;
 			THROW(cbed.PutRecord(&pack, debt_bill_id, 0));
 		}
 		THROW(cbed.PutEnd());

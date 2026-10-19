@@ -297,7 +297,7 @@ int _tmain(int argc, TCHAR ** argv)
 {
 	LPTSTR tail;
 	int i;
-	SLS.Init("GnuPlot"); // @v11.1.12
+	SLS.Init("GnuPlot");
 #ifdef WGP_CONSOLE
 	HINSTANCE hInstance = GetModuleHandle(NULL), hPrevInstance = NULL;
 #endif

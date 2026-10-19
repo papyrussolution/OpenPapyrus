@@ -73,6 +73,37 @@ int FreightFilt::ReadPreviousVer(SBuffer & rBuf, int ver)
 	return ok;
 }
 
+FreightViewItem::FreightViewItem()
+{
+	THISZERO();
+}
+	
+FreightViewItem & FreightViewItem::Z()
+{
+	THISZERO();
+	return *this;
+}
+
+LDATETIME FreightViewItem::GetDespatchTime() const // @v12.8.0 
+{
+	LDATETIME result = ZERODATETIME;
+	SUniTime_Internal ut;
+	if(UED::_GetRaw_Time(UedTmDespatch, ut) && ut.GetDatetime(&result)) {
+		;
+	}
+	return result;
+}
+
+LDATETIME FreightViewItem::GetArrivalTime() const // @v12.8.0
+{
+	LDATETIME result = ZERODATETIME;
+	SUniTime_Internal ut;
+	if(UED::_GetRaw_Time(UedTmArrvl, ut) && ut.GetDatetime(&result)) {
+		;
+	}
+	return result;
+}
+
 PPViewFreight::PPViewFreight() : PPView(0, &Filt, PPVIEW_FREIGHT, 0, 0), P_BObj(BillObj), P_TmpTbl(0)
 {
 }
@@ -371,8 +402,10 @@ int PPViewFreight::FillTempTableRec(const BillTbl::Rec * pBillRec, TempFreightTb
 			pRec->Amount     = BR2(pBillRec->Amount);
 			pRec->Shipped[0] = (pBillRec->Flags & BILLF_SHIPPED) ? 'X' : 0;
 			pRec->Shipped[1] = 0;
-			pRec->ShipmDate  = freight.IssueDate;
-			pRec->ArrvlDate  = freight.ArrivalDate;
+			// @v12.8.0 pRec->ShipmDate  = freight.GetDespatchTime().d;
+			//pRec->ArrvlDate  = freight.GetArrivalTime().d;
+			pRec->UedTmDespatch = freight.UedTmDespatch; // @v12.8.0
+			pRec->UedTmArrvl = freight.UedTmArrival; // @v12.8.0
 			pRec->ShipID     = freight.ShipID;
 			pRec->PortID     = freight.PortOfDischarge;
 			pRec->DlvrAddrID = freight.DlvrAddrID__;
@@ -486,8 +519,8 @@ int FASTCALL PPViewFreight::NextIteration(FreightViewItem * pItem)
 			pItem->Brutto    = P_TmpTbl->data.Brutto;
 			pItem->PackCount = P_TmpTbl->data.PackCount;
 			pItem->Volume    = P_TmpTbl->data.Volume;
-			pItem->ShipmDate = P_TmpTbl->data.ShipmDate;
-			pItem->ArrvlDate = P_TmpTbl->data.ArrvlDate;
+			pItem->UedTmDespatch = P_TmpTbl->data.UedTmDespatch;
+			pItem->UedTmArrvl    = P_TmpTbl->data.UedTmArrvl;
 			pItem->ShipID    = P_TmpTbl->data.ShipID;
 			StrPool.GetS(P_TmpTbl->data.ShipNameP, temp_buf);
 			STRNSCPY(pItem->ShipName, temp_buf);
@@ -626,6 +659,8 @@ DBQuery * PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	DBE    dbe_agent;
 	DBE    dbe_ship;
 	DBE    dbe_memo;
+	//DBE    dbe_tm_despatch; // @v12.8.0
+	DBE    dbe_tm_arrival; // @v12.8.0
 	DBQuery * q = 0;
 	THROW(CheckTblPtr(tbl));
 	PPDbqFuncPool::InitObjNameFunc(dbe_ar,    PPDbqFuncPool::IdObjNameAr,  tbl->ObjectID);
@@ -633,6 +668,13 @@ DBQuery * PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	PPDbqFuncPool::InitObjNameFunc(dbe_loc,   PPDbqFuncPool::IdObjNameLoc, tbl->LocID);
 	PPDbqFuncPool::InitStrPoolRefFunc(dbe_ship, tbl->ShipNameP, &StrPool);
 	PPDbqFuncPool::InitObjNameFunc(dbe_memo, PPDbqFuncPool::IdObjMemoBill, tbl->BillID);
+	// @v12.8.0 {
+	{
+		dbe_tm_arrival.init();
+		dbe_tm_arrival.push(tbl->UedTmArrvl);
+		dbe_tm_arrival.push(static_cast<DBFunc>(PPDbqFuncPool::IdUedTime));
+	}
+	// } @v12.8.0 
 	q = &Select_(
 		tbl->BillID,    //  #0
 		tbl->BillDate,  //  #1
@@ -640,7 +682,7 @@ DBQuery * PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		0L);
 	q->addField(tbl->ChZnMarkIndicator); // #3 // @v12.7.11 
 	q->addField(dbe_ar);         //  #4 // @v12.7.11 +1
-	q->addField(tbl->ArrvlDate); //  #5 // @v12.7.11 +1
+	q->addField(dbe_tm_arrival); //  #5 // @v12.7.11 +1
 	q->addField(dbe_ship);       //  #6 // @v12.7.11 +1
 	q->addField(tbl->PortName);  //  #7 // @v12.7.11 +1
 	q->addField(tbl->DlvrAddr);  //  #8 // @v12.7.11 +1
@@ -660,7 +702,7 @@ DBQuery * PPViewFreight::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	else if(oneof2(Filt.Order, OrdByDefault, OrdByBillDate))
 		q->orderBy(tbl->BillDate, 0L);
 	else if(Filt.Order == OrdByArrivalDate)
-		q->orderBy(tbl->ArrvlDate, 0L);
+		q->orderBy(tbl->UedTmArrvl, 0L);
 	else if(Filt.Order == OrdByPortName)
 		q->orderBy(tbl->PortName, 0L);
 	else if(Filt.Order == OrdByDlvrAddr)
@@ -910,12 +952,18 @@ int PPViewFreight::UpdateFeatures()
 							do_update |= 1;
 						}
 						// } @v12.7.7 
-                        if(checkdate(issue_date) && freight.IssueDate != issue_date) {
-							freight.IssueDate = issue_date;
+                        if(checkdate(issue_date) && freight.GetDespatchTime().d != issue_date) {
+							// @attention: если в документе было явно указано время отправления, то оно потеряется!
+							LDATETIME local_dtm;
+							local_dtm.Set(issue_date, ZEROTIME);
+							freight.SetDespatchTime(local_dtm);
 							do_update |= 1;
                         }
-                        if(checkdate(arrival_date) && freight.ArrivalDate != arrival_date) {
-							freight.ArrivalDate = arrival_date;
+                        if(checkdate(arrival_date) && freight.GetArrivalTime().d != arrival_date) {
+							// @attention: если в документе было явно указано время прибытия, то оно потеряется!
+							LDATETIME local_dtm;
+							local_dtm.Set(arrival_date, ZEROTIME);
+							freight.SetArrivalTime(local_dtm);
 							do_update |= 1;
                         }
                     }
@@ -1080,8 +1128,8 @@ int PPALDD_FreightList::NextIteration(PPIterID iterId)
 	I.BillID = item.BillID;
 	I.ObjectID = item.ObjectID;
 	I.BillDate = item.BillDate;
-	I.ArrvlDate = item.ArrvlDate;
-	I.ShipmDate = item.ShipmDate;
+	I.ArrvlDate = item.GetArrivalTime().d;
+	I.ShipmDate = item.GetDespatchTime().d;
 	I.IsShipped = item.IsShipped;
 	I.PortID = item.PortID;
 	I.DlvrAddrID = item.DlvrAddrID;

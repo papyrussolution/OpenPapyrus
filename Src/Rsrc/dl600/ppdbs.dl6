@@ -4151,8 +4151,10 @@ table TempFreight {
 	double Brutto;        // Масса брутто
 	double PackCount;     // Количество упаковок
 	double Volume;        // Объем (m*m*m)
-	date   ShipmDate;     // Дата отправления //
-	date   ArrvlDate;     // Дата прибытия    //
+	//date   ShipmDate;     // Дата отправления //
+	//date   ArrvlDate;     // Дата прибытия    //
+	uint64 UedTmDespatch; // Время отправления //  @v12.8.0 ShipmDate-->UedTmDespatch
+	uint64 UedTmArrvl;    // Время прибытия    //  @v12.8.0 ArrvlDate-->UedTmArrvl
 	long   ShipID;        // ->Goods2.ID ИД транспортного средства
 	long   PortID;        // ->World.ID Порт назначения    //
 	long   DlvrAddrID;    // ->Location.ID ИД адреса доставки
@@ -4168,8 +4170,8 @@ index:
 	BillID (unique mod);
 	BillDate, Code (dup mod);
 	ArrvlDate, PortName (dup mod);
-	PortName, ArrvlDate (dup mod);
-	DlvrAddr, ArrvlDate (dup mod);
+	PortName, UedTmArrvl (dup mod);
+	DlvrAddr, UedTmArrvl (dup mod);
 file:
 	"tmp_frgh.btr";
 	temporary;

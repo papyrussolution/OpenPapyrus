@@ -799,33 +799,36 @@ SJson * SScEditorPosition::ToJsonObj() const
 
 bool SScEditorPosition::FromJsonObj(const SJson * pJs)
 {
-	bool   ok = true;
+	bool   ok = false;
 	Z();
-	for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
-		if(p_cur->Text.IsEqiAscii("FirstVisLn")) {
-			SJson::GetChildInt64(p_cur, FirstVisibleLine);
+	if(SJson::IsObject(pJs)) {
+		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("FirstVisLn")) {
+				SJson::GetChildInt64(p_cur, FirstVisibleLine);
+			}
+			else if(p_cur->Text.IsEqiAscii("Start")) {
+				SJson::GetChildInt64(p_cur, StartPos);
+			}
+			else if(p_cur->Text.IsEqiAscii("End")) {
+				SJson::GetChildInt64(p_cur, EndPos);
+			}
+			else if(p_cur->Text.IsEqiAscii("XOffs")) {
+				SJson::GetChildInt64(p_cur, XOffset);
+			}
+			else if(p_cur->Text.IsEqiAscii("SelMode")) {
+				SJson::GetChildInt64(p_cur, SelMode);
+			}
+			else if(p_cur->Text.IsEqiAscii("ScrollWidth")) {
+				SJson::GetChildInt64(p_cur, ScrollWidth);
+			}
+			else if(p_cur->Text.IsEqiAscii("Offs")) {
+				SJson::GetChildInt64(p_cur, Offset);
+			}
+			else if(p_cur->Text.IsEqiAscii("WrapCt")) {
+				SJson::GetChildInt64(p_cur, WrapCount);
+			}
 		}
-		else if(p_cur->Text.IsEqiAscii("Start")) {
-			SJson::GetChildInt64(p_cur, StartPos);
-		}
-		else if(p_cur->Text.IsEqiAscii("End")) {
-			SJson::GetChildInt64(p_cur, EndPos);
-		}
-		else if(p_cur->Text.IsEqiAscii("XOffs")) {
-			SJson::GetChildInt64(p_cur, XOffset);
-		}
-		else if(p_cur->Text.IsEqiAscii("SelMode")) {
-			SJson::GetChildInt64(p_cur, SelMode);
-		}
-		else if(p_cur->Text.IsEqiAscii("ScrollWidth")) {
-			SJson::GetChildInt64(p_cur, ScrollWidth);
-		}
-		else if(p_cur->Text.IsEqiAscii("Offs")) {
-			SJson::GetChildInt64(p_cur, Offset);
-		}
-		else if(p_cur->Text.IsEqiAscii("WrapCt")) {
-			SJson::GetChildInt64(p_cur, WrapCount);
-		}
+		ok = true;
 	}
 	return ok;
 }
@@ -880,39 +883,42 @@ SJson * SScEditorMapPosition::ToJsonObj() const
 
 bool SScEditorMapPosition::FromJsonObj(const SJson * pJs)
 {
-	bool   ok = true;
+	bool   ok = false;
 	Z();
-	for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
-		if(p_cur->Text.IsEqiAscii("FirstVisDispLn")) {
-			SJson::GetChildInt64(p_cur, FirstVisibleDisplayLine);
+	if(SJson::IsObject(pJs)) {
+		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			if(p_cur->Text.IsEqiAscii("FirstVisDispLn")) {
+				SJson::GetChildInt64(p_cur, FirstVisibleDisplayLine);
+			}
+			else if(p_cur->Text.IsEqiAscii("FirstVisDocLn")) {
+				SJson::GetChildInt64(p_cur, FirstVisibleDocLine);
+			}
+			else if(p_cur->Text.IsEqiAscii("LastVisDocLn")) {
+				SJson::GetChildInt64(p_cur, LastVisibleDocLine);
+			}
+			else if(p_cur->Text.IsEqiAscii("NbLn")) {
+				SJson::GetChildInt64(p_cur, NbLine);
+			}
+			else if(p_cur->Text.IsEqiAscii("HigherPos")) {
+				SJson::GetChildInt64(p_cur, HigherPos);
+			}
+			else if(p_cur->Text.IsEqiAscii("Width")) {
+				SJson::GetChildInt64(p_cur, Width);
+			}
+			else if(p_cur->Text.IsEqiAscii("Height")) {
+				SJson::GetChildInt64(p_cur, Height);
+			}
+			else if(p_cur->Text.IsEqiAscii("WrapIndentMode")) {
+				SJson::GetChildInt64(p_cur, WrapIndentMode);
+			}
+			else if(p_cur->Text.IsEqiAscii("KByteInDoc")) {
+				SJson::GetChildInt64(p_cur, KByteInDoc);
+			}
+			else if(p_cur->Text.IsEqiAscii("Flags")) {
+				SJson::GetChildUInt(p_cur, Flags);
+			}
 		}
-		else if(p_cur->Text.IsEqiAscii("FirstVisDocLn")) {
-			SJson::GetChildInt64(p_cur, FirstVisibleDocLine);
-		}
-		else if(p_cur->Text.IsEqiAscii("LastVisDocLn")) {
-			SJson::GetChildInt64(p_cur, LastVisibleDocLine);
-		}
-		else if(p_cur->Text.IsEqiAscii("NbLn")) {
-			SJson::GetChildInt64(p_cur, NbLine);
-		}
-		else if(p_cur->Text.IsEqiAscii("HigherPos")) {
-			SJson::GetChildInt64(p_cur, HigherPos);
-		}
-		else if(p_cur->Text.IsEqiAscii("Width")) {
-			SJson::GetChildInt64(p_cur, Width);
-		}
-		else if(p_cur->Text.IsEqiAscii("Height")) {
-			SJson::GetChildInt64(p_cur, Height);
-		}
-		else if(p_cur->Text.IsEqiAscii("WrapIndentMode")) {
-			SJson::GetChildInt64(p_cur, WrapIndentMode);
-		}
-		else if(p_cur->Text.IsEqiAscii("KByteInDoc")) {
-			SJson::GetChildInt64(p_cur, KByteInDoc);
-		}
-		else if(p_cur->Text.IsEqiAscii("Flags")) {
-			SJson::GetChildUInt(p_cur, Flags);
-		}
+		ok = true;
 	}
 	return ok;
 }

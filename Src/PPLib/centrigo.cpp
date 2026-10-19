@@ -133,6 +133,7 @@ private:
 	int    DoNote(SObjID & rOid);
 	int    DoContacts(const PersonFilt * pFilt);
 	int    DoTasks(const PrjTaskFilt * pFilt);
+	int    DoWallet(const AccAnlzFilt * pFilt); // @v12.8.0
 	int    DoSecrets();
 	int    HandleInputEnter(const SString & rInput);
 	int    RemoveWorkingPanel();
@@ -359,6 +360,13 @@ int TFacadeWindow::DoTasks(const PrjTaskFilt * pFilt)
 {
 	int    ok = -1;
 	ok = InsertWorkWindow(PPVIEW_PRJTASK, pFilt);
+	return ok;
+}
+
+int TFacadeWindow::DoWallet(const AccAnlzFilt * pFilt) // @v12.8.0
+{
+	int    ok = -1;
+	ok = InsertWorkWindow(PPVIEW_ACCANLZ, pFilt);
 	return ok;
 }
 
@@ -1255,7 +1263,12 @@ IMPL_HANDLE_EVENT(TFacadeWindow)
 												DoTasks(&filt);
 											}
 											break;
-										case cmCentrigoWallet:
+										case cmCentrigoWallet: // @v12.8.0
+											{
+												AccAnlzFilt filt;
+												filt.Flags |= AccAnlzFilt::fPersonalFinance;
+												DoWallet(&filt);
+											}
 											break;
 										case cmCentrigoSecrets:
 											{

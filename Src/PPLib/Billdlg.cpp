@@ -3982,8 +3982,16 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			}
 			SetupCalDate(CTLCAL_FREIGHT_ISSDT, CTL_FREIGHT_ISSDT);
 			SetupCalDate(CTLCAL_FREIGHT_ARRIVDT, CTL_FREIGHT_ARRIVDT);
-			setCtrlData(CTL_FREIGHT_ISSDT, &Data.IssueDate);
-			setCtrlData(CTL_FREIGHT_ARRIVDT, &Data.ArrivalDate);
+			{
+				LDATETIME local_dtm = Data.GetDespatchTime();
+				setCtrlData(CTL_FREIGHT_ISSDT, &local_dtm.d);
+				setCtrlData(CTL_FREIGHT_ISSTM, &local_dtm.t);
+			}
+			{
+				LDATETIME local_dtm = Data.GetArrivalTime();
+				setCtrlData(CTL_FREIGHT_ARRIVDT, &local_dtm.d);
+				setCtrlData(CTL_FREIGHT_ARRIVTM, &local_dtm.t);
+			}
 			setCtrlData(CTL_FREIGHT_NMBORIGSBSL, &Data.NmbOrigsBsL);
 			setCtrlReal(CTL_FREIGHT_COST, Data.Cost);
 			AddClusterAssoc(CTL_FREIGHT_SHIPPED, 0, BILLF_SHIPPED);
@@ -4009,10 +4017,22 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			getCtrlData(CTLSEL_FREIGHT_AGENT,    &Data.AgentID);
 			getCtrlData(CTLSEL_FREIGHT_ISSLOC,   &Data.PortOfLoading);
 			getCtrlData(CTLSEL_FREIGHT_ARRIVLOC, &Data.PortOfDischarge);
-			getCtrlData(sel = CTL_FREIGHT_ISSDT, &Data.IssueDate);
-			THROW_SL(checkdate(Data.IssueDate, 1));
-			getCtrlData(sel = CTL_FREIGHT_ARRIVDT, &Data.ArrivalDate);
-			THROW_SL(checkdate(Data.ArrivalDate, 1));
+			{
+				LDATETIME local_dtm = ZERODATETIME;
+				getCtrlData(sel = CTL_FREIGHT_ISSDT, &local_dtm.d);
+				THROW_SL(checkdate(local_dtm.d, 1));
+				getCtrlData(sel = CTL_FREIGHT_ISSTM, &local_dtm.t);
+				THROW_SL(checktime(local_dtm.t));
+				Data.SetDespatchTime(local_dtm);
+			}
+			{
+				LDATETIME local_dtm = ZERODATETIME;
+				getCtrlData(sel = CTL_FREIGHT_ARRIVDT, &local_dtm.d);
+				THROW_SL(checkdate(local_dtm.d, 1));
+				getCtrlData(sel = CTL_FREIGHT_ARRIVTM, &local_dtm.t);
+				THROW_SL(checktime(local_dtm.t));
+				Data.SetArrivalTime(local_dtm);
+			}
 			getCtrlData(CTL_FREIGHT_NMBORIGSBSL, &Data.NmbOrigsBsL);
 			if(!R_Pack.Rec.ID || CheckRighsMod)
 				Data.Cost = getCtrlReal(CTL_FREIGHT_COST);
@@ -4091,12 +4111,13 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 		PPFreight freight;
 		RVALUEPTR(freight, rPack.P_Freight);
 		SETIFZ(freight.TrType, PPTRTYP_CAR);
-		SETIFZ(freight.IssueDate, rPack.Rec.Dt);
+		SETIFZ(freight.IssueDate_Obsolete, rPack.Rec.Dt);
 		if(CheckDialogPtrErr(&(dlg = new FreightDialog(rPack)))) {
 			dlg->setDTS(&freight);
 			while(ok <= 0 && ExecView(dlg) == cmOK) {
 	 			if(dlg->getDTS(&freight)) {
-					if(!freight.IsEmpty() || (freight.IssueDate && freight.IssueDate != rPack.Rec.Dt)) {
+					const  LDATE despatch_dt = freight.GetDespatchTime().d;
+					if(!freight.IsEmpty() || (checkdate(despatch_dt) && despatch_dt != rPack.Rec.Dt)) {
 						rPack.SetFreight(&freight);
 						ok = 1;
 					}

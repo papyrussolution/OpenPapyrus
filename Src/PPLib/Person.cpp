@@ -1,5 +1,5 @@
 // PERSON.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 // @codepage UTF-8
 // @Kernel
 //
@@ -20,7 +20,7 @@ PPPerson::PPPerson(const PPPerson & rS) : Rec(rS.Rec), SMemo(rS.SMemo), Kinds(rS
 PPPerson & FASTCALL PPPerson::operator = (const PPPerson & rS)
 {
 	Rec = rS.Rec;
-	SMemo = rS.SMemo; // @v11.1.12
+	SMemo = rS.SMemo;
 	Kinds.copy(rS.Kinds);
 	RelList.copy(rS.RelList);
 	return *this;
@@ -29,7 +29,7 @@ PPPerson & FASTCALL PPPerson::operator = (const PPPerson & rS)
 PPPerson & PPPerson::Z()
 {
 	Rec.Clear();
-	SMemo.Z(); // @v11.1.12
+	SMemo.Z();
 	Kinds.Z();
 	RelList.clear();
 	return *this;
@@ -1102,13 +1102,13 @@ int PersonCore::Put(PPID * pID, PPPerson * pPack, int use_ta)
 				strip(pPack->Rec.Name);
 				pPack->Rec.ID = *pID;
 				THROW_DB(updateRecBuf(&pPack->Rec)); // @sfu
-				THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), memo_buf_utf8, 0)); // @v11.1.12
+				THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), memo_buf_utf8, 0));
 				THROW(PutKinds(*pID, pPack));
 				THROW(PutRelList(*pID, &pPack->GetRelList(), 0));
 			}
 			else {
 				THROW_DB(deleteRec()); // @sfu
-				THROW(p_ref->UtrC.Remove(SObjTextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), 0)); // @v11.1.12
+				THROW(p_ref->UtrC.Remove(SObjTextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), 0));
 				THROW(RemoveKind(*pID, 0, 0));
 				THROW(PutRelList(*pID, 0, 0));
 			}
@@ -1119,7 +1119,7 @@ int PersonCore::Put(PPID * pID, PPPerson * pPack, int use_ta)
 			CopyBufFrom(&pPack->Rec, sizeof(pPack->Rec));
 			THROW_DB(insertRec(0, pID));
 			pPack->Rec.ID = *pID;
-			THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), memo_buf_utf8, 0)); // @v11.1.12
+			THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(PPOBJ_PERSON, *pID, PPTRPROP_MEMO), memo_buf_utf8, 0));
 			THROW(PutKinds(*pID, pPack));
 			THROW(PutRelList(*pID, &pPack->GetRelList(), 0));
 		}

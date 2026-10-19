@@ -33,9 +33,36 @@ bool SalaryCore::Validate(const SalaryTbl::Rec * pRec)
 
 int SalaryCore::Search(PPID id, SalaryTbl::Rec * pRec) { return SearchByID(this, 0, id, pRec); }
 
+bool SalaryCore::AreRecEq(const SalaryTbl::Rec & rRec1, const SalaryTbl::Rec & rRec2, uint flags) const
+{
+	bool   eq = true;
+	if(!(flags & eqfIgnoreID) && rRec1.ID != rRec2.ID)
+		eq = false;
+	if(rRec1.Beg != rRec2.Beg)
+		eq = false;
+	else if(rRec1.End != rRec2.End)
+		eq = false;
+	else if(rRec1.PostID != rRec2.PostID)
+		eq = false;
+	else if(rRec1.SalChargeID != rRec2.SalChargeID)
+		eq = false;
+	else if(!feqeps(rRec1.Amount, rRec2.Amount, 1E-7))
+		eq = false;
+	else if(rRec1.Flags != rRec2.Flags)
+		eq = false;
+	else if(rRec1.ExtObjID != rRec2.ExtObjID)
+		eq = false;
+	else if(!(flags & eqfIgnoreLinkBill) && rRec1.LinkBillID != rRec2.LinkBillID)
+		eq = false;
+	else if(!(flags & eqfIgnoreGenBill) && (rRec1.GenBillID != rRec2.GenBillID || rRec1.RByGenBill != rRec2.RByGenBill))
+		eq = false;
+	return eq;
+}
+
 int SalaryCore::Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta)
 {
 	int    ok = 1;
+	bool   nothing_to_do = false; // true если требуемая запись уже находится в базе данных
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -69,6 +96,11 @@ int SalaryCore::Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta)
 			}
 			if(r == 2) {
 				if(*pID == 0) {
+					// @v12.8.0 {
+					if(AreRecEq(*pRec, intr_rec, eqfIgnoreID|eqfIgnoreGenBill)) {
+						nothing_to_do = true;
+					}
+					// } @v12.8.0 
 					pRec->LinkBillID = intr_rec.LinkBillID;
 					pRec->GenBillID  = intr_rec.GenBillID;
 					pRec->RByGenBill = intr_rec.RByGenBill;
@@ -83,27 +115,32 @@ int SalaryCore::Put(PPID * pID, SalaryTbl::Rec * pRec, int use_ta)
 			}
 			THROW(Validate(pRec));
 		}
-		if(*pID) {
-			SalaryTbl::Rec org_rec;
-			THROW(SearchByID_ForUpdate(this, 0, *pID, &org_rec) > 0);
-			if(pRec) {
-				THROW_DB(updateRecBuf(pRec)); // @sfu
-			}
-			else {
-				//
-				// Не будем считать ошибкой отсутствие документа при попытке его удалить
-				//
-				PPObjBill * p_bobj(BillObj);
-				if(org_rec.GenBillID && p_bobj->Search(org_rec.GenBillID, 0) > 0) {
-					THROW(p_bobj->RemovePacket(org_rec.GenBillID, 0));
-				}
-				THROW_DB(deleteRec()); // @sfu
-			}
+		if(nothing_to_do) {
+			ok = -1;
 		}
-		else if(pRec) {
-			pRec->ID = 0;
-			CopyBufFrom(pRec, sizeof(*pRec));
-			THROW_DB(insertRec(0, pID));
+		else {
+			if(*pID) {
+				SalaryTbl::Rec org_rec;
+				THROW(SearchByID_ForUpdate(this, 0, *pID, &org_rec) > 0);
+				if(pRec) {
+					THROW_DB(updateRecBuf(pRec)); // @sfu
+				}
+				else {
+					//
+					// Не будем считать ошибкой отсутствие документа при попытке его удалить
+					//
+					PPObjBill * p_bobj(BillObj);
+					if(org_rec.GenBillID && p_bobj->Search(org_rec.GenBillID, 0) > 0) {
+						THROW(p_bobj->RemovePacket(org_rec.GenBillID, 0));
+					}
+					THROW_DB(deleteRec()); // @sfu
+				}
+			}
+			else if(pRec) {
+				pRec->ID = 0;
+				CopyBufFrom(pRec, sizeof(*pRec));
+				THROW_DB(insertRec(0, pID));
+			}
 		}
 		THROW(tra.Commit());
 	}
@@ -840,10 +877,12 @@ int PPViewSalary::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 		SalaryTbl::Rec rec;
 		PersonPostTbl::Rec post_rec;
 		if(ppvCmd == PPVCMD_ADDITEM) {
-			if(EditItemDialog(&rec) > 0)
+			if(EditItemDialog(&rec) > 0) {
 				ok = Tbl.Put(&(id = 0), &rec, 1) ? 1 : PPErrorZ();
-			else
+			}
+			else {
 				ok = -1;
+			}
 			if(ok > 0 && P_Ct)
 				ChangeFilt(1, pBrw);
 		}
@@ -1111,7 +1150,10 @@ int PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, int use_
 	PPObjArticle ar_obj;
 	SString memo_buf;
 	SalaryTbl::Rec s_rec;
-	PPIDArray charge_list, removed_bill_list;
+	PPIDArray charge_list;
+	PPIDArray removed_bill_list;
+	PPIDArray list;
+	PPIDArray bill_id_list;
 	PPObjBill * p_bobj(BillObj);
 	{
 		PPTransaction tra(use_ta);
@@ -1125,8 +1167,8 @@ int PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, int use_
 			if(sc_pack.Rec.WrOffOpID) {
 				PPOprKind2 op_rec;
 				double amount = 0.0;
-				PPIDArray list;
-				PPIDArray bill_id_list;
+				list.Z();
+				bill_id_list.Z();
 				Logger.LogString(PPTXT_LOG_PRCSALWROFFCHARGE, sc_pack.Rec.Name);
 				THROW(GetOpData(sc_pack.Rec.WrOffOpID, &op_rec) > 0);
 				Tbl.GetListByObject(PPOBJ_SALCHARGE, sc_id, P.NominalPeriod, pIdList, &list, &amount);
@@ -1198,8 +1240,7 @@ int PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, int use_
 						}
 						pack.Rec.Amount = s_rec.Amount;
 						pack.Amounts.Put(PPAMT_MAIN, 0, s_rec.Amount, 0, 1);
-						// @v11.1.12 STRNSCPY(pack.Rec.Memo, memo_buf);
-						pack.SMemo = memo_buf; // @v11.1.12
+						pack.SMemo = memo_buf;
 						THROW(p_bobj->FillTurnList(&pack));
 						THROW(p_bobj->TurnPacket(&pack, 0));
 						bill_id_list.addUnique(pack.Rec.ID);
@@ -1643,8 +1684,8 @@ int PrcssrSalary::Helper_CalcPayment(PPID opID, const DateRange & rPeriod, int k
 		const  PPID ar_id = rArList.get(i);
 		BillTbl::Rec bill_rec, paym_rec;
 		for(DateIter di(&rPeriod); p_bobj->P_Tbl->EnumByOpr(opID, &di, &paym_rec) > 0;) {
-			int    r = -1;
-			THROW(r = p_bobj->P_Tbl->Search(paym_rec.LinkBillID, &bill_rec));
+			int    r = p_bobj->P_Tbl->Search(paym_rec.LinkBillID, &bill_rec);
+			THROW(r);
 			if(r > 0) {
 				if(kind == 0) {
 					if(bill_rec.Object != ar_id)
@@ -2121,6 +2162,28 @@ int PrcssrSalary::Expr_ResolveFunc(int funcId, uint argCount, double * pArgList,
 	return ok;
 }
 
+int PrcssrSalary::Helper_PutEntry(PPID postID, const PPSalChargePacket & rScPack, long extObjID, SalaryContext & rFCtx, UintHashTable * pIdList)
+{
+	int    ok = 1;
+	double value = 0.0;
+	PPID   sal_id = 0;
+	SalaryTbl::Rec sal_entry;
+	PPExprParser::CalcExpression(rScPack.Formula, &value, 0, &rFCtx);
+	sal_entry.Beg = P.NominalPeriod.low;
+	sal_entry.End = P.NominalPeriod.upp;
+	sal_entry.PostID = postID;
+	sal_entry.SalChargeID = rScPack.Rec.ID;
+	sal_entry.ExtObjID = extObjID;
+	sal_entry.Amount = value;
+	const  int pr = Tbl.Put(&sal_id, &sal_entry, 0);
+	THROW(pr);
+	if(pr < 0)
+		ok = -1;
+	CALLPTRMEMB(pIdList, Add(sal_id));
+	CATCHZOK
+	return ok;
+}
+
 int PrcssrSalary::ProcessPost(PPID postID, UintHashTable * pIdList, int use_ta)
 {
 	int    ok = -1;
@@ -2180,7 +2243,8 @@ int PrcssrSalary::ProcessPost(PPID postID, UintHashTable * pIdList, int use_ta)
 							pev_filt.PsnOpList.Add(sc_pack.Rec.EnumExtVal);
 							THROW(pev_view.Init_(&pev_filt));
 							for(pev_view.InitIteration(); pev_view.NextIteration(&pev_item) > 0;) {
-								P_CurEv = &pev_item;
+								P_CurEv = &pev_item; // используется при расчетах в SalaryContext expr_ctx
+								/* @v12.8.0
 								double value = 0.0;
 								PPID   sal_id = 0;
 								SalaryTbl::Rec sal_entry;
@@ -2192,26 +2256,32 @@ int PrcssrSalary::ProcessPost(PPID postID, UintHashTable * pIdList, int use_ta)
 								sal_entry.ExtObjID = pev_item.ID;
 								sal_entry.Amount = value;
 								THROW(Tbl.Put(&sal_id, &sal_entry, 0));
-								if(pIdList)
-									pIdList->Add(sal_id);
+								CALLPTRMEMB(pIdList, Add(sal_id));
+								*/
+								const  int _per = Helper_PutEntry(postID, sc_pack, pev_item.ID, expr_ctx, pIdList);
+								THROW(_per);
 							}
-							P_CurEv = 0;
+							P_CurEv = 0; // используется при расчетах в SalaryContext expr_ctx
 						}
 					}
 					else {
+						P_CurEv = 0; // используется при расчетах в SalaryContext expr_ctx
+						/*
 						double value = 0.0;
 						PPID   sal_id = 0;
 						SalaryTbl::Rec sal_entry;
-						P_CurEv = 0;
 						PPExprParser::CalcExpression(sc_pack.Formula, &value, 0, &expr_ctx);
 						sal_entry.Beg = P.NominalPeriod.low;
 						sal_entry.End = P.NominalPeriod.upp;
 						sal_entry.PostID = postID;
 						sal_entry.SalChargeID = charge_id;
 						sal_entry.Amount = value;
-						THROW(Tbl.Put(&sal_id, &sal_entry, 0));
-						if(pIdList)
-							pIdList->Add(sal_id);
+						const  int pr = Tbl.Put(&sal_id, &sal_entry, 0);
+						THROW(pr);
+						CALLPTRMEMB(pIdList, Add(sal_id));
+						*/
+						const  int _per = Helper_PutEntry(postID, sc_pack, 0, expr_ctx, pIdList);
+						THROW(_per);
 					}
 				}
 				else if(!(P.Flags & Param::fSilent)) {

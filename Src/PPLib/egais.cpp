@@ -2405,9 +2405,10 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 								n_h.PutInner(SXml::nst("wb", "Date"), temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601CENT));
 								{
 									// Если дата отгрузки определена и больше даты документа, то она и будет таковой, в противном случае датой отгрузки считаем дату документа.
-									LDATE shipping_date = ZERODATE;
-									if(p_bp->P_Freight && checkdate(p_bp->P_Freight->IssueDate) && p_bp->P_Freight->IssueDate > p_bp->Rec.Dt)
-										shipping_date = p_bp->P_Freight->IssueDate;
+									LDATE  shipping_date = ZERODATE;
+									const  LDATE _fdeprtdt = p_bp->P_Freight ? p_bp->P_Freight->GetDespatchTime().d : ZERODATE;
+									if(checkdate(_fdeprtdt) && _fdeprtdt > p_bp->Rec.Dt)
+										shipping_date = _fdeprtdt;
 									else
 										shipping_date = p_bp->Rec.Dt;
 									n_h.PutInner(SXml::nst("wb", "ShippingDate"), temp_buf.Z().Cat(shipping_date, DATF_ISO8601CENT));
@@ -4655,13 +4656,16 @@ int PPEgaisProcessor::Read_WayBill(xmlNode * pFirstNode, PPID locID, const DateR
                 else if(SXml::GetContentByName(p_h, "Date", temp_buf))
                     strtodate(temp_buf, DATF_ISO8601, &bill_date);
                 else if(SXml::GetContentByName(p_h, "ShippingDate", temp_buf)) {
-					LDATE shp_dt;
-					strtodate(temp_buf, DATF_ISO8601, &shp_dt);
-					if(checkdate(shp_dt))
-						freight.IssueDate = shp_dt;
+					LDATETIME local_dtm;
+					strtodate(temp_buf, DATF_ISO8601, &local_dtm.d);
+					if(checkdate(local_dtm.d)) {
+						local_dtm.t = ZEROTIME;
+						freight.SetDespatchTime(local_dtm);
+					}
                 }
-                else if(SXml::GetContentByName(p_h, "Type", temp_buf))
+                else if(SXml::GetContentByName(p_h, "Type", temp_buf)) {
 					wb_type = RecognizeWayBillTypeText(temp_buf.Utf8ToChar());
+				}
                 else if(SXml::GetContentByName(p_h, "UnitType", temp_buf)) {
 					if(temp_buf.IsEqiAscii("Unpacked"))
 						unpacked = 1;

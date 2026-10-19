@@ -2341,13 +2341,11 @@ int FASTCALL PPViewBill::NextIteration(BillViewItem * pItem)
 						pItem->Credit = p_temp_tbl->data.Credit;
 						pItem->Saldo  = p_temp_tbl->data.Saldo;
 					}
-					// @v11.1.12 {
 					{
 						SString & r_temp_buf = SLS.AcquireRvlStr();
 						P_BObj->P_Tbl->GetItemMemo(id, r_temp_buf);
 						STRNSCPY(pItem->SMemo, r_temp_buf);
 					}
-					// } @v11.1.12 
 					if(CheckOpFlags(br.OpID, OPKF_NEEDPAYMENT)) {
 						BillTbl::Rec last_paym_rec;
 						if(P_BObj->P_Tbl->GetLastPayment(id, &last_paym_rec) > 0)
@@ -5055,8 +5053,7 @@ int PPViewBill::CreateTempPoolPacket(PPBillPacket * pPack)
 	pPack->CreateBlank(comm_op_id, 0, (comm_loc_id > 0) ? comm_loc_id : pool_pack.Rec.LocID, 0);
 	pPack->UngetCounter();
 	STRNSCPY(pPack->Rec.Code, pool_pack.Rec.Code);
-	// @v11.1.12 STRNSCPY(pPack->Rec.Memo, pool_pack.Rec.Memo);
-	pPack->SMemo = pool_pack.SMemo; // @v11.1.12
+	pPack->SMemo = pool_pack.SMemo;
 	pPack->Rec.Dt     = (comm_dt > 0) ? comm_dt : pool_pack.Rec.Dt;
 	pPack->Rec.LocID  = (comm_loc_id > 0) ? comm_loc_id : pool_pack.Rec.LocID;
 	pPack->Rec.Object = (comm_obj_id >= 0) ? comm_obj_id : pool_pack.Rec.Object;
@@ -5503,7 +5500,6 @@ int PPViewBill::UpdateAttributes()
 							opc_obj.CodeByTemplate(mod_code_template, upd_code_counter-1, temp_buf);
 							upd_code_counter++;
 							STRNSCPY(pack.Rec.Code, temp_buf);
-							// @v11.1.12 BillCore::SetCode(pack.Rec.Code, pack.Rec.Flags);
 							do_upd = 1;
 						}
 						if(do_upd) {
@@ -5535,7 +5531,6 @@ int PPViewBill::UpdateAttributes()
 							STRNSCPY(rec.Code, temp_buf);
 							do_upd = 1;
 						}
-						// @v11.1.12 BillCore::SetCode(rec.Code, rec.Flags);
 						if(org_code_buf != rec.Code) {
 							do_upd = 1;
 						}
@@ -7786,7 +7781,7 @@ struct DL600_BillExt {
 	BillCore * P_Bill;
 	long   CrEventSurID;
 	BillTbl::Rec Rec;
-	SString SMemo; // @v11.1.12
+	SString SMemo;
 };
 
 PPALDD_CONSTRUCTOR(Bill)
@@ -7936,8 +7931,8 @@ int PPALDD_Bill::InitData(PPFilt & rFilt, long rsrv)
 				H.PortOfLoading  = freight.PortOfLoading;
 				H.PortOfDschrg   = freight.PortOfDischarge;
 				H.DlvrLocID      = freight.DlvrAddrID__;
-				H.IssueDate      = freight.IssueDate;
-				H.ArrivalDate    = freight.ArrivalDate;
+				H.IssueDate      = freight.GetDespatchTime().d;
+				H.ArrivalDate    = freight.GetArrivalTime().d;
 				H.CaptainID      = freight.CaptainID;
 				H.Captain2ID     = freight.Captain2ID;
 				H.VesselsAgentID = freight.AgentID;
@@ -8067,8 +8062,7 @@ void PPALDD_Bill::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & r
 	}
 	else if(pF->Name == "?GetMemo") {
 		if(p_ext->Rec.ID) {
-			// @v11.1.12 _RET_STR = p_ext->Rec.Memo;
-			_RET_STR = p_ext->SMemo; // @v11.1.12
+			_RET_STR = p_ext->SMemo;
 		}
 		else
 			_RET_STR.Z();
@@ -8188,8 +8182,7 @@ int PPALDD_GoodsBillModif::InitData(PPFilt & rFilt, long rsrv)
 	MEMSZERO(H);
 	if(!CheckOpPrnFlags(p_pack->Rec.OpID, OPKF_PRT_NBILLN))
 		STRNSCPY(H.Code, p_pack->Rec.Code);
-	// @v11.1.12 strip(STRNSCPY(H.Memo, p_pack->Rec.Memo));
-	strip(STRNSCPY(H.Memo, p_pack->SMemo)); // @v11.1.12
+	strip(STRNSCPY(H.Memo, p_pack->SMemo));
 	H.Dt        = p_pack->Rec.Dt;
 	H.OprKindID = p_pack->Rec.OpID;
 	H.ObjectID  = p_pack->Rec.Object;
@@ -8377,8 +8370,7 @@ int PPALDD_GoodsReval::InitData(PPFilt & rFilt, long rsrv)
 	H.LocID      = rec.LocID;
 	H.ExpendFlag = 0; // Приход (под вопросом, но переоценка и корректировка в большинстве случаев трактуются как приход)
 	STRNSCPY(H.Code, rec.Code);
-	// @v11.1.12 STRNSCPY(H.Memo, rec.Memo);
-	STRNSCPY(H.Memo, p_pack->SMemo); // @v11.1.12
+	STRNSCPY(H.Memo, p_pack->SMemo);
 	{
 		H.RcvrID    = main_org_id;
 		H.RcvrReq   = main_org_id;
@@ -9446,8 +9438,7 @@ int PPALDD_BnkPaymOrder::InitData(PPFilt & rFilt, long rsrv)
 		H.BillID  = pack->P_PaymOrder->BillID;
 		H.LclDt   = pack->P_PaymOrder->Dt;
 		STRNSCPY(H.LclCode, pack->P_PaymOrder->Code);
-		// @v11.1.12 STRNSCPY(H.LclMemo, pack->Rec.Memo);
-		STRNSCPY(H.LclMemo, pack->SMemo); // @v11.1.12
+		STRNSCPY(H.LclMemo, pack->SMemo);
 		H.PayerBnkAccID = pack->P_PaymOrder->PayerBnkAccID;
 		psn_obj.GetBnkAcctData(H.PayerBnkAccID, 0, &bnk_data);
 		H.PayerBnkID = bnk_data.Bnk.ID;
@@ -9492,8 +9483,7 @@ int PPALDD_BnkPaymOrder::InitData(PPFilt & rFilt, long rsrv)
 		H.BillID  = pack->Rec.ID;
 		H.LclDt   = pack->Rec.Dt;
 		STRNSCPY(H.LclCode, pack->Rec.Code);
-		// @v11.1.12 STRNSCPY(H.LclMemo, pack->Rec.Memo);
-		STRNSCPY(H.LclMemo, pack->SMemo); // @v11.1.12
+		STRNSCPY(H.LclMemo, pack->SMemo);
 		H.Amount = pack->GetAmount();
 	}
 	return DlRtm::InitData(rFilt, rsrv);
@@ -9653,8 +9643,7 @@ int PPALDD_Warrant::InitData(PPFilt & rFilt, long rsrv)
 	if(p_pack->Rec.Object && p_pack->AccSheetID)
 		H.PersonReqID = ObjectToPerson(p_pack->Rec.Object, 0);
 	H.SupplID = p_pack->Rec.Object2;
-	// @v11.1.12 STRNSCPY(H.Memo, p_pack->Rec.Memo);
-	STRNSCPY(H.Memo, p_pack->SMemo); // @v11.1.12
+	STRNSCPY(H.Memo, p_pack->SMemo);
 	return DlRtm::InitData(rFilt, rsrv);
 }
 

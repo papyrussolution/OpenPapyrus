@@ -1358,6 +1358,20 @@ int PPObjOprKind::GetGenericAccTurnForRegisterOp(PPID * pID, int use_ta) // @v12
 /*virtual*/int PPObjOprKind::MakeReserved(long flags)
 {
     int    ok = -1;
+	if(flags & mrfPersonalFinance) { // @v12.8.0
+		{
+			ReservedOpCreateBlock blk;
+			PPID   op_id = PPOPK_GENERICPSNACCTURN;
+			blk.OpID = PPOPK_GENERICPSNACCTURN;
+			blk.OpTypeID = PPOPT_ACCTURN;
+			blk.NameTxtId = PPTXT_OPK_GENERICPERSONALACCTURN;
+			blk.Flags = 0;
+			blk.SubType = OPSUBT_PERSONALFINANCE;
+			blk.P_Symb = "GENPTA";
+			blk.P_CodeTempl = "%06";
+			THROW(Helper_GetReservedOp(&op_id, blk, 1));
+		}
+	}
     if(flags & mrfInitializeDb) {
 		// PPTXT_OPK_COMM_GENERICACCTURN  "Общая бухгалтерская проводка"
 		// PPTXT_OPK_COMM_RECEIPT         "Приход товара от поставщика"

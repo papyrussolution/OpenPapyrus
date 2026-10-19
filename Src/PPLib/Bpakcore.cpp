@@ -470,12 +470,74 @@ PPFreight & PPFreight::Z()
 	return *this;
 }
 
+LDATETIME PPFreight::GetDespatchTime() const // @v12.8.0
+{
+	LDATETIME result = ZERODATETIME;
+	SUniTime_Internal ut;
+	if(UED::_GetRaw_Time(UedTmDespatch, ut) && ut.GetDatetime(&result)) {
+		;
+	}
+	else if(checkdate(IssueDate_Obsolete)) {
+		result.Set(IssueDate_Obsolete, ZEROTIME);
+	}
+	return result;
+}
+
+LDATETIME PPFreight::GetArrivalTime() const // @v12.8.0
+{
+	LDATETIME result = ZERODATETIME;
+	SUniTime_Internal ut;
+	if(UED::_GetRaw_Time(UedTmArrival, ut) && ut.GetDatetime(&result)) {
+		;
+	}
+	else if(checkdate(ArrivalDate_Obsolete)) {
+		result.Set(ArrivalDate_Obsolete, ZEROTIME);
+	}
+	return result;
+}
+
+bool PPFreight::SetDespatchTime(LDATETIME dtm) // @v12.8.0 @construction
+{
+	bool   ok = false;
+	if(checkdate(dtm.d) && checktime(dtm.t)) {
+		IssueDate_Obsolete = dtm.d;
+		const  ued_t _meta = UED_META_TIME_MSEC;
+		SUniTime_Internal ut(dtm);
+		UedTmDespatch = UED::_SetRaw_Time(_meta, ut);
+		if(UED::GetMeta(UedTmDespatch) == _meta)
+			ok = true;
+	}
+	else {
+		IssueDate_Obsolete.Z();
+		UedTmDespatch.Z();
+	}
+	return ok;
+}
+
+bool PPFreight::SetArrivalTime(LDATETIME dtm) // @v12.8.0 @construction
+{
+	bool   ok = false;
+	if(checkdate(dtm.d) && checktime(dtm.t)) {
+		ArrivalDate_Obsolete = dtm.d;
+		const  ued_t _meta = UED_META_TIME_MSEC;
+		SUniTime_Internal ut(dtm);
+		UedTmArrival = UED::_SetRaw_Time(_meta, ut);
+		if(UED::GetMeta(UedTmArrival) == _meta)
+			ok = true;
+	}
+	else {
+		ArrivalDate_Obsolete.Z();
+		UedTmArrival.Z();
+	}
+	return ok;
+}
+
 int FASTCALL PPFreight::CheckForFilt(const FreightFilt & rFilt) const
 {
 	int    ok = 1;
-	if(!rFilt.ShipmPeriod.CheckDate(IssueDate))
+	if(!rFilt.ShipmPeriod.CheckDate(GetDespatchTime().d))
 		ok = 0;
-	else if(!rFilt.ArrvlPeriod.CheckDate(ArrivalDate))
+	else if(!rFilt.ArrvlPeriod.CheckDate(GetArrivalTime().d))
 		ok = 0;
 	else if(!CheckFiltID(rFilt.ShipID, ShipID))
 		ok = 0;
@@ -529,7 +591,7 @@ int FASTCALL PPFreight::CheckForFilt(const FreightFilt & rFilt) const
 bool PPFreight::IsEmpty() const
 {
 	return (!ShipID && !AgentID && Name[0] == 0 && !PortOfDischarge &&
-		!PortOfLoading && !CaptainID && !DlvrAddrID__ && !ArrivalDate && Cost == 0.0 && !StorageLocID && !Captain2ID);
+		!PortOfLoading && !CaptainID && !DlvrAddrID__ && !ArrivalDate_Obsolete && Cost == 0.0 && !StorageLocID && !Captain2ID);
 }
 
 bool FASTCALL PPFreight::IsEq(const PPFreight & s) const
@@ -544,9 +606,13 @@ bool FASTCALL PPFreight::IsEq(const PPFreight & s) const
 		return false;
 	else if(PortOfDischarge != s.PortOfDischarge)
 		return false;
-	else if(IssueDate != s.IssueDate)
+	else if(IssueDate_Obsolete != s.IssueDate_Obsolete)
 		return false;
-	else if(ArrivalDate != s.ArrivalDate)
+	else if(ArrivalDate_Obsolete != s.ArrivalDate_Obsolete)
+		return false;
+	else if(UedTmDespatch != s.UedTmDespatch) // @v12.8.0
+		return false;
+	else if(UedTmArrival != s.UedTmArrival) // @v12.8.0
 		return false;
 	else if(CaptainID != s.CaptainID)
 		return false;
@@ -807,7 +873,7 @@ int FASTCALL PPBill::IsEq(const PPBill & rS) const
 	else if(memcmp(&Rec, &rS.Rec, sizeof(Rec)) != 0)
 		yes = 0;
 	if(yes) {
-		if(SMemo != rS.SMemo) // @v11.1.12
+		if(SMemo != rS.SMemo)
 			yes = 0;
 		else if(!Amounts.IsEq(rS.Amounts))
 			yes = 0;
@@ -902,7 +968,7 @@ int FASTCALL PPBill::Copy(const PPBill & rS)
 	BTagL = rS.BTagL;
 	XcL = rS.XcL;
 	Ver = rS.Ver;
-	SMemo = rS.SMemo; // @v11.2.4 @fix (это - серьезная недоработка - должно было быть сделано в @v11.1.12)!
+	SMemo = rS.SMemo;
 	return ok;
 }
 
@@ -2390,11 +2456,11 @@ LDATE PPBillPacket::CalcDefaultPayDate(int paymTerm, long paymDateBase) const
 				break;
 			case PPClientAgreement::pdbFreightIssue:
 				if(P_Freight)
-					base_date = P_Freight->IssueDate;
+					base_date = P_Freight->GetDespatchTime().d;
 				break;
 			case PPClientAgreement::pdbFreightArrival:
 				if(P_Freight)
-					base_date = P_Freight->ArrivalDate;
+					base_date = P_Freight->GetArrivalTime().d;
 				break;
 			default:
 				if(paymDateBase > PPClientAgreement::pdbTagBias) {
@@ -3683,8 +3749,10 @@ int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontI
 		Rec.CurID = link_rec.CurID;
 		if(OpTypeID == PPOPT_GOODSRETURN && op_rec.Flags & OPKF_FREIGHT && P_BObj->GetConfig().Flags & BCF_RETINHERITFREIGHT) {
 			if(P_BObj->P_Tbl->GetFreight(link_rec.ID, &freight) > 0) {
-				freight.IssueDate = ZERODATE;
-				freight.ArrivalDate = ZERODATE;
+				freight.IssueDate_Obsolete = ZERODATE;
+				freight.ArrivalDate_Obsolete = ZERODATE;
+				freight.UedTmDespatch.Z(); // @v12.8.0
+				freight.UedTmArrival.Z(); // @v12.8.0
 				freight.Cost = 0.0;
 				freight.ID = 0;
 				freight.ShipID = 0;
@@ -3806,8 +3874,7 @@ int PPBillPacket::GetCurTransit(PPCurTransit * pTrans) const
 	pTrans->Flags      = Rec.Flags;
 	pTrans->AccSheetID = AccSheetID;
 	STRNSCPY(pTrans->BillCode, Rec.Code);
-	// @v11.1.12 STRNSCPY(pTrans->Memo, Rec.Memo);
-	STRNSCPY(pTrans->Memo, SMemo); // @v11.1.12
+	STRNSCPY(pTrans->Memo, SMemo);
 	pTrans->TransitCRate = Rec.CRate;
 	Amounts.GetCurList(PPAMT_BUYING, &cur_list);
 	if(Rec.ID) {

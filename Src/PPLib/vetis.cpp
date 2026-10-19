@@ -4538,12 +4538,11 @@ int PPVetisInterface::ParseCertifiedConsignment(const xmlNode * pParentNode, Vet
 							else if(SXml::GetContentByName(p_c, "nextTransport", temp_buf)) {
 								if(SETIFZ(p_new_point->P_NextTransport, new VetisTransportInfo)) {
 									THROW(ParseTransportInfo(p_c, *p_new_point->P_NextTransport));
-									// @v11.1.12 { (может случиться, что NextTransport заявлен, но номера не определены - тогда наследуем из основной записи)
+									// (может случиться, что NextTransport заявлен, но номера не определены - тогда наследуем из основной записи)
 									if(p_new_point->P_NextTransport->TransportType == rResult.TransportInfo.TransportType) {
 										if(p_new_point->P_NextTransport->TransportNumber.IsEmpty())
 											p_new_point->P_NextTransport->TransportNumber = rResult.TransportInfo.TransportNumber;
 									}
-									// } @v11.1.12 
 								}
 							}
 							else if(SXml::IsName(p_c, "location")) {
@@ -9138,8 +9137,7 @@ int PPVetisInterface::PutBillRow(const PPBillPacket & rBp, uint rowIdx, long fla
 		if(!skip) {
 			VetisDocumentTbl::Rec rec;
 			{
-				// @v11.1.12 BillCore::GetCode(temp_buf = rBp.Rec.Code);
-				temp_buf = rBp.Rec.Code; // @v11.1.12 
+				temp_buf = rBp.Rec.Code;
 				rec.IssueDate = getcurdate_();
 				STRNSCPY(rec.IssueNumber, temp_buf);
 				rec.WayBillDate = rBp.Rec.Dt;
@@ -12981,8 +12979,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 									for(DateIter di(&sp); p_bobj->P_Tbl->EnumByObj(rcvr_ar_id, &di, &bill_rec) > 0;) {
 										if(bill_rec.OpID == op_id && (!loc_id || bill_rec.LocID == loc_id)) {
 											temp_id_list.add(bill_rec.ID);
-											// @v11.1.12 BillCore::GetCode(temp_buf = bill_rec.Code);
-											temp_buf = bill_rec.Code; // @v11.1.12 
+											temp_buf = bill_rec.Code;
 											mcb.ProcessBillCode(bill_rec.ID, temp_buf);
 										}
 									}
@@ -12995,8 +12992,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 									for(DateIter di(&sp); p_bobj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
 										if(bill_rec.OpID == op_id && (!Filt.LocID__ || bill_rec.LocID == Filt.LocID__)) {
 											temp_id_list.add(bill_rec.ID);
-											// @v11.1.12 BillCore::GetCode(temp_buf = bill_rec.Code);
-											temp_buf = bill_rec.Code; // @v11.1.12 
+											temp_buf = bill_rec.Code;
 											mcb.ProcessBillCode(bill_rec.ID, temp_buf);
 										}
 									}
@@ -13007,8 +13003,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 							for(DateIter di(&sp); p_bobj->P_Tbl->EnumByObj(ar_id, &di, &bill_rec) > 0;) {
 								if((!Filt.LocID__ || bill_rec.LocID == Filt.LocID__) && GetOpType(bill_rec.OpID) == PPOPT_GOODSRECEIPT) {
 									temp_id_list.add(bill_rec.ID);
-									// @v11.1.12 BillCore::GetCode(temp_buf = bill_rec.Code);
-									temp_buf = bill_rec.Code; // @v11.1.12 
+									temp_buf = bill_rec.Code;
 									mcb.ProcessBillCode(bill_rec.ID, temp_buf);
 								}
 							}

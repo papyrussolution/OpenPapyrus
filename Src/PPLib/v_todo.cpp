@@ -2001,17 +2001,83 @@ int PPViewPrjTask::Transmit(PPID /*id*/, int kind)
 	return ok;
 }
 
+PrjTaskTotal::PrjTaskTotal() : Count(0), CreatorCount(0), ExecutorCount(0), ClientCount(0), EstExecutionTime(0), RealExecutionTime(0)
+{
+}
+
+PrjTaskTotal & PrjTaskTotal::Z()
+{
+	Count = 0;
+	CreatorCount = 0;
+	ExecutorCount = 0;
+	ClientCount = 0;
+	EstExecutionTime = 0;
+	RealExecutionTime = 0;
+	CountByStatus.clear();
+	return *this;
+}
+
+int PPViewPrjTask::CalcTotal(PrjTaskTotal & rTotal) // @v12.8.0
+{
+	rTotal.Z();
+	int    ok = 1;
+	PrjTaskViewItem item;
+	PPIDArray creator_list;
+	PPIDArray executor_list;
+	PPIDArray client_list;
+	PPWaitStart();
+	for(InitIteration(); NextIteration(&item) > 0;) {
+		rTotal.Count++;
+		creator_list.addnz(item.CreatorID);
+		executor_list.addnz(item.EmployeeID);
+		client_list.addnz(item.ClientID);
+		const  long et = PPObjPrjTask::GetEstExecutionTime(item);
+		const  long rt = PPObjPrjTask::GetRealExecutionTime(item);
+		if(et > 0) {
+			rTotal.EstExecutionTime += et;
+		}
+		if(rt > 0) {
+			rTotal.RealExecutionTime += rt;
+		}
+		if(item.Status) {
+			rTotal.CountByStatus.IncrementValueByKey(item.Status);
+		}
+	}
+	creator_list.sortAndUndup();
+	executor_list.sortAndUndup();
+	client_list.sortAndUndup();
+	rTotal.CreatorCount = creator_list.getCount();
+	rTotal.ExecutorCount = executor_list.getCount();
+	rTotal.ClientCount = client_list.getCount();
+	PPWaitStop();
+	return ok;
+}
+
 void PPViewPrjTask::ViewTotal()
 {
 	TDialog * dlg = new TDialog(DLG_TODOTOTAL);
 	if(CheckDialogPtrErr(&dlg)) {
-		long   count = 0;
-		PrjTaskViewItem item;
-		PPWaitStart();
-		for(InitIteration(); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
-			count++;
-		PPWaitStop();
-		dlg->setCtrlLong(CTL_TODOTOTAL_COUNT, count);
+		SString temp_buf;
+		PrjTaskTotal total;
+		CalcTotal(total);
+		dlg->setCtrlLong(CTL_TODOTOTAL_COUNT, total.Count);
+		dlg->setCtrlLong(CTL_TODOTOTAL_CRTCOUNT, total.CreatorCount);
+		dlg->setCtrlLong(CTL_TODOTOTAL_EXECOUNT, total.ExecutorCount);
+		dlg->setCtrlLong(CTL_TODOTOTAL_CLICOUNT, total.ClientCount);
+		{
+			long   hr = total.EstExecutionTime/3600;
+			long   mn = (total.EstExecutionTime%3600)/60;
+			long   sc = (total.EstExecutionTime%3600)%60;
+			temp_buf.Z().CatLongZ(hr, 2).Colon().CatLongZ(mn, 2).Colon().CatLongZ(sc, 2);
+			dlg->setCtrlString(CTL_TODOTOTAL_ESTEXECTIME, temp_buf);
+		}
+		{
+			long   hr = total.RealExecutionTime/3600;
+			long   mn = (total.RealExecutionTime%3600)/60;
+			long   sc = (total.RealExecutionTime%3600)%60;
+			temp_buf.Z().CatLongZ(hr, 2).Colon().CatLongZ(mn, 2).Colon().CatLongZ(sc, 2);
+			dlg->setCtrlString(CTL_TODOTOTAL_REALEXECTIME, temp_buf);
+		}
 		ExecViewAndDestroy(dlg);
 	}
 }

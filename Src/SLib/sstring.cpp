@@ -4508,44 +4508,89 @@ int SString::Read(FILE * fStream, size_t size)
 	return ok;
 }
 
-int SString::DecodeHex(int swapb, void * pBuf, size_t bufLen, size_t * pRealLen) const
+int SString::DecodeHex(uint flags, void * pBuf, size_t bufLen, size_t * pRealLen) const
 {
 	int    ok = 1;
-	const size_t src_len = (Len() & ~0x1);
 	size_t out_len = 0;
-	for(uint i = 0; i < src_len; i+=2) {
-		const uint8 byte = (hex(P_Buf[i]) << 4) | hex(P_Buf[i+1]);
-		if(out_len < bufLen) {
-			PTR8(pBuf)[out_len] = byte;
-			out_len++;
-			/*if(swapb) {
-				if(!(out_len & 0x1)) {
-					uint16 * p_word = PTR16(PTR8(pBuf)+out_len-2);
-					*p_word = swapw(*p_word);
-					if(!(out_len & 0x3)) {
-						uint32 * p_dword = PTR32(PTR8(pBuf)+out_len-4);
-						*p_dword = swapdw(*p_dword);
+	STempBuffer * p_temp_buf = 0;
+	if(!Len()) {
+		memzero(pBuf, bufLen);
+	}
+	else {
+		const  char * p_src_buf = P_Buf;
+		uint8 * p_dest_buf = PTR8(pBuf);
+		THROW(IsHex());
+		{
+			if(flags & dhfStream) {
+				const size_t src_len = (Len() & ~0x1);
+				for(uint i = 0; i < src_len; i+=2) {
+					const uint8 byte = (hex(p_src_buf[i]) << 4) | hex(p_src_buf[i+1]);
+					if(out_len < bufLen) {
+						p_dest_buf[out_len] = byte;
+						out_len++;
+					}
+					else
+						out_len++;
+				}
+			}
+			else {
+				uint8  _static_temp_buf[512];
+				const  size_t src_len = Len();
+				const  bool is_odd_len = LOGIC(src_len & 0x1);
+				uint   cidx = 0;
+				const  size_t bin_len = is_odd_len ? ((src_len+1)/2) : (src_len/2);
+				uint8  * p_out_buf = 0;
+				if(bin_len <= sizeof(_static_temp_buf)) {
+					p_out_buf = _static_temp_buf;
+				}
+				else {
+					p_temp_buf = new STempBuffer(bin_len);
+					if(p_temp_buf && p_temp_buf->IsValid()) {
+						p_out_buf = static_cast<uint8 *>(p_temp_buf->vptr());
 					}
 				}
-			}*/
+				THROW(p_out_buf);
+				{
+					{ // first byte
+						const  uint8 byte = is_odd_len ? hex(p_src_buf[0]) : ((hex(p_src_buf[0]) << 4) | hex(p_src_buf[1]));
+						cidx += (is_odd_len ? 1 : 2);
+						assert(out_len < bin_len);
+						p_out_buf[out_len] = byte;
+						out_len++;
+					}
+					assert(((src_len - cidx) & 0x1) == 0); // Выше мы выровняли cidx в зависимости от четности Len()
+					for(; cidx < src_len; cidx+=2) {
+						const  uint8 byte = (hex(p_src_buf[cidx]) << 4) | hex(p_src_buf[cidx+1]);
+						assert(out_len < bin_len);
+						p_out_buf[out_len] = byte;
+						out_len++;
+					}
+					{
+						for(uint i = 0; i < out_len && i < bufLen; i++) {
+							p_dest_buf[i] = p_out_buf[out_len-i-1];
+						}
+					}
+				}
+			}
+			if(flags & dhfSwapBytes) {
+				size_t ofs = 0;
+				const  size_t swap_len = out_len;
+				for(; (ofs+sizeof(uint32)) <= swap_len; ofs += sizeof(uint32)) {
+					uint32 * p_dword = PTR32(p_dest_buf+ofs);
+					*p_dword = SMem::BSwap(*p_dword);			
+				}
+				if((ofs+sizeof(uint16)) <= swap_len) {
+					uint16 * p_word = PTR16(p_dest_buf+ofs);
+					*p_word = SMem::BSwap(*p_word);
+					ofs += sizeof(uint16);
+				}
+				assert(ofs == swap_len || ofs == (swap_len-1));
+			}
 		}
-		else
-			out_len++;
 	}
-	if(swapb) {
-		size_t ofs = 0;
-		for(; (ofs+sizeof(uint32)) <= out_len; ofs += sizeof(uint32)) {
-			uint32 * p_dword = PTR32(PTR8(pBuf)+ofs);
-			*p_dword = SMem::BSwap(*p_dword);			
-		}
-		if((ofs+sizeof(uint16)) <= out_len) {
-			uint16 * p_word = PTR16(PTR8(pBuf)+ofs);
-			*p_word = SMem::BSwap(*p_word);
-			ofs += sizeof(uint16);
-		}
-		assert(ofs == out_len || ofs == (out_len-1));
-	}
+	CATCHZOK
 	ASSIGN_PTR(pRealLen, out_len);
+	delete p_temp_buf;
 	return ok;
 }
 

@@ -5751,8 +5751,7 @@ int MainOrg2Dialog::setDTS()
 	//
 	// Set Memo
 	//
-	// @v11.1.12 setCtrlData(CTL_MAINORG2_MEMO, P_Pack->Rec.Memo);
-	setCtrlString(CTL_MAINORG2_MEMO, P_Pack->SMemo); // @v11.1.12
+	setCtrlString(CTL_MAINORG2_MEMO, P_Pack->SMemo);
 	//
 	// Set Phone
 	//
@@ -5977,10 +5976,8 @@ int MainOrg2Dialog::getDTS()
 		THROW(SetCommConfig(&cfg, 1));
 	}
 	// Get Memo
-	// @v11.1.12 getCtrlData(CTL_MAINORG2_MEMO, P_Pack->Rec.Memo);
-	// @v11.1.12 strip(P_Pack->Rec.Memo);
-	getCtrlString(CTL_MAINORG2_MEMO, P_Pack->SMemo); // @v11.1.12
-	P_Pack->SMemo.Strip(); // @v11.1.12
+	getCtrlString(CTL_MAINORG2_MEMO, P_Pack->SMemo);
+	P_Pack->SMemo.Strip();
 	// Get Memo
 
 	// Get Phone
@@ -7481,8 +7478,7 @@ int PPALDD_PersonReq::InitData(PPFilt & rFilt, long rsrv)
 			H.BankID = pr.BnkAcct.Bnk.ID;
 			STRNSCPY(H.Name,    rec.Name);
 			STRNSCPY(H.ExtName, pr.ExtName);
-			// @v11.1.12 STRNSCPY(H.Memo,    rec.Memo);
-			STRNSCPY(H.Memo,    pr.Memo); // @v11.1.12
+			STRNSCPY(H.Memo,    pr.Memo);
 			pobj.FormatRegister(rFilt.ID, PPREGT_PASSPORT, H.Passport, sizeof(H.Passport));
 			STRNSCPY(H.Address,  pr.Addr);
 			STRNSCPY(H.RAddr,    pr.RAddr);
@@ -7576,9 +7572,8 @@ int PPALDD_Person::InitData(PPFilt & rFilt, long rsrv)
 			H.Category = rec.CatID;
 			STRNSCPY(H.Name, rec.Name);
 			{
-				// @v11.1.12 STRNSCPY(H.Memo, rec.Memo);
-				p_obj->P_Tbl->GetItemMemo(rFilt.ID, temp_buf); // @v11.1.12
-				STRNSCPY(H.Memo, temp_buf); // @v11.1.12
+				p_obj->P_Tbl->GetItemMemo(rFilt.ID, temp_buf);
+				STRNSCPY(H.Memo, temp_buf);
 			}
 			{
 				const PPPersonConfig & r_cfg = p_obj->GetConfig();
@@ -7827,8 +7822,7 @@ int PPALDD_UhttPerson::InitData(PPFilt & rFilt, long rsrv)
 		H.ID = r_blk.Pack.Rec.ID;
 		H.PsnID = H.ID;
 		STRNSCPY(H.Name, r_blk.Pack.Rec.Name);
-		// @v11.1.12 STRNSCPY(H.Memo, r_blk.Pack.Rec.Memo);
-		STRNSCPY(H.Memo, r_blk.Pack.SMemo); // @v11.1.12
+		STRNSCPY(H.Memo, r_blk.Pack.SMemo);
 		H.CategoryID = r_blk.Pack.Rec.CatID;
 		H.StatusID = r_blk.Pack.Rec.Status;
 		r_blk.Pack.GetSrchRegNumber(0, temp_buf);

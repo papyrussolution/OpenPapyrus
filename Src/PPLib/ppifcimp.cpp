@@ -4591,8 +4591,7 @@ void FillPersonRec(const PPPersonPacket * pInner, SPpyO_Person * pOuter)
 	pOuter->UpdFlags = static_cast<PpyOPsnUpdateFlags>(pInner->UpdFlags);
 	#undef FLD
 	(temp_buf = pInner->Rec.Name).CopyToOleStr(&pOuter->Name);
-	// @v11.1.12 (temp_buf = pInner->Rec.Memo).CopyToOleStr(&pOuter->Memo);
-	(temp_buf = pInner->SMemo).CopyToOleStr(&pOuter->Memo); // @v11.1.12
+	(temp_buf = pInner->SMemo).CopyToOleStr(&pOuter->Memo);
 	{
 		pInner->GetExtName(temp_buf);
 		temp_buf.CopyToOleStr(&pOuter->ExtString);
@@ -5068,8 +5067,7 @@ static void FASTCALL FillBillRec(const PPBillPacket * pInner, SPpyO_Bill * pOute
 	FLD(OpID);
 	FLD(StatusID);
 	FLD(UserID);
-	// @v11.1.12 FLD(MainOrgID);
-	pOuter->MainOrgID = 0; // @v11.1.12
+	pOuter->MainOrgID = 0;
 	FLD(LocID);
 	FLD(Object);
 	FLD(Object2);
@@ -5140,7 +5138,6 @@ static void FASTCALL FillBillPacket(const SPpyO_Bill * pInner, PPBillPacket * pO
 	FLD(OpID);
 	FLD(StatusID);
 	FLD(UserID);
-	// @v11.1.12 FLD(MainOrgID);
 	FLD(LocID);
 	FLD(Object);
 	FLD(Object2);
@@ -5425,7 +5422,7 @@ int32 DL6ICLS_PPBillPacket::EnumItems(int32 * pIdx, SPpyO_TrfrItem * pItem)
 	if(p_pack) {
 		PPTransferItem ti;
 		if(pIdx && *pIdx == 0) {
-			long    flags = ETIEF_UNITEBYGOODS;
+			long   flags = ETIEF_UNITEBYGOODS;
 			SString temp_buf;
 			if(DS.GetConstTLA().GetIfcConfigParam("ETIEF_DIFFBYLOT", temp_buf) > 0 && temp_buf == "1")
 				flags |= ETIEF_DIFFBYLOT;
@@ -5457,10 +5454,8 @@ IStrAssocList * DL6ICLS_PPBillPacket::GetOrderList()
 
 IPapyrusAmountList * DL6ICLS_PPBillPacket::GetAmountList()
 {
-	AmtList * p_list = 0;
 	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
-	if(p_pack)
-		p_list = &p_pack->Amounts;
+	AmtList * p_list = p_pack ? &p_pack->Amounts : 0;
 	return (p_list && p_list->getCount()) ? reinterpret_cast<IPapyrusAmountList *>(GetIPapyrusAmountList(this, p_list, 0)) : 0;
 }
 
@@ -5505,8 +5500,8 @@ void FillFreightRec(const PPFreight * pInner, SPpyO_Freight * pOuter)
 	FLD(ShipID);
 	#undef FLD
 	(temp_buf = pInner->Name).CopyToOleStr(&pOuter->Name);
-	pOuter->IssueDate   = pInner->IssueDate.GetOleDate();
-	pOuter->ArrivalDate = pInner->ArrivalDate.GetOleDate();
+	pOuter->IssueDate   = pInner->GetDespatchTime().GetOleDate();
+	pOuter->ArrivalDate = pInner->GetArrivalTime().GetOleDate();
 	pOuter->TrType = (PpyOTransportType)pInner->TrType;
 }
 
@@ -5525,7 +5520,7 @@ int32 DL6ICLS_PPBillPacket::GetTagValue(long tagID, SString * pValue)
 {
 	int    ok = -1;
 	SString val;
-	const ObjTagItem * p_tag_item = 0;
+	const  ObjTagItem * p_tag_item = 0;
 	PPBillPacket * p_pack = static_cast<PPBillPacket *>(ExtraPtr);
 	if(p_pack && (p_tag_item = p_pack->BTagL.GetItem(tagID))) {
 		p_tag_item->GetStr(val);
@@ -8576,8 +8571,7 @@ int32 DL6ICLS_PPViewBill::NextIteration(PPYVIEWITEM item)
 		FLD(OpID);
 		FLD(StatusID);
 		FLD(UserID);
-		// @v11.1.12 FLD(MainOrgID);
-		p_item->MainOrgID = 0; // @v11.1.12
+		p_item->MainOrgID = 0;
 		FLD(LocID);
 		FLD(Object);
 		FLD(Object2);
@@ -8589,7 +8583,7 @@ int32 DL6ICLS_PPViewBill::NextIteration(PPYVIEWITEM item)
 		FLD(Flags2);
 		FLD(SCardID);
 		(temp_buf = inner_item.Code).CopyToOleStr(&p_item->Code);
-		(temp_buf = inner_item.SMemo).CopyToOleStr(&p_item->Memo); // @v11.1.12 item.Memo-->item.SMemo
+		(temp_buf = inner_item.SMemo).CopyToOleStr(&p_item->Memo);
 		FLD(Debit);
 		FLD(Credit);
 		FLD(Saldo);

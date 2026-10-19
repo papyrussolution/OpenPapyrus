@@ -1563,7 +1563,7 @@ int PPViewAlcoDeclRu::Export()
 										GetRcptChunkForExport(div_id, alco_code_id, manuf_id, suppl_id, temp_rcpt_list);
 										for(uint ridx = 0; ridx < temp_rcpt_list.getCount(); ridx++) {
 											const InnerRcptEntry & r_entry = temp_rcpt_list.at(ridx);
-											if(!feqeps(r_entry.Qtty, 0.0, 1E-7)) { // @v11.2.11 мудацкие сервисы мудацкого росалкогольрегулирования не принимают нули
+											if(!feqeps(r_entry.Qtty, 0.0, 1E-7)) { // мудацкие сервисы мудацкого росалкогольрегулирования не принимают нули
 												BillTbl::Rec suppl_bill_rec;
 												if(P_BObj->Search(r_entry.BillID, &suppl_bill_rec) > 0) {
 													if(r_cfg.E.Flags & PrcssrAlcReport::Config::fInvcCodePref && P_BObj->P_Tbl->GetExtraData(r_entry.BillID, &billext) > 0 && billext.InvoiceCode[0])

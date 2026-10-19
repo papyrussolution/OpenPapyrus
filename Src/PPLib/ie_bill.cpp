@@ -9602,7 +9602,7 @@ int DocNalogRu_WriteBillBlock::Do_Invoice2(SString & rResultFileName)
 										G.WriteIdentifValPair(GetToken(PPHSC_RU_TEXTINF), GetToken(PPHSC_RU_FREIGHTCODE), EncText(temp_buf = freight.Name));
 									}
 									{
-										const LDATE freight_date = freight.IssueDate; // @todo Здесь на самом деле должна быть дата документа фрахта, но сейчас такого поля во фрахте нет
+										const LDATE freight_date = freight.GetDespatchTime().d; // @todo Здесь на самом деле должна быть дата документа фрахта, но сейчас такого поля во фрахте нет
 										if(checkdate(freight_date)) { 
 											G.WriteIdentifValPair(GetToken(PPHSC_RU_TEXTINF), GetToken(PPHSC_RU_FREIGHTDATE), temp_buf.Z().Cat(freight_date, DATF_GERMANCENT));
 										}
@@ -10184,13 +10184,8 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName, StringSet &
 					SString tm_buf;
 					SUniTime_Internal ut_surrogate_loading;
 					{
-						LDATE   loading_date = ZERODATE;
-						if(checkdate(freight.IssueDate)) { // @v12.7.7 @fix freight.ArrivalDate-->freight.IssueDate
-							loading_date = freight.IssueDate;
-						}
-						else {
-							loading_date = R_Bp.Rec.Dt;
-						}
+						const  LDATETIME fddtm = freight.GetDespatchTime();
+						const  LDATE loading_date = checkdate(fddtm.d) ? fddtm.d : R_Bp.Rec.Dt;
 						assert(checkdate(loading_date));
 						ut_surrogate_loading.SetDate(loading_date);
 						if(loading_date == now_dtm.d) {
@@ -10541,7 +10536,7 @@ int DocNalogRu_WriteBillBlock::Do_UPD(SString & rResultFileName)
 									G.WriteIdentifValPair(GetToken(PPHSC_RU_TEXTINF), GetToken(PPHSC_RU_FREIGHTCODE), EncText(temp_buf = freight.Name));
 								}
 								{
-									const LDATE freight_date = freight.IssueDate; // @todo Здесь на самом деле должна быть дата документа фрахта, но сейчас такого поля во фрахте нет
+									const LDATE freight_date = freight.GetDespatchTime().d; // @todo Здесь на самом деле должна быть дата документа фрахта, но сейчас такого поля во фрахте нет
 									if(checkdate(freight_date)) { 
 										G.WriteIdentifValPair(GetToken(PPHSC_RU_TEXTINF), GetToken(PPHSC_RU_FREIGHTDATE), temp_buf.Z().Cat(freight_date, DATF_GERMANCENT));
 									}

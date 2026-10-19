@@ -1334,20 +1334,23 @@ int TProgram::MsgLoop(TWindow * pV, int & rExitSignal)
 static bool FASTCALL PreTranslateDialogMessage(const MSG & rMsg) // @v12.7.0 @construction
 {
 	if(oneof2(rMsg.message, WM_KEYDOWN, WM_SYSKEYDOWN)) { // Интересуют только клавиатурные сообщения //
-		HWND   hw = rMsg.hwnd; // Начинаем поиск от окна, которому адресовано сообщение
-		while(hw) {
-			// Проверяем, является ли это окно контейнером для контролов (этот стиль вы уже установили для своего child-диалога)
-			const  LONG_PTR ex_style = ::GetWindowLongPtrW(hw, GWL_EXSTYLE);
-			if(ex_style & WS_EX_CONTROLPARENT) {
-				// Если да, пытаемся обработать сообщение как диалоговое
-				if(::IsDialogMessageW(hw, const_cast<MSG *>(&rMsg))) {
-					return true; // Сообщение обработано (Tab сработал)
+		const  int  _k = rMsg.wParam;
+		if(_k == VK_TAB) { // @v12.8.0 @condition
+			HWND   hw = rMsg.hwnd; // Начинаем поиск от окна, которому адресовано сообщение
+			while(hw) {
+				// Проверяем, является ли это окно контейнером для контролов (этот стиль вы уже установили для своего child-диалога)
+				const  LONG_PTR ex_style = ::GetWindowLongPtrW(hw, GWL_EXSTYLE);
+				if(ex_style & WS_EX_CONTROLPARENT) {
+					// Если да, пытаемся обработать сообщение как диалоговое
+					if(::IsDialogMessageW(hw, const_cast<MSG *>(&rMsg))) {
+						return true; // Сообщение обработано (Tab сработал)
+					}
+					else {
+						break; // Если IsDialogMessage вернул false, значит это не Tab/стрелки, и дальше по родителям искать нет смысла.
+					}
 				}
-				else {
-					break; // Если IsDialogMessage вернул false, значит это не Tab/стрелки, и дальше по родителям искать нет смысла.
-				}
+				hw = ::GetParent(hw); // Поднимаемся выше по цепочке родителей
 			}
-			hw = ::GetParent(hw); // Поднимаемся выше по цепочке родителей
 		}
 	}
 	return false;

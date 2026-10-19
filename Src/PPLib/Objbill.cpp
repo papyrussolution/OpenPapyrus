@@ -458,7 +458,6 @@ int PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_AGENT) || pPack->Ext.AgentID, PPERR_BILLSTCHECKFLD_AGENT);
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_PAYER) || pPack->Ext.PayerID, PPERR_BILLSTCHECKFLD_PAYER);
 					THROW_PP(!(bs_rec.CheckFields & BILCHECKF_DUEDATE) || checkdate(pPack->Rec.DueDate), PPERR_BILLSTCHECKFLD_DUEDATE);
-					// @v11.5.11 {
 					if(bs_rec.CheckFields & BILCHECKF_CONTRACT) {
 						bool contract_is_ok = false;
 						BillTbl::Rec agt_bill_rec;
@@ -473,7 +472,6 @@ int PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 						}
 						THROW_PP(contract_is_ok, PPERR_BILLSTCHECKFLD_CONTRACT);
 					}
-					// } @v11.5.11 
 				}
 				if(CheckOpFlags(pPack->Rec.OpID, OPKF_FREIGHT)) {
 					const PPFreight * p_freight = pPack->P_Freight;
@@ -482,8 +480,8 @@ int PPObjBill::ValidatePacket(PPBillPacket * pPack, long flags)
 					if(p_freight) {
 						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_PORTOFLOADING) || p_freight->PortOfLoading, PPERR_BILLSTCHECKFLD_PORTOFLD);
 						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_PORTOFDISCHARGE) || p_freight->PortOfDischarge, PPERR_BILLSTCHECKFLD_PORTOFDCHG);
-						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_ISSUEDT) || p_freight->IssueDate, PPERR_BILLSTCHECKFLD_ISSUEDATE);
-						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_ARRIVALDT) || p_freight->ArrivalDate, PPERR_BILLSTCHECKFLD_ARRIVALDATE);
+						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_ISSUEDT) || checkdate(p_freight->GetDespatchTime().d), PPERR_BILLSTCHECKFLD_ISSUEDATE);
+						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_ARRIVALDT) || checkdate(p_freight->GetArrivalTime().d), PPERR_BILLSTCHECKFLD_ARRIVALDATE);
 						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_SHIP) || p_freight->ShipID, PPERR_BILLSTCHECKFLD_SHIP);
 						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_FREIGHTCOST) || p_freight->Cost > 0.0, PPERR_BILLSTCHECKFLD_FREIGHTCOST);
 						THROW_PP(!(bs_rec.CheckFields & BILCHECKF_CAPTAIN) || p_freight->CaptainID, PPERR_BILLSTCHECKFLD_CAPTAIN);
@@ -5826,18 +5824,20 @@ private:
 	};
 	class BillFreightCache : public ObjCacheHash {
 	public:
-		struct Data : public ObjCacheEntry { // size=48+16
+		struct Data : public ObjCacheEntry { // size=64+16
 			PPID   DlvrAddrID__;
 			long   TrType;
 			PPID   PortOfLoading;
 			PPID   PortOfDischarge;
-			LDATE  IssueDate;
-			LDATE  ArrivalDate;
+			LDATE  IssueDate_Obsolete;
+			LDATE  ArrivalDate_Obsolete;
 			PPID   CaptainID;
 			double Cost;
 			PPID   AgentID;
 			PPID   ShipID;
 			PPID   StorageLocID;
+			ued_t  UedTmDespatch;    // @v12.8.0
+			ued_t  UedTmArrival;   // @v12.8.0
 		};
 		BillFreightCache() : ObjCacheHash(PPOBJ_BILLFREIGHT, sizeof(Data), 512*1024, 4, ObjCache::fUseUndefList)
 		{
@@ -5857,13 +5857,15 @@ private:
 						FLD(TrType);
 						FLD(PortOfLoading);
 						FLD(PortOfDischarge);
-						FLD(IssueDate);
-						FLD(ArrivalDate);
+						FLD(IssueDate_Obsolete);
+						FLD(ArrivalDate_Obsolete);
 						FLD(CaptainID);
 						FLD(Cost);
 						FLD(AgentID);
 						FLD(ShipID);
 						FLD(StorageLocID);
+						FLD(UedTmDespatch);  // @v12.8.0
+						FLD(UedTmArrival); // @v12.8.0
 						#undef FLD
 						ok = 1;
 					}
@@ -5879,8 +5881,10 @@ private:
 						FLDZERO(ShipID);
 						FLDZERO(StorageLocID);
 						#undef FLDZERO
-						p_cache_rec->IssueDate.Z();
-						p_cache_rec->ArrivalDate.Z();
+						p_cache_rec->IssueDate_Obsolete.Z();
+						p_cache_rec->ArrivalDate_Obsolete.Z();
+						p_cache_rec->UedTmDespatch.Z();  // @v12.8.0
+						p_cache_rec->UedTmArrival.Z(); // @v12.8.0
 						ok = -100;
 					}
 				}
@@ -5898,13 +5902,15 @@ private:
 				FLD(TrType);
 				FLD(PortOfLoading);
 				FLD(PortOfDischarge);
-				FLD(IssueDate);
-				FLD(ArrivalDate);
+				FLD(IssueDate_Obsolete);
+				FLD(ArrivalDate_Obsolete);
 				FLD(CaptainID);
 				FLD(Cost);
 				FLD(AgentID);
 				FLD(ShipID);
 				FLD(StorageLocID);
+				FLD(UedTmDespatch);  // @v12.8.0
+				FLD(UedTmArrival); // @v12.8.0
 				#undef FLD
 			}
 		}

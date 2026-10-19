@@ -700,7 +700,7 @@ static const char * P_Ru_LicPlate_Symbs_Utf8  = "АВЕКМНОРСТУХ";
 								dec_ord++;
 							}
 							else {
-								uint  sp = 0;
+								size_t sp = 0;
 								if(symbs_u.SearchChar(c, &sp)) {
 									alpha_bits += (sp * ui64pow(12, alpha_ord));
 									alpha_ord++;

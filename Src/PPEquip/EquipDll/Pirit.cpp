@@ -2432,7 +2432,6 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, int uomI
 
 int PiritEquip::RunCheck(int opertype)
 {
-
 	int    ok = 1;
 	int    flag = 0;
 	int    _halfbyte = 0;

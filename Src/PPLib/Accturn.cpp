@@ -453,34 +453,40 @@ int AccTurnCore::IdentifyAcc(long * pAco, PPID * pAccID, PPID curID, PPID person
 	PPID   cur_id = 0;
 	int    sb = -1;
 	int    aco = *pAco;
-	PPAccount acc_rec;
-	if(aco == ACO_1 || (aco == ACO_2 && curID < 0)) {
-		if(curID < 0) {
-			cur_id = -1;
-			if(aco == ACO_2) {
-				THROW(AccObj.SearchBase(*pAccID, pAccID, 0) > 0);
-			}
-		}
-		else {
-			cur_id = curID;
-			if(aco == ACO_2) {
-				THROW(AccObj.SearchCur(*pAccID, curID, pAccID, 0) > 0);
-			}
-		}
+	if(oneof2(aco, ACO_1, ACO_2)) {
+		PPAccount acc_rec;
 		THROW(AccObj.Search(*pAccID, &acc_rec) > 0);
-		sb = (aco == ACO_1) ? -1 : acc_rec.A.Sb;
-		THROW(AccObj.GetSubacctList(acc_rec.A.Ac, sb, cur_id, pAccList));
-		if(curID < 0 && aco == ACO_2) {
-			THROW(pAccList->addUnique(*pAccID));
+		if(acc_rec.Type == ACY_PERSONAL) {
+			//AccObj.GetChildList(acc_rec.ID, StrAssocArray * pChildList);
 		}
-		if(pAccList->getCount() == 1) {
-			aco = ACO_2;
-			*pAccID = pAccList->at(0);
+		if(aco == ACO_1 || (aco == ACO_2 && curID < 0)) {
+			if(curID < 0) {
+				cur_id = -1;
+				if(aco == ACO_2) {
+					THROW(AccObj.SearchBase(*pAccID, pAccID, 0) > 0);
+				}
+			}
+			else {
+				cur_id = curID;
+				if(aco == ACO_2) {
+					THROW(AccObj.SearchCur(*pAccID, curID, pAccID, 0) > 0);
+				}
+			}
+			THROW(AccObj.Search(*pAccID, &acc_rec) > 0);
+			sb = (aco == ACO_1) ? -1 : acc_rec.A.Sb;
+			THROW(AccObj.GetSubacctList(acc_rec.A.Ac, sb, cur_id, pAccList));
+			if(curID < 0 && aco == ACO_2) {
+				THROW(pAccList->addUnique(*pAccID));
+			}
+			if(pAccList->getCount() == 1) {
+				aco = ACO_2;
+				*pAccID = pAccList->at(0);
+			}
+			ok = pAccList->getCount();
 		}
-		ok = pAccList->getCount();
-	}
-	else if(aco == ACO_2) {
-		THROW(AccObj.SearchCur(*pAccID, curID, pAccID, 0) > 0);
+		else if(aco == ACO_2) {
+			THROW(AccObj.SearchCur(*pAccID, curID, pAccID, 0) > 0);
+		}
 	}
 	else if(aco == ACO_3) {
 		AcctRelTbl::Rec acr_rec;

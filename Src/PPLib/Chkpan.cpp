@@ -12595,21 +12595,34 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 		// Признак того, что скидка устанавливается только на текущую строку чека (1 скидка по строке, 0 - error, -1 - скидка по карте)
 		//
 		int    row_dscnt = (ascf & (ascfFromInput|ascfExtPane)) ? AcceptRowDiscount() : -1;
-		if(!(ascf & (ascfFromInput|ascfExtPane)))
+		if(!(ascf & (ascfFromInput|ascfExtPane))) {
 			CSt.SetID(scardID, 0);
+		}
 		//
 		if(row_dscnt < 0 && !oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF)) {
 			int    is_found = 0;
 			SCardTbl::Rec sc_rec;
-			//
-			// Если мы в состоянии начисления на кредитную карту, то менять карту уже нельзя //
-			//
-			if(CSt.GetID()) {
-				const  PPID charge_goods_id = GetChargeGoodsID(CSt.GetID());
-				if(charge_goods_id != UNDEF_CHARGEGOODSID) {
-					for(uint i = 0; ok && i < P.getCount(); i++)
-						if(P.at(i).GoodsID == charge_goods_id)
+			{
+				//
+				// Если мы в состоянии начисления на кредитную карту, то менять карту уже нельзя //
+				//
+				if(CSt.GetID()) {
+					const  PPID charge_goods_id = GetChargeGoodsID(CSt.GetID());
+					if(charge_goods_id != UNDEF_CHARGEGOODSID) {
+						// @v12.8.0 {
+						const CCheckItem & r_cur_item = P.GetCurC();
+						if(r_cur_item.GoodsID == charge_goods_id) {
 							ok = MessageError(PPERR_UNABLECHNGCHARGESCARD, 0, eomStatusLine);
+						}
+						else /*} @v12.8.0*/{
+							for(uint i = 0; ok && i < P.getCount(); i++) {
+								const CCheckItem & r_cc_item = P.at(i);
+								if(r_cc_item.GoodsID == charge_goods_id) {
+									ok = MessageError(PPERR_UNABLECHNGCHARGESCARD, 0, eomStatusLine);
+								}
+							}
+						}
+					}
 				}
 			}
 			if(ok) {

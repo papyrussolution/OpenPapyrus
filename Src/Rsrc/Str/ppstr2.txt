@@ -5131,6 +5131,7 @@ PPTXT_OPK_EDI_WRITEOFFWITHMARKS     "@{brand_egais} списание проду�
 PPTXT_OPK_EDI_CHARGEONWITHMARKS     "Постановка на баланс маркированной продукции"
 PPTXT_OPK_EDI_ORDRSP                "EDI подтверждение заказа"
 PPTXT_OPK_GENERICREGACCTURN         "Общая регистровая проводка"
+PPTXT_OPK_GENERICPERSONALACCTURN    "Персональная транзакция"                // @v12.8.0
 PPTXT_OPK_MP_ORDER                  "Заказ на маркетплейсе"                  // @v12.2.1
 PPTXT_OPK_MP_SALE                   "Продажа на маркетплейсе"                // @v12.2.1
 PPTXT_OPK_MP_RETURN                 "Возврат от покупателя на маркетплейсе"  // @v12.2.1
@@ -13501,6 +13502,13 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @prjtask_linktaskcode                     "Код связанной задачи"
 @prjtask_linktask                         "Связанная задача"
 @prjtask_linktask_pl                      "Связанные задачи"
+
+@prjtasktotal_count                       "Количество записей"
+@prjtasktotal_creatorcount                "Количество создателей"
+@prjtasktotal_executorcount               "Количество исполнителей"
+@prjtasktotal_clientcount                 "Количество клиентов" 
+@prjtasktotal_estexecutiontime            "Общее ожидаемое время исполнения"
+@prjtasktotal_realexecutiontime           "Общее фактическое время исполнения"
 
 @prjtaskfilt                              "Фильтр по задачам"
 @prjtaskfilt_kind                         "Вид задач"

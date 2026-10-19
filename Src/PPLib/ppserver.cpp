@@ -94,7 +94,7 @@ bool PPThread::HasSignatureAttr(uint orSignatureAttrFlags) const
 	return result;
 }
 
-bool FASTCALL PPThread::CheckOuterSignature(const char * pS) const // @v11.1.12
+bool FASTCALL PPThread::CheckOuterSignature(const char * pS) const
 {
 	bool result = false;
 	OtrSigntr.Lck.Lock();
@@ -121,7 +121,7 @@ bool FASTCALL PPThread::CheckSvcIdent(const void * pIdent, size_t identSize) con
 	return result;
 }
 
-void FASTCALL PPThread::SetOuterSignature(const char * pSignature) // @v11.1.12
+void FASTCALL PPThread::SetOuterSignature(const char * pSignature)
 {
 	OtrSigntr.Lck.Lock();
 	STRNSCPY(OtrSigntr.Signature, pSignature);

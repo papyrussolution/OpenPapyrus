@@ -159,11 +159,13 @@ int PPSync::GetItemsList(long recType, PPSyncArray * pList)
 	long   numrecs = 0;
 	PPSyncItem item;
 	CALLPTRMEMB(pList, freeAll());
-	if(IsValid() && GetInitPosition(&o, &numrecs) > 0) { // @v11.1.12 IsValid()
-		if(pList)
-			for(long i = 0; i < numrecs; AdvanceOffset(&o), i++)
+	if(IsValid() && GetInitPosition(&o, &numrecs) > 0) {
+		if(pList) {
+			for(long i = 0; i < numrecs; AdvanceOffset(&o), i++) {
 				if(GetItem(o, &item, 0) > 0 && item.Type == recType && item.ID && IsLocked(o))
 					ok = pList->insert(&item) ? 1 : PPSetErrorSLib();
+			}
+		}
 	}
 	else
 		ok = 0;
@@ -178,11 +180,12 @@ int PPSync::GetItem(PPID id, PPSyncItem * pItem)
 	PPSyncItem item;
 	if(id) {
 		if(GetInitPosition(&o, &numrecs) > 0) {
-			for(long i = 0; ok != 1 && i < numrecs; AdvanceOffset(&o), i++)
+			for(long i = 0; ok != 1 && i < numrecs; AdvanceOffset(&o), i++) {
 				if(GetItem(o, &item, 0) > 0 && item.ID == id && IsLocked(o)) {
 					ASSIGN_PTR(pItem, item);
 					ok = 1;
 				}
+			}
 		}
 		else
 			ok = 0;
@@ -311,9 +314,10 @@ int PPSync::ReleaseItem(ulong offs)
 	PPSyncItem rr;
 	int    is_locked = 0;
 	GetItem(offs, &rr, &is_locked);
-	if(is_locked)
+	if(is_locked) {
 		if(!Unlock(offs))
 			return 0;
+	}
 	MEMSZERO(rr);
 	_lseek(Handle, offs + LOCK_PRFX_SIZE, SEEK_SET);
 	int    r = _write(Handle, &rr, sizeof(PPSyncItem));

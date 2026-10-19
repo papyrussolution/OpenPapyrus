@@ -5054,7 +5054,17 @@ public:
 	size_t Decode_EncodedWordRFC2047(SString & rBuf, SCodepageIdent * pCp, int * pRfc2207enc) const;
 	SString & EncodeUrl(const char * pSrc, int mode);
 	int    DecodeUrl(SString & rBuf) const;
-	int    DecodeHex(int swapb, void * pBuf, size_t bufLen, size_t * pRealLen) const;
+	//
+	// Descr: Флаги функции DecodeHex
+	//
+	enum {
+		dhfSwapBytes   = 0x0001, // Менять порядок байт в двойных словах после декодирования //
+		dhfStream      = 0x0002, // Входные шестнадцатиричные данные трактуются как потоковые
+	};
+	//
+	// Descr: Транслирует шестнадцатиричную строку this в бинарное представление.
+	//
+	int    DecodeHex(uint flags, void * pBuf, size_t bufLen, size_t * pRealLen) const;
 	//
 	// Descr: Утилитная функция, формирующая унифицированную строку сообщения при разборе файла.
 	//   Необходимость функции обусловлена способностью многих IDE-систем разбирать сообщения (в частности, об ошибках),
@@ -8984,7 +8994,7 @@ public:
 	//
 	LongArray & Z();
 	int    freeByKey(long, int binarySearch); //
-	int    FASTCALL removeByID(long);                  // @warning dup function (see above)
+	int    FASTCALL removeByID(long);  // @warning dup function (see above)
 	void   sort();
 	void   sortAndUndup();
 	//
@@ -12916,7 +12926,7 @@ int STDCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags);
 #define SNTOK_RU_SNILS                  34 // Российский код СНИЛС
 #define SNTOK_RU_BIC                    35 // Российский банковский идентификационный код (БИК)
 #define SNTOK_RU_KPP                    36 // Российский код причины постановки на налоговый учет (КПП)
-#define SNTOK_LINGUACODE                37 // @v11.3.12 Код естественного языка
+#define SNTOK_LINGUACODE                37 // Код естественного языка
 #define SNTOK_CHZN_SURROGATE_GTIN       38 // честный знак Специальная суррогатная конструкция, не являющаяся маркой (02 GTIN14)
 #define SNTOK_CHZN_SURROGATE_GTINCOUNT  39 // честный знак Специальная суррогатная конструкция, не являющаяся маркой (02 GTIN14 37 COUNT)
 #define SNTOK_CL_RUT                    40 // @v11.6.1 Чилийский налоговый код RUT
@@ -12945,7 +12955,7 @@ int STDCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags);
 #define SNTOK_CHZN_PALLET_MOTOROIL      62 // @v12.5.12 Код транспортной упаковки чзн моторное масло
 #define SNTOK_CHZN_BULK                 63 // @v12.5.12 Код чзн весового товара с префиксом 02-
 #define SNTOK_CHZN_GENERAL              64 // @v12.6.5  Код можно трактовать как маркировку честного знака (в любом из вариантов). Часто совмещен с одним из иных варантов SNTOK_CHZN_XXX
-#define SNTOK_RU_LICPLATE               65 // @v12.7.4  Автомобильный номер (российский) @construction 
+#define SNTOK_RU_LICPLATE               65 // @v12.7.4  Автомобильный номер (российский)
 #define SNTOK_WININTERNALCMD            66 // @v12.7.6  Внутренняя команда windows 
 #define SNTOK_COUNTRYCODE               67 // @v12.7.9  Символьный код государства (2- или 3- буквенный)
 
@@ -14859,6 +14869,7 @@ public:
 		// Descr: Вычисляет сумму выражений (Item.Discount * Item.Qtty) по всем элементам списка
 		//
 		double EvaluateDiscount() const;
+		const  Item * GetItemByRef(int64 ref) const;
 
 		double TotalDiscount;
 	};
@@ -16462,7 +16473,7 @@ enum SColourCollection { // 0x00rrggbb
 	SClrDarkcyan       		 = 0x00008b8b,
 	SClrDarkgoldenrod  		 = 0x00b8860b,
 	SClrDarkgrey       		 = 0x00555555,
-	SClrDarkgrey_npp         = 0x00404040, // @v11.1.12 darkGrey according to notepad++
+	SClrDarkgrey_npp         = 0x00404040, // darkGrey according to notepad++
 	SClrDarkgreen      		 = 0x00006400,
 	SClrDarkkhaki      		 = 0x00bdb76b,
 	SClrDarkmagenta    		 = 0x008b008b,
@@ -16512,7 +16523,7 @@ enum SColourCollection { // 0x00rrggbb
 	SClrLightslategrey  	 = 0x00778899,
 	SClrLightsteelblue  	 = 0x00b0c4de,
 	SClrLightyellow     	 = 0x00ffffe0,
-	SClrLightyellow_npp 	 = 0x00ffffd5, // @v11.1.12 lightYellow according to notepad++
+	SClrLightyellow_npp 	 = 0x00ffffd5, // lightYellow according to notepad++
 	SClrLime            	 = 0x0000ff00,
 	SClrLimegreen       	 = 0x0032cd32,
 	SClrLinen           	 = 0x00faf0e6,
@@ -16536,7 +16547,7 @@ enum SColourCollection { // 0x00rrggbb
 	SClrOlive         		 = 0x00808000, // ok Оливковый
 	SClrOlivedrab     		 = 0x006b8e23,
 	SClrOrange        		 = 0x00ffa500,
-	SClrOrange_npp    		 = 0x00ff8000, // @v11.1.12 orange according to notepad++
+	SClrOrange_npp    		 = 0x00ff8000, // orange according to notepad++
 	SClrOrangered     		 = 0x00ff4500,
 	SClrOrchid        		 = 0x00da70d6,
 	SClrPalegoldenrod 		 = 0x00eee8aa,
@@ -16550,7 +16561,7 @@ enum SColourCollection { // 0x00rrggbb
 	SClrPlum          		 = 0x00dda0dd,
 	SClrPowderblue    		 = 0x00b0e0e6,
 	SClrPurple        		 = 0x00800080,
-	SClrPurple_npp    		 = 0x008000ff, // @v11.1.12 purple according to notepad++
+	SClrPurple_npp    		 = 0x008000ff, // purple according to notepad++
 	SClrRed           		 = 0x00ff0000,
 	SClrRosybrown     		 = 0x00bc8f8f,
 	SClrRoyalblue     		 = 0x004169e1,
@@ -16579,7 +16590,7 @@ enum SColourCollection { // 0x00rrggbb
 	SClrWhitesmoke    		 = 0x00f5f5f5,
 	SClrYellow        		 = 0x00ffff00,
 	SClrYellowgreen   		 = 0x009acd32,
-	SClrVeryLitegrey  		 = 0x00e0e0e0, // @v11.1.12 according to notepad++
+	SClrVeryLitegrey  		 = 0x00e0e0e0, // according to notepad++
 };
 //
 // Descr: Структура для унификации сторонних библиотек

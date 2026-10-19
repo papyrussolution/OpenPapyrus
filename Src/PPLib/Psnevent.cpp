@@ -34,7 +34,7 @@ int PersonEventCore::Remove(PPID id, int use_ta)
 	return ok;
 }
 
-SString & PersonEventCore::GetItemMemo(PPID id, SString & rBuf) // @v11.1.12
+SString & PersonEventCore::GetItemMemo(PPID id, SString & rBuf)
 {
 	rBuf.Z();
 	if(id) {
@@ -212,14 +212,12 @@ PPPsnEventPacket & FASTCALL PPPsnEventPacket::operator = (const PPPsnEventPacket
 int PPObjPersonEvent::SerializePacket(int dir, PPPsnEventPacket * pPack, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	SerializeSignature srzs(Obj, dir, rBuf); // @v11.1.12 
+	SerializeSignature srzs(Obj, dir, rBuf);
 	THROW_SL(P_Tbl->SerializeRecord(dir, &pPack->Rec, rBuf, pSCtx));
 	THROW_SL(RegObj.P_Tbl->SerializeRecord(dir, &pPack->Reg, rBuf, pSCtx));
-	// @v11.1.12 {
 	if(srzs.V.IsGe(11, 1, 12)) {
 		THROW_SL(pSCtx->Serialize(dir, pPack->SMemo, rBuf)); 
 	}
-	// } @v11.1.12 
 	THROW(pPack->TagL.Serialize(dir, rBuf, pSCtx));
 	CATCHZOK
 	return ok;
@@ -566,7 +564,7 @@ int PPObjPersonEvent::GetPacket(PPID id, PPPsnEventPacket * pPack)
 	THROW_INVARG(pPack);
 	pPack->Init(0);
 	THROW(Search(id, &pPack->Rec) > 0);
-	P_Tbl->GetItemMemo(id, pPack->SMemo); // @v11.1.12
+	P_Tbl->GetItemMemo(id, pPack->SMemo);
 	THROW(RegObj.P_Tbl->GetByEvent(id, &regary));
 	if(regary.getCount())
 		pPack->Reg = regary.at(0);
@@ -1404,7 +1402,7 @@ int PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int use_ta
 					THROW(IncDateKey(P_Tbl, 1, pPack->Rec.Dt, &pPack->Rec.OprNo));
 				}
 				THROW(P_Tbl->Update(id, &pPack->Rec, 0));
-				THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(Obj, id, PPTRPROP_MEMO), pPack->SMemo.Transf(CTRANSF_INNER_TO_UTF8), 0)); // @v11.1.12
+				THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(Obj, id, PPTRPROP_MEMO), pPack->SMemo.Transf(CTRANSF_INNER_TO_UTF8), 0));
 				log_action_id = PPACN_OBJUPD;
 				THROW(Helper_PutPacket(id, log_action_id, pPack, &pok_pack));
 			}
@@ -1445,7 +1443,7 @@ int PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int use_ta
 			if(log_action_id != PPACN_PERSONEVENTREDO) {
 				pPack->Rec.OprNo = 0;
 				THROW(P_Tbl->Add(&id, &pPack->Rec, 0));
-				THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(Obj, id, PPTRPROP_MEMO), pPack->SMemo.Transf(CTRANSF_INNER_TO_UTF8), 0)); // @v11.1.12
+				THROW(p_ref->UtrC.SetTextUtf8(SObjTextRefIdent(Obj, id, PPTRPROP_MEMO), pPack->SMemo.Transf(CTRANSF_INNER_TO_UTF8), 0));
 				pPack->Rec.ID = id;
 			}
 			op_dt = pPack->Rec.Dt;
@@ -1829,8 +1827,7 @@ int PsnEventDialog::setDTS(const PPPsnEventPacket * p)
 		setupPost(0);
 	}
 	setCtrlDatetime(CTL_PSNEVNT_DATE, CTL_PSNEVNT_TIME, Pack.Rec.Dt, Pack.Rec.Tm);
-	// @v11.1.12 setCtrlData(CTL_PSNEVNT_MEMO, Pack.Rec.Memo);
-	setCtrlString(CTL_PSNEVNT_MEMO, Pack.SMemo); // @v11.1.12
+	setCtrlString(CTL_PSNEVNT_MEMO, Pack.SMemo);
 	disableCtrl(CTL_PSNEVNT_TAGLIST, disable_taglist);
 	enableCommand(cmaInsert, !disable_taglist);
 	enableCommand(cmaEdit,   !disable_taglist);
@@ -1884,8 +1881,7 @@ int PsnEventDialog::getDTS(PPPsnEventPacket * pPack)
 	getCtrlData(CTL_PSNEVNT_DATE,    &Pack.Rec.Dt);
 	getCtrlData(CTL_PSNEVNT_TIME,    &Pack.Rec.Tm);
 	THROW_SL(checkdate(Pack.Rec.Dt));
-	// @v11.1.12 getCtrlData(CTL_PSNEVNT_MEMO,    Pack.Rec.Memo);
-	getCtrlString(CTL_PSNEVNT_MEMO, Pack.SMemo); // @v11.1.12
+	getCtrlString(CTL_PSNEVNT_MEMO, Pack.SMemo);
 	if(P.ExValGrp == POKEVG_POST)
 		getCtrlData(CTLSEL_PSNEVNT_POST, &Pack.Rec.Extra);
 	else
@@ -2170,8 +2166,7 @@ int PPALDD_PsnEventItem::InitData(PPFilt & rFilt, long rsrv)
 				H.Duration = 0;
 		}
 		H.OprNo      = p_pack->Rec.OprNo;
-		// @v11.1.12 STRNSCPY(H.Memo, p_pack->Rec.Memo);
-		STRNSCPY(H.Memo, p_pack->SMemo); // @v11.1.12
+		STRNSCPY(H.Memo, p_pack->SMemo);
 	}
 	return DlRtm::InitData(rFilt, rsrv);
 }

@@ -1062,12 +1062,10 @@ void PPWorkingPipeSession::ProcessHttpRequest(ngx_http_request_t * pReq, PPServe
 							PreprocessContent(temp_buf, __reply);
 							reply_size = __reply.GetAvailableSize();
 						}
-						// @v11.1.12 {
 						if(reply_size == 0) {
 							__reply.WriteString(SString("Nothing to transmit :("));
 							reply_size = __reply.GetAvailableSize();
 						}
-						// } @v11.1.12 
 						out_buf.Z().CatN(__reply.GetBufC(), reply_size);
 						//b = ngx_create_temp_buf(pReq->pool, reply_size);
 						//ngx_chain_t out(b, 0/*just one buffer*/);

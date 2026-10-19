@@ -77,7 +77,7 @@ static int Helper_Test_Crypto_Vec(STestCase & rCase, const SString & rInFileName
 			size_t work_offs = 0;
 			size_t total_decr_size = 0;
 			size_t actual_size = 0;
-			STempBuffer dest_buf(pattern_buf_size + SKILOBYTE(512)); // @v11.1.12 (+ SKILOBYTE(512)) из-за 'padding' результат может быть длиннее, чем оригинал
+			STempBuffer dest_buf(pattern_buf_size + SKILOBYTE(512)); // из-за 'padding' результат может быть длиннее, чем оригинал
 			STempBuffer pattern_buf(pattern_buf_size);
 			STempBuffer result_buf(pattern_buf_size + SKILOBYTE(512)); // with ensuring
 			SObfuscateBuffer(result_buf.vptr(), result_buf.GetSize());
@@ -89,7 +89,7 @@ static int Helper_Test_Crypto_Vec(STestCase & rCase, const SString & rInFileName
 				actual_size = 0;
 				rCase.SLCHECK_NZ(cs.Encrypt_(&key, pattern_buf.vptr(total_encr_size), pattern_work_size, result_buf.vptr(work_offs), result_buf.GetSize()-work_offs, &actual_size));
 				work_offs += actual_size;
-				total_encr_size += actual_size; // @v11.1.12 @fix pattern_work_size-->actual_size
+				total_encr_size += actual_size;
 			}
 			{
 				SlCrypto cs(alg, kbl, algmod);
@@ -1083,7 +1083,7 @@ SLTEST_R(HashFunction)
 				td.GetDataByPos(r_item.ValPos[STestDataArray::pIn], key_buf);
 				td.GetDataByPos(r_item.ValPos[STestDataArray::pOut], val_buf);
 				THROW(bin_buf.Alloc(NZOR(key_buf.Len(), 1) * 2));
-				THROW(key_buf.DecodeHex(0, bin_buf, bin_buf.GetSize(), &real_bin_size));
+				THROW(key_buf.DecodeHex(SString::dhfStream, bin_buf, bin_buf.GetSize(), &real_bin_size));
 				{
 					const size_t additive_chunk = 16;
 					ulong val_additive = 0;
@@ -1101,7 +1101,7 @@ SLTEST_R(HashFunction)
 						SLCHECK_EQ(val_additive, val);
 					}
 					THROW(bin_buf.Alloc(NZOR(val_buf.Len(), 1) * 2));
-					THROW(val_buf.DecodeHex(1, bin_buf, bin_buf.GetSize(), &real_bin_size));
+					THROW(val_buf.DecodeHex(SString::dhfStream|SString::dhfSwapBytes, bin_buf, bin_buf.GetSize(), &real_bin_size));
 					THROW(SLCHECK_EQ(real_bin_size, static_cast<size_t>(4U)));
 					SLCHECK_EQ(*reinterpret_cast<const ulong *>(bin_buf.cptr()), val);
 				}

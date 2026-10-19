@@ -144,14 +144,14 @@ int BudgetItemCore::PutItem(PPID * pID, BudgetItemTbl::Rec * pRec, int useTa)
 			THROW(PutItem_(pID, pRec, 0));
 			if(do_delete && prev_rec.ID) {
 				StrAssocArray child_list;
-				if(obj_acct.GetChildList(prev_rec.Acc, &child_list) > 0)
+				if(obj_acct.GetChildList_(prev_rec.Acc, &child_list) > 0)
 					for(uint i = 0; i < child_list.getCount(); i++)
 						deleteFrom(this, 0, BudgetID == prev_rec.BudgetID && Kind == prev_rec.Kind && Dt == prev_rec.Dt && Acc == child_list.Get(i).Id);
 			}
 			{
 				StrAssocArray acc_list;
 				BudgetItemTbl::Rec * p_cur_rec = (pRec) ? pRec : &prev_rec;
-				if(obj_acct.GetParentList(p_cur_rec->Acc, &acc_list) > 0) {
+				if(obj_acct.GetParentList_(p_cur_rec->Acc, &acc_list) > 0) {
 					for(uint i = 0; i < acc_list.getCount(); i++) {
 						PPID   id = 0;
 						PPID   parent_acc = acc_list.Get(i).Id;
@@ -1235,7 +1235,7 @@ int PPViewBudget::UpdateTempTable(const PPIDArray & rIdList)
 				PPAccount acc_rec;
 				if(rec.Acc && ObjAcct.Search(rec.Acc, &acc_rec) > 0 && acc_rec.ParentID != Filt.ParentAcctID) {
 					StrAssocArray list;
-					if(ObjAcct.GetParentList(rec.Acc, &list) > 0) {
+					if(ObjAcct.GetParentList_(rec.Acc, &list) > 0) {
 						PPIDArray idlist;
 						for(uint i = 0, stop = 0; !stop && i < list.getCount(); i++) {
 							StrAssocArray::Item _item = list.Get(i);

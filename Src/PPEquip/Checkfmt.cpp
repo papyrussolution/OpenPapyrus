@@ -1166,8 +1166,7 @@ int PPSlipFormat::ResolveString(const Iter * pIter, const char * pExpr, SString 
 					break;
 				case symbMemo:
 					if(Src == srcGoodsBill) {
-						// @v11.1.12 rResult.Cat(p_bp->Rec.Memo);
-						rResult.Cat(p_bp->SMemo); // @v11.1.12
+						rResult.Cat(p_bp->SMemo);
 					}
 					else if(Src == srcCCheck)
 						rResult.Cat(p_ccp->Ext.Memo);

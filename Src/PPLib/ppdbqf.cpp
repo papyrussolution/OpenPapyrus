@@ -237,12 +237,6 @@ static IMPL_DBE_PROC(dbqf_debt_rrii)
 	result->init(r);
 }
 
-static IMPL_DBE_PROC(dbqf_billfrghtissuedt_i)
-{
-	PPFreight freight;
-	result->init((BillObj->FetchFreight(params[0].lval, &freight) > 0) ? freight.IssueDate : ZERODATE);
-}
-
 static IMPL_DBE_PROC(dbqf_billdate_i)
 {
 	BillTbl::Rec bill_rec;
@@ -264,10 +258,16 @@ static IMPL_DBE_PROC(dbqf_billamount_ii)
 	result->init(amt);
 }
 
+static IMPL_DBE_PROC(dbqf_billfrghtissuedt_i)
+{
+	PPFreight freight;
+	result->init((BillObj->FetchFreight(params[0].lval, &freight) > 0) ? freight.GetDespatchTime().d : ZERODATE);
+}
+
 static IMPL_DBE_PROC(dbqf_billfrghtarrvldt_i)
 {
 	PPFreight freight;
-	result->init((BillObj->FetchFreight(params[0].lval, &freight) > 0) ? freight.ArrivalDate : ZERODATE);
+	result->init((BillObj->FetchFreight(params[0].lval, &freight) > 0) ? freight.GetArrivalTime().d : ZERODATE);
 }
 
 static IMPL_DBE_PROC(dbqf_billfrghtstrgloc_i)
@@ -1196,7 +1196,7 @@ static IMPL_DBE_PROC(dbqf_objcodecmplx_bill_i)
 
 static IMPL_DBE_PROC(dbqf_objcode_bill_i)
 {
-	char   name_buf[48]; // @v11.1.12 [24]-->[48]
+	char   name_buf[48];
 	BillTbl::Rec rec;
 	if(!DbeInitSize(option, result, sizeof(name_buf))) {
 		const  PPID id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
@@ -1211,20 +1211,15 @@ static IMPL_DBE_PROC(dbqf_objcode_bill_i)
 static IMPL_DBE_PROC(dbqf_objmemo_bill_i)
 {
 	char   name_buf[512];
-	// @v11.1.12 BillTbl::Rec rec;
 	if(!DbeInitSize(option, result, sizeof(name_buf))) {
 		const  PPID id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {
-			// @v11.1.12 BillObj->Fetch(id, &rec);
-			// @v11.1.12 STRNSCPY(name_buf, rec.Memo);
-			// @v11.1.12 {
 			SString & r_temp_buf = SLS.AcquireRvlStr();
 			if(id) {
 				PPRef->UtrC.SearchUtf8(SObjTextRefIdent(PPOBJ_BILL, id, PPTRPROP_MEMO), r_temp_buf);
 				r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 			}
 			STRNSCPY(name_buf, r_temp_buf);
-			// } @v11.1.12 
 		}
 		result->init(name_buf);
 	}
@@ -1250,7 +1245,7 @@ static IMPL_DBE_PROC(dbqf_billmemosubstr_is) // @v11.7.4
 	result->init(local_result);
 }
 
-static IMPL_DBE_PROC(dbqf_objmemo_person_i) // @v11.1.12
+static IMPL_DBE_PROC(dbqf_objmemo_person_i)
 {
 	char   name_buf[512];
 	if(!DbeInitSize(option, result, sizeof(name_buf))) {
@@ -1267,7 +1262,7 @@ static IMPL_DBE_PROC(dbqf_objmemo_person_i) // @v11.1.12
 	}
 }
 
-static IMPL_DBE_PROC(dbqf_objmemo_personevent_i) // @v11.1.12
+static IMPL_DBE_PROC(dbqf_objmemo_personevent_i)
 {
 	char   name_buf[512];
 	if(!DbeInitSize(option, result, sizeof(name_buf))) {
@@ -1638,10 +1633,10 @@ int PPDbqFuncPool::IdSubStrById  = 0; // @v12.2.0 (textId, substrIdx) Возвращает
 int PPDbqFuncPool::IdBillDate    = 0;
 int PPDbqFuncPool::IdUnxText     = 0;
 int PPDbqFuncPool::IdIsTxtUuidEq = 0;
-int PPDbqFuncPool::IdArIsCatPerson        = 0; // @v11.1.9 (fldArticle, personCategoryID) Определяет соотносится ли статья fldArticle с персоналией, имеющей категорию personCategoryID
-int PPDbqFuncPool::IdObjMemoPerson        = 0; // @v11.1.12 (fldPersonID)
-int PPDbqFuncPool::IdObjMemoPersonEvent   = 0; // @v11.1.12 (fldPersonEventID)
-int PPDbqFuncPool::IdTechCapacity         = 0; // @v11.3.10 (fldPrcID, fldCapacity)
+int PPDbqFuncPool::IdArIsCatPerson        = 0; // (fldArticle, personCategoryID) Определяет соотносится ли статья fldArticle с персоналией, имеющей категорию personCategoryID
+int PPDbqFuncPool::IdObjMemoPerson        = 0; // (fldPersonID)
+int PPDbqFuncPool::IdObjMemoPersonEvent   = 0; // (fldPersonEventID)
+int PPDbqFuncPool::IdTechCapacity         = 0; // (fldPrcID, fldCapacity)
 int PPDbqFuncPool::IdTSessBillLinkTo      = 0; // @v11.6.12
 int PPDbqFuncPool::IdTSessBillLinkTo_Text = 0; // @v11.6.12
 int PPDbqFuncPool::IdBillMemoSubStr       = 0; // @v11.7.4
@@ -1652,6 +1647,7 @@ int PPDbqFuncPool::IdObjLocAddress        = 0; // @v12.4.1
 int PPDbqFuncPool::IdObjMemoTech          = 0; // @v12.5.12 (fldTechID)
 int PPDbqFuncPool::IdObjNameGoodsType     = 0; // @v12.7.9 (fldGoodsTypeID)
 int PPDbqFuncPool::IdObjNameAccountByRel  = 0; // @v12.7.10 (fldAccRelID)
+int PPDbqFuncPool::IdUedTime              = 0; // @v12.8.0 (fldUedTime) 
 
 static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
 {
@@ -1833,6 +1829,17 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	result->init(_d);
 }
 
+static IMPL_DBE_PROC(dbqf_uedtime_l) // @v12.8.0
+{
+	const uint64 ued_tm = params[0].u64val;
+	LDATETIME dtm = ZERODATETIME;
+	SUniTime_Internal ut;
+	if(UED::_GetRaw_Time(ued_tm, ut) && ut.GetDatetime(&dtm)) {
+		;
+	}
+	result->init(dtm);
+}
+
 /*static*/int PPDbqFuncPool::Register()
 {
 	//
@@ -1948,17 +1955,17 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	THROW(DbqFuncTab::RegisterDyn(&IdAddedCreditLimit,    BTS_REAL,   dbqf_addedcreditlimit_rii,   3, BTS_REAL, BTS_INT, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdGetAgrmntSymbol,     BTS_STRING, dbqf_getagrmntsymbol_i,      1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdRegisterText,        BTS_STRING, dbqf_registertext_i,         1, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjRegisterText,     BTS_STRING, dbqf_objregistertext_iii,    3, BTS_INT)); // @v10.8.12
+	THROW(DbqFuncTab::RegisterDyn(&IdObjRegisterText,     BTS_STRING, dbqf_objregistertext_iii,    3, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdObjTagText,          BTS_STRING, dbqf_objtagtext_ii,          2, BTS_INT, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdObjTagText_NoCache,  BTS_STRING, dbqf_objtagtextnocache_ii,   2, BTS_INT, BTS_INT)); // @v10.3.8
+	THROW(DbqFuncTab::RegisterDyn(&IdObjTagText_NoCache,  BTS_STRING, dbqf_objtagtextnocache_ii,   2, BTS_INT, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdDateRange,           BTS_STRING, dbqf_daterange_dd,           2, BTS_DATE, BTS_DATE));
 	THROW(DbqFuncTab::RegisterDyn(&IdOidText,             BTS_STRING, dbqf_oidtext_ii,             2, BTS_INT, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdDateBase,            BTS_DATE,   dbqf_datebase_id,            2, BTS_INT, BTS_DATE));
 	THROW(DbqFuncTab::RegisterDyn(&IdSCardExtString,      BTS_STRING, dbqf_scardextstring_ii,      2, BTS_INT, BTS_INT));
-	THROW(DbqFuncTab::RegisterDyn(&IdUnxText,             BTS_STRING, dbqf_unxtext_iii,            3, BTS_INT, BTS_INT, BTS_INT)); // @v10.7.2
-	THROW(DbqFuncTab::RegisterDyn(&IdIsTxtUuidEq,         BTS_INT,    dbqf_istxtuuideq_ss,         2, BTS_STRING, BTS_STRING)); // @v10.9.10
-	THROW(DbqFuncTab::RegisterDyn(&IdArIsCatPerson,       BTS_INT,    dbqf_ariscatperson_ii,       2, BTS_INT, BTS_INT)); // @v11.1.9
-	THROW(DbqFuncTab::RegisterDyn(&IdTechCapacity,         BTS_STRING, dbqf_techcapacity_ir,        2, BTS_INT, BTS_REAL)); // @v11.3.10
+	THROW(DbqFuncTab::RegisterDyn(&IdUnxText,             BTS_STRING, dbqf_unxtext_iii,            3, BTS_INT, BTS_INT, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdIsTxtUuidEq,         BTS_INT,    dbqf_istxtuuideq_ss,         2, BTS_STRING, BTS_STRING));
+	THROW(DbqFuncTab::RegisterDyn(&IdArIsCatPerson,       BTS_INT,    dbqf_ariscatperson_ii,       2, BTS_INT, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdTechCapacity,         BTS_STRING, dbqf_techcapacity_ir,        2, BTS_INT, BTS_REAL));
 	THROW(DbqFuncTab::RegisterDyn(&IdTSessBillLinkTo,      BTS_INT,    dbqf_tsessbilllinkto_i,      1, BTS_INT)); // @v11.6.12
 	THROW(DbqFuncTab::RegisterDyn(&IdTSessBillLinkTo_Text, BTS_STRING, dbqf_tsessbilllinkto_text_i, 1, BTS_INT)); // @v11.6.12
 	THROW(DbqFuncTab::RegisterDyn(&IdBillMemoSubStr,       BTS_INT,    dbqf_billmemosubstr_is,      2, BTS_INT, BTS_STRING)); // @v11.7.4
@@ -1966,6 +1973,8 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	THROW(DbqFuncTab::RegisterDyn(&IdClientActivityStatisticsIndicator, BTS_REAL, dbqf_clientactivitystatisticsindicator_idi, 3, BTS_INT, BTS_DATE, BTS_INT)); // @v12.2.2
 	THROW(DbqFuncTab::RegisterDyn(&IdClientActivityState,  BTS_INT, dbqf_clientactivitystate_iddd, 4, BTS_INT, BTS_DATE, BTS_DATE, BTS_DATE)); // @v12.2.2
 	THROW(DbqFuncTab::RegisterDyn(&IdObjLocAddress,        BTS_STRING, dbqf_address_i, 1, BTS_INT)); // @v12.4.1
+	THROW(DbqFuncTab::RegisterDyn(&IdUedTime,              BTS_DATETIME, dbqf_uedtime_l, 1, BTS_UINT64_)); // @v12.8.0
+	
 	CATCHZOK
 	return ok;
 }

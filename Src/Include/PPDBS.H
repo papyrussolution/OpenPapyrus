@@ -7372,8 +7372,8 @@ public:
 		double Brutto;
 		double PackCount;
 		double Volume;
-		LDATE  ShipmDate;
-		LDATE  ArrvlDate;
+		uint64 UedTmDespatch;
+		uint64 UedTmArrvl;
 		int32  ShipID;
 		int32  PortID;
 		int32  DlvrAddrID;
@@ -7394,16 +7394,15 @@ public:
 		char   Code[48];
 	};
 	struct Key2 {
-		LDATE  ArrvlDate;
 		char   PortName[48];
 	};
 	struct Key3 {
 		char   PortName[48];
-		LDATE  ArrvlDate;
+		uint64 UedTmArrvl;
 	};
 	struct Key4 {
 		char   DlvrAddr[64];
-		LDATE  ArrvlDate;
+		uint64 UedTmArrvl;
 	};
 	DBField BillID;
 	DBField BillDate;
@@ -7413,8 +7412,8 @@ public:
 	DBField Brutto;
 	DBField PackCount;
 	DBField Volume;
-	DBField ShipmDate;
-	DBField ArrvlDate;
+	DBField UedTmDespatch;
+	DBField UedTmArrvl;
 	DBField ShipID;
 	DBField PortID;
 	DBField DlvrAddrID;

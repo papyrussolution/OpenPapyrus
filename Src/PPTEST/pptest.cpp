@@ -1181,8 +1181,7 @@ int GenerateGoodsBills()
 						//
 						// примечание у генерируемого документа
 						//
-						// @v11.1.12 sprintf(bpack.Rec.Memo, "//@autogen");
-						bpack.SMemo = "//@autogen"; // @v11.1.12
+						bpack.SMemo = "//@autogen";
 						//
 						// кол-во строк в генерируемом документе
 						//
