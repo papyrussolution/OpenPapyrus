@@ -1342,6 +1342,11 @@ int PPObjGoods::FetchTaxEntry2_ByTaxGroups(PPID goodsTaxGrpID, PPID lotTaxGrpID,
 	}
 	{
 		bool goods_gtx_defined = false;
+		//
+		// @v12.8.1 Кажется, здесь была ошибка: если налоговая схема по лоту имеет признак общего налогообложения (GTAXF_GENERALVAT),
+		//   то налоговую схему следует брать из товара.
+		//  
+		/* @v12.8.1 
 		if(lot_tax_grp_id) {
 			if(GTxObj.Fetch(lot_tax_grp_id, _date, opID, &goods_gtx) > 0)
 				goods_gtx_defined = true;
@@ -1350,6 +1355,16 @@ int PPObjGoods::FetchTaxEntry2_ByTaxGroups(PPID goodsTaxGrpID, PPID lotTaxGrpID,
 			if(GTxObj.Fetch(goods_tax_grp_id, _date, opID, &goods_gtx) > 0)
 				goods_gtx_defined = true;
 		}
+		*/
+		// @v12.8.1 {
+		if(lot_tax_grp_id && GTxObj.Fetch(lot_tax_grp_id, _date, opID, &goods_gtx) > 0 && !(goods_gtx.Flags & GTAXF_GENERALVAT)) {
+			goods_gtx_defined = true;
+		}
+		if(!goods_gtx_defined && goods_tax_grp_id) {
+			if(GTxObj.Fetch(goods_tax_grp_id, _date, opID, &goods_gtx) > 0)
+				goods_gtx_defined = true;
+		}
+		// } @v12.8.1 
 		if(goods_gtx_defined) {
 			if(CombineTaxEntry(goods_gtx, tax_payer_person_id, 0/*taxPayerLocID*/, _date, opID, &result_gtx) > 0)
 				ok = 1;

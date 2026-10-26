@@ -10810,10 +10810,11 @@ public:
 	void   SetTotalDiscount__(double dis, long flags);
 
 	struct SetupTotalDiscountResult {
+		SetupTotalDiscountResult();
 		double OrgAmount;
 		double Amount;
 		double ReqDiscount;
-		double tDiscount;
+		double Discount;
 	};
 
 	int    SetTotalDiscount_Debug(uint method/*1||2*/, double dis, long flags, SetupTotalDiscountResult * pResult); // @v12.8.0
@@ -21458,6 +21459,7 @@ public:
 		fldAddendumId,            // 240 Дополнительная идентификация продукта: 1?30 буквенно-цифровой
 		fldSerial2,               // 250 Второй серийный номер: 1?30 буквенно-цифровой
 		fldQtty,                  // 30  Количество каждого: 1?8 цифр
+		//fldChZnWtNettKg03,        // @v12.8.1 3103 Масса нетто (кг) с точностью 3 знака после точки: 6 цифр (белорусские сыровары, мать их, для чзн, ебать его)
 		fldWtNettKg,              // 310y Вес нетто (кг): 6 цифр
 		fldLenM,                  // 311y Длина изделия — первое измерение (в метрах): 6 цифр
 		fldWidthM,                // 312y Ширина или диаметр изделия — 2-ое измерение (в метрах): 6 цифр
@@ -21549,8 +21551,9 @@ public:
 	//
 	static bool HasStringToken(const SString & rBuf, int token);
 	static const char * GetTokenPrefix(int token);
+	static int  GetPrefixId(const char * pPrefix, uint * pFractionLen); // @v12.8.1
 	GtinStruc();
-	void   SetSpecialFixedToken(int token, int fixedLen /* 1000 - UNTIL EOL */);
+	void   SetSpecialFixedToken(int token, int fixedLen/*1000 - UNTIL EOL*/);
 	void   RemoveSpecialFixedToken(int token); // @v11.8.10
 	void   SetSpecialMinLenToken(int token, int minLen);
 	void   AddSpecialStopChar(uchar stopChar);
@@ -21697,7 +21700,7 @@ private:
 #define DVCCLS_TOGGLE           1 // Переключатель
 #define DVCCLS_SCALES           2 // Весы // @vmiller
 #define DVCCLS_SYNCPOS          3 // Синхронные кассы // @vmiller
-#define	DVCCLS_DISPLAY          4 // Дисплеи // @v7.9.6 DVCCLS_CUSTDISP-->DVCCLS_DISPLAY
+#define	DVCCLS_DISPLAY          4 // Дисплеи
 #define DVCCLS_BNKTERM          5 // Банковские терминалы
 #define DVCCLS_READER           6 // Считыватель
 //
@@ -22000,7 +22003,7 @@ struct PPCashNode2 {       // @persistent @store(Reference2Tbl+)
 	long   Tag;            // Const=PPOBJ_CASHNODE
 	long   ID;             // @id
 	char   Name[48];       // @name @!refname
-	char   Symb[20];       //
+	char   Symb[20];
 	uint16 DisRoundPrec;   // .01 @#{0..50000} Точность округления скидки //
 	uint16 AmtRoundPrec;   // .01 @#{0..50000} Точность окрнугления результирующей суммы чека
 	long   ExtFlags;       // CASHFX_XXX
@@ -22024,11 +22027,11 @@ struct PPCashNode2 {       // @persistent @store(Reference2Tbl+)
 	// закрытия кассовой сессии можно продолжить с этим документом.
 	// В нормальной ситуации это поле всегда нулевое.
 	//
-	PPID   DownBill;       //
+	PPID   DownBill;
 	PPID   CashType;       // Тип ККМ (PPCMT_XXX)
 	long   LogNum;         // Логический номер кассы
-	int16  DrvVerMajor;    //
-	int16  DrvVerMinor;    //
+	int16  DrvVerMajor;
+	int16  DrvVerMinor;
 	PPID   ExtQuotID;      // ->Ref(PPOBJ_QUOTKIND) Дополнительная котировка (используется некоторыми типами ККМ)
 	LDATE  CurDate;        // Текущая операционная дата
 	long   Flags;          // CASHF_XXX      Флаги
@@ -22068,19 +22071,19 @@ public:
 
 	PPID   ID;               // @id
 	char   Name[48];         // @name
-	char   Symb[20];         //
+	char   Symb[20];
 	PPID   CurRestBillID;    // Временный документ текущих остатков по незакрытым кассовым сессиям
 	PPID   CashType;         // Тип ККМ (PPCMT_XXX)
 	int16  DrvVerMajor;      // @todo Заменить поля DrvVerMajor && DrvVerMinor на SVerT
-	int16  DrvVerMinor;      //
+	int16  DrvVerMinor;
 	uint16 DisRoundPrec;     // .01 @#{0..50000} Точность округления скидки //
 	uint16 AmtRoundPrec;     // .01 @#{0..50000} Точность округления результирующей суммы чека
 	uint16 Speciality;       // @v11.9.6 PPCashNode2::spXXX 
 	uint64 Reserve;          // @v11.9.6 @alignment
-	PPID   LocID;            //
+	PPID   LocID;
 	PPID   ExtQuotID;        // ->Ref(PPOBJ_QUOTKIND) Дополнительная котировка
-	long   Flags;            //
-	long   ExtFlags;         //
+	long   Flags;
+	long   ExtFlags;
 	PPID   GoodsLocAssocID;  // Именованная ассоциация товар-склад, спользуемая для печати чеков и списания //
 	PPID   ParentID;         // Группа кассовых узлов
 	PPID   GoodsGrpID;       // Товарная группа, которой следует ограничивать загрузку товаров в асинхр модуль либо
@@ -22146,14 +22149,14 @@ public:
 		uint8  Reserve[28]; //
 	};
 	char   Port_[8];         // Имя порта (LPT1, COM1, ...)
-	PPID   DownBill;         //
+	PPID   DownBill;
 	LDATE  CurDate;          // Текущая операционная дата
 	PPID   CurSessID;        // ->Bill.ID Текущая кассовая сессия //
-	PPID   TouchScreenID;    //
-	PPID   ExtCashNodeID;    //
+	PPID   TouchScreenID;
+	PPID   ExtCashNodeID;
 	PPID   AlternateRegID;   // Явно обозначенный альтернативный регистратор
 		// (if ExtFlags & CASHFX_EXTNODEASALT && !AlternateRegID) то альтернативным регистратором является ExtCashNodeID
-	PPID   ScaleID;          //
+	PPID   ScaleID;
 	PPID   CustDispType;     // Тип дисплея покупателя //
 	char   CustDispPort[8];  // Имя порта дисплея покупателя (COM)
 	uint16 CustDispFlags;	 // cdfXXX
@@ -22163,7 +22166,7 @@ public:
 	uint16 BnkTermFlags;	 // btfXXX
 	char   BnkTermPort[8];	 // Имя порта банковского терминала (COM)
 	uint16 ClearCDYTimeout;  // Таймаут очистки дисплея покупателя после печати чека
-	uint16 SleepTimeout;     //
+	uint16 SleepTimeout;
 	PPID   LocalTouchScrID;  // Локальный (по отношению к компютеру) идентификатор записи PPObjTouchScreen
 	// @v11.9.6 (moved to PPGenCashNode) uint16 Speciality;       // PPCashNode2::spXXX
 	// @v11.9.12 uint16 Reserve;          // @v11.9.6 @alignment
@@ -23023,9 +23026,9 @@ public:
 	//   то по указателю pAccList заполняется список соответствующих
 	//   идентификаторов счетов. Если результирующий список содержит более одного
 	//   элемента, то ид по указателю pAccID остается в нормализованной форме,
-	//   если же pAccList->getCount() == 1, то *pAccID = pAccList->at(0).
+	//   если же rAccList.getCount() == 1, то *pAccID = pAccList->at(0).
 	//
-	int    IdentifyAcc(long * pAco, PPID * pAccID, PPID curID, PPID personRelID, PPIDArray * pAccList);
+	int    IdentifyAcc(long * pAco, PPID * pAccID, PPID curID, PPID personRelID, PPIDArray & rAccList);
 	int    LockingFRR(int lock, int * pFRRL_Tag, int use_ta);
 	bool   IsFRRLocked() const;
 	int    RevalCurRests(const CurRevalParam *);
@@ -23105,16 +23108,16 @@ struct SlipLineParam {
 	int    BarcodeStd;    // BARCSTD_XXX Стандарт штрихкода
 	int    BarcodeWd;     // Ширина штрихкода (в точках)
 	int    BarcodeHt;     // Высота штрихкода (в точках)
-	int    ChZnProductType; //
+	int    ChZnProductType;
 	TRect  PictCoord;     // Координаты изображения
 	CCheckPacket::PreprocessChZnCodeResult PpChZnR; // Результат препроцессинга марки честный знак. Если PpChZnR.LineIdx == 0, то препроцессинга не было.
 	SString FontName;     // Наименование гарнитуры шрифта (для обычного принтера)
 	SString PictPath;     // Путь к файлу изображения
-	SString Text;         // 
-	SString Code;         // 
+	SString Text;
+	SString Code;
 	SString ChZnCode;     // Маркировка товара маркой честный знак
-	SString ChZnGTIN;     // 
-	SString ChZnSerial;   // 
+	SString ChZnGTIN;
+	SString ChZnSerial;
 	SString ChZnPartN;    // Номер партии в марке честный знак
 	SString ChZnSid;      // Ид предприятия для передачи в честный знак
 	ChZnPmReplyTags ChZnPmRT;
@@ -23126,7 +23129,7 @@ struct SlipDocCommonParam {
 	uint   PageWidth;
 	uint   PageLength;
 	uint   HeadLines;
-	uint   RegTo;         // SlipLineParam::regtoXXX
+	uint   RegTo;      // SlipLineParam::regtoXXX
 	uint   TextOutput; // @vmiller
 	SString PictPath;
 	RECT   PictCoord;
@@ -23319,7 +23322,7 @@ protected:
 	PPID   NodeID;
 	//char   Name[48];  //
 	int    PortType;  // 0 - file, 1 - lpt, 2 - com, 3 - server /*@v12.0.3*/, 4 - ip/*@v12.6.9*/
-	int    Handle;    //
+	int    Handle;
 	long   State;
 	InetAddr IpAdr;  // @v12.6.9 (used if PortType == 4)
 	SString IfcPort; // @v12.6.9 char Port[128]-->SString IfcPort
@@ -23573,17 +23576,16 @@ struct PPBarcodePrinter2 { // @persistent @store(Reference2Tbl+)
 	PPID   Tag;            // Const=PPOBJ_BCODEPRINTER
 	PPID   ID;             // @id
 	char   Name[48];       // @name @!refname
-	char   LabelName[20];  //
+	char   LabelName[20];
 	char   Reserve[28];    // @reserve
 	int16  BcNarrowPt;     // Толщина узких полос штрихкода (точек)
 	int16  BcWidePt;       // Толщина широких полос штрихкода (точек)
-	char   Port[20];       //
+	char   Port[20];
 	CommPortParams Cpp;    // Size=6
 	int16  Cp;             // Кодовая страница при выводе текста
-	long   Flags;          //
+	long   Flags;
 	PPID   PrinterType;    // PPBCPT_ZEBRA | PPBCPT_DATAMAX
 	long   Reserve3;       // @reserve
-	//
 	SString PortEx;        // @persistent @store(PropertyTbl[PPOBJ_BCODEPRINTER, id, BCPPRP_PORTEX]) @anchor
 };
 
@@ -23612,7 +23614,7 @@ public:
 		int16  Pad;       // @alignment
 		PPID   LocID;     // Склад, для которого печатается этикетка (от этого зависит цена и, возможно, ряд других параметров)
 		long   Flags;     // @flags
-		SString Port;     //
+		SString Port;
 	};
 	static BarcodeLabelPrinter * CreateInstance(/*PPID printerTypeID*/const PPBarcodePrinter & rPrnPack);
 	static int PrintGoodsLabel(PPID goodsID);
@@ -24072,15 +24074,15 @@ struct PPTouchScreen2 {    // @persistent @store(Reference2Tbl+)
 	PPID   Tag;                 // Const=PPOBJ_TOUCHSCREEN
 	PPID   ID;                  // @id
 	char   Name[48];            // @name @!refname
-	char   Symb[20];            //
+	char   Symb[20];
 	char   Reserve[20];         // @reserve
-	long   GdsListFontHight;    //
-	char   GdsListFontName[32]; //
+	long   GdsListFontHight;
+	char   GdsListFontName[32];
 	uint8  GdsListEntryGap;     // Дополнительное слагаемое высоты строки списка выбора товара (pixel)
 		// Рекомендуемый диапазон: [0..8]
 	uint8  Reserve2[3];         // @alignment
 	long   Flags;               // TSF_XXX
-	PPID   TouchScreenType;     //
+	PPID   TouchScreenType;
 	PPID   AltGdsGrpID;         // Альтернативная группа, товары из которой показываются в кассовой панели по умолчанию
 };
 
@@ -24107,14 +24109,14 @@ public:
 struct PPPhoneService {
 	PPPhoneService();
 
-	PPID   Tag;                 // Const=PPOBJ_PHONESERVICE
-	PPID   ID;                  // @id
-	char   Name[48];            // @name
-	char   Symb[20];            // @symb
-	char   Reserve[60];         // @reserve
-	long   Flags;               // @flags
-	long   DvcType;             // Тип устройства
-	long   Val2;                //
+	PPID   Tag;         // Const=PPOBJ_PHONESERVICE
+	PPID   ID;          // @id
+	char   Name[48];    // @name
+	char   Symb[20];    // @symb
+	char   Reserve[60]; // @reserve
+	long   Flags;       // @flags
+	long   DvcType;     // Тип устройства
+	long   Val2;
 };
 
 #define PHNSVCEXSTR_ADDR     1
@@ -24407,17 +24409,17 @@ struct PPInternetAccount2 { // @persistent @store(Reference2Tbl+)
 	int    GetSendPort() const;
 	int    GetRcvPort();
 	//
-	long   Tag;            // Const=PPOBJ_INTERNETACCOUNT
-	long   ID;             //
-	char   Name[48];       // @name
-	char   Symb[20];       //
-	char   Reserve[56];    // @reserve
-	uint16 SmtpAuthType;   // Тип аутентификации для соединения с SMTP сервером
-	int16  Timeout;        // Таймаут сервера (сек)
-	long   Flags;          //
-	PPID   PersonID;       // ->Person.ID
-	long   Reserve2;       // @reserve
-	SString ExtStr;        // @anchor
+	long   Tag;          // Const=PPOBJ_INTERNETACCOUNT
+	long   ID;
+	char   Name[48];     // @name
+	char   Symb[20];
+	char   Reserve[56];  // @reserve
+	uint16 SmtpAuthType; // Тип аутентификации для соединения с SMTP сервером
+	int16  Timeout;      // Таймаут сервера (сек)
+	long   Flags;
+	PPID   PersonID;     // ->Person.ID
+	long   Reserve2;     // @reserve
+	SString ExtStr;      // @anchor
 };
 
 typedef TSCollection <PPInternetAccount> PPInetAccntArray;
@@ -24597,15 +24599,15 @@ struct PPSmsAccount { // size=sizeof(Reference2Tbl::Rec)
 	PPSmsAccount();
 	int    FASTCALL IsEq(const PPSmsAccount & rS) const;
 
-	long   Tag;            // Const=PPOBJ_SMSPRVACCOUNT
-	long   ID;             //
-	char   Name[48];       // @name
-	char   Symb[20];       //
-	char   Reserve[46];    // @reserve [60] --> [50]
-	int32  ServerPort;     // Порт сервера (адрес хранится в PPSmsAccPacket::ExtStr[SMEXTSTR_HOST]
-	long   Flags;          // smacfXXX
-	PPID   PersonID;       // ->Person.ID
-	long   Reserve2;       // @reserve
+	long   Tag;         // Const=PPOBJ_SMSPRVACCOUNT
+	long   ID;
+	char   Name[48];    // @name
+	char   Symb[20];
+	char   Reserve[46]; // @reserve [60] --> [50]
+	int32  ServerPort;  // Порт сервера (адрес хранится в PPSmsAccPacket::ExtStr[SMEXTSTR_HOST]
+	long   Flags;       // smacfXXX
+	PPID   PersonID;    // ->Person.ID
+	long   Reserve2;    // @reserve
 	//
 	// System params {
 	//
@@ -24679,11 +24681,11 @@ struct PPSendSmsParam {
 	void   Init();
 	int    NotEmpty();
 
-	long   Tag;            // Const=PPOBJ_SENDSMS
-	long   ID;             //
+	long   Tag;         // Const=PPOBJ_SENDSMS
+	long   ID;
 	int	   SymbolCount;
 	int	   SmsCount;
-	SString ExtStr;        // @anchor
+	SString ExtStr;     // @anchor
 };
 //
 // @v7.6.1 @Muxa {
@@ -24705,16 +24707,16 @@ struct PPUhttStore { // @size=sizeof(Reference2Tbl::Rec)
 		kGenericStore  = 0, // Магазин, продающий товары
 		kTSessCip      = 1  // Выставляется на продажу персональная регистрация в технологических сессиях
 	};
-	long   Tag;            // Const=PPOBJ_UHTTSTORE
-	long   ID;             //
-	char   Name[48];       // @name
-	char   Symb[20];       //
-	char   Reserve[48];    // @reserve
-	long   Kind;           // Вид торговой площадки PPUhttStore::kXXX
+	long   Tag;         // Const=PPOBJ_UHTTSTORE
+	long   ID;
+	char   Name[48];    // @name
+	char   Symb[20];
+	char   Reserve[48]; // @reserve
+	long   Kind;        // Вид торговой площадки PPUhttStore::kXXX
 	double UpRestShowThreshold; // Порог остатка, значения выше которого следует отабражать как, например, "более 8"
-	long   Flags;          // @flags
-	PPID   PersonID;       // ->Person.ID
-	PPID   LocID;          // ->Location.ID
+	long   Flags;       // @flags
+	PPID   PersonID;    // ->Person.ID
+	PPID   LocID;       // ->Location.ID
 };
 
 class PPUhttStoreSelDescr : private SStrGroup {
@@ -29055,7 +29057,7 @@ public:
 	int    AddItem(StaffCalendarTbl::Rec * pItem, uint * pPos);
 	int    RemoveItem(uint pos);
 
-	PPStaffCal Rec;
+	PPStaffCal2 Rec;
 	PPStaffCalendarArray Items;
 private:
 	int    Helper_Get(LDATE dt, CALDATE * pCdt, uint * pPos) const;
@@ -29092,8 +29094,8 @@ public:
 	static int FASTCALL HasValidTimeRange(const StaffCalendarTbl::Rec & rRec);
 	explicit PPObjStaffCal(void * extraPtr = 0);
 	~PPObjStaffCal();
-	int    CheckForFilt(const StaffCalFilt * pFilt, const PPStaffCal * pRec) const;
-	int    FASTCALL Fetch(PPID id, PPStaffCal *); // @macrow
+	int    CheckForFilt(const StaffCalFilt * pFilt, const PPStaffCal2 * pRec) const;
+	int    FASTCALL Fetch(PPID id, PPStaffCal2 *); // @macrow
 	//
 	// Descr: Ищет дочерний по отношению к parentID календарь, принадлежащий объекту {linkObjType, linkObjID}.
 	// ARG(parentID    IN): родительский календарь
@@ -29104,7 +29106,7 @@ public:
 	//   <0 - календарь по заданным условиям не найден
 	//    0 - error
 	//
-	int    SearchByObj(PPID parentID, SObjID linkObj, PPStaffCal * pRec);
+	int    SearchByObj(PPID parentID, SObjID linkObj, PPStaffCal2 * pRec);
 	//
 	// Descr: Извлекает список календарей дочерних по отношению к calID.
 	//   Идентификаторы найденных календарей заносятся в массив pList без дублирования.
@@ -46605,6 +46607,10 @@ class PPViewCCheck : public PPView {
 public:
 	static int EditCCheckSystemInfo(CCheckPacket & rPack);
 	static int CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID);
+	//
+	// Descr: Разбирает json-коллекцию чеков, построенную функцией PPViewCCheck::ExportToJson().
+	//
+	static int ParseCCheckJsonInput(const SJson * pJs, TSCollection <CCheckPacket> & rList); // @v12.8.1 testing-purpose
 
 	struct BrwHdr {
 		PPID  ID;
@@ -52196,7 +52202,7 @@ private:
 	int    CheckForFilt(const PPRegisterTypePacket * pPack) const;
 	int    Transmit(bool isCharry);
 
-	RegisterTypeFilt  Filt;
+	RegisterTypeFilt Filt;
 	PPObjRegisterType ObjRegT;
 	SArray Data;
 };
@@ -58177,7 +58183,8 @@ public:
 			return chznciPallet;
 		else if(oneof2(r, SNTOK_CHZN_SURROGATE_GTINCOUNT, SNTOK_CHZN_SURROGATE_GTIN))
 			return chznciSurrogate;
-		else if(oneof5(r, SNTOK_CHZN_ALTCIGITEM, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SIGN_SGTIN, SNTOK_CHZN_GS1_GTIN/*, SNTOK_CHZN_SSCC*/)) // @v11.9.0 SNTOK_CHZN_ALTCIGITEM
+		else if(oneof6(r, SNTOK_CHZN_ALTCIGITEM, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SIGN_SGTIN, 
+			SNTOK_CHZN_GS1_GTIN/*, SNTOK_CHZN_SSCC*/, SNTOK_CHZN_BULK)) // @v11.9.0 SNTOK_CHZN_ALTCIGITEM // @v12.8.1 SNTOK_CHZN_BULK
 			return chznciReal;
 		else
 			return chznciNone;

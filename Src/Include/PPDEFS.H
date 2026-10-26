@@ -4843,7 +4843,10 @@
 	#define CTL_PSNEVNT_PRMRSCARD       (21 + WINDOWS_ID_BIAS)
 	#define CTL_PSNEVNT_SCNDSCARD       (22 + WINDOWS_ID_BIAS)
 	#define CTL_PSNEVNT_FLAGS           (23 + WINDOWS_ID_BIAS)
-	#define CTLTM_PSNEVNT_TIME          (24 + WINDOWS_ID_BIAS) // @v11.2.6
+	#define CTLTM_PSNEVNT_TIME          (24 + WINDOWS_ID_BIAS)
+	#define CTL_PSNEVNT_CMD_PSNEVNTREGISTER (25 + WINDOWS_ID_BIAS)
+	#define CTL_PSNEVNT_CMD_VKAPIPOST   (26 + WINDOWS_ID_BIAS)
+	#define CTL_PSNEVNT_ID              (27 + WINDOWS_ID_BIAS) // @v12.8.1
 #define DLG_GRESTTOTAL            335 // Итог по остаткам товаров
 	#define CTL_GRESTTOTAL_COUNT         (1 + WINDOWS_ID_BIAS)
 	#define CTL_GRESTTOTAL_REST          (2 + WINDOWS_ID_BIAS)
@@ -4915,12 +4918,13 @@
 	#define CTL_TAGV_IMAGE               (10 + WINDOWS_ID_BIAS)
 	#define CTL_TAGV_TIME                (11 + WINDOWS_ID_BIAS)
 	#define CTLTM_TAGV_TIME              (12 + WINDOWS_ID_BIAS)
-	#define CTL_TAGV_TAGID               (13 + WINDOWS_ID_BIAS) // @v11.5.12
+	#define CTL_TAGV_TAGID               (13 + WINDOWS_ID_BIAS)
 	#define CTL_TAGV_INT                 (14 + WINDOWS_ID_BIAS) // @v11.8.12
 	#define CTL_TAGV_HOBJ1               (15 + WINDOWS_ID_BIAS) // @v12.2.10
 	#define CTLSEL_TAGV_HOBJ1            (16 + WINDOWS_ID_BIAS) // @v12.2.10 Вспомогательный объект #1 для выбора ссылки
 	#define CTL_TAGV_HOBJ2               (17 + WINDOWS_ID_BIAS) // @v12.2.10
 	#define CTLSEL_TAGV_HOBJ2            (18 + WINDOWS_ID_BIAS) // @v12.2.10 Вспомогательный объект #2 для выбора ссылки
+	#define CTL_TAGV_HINT                (19 + WINDOWS_ID_BIAS) // @v12.8.1 
 #define DLG_TAGVALVIEW            351
 	#define CTL_TAGVALVIEW_LIST          (1 + WINDOWS_ID_BIAS)
 	#define CTL_TAGVALVIEW_OBJ           (2 + WINDOWS_ID_BIAS)
@@ -8339,6 +8343,8 @@
 	#define CTL_DBMAINTAIN_MRPDAYS     (3 + WINDOWS_ID_BIAS)
 	#define CTL_DBMAINTAIN_SJDAYS      (4 + WINDOWS_ID_BIAS)
 	#define CTL_DBMAINTAIN_XBILDAYS    (5 + WINDOWS_ID_BIAS)
+	#define CTL_DBMAINTAIN_CB_DLS      (6 + WINDOWS_ID_BIAS) // @v12.8.1 @construction
+	#define CTL_DBMAINTAIN_CB_MRP      (7 + WINDOWS_ID_BIAS) // @v12.8.1 @construction
 #define DLG_PRCPAN               861 // Панель ввода сессий по процессору
 	#define CTL_PRCPAN_INPUT           (1 + WINDOWS_ID_BIAS)
 	#define CTL_PRCPAN_PRCNAME         (2 + WINDOWS_ID_BIAS)

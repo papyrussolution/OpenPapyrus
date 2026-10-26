@@ -1214,8 +1214,8 @@ static int EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintPara
 		THROW(bcpobj.GetPacket(bclpp.PrinterID, &rec) > 0);
 		BarcodeLabelPrinter::GetLabelFileName(ini_file, file_name);
 		PPGetFilePath(PPPATH_BIN, file_name, file_path);
-		THROW_PP(fileExists(file_path), PPERR_BARLABELFILENEXISTS);
-		THROW_PP(label.ParseFormat(0, file_path, pLoadName), PPERR_LABELSYNTX);
+		THROW_PP_S(fileExists(file_path), PPERR_BARLABELFILENEXISTS, file_path);
+		THROW_PP_S(label.ParseFormat(0, file_path, pLoadName), PPERR_LABELSYNTX, file_path);
 		THROW(p_prn = BarcodeLabelPrinter::CreateInstance(rec/*.PrinterType*/));
 		for(i = 0; i < label.GetEntryCount(); i++) {
 			const BarcodeLabelEntry * p_entry = label.GetEntry(i);
@@ -1317,7 +1317,7 @@ static int EditBarcodeLabelPrintParam(BarcodeLabelPrinter::BarcodeLabelPrintPara
 		BarcodeLabelPrinter::GetLabelFileName(ini_file, file_name);
 		PPGetFilePath(PPPATH_BIN, file_name, file_path);
 		THROW_PP_S(fileExists(file_path), PPERR_BARLABELFILENEXISTS, file_path);
-		THROW_PP(label.ParseFormat(pRgi, file_path, rec.LabelName), PPERR_LABELSYNTX);
+		THROW_PP_S(label.ParseFormat(pRgi, file_path, rec.LabelName), PPERR_LABELSYNTX, file_path);
 		THROW(p_prn = BarcodeLabelPrinter::CreateInstance(rec/*.PrinterType*/));
 		label.SetBarcodeWidth(rec.BcNarrowPt, rec.BcWidePt);
 		THROW(p_prn->StartLabel(label.GetParam(), bclpp.NumCopies));
@@ -1426,14 +1426,14 @@ int BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam 
 				row_delay = 250;
 			BarcodeLabelPrinter::GetLabelFileName(ini_file, file_name);
 			PPGetFilePath(PPPATH_BIN, file_name, file_path);
-			THROW_PP(fileExists(file_path), PPERR_BARLABELFILENEXISTS);
+			THROW_PP_S(fileExists(file_path), PPERR_BARLABELFILENEXISTS, file_path);
 			for(uint i = 0; i < rList.getCount(); i++) {
 				const RetailGoodsInfo * p_rgi = rList.at(i);
 				if(p_rgi) {
 					int16  num_copies = p_rgi->LabelCount;
 					if(num_copies > 0) {
 						BarcodeLabel label__;
-						THROW_PP(label__.ParseFormat(p_rgi, file_path, PrnPack.LabelName), PPERR_LABELSYNTX);
+						THROW_PP_S(label__.ParseFormat(p_rgi, file_path, PrnPack.LabelName), PPERR_LABELSYNTX, file_path);
 						//THROW(p_prn = BarcodeLabelPrinter::CreateInstance(rec/*.PrinterType*/));
 						label__.SetBarcodeWidth(PrnPack.BcNarrowPt, PrnPack.BcWidePt);
 						{
@@ -1444,11 +1444,13 @@ int BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam 
 							THROW(EndLabel());
 							// @vmiller {
 							temp_buf = rBclpp.Port;
-							if(temp_buf.HasPrefixIAscii("usb"))
+							if(temp_buf.HasPrefixIAscii("usb")) {
 								THROW(PrintLabelUsb(PrnPack.PrinterType))
-							else
+							}
+							else {
 							// } @vmiller
 								THROW(PrintLabel(rBclpp.Port, &PrnPack.Cpp));
+							}
 						}
 						//
 						// При печати большого количества этикеток принтер не успевает обрабатывать запросы
@@ -1602,7 +1604,7 @@ int BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam 
 			row_delay = 250;
 		BarcodeLabelPrinter::GetLabelFileName(ini_file, file_name);
 		PPGetFilePath(PPPATH_BIN, file_name, file_path);
-		THROW_PP(fileExists(file_path), PPERR_BARLABELFILENEXISTS);
+		THROW_PP_S(fileExists(file_path), PPERR_BARLABELFILENEXISTS, file_path);
 		if(bclpp.Flags & BarcodeLabelPrintParam::fPrintAll) {
 			cur_pos = 0;
 			end_pos = pPack->GetTCount() - 1;
@@ -1666,7 +1668,7 @@ int BarcodeLabelPrinter::Helper_PrintRgiCollection(const BarcodeLabelPrintParam 
 							rgi.Expiry = temp_rgi.Expiry;
 						}
 					}
-					THROW_PP(label.ParseFormat(&rgi, file_path, rec.LabelName), PPERR_LABELSYNTX);
+					THROW_PP_S(label.ParseFormat(&rgi, file_path, rec.LabelName), PPERR_LABELSYNTX, file_path);
 					THROW(p_prn = BarcodeLabelPrinter::CreateInstance(rec/*.PrinterType*/));
 					label.SetBarcodeWidth(rec.BcNarrowPt, rec.BcWidePt);
 					THROW(p_prn->StartLabel(label.GetParam(), num_copies));
@@ -1875,8 +1877,7 @@ int DatamaxLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 		c = '1';
 	buf[i++] = c;
 	if(pEntry->Type == BarcodeLabelEntry::etText) {
-		// @v11.2.11 buf[i++] = (font_id >= 1 && font_id <= 8) ? ('0' + font_id) : '9';
-		buf[i++] = '0' + sclamp(font_id, 1, 9); // @v11.2.11
+		buf[i++] = '0' + sclamp(font_id, 1, 9);
 	}
 	else {
 		{
@@ -2200,29 +2201,6 @@ int EltronLabelPrinter::EndLabel()
 	PutChr('\n');
 	return 1;
 }
-//
-// @todo use SIntToSymbTabEntry
-//
-struct BarCStdToEltronEntry {
-	int8   Std;
-	const char * P_Str;
-};
-
-static const BarCStdToEltronEntry _E_BarCStdTab[] = {
-	{BARCSTD_INTRLVD2OF5, "2"},
-	{BARCSTD_CODE39,      "3"},
-	{BARCSTD_EAN8,        "E80"},
-	{BARCSTD_UPCE,        "UE0"},
-	{BARCSTD_CODE93,      "9"},
-	{BARCSTD_CODE128,     "1"},
-	{BARCSTD_EAN13,       "E30"},
-	{BARCSTD_MSI,         "M"},
-	{BARCSTD_PLESSEY,     "L"},
-	{BARCSTD_UPCEAN2EXT,  "UE2"},
-	{BARCSTD_UPCEAN5EXT,  "UE5"},
-	{BARCSTD_UPCA,        "UA0"},
-	{BARCSTD_POSTNET,     "P"}
-};
 
 int EltronLabelPrinter::PutDataEntryPrefix(char letter, const BarcodeLabelEntry * pEntry)
 {
@@ -2288,14 +2266,34 @@ int EltronLabelPrinter::PutDataEntry(const BarcodeLabelEntry * pEntry)
 		PutChr('N'); // Normal text ('R' - white on black)
 	}
 	else if(pEntry->Type == BarcodeLabelEntry::etBarcode) {
+		/* @v12.8.1 struct BarCStdToEltronEntry {
+			int8   Std;
+			const char * P_Str;
+		};*/
+		static const /*BarCStdToEltronEntry*/SIntToSymbTabEntry _E_BarCStdTab[] = { // @v12.8.1 BarCStdToEltronEntry-->SIntToSymbTabEntry
+			{BARCSTD_INTRLVD2OF5, "2"},
+			{BARCSTD_CODE39,      "3"},
+			{BARCSTD_EAN8,        "E80"},
+			{BARCSTD_UPCE,        "UE0"},
+			{BARCSTD_CODE93,      "9"},
+			{BARCSTD_CODE128,     "1"},
+			{BARCSTD_EAN13,       "E30"},
+			{BARCSTD_MSI,         "M"},
+			{BARCSTD_PLESSEY,     "L"},
+			{BARCSTD_UPCEAN2EXT,  "UE2"},
+			{BARCSTD_UPCEAN5EXT,  "UE5"},
+			{BARCSTD_UPCA,        "UA0"},
+			{BARCSTD_POSTNET,     "P"}
+		};
 		strnzcpy(p_temp_str, pEntry->Text, buf_size);
 		PutDataEntryPrefix('B', pEntry);
-		const char * p_std = 0;
-		for(int j = 0; j < SIZEOFARRAY(_E_BarCStdTab); j++)
+		/* @v12.8.1 for(int j = 0; j < SIZEOFARRAY(_E_BarCStdTab); j++) {
 			if(_E_BarCStdTab[j].Std == pEntry->BarcodeStd) {
 				p_std = _E_BarCStdTab[j].P_Str;
 				break;
 			}
+		}*/
+		const char * p_std = SIntToSymbTab_GetSymbPtr(_E_BarCStdTab, SIZEOFARRAY(_E_BarCStdTab), pEntry->BarcodeStd); // @v12.8.1
 		if(p_std == 0)
 			return PPSetError(PPERR_BARCSTDNSUPPORT);
 		PutStr(p_std);

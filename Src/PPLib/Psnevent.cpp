@@ -1302,7 +1302,7 @@ int PPObjPersonEvent::CheckRestrictions(const PPPsnEventPacket * pPack, const PP
 	}
 	if(pPokPack->Rec.RestrStaffCalID) {
 		PPObjStaffCal stc_obj;
-		PPStaffCal stc_rec;
+		PPStaffCal2 stc_rec;
 		THROW(stc_obj.Search(pPokPack->Rec.RestrStaffCalID, &stc_rec) > 0);
 		{
 			ScObjAssoc scoa;
@@ -1550,7 +1550,7 @@ int PPObjPersonEvent::PutPacket(PPID * pID, PPPsnEventPacket * pPack, int use_ta
 
 PsnEventDialog::Param::Param() : ExValGrp(0), AsTemplate(false)
 {
-	PTR32(DlgTitle)[0] = 0;
+	DlgTitle[0] = 0;
 }
 
 PsnEventDialog::PsnEventDialog(Param * pParam, PPObjPersonEvent * pPeObj) : PPListDialog(DLG_PSNEVNT, CTL_PSNEVNT_TAGLIST), P_PeObj(pPeObj), P(*pParam)
@@ -1826,6 +1826,7 @@ int PsnEventDialog::setDTS(const PPPsnEventPacket * p)
 	if(P.ExValGrp == POKEVG_POST) {
 		setupPost(0);
 	}
+	setCtrlLong(CTL_PSNEVNT_ID, Pack.Rec.ID); // @v12.8.1
 	setCtrlDatetime(CTL_PSNEVNT_DATE, CTL_PSNEVNT_TIME, Pack.Rec.Dt, Pack.Rec.Tm);
 	setCtrlString(CTL_PSNEVNT_MEMO, Pack.SMemo);
 	disableCtrl(CTL_PSNEVNT_TAGLIST, disable_taglist);
@@ -2017,7 +2018,8 @@ int PPObjPersonEvent::Edit(PPID * pID, void * extraPtr /*prmrID*/)
 			return -1;
 	}
 	THROW(PsnEventDialog::GetParam(op, &param));
-	THROW(CheckDialogPtr(&(dlg = new PsnEventDialog(&param, this))));
+	dlg = new PsnEventDialog(&param, this);
+	THROW(CheckDialogPtr(&dlg));
 	THROW(dlg->setDTS(&pack));
 	while(!valid_data && ExecView(dlg) == cmOK) {
 		if(dlg->getDTS(&pack)) {

@@ -8682,7 +8682,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 	}
 	THROW(SetupSpecialAmounts(pPack));
 
-	THROW(ExtractPacketWithFlags(id, &org_pack, BPLD_FORCESERIALS) > 0); // @v11.7.3 ExtractPacket-->ExtractPacketWithFlags(,,BPLD_FORCESERIALS)
+	THROW(ExtractPacketWithFlags(id, &org_pack, BPLD_FORCESERIALS) > 0);
 	if(IsPacketEq(*pPack, org_pack, 0)) {
 		ok = -1;
 	}

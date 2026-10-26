@@ -213,6 +213,7 @@ static const SIntToSymbTabEntry GtinPrefix[] = {
 	{ GtinStruc::fldShitToZipInt,          "421" },
 	{ GtinStruc::fldCountry,               "422" },
 	{ GtinStruc::fldWtNettKg,              "310y" },
+	//{ GtinStruc::fldChZnWtNettKg03,        "3103" }, // @v12.8.1
 	{ GtinStruc::fldLenM,                  "311y" },
 	{ GtinStruc::fldWidthM,                "312y" },
 	{ GtinStruc::fldThknM,                 "313y" },
@@ -290,6 +291,33 @@ static const SIntToSymbTabEntry GtinPrefix[] = {
 	return result;
 }
 
+/*static*/int GtinStruc::GetPrefixId(const char * pPrefix, uint * pFractionLen) // @v12.8.1
+{
+	int    _id = 0;
+	uint   frac_len = 0;
+	const  uint pl = sstrlen(pPrefix);
+	if(pl > 1) {
+		_id = SIntToSymbTab_GetId(GtinPrefix, SIZEOFARRAY(GtinPrefix), pPrefix);
+		if(!_id) {
+			//310n до 369n
+			if(pl == 4 && pPrefix[0] == '3' && (pPrefix[1] >= '1' && pPrefix[1] <= '6') && (pPrefix[2] >= '0' && pPrefix[2] <= '9')) {
+				if(pPrefix[3] >= '0' && pPrefix[3] <= '6') { // precision .xxx
+					char   prefix2[32];
+					STRNSCPY(prefix2, pPrefix);
+					prefix2[3] = 'y'; // для поиска по массиву GtinPrefix
+					prefix2[4] = 0; // @paranoic
+					_id = SIntToSymbTab_GetId(GtinPrefix, SIZEOFARRAY(GtinPrefix), prefix2);
+					if(_id) {
+						frac_len = (pPrefix[3] - '0');
+					}
+				}
+			}
+		}
+	}
+	ASSIGN_PTR(pFractionLen, frac_len);
+	return _id;
+}
+
 int GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, uint * pPrefixLen) const
 {
 	int    prefix_id = -1;
@@ -298,7 +326,8 @@ int GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, uint *
 	SString temp_buf;
 	if(src_len >= 4) {
 		temp_buf.Z().CatN(pSrc, 4);
-		int _id = SIntToSymbTab_GetId(GtinPrefix, SIZEOFARRAY(GtinPrefix), temp_buf);
+		// @v12.8.1 int _id = SIntToSymbTab_GetId(GtinPrefix, SIZEOFARRAY(GtinPrefix), temp_buf);
+		int _id = GtinStruc::GetPrefixId(temp_buf, 0); // @v12.8.1
 		if(_id > 0 && (!OnlyTokenList.getCount() || OnlyTokenList.lsearch(_id)) && _id != currentId && !StrAssocArray::Search(_id)) {
 			prefix_len = 4;
 			prefix_id = _id;
@@ -306,7 +335,8 @@ int GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, uint *
 	}
 	if(prefix_id <= 0 && src_len >= 3) {
 		temp_buf.Z().CatN(pSrc, 3);
-		int _id = SIntToSymbTab_GetId(GtinPrefix, SIZEOFARRAY(GtinPrefix), temp_buf);
+		// @v12.8.1 int _id = SIntToSymbTab_GetId(GtinPrefix, SIZEOFARRAY(GtinPrefix), temp_buf);
+		int _id = GtinStruc::GetPrefixId(temp_buf, 0); // @v12.8.1
 		if(_id > 0 && (!OnlyTokenList.getCount() || OnlyTokenList.lsearch(_id)) && _id != currentId && !StrAssocArray::Search(_id)) {
 			prefix_len = 3;
 			prefix_id = _id;
@@ -314,7 +344,8 @@ int GtinStruc::DetectPrefix(const char * pSrc, uint flags, int currentId, uint *
 	}
 	if(prefix_id <= 0 && src_len >= 2) {
 		temp_buf.Z().CatN(pSrc, 2);
-		int _id = SIntToSymbTab_GetId(GtinPrefix, SIZEOFARRAY(GtinPrefix), temp_buf);
+		// @v12.8.1 int _id = SIntToSymbTab_GetId(GtinPrefix, SIZEOFARRAY(GtinPrefix), temp_buf);
+		int _id = GtinStruc::GetPrefixId(temp_buf, 0); // @v12.8.1
 		if(_id > 0 && (!OnlyTokenList.getCount() || OnlyTokenList.lsearch(_id)) && _id != currentId && !StrAssocArray::Search(_id)) {
 			if((flags & dpfBOL) || (_id != fldGTIN14)) { // !oneof2(_id, fldSscc18, fldGTIN14)-->(_id!=fldGTIN14): fldSscc18 может быть в середине кода
 				prefix_len = 2;
@@ -417,7 +448,7 @@ int GtinStruc::Debug_Output(SString & rBuf) const
 	rBuf.Z();
 	if(StrAssocArray::getCount()) {
 		SString temp_buf;
-		bool debug_mark = false; // @debug
+		bool   debug_mark = false; // @debug
 		for(uint i = 0; i < StrAssocArray::getCount(); i++) {
 			StrAssocArray::Item item = StrAssocArray::Get(i);
 			SIntToSymbTab_GetSymb(GtinPrefix, SIZEOFARRAY(GtinPrefix), item.Id, temp_buf);

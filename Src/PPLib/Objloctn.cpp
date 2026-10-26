@@ -1848,7 +1848,7 @@ IMPL_HANDLE_EVENT(LocationDialog)
 		reg_obj.EditList(&Data);
 	}
 	else if(event.isCmd(cmLocTags)) {
-		Data.TagL.Oid.Id = Data.ID;
+		Data.TagL.Oid.Set(PPOBJ_LOCATION, Data.ID);
 		EditObjTagValList(&Data.TagL, 0);
 	}
 	else if(event.isCmd(cmTest)) {

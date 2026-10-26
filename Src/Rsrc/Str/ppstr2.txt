@@ -1443,7 +1443,7 @@ PPERR_CDBOBJNFOUND                 "Объект конфигурационно�
 PPERR_INCLOCTYPE                   "Недопустимый тип локации '%s'"
 PPERR_DLVRADDNOTOWNEDBYBILLAR      "Адрес доставки по документу (%s) должен принадлежать контрагенту по документу"
 PPERR_RSTRDBIDNEEDED               "Необходимо выбрать базу данных для восстановления"
-PPERR_LABELSYNTX                   "Синтаксическая ошибка в файле описания этикеток"
+PPERR_LABELSYNTX                   "Синтаксическая ошибка в файле описания этикеток '%s'"
 PPERR_BILLHASPAYMPOOL              "Документ имеет связанные зачетные оплаты (%s) и не может быть удален"
 PPERR_ALDD_READ                    "Ошибка чтения файла описания данных"
 PPERR_ALDD_FORMAT                  "Неверный формат файла описания данных"
@@ -4280,6 +4280,7 @@ PPTXT_LOG_PRCSALCALUNDEFINED              "Календарь '@zstr' не оп�
 PPTXT_LOG_PRCSALUSEDPOSTAMT               "Применена сумма штатного назначения: @zstr = @real"
 PPTXT_LOG_PRCSALUSEDSTAFFAMT              "Применена сумма штатной должности: @zstr = @real"
 PPTXT_LOG_SALCHARGEFORMULAEMPTY           "Штатное начисление '@zstr' не содержит формулу"
+PPTXT_LOG_SALCHARGEALREADYDONE            "Штатное начисление '@person - @zstr' - '@period' уже было сформировано ранее - ничего не изменилось"
 PPTXT_LOG_GOODSNEWSYNC                    "Товар %s [ID=%ld] теперь синхронизирован с товаром %s [ID=%ld]"
 PPTXT_LOG_PRCSALNDEFWROFFOP               "Для вида начисления '%s' не определен вид операции списания"
 PPTXT_LOG_PRCSALWROFFCHARGE               "Формирование документов для вида начисления '%s'"
@@ -5496,6 +5497,8 @@ PPTXT_ENUMERATION_BILL                 "Перебор документов"
 PPTXT_CHZNMARKINFO_EXTRACTING          "Извлечение информации о марках @{brand_chzn}"
 PPTXT_BILLTOCC_WROFFCHZNMARKS          "Чек будет отпечатан со списанием марок @{brand_chzn}" // @v12.7.10
 PPTXT_BILLTOCC_DONTWROFFCHZNMARKS      "Чек будет отпечатан без списания марок @{brand_chzn}" // @v12.7.10
+PPTXT_HINT_TAG_USEKEYFORSELSYMB        "Нажмите F2 для выбора предопределенного значения" // @v12.8.1
+PPTXT_HINT_TAG_USEKEYFORSELRIGHTS      "Нажмите F2 для выбора прав доступа" // @v12.8.1
 //
 // LastText
 

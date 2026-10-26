@@ -230,6 +230,7 @@ int SalaryCore::GetListByObject(PPID objType, PPID objID, const DateRange & rPer
 {
 	int    ok = -1;
 	int    idx = -1;
+	double amount = 0.0;
 	union {
 		SalaryTbl::Key2 k2;
 		SalaryTbl::Key3 k3;
@@ -256,19 +257,21 @@ int SalaryCore::GetListByObject(PPID objType, PPID objID, const DateRange & rPer
 		idx = 4;
 		k.k4.GenBillID = objID;
 		//dbq = &(*dbq && this->GenBillID == objID && this->Beg == rPeriod.low && this->End == rPeriod.upp);
-		dbq = &(this->GenBillID == objID && this->Beg >= rPeriod.low && this->Beg <= rPeriod.upp &&
-			this->End <= rPeriod.upp && this->End >= rPeriod.low);
+		// @v12.8.1 dbq = &(this->GenBillID == objID && this->Beg >= rPeriod.low && this->Beg <= rPeriod.upp && this->End <= rPeriod.upp && this->End >= rPeriod.low);
+		dbq = &(this->GenBillID == objID); // @v12.8.1 
 	}
 	if(idx != -1) {
 		BExtQuery q(this, idx);
-		q.select(this->ID, this->PostID, this->SalChargeID, this->GenBillID, 0L).where(*dbq);
+		q.select(this->ID, this->PostID, this->SalChargeID, this->GenBillID, this->Amount, 0L).where(*dbq); // @v12.8.1 this->Amount
 		for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
 			if(!pIdList || pIdList->Has(data.ID)) {
 				pList->add(data.ID);
+				amount += data.Amount; // @v12.8.1
 				ok = 1;
 			}
 		}
 	}
+	ASSIGN_PTR(pAmount, amount); // @v12.8.1
 	return ok;
 }
 //
@@ -1055,7 +1058,7 @@ PrcssrSalary::PrcssrSalary() : PeriodStack(64)
 	PPObjAmountType amt_obj;
 	PPID   id;
 	PPAmountType amt_rec;
-	PPStaffCal sc_rec;
+	PPStaffCal2 sc_rec;
 	P_BillView = 0;
 	P_EvView = 0;
 	P_CurEv = 0;
@@ -1149,12 +1152,12 @@ int PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, int use_
 	int    ok = 1;
 	PPObjArticle ar_obj;
 	SString memo_buf;
-	SalaryTbl::Rec s_rec;
 	PPIDArray charge_list;
 	PPIDArray removed_bill_list;
 	PPIDArray list;
 	PPIDArray bill_id_list;
 	PPObjBill * p_bobj(BillObj);
+	const  PPID current_loc_id = LConfig.Location;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1174,16 +1177,18 @@ int PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, int use_
 				Tbl.GetListByObject(PPOBJ_SALCHARGE, sc_id, P.NominalPeriod, pIdList, &list, &amount);
 				if(sc_pack.Rec.Flags & PPSalCharge::fWrOffSingle) {
 					PPBillPacket pack;
-					THROW(pack.CreateBlank2(op_rec.ID, P.NominalPeriod.upp, LConfig.Location, 0));
-					pack.Rec.Amount = s_rec.Amount; //TODO: V614 https://www.viva64.com/en/w/v614/ Uninitialized variable 's_rec.Amount' used.
-					pack.Amounts.Put(PPAMT_MAIN, 0, s_rec.Amount, 0, 1);
+					THROW(pack.CreateBlank2(op_rec.ID, P.NominalPeriod.upp, current_loc_id, 0));
+					// @v12.8.1 pack.Rec.Amount = s_rec.Amount; //TODO: V614 https://www.viva64.com/en/w/v614/ Uninitialized variable 's_rec.Amount' used.
+					pack.Rec.Amount = amount; // @v12.8.1
+					pack.Amounts.Put(PPAMT_MAIN, 0, amount, 0, 1); // @v12.8.1 s_rec.Amount-->amount
 					pack.SMemo = memo_buf;
 					THROW(p_bobj->FillTurnList(&pack));
 					THROW(p_bobj->TurnPacket(&pack, 0));
 					bill_id_list.addUnique(pack.Rec.ID);
 					Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
 					for(uint j = 0; j < list.getCount(); j++) {
-						PPID s_id = list.get(j);
+						PPID   s_id = list.get(j);
+						SalaryTbl::Rec s_rec;
 						THROW(Tbl.Search(s_id, &s_rec) > 0);
 						//
 						// Удаляем документ, который был привязан к строке начисления до этого момента
@@ -1208,49 +1213,96 @@ int PrcssrSalary::WriteOff(const UintHashTable * pIdList, int undoOnly, int use_
 				}
 				else {
 					for(uint j = 0; j < list.getCount(); j++) {
-						PPID s_id = list.get(j);
+						PPID   s_id = list.get(j);
 						PersonPostTbl::Rec post_rec;
-						PPBillPacket pack;
-						THROW(Tbl.Search(s_id, &s_rec) > 0);
-						//
-						// Удаляем документ, который был привязан к строке начисления до этого момента
-						// (позаботимся о том, чтобы не пытаться удалить один документ дважды)
-						//
-						if(s_rec.GenBillID && !removed_bill_list.lsearch(s_rec.GenBillID)) {
-							//
-							// Не будем считать ошибкой отсутствие документа при попытке его удалить
-							//
-							if(p_bobj->Search(s_rec.GenBillID, 0) > 0) {
-								THROW(p_bobj->RemovePacket(s_rec.GenBillID, 0));
-								removed_bill_list.addUnique(s_rec.GenBillID);
+						SalaryTbl::Rec s_rec;
+						if(Tbl.Search(s_id, &s_rec) > 0) {
+							// @v12.8.1 {
+							PPID   result_bill_id = 0;
+							PPID   ar_id = 0;
+							PPID   ar2_id = 0;
+							if(SlObj.FetchPost(s_rec.PostID, &post_rec) > 0) {
+								//
+								// Пытаемся установить персоналию, по которой было начисление, в качестве контрагента по документу
+								//
+								PPID   local_ar_id = 0;
+								if(ar_obj.GetByPerson(op_rec.AccSheetID, post_rec.PersonID, &local_ar_id) > 0)
+									ar_id = local_ar_id;
+								else if(ar_obj.GetByPerson(op_rec.AccSheet2ID, post_rec.PersonID, &local_ar_id) > 0)
+									ar2_id = local_ar_id;
 							}
-							s_rec.GenBillID = 0;
-						}
-						THROW(pack.CreateBlank2(op_rec.ID, P.NominalPeriod.upp, LConfig.Location, 0));
-						if(SlObj.FetchPost(s_rec.PostID, &post_rec) > 0) {
-							//
-							// Пытаемся установить персоналию, по которой было начисление,
-							// в качестве контрагента по документу
-							//
-							PPID ar_id = 0;
-							if(ar_obj.GetByPerson(op_rec.AccSheetID, post_rec.PersonID, &ar_id) > 0)
+							PPBillPacket ex_bpack;
+							PPBillPacket * p_ex_bpack = 0;
+							if(s_rec.GenBillID && !removed_bill_list.lsearch(s_rec.GenBillID)) {
+								PPIDArray _by_bill_list;
+								Tbl.GetListByObject(PPOBJ_BILL, s_rec.GenBillID, P.NominalPeriod, pIdList, &_by_bill_list, 0);
+								if(_by_bill_list.getCount() == 1) {
+									const  PPID charge_id = _by_bill_list.get(0);
+									if(charge_id == s_id) {
+										if(p_bobj->ExtractPacket(s_rec.GenBillID, &ex_bpack) > 0) {
+											if(ex_bpack.Rec.OpID == op_rec.ID) {
+												p_ex_bpack = &ex_bpack;
+											}
+										}
+									}
+								}
+							}
+							// } @v12.8.1 
+							if(p_ex_bpack) {
+								p_ex_bpack->Rec.Dt = P.NominalPeriod.upp;
+								p_ex_bpack->Rec.LocID = current_loc_id;
+								p_ex_bpack->Rec.Object = ar_id;
+								p_ex_bpack->Rec.Object2 = ar2_id;
+								p_ex_bpack->Rec.Amount = s_rec.Amount;
+								p_ex_bpack->Amounts.Put(PPAMT_MAIN, 0, s_rec.Amount, 0, 1);
+								p_ex_bpack->SMemo = memo_buf;
+								THROW(p_bobj->FillTurnList(p_ex_bpack));
+								const  int upr = p_bobj->UpdatePacket(p_ex_bpack, 0);
+								THROW(upr);
+								result_bill_id = p_ex_bpack->Rec.ID;
+								if(upr > 0)
+									Logger.LogAcceptMsg(PPOBJ_BILL, result_bill_id, 1);
+							}
+							else {
+								PPBillPacket pack;
+								//
+								// Удаляем документ, который был привязан к строке начисления до этого момента
+								// (позаботимся о том, чтобы не пытаться удалить один документ дважды)
+								//
+								if(s_rec.GenBillID && !removed_bill_list.lsearch(s_rec.GenBillID)) {
+									//
+									// Не будем считать ошибкой отсутствие документа при попытке его удалить
+									//
+									if(p_bobj->Search(s_rec.GenBillID, 0) > 0) {
+										THROW(p_bobj->RemovePacket(s_rec.GenBillID, 0));
+										removed_bill_list.addUnique(s_rec.GenBillID);
+									}
+									s_rec.GenBillID = 0;
+								}
+								THROW(pack.CreateBlank2(op_rec.ID, P.NominalPeriod.upp, current_loc_id, 0));
 								pack.Rec.Object = ar_id;
-							else if(ar_obj.GetByPerson(op_rec.AccSheet2ID, post_rec.PersonID, &ar_id) > 0)
-								pack.Rec.Object2 = ar_id;
+								pack.Rec.Object2 = ar2_id;
+								pack.Rec.Amount = s_rec.Amount;
+								pack.Amounts.Put(PPAMT_MAIN, 0, s_rec.Amount, 0, 1);
+								pack.SMemo = memo_buf;
+								THROW(p_bobj->FillTurnList(&pack));
+								THROW(p_bobj->TurnPacket(&pack, 0));
+								result_bill_id = pack.Rec.ID;
+								Logger.LogAcceptMsg(PPOBJ_BILL, result_bill_id, 0);
+							}
+							{
+								bill_id_list.addUnique(result_bill_id);
+								//
+								// Фиксируем в строке начисления ид сгенерированного документа
+								//
+								s_rec.GenBillID = result_bill_id;
+								s_rec.RByGenBill = 0;
+								THROW(Tbl.Put(&s_id, &s_rec, 0));
+							}
 						}
-						pack.Rec.Amount = s_rec.Amount;
-						pack.Amounts.Put(PPAMT_MAIN, 0, s_rec.Amount, 0, 1);
-						pack.SMemo = memo_buf;
-						THROW(p_bobj->FillTurnList(&pack));
-						THROW(p_bobj->TurnPacket(&pack, 0));
-						bill_id_list.addUnique(pack.Rec.ID);
-						Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
-						//
-						// Фиксируем в строке начисления ид сгенерированного документа
-						//
-						s_rec.GenBillID = pack.Rec.ID;
-						s_rec.RByGenBill = 0;
-						THROW(Tbl.Put(&s_id, &s_rec, 0));
+						else {
+							// @todo @err Начисление по заданному идентификатору не найдено
+						}
 					}
 				}
 			}
@@ -1917,9 +1969,9 @@ int PrcssrSalary::Expr_ResolveFunc(int funcId, uint argCount, double * pArgList,
 		if(argCount > 2)
 			GetArgPeriod(pArgList[2], period);
 		else if(cal_id != PPSTCAL_STANDARD) {
-			PPStaffCal sc_rec;
+			PPStaffCal2 sc_rec;
 			THROW(CalObj.Fetch(cal_id, &sc_rec) > 0);
-			if(sc_rec.Flags & PPStaffCal::fUseNominalPeriod)
+			if(sc_rec.Flags & PPStaffCal2::fUseNominalPeriod)
 				period = P.NominalPeriod;
 		}
 		if(proj_cal_id < 0) {
@@ -2199,17 +2251,19 @@ int PrcssrSalary::ProcessPost(PPID postID, UintHashTable * pIdList, int use_ta)
 		THROW(SlObj.GetPostPacket(postID, &CurPostPack) > 0);
 		P.ActualPeriod = P.NominalPeriod;
 		SETMAX(P.ActualPeriod.low, CurPostPack.Rec.Dt);
-		if(CurPostPack.Rec.Closed > 0 && CurPostPack.Rec.Finish)
+		if(CurPostPack.Rec.Closed > 0 && CurPostPack.Rec.Finish) {
 			SETMIN(P.ActualPeriod.upp, CurPostPack.Rec.Finish);
+		}
 		if(P.NominalPeriod.low <= P.NominalPeriod.upp && P.ActualPeriod.low <= P.ActualPeriod.upp) {
+			int    one_of_ok = -1;
 			THROW(SlObj.GetPacket(CurPostPack.Rec.StaffID, &CurStaffPack) > 0);
 			CurEmployerAmtList.freeAll();
 			if(CurStaffPack.Rec.OrgID) {
 				THROW(SlObj.PsnObj.GetStaffAmtList(CurStaffPack.Rec.OrgID, &CurEmployerAmtList));
 			}
 			if(!(P.Flags & Param::fSilent)) {
-				THROW(PPLoadText(PPTXT_LOG_PRCSALCHARGEBYPOST, fmt_buf));
-				Logger.Log(PPFormat(fmt_buf, &msg_buf, CurPostPack.Rec.PersonID, CurStaffPack.Rec.Name, P.NominalPeriod));
+				if(PPLoadText(PPTXT_LOG_PRCSALCHARGEBYPOST, fmt_buf))
+					Logger.Log(PPFormat(fmt_buf, &msg_buf, CurPostPack.Rec.PersonID, CurStaffPack.Rec.Name, P.NominalPeriod));
 			}
 			charge_grp_id = NZOR(CurPostPack.Rec.ChargeGrpID, CurStaffPack.Rec.ChargeGrpID);
 			if(!charge_grp_id) {
@@ -2259,7 +2313,13 @@ int PrcssrSalary::ProcessPost(PPID postID, UintHashTable * pIdList, int use_ta)
 								CALLPTRMEMB(pIdList, Add(sal_id));
 								*/
 								const  int _per = Helper_PutEntry(postID, sc_pack, pev_item.ID, expr_ctx, pIdList);
-								THROW(_per);
+								if(_per > 0) {
+									one_of_ok = 1;
+									ok = 1;
+								}
+								else {
+									THROW(_per);
+								}
 							}
 							P_CurEv = 0; // используется при расчетах в SalaryContext expr_ctx
 						}
@@ -2281,13 +2341,23 @@ int PrcssrSalary::ProcessPost(PPID postID, UintHashTable * pIdList, int use_ta)
 						CALLPTRMEMB(pIdList, Add(sal_id));
 						*/
 						const  int _per = Helper_PutEntry(postID, sc_pack, 0, expr_ctx, pIdList);
-						THROW(_per);
+						if(_per > 0) {
+							one_of_ok = 1;
+							ok = 1;
+						}
+						else {
+							THROW(_per);
+						}
 					}
 				}
 				else if(!(P.Flags & Param::fSilent)) {
-					THROW(PPLoadText(PPTXT_LOG_SALCHARGEFORMULAEMPTY, fmt_buf));
+					PPLoadText(PPTXT_LOG_SALCHARGEFORMULAEMPTY, fmt_buf);
 					Logger.Log(PPFormat(fmt_buf, &msg_buf, sc_pack.Formula.cptr()));
 				}
+			}
+			if(one_of_ok < 0) {
+				if(PPLoadText(PPTXT_LOG_SALCHARGEALREADYDONE, fmt_buf))
+					Logger.Log(PPFormat(fmt_buf, &msg_buf, CurPostPack.Rec.PersonID, CurStaffPack.Rec.Name, P.NominalPeriod));
 			}
 		}
 		THROW(tra.Commit());
@@ -2305,12 +2375,15 @@ int PrcssrSalary::CalcPeriod(const CalcPeriodParam & rCpP, long * pDays, double 
 	ScObjAssoc sc_obj_assc;
 	SString temp_buf;
 	SStrCollection dbg_log_list;
-	if(!rCpP.Period.low || !rCpP.Period.upp || rCpP.Period.low > rCpP.Period.upp)
+	if(!rCpP.Period.low || !rCpP.Period.upp || rCpP.Period.low > rCpP.Period.upp) {
 		ok = PPSetErrorInvParam();
+	}
 	else {
 		PersonPostTbl::Rec post_rec;
-		PPStaffCal parent_cal, proj_parent_cal;
-		PPID   parent_id = 0, proj_parent_id = 0;
+		PPStaffCal2 parent_cal;
+		PPStaffCal2 proj_parent_cal;
+		PPID   parent_id = 0;
+		PPID   proj_parent_id = 0;
 		THROW(CalObj.SearchBySymb(rCpP.CalSymb, &parent_id, &parent_cal) > 0);
 		if(rCpP.ProjCalSymb.NotEmpty()) {
 			THROW(CalObj.SearchBySymb(rCpP.ProjCalSymb, &proj_parent_id, &proj_parent_cal) > 0);

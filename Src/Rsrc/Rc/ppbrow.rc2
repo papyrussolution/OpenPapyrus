@@ -6292,6 +6292,7 @@ browser REGISTERTYPE north(100), 1, 1, "@{view_registertype}", OWNER|GRID, 0
 {
 	"@id",                        0, int32,        0,  6, BCO_USERPROC
 	"@appellation",               1, zstring(48),  0, 30, BCO_USERPROC
+	"@symbol",                    6, zstring(20),  0, 10, BCO_USERPROC // @v12.8.1
 	"@registertype_regorgkind",   2, zstring(48),  0, 20, BCO_USERPROC
 	"@registertype_personkind",   3, zstring(48),  0, 20, BCO_USERPROC
 	"@registertype_expiryperiod", 4, int32,        NMBF_NOZERO, 10, BCO_USERPROC

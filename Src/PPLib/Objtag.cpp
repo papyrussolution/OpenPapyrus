@@ -2683,7 +2683,27 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
 			if(R_Tdp.SetDlgData(this, &Data)) {
-				;
+				// @v12.8.1 {
+				SString temp_buf;
+				if(Data.TagDataType == OTTYP_STRING) {
+					PPObjectTag2 tag;
+					if(TagObj.Fetch(Data.TagID, &tag) > 0) {
+						if(oneof7(Data.TagID, PPTAG_GUA_GOODSRIGHTS, PPTAG_GUA_PERSONRIGHTS,
+							PPTAG_GUA_SCARDRIGHTS, PPTAG_GUA_FILESRIGHTS, PPTAG_GUA_SALOCRIGHTS, PPTAG_GUA_TSESSRIGHTS, PPTAG_GUA_PRCRIGHTS)) {
+							if(PPLoadText(PPTXT_HINT_TAG_USEKEYFORSELRIGHTS, temp_buf)) {
+								setStaticText(CTL_TAGV_HINT, temp_buf);
+							}
+						}
+						else if(Data.TagID == PPTAG_BILL_CHZNRCPTACTION || sstreqi_ascii(tag.Symb, "VETIS-RSRCH-RESULT") || sstreqi_ascii(tag.Symb, "CC-BAILMENT-AA")) {
+							if(PPLoadText(PPTXT_HINT_TAG_USEKEYFORSELSYMB, temp_buf)) {
+								setStaticText(CTL_TAGV_HINT, temp_buf);
+							}
+						}
+					}
+				}
+				else if(Data.TagDataType == OTTYP_OBJLINK) {
+				}
+				// } @v12.8.1 
 			}
 			else {
 				ok = 0;
@@ -2990,12 +3010,13 @@ int STDCALL EditObjTagItem(PPID objType, PPID objID, ObjTagItem * pItem, const P
 		THROW(CheckDialogPtr(&dlg));
 		// @v12.2.10 THROW(param.SetDlgData(dlg, pItem));
 		dlg->setDTS(pItem); // @v12.2.10 
-		while(!valid_data && (r = ExecView(dlg)) == cmOK)
+		while(!valid_data && (r = ExecView(dlg)) == cmOK) {
 			// @v12.2.10 if(param.GetDlgData(dlg, pItem))
 			if(dlg->getDTS(pItem)) // @v12.2.10
 				ok = valid_data = 1;
 			else
 				PPError();
+		}
 	}
 	CATCHZOKPPERR
 	delete dlg;
@@ -3182,8 +3203,9 @@ int EditObjTagValList(PPID objType, PPID objID, const PPIDArray * pAllowedTags)
 	ObjTagList list;
 	THROW(p_ref->Ot.GetList(objType, objID, &list));
 	list.Oid.Set(objType, objID);
-	if(EditObjTagValList(&list, pAllowedTags) > 0)
+	if(EditObjTagValList(&list, pAllowedTags) > 0) {
 		THROW(p_ref->Ot.PutList(objType, objID, &list, 1));
+	}
 	CATCHZOKPPERR
 	return ok;
 }

@@ -684,7 +684,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 			setCtrlString(CTL_STQCMD_NAME, (temp_buf = Data.Name).Transf(CTRANSF_UTF8_TO_INNER));
 			setCtrlString(CTL_STQCMD_DESCR, (temp_buf = Data.Description).Transf(CTRANSF_UTF8_TO_INNER));
 			setCtrlString(CTL_STQCMD_UUID, temp_buf.Z().Cat(Data.Uuid, S_GUID::fmtIDL));
-			setCtrlLong(CTL_STQCMD_REXPRTM, Data.ResultExpiryTimeSec); // @v11.2.5
+			setCtrlLong(CTL_STQCMD_REXPRTM, Data.ResultExpiryTimeSec);
 			{
 				LongArray base_cmd_id_list;
 				base_cmd_id_list.add(StyloQCommandList::sqbcPersonEvent);
@@ -692,14 +692,14 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 				base_cmd_id_list.add(StyloQCommandList::sqbcRsrvOrderPrereq);
 				base_cmd_id_list.add(StyloQCommandList::sqbcRsrvAttendancePrereq);
 				base_cmd_id_list.add(StyloQCommandList::sqbcRsrvPushIndexContent);
-				base_cmd_id_list.add(StyloQCommandList::sqbcRsrvIndoorSvcPrereq); // @v11.4.4
-				base_cmd_id_list.add(StyloQCommandList::sqbcGoodsInfo); // @v11.4.4
-				base_cmd_id_list.add(StyloQCommandList::sqbcLocalBarcodeSearch); // @v11.4.5
-				base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListOrder); // @v11.4.6
-				base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListCCheck); // @v11.5.2
+				base_cmd_id_list.add(StyloQCommandList::sqbcRsrvIndoorSvcPrereq);
+				base_cmd_id_list.add(StyloQCommandList::sqbcGoodsInfo);
+				base_cmd_id_list.add(StyloQCommandList::sqbcLocalBarcodeSearch);
+				base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListOrder);
+				base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListCCheck);
 				base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListTSess); // @v11.6.5
 				// @construction base_cmd_id_list.add(StyloQCommandList::sqbcIncomingListTodo); // @v11.4.7
-				base_cmd_id_list.add(StyloQCommandList::sqbcDebtList); // @v11.5.4
+				base_cmd_id_list.add(StyloQCommandList::sqbcDebtList);
 				base_cmd_id_list.add(StyloQCommandList::sqbcTest); // @v12.3.1
 				StrAssocArray basecmd_list;
 				for(uint i = 0; i < base_cmd_id_list.getCount(); i++) {
@@ -713,17 +713,13 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 				SetupObjListCombo(this, CTLSEL_STQCMD_OTR, Data.ObjTypeRestriction, &StyloQCore::MakeLinkObjTypeList(true, obj_type_list));
 				SetupObjGroupCombo(Data.ObjTypeRestriction);
 			}
-			// @v11.4.6 {
 			AddClusterAssoc(CTL_STQCMD_FLAGS, 0, Data.fPrepareAhead);
 			AddClusterAssoc(CTL_STQCMD_FLAGS, 1, Data.fPassive); // @v11.9.12
 			SetClusterData(CTL_STQCMD_FLAGS, Data.Flags);
-			// } @v11.4.6 
-			// @v11.5.9 {
 			AddClusterAssoc(CTL_STQCMD_NOTIFYF, 0, Data.fNotify_ObjNew);
 			AddClusterAssoc(CTL_STQCMD_NOTIFYF, 1, Data.fNotify_ObjUpd);
 			AddClusterAssoc(CTL_STQCMD_NOTIFYF, 2, Data.fNotify_ObjStatus);
 			SetClusterData(CTL_STQCMD_NOTIFYF, Data.Flags);
-			// } @v11.5.9 
 			SetupBaseCommand(Data.BaseCmdId);
 			return ok;
 		}
@@ -1118,7 +1114,7 @@ int PPViewStyloQCommand::EditStyloQCommand(StyloQCommandList::Item * pData, cons
 						{
 							setLabelText(CTL_STQCMD_VCMD, PPLoadStringS("styloqcommand_viewsymb", temp_buf));
 							SetupStrAssocCombo(this, CTLSEL_STQCMD_VCMD, CmdTextList, view_id, 0);
-							SetupWordSelector(CTLSEL_STQCMD_VCMD, 0, view_id, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v11.4.4
+							SetupWordSelector(CTLSEL_STQCMD_VCMD, 0, view_id, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr);
 						}
 						enable_viewcmd = true;
 						enable_viewcombo = true;

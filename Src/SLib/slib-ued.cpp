@@ -632,7 +632,7 @@ static constexpr uint Ru_LicPlate_max_dec_bits = 20;
 static const char * P_Ru_LicPlate_Symbs_Utf8  = "АВЕКМНОРСТУХ";
 //static constexpr char * P_RuLicPlateUtf8Symbs = "АВЕКМНОРСТУХавекмнорстухABEKMHOPCTYXabekmhopctyx";
 
-/*static*/uint64 UED::SetRaw_Ru_LicPlate(const char * pT) // @v12.7.9 @construction
+/*static*/uint64 UED::SetRaw_Ru_LicPlate(const char * pT) // @v12.7.9
 {
 	/*
 		0000000140A20000 "ru_licplate" // @v12.7.9 Российский автомобильный номер (3 буквы из 12-значного набора, 3 цифры + 2-3 цифры региона + 10bit код страны) 
@@ -733,7 +733,7 @@ static const char * P_Ru_LicPlate_Symbs_Utf8  = "АВЕКМНОРСТУХ";
 	return result;
 }
 
-/*static*/bool UED::GetRaw_Ru_LicPlate(uint64 ued, SString & rT) // @v12.7.9 @construction
+/*static*/bool UED::GetRaw_Ru_LicPlate(uint64 ued, SString & rT) // @v12.7.9
 {
 	rT.Z();
 	bool   ok = false;
@@ -799,7 +799,6 @@ static const char * P_Ru_LicPlate_Symbs_Utf8  = "АВЕКМНОРСТУХ";
 	}
 	return ok;
 }
-// } @construction
 #endif // } (_MSC_VER >= 1900)
 
 static int SetTimeZoneOffsetSec(uint64 * pRaw, uint bits, int offs)
@@ -1034,13 +1033,13 @@ static int GetTimeZoneOffsetSec(uint64 * pRaw, uint bits, int * pOffs)
 	return ok;
 }
 
-/*static*/bool   UED::_GetRaw_RangeDate(uint64 ued, DateRange & rT)
+/*static*/bool UED::_GetRaw_RangeDate(uint64 ued, DateRange & rT) // @construction
 {
 	bool   ok = false;
 	return ok;
 }
 
-/*static*/uint64 UED::_SetRaw_RangeDate(const DateRange & rT)
+/*static*/uint64 UED::_SetRaw_RangeDate(const DateRange & rT) // @construction
 {
 	uint64 result = 0;
 	return result;

@@ -54,13 +54,24 @@ int PPViewRegisterType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	int    ok = 1;
 	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
 	SString temp_buf;
-	const RegTypeViewItem * p_item = static_cast<const RegTypeViewItem *>(pBlk->P_SrcData);
+	const  RegTypeViewItem * p_item = static_cast<const RegTypeViewItem *>(pBlk->P_SrcData);
 	switch(pBlk->ColumnN) {
 		case 0: // ИД
 			pBlk->Set(p_item->ID);
 			break;
 		case 1: // Наименование
-			GetRegisterTypeName(p_item->ID, temp_buf);
+			// @v12.8.1 GetRegisterTypeName(p_item->ID, temp_buf);
+			// @v12.8.1 {
+			{
+				PPRegisterType2 rt_rec;
+				if(ObjRegT.Fetch(p_item->ID, &rt_rec) > 0) {
+					temp_buf = rt_rec.Name;
+				}
+				else {
+					ideqvalstr(p_item->ID, temp_buf);
+				}
+			}
+			// } @v12.8.1 
 			pBlk->Set(temp_buf);
 			break;
 		case 2: // Вид регистрирующей организации
@@ -76,6 +87,15 @@ int PPViewRegisterType::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			break;
 		case 5: // Формат
 			pBlk->Set(p_item->Format);
+			break;
+		case 6: // Symbol // @v12.8.1
+			{
+				PPRegisterType2 rt_rec;
+				if(ObjRegT.Fetch(p_item->ID, &rt_rec) > 0) {
+					temp_buf = rt_rec.Symb;
+				}
+			}
+			pBlk->Set(temp_buf);
 			break;
 	}
 	return ok;

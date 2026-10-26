@@ -400,6 +400,32 @@ public class GTIN {
 	{
 		return (tok > 0 && L != null && L.GetCount() > 0) ? (L.Search(tok) >= 0) : false;
 	}
+	int GetPrefixId(String prefix/*, uint * pFractionLen*/) // @v12.8.1
+	{
+		int    _id = 0;
+		int    frac_len = 0;
+		final  int pl = SLib.GetLen(prefix);
+		if(pl > 1) {
+			_id = SLib.SIntToSymbTab_GetId(GtinPrefix, prefix);
+			if(_id == 0) {
+				//310n до 369n
+				if(pl == 4) {
+					if(prefix.charAt(0) == '3' && (prefix.charAt(1) >= '1' && prefix.charAt(1) <= '6') && (prefix.charAt(2) >= '0' && prefix.charAt(2) <= '9')) {
+						if(prefix.charAt(3) >= '0' && prefix.charAt(3) <= '6') { // precision .xxx
+							String prefix2 = prefix.substring(0, 3);
+							prefix2 += 'y'; // для поиска по массиву GtinPrefix
+							_id = SLib.SIntToSymbTab_GetId(GtinPrefix, prefix2);
+							if(_id > 0) {
+								frac_len = (prefix.charAt(3) - '0');
+							}
+						}
+					}
+				}
+			}
+		}
+		//ASSIGN_PTR(pFractionLen, frac_len);
+		return _id;
+	}
 	DetectedPrefix DetectPrefix(final String src, int flags, int currentId/*, uint * pPrefixLen*/)
 	{
 		int    prefix_id = -1;
@@ -408,7 +434,7 @@ public class GTIN {
 		String temp_buf;
 		if(src_len >= 4) {
 			temp_buf = src.substring(0, 4);
-			int _id = SLib.SIntToSymbTab_GetId(GtinPrefix, temp_buf);
+			int _id = GetPrefixId(temp_buf);
 			if(IsTokenEnabled(_id) && _id != currentId && !HasToken(_id)) {
 				prefix_len = 4;
 				prefix_id = _id;
@@ -416,7 +442,7 @@ public class GTIN {
 		}
 		if(prefix_id <= 0 && src_len >= 3) {
 			temp_buf = src.substring(0, 3);
-			int _id = SLib.SIntToSymbTab_GetId(GtinPrefix, temp_buf);
+			int _id = GetPrefixId(temp_buf);
 			if(IsTokenEnabled(_id) && _id != currentId && !HasToken(_id)) {
 				prefix_len = 3;
 				prefix_id = _id;
@@ -424,7 +450,7 @@ public class GTIN {
 		}
 		if(prefix_id <= 0 && src_len >= 2) {
 			temp_buf = src.substring(0, 2);
-			int _id = SLib.SIntToSymbTab_GetId(GtinPrefix, temp_buf);
+			int _id = GetPrefixId(temp_buf);
 			if(IsTokenEnabled(_id) && _id != currentId && !HasToken(_id)) {
 				//if((flags & dpfBOL) != 0 || (_id != fldGTIN14)) { // @v12.5.12 (_id != fldSscc18 && _id != fldGTIN14)-->(_id != fldGTIN14)
 				if((flags & dpfBOL) != 0 || (/*_id != fldSscc18 &&*/_id != fldGTIN14)) {
@@ -820,6 +846,7 @@ public class GTIN {
 		dedicatedcase_mdlp_03,         // @v12.6.1  "^01(\\d{14})21(.{1,13}?)10(.{1,20}?)91(.{4})92(.{44})$"
 		dedicatedcase_motoroil_01,     // @v12.6.2  "^01(\\d{14})21(.+?)91(.+?)92(.+)$"
 		dedicatedcase_sunfruit_01,     // @v12.7.0  "^01(\\d{14})10(.{4,20}?)21(.{4,20})$"
+		dedicatedcase_cheeseminsk,     // @v12.8.1  "^02(\\d{14})11(\\d{6})17(\\d{6})310([0-6])(\\d{6})10([!-~]{4,20})$";
 	};
 	public static GTIN ParseChZnCode(String code, int flags)
 	{
@@ -1159,6 +1186,27 @@ public class GTIN {
 				}
 			}
 			// } @v12.7.0
+			// @v12.8.1 {
+			if(dedicated_case == DedicatedCase.undef) {
+				//dedicatedcase_cheeseminsk      = 15, // @v12.8.1  "^02(\\d{14})11(\\d{6})17(\\d{6})310([0-6])(\\d{6})10([!-~]{4,20})$";
+				final String re_text = "^02(\\d{14})11(\\d{6})17(\\d{6})310([0-6])(\\d{6})10([!-~]{4,20})$";
+				Pattern re_pattern = Pattern.compile(re_text);
+				if(re_pattern != null) {
+					Matcher re_matcher = re_pattern.matcher(code);
+					if(re_matcher.matches()) {
+						//assert(reresult.getCount() == 6+1);
+						String _6 = re_matcher.group(6);
+						result.AddOnlyToken(fldContainerCt/*fldGTIN14*/); // 02xxx
+						result.AddOnlyToken(fldManufDate);
+						result.AddOnlyToken(fldExpiryDate);
+						result.AddOnlyToken(fldWtNettKg);
+						result.SetSpecialFixedToken(fldPart, SLib.GetLen(_6));
+						//
+						dedicated_case = DedicatedCase.dedicatedcase_cheeseminsk;
+					}
+				}
+			}
+			// } @v12.8.1
 			if(result.ChZnParseResult == 0) {
 				if(dedicated_case == DedicatedCase.undef) {
 					result.ChZnParseResult = 0;

@@ -1374,7 +1374,7 @@ int DivGrpAsscListDialog::delItem(long pos, long /*id*/) { return P_Data->atFree
 //
 int SelectPrinterFromWinPool(SString & rPrinter)
 {
-	int    ok = 1;
+	int    ok = -1;
 	long   sel_prn_id = 0;
 	long   def_prn_id = 0;
 	SString temp_buf;
@@ -1413,6 +1413,7 @@ int SelectPrinterFromWinPool(SString & rPrinter)
 			if(sel_prn_id && sel_prn_id <= prn_list.getCountI())
 				prn_port = prn_list.at(sel_prn_id - 1).PrinterName;
 			valid_data = 1;
+			ok = 1;
 		}
 	}
 	CATCHZOK

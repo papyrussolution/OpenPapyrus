@@ -447,19 +447,21 @@ int AccTurnCore::NormalyzeAcc(int aco, PPID * pAccID, PPID * pCurID)
 	return ok;
 }
 
-int AccTurnCore::IdentifyAcc(long * pAco, PPID * pAccID, PPID curID, PPID personRelID, PPIDArray * pAccList)
+int AccTurnCore::IdentifyAcc(long * pAco, PPID * pAccID, PPID curID, PPID personRelID, PPIDArray & rAccList)
 {
+	rAccList.Z();
 	int    ok = 1;
 	PPID   cur_id = 0;
 	int    sb = -1;
 	int    aco = *pAco;
+	PPAccount acc_rec;
 	if(oneof2(aco, ACO_1, ACO_2)) {
-		PPAccount acc_rec;
 		THROW(AccObj.Search(*pAccID, &acc_rec) > 0);
-		if(acc_rec.Type == ACY_PERSONAL) {
-			//AccObj.GetChildList(acc_rec.ID, StrAssocArray * pChildList);
+		if(acc_rec.Type == ACY_PERSONAL) { // @v12.8.1 @construction
+			AccObj.GetChildList(acc_rec.ID, true, rAccList);
+			rAccList.addUnique(acc_rec.ID);
 		}
-		if(aco == ACO_1 || (aco == ACO_2 && curID < 0)) {
+		else if(aco == ACO_1 || (aco == ACO_2 && curID < 0)) {
 			if(curID < 0) {
 				cur_id = -1;
 				if(aco == ACO_2) {
@@ -474,15 +476,15 @@ int AccTurnCore::IdentifyAcc(long * pAco, PPID * pAccID, PPID curID, PPID person
 			}
 			THROW(AccObj.Search(*pAccID, &acc_rec) > 0);
 			sb = (aco == ACO_1) ? -1 : acc_rec.A.Sb;
-			THROW(AccObj.GetSubacctList(acc_rec.A.Ac, sb, cur_id, pAccList));
+			THROW(AccObj.GetSubacctList(acc_rec.A.Ac, sb, cur_id, &rAccList));
 			if(curID < 0 && aco == ACO_2) {
-				THROW(pAccList->addUnique(*pAccID));
+				THROW(rAccList.addUnique(*pAccID));
 			}
-			if(pAccList->getCount() == 1) {
+			if(rAccList.getCount() == 1) {
 				aco = ACO_2;
-				*pAccID = pAccList->at(0);
+				*pAccID = rAccList.at(0);
 			}
-			ok = pAccList->getCount();
+			ok = rAccList.getCount();
 		}
 		else if(aco == ACO_2) {
 			THROW(AccObj.SearchCur(*pAccID, curID, pAccID, 0) > 0);
@@ -494,37 +496,45 @@ int AccTurnCore::IdentifyAcc(long * pAco, PPID * pAccID, PPID curID, PPID person
 		PPIDArray temp_list;
 		THROW(AccRel.Search(*pAccID, &acr_rec) > 0);
 		const  PPID acc_id = acr_rec.AccID;
-		if(personRelID) {
-			PPObjArticle ar_obj;
-			ar_obj.GetRelPersonList(acr_rec.ArticleID, personRelID, 1, &temp_list);
-			ar_list.addUnique(&temp_list);
+		/*
+		THROW(AccObj.Search(acc_id, &acc_rec) > 0);
+		if(acc_rec.Type == ACY_PERSONAL) { // @v12.8.1 @construction
+			AccObj.GetChildList(acc_rec.ID, true, rAccList);
+			rAccList.addUnique(acc_rec.ID);
 		}
-		ar_list.addUnique(acr_rec.ArticleID);
-		for(uint j = 0; j < ar_list.getCount(); j++) {
-			AccIdent acctid(acc_id, ar_list.get(j));
-			if(curID < 0) {
-				temp_list.clear();
-				THROW(AccObj.SearchBase(acctid.AcID, &acctid.AcID, 0) > 0);
-				THROW(AccObj.GetCurList(acctid.AcID, &temp_list, 0));
-				THROW_SL(temp_list.addUnique(acctid.AcID));
-				for(uint i = 0; i < temp_list.getCount(); i++) {
-					acctid.AcID = temp_list.get(i);
+		else*/{
+			if(personRelID && acr_rec.ArticleID) {
+				PPObjArticle ar_obj;
+				ar_obj.GetRelPersonList(acr_rec.ArticleID, personRelID, 1, &temp_list);
+				ar_list.addUnique(&temp_list);
+			}
+			ar_list.addUnique(acr_rec.ArticleID);
+			for(uint j = 0; j < ar_list.getCount(); j++) {
+				AccIdent acctid(acc_id, ar_list.get(j));
+				if(curID < 0) {
+					temp_list.clear();
+					THROW(AccObj.SearchBase(acctid.AcID, &acctid.AcID, 0) > 0);
+					THROW(AccObj.GetCurList(acctid.AcID, &temp_list, 0));
+					THROW_SL(temp_list.addUnique(acctid.AcID));
+					for(uint i = 0; i < temp_list.getCount(); i++) {
+						acctid.AcID = temp_list.get(i);
+						if(AccRel.SearchAcctID(&acctid, &acr_rec) > 0) {
+							THROW_SL(rAccList.addUnique(acr_rec.ID));
+						}
+					}
+				}
+				else {
+					THROW(AccObj.SearchCur(acctid.AcID, curID, &acctid.AcID, 0) > 0);
 					if(AccRel.SearchAcctID(&acctid, &acr_rec) > 0) {
-						THROW_SL(pAccList->addUnique(acr_rec.ID));
+						THROW_SL(rAccList.addUnique(acr_rec.ID));
 					}
 				}
 			}
-			else {
-				THROW(AccObj.SearchCur(acctid.AcID, curID, &acctid.AcID, 0) > 0);
-				if(AccRel.SearchAcctID(&acctid, &acr_rec) > 0) {
-					THROW_SL(pAccList->addUnique(acr_rec.ID));
-				}
-			}
 		}
-		if(pAccList->getCount() == 1) {
-			*pAccID = pAccList->at(0);
+		if(rAccList.getCount() == 1) {
+			*pAccID = rAccList.at(0);
 		}
-		ok = pAccList->getCount();
+		ok = rAccList.getCount();
 	}
 	else {
 		CALLEXCEPT_PP(PPERR_INVPARAM);
@@ -1218,9 +1228,10 @@ int AccTurnCore::CalcRest(int aco, PPID accID, const DateRange * pPeriod, double
 int AccTurnCore::CalcComplexRestOnGenList(ObjRestrictArray * pGenList, PPID curID, const DateRange * pRange, AmtList * pInRest, AmtList * pOutRest)
 {
 	ObjRestrictItem * p_item;
-	for(uint i = 0; pGenList->enumItems(&i, (void **)&p_item);)
+	for(uint i = 0; pGenList->enumItems(&i, (void **)&p_item);) {
 		if(!CalcComplexRest(GetAcoByGenFlags(p_item->Flags), p_item->ObjID, curID, 0, pRange, pInRest, pOutRest))
 			return 0;
+	}
 	return 1;
 }
 
@@ -1237,7 +1248,7 @@ int AccTurnCore::CalcComplexRest(long aco, PPID accID, PPID curID, PPID personRe
 	double * p_inrest  = pInRest  ? &inrest  : 0;
 	double * p_outrest = pOutRest ? &outrest : 0;
 	aco = abs(aco);
-	THROW(IdentifyAcc(&aco, &accID, curID, personRelID, &acc_list));
+	THROW(IdentifyAcc(&aco, &accID, curID, personRelID, acc_list));
 	SETIFZ(period.upp, MAXDATE);
 	if(acc_list.getCount() == 0) {
 		if(curID < 0) {

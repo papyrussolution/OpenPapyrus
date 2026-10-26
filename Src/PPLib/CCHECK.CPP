@@ -706,7 +706,7 @@ bool FASTCALL CCheckLineArray::IsEq(const CCheckLineArray & rS) const
 				eq = false;
 			else if(r_item.Price != r_item2.Price)
 				eq = false;
-			else if(r_item.Dscnt != r_item2.Dscnt)
+			else if(!feqeps(r_item.Dscnt, r_item2.Dscnt, 1E-5))
 				eq = false;
 		}
 	}
@@ -1769,9 +1769,15 @@ int CCheckPacket::SetupPaymList(const CcAmountList * pList)
 	return ok;
 }
 
+CCheckPacket::SetupTotalDiscountResult::SetupTotalDiscountResult() : OrgAmount(0.0), Amount(0.0), ReqDiscount(0.0), Discount(0.0)
+{
+}
+
 int CCheckPacket::SetTotalDiscount_Debug(uint method/*1||2*/, double dis, long flags, SetupTotalDiscountResult * pResult) // @v12.8.0 @construction
 {
 	int    ok = 1;
+	bool   debug_mark = false; // @debug
+	SetupTotalDiscountResult stat;
 	THROW(oneof2(method, 1, 2));
 	{
 		DiscountDistribution dd;
@@ -1780,12 +1786,14 @@ int CCheckPacket::SetTotalDiscount_Debug(uint method/*1||2*/, double dis, long f
 		double discount_to_setup = 0.0;
 		CcTotal init_total;
 		CalcAmount(&init_total);
+		stat.OrgAmount = init_total.Amount;
 		if(flags & stdfPlus) {
 			discount_to_setup = (flags & stdfPctDis) ? ((dis * init_total.Amount) / (100.0 - dis)) : dis;
 			//amount += discount;
 		}
 		else
 			discount_to_setup = (flags & stdfPctDis) ? (dis * fdiv100r(init_total.Amount)) : dis;
+		stat.ReqDiscount = discount_to_setup;
 		{
 			for(uint i = 0; i < Items_.getCount(); i++) {
 				const  CCheckLineTbl::Rec & r_ccl = Items_.at(i);
@@ -1793,7 +1801,7 @@ int CCheckPacket::SetTotalDiscount_Debug(uint method/*1||2*/, double dis, long f
 				GetLineExt(i+1, le);
 				//const double ccl_price = intmnytodbl(r_ccl.Price);
 				//uint64 init_price = R0i64((ccl_price) * 100.0);
-				uint64 init_price = r_ccl.Price;
+				uint64 init_price = r_ccl.Price; // r_ccl.Price уже в копейках!
 				uint   item_flags = 0;
 				if(le.Flags & LineExt::fFixedPrice)
 					item_flags |= DiscountDistribution::fNoDiscount;
@@ -1801,10 +1809,10 @@ int CCheckPacket::SetTotalDiscount_Debug(uint method/*1||2*/, double dis, long f
 			}
 		}
 		if(method == 1) {
-			dd.Run_01(discount_to_setup, r_);
+			dd.Run_01(discount_to_setup * 100.0, r_);
 		}
 		else if(method == 2) {
-			dd.Run_02(discount_to_setup, r_);
+			dd.Run_02(discount_to_setup * 100.0, r_);
 		}
 		else
 			ok = 0;
@@ -1812,92 +1820,108 @@ int CCheckPacket::SetTotalDiscount_Debug(uint method/*1||2*/, double dis, long f
 			for(uint i = 0; i < Items_.getCount(); i++) {
 				CCheckLineTbl::Rec & r_ccl = Items_.at(i);
 				const DiscountDistribution::Item * p_dd_item = r_.GetItemByRef(i+1);
-				assert(p_dd_item);
+				//assert(p_dd_item);
 				if(p_dd_item) {
-					r_ccl.Dscnt = p_dd_item->Discount / 100.0;
+					r_ccl.Dscnt = intmnytodbl(p_dd_item->Discount);
 				}
 				else {
 					; 
 				}
+				debug_mark = true; // @debug
 			}
+			CcTotal final_total;
+			CalcAmount(&final_total);
+			stat.Amount = final_total.Amount;
+			stat.Discount = final_total.Discount;
 		}
 	}
 	CATCH
 		ok = 0;
 	ENDCATCH
+	ASSIGN_PTR(pResult, stat);
 	return ok;
 }
 
 void CCheckPacket::SetTotalDiscount__(double dis, long flags/*int pctdis, int plusDiscount*/)
 {
-	uint   i;
-	uint   last_index = 0;
-	double min_qtty = SMathConst::Max;
-	double max_price = 0.0;
-	double amount = 0.0;
-	double qtty;
-	double p;
-	double d;
-	CCheckLineTbl::Rec * p_item;
-	for(i = 0; Items_.enumItems(&i, (void **)&p_item);) {
-		qtty = fabs(p_item->Quantity);
-		p = intmnytodbl(p_item->Price);
-		amount = R2(amount + p * qtty);
-		if(qtty > 0.0 && (qtty < min_qtty || (qtty == min_qtty && p > max_price))) {
-			last_index = i;
-			min_qtty = qtty;
-			max_price = p;
+	if(dis == 0.0) {
+		for(uint i = 0; i < Items_.getCount(); i++) {
+			CCheckLineTbl::Rec & r_ln = Items_.at(i);
+			r_ln.Dscnt = 0.0;
 		}
-	}
-	double discount = 0.0;
-	double part_dis = 0.0;
-	double part_amount = 0.0;
-	if(flags & stdfPlus) {
-		discount = (flags & stdfPctDis) ? ((dis * amount) / (100.0 - dis)) : dis;
-		amount += discount;
-	}
-	else
-		discount = (flags & stdfPctDis) ? (dis * fdiv100r(amount)) : dis;
-	if(last_index && (dis / max_price) <= 0.01) {
-		p_item = &Items_.at(last_index-1);
-		d = (discount / fabs(p_item->Quantity));
-		p_item->Dscnt = d;
-		if(flags & stdfPlus) {
-			//p_item->Price = dbltointmny(intmnytodbl(p_item->Price) + p_item->Dscnt);
-			p_item->Dscnt = -d;
-		}
-		else
-			p_item->Dscnt = d;
 	}
 	else {
-		for(i = 0; Items_.enumItems(&i, (void **)&p_item);) {
-			if(i != last_index) {
-				qtty = fabs(p_item->Quantity);
-				if(qtty > 0.0) {
-					p = intmnytodbl(p_item->Price);
-					d = (p * (discount - part_dis) / (amount - part_amount));
-					p_item->Dscnt = d;
-					if(flags & stdfPlus) {
-						//p_item->Price = dbltointmny(intmnytodbl(p_item->Price) + p_item->Dscnt);
-						p_item->Dscnt = -d;
-					}
-					else
-						p_item->Dscnt = d;
-					part_dis += (d * qtty);
-					part_amount += (p * qtty);
+		uint   last_index = 0;
+		double min_qtty = SMathConst::Max;
+		double max_price = 0.0;
+		double amount = 0.0;
+		double qtty;
+		double p;
+		double d;
+		{
+			for(uint i = 0; i < Items_.getCount(); i++) {
+				const  CCheckLineTbl::Rec & r_ln = Items_.at(i);
+				qtty = fabs(r_ln.Quantity);
+				p = intmnytodbl(r_ln.Price);
+				amount = R2(amount + p * qtty);
+				if(qtty > 0.0 && (qtty < min_qtty || (qtty == min_qtty && p > max_price))) {
+					last_index = i+1;
+					min_qtty = qtty;
+					max_price = p;
 				}
 			}
 		}
-		if(last_index) {
-			p_item = &Items_.at(last_index-1);
-			d = ((discount - part_dis) / fabs(p_item->Quantity));
-			p_item->Dscnt = d;
+		double discount = 0.0;
+		double part_dis = 0.0;
+		double part_amount = 0.0;
+		if(flags & stdfPlus) {
+			discount = (flags & stdfPctDis) ? ((dis * amount) / (100.0 - dis)) : dis;
+			amount += discount;
+		}
+		else
+			discount = (flags & stdfPctDis) ? (dis * fdiv100r(amount)) : dis;
+		if(last_index && (dis / max_price) <= 0.01) {
+			CCheckLineTbl::Rec & r_ln = Items_.at(last_index-1);
+			d = (discount / fabs(r_ln.Quantity));
+			r_ln.Dscnt = d;
 			if(flags & stdfPlus) {
-				//p_item->Price = dbltointmny(intmnytodbl(p_item->Price) + p_item->Dscnt);
-				p_item->Dscnt = -d;
+				//r_ln.Price = dbltointmny(intmnytodbl(r_ln.Price) + r_ln.Dscnt);
+				r_ln.Dscnt = -d;
 			}
 			else
-				p_item->Dscnt = d;
+				r_ln.Dscnt = d;
+		}
+		else {
+			for(uint i = 0; i < Items_.getCount(); i++) {
+				CCheckLineTbl::Rec & r_ln = Items_.at(i);
+				if((i+1) != last_index) {
+					qtty = fabs(r_ln.Quantity);
+					if(qtty > 0.0) {
+						p = intmnytodbl(r_ln.Price);
+						d = (p * (discount - part_dis) / (amount - part_amount));
+						r_ln.Dscnt = d;
+						if(flags & stdfPlus) {
+							//r_ln.Price = dbltointmny(intmnytodbl(r_ln.Price) + r_ln.Dscnt);
+							r_ln.Dscnt = -d;
+						}
+						else
+							r_ln.Dscnt = d;
+						part_dis += (d * qtty);
+						part_amount += (p * qtty);
+					}
+				}
+			}
+			if(last_index) {
+				CCheckLineTbl::Rec & r_ln = Items_.at(last_index-1);
+				d = ((discount - part_dis) / fabs(r_ln.Quantity));
+				r_ln.Dscnt = d;
+				if(flags & stdfPlus) {
+					//r_ln.Price = dbltointmny(intmnytodbl(r_ln.Price) + r_ln.Dscnt);
+					r_ln.Dscnt = -d;
+				}
+				else
+					r_ln.Dscnt = d;
+			}
 		}
 	}
 }
@@ -2341,13 +2365,13 @@ SJson * CCheckPacket::ToJsonObj() const // @v12.8.0
 		p_js_cc->InsertIntNz("cruserid", Ext.CreationUserID);
 		p_js_cc->InsertIntNz("linkccid", Ext.LinkCheckID);
 		if(checkdate(Ext.CreationDtm.d)) {
-			p_js_cc->InsertString("crtime", temp_buf.Z().Cat(Ext.CreationDtm, DATF_ISO8601CENT, 0));
+			p_js_cc->InsertString("crtime", temp_buf.Z().Cat(Ext.CreationDtm, DATF_ISO8601CENT, TIMF_HMS|TIMF_MSEC));
 		}
 		if(checkdate(Ext.StartOrdDtm.d)) {
-			p_js_cc->InsertString("startordtime", temp_buf.Z().Cat(Ext.StartOrdDtm, DATF_ISO8601CENT, 0));
+			p_js_cc->InsertString("startordtime", temp_buf.Z().Cat(Ext.StartOrdDtm, DATF_ISO8601CENT, TIMF_HMS|TIMF_MSEC));
 		}
 		if(checkdate(Ext.EndOrdDtm.d)) {
-			p_js_cc->InsertString("endordtime", temp_buf.Z().Cat(Ext.EndOrdDtm, DATF_ISO8601CENT, 0));
+			p_js_cc->InsertString("endordtime", temp_buf.Z().Cat(Ext.EndOrdDtm, DATF_ISO8601CENT, TIMF_HMS|TIMF_MSEC));
 		}
 	}
 	{

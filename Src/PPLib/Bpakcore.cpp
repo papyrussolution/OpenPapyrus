@@ -105,19 +105,23 @@ bool AmtList::Search(PPID amtTypeID, PPID curID, uint * pPos) const
 int AmtList::GetCurList(PPID amtTypeID, PPIDArray * pCurList) const
 {
 	int    ok = -1;
-	if(pCurList)
-		for(uint i = 0; ok && i < getCount(); i++)
+	if(pCurList) {
+		for(uint i = 0; ok && i < getCount(); i++) {
 			if(amtTypeID < 0 || at(i).AmtTypeID == amtTypeID)
 				ok = pCurList->addUnique(at(i).CurID) ? 1 : 0;
+		}
+	}
 	return ok;
 }
 
 int AmtList::GetAmtTypeList(PPIDArray * pList) const
 {
 	int    ok = -1;
-	if(pList)
-		for(uint i = 0; ok && i < getCount(); i++)
+	if(pList) {
+		for(uint i = 0; ok && i < getCount(); i++) {
 			ok = pList->addUnique(at(i).AmtTypeID) ? 1 : 0;
+		}
+	}
 	return ok;
 }
 
@@ -148,11 +152,12 @@ int AmtList::Put(PPID amtTypeID, PPID curID, double amt, int ignoreZero, int rep
 	amt = oneof2(amtTypeID, PPAMT_CRATE, PPAMT_TRANSITCRATE) ? R6(amt) : R2(amt);
 	int    zero = BIN(ignoreZero && amt == 0.0);
 	if(Search(amtTypeID, curID, &pos)) {
-		if(replace)
+		if(replace) {
 			if(zero)
 				atFree(pos);
 			else
 				at(pos).Amt = amt;
+		}
 	}
 	else if(!zero) {
 		AmtEntry e(amtTypeID, curID, amt);
@@ -203,19 +208,23 @@ int AmtList::Sub(const AmtEntry * pEntry, int ignoreZero)
 
 int AmtList::Add(const AmtList * pList, int ignoreZero)
 {
-	if(pList)
-		for(uint i = 0; i < pList->getCount(); i++)
+	if(pList) {
+		for(uint i = 0; i < pList->getCount(); i++) {
 			if(!Add(&pList->at(i), ignoreZero))
 				return 0;
+		}
+	}
 	return 1;
 }
 
 int AmtList::Sub(const AmtList * pList, int ignoreZero)
 {
-	if(pList)
-		for(uint i = 0; i < pList->getCount(); i++)
+	if(pList) {
+		for(uint i = 0; i < pList->getCount(); i++) {
 			if(!Sub(&pList->at(i), ignoreZero))
 				return 0;
+		}
+	}
 	return 1;
 }
 
@@ -6874,15 +6883,11 @@ void PPBillPacket::Implement_SumAmounts(AmtList & rList, const PPBillPacket * pO
 	BillTotalBlock * p_btb_orgpack = 0;
 	BillTotalData total_data;
 	BillTotalData total_data_orgpack;
-	// @v11.6.6 {
 	PPOprKind2 op_rec;
 	if(Rec.OpID && GetOpData(Rec.OpID, &op_rec)) {
 		if(op_rec.Flags & OPKF_CALCSTAXES)
 			btb_flags |= BTC_CALCSALESTAXES;
 	}
-	// } @v11.6.6 
-	/* @v11.6.6 if(CheckOpFlags(Rec.OpID, OPKF_CALCSTAXES))
-		btb_flags |= BTC_CALCSALESTAXES;*/
 	{
 		BillTotalBlock btb(total_data, *this, 0, 0, btb_flags);
 		if(pOrgPack) {
@@ -6942,7 +6947,6 @@ void PPBillPacket::Implement_SumAmounts(AmtList & rList, const PPBillPacket * pO
 				}
 			}
 		}
-		// @v11.6.6 {
 		if(op_rec.OpTypeID == PPOPT_ACCTURN && op_rec.ExtFlags & OPKFX_ACCAUTOVAT) {
 			const double nominal_amount = rList.Get(PPAMT_MAIN, 0L/*@curID*/);
 			if(nominal_amount != 0.0) {
@@ -6970,7 +6974,6 @@ void PPBillPacket::Implement_SumAmounts(AmtList & rList, const PPBillPacket * pO
 				}
 			}
 		}
-		// } @v11.6.6 
 	}
 	if(P_Freight)
 		rList.Add(PPAMT_FREIGHT, 0, P_Freight->Cost);

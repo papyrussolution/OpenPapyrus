@@ -1598,8 +1598,12 @@ int PPDesktop::WaitCommand()
 				Addendum.Z();
 				if(p_cmd && p_cmd->GetKeyName(code, 1) > 0) {
 					CodeBuf = code;
-					if(AssocList.GetByCode(CodeBuf, 0, &Command, &Addendum) > 0 || CommAssocList.GetByCode(CodeBuf, 0, &Command, &Addendum) > 0)
+					if(AssocList.GetByCode(CodeBuf, 0, &Command, &Addendum) > 0) {
 						endModal(cmOK);
+					}
+					else if(CommAssocList.GetByCode(CodeBuf, 0, &Command, &Addendum) > 0) {
+						endModal(cmOK);
+					}
 					else
 						SetStatus(code);
 				}
@@ -1612,7 +1616,12 @@ int PPDesktop::WaitCommand()
 						Command.Z();
 						Addendum.Z();
 						getCtrlString(CTL_WAITCMD_INPUT, CodeBuf.Z());
-						AssocList.GetByCode(CodeBuf, 0, &Command, &Addendum) > 0 || CommAssocList.GetByCode(CodeBuf, 0, &Command, &Addendum) > 0;
+						if(AssocList.GetByCode(CodeBuf, 0, &Command, &Addendum) > 0) {
+							;
+						}
+						else if(CommAssocList.GetByCode(CodeBuf, 0, &Command, &Addendum) > 0) {
+							;
+						}
 						__Locking = 0;
 					}
 				}
@@ -1638,9 +1647,10 @@ int PPDesktop::WaitCommand()
 	int    ok = -1;
 	PPDesktopAssocCmd cmd;
 	SString addendum;
-	WaitCmdDialog * p_dlg = 0;
-	MEMSZERO(cmd);
-	THROW(CheckDialogPtr(&(p_dlg = new WaitCmdDialog(P_ActiveDesktop->Uuid))));
+	WaitCmdDialog * p_dlg = new WaitCmdDialog(P_ActiveDesktop->Uuid);
+	// @v12.8.1 @fix @ctr MEMSZERO(cmd);
+	THROW(CheckDialogPtr(&p_dlg));
+	p_dlg->showButton(cmOK, false); // @v12.8.1
 	while(ok < 0 && ExecView(p_dlg) == cmOK) {
 		if(p_dlg->getDTS(&cmd, &addendum) > 0)
 			ok = 1;
@@ -1653,6 +1663,12 @@ int PPDesktop::WaitCommand()
 		if(addendum.NotEmptyS()) {
 			buf.Write(addendum);
 			use_buf = 1;
+		}
+		else {
+			//param_buf = rCpItem.CmdParam;
+			//param_buf.ReplaceStr("@input", input_buf, 0).Strip();
+			//PPCommandDescr cmd_descr;
+			//ok = cmd_descr.DoCommandSimple(rCpItem.CmdID, 0, (param_buf.NotEmpty() ? param_buf.cptr() : 0), 0);
 		}
 		THROW(cmd_descr.DoCommandSimple(cmd.CmdID, 0, 0, (use_buf ? &buf : 0)));
 	}
@@ -2456,7 +2472,7 @@ int PPDesktop::ProcessRawInput(void * rawInputHandle)
 		{
 			PPCommandDescr cmd_descr;
 			cmd_descr.GetResourceList(1, CmdList);
-			disableCtrl(CTLSEL_DESKCMDA_DESKTOP, true);
+			setCtrlReadOnly(CTLSEL_DESKCMDA_DESKTOP, true); // @v12.8.1 disableCtrl-->setCtrlReadOnly
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -2550,6 +2566,7 @@ int PPDesktop::ProcessRawInput(void * rawInputHandle)
 					setCtrlString(CTL_DESKCMDAI_DVCSERIAL, Data.DvcSerial);
 					setCtrlString(CTL_DESKCMDAI_PARAM, Data.CmdParam);
 					SetupStrAssocCombo(this, CTLSEL_DESKCMDAI_COMMAND, cmd_list, Data.CmdID, 0, 0);
+					SetupWordSelector(CTLSEL_DESKCMDAI_COMMAND, 0, Data.CmdID, 2, WordSel_ExtraBlock::fAlwaysSearchBySubStr); // @v12.8.1
 					AddClusterAssoc(CTL_DESKCMDAI_FLAGS, 0, PPDesktopAssocCmd::fSpecCode);
 					AddClusterAssoc(CTL_DESKCMDAI_FLAGS, 1, PPDesktopAssocCmd::fSpecCodePrefx);
 					AddClusterAssoc(CTL_DESKCMDAI_FLAGS, 2, PPDesktopAssocCmd::fNonInteractive);
@@ -2618,7 +2635,8 @@ int PPDesktop::ProcessRawInput(void * rawInputHandle)
 	PPDesktopAssocCmdPool list;
 	DesktopAssocCmdsDialog * p_dlg = 0;
 	THROW(list.ReadFromProp(/*desktopID*/rDesktopUuid));
-	THROW(CheckDialogPtr(&(p_dlg = new DesktopAssocCmdsDialog())));
+	p_dlg = new DesktopAssocCmdsDialog();
+	THROW(CheckDialogPtr(&p_dlg));
 	p_dlg->setDTS(&list);
 	for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 		if(p_dlg->getDTS(&list) > 0) {

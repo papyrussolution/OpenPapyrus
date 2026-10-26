@@ -5540,7 +5540,12 @@ IMPL_HANDLE_EVENT(PersonDialog)
 			case cmPersonReg: PsnObj.RegObj.EditList(&Data, 0); break;
 			case cmPersonPhones: EditELinks(Data.Rec.Name, &Data.ELA); break;
 			case cmPersonBAcct: PsnObj.RegObj.EditBankAccountList(&Data); break;
-			case cmPersonTags: EditObjTagValList(&Data.TagL, 0); break;
+			case cmPersonTags: 
+				{
+					Data.TagL.Oid.Set(PPOBJ_PERSON, Data.Rec.ID); // @v12.8.1
+					EditObjTagValList(&Data.TagL, 0); 
+				}
+				break;
 			case cmPersonAddr:
 			case cmPersonRAddr: {
 					PPObjLocation loc_obj;

@@ -1511,7 +1511,7 @@ void PPViewAccAnlz::SetOuterReportId(uint rptId) { OuterReportId = rptId; } // @
 			Filt.Flags &= ~AccAnlzFilt::fTrnovrBySuppl;
 			if(!(State & stIsGenAcc) && !(State & stIsGenAr)) {
 				if(Filt.AccID) { // @v12.7.11 @condition
-					THROW(P_ATC->IdentifyAcc(&Filt.Aco, &Filt.AccID, Filt.CurID, Filt.SubstRelTypeID, &acc_list));
+					THROW(P_ATC->IdentifyAcc(&Filt.Aco, &Filt.AccID, Filt.CurID, Filt.SubstRelTypeID, acc_list));
 				}
 			}
 			param.IsRegister = BIN(State & stIsRegister);
@@ -1575,9 +1575,8 @@ void PPViewAccAnlz::SetOuterReportId(uint rptId) { OuterReportId = rptId; } // @
 					long   aco = aco_list.at(i).Val;
 					PPID   acc_id = aco_list.at(i).Key;
 					const  int sign = (aco < 0) ? -1 : 1;
-					__acc_list.Z();
 					aco = abs(aco);
-					THROW(P_ATC->IdentifyAcc(&aco, &acc_id, Filt.CurID, Filt.SubstRelTypeID, &__acc_list));
+					THROW(P_ATC->IdentifyAcc(&aco, &acc_id, Filt.CurID, Filt.SubstRelTypeID, __acc_list));
 					if(!__acc_list.isList()) {
 						THROW(ok = EnumerateByIdentifiedAcc(aco * sign, acc_id, enum_proc, &param));
 					}

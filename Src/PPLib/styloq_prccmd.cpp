@@ -1291,10 +1291,10 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 							else /* } @v11.7.0 */ if(!ddecl.ActionFlags) {
 								LongArray ti_idx_list_to_remove;
 								for(uint j = 0; j < p_bpack->GetTCount(); j++) {
-									const PPTransferItem & r_ti = p_bpack->ConstTI(j);
+									const  PPTransferItem & r_ti = p_bpack->ConstTI(j);
 									bool   ti_found = false;
 									for(uint i = 0; !ti_found && i < doc.TiList.getCount(); i++) {
-										const Document::__TransferItem * p_item = doc.TiList.at(i);
+										const  Document::__TransferItem * p_item = doc.TiList.at(i);
 										if(p_item->RowIdx > 0 && r_ti.RByBill == p_item->RowIdx)
 											ti_found = true;
 									}
@@ -1329,7 +1329,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 									if(is_new_pack || (ddecl.ActionFlags & StyloQIncomingListParam::actionGoodsItemCorrection)) { // @v11.7.10 
 										if(p_item->GoodsID != r_ti.GoodsID)
 											r_ti.SetupGoods(p_item->GoodsID);
-										// Цену поступления не акцептируме поскольку мы ее не передавали клиенту (see comment in PPStyloQInterchange::Document::FromBillPacket)
+										// Цену поступления не акцептируем поскольку мы ее не передавали клиенту (see comment in PPStyloQInterchange::Document::FromBillPacket)
 										// @v12.3.2 (see comment above) r_ti.Cost  = p_item->Set.Cost;
 										r_ti.Price = p_item->Set.Price;
 										r_ti.Discount = p_item->Set.Discount;
@@ -1391,6 +1391,8 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 								}
 							}
 							if(p_bpack->Rec.ID) {
+								PPBillPacket org_bpack;
+								//if()
 								p_bpack->InitAmounts();
 								THROW(p_bobj->FillTurnList(p_bpack));
 								THROW(p_bobj->UpdatePacket(p_bpack, 0));
@@ -1412,7 +1414,6 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 									temp_buf.Z().Cat(_uuid, S_GUID::fmtIDL);
 									p_js_reply->InsertString("document-uuid", temp_buf);
 								}
-								// @v11.5.1 {
 								{
 									//
 									// Возвращаем клиенту новый документ, чтобы он мог обновить его в своем хранилище
@@ -1428,7 +1429,6 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 										}
 									}
 								}
-								// } @v11.5.1 
 								p_js_reply->InsertString("result", "ok");
 							}
 							do_store_original_doc = true;

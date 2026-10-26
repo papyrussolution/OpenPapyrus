@@ -3603,6 +3603,38 @@ int PPViewCCheck::Recover()
 	return ok;
 }
 
+/*static*/int PPViewCCheck::ParseCCheckJsonInput(const SJson * pJs, TSCollection <CCheckPacket> & rList) // @v12.8.1 testing-purpose
+{
+	rList.freeAll();
+	int    ok = 0;
+	if(SJson::IsObject(pJs)) {
+		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {
+			const SString & r_text = p_cur->P_Child->Text;
+			if(p_cur->Text.IsEqiAscii("list")) {
+				if(SJson::IsArray(p_cur->P_Child)) {
+					for(const SJson * p_js_cc = p_cur->P_Child->P_Child; p_js_cc; p_js_cc = p_js_cc->P_Next) {
+						if(SJson::IsObject(p_js_cc)) {
+							uint   new_cc_pos = 0;
+							CCheckPacket * p_cc_pack = rList.CreateNewItem(&new_cc_pos);
+							if(p_cc_pack) {
+								const  bool fjsr = p_cc_pack->FromJsonObj(p_js_cc);
+								if(fjsr) {
+									ok = 1;
+								}
+								else {
+									rList.atFree(new_cc_pos);
+								}
+								p_cc_pack = 0;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int PPViewCCheck::ExportToJson()
 {
 	int    ok = -1;

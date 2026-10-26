@@ -9901,8 +9901,10 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName, StringSet &
 					SXml::WNode n2(G.P_X, G.GetToken_Ansi(PPHSC_RU_CONSIGNEEINFO3));
 					{
 						PPLocationPacket dlvr_loc_pack;
-						G.WriteOrgInfo(PPHSC_RU_CONSIGNEEREQ, EpiBlk.ConsigneePsnID, /*EpiBlk.ConsigneeLocID*/0, R_Bp.Rec.Dt, DocNalogRu_Generator::woifForcePhone);
-						if(freight.DlvrAddrID__ && G.PsnObj.LocObj.GetPacket(freight.DlvrAddrID__, &dlvr_loc_pack) > 0) {
+						G.WriteOrgInfo(PPHSC_RU_CONSIGNEEREQ, EpiBlk.ConsigneePsnID, EpiBlk.ConsigneeLocID, 
+							R_Bp.Rec.Dt, DocNalogRu_Generator::woifForcePhone|DocNalogRu_Generator::woifAddrLoc_KppOnly); // @v12.8.1 0-->EpiBlk.ConsigneeLocID, DocNalogRu_Generator::woifAddrLoc_KppOnly
+						// @v12.8.1 if(freight.DlvrAddrID__ && G.PsnObj.LocObj.GetPacket(freight.DlvrAddrID__, &dlvr_loc_pack) > 0) {
+						if(EpiBlk.ConsigneeLocID && G.PsnObj.LocObj.GetPacket(EpiBlk.ConsigneeLocID, &dlvr_loc_pack) > 0) { // @v12.8.1
 							//PPHSC_RU_DLVRADDR              "јдресƒост√р" // @v12.6.9
 							G.WriteAddress(dlvr_loc_pack, 0/*region_code*/, PPHSC_RU_DLVRADDR); // @v12.7.2
 						}

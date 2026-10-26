@@ -187,6 +187,7 @@ double fgetneginf() { return _fdiv(-1.0, 0.0); }
 double FASTCALL fdiv100r(double v)    { return v / 100.0; }
 double FASTCALL fdiv100i(long v)      { return (static_cast<double>(v)) / 100.0; }
 double FASTCALL fdiv1000i(long v)     { return (static_cast<double>(v)) / 1000.0; }
+double FASTCALL fdiv100i64(int64 v)   { return (static_cast<double>(v)) / 100.0; } // @v12.8.1
 double FASTCALL fdivi(long a, long b) { return b ? (static_cast<double>(a) / static_cast<double>(b)) : 0.0; }
 double FASTCALL fdivui(uint a, uint b) { return b ? (static_cast<double>(a) / static_cast<double>(b)) : 0.0; }
 long   FASTCALL fmul100i(double v)   { return R0i(v * 100.0); }

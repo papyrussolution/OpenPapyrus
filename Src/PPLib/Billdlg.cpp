@@ -5163,11 +5163,20 @@ public:
 			Data.Turns.insert(&at);
 		}
 		P_At = &Data.Turns.at(0);
+		if(Data.Rec.ID) {
+			// Для расхода редактирумого (не нового) документа меняем дебет с кредитом местами. В getDTS поменяем снова.
+			// Идея в том, что при редактировании в дебете всегда настраиваемый счет (понятный пользователю - касса, банк и т.д.), а 
+			// в кредите - либо автомат расход/доход, либо получатель трансфера
+			const  int nbf = P_At->GetNonBalancedFlow(Data.Rec);
+			if(oneof2(nbf, PPATFLOW_EXPENSE, PPATFLOW_TRANSFER)) {
+				P_At->SwapDbtCrd();
+			}
+		}
 		AddClusterAssocDef(CTL_ATURN_FLOWDIR, 0, PPATFLOW_EXPENSE);
 		AddClusterAssoc(CTL_ATURN_FLOWDIR, 1, PPATFLOW_INCOME);
 		AddClusterAssoc(CTL_ATURN_FLOWDIR, 2, PPATFLOW_TRANSFER);
 		SetClusterData(CTL_ATURN_FLOWDIR, P_At->GetNonBalancedFlow(Data.Rec));
-		setCtrlReal(CTL_ATURN_AMOUNT, P_At->Amount);
+		setCtrlReal(CTL_ATURN_AMOUNT, fabs(P_At->Amount));
 		setCtrlDate(CTL_ATURN_DATE, P_At->Date);
 		//
 		SetupPPObjCombo(this, CTLSEL_ATURN_DACCNAME, PPOBJ_ACCOUNT2, P_At->DbtID.AcID, 
@@ -5199,6 +5208,12 @@ public:
 		THROW(AccObj.Fetch(P_At->CrdID.AcID, &acc_rec) > 0); // @todo @err
 		getCtrlData(sel = CTLSEL_ATURN_PA_CATEGORY, &P_At->CrdID.ArID);
 		P_At->CrdAcsID = acc_rec.AccSheetID;
+		{
+			const  int nbf = P_At->GetNonBalancedFlow(Data.Rec);
+			if(oneof2(nbf, PPATFLOW_EXPENSE, PPATFLOW_TRANSFER)) {
+				P_At->SwapDbtCrd();
+			}
+		}
 		{
 			if(Data.Turns.getCount()) {
 				if(&Data.Turns.at(0) != P_At) {

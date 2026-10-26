@@ -1482,7 +1482,7 @@ int SelAmtSymbDialog::MakeList(StrAssocArray * pList)
 		}
 	}
 	if(Options & selSymbStaffCal) {
-		PPStaffCal sc_rec;
+		PPStaffCal2 sc_rec;
 		for(id = 0; ScObj.EnumItems(&id, &sc_rec) > 0;) {
 			if(sc_rec.LinkObjType == 0 && sc_rec.LinkObjID == 0) {
 				ss.Z();

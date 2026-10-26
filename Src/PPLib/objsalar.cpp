@@ -654,7 +654,7 @@ int32 DL6ICLS_PPObjSalCharge::Update(int32 id, long flags, PPYOBJREC rec)
 //
 // @ModuleDef(PPObjStaffCal)
 //
-IMPL_INVARIANT_C(PPStaffCal)
+IMPL_INVARIANT_C(PPStaffCal2)
 {
 	S_INVARIANT_PROLOG(pInvP);
 	S_ASSERT_P(sizeof(*this) == sizeof(Reference2Tbl::Rec), pInvP);
@@ -882,12 +882,12 @@ int PPStaffCalPacket::AddItem(StaffCalendarTbl::Rec * pItem, uint * pPos)
 	THROW(SetupEntry(pItem));
 	if(Rec.LinkCalID) {
 		PPObjStaffCal stc_obj;
-		PPStaffCal link_rec;
+		PPStaffCal2 link_rec;
 		if(stc_obj.Search(Rec.LinkCalID, &link_rec) > 0)
-			f_day_gap = BIN(link_rec.Flags & PPStaffCal::fDayGap);
+			f_day_gap = BIN(link_rec.Flags & PPStaffCal2::fDayGap);
 	}
 	else
-		f_day_gap = BIN(Rec.Flags & PPStaffCal::fDayGap);
+		f_day_gap = BIN(Rec.Flags & PPStaffCal2::fDayGap);
 	if(f_day_gap) {
 		THROW(CheckContinuousEntry(pItem));
 		THROW_SL(Items.ordInsert(pItem, pPos, PTR_CMPFUNC(STAFFCALREC)));
@@ -933,7 +933,7 @@ PPObjStaffCal::~PPObjStaffCal()
 int PPObjStaffCal::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
-	PPStaffCal rec;
+	PPStaffCal2 rec;
 	if(msg == DBMSG_OBJDELETE) {
 		if(_obj == PPOBJ_STAFFCAL) {
 			PPIDArray child_list;
@@ -1034,7 +1034,7 @@ int PPObjStaffCal::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace
 	return ok;
 }
 
-int PPObjStaffCal::CheckForFilt(const StaffCalFilt * pFilt, const PPStaffCal * pRec) const
+int PPObjStaffCal::CheckForFilt(const StaffCalFilt * pFilt, const PPStaffCal2 * pRec) const
 {
 	if(pFilt) {
 		if(pFilt->LinkObjType >= 0 && pRec->LinkObjType != pFilt->LinkObjType)
@@ -1054,7 +1054,8 @@ StrAssocArray * PPObjStaffCal::MakeStrAssocList(void * extraPtr)
 		filt = *static_cast<const StaffCalFilt *>(extraPtr);
 	StrAssocArray * p_list = new StrAssocArray;
 	if(p_list) {
-		PPStaffCal rec, parent_rec;
+		PPStaffCal2 rec;
+		PPStaffCal2 parent_rec;
 		SString name_buf;
 		SEnum en;
 		if(filt.LinkObjType && filt.LinkObjList.GetSingle())
@@ -1115,7 +1116,7 @@ IMPL_HANDLE_EVENT(StaffCalDialog)
 	if(event.isCbSelected(CTLSEL_STAFFCAL_PARENT)) {
 		getCtrlData(CTLSEL_STAFFCAL_PARENT, &Data.Rec.LinkCalID);
 		if(!Data.Rec.LinkCalID)
-			Data.Rec.Flags &= PPStaffCal::fInherited;
+			Data.Rec.Flags &= PPStaffCal2::fInherited;
 		DisableClusterItem(CTL_STAFFCAL_FLAGS, 0, !Data.Rec.LinkCalID);
 		DisableClusterItem(CTL_STAFFCAL_FLAGS, 1, Data.Rec.LinkCalID);
 		DisableClusterItem(CTL_STAFFCAL_FLAGS, 2, Data.Rec.LinkCalID);
@@ -1136,7 +1137,7 @@ void StaffCalDialog::setupPositionByDate(LDATE dt)
 int StaffCalDialog::setupSymbols()
 {
 	int    ok = -1;
-	PPStaffCal rec;
+	PPStaffCal2 rec;
 	if(Data.Rec.LinkCalID && StcObj.Search(Data.Rec.LinkCalID, &rec) > 0) {
 		setCtrlData(CTL_STAFFCAL_NAME, rec.Name);
 		setCtrlData(CTL_STAFFCAL_SYMB, rec.Symb);
@@ -1167,9 +1168,9 @@ int StaffCalDialog::setDTS(const PPStaffCalPacket * pData)
 		setCtrlData(CTL_STAFFCAL_NAME, Data.Rec.Name);
 		setCtrlData(CTL_STAFFCAL_SYMB, Data.Rec.Symb);
 	}
-	AddClusterAssoc(CTL_STAFFCAL_FLAGS, 0, PPStaffCal::fInherited);
-	AddClusterAssoc(CTL_STAFFCAL_FLAGS, 1, PPStaffCal::fUseNominalPeriod);
-	AddClusterAssoc(CTL_STAFFCAL_FLAGS, 2, PPStaffCal::fDayGap);
+	AddClusterAssoc(CTL_STAFFCAL_FLAGS, 0, PPStaffCal2::fInherited);
+	AddClusterAssoc(CTL_STAFFCAL_FLAGS, 1, PPStaffCal2::fUseNominalPeriod);
+	AddClusterAssoc(CTL_STAFFCAL_FLAGS, 2, PPStaffCal2::fDayGap);
 	SetClusterData(CTL_STAFFCAL_FLAGS, Data.Rec.Flags);
 	DisableClusterItem(CTL_STAFFCAL_FLAGS, 0, !Data.Rec.LinkCalID);
 	DisableClusterItem(CTL_STAFFCAL_FLAGS, 1, Data.Rec.LinkCalID);
@@ -1194,7 +1195,7 @@ int StaffCalDialog::getDTS(PPStaffCalPacket * pData)
 		getCtrlData(CTLSEL_STAFFCAL_PARENT, &Data.Rec.LinkCalID);
 		getCtrlData(CTLSEL_STAFFCAL_SUBST,  &Data.Rec.SubstCalID);
 	}
-	PPStaffCal link_rec;
+	PPStaffCal2 link_rec;
 	if(Data.Rec.LinkCalID && StcObj.Search(Data.Rec.LinkCalID, &link_rec) > 0) {
 		memzero(Data.Rec.Name, sizeof(Data.Rec.Name));
 		memzero(Data.Rec.Symb, sizeof(Data.Rec.Symb));
@@ -1269,7 +1270,7 @@ public:
 			const  PPID main_cal_id = NZOR(P_Pack->Rec.LinkCalID, cal_id);
 			SString temp_buf;
 			PPObjStaffCal sc_obj;
-			PPStaffCal sc_rec;
+			PPStaffCal2 sc_rec;
 			if(sc_obj.Fetch(main_cal_id, &sc_rec) > 0) {
 				setStaticText(CTL_STAFFCALD_ST_CAL, sc_rec.Name);
 			}
@@ -1555,14 +1556,14 @@ int PPObjStaffCal::PutPacket(PPID * pID, PPStaffCalPacket * pPack, int useTa)
 		PPTransaction tra(useTa);
 		THROW(tra);
 		if(pPack) {
-			THROW(P_Ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Name, offsetof(PPStaffCal, Name)));
-			THROW(P_Ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Symb, offsetof(PPStaffCal, Symb)));
+			THROW(P_Ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Name, offsetof(PPStaffCal2, Name)));
+			THROW(P_Ref->CheckUniqueSymb(Obj, *pID, pPack->Rec.Symb, offsetof(PPStaffCal2, Symb)));
 		}
 		if(*pID) {
 			if(pPack) {
 				int    r;
 				THROW(r = P_Ref->UpdateItem(Obj, *pID, &pPack->Rec, 1, 0));
-				THROW(PutItems(*pID, (pPack->Rec.Flags & PPStaffCal::fInherited) ? 0 : pPack, r < 0));
+				THROW(PutItems(*pID, (pPack->Rec.Flags & PPStaffCal2::fInherited) ? 0 : pPack, r < 0));
 			}
 			else {
 				THROW(P_Ref->RemoveItem(Obj, *pID, 0));
@@ -1572,7 +1573,7 @@ int PPObjStaffCal::PutPacket(PPID * pID, PPStaffCalPacket * pPack, int useTa)
 		else {
 			*pID = pPack->Rec.ID;
 			THROW(P_Ref->AddItem(Obj, pID, &pPack->Rec, 0));
-			THROW(PutItems(*pID, (pPack->Rec.Flags & PPStaffCal::fInherited) ? 0 : pPack, 0));
+			THROW(PutItems(*pID, (pPack->Rec.Flags & PPStaffCal2::fInherited) ? 0 : pPack, 0));
 		}
 		THROW(tra.Commit());
 	}
@@ -1588,11 +1589,11 @@ int PPObjStaffCal::GetPacket(PPID id, PPStaffCalPacket * pPack)
 		StaffCalendarTbl::Key0 k;
 		BExtQuery q(P_ScT, 0);
 		pPack->Items.freeAll();
-		if(pPack->Rec.Flags & PPStaffCal::fInherited)
+		if(pPack->Rec.Flags & PPStaffCal2::fInherited)
 			if(pPack->Rec.LinkCalID)
 				row_id = pPack->Rec.LinkCalID;
 			else
-				pPack->Rec.Flags &= ~PPStaffCal::fInherited;
+				pPack->Rec.Flags &= ~PPStaffCal2::fInherited;
 		MEMSZERO(k);
 		k.CalID = row_id;
 		q.selectAll().where(P_ScT->CalID == row_id);
@@ -1603,10 +1604,10 @@ int PPObjStaffCal::GetPacket(PPID id, PPStaffCalPacket * pPack)
 	return ok;
 }
 
-int PPObjStaffCal::SearchByObj(PPID parentID, SObjID linkObj, PPStaffCal * pRec)
+int PPObjStaffCal::SearchByObj(PPID parentID, SObjID linkObj, PPStaffCal2 * pRec)
 {
 	int    ok = -1;
-	PPStaffCal rec;
+	PPStaffCal2 rec;
 	for(SEnum  en = P_Ref->EnumByIdxVal(Obj, 2, linkObj.Id); ok < 0 && en.Next(&rec) > 0;) {
 		if(rec.LinkObjType == linkObj.Obj && (!parentID || rec.LinkCalID == parentID)) {
 			ASSIGN_PTR(pRec, rec);
@@ -1621,7 +1622,7 @@ int PPObjStaffCal::CreateChild(PPID * pID, PPID parentID, SObjID linkObj, int us
 	int    ok = 1;
 	int    r;
 	PPID   id = 0;
-	PPStaffCal new_entry;
+	PPStaffCal2 new_entry;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1878,8 +1879,10 @@ int PPObjStaffCal::SetEntry(const StaffCalendarTbl::Rec & rEntry, int use_ta)
 	int    ok = 1;
 	int    allow_day_gap = 0;
 	int    r;
-	PPStaffCal sc_rec, sc_parent_rec;
-	StaffCalendarTbl::Rec entry, prev_rec;
+	PPStaffCal2 sc_rec;
+	PPStaffCal2 sc_parent_rec;
+	StaffCalendarTbl::Rec entry;
+	StaffCalendarTbl::Rec prev_rec;
  	entry = rEntry;
 	THROW(PPStaffCalPacket::SetupEntry(&entry));
 	{
@@ -1888,7 +1891,7 @@ int PPObjStaffCal::SetEntry(const StaffCalendarTbl::Rec & rEntry, int use_ta)
 		{
 			//
 			// Для правильной установки значения необходимо выяснить, допускает ли календарь множественные
-			// элементы за день (PPStaffCal::fDayGap)
+			// элементы за день (PPStaffCal2::fDayGap)
 			//
 			THROW(Fetch(rEntry.CalID, &sc_rec) > 0);
 			{
@@ -1904,7 +1907,7 @@ int PPObjStaffCal::SetEntry(const StaffCalendarTbl::Rec & rEntry, int use_ta)
 				else
 					sc_parent_rec = sc_rec;
 			}
-			allow_day_gap = BIN(sc_parent_rec.Flags & PPStaffCal::fDayGap);
+			allow_day_gap = BIN(sc_parent_rec.Flags & PPStaffCal2::fDayGap);
 		}
 		THROW(CheckContinuousEntry(&entry));
 		if(allow_day_gap) {
@@ -1961,7 +1964,7 @@ int PPObjStaffCal::SetEntry(const StaffCalendarTbl::Rec & rEntry, int use_ta)
 int PPObjStaffCal::GetChildList(PPID calID, PPIDArray * pList)
 {
 	int    ok = -1;
-	PPStaffCal rec;
+	PPStaffCal2 rec;
 	for(SEnum en = P_Ref->EnumByIdxVal(Obj, 1, calID); en.Next(&rec) > 0;) {
 		ok = 1;
 		if(pList)
@@ -1994,7 +1997,7 @@ int PPObjStaffCal::InitScObjAssoc(PPID calID, PPID prjCalID, const PersonPostTbl
 		ScObjAssoc::H & r_entry = pAssc->List[i];
 		if(i != ScObjAssoc::scHeader) {
 			if(r_entry.Oi.IsFullyDefined()) {
-				PPStaffCal sc_rec;
+				PPStaffCal2 sc_rec;
 				if(SearchByObj(cal_id, r_entry.Oi, &sc_rec) > 0) {
 					r_entry.CalID = sc_rec.ID;
 					if(sc_rec.SubstCalID)
@@ -2028,7 +2031,7 @@ int PPObjStaffCal::InitScObjAssoc(PPID calID, PPID prjCalID, PPID personID, ScOb
 		ScObjAssoc::H & r_entry = pAssc->List[i];
 		if(i != ScObjAssoc::scHeader) {
 			if(r_entry.Oi.IsFullyDefined()) {
-				PPStaffCal sc_rec;
+				PPStaffCal2 sc_rec;
 				if(cal_id && SearchByObj(cal_id, r_entry.Oi, &sc_rec) > 0) {
 					r_entry.CalID = sc_rec.ID;
 					if(sc_rec.SubstCalID)
@@ -2242,7 +2245,7 @@ int PPObjStaffCal::Browse(void * extraPtr)
 			ObjViewDialog::handleEvent(event);
 			if(event.isCmd(cmTransmitCharry)) {
 				PPIDArray id_list;
-				PPStaffCal rec;
+				PPStaffCal2 rec;
 				for(PPID id = 0; static_cast<PPObjReference *>(P_Obj)->EnumItems(&id, &rec) > 0;) {
 					if(rec.LinkCalID == 0)
 						id_list.add(rec.ID);
@@ -2302,7 +2305,7 @@ int StaffCalCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraDat
 	int    ok = 1;
 	Data * p_cache_rec = static_cast<Data *>(pEntry);
 	PPObjStaffCal sc_obj;
-	PPStaffCal rec;
+	PPStaffCal2 rec;
 	if(sc_obj.Search(id, &rec) > 0) {
 #define FLD(f) p_cache_rec->f = rec.f
 		FLD(LinkObjType);
@@ -2324,7 +2327,7 @@ int StaffCalCache::FetchEntry(PPID id, ObjCacheEntry * pEntry, void * /*extraDat
 
 void StaffCalCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) const
 {
-	PPStaffCal * p_data_rec = static_cast<PPStaffCal *>(pDataRec);
+	PPStaffCal2 * p_data_rec = static_cast<PPStaffCal2 *>(pDataRec);
 	const Data * p_cache_rec = static_cast<const Data *>(pEntry);
 	memzero(p_data_rec, sizeof(*p_data_rec));
 #define FLD(f) p_data_rec->f = p_cache_rec->f
@@ -2346,7 +2349,7 @@ void StaffCalCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) c
 	ss.get(&p, p_data_rec->Symb, sizeof(p_data_rec->Symb));
 }
 
-IMPL_OBJ_FETCH(PPObjStaffCal, PPStaffCal, StaffCalCache);
+IMPL_OBJ_FETCH(PPObjStaffCal, PPStaffCal2, StaffCalCache);
 //
 // Implementation of PPALDD_StaffCal
 //
@@ -2360,14 +2363,14 @@ int PPALDD_StaffCal::InitData(PPFilt & rFilt, long rsrv)
 		ok = DlRtm::InitData(rFilt, rsrv);
 	else {
 		MEMSZERO(H);
-		PPStaffCal rec;
+		PPStaffCal2 rec;
 		if(SearchObject(PPOBJ_STAFFCAL, rFilt.ID, &rec) > 0) {
 			H.ID = rec.ID;
 			STRNSCPY(H.Name, rec.Name);
 			STRNSCPY(H.Symb, rec.Symb);
 			H.LinkObjType = rec.LinkObjType;
 			H.Flags       = rec.Flags;
-			H.fInherited  = BIN(rec.Flags & PPStaffCal::fInherited);
+			H.fInherited  = BIN(rec.Flags & PPStaffCal2::fInherited);
 			H.LinkCalID   = rec.LinkCalID;
 			H.LinkObjID   = rec.LinkObjID;
 			ok = DlRtm::InitData(rFilt, rsrv);

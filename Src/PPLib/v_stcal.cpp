@@ -307,7 +307,7 @@ int PPViewStaffCal::Init_(const PPBaseFilt * pFilt)
 	ObjNameList.Z();
 	CalList.clear();
 	if(Filt.CalList.IsEmpty()) {
-		PPStaffCal cal_rec;
+		PPStaffCal2 cal_rec;
 		for(PPID cal_id = 0; Obj.EnumItems(&cal_id, &cal_rec) > 0;) {
 			if(cal_rec.LinkObjType == 0)
 				CalList.add(cal_id);
@@ -549,7 +549,8 @@ int PPViewStaffCal::EditEntry(PPID calID, PPID objID, LDATETIME dtm, LTIME tmFin
 	if(Filt.Sgd == sgdNone) {
 		if(calID && objID && dtm.d) {
 			PPID   child_cal_id = 0;
-			PPStaffCal cal_rec, par_rec;
+			PPStaffCal2 cal_rec;
+			PPStaffCal2 par_rec;
 			PPStaffCalPacket pack;
 			if(Filt.LinkObjType && Obj.Fetch(calID, &par_rec) > 0) {
 				StaffCalendarTbl::Rec entry;
@@ -648,7 +649,7 @@ int PPViewStaffCal::Detail(const void * pHdr, PPViewBrowser * pBrw)
 			else if(Filt.LinkObjType && rec.LinkObjID) {
 				StaffCalFilt sc_flt;
 				if(rec.CalID) {
-					PPStaffCal sc_rec;
+					PPStaffCal2 sc_rec;
 					if(Obj.SearchByObj(rec.CalID, SObjID(Filt.LinkObjType, rec.LinkObjID), &sc_rec) > 0) {
 						sc_flt.Period.SetDate(rec.Dt);
 						if(Obj.Edit(&sc_rec.ID, &sc_flt) == cmOK) {
@@ -722,7 +723,7 @@ int PPViewStaffCal::StaffCalTimeChunkGrid::MoveChunk(int mode, long id, long row
 int PPViewStaffCal::StaffCalTimeChunkGrid::GetColor(long id, STimeChunkGrid::Color * pClr)
 {
 	int    ok = 1;
-	PPStaffCal staff_cal;
+	PPStaffCal2 staff_cal;
 	TempStaffCalTbl * p_temp_tbl = (P_View) ? P_View->P_TempTbl : 0;
 	if(p_temp_tbl && p_temp_tbl->search(0, &id, spEq) > 0 && P_View->Obj.Fetch(p_temp_tbl->data.CalID, &staff_cal) > 0) {
 		pClr->C = staff_cal.Color;

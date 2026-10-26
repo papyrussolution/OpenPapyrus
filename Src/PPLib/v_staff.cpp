@@ -1295,7 +1295,7 @@ StrAssocArray * FastEditDivBySumDlg::MakeDivList(PPID amtID)
 		if(p_cal_list && p_cal_list->getCount()) {
 			for(uint i = 0; i < p_cal_list->getCount(); i++) {
 				PPID cal_id = p_cal_list->Get(i).Id;
-				PPStaffCal staff_cal;
+				PPStaffCal2 staff_cal;
 				THROW(ObjStaffCal.Search(cal_id, &staff_cal) > 0);
 				THROW(PutDivEntryToList(staff_cal.LinkObjType, staff_cal.LinkObjID, p_ret_list));
 			}

@@ -463,7 +463,10 @@ int SysJournal::IsEventExists(PPID objType, PPID objID, PPID userID, const PPIDA
 int SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 {
 	int    ok = 1;
-	SString fmt_buf, msg_buf, added_buf, temp_buf;
+	SString fmt_buf;
+	SString msg_buf;
+	SString added_buf;
+	SString temp_buf;
 	IterCounter cntr;
 	SysJournalTbl::Key0 k;
 	{
@@ -504,11 +507,12 @@ int SysJournal::DoMaintain(LDATE toDt, int recover, PPLogger * pLogger)
 					PPWaitPercent(cntr.Increment());
 				} while(P_RsrvT->searchForUpdate(0, &rk0, spNext));
 			}
-			else if(BTROKORNFOUND && pLogger)
+			else if(BTROKORNFOUND && pLogger) {
 				pLogger->LogString(PPTXT_RSRVSYSJNOTHING, 0);
+			}
 			THROW_DB(BTROKORNFOUND);
 		}
-		if(toDt) {
+		if(false) { // @v12.8.1 toDt-->false Не нужно резать системный журнал: он очень большой и на него завязано много функционала
 			SFsPath ps(DBTable::GetName());
 			ps.Merge(0, SFsPath::fDrv|SFsPath::fDir, temp_buf);
 			msg_buf.Printf(PPLoadTextS(PPTXT_DBMAINTAIN, fmt_buf), temp_buf.cptr());

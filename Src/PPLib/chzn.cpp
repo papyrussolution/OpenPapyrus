@@ -613,6 +613,15 @@ DRAFTBEER HORECA @v11.9.4
 	//   2402255948<GS>000460716161900268341125083010PL12502589<GS>37180 /// Машинное масло паллета
 	//   2402255947<GS>000461008040006124641126031110PL12600632<GS>37324 /// Машинное масло паллета
 	//   2402405226<GS>000461008040006472131126031810PL12600710<GS>37180 /// Машинное масло паллета
+	// ----------------
+	//  Сыры минского завода    
+	//   (02)04811233002800(11)261009(17)270517(3103)010460(10)09094376211
+	//   0204811233002800112610091727051731030104601009094376211
+	//   • (02) 04811233002800 — GTIN (код товара) вложенной продукции. Префикс 0481 — Беларусь.
+	//   • (11) 261009 — Дата производства: 09 октября 2026 года.
+	//   • (17) 270517 — Срок годности: 17 мая 2027 года.
+	//   • (3103) 010460 — Вес нетто: 10,460 кг. Идентификатор 3103 указывает на три знака после запятой.
+	//   • (10) 09094376211 — Номер производственной партии.
 	//
 	int    ok = 0;
 	static const int8 serial_len_variant_list[] = { 6, 7, 8, 11, 12, 13 };
@@ -685,6 +694,7 @@ DRAFTBEER HORECA @v11.9.4
 				dedicatedcase_motoroil_01      = 12, // @v12.6.2  "^01(\\d{14})21(.+?)91(.+?)92(.+)$"
 				dedicatedcase_sunfruit_01      = 13, // @v12.7.0  "^01(\\d{14})10(.{4,20}?)21(.{4,20})$"
 				dedicatedcase_sunfruit_02      = 14, // @v12.7.2  "^01(\\d{14})21(.{8,15}?)93(.+)$";
+				dedicatedcase_cheeseminsk      = 15, // @v12.8.1  "^02(\\d{14})11(\\d{6})17(\\d{6})310([0-6])(\\d{6})10([!-~]{4,20})$";
 			};
 			// const char * re_tobacco = "^(\\d{14})(.{7})(.{4})(.{4})?$";
 			// const char * re_rigid_mark = "^01(\\d{14})21(.{16})240(.{8})$";
@@ -1007,13 +1017,31 @@ DRAFTBEER HORECA @v11.9.4
 				rS.AddOnlyToken(GtinStruc::fldInner1);
 				rS.SetSpecialFixedToken(GtinStruc::fldInner1, 1000/*UNTIL EOL*/);
 				rS.AddOnlyToken(GtinStruc::fldInner2);
-				rS.SetSpecialFixedToken(GtinStruc::fldInner2, 1000/*UNTIL EOL*/); // @v11.4.11
+				rS.SetSpecialFixedToken(GtinStruc::fldInner2, 1000/*UNTIL EOL*/);
 				rS.AddOnlyToken(GtinStruc::fldSscc18);
 				rS.AddOnlyToken(GtinStruc::fldExpiryDate);
 				rS.AddOnlyToken(GtinStruc::fldManufDate);
 				// @v12.3.12 rS.AddOnlyToken(GtinStruc::fldVariant);
 				//rS.AddOnlyToken(GtinStruc::fldPriceRuTobacco);
 				//rS.AddOnlyToken(GtinStruc::fldPrice);
+			}
+			if(!dedicated_case) {
+				//dedicatedcase_cheeseminsk      = 15, // @v12.8.1  "^02(\\d{14})11(\\d{6})17(\\d{6})310([0-6])(\\d{6})10([!-~]{4,20})$";
+				const char * p_re_02_11_17_310y_10 = "^02(\\d{14})11(\\d{6})17(\\d{6})310([0-6])(\\d{6})10([!-~]{4,20})$"; // @v12.8.1
+				//                                       1          2         3          4      5         6   
+				SRegExp2 re(p_re_02_11_17_310y_10, cpANSI, SRegExp2::syntaxDefault, 0);
+				if(re.IsValid()) {
+					SRegExp2::FindResult reresult;
+					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+						assert(reresult.getCount() == 6+1);
+						rS.AddOnlyToken(GtinStruc::fldContainerCt/*fldGTIN14*/); // 02xxx
+						rS.AddOnlyToken(GtinStruc::fldManufDate);
+						rS.AddOnlyToken(GtinStruc::fldExpiryDate);
+						rS.AddOnlyToken(GtinStruc::fldWtNettKg);
+						rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(6));
+						dedicated_case = dedicatedcase_cheeseminsk;
+					}
+				}
 			}
 			int   pr = 0;
 			{
@@ -1070,7 +1098,7 @@ DRAFTBEER HORECA @v11.9.4
 							else
 								ok = SNTOK_CHZN_GS1_GTIN;
 						}
-						else if(rS.GetToken(GtinStruc::fldContainerCt, 0) && rS.GetToken(GtinStruc::fldSerial, &temp_buf)) {
+						else if(rS.GetToken(GtinStruc::fldContainerCt, 0) && (rS.GetToken(GtinStruc::fldSerial, &temp_buf) || rS.GetToken(GtinStruc::fldPart, &temp_buf))) {
 							ok = SNTOK_CHZN_BULK;
 						}
 					}

@@ -678,7 +678,7 @@ int PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 		SFsPath::ReplacePath(fname, buf2, 1);
 		PPGetFilePath(PPPATH_BIN, fname, temp_buf);
 		if(!fileExists(temp_buf)) {
-			ifile.Get(PPINISECT_PATH, PPINIPARAM_WINDEFAULTRPT, buf2 = 0);
+			ifile.Get(PPINISECT_PATH, PPINIPARAM_WINDEFAULTRPT, buf2);
 			buf2.SetIfEmpty("RPT");
 			fname = ReportName;
 			SFsPath::ReplaceExt(fname, "RPT", 1);
@@ -698,7 +698,7 @@ int PrnDlgAns::SetupReportEntries(const char * pContextSymb)
 			StringSet std_ss;
 			SString section_name;
 			PPIniFile std_ini_file(fname);
-			THROW(std_ini_file.IsValid());
+			THROW_SL(std_ini_file.IsValid()); // @v12.8.1 THROW-->THROW_SL
 			{
 				if(ContextSymb.NotEmpty()) {
 					(section_name = ReportName).Strip().Colon().Cat(ContextSymb);

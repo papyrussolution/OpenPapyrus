@@ -2403,7 +2403,7 @@ void SelectPersonByCodeDialog::SetupCtrls()
 	}
 	else
 		showCtrl(CTLSEL_SELPERSONC_SCARD, false);
-	disableCtrl(CTL_SELPERSONC_CODEINP, LOGIC(psn_id));
+	setCtrlReadOnly(CTL_SELPERSONC_CODEINP, LOGIC(psn_id)); // @v12.8.1 disableCtrl-->setCtrlReadOnly
 	setCtrlString(CTL_SELPERSONC_CODEINP, code);
 }
 
@@ -2416,7 +2416,7 @@ int SelectPersonByCodeDialog::setDTS(const Rec * pData)
 	if(PsnScndKindRec.ID)
 		SetupPersonCombo(this, CTLSEL_SELPERSONC_PRSNSC, Data.ScndPsnID, 0, PsnScndKindRec.ID, 0);
 	else
-		disableCtrl(CTLSEL_SELPERSONC_PRSNSC, true);
+		setCtrlReadOnly(CTLSEL_SELPERSONC_PRSNSC, true); // @v12.8.1 disableCtrl-->setCtrlReadOnly
 	SetupCtrls();
 	return ok;
 }
@@ -2496,17 +2496,16 @@ int CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 			prompt = regtyp_pack.Rec.Name;
 		else
 			PPLoadText(PPTXT_SELPERSONBYSCARD, prompt);
-		THROW(CheckDialogPtr(&(p_dlg = new SelectPersonByCodeDialog(pop_rec.Name, &pk_rec, &scnd_pk_rec, prompt))));
+		p_dlg = new SelectPersonByCodeDialog(pop_rec.Name, &pk_rec, &scnd_pk_rec, prompt);
+		THROW(CheckDialogPtr(&p_dlg));
 		THROW(p_dlg->setDTS(&psn_data));
 		while(ok < 0 && ExecView(p_dlg) == cmOK) {
 			int    r = 1;
-			int    disable_op = 0;
-			PPID   prmr_psn_id = 0;
-			PPID   scnd_psn_id = 0;
 			if(p_dlg->getDTS(&psn_data) > 0) {
+				bool   disable_op = false;
 				PPPsnEventPacket pack;
-				prmr_psn_id = psn_data.PrmrPsnID;
-				scnd_psn_id = psn_data.ScndPsnID ? psn_data.ScndPsnID : pop_pack.PCScnd.DefaultID;
+				const  PPID prmr_psn_id = psn_data.PrmrPsnID;
+				const  PPID scnd_psn_id = psn_data.ScndPsnID ? psn_data.ScndPsnID : pop_pack.PCScnd.DefaultID;
 				THROW(pev_obj.InitPacket(&pack, pop_rec.ID, prmr_psn_id));
 				pack.Rec.SecondID   = scnd_psn_id;
 				pack.Rec.LocationID = LConfig.Location;
@@ -2553,7 +2552,7 @@ int CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 						}
 						if(!sc_obj.CheckRestrictions(&psn_data.Sc, 0, getcurdatetime_())) {
 							PPGetLastErrorMessage(1, warn);
-							disable_op = 1;
+							disable_op = true;
 						}
 						info.CatDiv(';', 2).Cat(prompt);
 					}
@@ -2567,17 +2566,16 @@ int CMD_HDL_CLS(ADDPERSONEVENT)::RunBySymb(SBuffer * pParam)
 							//
 							GetRegisterTypeName(reg_rec.RegTypeID, reg_buf);
 							warn.Printf(PPLoadTextS(PPTXT_PSNREGEXPIRED, buf), reg_buf.cptr());
-							disable_op = 1;
+							disable_op = true;
 						}
 					}
 					if(!pev_obj.CheckRestrictions(&pack, psn_pack.Rec.ID, pack.Rec.PrmrSCardID, &pop_pack.PCPrmr)) {
 						PPGetLastErrorMessage(1, warn);
-						disable_op = 1;
+						disable_op = true;
 					}
 					if(warn.IsEmpty()) {
 						//
-						// Если все предыдущие проверки прошли успешно, то проверяем
-						// все регистры персоналии на предмет истечения срока действия.
+						// Если все предыдущие проверки прошли успешно, то проверяем все регистры персоналии на предмет истечения срока действия.
 						//
 						for(uint i = 0; i < psn_pack.Regs.getCount(); i++) {
 							const RegisterTbl::Rec & r_rec = psn_pack.Regs.at(i);

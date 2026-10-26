@@ -764,7 +764,7 @@ DL2_CI * DL2_Resolver::Helper_Resolve(const DL2_Column * pCol, const DL2_CI * pI
 					long   _aco = aco;
 					PPID   _acc_id = acc_id;
 					PPIDArray acc_list;
-					THROW(AtObj.P_Tbl->IdentifyAcc(&_aco, &_acc_id, 0, 0, &acc_list));
+					THROW(AtObj.P_Tbl->IdentifyAcc(&_aco, &_acc_id, 0, 0, acc_list));
 					if(acc_list.getCount() == 0)
 						acc_list.add(_acc_id);
 					for(i = 0; i < acc_list.getCount(); i++) {

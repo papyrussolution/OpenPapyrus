@@ -2237,7 +2237,7 @@ static SString & CDECL Helper_PPFormat(const SString & rFmt, SString * pBuf, /*.
 						obj_id = va_arg(pArgList, PPID);
 						{
 							PPObjStaffCal sc_obj;
-							PPStaffCal sc_rec;
+							PPStaffCal2 sc_rec;
 							if(sc_obj.Fetch(obj_id, &sc_rec) > 0)
 								buf.Cat(sc_rec.Name);
 							else

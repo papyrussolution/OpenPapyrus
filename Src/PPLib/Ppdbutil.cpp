@@ -3440,7 +3440,10 @@ public:
 		setCtrlData(CTL_DBMAINTAIN_SJDAYS,    &Data.SJDays);
 		setCtrlData(CTL_DBMAINTAIN_XBILDAYS,  &Data.XBillDays);
 		SetCtrls(Data.Tables);
+		DisableClusterItem(CTL_DBMAINTAIN_TABLES, 2, true); // @v12.8.1 более на актуально
 		DisableClusterItem(CTL_DBMAINTAIN_TABLES, 3, !(CConfig.Flags & CCFLG_RSRVSJ));
+		DisableClusterItem(CTL_DBMAINTAIN_TABLES, 4, true); // @v12.8.1 более на актуально
+		DisableClusterItem(CTL_DBMAINTAIN_TABLES, 5, true); // @v12.8.1 более на актуально
 		return 1;
 	}
 	DECL_DIALOG_GETDTS()
@@ -3483,7 +3486,8 @@ int DBMaintainDialog(DBMaintainParam * pParam) { DIALOG_PROC_BODY(DBMaintainDlg,
 
 int DoDBMaintain(const DBMaintainParam * pParam)
 {
-	int    ok = -1, do_maintain = 1;
+	int    ok = -1;
+	int    do_maintain = 1;
 	PPLogger logger;
 	DBMaintainParam param;
 	if(!RVALUEPTR(param, pParam)) {

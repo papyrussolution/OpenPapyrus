@@ -2642,3 +2642,102 @@ SLTEST_R(PPChZnPrcssr_EstimateQuantityAdequacy) // @v12.7.10
 	}
 	return CurrentStatus;
 }
+
+SLTEST_R(CCheck_DiscountDistribution) // @v12.8.1 @construction
+{
+	SJson * p_js_in = 0;
+	SString in_file_name(MakeInputFilePath("ccheck_list.json"));
+	SString out_file_name_00(MakeOutputFilePath("ccheck_list-00.json"));
+	SString out_file_name_01(MakeOutputFilePath("ccheck_list-meth01.json"));
+	SString out_file_name_02(MakeOutputFilePath("ccheck_list-meth02.json"));
+	SString out_file_name_csv_log(MakeOutputFilePath("discount_distribution.csv"));
+	SJson * p_js_out00 = 0;
+	SJson * p_js_out01 = 0;
+	SJson * p_js_out02 = 0;
+	//TSCollection <CCheckPacket> cc_list_out00;
+	//TSCollection <CCheckPacket> cc_list_out01;
+	//TSCollection <CCheckPacket> cc_list_out02;
+	uint  cc_idx = 0;
+	if(fileExists(in_file_name)) {
+		SString line_buf;
+		TSCollection <CCheckPacket> cc_list;
+		p_js_in = SJson::ParseFile(in_file_name);
+		THROW(SLCHECK_NZ(p_js_in));
+		if(PPViewCCheck::ParseCCheckJsonInput(p_js_in, cc_list) > 0) {
+			assert(cc_list.getCount());
+			{
+				SFile f_log(out_file_name_csv_log, SFile::mWrite);
+				const double pct_discount = 3.0;
+				{
+					line_buf.Z().Cat("id").Semicol().Cat("dtm").Semicol().Cat("lncount").Semicol().
+						Cat("orgamt1").Semicol().Cat("amt1").Semicol().Cat("reqdis1").Semicol().Cat("dis1").Semicol().
+						Cat("orgamt2").Semicol().Cat("amt2").Semicol().Cat("reqdis2").Semicol().Cat("dis2").Semicol().
+						Cat("round_reqdis").Semicol().Cat("round_amt1").Semicol().Cat("round_dis1").Semicol().Cat("round_amt2").Semicol().Cat("round_dis2");
+					f_log.WriteLine(line_buf.CR());
+					// round_reqdis, round_dis1, round_amt1, round_dis2, round_amt2
+				}
+				for(cc_idx = 0; cc_idx < cc_list.getCount(); cc_idx++) {
+					CCheckPacket * p_cc = cc_list.at(cc_idx);
+					if(p_cc) {
+						CcTotal cct;
+						CCheckPacket::SetupTotalDiscountResult dr1;
+						CCheckPacket::SetupTotalDiscountResult dr2;
+						CCheckPacket::SetupTotalDiscountResult round_dr1;
+						CCheckPacket::SetupTotalDiscountResult round_dr2;
+						p_cc->SetTotalDiscount__(0.0, 0); // Сбрасываем существующую скидку
+						p_cc->CalcAmount(&cct);
+						const  double round_amt = R0(cct.Amount);
+						const  double round_dis = -(round_amt - cct.Amount);
+						THROW(cct.Discount == 0.0);
+						/*{
+							CCheckPacket * p_cc00 = new CCheckPacket(*p_cc);
+							THROW_MEM(p_cc00);
+							THROW_SL(cc_list_out00.insert(p_cc00));
+						}*/
+						{
+							CCheckPacket cc01(*p_cc);
+							THROW(cc01.SetTotalDiscount_Debug(1, pct_discount, CCheckPacket::stdfPctDis, &dr1));
+						}
+						{
+							CCheckPacket cc02(*p_cc);
+							THROW(cc02.SetTotalDiscount_Debug(2, pct_discount, CCheckPacket::stdfPctDis, &dr2));
+						}
+						{
+							{
+								CCheckPacket cc01(*p_cc);
+								THROW(cc01.SetTotalDiscount_Debug(1, round_dis, 0, &round_dr1));
+							}
+							{
+								CCheckPacket cc02(*p_cc);
+								THROW(cc02.SetTotalDiscount_Debug(2, round_dis, 0, &round_dr2));
+							}
+						}
+						{
+							LDATETIME dtm;
+							dtm.Set(p_cc->Rec.Dt, p_cc->Rec.Tm);
+							line_buf.Z().Cat(p_cc->Rec.ID).Semicol().Cat(dtm, DATF_ISO8601CENT).Semicol().
+								Cat(p_cc->GetCount()).Semicol().
+								Cat(dr1.OrgAmount, MKSFMTD(0, 5, 0)).Semicol().Cat(dr1.Amount, MKSFMTD(0, 5, 0)).Semicol().
+								Cat(dr1.ReqDiscount, MKSFMTD(0, 5, 0)).Semicol().Cat(dr1.Discount, MKSFMTD(0, 5, 0)).Semicol().
+								Cat(dr2.OrgAmount, MKSFMTD(0, 5, 0)).Semicol().Cat(dr2.Amount, MKSFMTD(0, 5, 0)).Semicol().
+								Cat(dr2.ReqDiscount, MKSFMTD(0, 5, 0)).Semicol().Cat(dr2.Discount, MKSFMTD(0, 5, 0)).Semicol().
+								
+								Cat(round_dis, MKSFMTD(0, 5, 0)).Semicol().
+								Cat(round_dr1.Amount, MKSFMTD(0, 5, 0)).Semicol().Cat(round_dr1.Discount, MKSFMTD(0, 5, 0)).Semicol().
+								Cat(round_dr2.Amount, MKSFMTD(0, 5, 0)).Semicol().Cat(round_dr2.Discount, MKSFMTD(0, 5, 0));
+							f_log.WriteLine(line_buf.CR());
+						}
+					}
+				}
+			}
+		}
+	}
+	CATCH
+		CurrentStatus = 0;
+	ENDCATCH
+	delete p_js_in;
+	delete p_js_out00;
+	delete p_js_out01;
+	delete p_js_out02;
+	return CurrentStatus;
+}
