@@ -470,7 +470,7 @@ void PPSCardSerPacket::Ext::Init()
 
 bool PPSCardSerPacket::Ext::IsEmpty() const
 {
-	return (!UsageTmStart && !UsageTmEnd && !UsageDow && (!UsageTmStart || !checktime(UsageTmStart)) && (!UsageTmEnd || !checktime(UsageTmEnd)) && !CodeTempl[0]);
+	return (!UsageTmStart && !UsageTmEnd && !UsageDow && (!UsageTmStart || !checkltime(UsageTmStart)) && (!UsageTmEnd || !checkltime(UsageTmEnd)) && !CodeTempl[0]);
 }
 
 bool FASTCALL PPSCardSerPacket::Ext::IsEq(const Ext & rS) const

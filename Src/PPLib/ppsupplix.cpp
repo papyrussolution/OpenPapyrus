@@ -13890,7 +13890,7 @@ int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringS
 										}
 										{
 											temp_buf.Z();
-											if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.StartDt) && checktime(todo_pack.Rec.StartTm)) 
+											if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.StartDt) && checkltime(todo_pack.Rec.StartTm)) 
 												temp_buf.Cat(todo_pack.Rec.StartTm, TIMF_HMS);
 											n_i.PutInner("START_TIME", temp_buf); // Время фактического начала работы 
 										}
@@ -13902,7 +13902,7 @@ int COCACOLA::MakeReply(const BillTbl::Rec & rOrderBillRec, PPID billID, StringS
 										}
 										{
 											temp_buf.Z();
-											if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.FinishDt) && checktime(todo_pack.Rec.FinishTm)) 
+											if(todo_pack.Rec.ID && checkdate(todo_pack.Rec.FinishDt) && checkltime(todo_pack.Rec.FinishTm)) 
 												temp_buf.Cat(todo_pack.Rec.FinishTm, TIMF_HMS);
 											n_i.PutInner("END_TIME", temp_buf);
 										}

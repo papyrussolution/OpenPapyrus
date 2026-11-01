@@ -1231,14 +1231,14 @@ int PPObjArticle::GetFreeArticle(long * pID, long accSheetID)
 	assert(pID != 0);
 	// Если статья не ассоциирована с объектом, то в новой записи ObjID будет равно Article по-этому надо
 	// проверить свободен ли соответствующий номер по ключу ArticleTbl::Key3
-	bool check_surr_obj_ref = false;
+	bool   check_surr_obj_ref = false;
 	if(*pID == 0) {
 		PPObjAccSheet acs_obj;
 		PPAccSheet2 acs_rec;
 		if(acs_obj.Search(accSheetID, &acs_rec) > 0 && acs_rec.Assoc == 0)
 			check_surr_obj_ref = true;
 	}
-	int r = P_Tbl->SearchFreeNum(accSheetID, pID); 
+	const  int r = P_Tbl->SearchFreeNum(accSheetID, pID); 
 	if(r) {
 		while(check_surr_obj_ref) { 
 			ArticleTbl::Key3 k3;
@@ -1496,9 +1496,10 @@ int PPObjArticle::PutPacket(PPID * pID, PPArticlePacket * pPack, int use_ta)
 				pPack->Rec.Article = 0;
 				P_Tbl->SearchFreeNum(pPack->Rec.AccSheetID, &pPack->Rec.Article, 0);
 				// @v12.7.9 {
+				/* @v12.8.2 
 				if(acs_rec.Assoc == 0) {
 					pPack->Rec.ObjID = pPack->Rec.Article;
-				}
+				} */
 				// } @v12.7.9 
 				THROW(AddObjRecByID(P_Tbl, Obj, pID, &pPack->Rec, 0));
 				THROW(Helper_PutAgreement(*pID, pPack));

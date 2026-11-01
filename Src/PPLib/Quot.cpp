@@ -1241,7 +1241,7 @@ public:
 		getCtrlString(sel = CTL_QUOTROLLBACK_TIME, temp_buf);
 		THROW_PP(temp_buf.NotEmptyS(), PPERR_USERINPUT);
 		strtotime(temp_buf, TIMF_HMS, &Data.t);
-		THROW_SL(checktime(Data.t));
+		THROW_SL(checkltime(Data.t));
 		//Data.Set(date, time);
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG

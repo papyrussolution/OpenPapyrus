@@ -291,7 +291,7 @@ int STDCALL GetTimeRangeInput(TDialog * pDlg, uint ctl, long fmt, LTIME * pLow, 
 			strtotime(buf, format, &low);
 			upp = low;
 		}
-		THROW_SL(checktime(low) > 0 && checktime(upp) > 0);
+		THROW_SL(checkltime(low) && checkltime(upp));
 		ASSIGN_PTR(pLow, low);
 		ASSIGN_PTR(pUpp, upp);
 		ok = 1;
@@ -6589,7 +6589,7 @@ int TimePickerCtrlGroup::Edit(TDialog * pDlg)
 {
 	int    ok = 0;
 	pDlg->getCtrlData(Ctl, &Data);
-	if(checktime(Data) > 0) {
+	if(checkltime(Data) > 0) {
 		ASSIGN_PTR(static_cast<LTIME *>(pData), Data);
 		ok = 1;
 	}
@@ -7053,14 +7053,16 @@ static RECT & _AdjustRectToOrigin(RECT & rRect, const SPoint2I & rOrigin)
 	return rRect;
 }
 
-static SString & _BBox(const RECT & rRect, SString & rBuf, int subType/*0 - no, 1 - label*/)
+static SString & _BBox(const RECT & rRect, SString & rBuf, int subType/*0 - no, 1 - label*/, bool skipOrigin)
 {
 	//rBuf.Cat("bbox").CatDiv(':', 2);
 	//return _RectToLine(rRect, rBuf);
 	//
 	const char * p_org_text = (subType == 1) ? "labelorigin" : "origin";
 	const char * p_sz_text = (subType == 1) ? "labelsize" : "size";
-	rBuf.Cat(p_org_text).CatDiv(':', 2).CatChar('(').Cat(rRect.left).CatDiv(',', 2).Cat(rRect.top).CatChar(')').Space();
+	if(!skipOrigin) { // @v12.8.2 @condition
+		rBuf.Cat(p_org_text).CatDiv(':', 2).CatChar('(').Cat(rRect.left).CatDiv(',', 2).Cat(rRect.top).CatChar(')').Space();
+	}
 	rBuf.Cat(p_sz_text).CatDiv(':', 2).CatChar('(').Cat(rRect.right-rRect.left).CatDiv(',', 2).Cat(rRect.bottom-rRect.top).CatChar(')').Space();
 	return rBuf;
 }
@@ -7084,6 +7086,7 @@ static SString & PreprocessCtrlText(const SString & rSrcText, SString & rResult)
 
 int ExportDialogs2(const char * pFileName)
 {
+	const  bool skip_origin = true;
 	int    ok = 1;
 	uint   res_id = 0;
 	ulong  res_pos = 0;
@@ -7143,11 +7146,11 @@ int ExportDialogs2(const char * pFileName)
 				line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = dlg_title_buf).Transf(CTRANSF_OUTER_TO_UTF8));
 				INITWINAPISTRUCT(wi);
 				if(GetWindowInfo(dlg->H(), &wi)) {
-					_BBox(wi.rcWindow, line_buf.Space(), 0);
+					_BBox(wi.rcWindow, line_buf.Space(), 0, skip_origin);
 					_origin.Set(wi.rcClient.left, wi.rcClient.top);
 				}
 				{
-					HFONT h_f = reinterpret_cast<HFONT>(::SendMessage(dlg->H(), WM_GETFONT, 0, 0));
+					HFONT h_f = reinterpret_cast<HFONT>(::SendMessageW(dlg->H(), WM_GETFONT, 0, 0));
 					if(h_f) {
 						temp_buf.Z();
 						LOGFONT f;
@@ -7242,10 +7245,21 @@ int ExportDialogs2(const char * pFileName)
 										if(GetWindowInfo(h_combo, &wi_combo)) {
 											dlg->GetCtlSymb(p_cb->GetId(), symb);
 											line_buf.Tab().Cat("combobox").Space().Cat(symb).Space().CatChar('[');
-											_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf.Space(), 0);
+											_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf.Space(), 0, skip_origin);
+											// @v12.8.2 {
+											if(wi.dwStyle & WS_TABSTOP) {
+												line_buf.Space().Cat("tabstop").Space();
+											}
+											// } @v12.8.2 
 											if(p_label) {
 												line_buf.Cat("label").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8));
-												_BBox(label_rect, line_buf.Space(), 1/*subType*/);
+												line_buf.Space();
+												if(skip_origin && (label_rect.bottom - label_rect.top) == 13) { // @v12.8.2 @condition
+													;
+												}
+												else {
+													_BBox(label_rect, line_buf, 1/*subType*/, skip_origin);
+												}
 											}
 											//DlScope::PropListToLine(prop_list, 2, line_buf).Semicol().CR();
 											{
@@ -7276,12 +7290,8 @@ int ExportDialogs2(const char * pFileName)
 										}*/
 										const TYPEID _type_id = p_il->getType();
 										line_buf.Tab().Cat("input").Space().Cat(symb).Space().CatChar('[');
-										_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0);
+										_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0, skip_origin);
 										{
-											/*
-												@todo @20251130
-												ES_LEFT, ES_CENTER, ES_RIGHT
-											*/ 
 											static constexpr SIntToSymbTabEntry ws_symb_list[] = {
 												{ WS_TABSTOP, "tabstop" },
 												{ WS_DISABLED, "disabled" },
@@ -7325,7 +7335,13 @@ int ExportDialogs2(const char * pFileName)
 										if(ctl_text.NotEmpty())
 											line_buf.Space().Cat("label").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8));
 										if(p_label) {
-											_BBox(label_rect, line_buf.Space(), 1/*subType*/);
+											line_buf.Space();
+											if(skip_origin && (label_rect.bottom - label_rect.top) == 13) { // @v12.8.2 @condition
+												;
+											}
+											else {
+												_BBox(label_rect, line_buf, 1/*subType*/, skip_origin);
+											}
 										}
 										line_buf.CatChar(']');
 										GetBinaryTypeString(_type_id, 1, temp_buf, "", 0);
@@ -7358,7 +7374,7 @@ int ExportDialogs2(const char * pFileName)
 											line_buf.Space().Cat("tabstop");
 										if(wi.dwStyle & WS_DISABLED)
 											line_buf.Space().Cat("disabled");
-										_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf.Space(), 0);
+										_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf.Space(), 0, skip_origin);
 										line_buf.CatChar(']').Semicol();
 										f_out.WriteLine(line_buf.CR());
 										TakeInCountCtrl(h, child_list, seen_pos_list);
@@ -7385,9 +7401,10 @@ int ExportDialogs2(const char * pFileName)
 										}
 										if(p_kind) {
 											line_buf.Z().Tab().Cat(p_kind).Space().Cat(symb).Space().CatChar('[');
+											line_buf.Cat("tabstop").Space(); // @v12.8.2
 											if(ctl_text.NotEmpty())
 												line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
-											_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0);
+											_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0, skip_origin);
 											line_buf.CatChar(']');
 											line_buf.Space().CatChar('{');
 											f_out.WriteLine(line_buf.CR());
@@ -7404,13 +7421,25 @@ int ExportDialogs2(const char * pFileName)
 														if(p_clu->GetKind() == RADIOBUTTONS) {
 															line_buf.Z().Tab_(2).Cat("radiobutton").Space().CatChar('[');
 															line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = item_title_buf).Transf(CTRANSF_OUTER_TO_UTF8));
-															_BBox(_AdjustRectToOrigin(wi_item.rcWindow, _origin), line_buf.Space(), 0);
+															_AdjustRectToOrigin(wi_item.rcWindow, _origin);
+															if(skip_origin && (wi_item.rcWindow.bottom - wi_item.rcWindow.top) == 16) { // @v12.8.2 @condition
+																;
+															}
+															else {
+																_BBox(wi_item.rcWindow, line_buf.Space(), 0, skip_origin);
+															}
 															line_buf.CatChar(']').Semicol();
 														}
 														else if(p_clu->GetKind() == CHECKBOXES) {
 															line_buf.Z().Tab_(2).Cat("checkbox").Space().CatChar('[');
 															line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = item_title_buf).Transf(CTRANSF_OUTER_TO_UTF8));
-															_BBox(_AdjustRectToOrigin(wi_item.rcWindow, _origin), line_buf.Space(), 0);
+															_AdjustRectToOrigin(wi_item.rcWindow, _origin);
+															if(skip_origin && (wi_item.rcWindow.bottom - wi_item.rcWindow.top) == 16) { // @v12.8.2 @condition
+																;
+															}
+															else {
+																_BBox(wi_item.rcWindow, line_buf.Space(), 0, skip_origin);
+															}
 															line_buf.CatChar(']').Semicol();
 														}
 														f_out.WriteLine(line_buf.CR());
@@ -7448,7 +7477,7 @@ int ExportDialogs2(const char * pFileName)
 										line_buf.Tab().Cat("framebox").Space().CatChar('[');
 										if(ctl_text.NotEmpty())
 											line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
-										_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0);
+										_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0, skip_origin);
 										line_buf.CatChar(']').Semicol();
 										f_out.WriteLine(line_buf.CR());
 										TakeInCountCtrl(h, child_list, seen_pos_list);
@@ -7480,7 +7509,7 @@ int ExportDialogs2(const char * pFileName)
 											line_buf.Space().Cat("disabled");
 										if(bt == BS_DEFPUSHBUTTON)
 											line_buf.Space().Cat("defaultitem");
-										_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf.Space(), 0);
+										_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf.Space(), 0, skip_origin);
 										line_buf.Space().Cat("command").CatDiv(':', 2).Cat(cmd_buf);
 										line_buf.CatChar(']');
 										line_buf.Semicol();
@@ -7510,7 +7539,7 @@ int ExportDialogs2(const char * pFileName)
 									if(ctl_text.NotEmpty()) {
 										line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
 									}
-									_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0);
+									_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0, skip_origin);
 									if(is_image) {
 										TImageView * p_iv = static_cast<TImageView *>(p_view);
 										if(p_iv->GetFigSymb().NotEmpty()) {
@@ -7536,7 +7565,7 @@ int ExportDialogs2(const char * pFileName)
 									if(ctl_text.NotEmpty()) {
 										line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
 									}
-									_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0);
+									_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0, skip_origin);
 									p_list->GetOrgColumnsDescr(temp_buf);
 									temp_buf.Transf(CTRANSF_INNER_TO_OUTER); // @v12.3.9
 									if(temp_buf.NotEmptyS()) {
@@ -7557,7 +7586,7 @@ int ExportDialogs2(const char * pFileName)
 									line_buf.Tab().Cat("treelistbox").Space().Cat(symb).Space().CatChar('[');
 									if(ctl_text.NotEmpty())
 										line_buf.Cat("title").CatDiv(':', 2).CatQStr((temp_buf = ctl_text).Transf(CTRANSF_OUTER_TO_UTF8)).Space();
-									_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0);
+									_BBox(_AdjustRectToOrigin(wi.rcWindow, _origin), line_buf, 0, skip_origin);
 									line_buf.CatChar(']');
 									line_buf.Semicol();
 									f_out.WriteLine(line_buf.CR());

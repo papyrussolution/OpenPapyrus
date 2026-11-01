@@ -1121,19 +1121,19 @@ dialog DLG_BIGTXTEDIT [vertical size: (800, 600) minsize: (400, 300) ] {
 	}
 }
 
-dialog DLG_MEMO [vertical title: "@memo" size: (600, 300) minsize: (400, 200)] {
+dialog DLG_MEMO [vertical title: "@memo" size: (600, 300) minsize: (400, 200) padding: 4] {
 	input CTL_INPUT_STR [width: bycontainer growfactor: 1 tabstop multiline wantreturn] string[255];
-	view [horizontal width: bycontainer height: 28 margin_right: 12 justifycontent: end] {
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
 
-dialog DLG_INPUT [vertical title: "" size: (500, 125) minsize: (500, 125)] {
+dialog DLG_INPUT [vertical title: "" size: (500, 125) minsize: (500, 125) padding: 4 justifycontent: spacebetween] {
 	input CTL_INPUT_STR [width: bycontainer height: 21 margin: 4 tabstop label: "@input_string"] string[128];
-	view [horizontal width: bycontainer growfactor: 1 margin_right: 12 justifycontent: end alignitems: end] {
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: (4, 4, 8, 4) command: cmOK];
-		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: (8, 4, 4, 4) command: cmCancel];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
 
@@ -7010,11 +7010,11 @@ dialog DLG_ATURN [vertical title: "@accountingturn" size: (565, 520) minsize: (5
 	view [horizontal width: bycontainer height: 40] {
 		input CTL_ATURN_DOC [growfactor: 1 height: 21 margin: 4 tabstop label: "@billno"] string[48];
 		input CTL_ATURN_DATE [size: (100, 21) margin: 4 tabstop fmtf: (dmy) label: "@date"] date supplement datecalbutton(CTLCAL_ATURN_DATE);
-		input CTL_ATURN_ID [size: (60, 21) margin: 4 fmtf: (nozero) readonly label: "@id"] int32;
+		input CTL_ATURN_ID [size: (70, 21) margin: 4 fmtf: (nozero) readonly label: "@id"] int32;
 	}
 	view [horizontal width: bycontainer height: 40] {
 		combobox CTLSEL_ATURN_LOCATION [growfactor: 1 height: 21 margin: 4 tabstop label: "@division" cblinesymb: CTL_ATURN_LOCATION];
-		view [horizontal size: (90, 21) margin: 4] {} // @stub
+		view [horizontal size: (100, 21) margin: 4] {} // @stub
 		view [horizontal size: (70, 21) margin: 4] {} // @stub
 	}
 	framebox [vertical title: "@accturn_dbtsheet" width: bycontainer height: 90 margin: 4 padding: (4, 12, 4, 4)] {
@@ -8629,7 +8629,313 @@ dialog DLG_BCPRT [vertical title: "@barcodeprinter" size: (575, 375) minsize: (5
 	}
 }
 
-// @20261012 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+dialog DLG_MOBCLMNN [vertical title: "@namedfilt_viewdeflist" size: (620, 480) minsize: (620, 400) padding: 4] { // @v12.8.1
+	statictext CTL_MOBCLMNN_OBJ [width: bycontainer height: 50 margin: 4 staticedge];
+	input CTL_MOBCLMNN_STRUC [width: bycontainer(50) height: 21 margin: 4 tabstop label: "@namedfilt_viewdeflist_strucsymb"] string[64];
+	listbox CTL_MOBCLMNN_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_mobclmnlist"];
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 5 height: bycontainer justifycontent: start] {
+			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+			button STDCTL_UPBUTTON [title: "" tabstop size: (23, 21) margin: (12, 4, 4, 4) command: cmUp];
+			button STDCTL_DOWNBUTTON [title: "" tabstop size: (23, 21) margin: 4 command: cmDown];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}	
+}
+
+dialog DLG_FLTLOTEXT [vertical title: "@lotfilt_ext" size: (500, 440) minsize: (500, 440) padding: 4 justifycontent: spacebetween] { // @v12.8.1
+	view [horizontal width: bycontainer height: 100] {
+		framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4] {
+			input CTL_FLTLOT_COST [width: bycontainer height: 21 margin: 4 tabstop label: "@lotfilt_costrange"] string[20];
+			input CTL_FLTLOT_PRICE [width: bycontainer height: 21 margin: 4 tabstop label: "@lotfilt_pricerange"] string[20];
+		}
+		framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4] {
+			input CTL_FLTLOT_EXPIRY [width: bycontainer height: 21 margin: 4 tabstop label: "@lotfilt_expiryprd"] string[30] supplement daterangecalbutton(CTLCAL_FLTLOT_EXPIRY);
+			input CTL_FLTLOT_QCEXPIRY [width: bycontainer height: 21 margin: 4 tabstop label: "@lotfilt_qcexpiryprd"] string[30] supplement daterangecalbutton(CTLCAL_FLTLOT_QCEXPIRY);
+		}
+	}
+	view [horizontal width: bycontainer height: 90] {
+		view [vertical growfactor: 1.5 height: bycontainer] {
+			input CTL_FLTLOT_SERIAL [width: bycontainer height: 21 margin: 4 tabstop label: "@serial"] string[32];
+			combobox CTLSEL_FLTLOT_INTAXGRP [width: bycontainer height: 21 margin: 4 tabstop label: "@lotfilt_intaxgrp" cblinesymb: CTL_FLTLOT_INTAXGRP];
+		}
+		radiocluster CTL_FLTLOT_EXTVIEWATTR [title: "@lotfilt_extviewattr" growfactor: 1 margin: 4 padding: (4, 12, 4, 4)] {
+			radiobutton [title: "@lotfilt_exvanone"];
+			radiobutton [title: "@lotfilt_exvaegaistags"];
+			radiobutton [title: "@lotfilt_exvavetistags"];
+		}
+	}
+	framebox [vertical title: "@lotfilt_pricechangeconditions" width: bycontainer height: 150 margin: 4 padding: (4, 12, 4, 4)] {
+		checkbox CTL_FLTLOT_SHOWPRICEDEV [title: "@lotfilt_fshowpricedev" tabstop width: bycontainer(60) height: 21 margin: 4];
+		view [horizontal width: bycontainer growfactor: 1] {
+			radiocluster CTL_FLTLOT_CDEVRESTR [title: "@lotfilt_costdevrestr" growfactor: 1.2 margin: 4 padding: (4, 12, 4, 4)] {
+				radiobutton [title: "@nomatter"];
+				radiobutton [title: "@lotfilt_drbelow"];
+				radiobutton [title: "@lotfilt_drabove"];
+				radiobutton [title: "@lotfilt_drany"];
+			}
+			radiocluster CTL_FLTLOT_PDEVRESTR [title: "@lotfilt_pricedevrestr" growfactor: 1.2 margin: 4 padding: (4, 12, 4, 4)] {
+				radiobutton [title: "@nomatter"];
+				radiobutton [title: "@lotfilt_drbelow"];
+				radiobutton [title: "@lotfilt_drabove"];
+				radiobutton [title: "@lotfilt_drany"];
+			}
+			view [vertical growfactor: 1 height: bycontainer] {} // @stub
+		}
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_WAITCMD [vertical title: "@input_cmdorspccode" size: (400, 145) minsize: (400, 145) padding: 4 justifycontent: spacebetween] {
+	input CTL_WAITCMD_INPUT [width: bycontainer height: 21 margin: 4 tabstop] string[128];
+	statictext CTL_WAITCMD_STATUS [width: bycontainer growfactor: 1 margin: 4 staticedge];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_PSNEVNT [vertical title: "" size: (720, 570) minsize: (720, 570) padding: 4] { // @v12.8.1 @construction
+	view [horizontal width: bycontainer growfactor: 1.5] {
+		view [vertical growfactor: 1.3 height: bycontainer] {
+			view [horizontal width: bycontainer height: 45] {
+				input CTL_PSNEVNT_DATE [size: (90, 21) margin: 4 tabstop fmtf: (dmy) label: "@personevent_dt"] date supplement datecalbutton(CTLCAL_PSNEVNT_DATE);
+				input CTL_PSNEVNT_TIME [size: (90, 21) margin: 4 tabstop fmtf: (hms) label: "@personevent_tm"] time supplement timebutton(CTLTM_PSNEVNT_TIME);
+				input CTL_PSNEVNT_ID [size: (70, 21) margin: 4 tabstop readonly label: "@id"] int32;
+			}
+			view [vertical width: bycontainer height: 70] {
+				combobox CTLSEL_PSNEVNT_PRMR [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@personevent_person" cblinesymb: CTL_PSNEVNT_PRMR];
+				view [horizontal width: bycontainer height: 30] {
+					input CTL_PSNEVNT_PRMRSCARD [design: B size: (145, 21) margin: (4, 1, 4, 4) tabstop readonly label: "@personevent_prmrscard"] string[32];
+				}
+			}
+			view [vertical width: bycontainer height: 70] {
+				combobox CTLSEL_PSNEVNT_SCND [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@personevent_second" cblinesymb: CTL_PSNEVNT_SCND];
+				view [horizontal width: bycontainer height: 30] {
+					input CTL_PSNEVNT_SCNDSCARD [design: B size: (145, 21) margin: (4, 1, 4, 4) tabstop readonly label: "@personevent_scndscard"] string[32];
+				}
+			}
+			combobox CTLSEL_PSNEVNT_DIV [width: bycontainer height: 21 margin: 4 tabstop label: "@division" cblinesymb: CTL_PSNEVNT_DIV];
+			combobox CTLSEL_PSNEVNT_POST [width: bycontainer height: 21 margin: 4 tabstop label: "@person_position" cblinesymb: CTL_PSNEVNT_POST];
+			checkbox CTL_PSNEVNT_FLAGS [title: "@personevent_fforcepair" tabstop width: bycontainer height: 21 margin: 4];
+		}
+		view [vertical growfactor: 1 height: bycontainer] {
+			imageview CTL_PSNEVNT_IMAGE [width: bycontainer growfactor: 1 margin: 4 staticedge];
+			view [horizontal width: bycontainer height: 30] {
+				button STDCTL_IMGADDBUTTON [title: "" tabstop size: (21, 21) margin: 4 command: cmAddImage];
+				button STDCTL_IMGDELBUTTON [title: "" tabstop size: (21, 21) margin: 4 command: cmDelImage];
+				button STDCTL_IMGPSTBUTTON [title: "" tabstop size: (21, 21) margin: 4 command: cmPasteImage];
+			}
+		}
+	}
+	view [vertical width: bycontainer growfactor: 1] {
+		input CTL_PSNEVNT_MEMO [width: bycontainer growfactor: 1 margin: 4 tabstop multiline wantreturn label: "@personevent_memo"] string[128];
+		view [horizontal width: bycontainer growfactor: 1] {
+			listbox CTL_PSNEVNT_TAGLIST [growfactor: 1 height: bycontainer margin: 4 columns: "20,L,@tag;60,L,@va"];
+			view [vertical width: 30 height: bycontainer] {
+				button STDCTL_INSBUTTON [title: "" tabstop size: (21, 21) margin: 4 command: cmaInsert];
+				button STDCTL_EDITBUTTON [title: "" tabstop size: (21, 21) margin: 4 command: cmaEdit];
+				button STDCTL_DELBUTTON [title: "" tabstop size: (21, 21) margin: 4 command: cmaDelete];
+			}
+		}
+	}
+	statictext CTL_PSNEVNT_ST_PAIR [width: bycontainer height: 16 margin: 4 staticedge];
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 5 height: bycontainer justifycontent: start] {
+			button CTL_PSNEVNT_CMD_PSNEVNTREGISTER [title: "@{register}..." tabstop size: (75, 21) margin: 4 command: cmPsnEvntRegister];
+			button STDCTL_PRINT [title: "@but_print" tabstop size: (75, 21) margin: 4 command: cmPrint];
+			button CTL_PSNEVNT_CMD_VKAPIPOST [title: "@dopublishvk" tabstop size: (125, 21) margin: 4 command: cmVkApiPost];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_DESKCMDA [vertical title: "@cmdgroup_desktopcmdassoc" size: (600, 400) minsize: (600, 400) padding: 4] { // @v12.8.1
+	combobox CTLSEL_DESKCMDA_DESKTOP [width: bycontainer height: 21 margin: 4 tabstop label: "@desktop" cblinesymb: CTL_DESKCMDA_DESKTOP];
+	listbox CTL_DESKCMDA_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_desktopcmdassoc"];
+	view [horizontal width: bycontainer height: 28] {
+		view [horizontal growfactor: 3 height: bycontainer(100) gravity: left justifycontent: start] {
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+		view [horizontal growfactor: 2 height: bycontainer(100) margin_right: 12 gravity: right justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_DESKCMDAI [vertical title: "@desktopassoccmd" size: (550, 300) minsize: (550, 300) padding: 4 justifycontent: spacebetween] { // @v12.8.1
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_DESKCMDAI_CODE [growfactor: 1 height: 21 margin: 4 tabstop label: "@desktopassoccmd_code"] string[128];
+		input CTL_DESKCMDAI_DVCSERIAL [growfactor: 1 height: 21 margin: 4 tabstop label: "@desktopassoccmd_dvcserial"] string[64];
+	}
+	combobox CTLSEL_DESKCMDAI_COMMAND [width: bycontainer(75) height: 21 margin: 4 tabstop label: "@desktopassoccmd_cmd" cblinesymb: CTL_DESKCMDAI_COMMAND];
+	input CTL_DESKCMDAI_PARAM [width: bycontainer height: 21 margin: 4 tabstop label: "@desktopassoccmd_cmdparam"] string[128];
+	checkcluster CTL_DESKCMDAI_FLAGS [tabstop width: bycontainer(50) margin: 4 padding: 4] {
+		checkbox [title: "@desktopassoccmd_fspeccode"];
+		checkbox [title: "@desktopassoccmd_fspeccodeprefx"];
+		checkbox [title: "@desktopassoccmd_fnoninteractive"];
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_SELPERSONC [vertical title: "@selectperson" size: (435, 300) minsize: (435, 300) padding: 4 justifycontent: spacebetween] { // @v12.8.1
+	statictext CTL_SELPERSONC_SUBTITLE [width: bycontainer height: 24 margin: 4 staticedge];
+	input CTL_SELPERSONC_CODEINP [width: bycontainer height: 21 margin: 4 tabstop label: "@registerdocumentno"] string[128];
+	combobox CTLSEL_SELPERSONC_PRSN [width: bycontainer height: 21 margin: 4 tabstop label: "@person" cblinesymb: CTL_SELPERSONC_PRSN];
+	combobox CTLSEL_SELPERSONC_SCARD [width: bycontainer height: 21 margin: 4 tabstop label: "@card" cblinesymb: CTL_SELPERSONC_SCARD];
+	combobox CTLSEL_SELPERSONC_PRSNSC [width: bycontainer height: 21 margin: 4 tabstop label: "@person_scnd" cblinesymb: CTL_SELPERSONC_PRSNSC];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_PSNOPK [vertical title: "@personopkind" size: (645, 490) minsize: (645, 490) padding: 4 justifycontent: spacebetween] { // @v12.8.2 @construction
+	view [horizontal width: bycontainer height: 40] {
+		input CTL_PSNOPK_NAME [growfactor: 2.5 height: 21 margin: 4 tabstop label: "@personopkind_name"] string[48];
+		input CTL_PSNOPK_SYMB [growfactor: 1 height: 21 margin: 4 tabstop label: "@personopkind_symb"] string[20];
+		input CTL_PSNOPK_ID [size: (60, 21) margin: 4 tabstop readonly label: "@id"] int32;
+	}
+	view [horizontal width: bycontainer growfactor: 1] {
+		view [vertical growfactor: 2.5 height: bycontainer] {
+			combobox CTLSEL_PSNOPK_PARENT [width: bycontainer height: 21 margin: 4 tabstop label: "@group" cblinesymb: CTL_PSNOPK_PARENT];
+			combobox CTLSEL_PSNOPK_PAIR [width: bycontainer height: 21 margin: 4 tabstop label: "@personopkind_pairop" cblinesymb: CTL_PSNOPK_PAIR];
+			combobox CTLSEL_PSNOPK_REGTYP [width: bycontainer height: 21 margin: 4 tabstop label: "@personopkind_regtype" cblinesymb: CTL_PSNOPK_REGTYP];
+			view [horizontal width: bycontainer height: 100] {
+				checkcluster CTL_PSNOPK_FLAGS [growfactor: 1 margin: 4 padding: 4] {
+					checkbox [title: "@personopkind_pokf_unique"];
+					checkbox [title: "@personopkind_pokf_binding"];
+				}
+				radiocluster CTL_PSNOPK_PAIRTYPE [growfactor: 1 margin: 4 padding: 4] {
+					radiobutton [title: "@personopkind_pairtype_none"];
+					radiobutton [title: "@personopkind_pairtype_open"];
+					radiobutton [title: "@personopkind_pairtype_close"];
+					radiobutton [title: "@personopkind_pairtype_nullclose"];
+				}
+			}
+			framebox [vertical width: bycontainer height: 100 margin: 4 padding: 4] {
+				combobox CTLSEL_PSNOPK_RSC [width: bycontainer height: 21 margin: 4 tabstop label: "@personopkind_restrstaffcal" cblinesymb: CTL_PSNOPK_RSC];
+				view [horizontal width: bycontainer height: 30] {
+					input CTL_PSNOPK_RSCMAXTIMES [design: B size: (55, 21) margin: 4 tabstop fmtf: (nozero) label: "@personopkind_rscmaxtimes"] int32;
+				}
+			}
+			view [horizontal width: bycontainer height: 30 margin: 4 padding: 4] {
+				input CTL_PSNOPK_REDOTIMEOUT [design: B size: (55, 21) margin: 4 tabstop fmtf: (nozero) label: "@personopkind_redotimeout"] int32;
+			}
+		}
+		view [vertical growfactor: 1 height: bycontainer justifycontent: center alignitems: center] {
+			button CTL_PSNOPK_CMD_PSNOPKPRMR [title: "@{person_prmr}..." tabstop size: (145, 21) margin: 4 command: cmPsnOpkPrmr];
+			button CTL_PSNOPK_CMD_PSNOPKSCND [title: "@{person_scnd}..." tabstop size: (145, 21) margin: 4 command: cmPsnOpkScnd];
+			button CTL_PSNOPK_CMD_PSNOPKEXTRAOBJ [title: "@{extension}..." tabstop size: (145, 21) margin: 4 command: cmPsnOpkExtraObj];
+			button CTL_PSNOPK_CMD_PSNOPKACTL [title: "@{action_pl}..." tabstop size: (145, 21) margin: 4 command: cmPsnOpkActl];
+		}
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+//
+// Диалоги DLG_PSNOPKPC и DLG_PSNOPKSC отличаются только тем, что в DLG_PSNOPKSC есть поле персоаналии по умолчанию.
+// то есть, вместо  DLG_PSNOPKPC можно использовать DLG_PSNOPKSC с заблокированным полем CTLSEL_PSNOPKPC_DEFAULT
+//
+dialog DLG_PSNOPKPC [vertical title: "@personopkind_constr" size: (360, 400) minsize: (360, 400) padding: 4 justifycontent: spacebetween] { // @v12.8.2
+	combobox CTLSEL_PSNOPKPC_KIND [width: bycontainer height: 21 margin: 4 tabstop label: "@personopkind_constr_personkind" cblinesymb: CTL_PSNOPKPC_KIND];
+	radiocluster CTL_PSNOPKPC_STATUSTYP [title: "@personopkind_constr_statustype" width: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
+		radiobutton [title: "@personopkind_constr_statustype_any"];
+		radiobutton [title: "@personopkind_constr_statustype_private"];
+		radiobutton [title: "@personopkind_constr_statustype_legal"];
+	}
+	combobox CTLSEL_PSNOPKPC_RTAG [width: bycontainer height: 21 margin: 4 tabstop label: "@personopkind_constr_restricttag" cblinesymb: CTL_PSNOPKPC_RTAG];
+	view [horizontal width: bycontainer growfactor: 1] {
+		listbox CTL_PSNOPKPC_SCSLIST [title: "@personopkind_constr_restrictscserlist" growfactor: 1 height: bycontainer margin: 4];
+		view [vertical width: 30 height: bycontainer justifycontent: center alignitems: center] {
+			button STDCTL_INSBUTTON [title: "+" tabstop size: (21, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "-" tabstop size: (21, 21) margin: 4 command: cmaDelete];
+		}
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_PSNOPKSC [vertical title: "@personopkind_constr" size: (360, 415) minsize: (360, 415) padding: 4 justifycontent: spacebetween] { // @v12.8.2
+	combobox CTLSEL_PSNOPKPC_KIND [width: bycontainer height: 21 margin: 4 tabstop label: "@personopkind_constr_personkind" cblinesymb: CTL_PSNOPKPC_KIND];
+	radiocluster CTL_PSNOPKPC_STATUSTYP [title: "@personopkind_constr_statustype" width: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
+		radiobutton [title: "@personopkind_constr_statustype_any"];
+		radiobutton [title: "@personopkind_constr_statustype_private"];
+		radiobutton [title: "@personopkind_constr_statustype_legal"];
+	}
+	combobox CTLSEL_PSNOPKPC_RTAG [width: bycontainer height: 21 margin: 4 tabstop label: "@personopkind_constr_restricttag" cblinesymb: CTL_PSNOPKPC_RTAG];
+	combobox CTLSEL_PSNOPKPC_DEFAULT [width: bycontainer height: 21 margin: 4 tabstop label: "@personopkind_constr_default" cblinesymb: CTL_PSNOPKPC_DEFAULT];
+	view [horizontal width: bycontainer growfactor: 1] {
+		listbox CTL_PSNOPKPC_SCSLIST [title: "@personopkind_constr_restrictscserlist" growfactor: 1 height: bycontainer margin: 4];
+		view [vertical width: 30 height: bycontainer justifycontent: center alignitems: center] {
+			button STDCTL_INSBUTTON [title: "+" tabstop size: (21, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "-" tabstop size: (21, 21) margin: 4 command: cmaDelete];
+		}
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_POKACTL [vertical title: "@poclauselist" size: (425, 245) minsize: (425, 245) padding: 4] { // @v12.8.2
+	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+		listbox CTL_POKACTL_LIST [tabstop width: bycontainer growfactor: 1 margin: 4];
+		view [horizontal width: bycontainer height: 30] {
+			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop size: (90, 21) margin: 4 command: cmaEdit];
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
+		}
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 8 justifycontent: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_POVERB [vertical title: "@poclause" size: (440, 310) minsize: (440, 310) padding: 4 justifycontent: spacebetween] { // @v12.8.2
+	view [horizontal width: bycontainer height: 70] {
+		radiocluster CTL_POVERB_SUBJ [tabstop title: "@poclause_subj" growfactor: 1 margin: 4 padding: (4, 12, 4, 4)] {
+			radiobutton [title: "@poclause_pocobj_primary"];
+			radiobutton [title: "@poclause_pocobj_secondary"];
+		}
+		checkcluster CTL_POVERB_FLAGS [tabstop growfactor: 1 margin: 4 padding: 4] {
+			checkbox [title: "@poclause_fpassive"];
+			checkbox [title: "@poclause_fonredo"];
+		}
+	}
+	combobox CTLSEL_POVERB_VERB [width: bycontainer height: 21 margin: 4 tabstop label: "@action" cblinesymb: CTL_POVERB_VERB];
+	combobox CTLSEL_POVERB_LINK [width: bycontainer height: 21 margin: 4 tabstop cblinesymb: CTL_POVERB_LINK];
+	statictext CTL_POVERB_EXTEXT [width: bycontainer height: 21 margin: 4 staticedge];
+	input CTL_POVERB_CMDTXT [width: bycontainer height: 21 margin: 4 tabstop label: "@poclause_cmdtext"] string[128];
+	view [horizontal width: bycontainer height: 30 margin_right: 8 justifycontent: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+// @20261028 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 
 // @construction
@@ -9041,130 +9347,39 @@ dialog DLG_ATURNPERSONAL [vertical size: (600, 480) minsize: (600, 480) padding:
 	}
 }
 
-dialog DLG_MOBCLMNN [vertical title: "@namedfilt_viewdeflist" size: (620, 480) minsize: (620, 400) padding: 4] { // @v12.8.1
-	statictext CTL_MOBCLMNN_OBJ [width: bycontainer height: 50 margin: 4 staticedge];
-	input CTL_MOBCLMNN_STRUC [width: bycontainer(50) height: 21 margin: 4 tabstop label: "@namedfilt_viewdeflist_strucsymb"] string[64];
-	listbox CTL_MOBCLMNN_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_mobclmnlist"];
+dialog DLG_PSNCFG [vertical title: "@cfg_person" size: (760, 375) minsize: (760, 375) padding: 4 justifycontent: spacebetween] { // @v12.8.2
+	view [horizontal width: bycontainer growfactor: 1] {
+		view [vertical growfactor: 1 height: bycontainer justifycontent: spacebetween] {
+			input CTL_PSNCFG_FOLDER [width: bycontainer height: 21 margin: 4 tabstop label: "@cfgperson_topfolder"] string[64] supplement filebrowsebutton(CTLBRW_PSNCFG_FOLDER);
+			input CTL_PSNCFG_IMGFOLDER [width: bycontainer height: 21 margin: 4 tabstop label: "@cfgperson_addimagefolder"] string[64] supplement filebrowsebutton(CTLBRW_PSNCFG_IMGFOLDER);
+			combobox CTLSEL_PSNCFG_TRADELIC [width: bycontainer(75) height: 21 margin: 4 tabstop label: "@cfgperson_tradelicregtype" cblinesymb: CTL_PSNCFG_TRADELIC];
+			combobox CTLSEL_PSNCFG_REGCAL [width: bycontainer(75) height: 21 margin: 4 tabstop label: "@cfgperson_regstaffcal" cblinesymb: CTL_PSNCFG_REGCAL ];
+		}
+		checkcluster CTL_PSNCFG_FLAGS [tabstop growfactor: 1 margin: 4 padding: 4] {
+			checkbox [title: "@cfgperson_fsyncbyname"];
+			checkbox [title: "@cfgperson_fsyncbysrchreg"];
+			checkbox [title: "@cfgperson_fsyncdeclineupdate"];
+			checkbox [title: "@cfgperson_fshowpsnimageaftercmdassoc"];
+			checkbox [title: "@cfgperson_fsyncmergereglist"];
+			checkbox [title: "@xchg_sendattachment"];
+			checkbox [title: "@cfgperson_fsyncappendabskinds"];
+		}
+	}
+	view [vertical width: bycontainer(70) height: 100 justifycontent: spacebetween] {
+		view [horizontal width: bycontainer height: 30] {
+			input CTL_PSNCFG_CALQUANT [design: B size: (60, 21) margin: 4 tabstop label: "@cfgperson_staffcalquant"] int32;
+		}
+		view [horizontal width: bycontainer height: 30] {
+			input CTL_PSNCFG_SMSTIMEOUT [design: B size: (60, 21) margin: 4 tabstop label: "@cfgperson_sendsmssamepersontimeout"] int32;
+		}
+		view [horizontal width: bycontainer height: 30] {
+			input CTL_PSNCFG_SMSPRTR [design: B size: (150, 21) margin: 4 tabstop label: "@cfgperson_smsprohibitedtr"] string[32];
+		}
+	}
 	view [horizontal width: bycontainer height: 30] {
-		view [horizontal growfactor: 5 height: bycontainer justifycontent: start] {
-			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
-			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
-			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
-			button STDCTL_UPBUTTON [title: "" tabstop size: (23, 21) margin: (12, 4, 4, 4) command: cmUp];
-			button STDCTL_DOWNBUTTON [title: "" tabstop size: (23, 21) margin: 4 command: cmDown];
-		}
-		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
-			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
-			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
-		}
-	}	
-}
-
-dialog DLG_FLTLOTEXT [vertical title: "@lotfilt_ext" size: (500, 440) minsize: (500, 440) padding: 4 justifycontent: spacebetween] { // @v12.8.1
-	view [horizontal width: bycontainer height: 100] {
-		framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4] {
-			input CTL_FLTLOT_COST [width: bycontainer height: 21 margin: 4 tabstop label: "@lotfilt_costrange"] string[20];
-			input CTL_FLTLOT_PRICE [width: bycontainer height: 21 margin: 4 tabstop label: "@lotfilt_pricerange"] string[20];
-		}
-		framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4] {
-			input CTL_FLTLOT_EXPIRY [width: bycontainer height: 21 margin: 4 tabstop label: "@lotfilt_expiryprd"] string[30] supplement daterangecalbutton(CTLCAL_FLTLOT_EXPIRY);
-			input CTL_FLTLOT_QCEXPIRY [width: bycontainer height: 21 margin: 4 tabstop label: "@lotfilt_qcexpiryprd"] string[30] supplement daterangecalbutton(CTLCAL_FLTLOT_QCEXPIRY);
-		}
-	}
-	view [horizontal width: bycontainer height: 90] {
-		view [vertical growfactor: 1.5 height: bycontainer] {
-			input CTL_FLTLOT_SERIAL [width: bycontainer height: 21 margin: 4 tabstop label: "@serial"] string[32];
-			combobox CTLSEL_FLTLOT_INTAXGRP [width: bycontainer height: 21 margin: 4 tabstop label: "@lotfilt_intaxgrp" cblinesymb: CTL_FLTLOT_INTAXGRP];
-		}
-		radiocluster CTL_FLTLOT_EXTVIEWATTR [title: "@lotfilt_extviewattr" growfactor: 1 margin: 4 padding: (4, 12, 4, 4)] {
-			radiobutton [title: "@lotfilt_exvanone"];
-			radiobutton [title: "@lotfilt_exvaegaistags"];
-			radiobutton [title: "@lotfilt_exvavetistags"];
-		}
-	}
-	framebox [vertical title: "@lotfilt_pricechangeconditions" width: bycontainer height: 150 margin: 4 padding: (4, 12, 4, 4)] {
-		checkbox CTL_FLTLOT_SHOWPRICEDEV [title: "@lotfilt_fshowpricedev" tabstop width: bycontainer(60) height: 21 margin: 4];
-		view [horizontal width: bycontainer growfactor: 1] {
-			radiocluster CTL_FLTLOT_CDEVRESTR [title: "@lotfilt_costdevrestr" growfactor: 1.2 margin: 4 padding: (4, 12, 4, 4)] {
-				radiobutton [title: "@nomatter"];
-				radiobutton [title: "@lotfilt_drbelow"];
-				radiobutton [title: "@lotfilt_drabove"];
-				radiobutton [title: "@lotfilt_drany"];
-			}
-			radiocluster CTL_FLTLOT_PDEVRESTR [title: "@lotfilt_pricedevrestr" growfactor: 1.2 margin: 4 padding: (4, 12, 4, 4)] {
-				radiobutton [title: "@nomatter"];
-				radiobutton [title: "@lotfilt_drbelow"];
-				radiobutton [title: "@lotfilt_drabove"];
-				radiobutton [title: "@lotfilt_drany"];
-			}
-			view [vertical growfactor: 1 height: bycontainer] {} // @stub
-		}
-	}
-	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
-		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
-	}
-}
-
-dialog DLG_WAITCMD [vertical title: "@input_cmdorspccode" size: (400, 145) minsize: (400, 145) padding: 4 justifycontent: spacebetween] {
-	input CTL_WAITCMD_INPUT [width: bycontainer height: 21 margin: 4 tabstop] string[128];
-	statictext CTL_WAITCMD_STATUS [width: bycontainer growfactor: 1 margin: 4 staticedge];
-	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
-		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
-	}
-}
-
-dialog DLG_PSNEVNT [vertical title: "" size: (720, 570) minsize: (720, 570) padding: 4] { // @v12.8.1 @construction
-	view [horizontal width: bycontainer growfactor: 1.5] {
-		view [vertical growfactor: 1.3 height: bycontainer] {
-			view [horizontal width: bycontainer height: 45] {
-				input CTL_PSNEVNT_DATE [size: (90, 21) margin: 4 tabstop fmtf: (dmy) label: "@personevent_dt"] date supplement datecalbutton(CTLCAL_PSNEVNT_DATE);
-				input CTL_PSNEVNT_TIME [size: (90, 21) margin: 4 tabstop fmtf: (hms) label: "@personevent_tm"] time supplement timebutton(CTLTM_PSNEVNT_TIME);
-				input CTL_PSNEVNT_ID [size: (70, 21) margin: 4 tabstop readonly label: "@id"] int32;
-			}
-			view [vertical width: bycontainer height: 70] {
-				combobox CTLSEL_PSNEVNT_PRMR [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@personevent_person" cblinesymb: CTL_PSNEVNT_PRMR];
-				view [horizontal width: bycontainer height: 30] {
-					input CTL_PSNEVNT_PRMRSCARD [design: B size: (145, 21) margin: (4, 1, 4, 4) tabstop readonly label: "@personevent_prmrscard"] string[32];
-				}
-			}
-			view [vertical width: bycontainer height: 70] {
-				combobox CTLSEL_PSNEVNT_SCND [width: bycontainer height: 21 margin: (4, 4, 4, 1) tabstop label: "@personevent_second" cblinesymb: CTL_PSNEVNT_SCND];
-				view [horizontal width: bycontainer height: 30] {
-					input CTL_PSNEVNT_SCNDSCARD [design: B size: (145, 21) margin: (4, 1, 4, 4) tabstop readonly label: "@personevent_scndscard"] string[32];
-				}
-			}
-			combobox CTLSEL_PSNEVNT_DIV [width: bycontainer height: 21 margin: 4 tabstop label: "@division" cblinesymb: CTL_PSNEVNT_DIV];
-			combobox CTLSEL_PSNEVNT_POST [width: bycontainer height: 21 margin: 4 tabstop label: "@person_position" cblinesymb: CTL_PSNEVNT_POST];
-			checkbox CTL_PSNEVNT_FLAGS [title: "@personevent_fforcepair" tabstop width: bycontainer height: 21 margin: 4];
-		}
-		view [vertical growfactor: 1 height: bycontainer] {
-			imageview CTL_PSNEVNT_IMAGE [width: bycontainer growfactor: 1 margin: 4 staticedge];
-			view [horizontal width: bycontainer height: 30] {
-				button STDCTL_IMGADDBUTTON [title: "" tabstop size: (21, 21) margin: 4 command: cmAddImage];
-				button STDCTL_IMGDELBUTTON [title: "" tabstop size: (21, 21) margin: 4 command: cmDelImage];
-				button STDCTL_IMGPSTBUTTON [title: "" tabstop size: (21, 21) margin: 4 command: cmPasteImage];
-			}
-		}
-	}
-	view [vertical width: bycontainer growfactor: 1] {
-		input CTL_PSNEVNT_MEMO [width: bycontainer growfactor: 1 margin: 4 tabstop multiline wantreturn label: "@personevent_memo"] string[128];
-		view [horizontal width: bycontainer growfactor: 1] {
-			listbox CTL_PSNEVNT_TAGLIST [growfactor: 1 height: bycontainer margin: 4 columns: "20,L,@tag;60,L,@va"];
-			view [vertical width: 30 height: bycontainer] {
-				button STDCTL_INSBUTTON [title: "" tabstop size: (21, 21) margin: 4 command: cmaInsert];
-				button STDCTL_EDITBUTTON [title: "" tabstop size: (21, 21) margin: 4 command: cmaEdit];
-				button STDCTL_DELBUTTON [title: "" tabstop size: (21, 21) margin: 4 command: cmaDelete];
-			}
-		}
-	}
-	statictext CTL_PSNEVNT_ST_PAIR [width: bycontainer height: 16 margin: 4 staticedge];
-	view [horizontal width: bycontainer height: 30] {
-		view [horizontal growfactor: 5 height: bycontainer justifycontent: start] {
-			button CTL_PSNEVNT_CMD_PSNEVNTREGISTER [title: "@{register}..." tabstop size: (75, 21) margin: 4 command: cmPsnEvntRegister];
-			button STDCTL_PRINT [title: "@but_print" tabstop size: (75, 21) margin: 4 command: cmPrint];
-			button CTL_PSNEVNT_CMD_VKAPIPOST [title: "@dopublishvk" tabstop size: (125, 21) margin: 4 command: cmVkApiPost];
+		view [horizontal growfactor: 4 height: bycontainer justifycontent: start] {
+			button CTL_PSNCFG_CMD_EXTFIELDS [title: "@{cfgperson_dlvraddrextfldlist}..." tabstop size: (240, 21) margin: 4 command: cmExtFields];
+			button CTL_PSNCFG_CMD_CLIENTACTIVITYCONFIG [title: "@{cfgperson_clientactivity}..." tabstop size: (240, 21) margin: 4 command: cmClientActivityConfig];
 		}
 		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end] {
 			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
@@ -9173,49 +9388,213 @@ dialog DLG_PSNEVNT [vertical title: "" size: (720, 570) minsize: (720, 570) padd
 	}
 }
 
-dialog DLG_DESKCMDA [vertical title: "@cmdgroup_desktopcmdassoc" size: (600, 400) minsize: (600, 400) padding: 4] { // @v12.8.1
-	combobox CTLSEL_DESKCMDA_DESKTOP [width: bycontainer height: 21 margin: 4 tabstop label: "@desktop" cblinesymb: CTL_DESKCMDA_DESKTOP];
-	listbox CTL_DESKCMDA_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_desktopcmdassoc"];
-	view [horizontal width: bycontainer height: 28] {
-		view [horizontal growfactor: 3 height: bycontainer(100) gravity: left justifycontent: start] {
+dialog DLG_NEWCLNT [vertical title: "@cfgperson_clientactivity" size: (590, 500) minsize: (590, 500) padding: 4] {
+	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+		listbox CTL_NEWCLNT_LIST [width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_newclienttalist"];
+		view [horizontal width: bycontainer height: 30 justifycontent: start] {
 			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
 			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
 			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
 		}
-		view [horizontal growfactor: 2 height: bycontainer(100) margin_right: 12 gravity: right justifycontent: end] {
-			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
-			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+	combobox CTLSEL_NEWCLNT_PSNKIND [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@psnkind" cblinesymb: CTL_NEWCLNT_PSNKIND];
+	framebox [vertical width: bycontainer height: 140 margin: 4 padding: 8 justifycontent: spacebetween] {
+		view [horizontal width: bycontainer height: 30] {
+			input CTL_NEWCLNT_CRITCADD [design: B size: (70, 21) margin: 4 tabstop fmtf: (nozero) label: "@cfgperson_criticalcliactivitydelaydays"] int16;
+		}
+		view [horizontal width: bycontainer height: 30] {
+			input CTL_NEWCLNT_CRITCADS [design: B size: (70, 21) margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 3 label: "@cfgperson_criticalcliactivitydelaysigm"] float;
+		}
+		view [horizontal width: bycontainer height: 30] {
+			input CTL_NEWCLNT_HLCADD [design: B size: (70, 21) margin: 4 tabstop fmtf: (nozero) label: "@cfgperson_hopelesscliactivitydelaydays"] int16;
+		}
+		view [horizontal width: bycontainer height: 30] {
+			input CTL_NEWCLNT_HLCADS [design: B size: (70, 21) margin: 4 tabstop fmtf: (nozero notrailz) fmtprec: 3 label: "@cfgperson_hopelesscliactivitydelaysigm"] float;
 		}
 	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
 }
 
-dialog DLG_DESKCMDAI [vertical title: "@desktopassoccmd" size: (550, 300) minsize: (550, 300) padding: 4 justifycontent: spacebetween] { // @v12.8.1
+dialog DLG_DBTRANSM_IN [vertical title: "@objreceive" size: (425, 425) minsize: (425, 425) padding: 4] { // @v12.8.2
+	statictext CTL_DBTRANSM_IN_INFO1 [title: "@objreceive_outsrc_note" width: bycontainer growfactor: 1 margin: 4];
+	radiocluster CTL_DBTRANSM_IN_OPTIONS [tabstop width: bycontainer margin: 4 padding: 4] {
+		radiobutton [title: "@objreceive_inmode_outsrcclrdest"];
+		radiobutton [title: "@objreceive_fgetfromoutsrcr"];
+		radiobutton [title: "@objreceive_inmode_nooutsrc"];
+	}
+	checkcluster CTL_DBTRANSM_FLAGS [tabstop width: bycontainer margin: 4 padding: 4] {
+		checkbox [title: "@objreceive_fclearinpafter"];
+		checkbox [title: "@objreceive_fcommitqueue"];
+		checkbox [title: "@objreceive_fforcedestroyqueue"];
+	}
+	framebox [horizontal title: "@objreceive_senderdbdivlist" width: bycontainer growfactor: 2 margin: 4 padding: (4, 12, 4, 4)] {
+		listbox CTL_DBTRANSM_IN_LIST [tabstop growfactor: 1 height: bycontainer margin: 4];
+		view [vertical width: 110 height: bycontainer justifycontent: center] {
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (100, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (100, 21) margin: 4 command: cmaDelete];
+		}
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_IMPEXP [vertical title: "@impexpparam" size: (425, 390) minsize: (425, 390) padding: 4 justifycontent: spacebetween] { // @v12.8.2
+	input CTL_IMPEXP_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@impexpparam_name"] string[128];
+	view [horizontal width: bycontainer height: 110] {
+		radiocluster CTL_IMPEXP_FORMAT [tabstop title: "@impexpparam_dataformat" growfactor: 1 margin: 4 padding: (4, 12, 4, 4)] {
+			radiobutton [title: "Text"];
+			radiobutton [title: "DBF"];
+			radiobutton [title: "XML"];
+			radiobutton [title: "Excel"];
+		}
+		view [vertical growfactor: 1.4 height: bycontainer margin_top: 12] {
+			button CTL_IMPEXP_BUT_TXTDB [title: "@but_impexpfp" tabstop size: (150, 21) margin: 4 command: cmImpExpTxtDbParam];
+			checkcluster CTL_IMPEXP_FLAGS [tabstop width: bycontainer margin: 4 padding: 4] {
+				checkbox [title: "@codepage_oem"];
+				checkbox [title: "@impexpparam_bfdeletesrcfiles"];
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 60] {
+		radiocluster CTL_IMPEXP_DIR [tabstop growfactor: 1 margin: 4 padding: 4] {
+			radiobutton [title: "@export"];
+			radiobutton [title: "@import"];
+		}
+		view [vertical growfactor: 1.4 height: bycontainer margin_top: 12] {
+			button CTL_IMPEXP_BUT_FLDCORR [title: "@but_fldcorr" tabstop size: (150, 21) margin: 4 command: cmImpExpFldCorr];
+		}
+	}
+	input CTL_IMPEXP_FILENAME [width: bycontainer height: 21 margin: 4 tabstop label: "@impexpparam_filename"] string[128] supplement filebrowsebutton(CTLBRW_IMPEXP_FILENAME);
+	combobox CTLSEL_IMPEXP_FTPACC [width: bycontainer height: 21 margin: 4 tabstop label: "@impexpparam_inetacc" cblinesymb: CTL_IMPEXP_FTPACC];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_REPLPRSN [vertical title: "@unite_persons" size: (535, 410) minsize: (535, 410) padding: 4 justifycontent: spacebetween] { // @v12.8.2
+	framebox [vertical title: "@unite_persons_src" width: bycontainer growfactor: 1 margin: 4 padding: (4, 12, 4, 4) justifycontent: spacebetween] {
+		combobox CTLSEL_REPLPRSN_KIND1 [width: bycontainer(70) height: 21 margin: 4 tabstop label: "@psnkind" cblinesymb: CTL_REPLPRSN_KIND1];
+		combobox CTLSEL_REPLPRSN_PRSN1 [width: bycontainer height: 21 margin: 4 tabstop label: "@person" cblinesymb: CTL_REPLPRSN_PRSN1];
+	}
+	button STDCTL_SWAPBUTTON [title: "@but_swap" tabstop size: (135, 21) margin: 4 command: cmSwap alignself: end];
+	framebox [vertical title: "@unitedestobj_fem" width: bycontainer growfactor: 1 margin: 4 padding: (4, 12, 4, 4) justifycontent: spacebetween] {
+		combobox CTLSEL_REPLPRSN_KIND2 [width: bycontainer(70) height: 21 margin: 4 tabstop label: "@psnkind" cblinesymb: CTL_REPLPRSN_KIND2];
+		combobox CTLSEL_REPLPRSN_PRSN2 [width: bycontainer height: 21 margin: 4 tabstop label: "@person" cblinesymb: CTL_REPLPRSN_PRSN2] supplement listbutton(STDCTL_PERSONLISTBUTTON cmPersonList);
+	}
+	checkcluster CTL_REPLPRSN_FLAGS [tabstop width: bycontainer(90) margin: 4 padding: 4] {
+		checkbox [title: "@unitedestobj_fremovedest"];
+		checkbox [title: "@unitedestobj_fdontconfirm"];
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}	
+}
+
+dialog DLG_REPLADDR [vertical title: "@unite_address" size: (495, 425) minsize: (495, 425) padding: 4 justifycontent: spacebetween] {
+	framebox [vertical title: "@unite_address_src" width: bycontainer growfactor: 1 margin: 4 padding: (4, 12, 4, 4) justifycontent: spacebetween] {
+		combobox CTLSEL_REPLPRSN_KIND1 [width: bycontainer(70) height: 21 margin: 4 tabstop label: "@psnkind" cblinesymb: CTL_REPLPRSN_KIND1];
+		combobox CTLSEL_REPLPRSN_PRSN1 [width: bycontainer height: 21 margin: 4 tabstop label: "@person" cblinesymb: CTL_REPLPRSN_PRSN1];
+		combobox CTLSEL_REPLPRSN_ADDR1 [width: bycontainer height: 21 margin: 4 tabstop label: "@address" cblinesymb: CTL_REPLPRSN_ADDR1];
+	}
+	button STDCTL_SWAPBUTTON [title: "@but_swap" tabstop size: (135, 21) margin: 4 command: cmSwap alignself: end];
+	framebox [vertical title: "@unitedestobj" width: bycontainer growfactor: 1 margin: 4 padding: (4, 12, 4, 4) justifycontent: spacebetween] {
+		combobox CTLSEL_REPLPRSN_KIND2 [width: bycontainer(70) height: 21 margin: 4 tabstop label: "@psnkind" cblinesymb: CTL_REPLPRSN_KIND2];
+		combobox CTLSEL_REPLPRSN_PRSN2 [width: bycontainer height: 21 margin: 4 tabstop label: "@person" cblinesymb: CTL_REPLPRSN_PRSN2];
+		combobox CTLSEL_REPLPRSN_ADDR2 [width: bycontainer height: 21 margin: 4 tabstop label: "@address" cblinesymb: CTL_REPLPRSN_ADDR2];
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_CMDITEM [vertical title: "@commanditem_menuitem" size: (500, 320) minsize: (500, 320) padding: 4 justifycontent: spacebetween] {
 	view [horizontal width: bycontainer height: 45] {
-		input CTL_DESKCMDAI_CODE [growfactor: 1 height: 21 margin: 4 tabstop label: "@desktopassoccmd_code"] string[128];
-		input CTL_DESKCMDAI_DVCSERIAL [growfactor: 1 height: 21 margin: 4 tabstop label: "@desktopassoccmd_dvcserial"] string[64];
+		combobox CTLSEL_CMDITEM_CMD [growfactor: 1 height: 21 margin: 4 tabstop label: "@commanditem_cmd" cblinesymb: CTL_CMDITEM_CMD];
+		input CTL_CMDITEM_ID [size: (60, 21) margin: 4 readonly label: "@commanditem_id"] int32;
 	}
-	combobox CTLSEL_DESKCMDAI_COMMAND [width: bycontainer(75) height: 21 margin: 4 tabstop label: "@desktopassoccmd_cmd" cblinesymb: CTL_DESKCMDAI_COMMAND];
-	input CTL_DESKCMDAI_PARAM [width: bycontainer height: 21 margin: 4 tabstop label: "@desktopassoccmd_cmdparam"] string[128];
-	checkcluster CTL_DESKCMDAI_FLAGS [tabstop width: bycontainer(50) margin: 4 padding: 4] {
-		checkbox [title: "@desktopassoccmd_fspeccode"];
-		checkbox [title: "@desktopassoccmd_fspeccodeprefx"];
-		checkbox [title: "@desktopassoccmd_fnoninteractive"];
+	input CTL_CMDITEM_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@commanditem_name"] string[128];
+	framebox [vertical title: "@commanditem_icon" width: bycontainer height: 80 margin: 4 padding: (4, 12, 4, 4)] {
+		input CTL_CMDITEM_ICON [width: bycontainer height: 21 margin: 4 tabstop] string[255] supplement filebrowsebutton(CTLBRW_CMDITEM_ICON);
+		checkbox CTL_CMDITEM_USEDEFICON [title: "@commanditem_fusedefaulticon" tabstop width: bycontainer height: 21 margin: 4];
 	}
+	framebox [vertical width: bycontainer height: 80 margin: 4 padding: 4] {
+		checkbox CTL_CMDITEM_FLAGS [title: "@commanditem_falloweditfilt" tabstop width: bycontainer height: 21 margin: 4];
+		view [horizontal width: bycontainer height: 30] {
+			button CTL_CMDITEM_PARAM [title: "@but_filt" tabstop size: (105, 21) margin: (4, 4, 12, 4) command: cmCmdParam];
+			button CTL_CMDITEM_CLEARFILT [title: "@commanditem_doclearfilt" tabstop size: (105, 21) margin: (12, 4, 4, 4) command: cmClearFilt];
+		}
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}	
+}
+
+dialog DLG_IMPEXPWORKBOOK [vertical title: "@impexpparam" size: (425, 435) minsize: (425, 435) padding: 4 justifycontent: spacebetween] { // @v12.8.2
+	input CTL_IMPEXP_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@impexpparam_name"] string[128];
+	combobox CTLSEL_IMPEXPWORKBOOK_PDFMT [width: bycontainer height: 21 margin: 4 tabstop label: "@format_predef" cblinesymb: CTL_IMPEXPWORKBOOK_PDFMT];
+	view [horizontal width: bycontainer height: 110] {
+		radiocluster CTL_IMPEXP_FORMAT [tabstop title: "@impexpparam_dataformat" growfactor: 1 margin: 4 padding: (4, 12, 4, 4)] {
+			radiobutton [title: "Text"];
+			radiobutton [title: "DBF"];
+			radiobutton [title: "XML"];
+			radiobutton [title: "Excel"];
+		}
+		view [vertical growfactor: 1.4 height: bycontainer margin_top: 12] {
+			button CTL_IMPEXP_BUT_TXTDB [title: "@but_impexpfp" tabstop size: (150, 21) margin: 4 command: cmImpExpTxtDbParam];
+			checkcluster CTL_IMPEXP_FLAGS [tabstop width: bycontainer margin: 4 padding: 4] {
+				checkbox [title: "@codepage_oem"];
+				checkbox [title: "@impexpparam_bfdeletesrcfiles"];
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 60] {
+		radiocluster CTL_IMPEXP_DIR [tabstop growfactor: 1 margin: 4 padding: 4] {
+			radiobutton [title: "@export"];
+			radiobutton [title: "@import"];
+		}
+		view [vertical growfactor: 1.4 height: bycontainer margin_top: 12] {
+			button CTL_IMPEXP_BUT_FLDCORR [title: "@but_fldcorr" tabstop size: (150, 21) margin: 4 command: cmImpExpFldCorr];
+		}
+	}
+	input CTL_IMPEXP_FILENAME [width: bycontainer height: 21 margin: 4 tabstop label: "@impexpparam_filename"] string[128] supplement filebrowsebutton(CTLBRW_IMPEXP_FILENAME);
+	combobox CTLSEL_IMPEXP_FTPACC [width: bycontainer height: 21 margin: 4 tabstop label: "@impexpparam_inetacc" cblinesymb: CTL_IMPEXP_FTPACC];
 	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
 
-dialog DLG_SELPERSONC [vertical title: "@selectperson" size: (435, 300) minsize: (435, 300) padding: 4 justifycontent: spacebetween] { // @v12.8.1
-	statictext CTL_SELPERSONC_SUBTITLE [width: bycontainer height: 24 margin: 4 staticedge];
-	input CTL_SELPERSONC_CODEINP [width: bycontainer height: 21 margin: 4 tabstop label: "@registerdocumentno"] string[128];
-	combobox CTLSEL_SELPERSONC_PRSN [width: bycontainer height: 21 margin: 4 tabstop label: "@person" cblinesymb: CTL_SELPERSONC_PRSN];
-	combobox CTLSEL_SELPERSONC_SCARD [width: bycontainer height: 21 margin: 4 tabstop label: "@card" cblinesymb: CTL_SELPERSONC_SCARD];
-	combobox CTLSEL_SELPERSONC_PRSNSC [width: bycontainer height: 21 margin: 4 tabstop label: "@person_scnd" cblinesymb: CTL_SELPERSONC_PRSNSC];
-	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
-		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
-		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+dialog DLG_BU_PRELUDE [vertical title: "@maintenancefunction" size: (410, 340) minsize: (410, 340) padding: 4 justifycontent: spacebetween] { // @v12.8.2
+	combobox CTLSEL_BU_PRELUDE_DB [width: bycontainer height: 21 margin: 4 tabstop label: "@database" cblinesymb: CTL_BU_PRELUDE_DB];
+	view [horizontal width: bycontainer growfactor: 1] {
+		framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 8 justifycontent: start alignitems: center] {
+			button CTL_BU_PRELUDE_CMD_BUAUTOBACKUP [title: "@{maintenancefunction_autobackup}..." tabstop size: (115, 21) margin: 4 command: cmBuAutoBackup];
+			button CTL_BU_PRELUDE_CMD_BUBACKUP [title: "@{maintenancefunction_backup}..." tabstop size: (115, 21) margin: 4 command: cmBuBackup];
+			button CTL_BU_PRELUDE_CMD_BURESTORE [title: "@{maintenancefunction_backuprestore}..." tabstop size: (115, 21) margin: 4 command: cmBuRestore];
+			button CTL_BU_PRELUDE_CMD_DBMONITOR [title: "@{maintenancefunction_info}..." tabstop size: (115, 21) margin: 4 command: cmDbMonitor];
+		}
+		framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 8 justifycontent: start alignitems: center] {
+			button CTL_BU_PRELUDE_CMD_RECOVER [title: "@{maintenancefunction_repair}..." tabstop size: (115, 21) margin: 4 command: cmRecover];
+			button CTL_BU_PRELUDE_CMD_PROTECT [title: "@{maintenancefunction_protect}..." tabstop size: (115, 21) margin: 4 command: cmProtect];
+			button CTL_BU_PRELUDE_CMD_DUMP [title: "@{maintenancefunction_dump}..." tabstop size: (115, 21) margin: 4 command: cmDump];
+		}
+	}
+	framebox [horizontal width: bycontainer height: 60 margin: 4 padding: 8 justifycontent: center alignitems: center] {
+		button CTL_BU_PRELUDE_CMD_SETUPBACKUPCFG [title: "@{maintenancefunction_cfgbuckup}..." tabstop size: (145, 21) margin: (4, 4, 12, 4) command: cmSetupBackupCfg];
+		button CTL_BU_PRELUDE_CMD_CREATEDB [title: "@{maintenancefunction_cfgdb}..." tabstop size: (145, 21) margin: (12, 4, 4, 4) command: cmCreateDB];
+	}
+	//framebox [size: (165, 114) ];
+	//button STDCTL_CANCELBUTTON [title: "@exit" tabstop size: (120, 21)  command: cmCancel];
+	view [horizontal width: bycontainer height: 30 justifycontent: center alignitems: center margin_right: 12] {
+		button STDCTL_CANCELBUTTON [title: "@exit" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
-

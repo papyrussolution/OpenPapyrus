@@ -960,7 +960,7 @@ int PPObjGoods::PutPacket(PPID * pID, PPGoodsPacket * pPack, int use_ta)
 			THROW(P_Tbl->Update(pID, &pPack->Rec, 0));
 			if(pPack->Rec.Kind == PPGDSK_GOODS && GetConfig().Flags & GCF_AUTOPREFBARCODE) {
 				uint   pref_item_pos = 0, single_item_pos = 0;
-				const BarcodeTbl::Rec * p_pref_item = pPack->Codes.GetPreferredItem(&pref_item_pos);
+				const  BarcodeTbl::Rec * p_pref_item = pPack->Codes.GetPreferredItem(&pref_item_pos);
 				if(!p_pref_item) {
 					const BarcodeTbl::Rec * p_single_item = pPack->Codes.GetSingleItem(&single_item_pos, 0);
 					if(p_single_item) {
@@ -1566,7 +1566,7 @@ int PPObjGoods::SearchMaxLike(const PPGoodsPacket * pPack, PPID * pID)
 		GetConfig();
 		BarcodeTbl::Rec * p_bc_rec;
 		uint   pref_pos = 0;
-		const BarcodeTbl::Rec * p_pref_bc = pPack->Codes.GetPreferredItem(&pref_pos);
+		const  BarcodeTbl::Rec * p_pref_bc = pPack->Codes.GetPreferredItem(&pref_pos);
 		if(p_pref_bc && Helper_SearchMaxLikeByBarcode(p_pref_bc->Code, pID) > 0) {
 			ok = 1;
 		}

@@ -408,13 +408,13 @@ int PPViewAccturn::CreateGrouping()
 	ZDELETE(P_TmpAGTbl);
 	IterBillPos = 0;
 	IterRByBill = 0;
-	OpList.freeAll();
+	OpList.Z();
 	Filt.Period.Actualize();
-	/*@v12.7.11 if(Filt.Flags & AccturnFilt::fLastOnly && !Filt.BillID) {
+	if(Filt.Flags & AccturnFilt::fLastOnly && !Filt.BillID) {
 		THROW_MEM(P_TmpBillTbl = CreateTempFile());
 		//THROW(AddBillToList(Filt.BillID));
 	}
-	else*/ if(AdjustPeriodToRights(Filt.Period, false)) {
+	else if(AdjustPeriodToRights(Filt.Period, false)) {
 		if(Filt.OpID) {
 			if(IsGenericOp(Filt.OpID) > 0)
 				GetGenericOpList(Filt.OpID, &OpList);
@@ -472,7 +472,7 @@ int PPViewAccturn::InitIteration()
 		if(P_TmpBillTbl)
 			dbq = & (*dbq && P_TmpBillTbl->PrmrID == P_ATC->BillID);
 		P_IterQuery->where(*dbq);
-		k2.Dt    = Filt.Period.low;
+		k2.Dt = Filt.Period.low;
 		k2.OprNo = 0;
 		P_IterQuery->initIteration(false, &k2, spGt);
 	}
@@ -534,11 +534,11 @@ int PPViewAccturn::InitViewItem(const TempAccturnGrpngTbl::Rec & rATGRec, Acctur
 		}
 		else {
 			AcctRelTbl::Rec rec;
-			if(P_ATC->AccRel.Fetch(rATGRec.DbtAccID, &rec) > 0) {
+			if(P_ATC->AccRel.Fetch_(rATGRec.DbtAccID, &rec) > 0) {
 				pItem->DbtAccRelID = rec.ID;
 				pItem->DbtID.Set(rec.AccID, rec.ArticleID);
 			}
-			if(P_ATC->AccRel.Fetch(rATGRec.CrdAccID, &rec) > 0) {
+			if(P_ATC->AccRel.Fetch_(rATGRec.CrdAccID, &rec) > 0) {
 				pItem->CrdAccRelID = rec.ID;
 				pItem->CrdID.Set(rec.AccID, rec.ArticleID);
 			}
@@ -614,10 +614,11 @@ void PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 			SetupOprKindCombo(this, CTLSEL_ATFLT_OPRKIND, Data.OpID, 0, &types, 0);
 			SetupCurrencyCombo(this, CTLSEL_ATFLT_CUR, Data.CurID, 0, 1, 0);
 			SetRealRangeInput(this, CTL_ATFLT_AMOUNT, &Data.AmtR);
-			/*@v12.7.11 
+			// @v12.8.2 /*@v12.7.11 
 			v = 0;
 			SETFLAG(v, 0x01, Data.Flags & AccturnFilt::fLastOnly);
-			setCtrlData(CTL_ATFLT_LASTONLY, &v);*/
+			setCtrlData(CTL_ATFLT_LASTONLY, &v);
+			// @v12.8.2 */
 			v = 0;
 			SETFLAG(v, 1, Data.Flags & AccturnFilt::fAllCurrencies);
 			setCtrlData(CTL_ATFLT_ALLCUR, &v);
@@ -644,10 +645,12 @@ void PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 			ushort v = 0;
 			CycleCtrlGroup::Rec cycle_rec;
 			THROW(GetPeriodInput(this, sel = CTL_ATFLT_PERIOD, &Data.Period));
-			/*@v12.7.11 v = getCtrlUInt16(CTL_ATFLT_LASTONLY);
-			SETFLAG(Data.Flags, AccturnFilt::fLastOnly,   v & 0x01);*/
+			// @v12.8.2 /*@v12.7.11 
+			v = getCtrlUInt16(CTL_ATFLT_LASTONLY);
+			SETFLAG(Data.Flags, AccturnFilt::fLastOnly,   v & 0x01);
+			// @v12.8.2 */
 			SETFLAG(Data.Flags, AccturnFilt::fLabelOnly, getWL());
-			THROW(/*@v12.7.11 Data.Flags & AccturnFilt::fLastOnly ||*/AdjustPeriodToRights(Data.Period, true));
+			THROW(Data.Flags & AccturnFilt::fLastOnly || AdjustPeriodToRights(Data.Period, true));
 			getCtrlData(CTL_ATFLT_ALLCUR, &v);
 			SETFLAG(Data.Flags, AccturnFilt::fAllCurrencies, v & 1);
 			getCtrlData(CTLSEL_ATFLT_OPRKIND, &Data.OpID);
@@ -692,7 +695,7 @@ void PPViewAccturn::FormatCycle(LDATE dt, char * pBuf, size_t bufLen)
 			pBrw->ViewOrigin.y = 15;
 			pBrw->ViewSize.y = 8;
 		}
-		if((Filt.Flags & (AccturnFilt::fAllCurrencies/*@v12.7.11 |AccturnFilt::fLastOnly*/)) && !Filt.GrpAco) {
+		if((Filt.Flags & (AccturnFilt::fAllCurrencies|AccturnFilt::fLastOnly)) && !Filt.GrpAco) {
 			BrowserDef * p_def = pBrw->getDef();
 			const int col = p_def ? (p_def->getCountI()-2) : -1;
 			if(col > 0)
@@ -725,9 +728,9 @@ static IMPL_DBE_PROC(dbqf_accturn_checkrelrestriction_iii)
 		AcctRelTbl::Rec dbt_rec;
 		AcctRelTbl::Rec crd_rec;
 		AcctRel & r_tbl = BillObj->atobj->P_Tbl->AccRel;
-		if(r_tbl.Fetch(dbt_acc_id, &dbt_rec) <= 0)
+		if(r_tbl.Fetch_(dbt_acc_id, &dbt_rec) <= 0)
 			dbt_rec.Clear();
-		if(r_tbl.Fetch(crd_acc_id, &crd_rec) <= 0)
+		if(r_tbl.Fetch_(crd_acc_id, &crd_rec) <= 0)
 			crd_rec.Clear();
 		if(p_at_filt) {
 			if(p_at_filt->Aco) {
@@ -806,7 +809,7 @@ static IMPL_DBE_PROC(dbqf_objname_cursymbbyacctrel_i)
 		if(id) {
 			AcctRel & r_tbl = BillObj->atobj->P_Tbl->AccRel;
 			AcctRelTbl::Rec acr_rec;
-			if(r_tbl.Fetch(id, &acr_rec) > 0) {
+			if(r_tbl.Fetch_(id, &acr_rec) > 0) {
 				PPObjCurrency cur_obj;
 				if(acr_rec.CurID || cur_obj.Fetch(acr_rec.CurID, &rec) <= 0)
 					rec.Symb[0] = 0;

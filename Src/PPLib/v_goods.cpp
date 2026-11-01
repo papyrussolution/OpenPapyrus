@@ -4168,7 +4168,8 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				break;
 			case PPVCMD_ADDBYSAMPLE:
 				ok = -1;
-				if(id && GObj.AddBySample(&(temp_id = 0), id) == cmOK) {
+				temp_id = 0;
+				if(id && GObj.AddBySample(&temp_id, id) == cmOK) {
 					UpdateTempTable(temp_id, pBrw);
 					pBrw->Update();
 					pBrw->search2(&temp_id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);

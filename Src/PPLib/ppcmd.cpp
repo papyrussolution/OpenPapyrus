@@ -2124,7 +2124,8 @@ public:
 			isd_param.InputTitle = isd_param.Title;
 			if(InputStringDialog(isd_param, name) > 0) {
 				THROW(pParam->Z().Write(name));
-				if(CheckDialogPtrErr(&(dlg = new PsnSelAnalogDialog(&psn_obj)))) {
+				dlg = new PsnSelAnalogDialog(&psn_obj);
+				if(CheckDialogPtrErr(&dlg)) {
 					dlg->setSrchString(name);
 					if(ExecView(dlg) == cmOK)
 						dlg->getResult(&id);

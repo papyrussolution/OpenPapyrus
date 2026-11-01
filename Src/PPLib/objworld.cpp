@@ -1584,13 +1584,14 @@ int PPObjWorld::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 		}
 		return DBRPL_OK;
 	}
-	if(msg == DBMSG_OBJREPLACE)
+	if(msg == DBMSG_OBJREPLACE) {
 		switch(_obj) {
 			case PPOBJ_WORLD:
 				return Unite(_id, reinterpret_cast<long>(extraPtr)) ? DBRPL_OK : DBRPL_ERROR;
 			default:
 				break;
 		}
+	}
 	return DBRPL_OK;
 }
 

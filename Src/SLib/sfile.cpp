@@ -4879,7 +4879,7 @@ int CsvSniffer::Run(const char * pFileName, const Param & rP, Result & rR)
 										line_buf.Z().CatEq("Column", p_cs->N).Space().CatEq("NECount", p_cs->NECount).Space().
 											CatEq("FirstRowLen", p_cs->FirstRowLen).Space().
 											CatEq("Len average", len_avg, MKSFMTD_020).Space().
-											CatEq("Len stddev", len_stddev, MKSFMTD(0, 5, 0));
+											CatEq("Len stddev", len_stddev, MKSFMTD_050);
 										line_buf.CR();
 										f_out.WriteLine(line_buf);
 										{

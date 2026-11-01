@@ -1442,7 +1442,8 @@ int EditBillImpExpParams(int editBill)
 		ok = (ExecViewAndDestroy(p_list_dlg) == cmOK) ? 1 : -1;
 	}
 	else {
-		THROW(CheckDialogPtr(&(dlg = new ImpExpParamDialog(DLG_IMPEXP, 0))));
+		dlg = new ImpExpParamDialog(DLG_IMPEXP, 0);
+		THROW(CheckDialogPtr(&dlg));
 		THROW(ok = EditImpExpParams(PPFILNAM_IMPEXP_INI, PPREC_BROW, &param, dlg));
 	}
 	CATCHZOK

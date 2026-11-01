@@ -211,7 +211,7 @@ int PPObjCSession::Edit(PPID * pID, void * extraPtr)
 		rec.Temporary = BIN(dlg->getCtrlUInt16(CTL_CSESS_TEMP));
 		if(!checkdate(rec.Dt))
 			PPErrorByDialog(dlg, CTL_CSESS_DATE, PPERR_SLIB);
-		else if(!checktime(rec.Tm))
+		else if(!checkltime(rec.Tm))
 			PPErrorByDialog(dlg, CTL_CSESS_TIME, PPERR_SLIB);
 		else if(rec.CashNodeID == 0)
 			PPErrorByDialog(dlg, CTLSEL_CSESS_CASHNODE, PPERR_CASHNODENEEDED);
@@ -1515,7 +1515,7 @@ private:
 				else if(event.isCtlEvent(CTL_CTBLORD_STTM)) {
 					LDATETIME dtm;
 					dtm.t = getCtrlTime(CTL_CTBLORD_STTM);
-					if(checktime(dtm.t)) {
+					if(checkltime(dtm.t)) {
 						Data.Chunk.Start.t = dtm.t;
 						dtm.d = getCtrlDate(CTL_CTBLORD_STDT);
 						if(checkdate(dtm.d)) {
@@ -1530,7 +1530,7 @@ private:
 				else if(event.isCtlEvent(CTL_CTBLORD_FNTM)) {
 					LDATETIME dtm;
 					dtm.t = getCtrlTime(CTL_CTBLORD_FNTM);
-					if(checktime(dtm.t)) {
+					if(checkltime(dtm.t)) {
 						Data.Chunk.Finish.t = dtm.t;
 						dtm.d = getCtrlDate(CTL_CTBLORD_FNDT);
 						if(checkdate(dtm.d)) {
@@ -1546,7 +1546,7 @@ private:
 					LDATETIME dtm;
 					getCtrlDatetime(CTL_CTBLORD_STDT, CTL_CTBLORD_STTM, dtm);
 					long cont = getCtrlLong(CTL_CTBLORD_CONT);
-					if(checkdate(dtm.d) && checktime(dtm.t)) {
+					if(checkdate(dtm.d) && checkltime(dtm.t)) {
 						Data.Chunk.Init(dtm, cont * 60);
 						setCtrlDatetime(CTL_CTBLORD_FNDT, CTL_CTBLORD_FNTM, Data.Chunk.Finish);
 					}
@@ -2390,7 +2390,7 @@ IMPL_HANDLE_EVENT(CCheckImpExpDialog)
 	clearEvent(event);
 }
 
-void CCheckImpExpDialog::SetupCtrls(long direction /* 0 - import, 1 - export */)
+void CCheckImpExpDialog::SetupCtrls(long direction/* 0 - import, 1 - export */)
 {
 	//DisableClusterItem(CTL_IMPEXPCC_FLAGS, 0, direction == 0);
 	//DisableClusterItem(CTL_IMPEXPCC_FLAGS, 3, direction);
@@ -2523,10 +2523,10 @@ int PPCCheckImporter::Read_Predef_Contract01(xmlParserCtxt * pCtx, const SString
 	SString name_buf;
 	SString code_buf;
 	Goods2Tbl::Rec goods_rec;
-	xmlDoc * p_doc = 0;
 	const xmlNode * p_root = 0;
 	PPCashNode2 cn_rec;
-	THROW_LXML((p_doc = xmlCtxtReadFile(pCtx, rFileName, 0, XML_PARSE_NOENT)), pCtx);
+	xmlDoc * p_doc = xmlCtxtReadFile(pCtx, rFileName, 0, XML_PARSE_NOENT);
+	THROW_LXML(p_doc, pCtx);
 	if(p_doc) {
 		S_GUID doc_guid;
 		{

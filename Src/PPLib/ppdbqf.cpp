@@ -1304,7 +1304,7 @@ static IMPL_DBE_PROC(dbqf_objname_acctrel_i)
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {
 			AcctRel * p_tbl = &BillObj->atobj->P_Tbl->AccRel;
-			if(p_tbl->Fetch(id, &rec) > 0) {
+			if(p_tbl->Fetch_(id, &rec) > 0) {
 				if(ObjRts.CheckAccID(rec.AccID, PPR_READ)) {
 					reinterpret_cast<const Acct *>(&rec.Ac)->ToStr_Obsolete(ACCF_DEFAULT, name_buf);
 				}
@@ -1327,7 +1327,7 @@ static IMPL_DBE_PROC(dbqf_objname_accbyrel_i) // @v12.7.9 @construction (пока эт
 		PPID   id = PPDbqFuncPool::helper_dbq_name(params, name_buf);
 		if(id) {
 			AcctRel * p_tbl = &BillObj->atobj->P_Tbl->AccRel;
-			if(p_tbl->Fetch(id, &rec) > 0) {
+			if(p_tbl->Fetch_(id, &rec) > 0) {
 				if(ObjRts.CheckAccID(rec.AccID, PPR_READ)) {
 					SString & r_temp_buf = SLS.AcquireRvlStr();
 					GetObjectName(PPOBJ_ACCOUNT2, rec.AccID, r_temp_buf);
@@ -1790,12 +1790,12 @@ static IMPL_DBE_PROC(dbqf_transptypename_i)
 	}
 }
 
-static IMPL_DBE_PROC(dbqf_formatcycle_di)
+static IMPL_DBE_PROC(dbqf_formatcycle_dp)
 {
 	char   buf[64];
 	if(!DbeInitSize(option, result, sizeof(buf))) {
-		LDATE dt = params[0].dval;
-		const PPCycleArray * p_list = reinterpret_cast<const PPCycleArray *>(params[1].lval);
+		LDATE  dt = params[0].dval;
+		const  PPCycleArray * p_list = static_cast<const PPCycleArray *>(params[1].ptrval); // @v12.8.2 lval-->ptrval
 		if(p_list && p_list->getCount()) {
 			p_list->formatCycle(dt, buf, sizeof(buf));
 		}
@@ -1941,7 +1941,7 @@ static IMPL_DBE_PROC(dbqf_uedtime_l) // @v12.8.0
 	THROW(DbqFuncTab::RegisterDyn(&IdCheckWmsLocID,       BTS_INT,    dbqf_checkwmsloc_ii,         2, BTS_INT, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdTransportTypeName,   BTS_STRING, dbqf_transptypename_i,       1, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdLotCloseDate,        BTS_DATE,   dbqf_lotclosedate_d,         1, BTS_DATE));
-	THROW(DbqFuncTab::RegisterDyn(&IdFormatCycle,         BTS_STRING, dbqf_formatcycle_di,         2, BTS_DATE, BTS_INT));
+	THROW(DbqFuncTab::RegisterDyn(&IdFormatCycle,         BTS_STRING, dbqf_formatcycle_dp,         2, BTS_DATE, BTS_PTR)); // @v12.8.2 BTS_INT-->BTS_PTR
 	THROW(DbqFuncTab::RegisterDyn(&IdYesWordByFlag,       BTS_STRING, dbqf_yeswordbyflag_i,        3, BTS_INT, BTS_INT, BTS_STRING));
 	THROW(DbqFuncTab::RegisterDyn(&IdBudgetPlanOrFact,    BTS_REAL,   dbqf_budgplanorfact_rii,     3, BTS_REAL, BTS_INT, BTS_INT));
 	THROW(DbqFuncTab::RegisterDyn(&IdChkOpJActionName,    BTS_STRING, dbqf_chkopjaction_i,         1, BTS_INT));

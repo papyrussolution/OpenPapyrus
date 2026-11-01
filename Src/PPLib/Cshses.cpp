@@ -2737,10 +2737,23 @@ int AsyncCashGoodsIterator::Next(AsyncCashGoodsInfo * pInfo)
 			uint   pref_pos = 0;
 			const  BarcodeTbl::Rec & r_cur_bc_item = Codes.at(CodePos);
 			strip(STRNSCPY(Rec.BarCode, r_cur_bc_item.Code));
-			if(Codes.GetPreferredItem(&pref_pos))
-				strip(STRNSCPY(Rec.PrefBarCode, Codes.at(pref_pos).Code));
-			else
+			// @v12.8.2 {
+			const  BarcodeTbl::Rec * p_single_bc_item = 0;
+			{
+				uint   sii = 0;
+				p_single_bc_item = Codes.GetSingleItem(&sii, BarcodeArray::sifValidEanUpcOnly);
+				if(!p_single_bc_item) {
+					p_single_bc_item = Codes.GetSingleItem(&sii, 0);
+				}
+			}
+			// } @v12.8.2 
+			/* @v12.8.2 if(Codes.GetPreferredItem(&pref_pos)) { strip(STRNSCPY(Rec.PrefBarCode, Codes.at(pref_pos).Code)); }*/
+			if(p_single_bc_item) {
+				strip(STRNSCPY(Rec.PrefBarCode, p_single_bc_item->Code));
+			}
+			else {
 				STRNSCPY(Rec.PrefBarCode, Rec.BarCode);
+			}
 			Rec.UnitPerPack = r_cur_bc_item.Qtty;
 			SETFLAG(Rec.Flags_, AsyncCashGoodsInfo::fGMarkedCode, IsInnerBarcodeType(r_cur_bc_item.BarcodeType, BARCODE_TYPE_MARKED));
 			*pInfo = Rec;

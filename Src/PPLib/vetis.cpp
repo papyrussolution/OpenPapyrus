@@ -12775,7 +12775,7 @@ int PPViewVetisDocument::MatchObject(const VetisDocumentTbl::Rec & rRec, int obj
 												if(!!ut && ut.Get(dtm))
 													manuf_dtm = dtm;
 											}
-											if(checkdate(manuf_dtm.d) && checktime(manuf_dtm.t)) {
+											if(checkdate(manuf_dtm.d) && checkltime(manuf_dtm.t)) {
 												const ObjTagItem * p_manuf_tm_tag = bp.LTagL.GetTag(tipos, PPTAG_LOT_MANUFTIME);
 												LDATETIME org_manuf_dtm = ZERODATETIME;
 												CALLPTRMEMB(p_manuf_tm_tag, GetTimestamp(&org_manuf_dtm));

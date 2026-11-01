@@ -16,7 +16,7 @@ int RemovePPSHeader(const char * pFile, const PPObjectTransmit::Header * pHdr, i
 //
 static int PackTransmitFiles(const /*PPFileNameArray*/SFileEntryPool * pFileList, int pack);
 //
-// ObjReceiveParamDialog
+//
 //
 class ObjReceiveParamDialog : public TDialog {
 	DECL_DIALOG_DATA(ObjReceiveParam);

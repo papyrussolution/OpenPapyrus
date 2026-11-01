@@ -3342,6 +3342,11 @@ int PrcssrUniFindObj::Run()
 					}
 				}
 			}
+			if(P.Flags & UniFindObjFilt::fNameBySubstr) { // @v12.8.2
+				if(P_BObj->ArObj.P_Tbl->GetListBySubstring(P.MainPattern, temp_id_list)) {
+					AddResult(PPOBJ_ARTICLE, temp_id_list, PPOBJATTR_NAME);
+				}
+			}
 		}
 		/* @construction if(P.MainPattern.Len() > 3) {
 			temp_id_list.Z();

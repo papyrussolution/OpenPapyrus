@@ -219,10 +219,7 @@ bool PPViewPerson::IsTempTblNeeded()
 	return static_cast<PPBaseFilt *>(p_filt);	
 }
 
-bool PPViewPerson::IsInMemView() const
-{
-	return ((Filt.Flags & PersonFilt::fInMemView) && !(Filt.Flags & PersonFilt::fTagsCrsstab));
-}
+bool PPViewPerson::IsInMemView() const { return ((Filt.Flags & PersonFilt::fInMemView) && !(Filt.Flags & PersonFilt::fTagsCrsstab)); }
 
 PersonViewItem::PersonViewItem() : PersonTbl::Rec(), CaEventCount(0), CaGapDaysAvg(0.0), CaGapDaysStdDev(0.0), CaDelayDays(0), CaDelaySd(0.0), CaIsNew(false), CaActivityState(0)
 {
@@ -682,7 +679,7 @@ int PPViewPerson::UpdateHungedAddr(PPID addrID)
 		result_int = PPObjPerson::EditBlock::CentrigoNewContactSpecialKind;
 	}
 	else 
-		result_int = Filt.PersonKindID ? Filt.PersonKindID : 0; 
+		result_int = NZOR(Filt.PersonKindID, 0); 
 	return reinterpret_cast<void *>(result_int); 
 }
 
@@ -703,6 +700,28 @@ int PPViewPerson::AddItem(PPID * pID)
 		}
 	}
 	return ok;
+}
+
+int PPViewPerson::AddItemBySample(PPID * pID, PPID patternID)
+{
+	int    ok = -1;
+	PPID   id = 0;
+	if(patternID) {
+		if(Filt.Flags & PersonFilt::fCentrigoContacts) {
+			PPObjPerson::EditBlock eb;
+			PsnObj.InitEditBlock(Filt.PersonKindID, eb);
+			eb.SamplePsnID = patternID;
+			ok = PsnObj.Edit_(pID, eb);
+		}
+		else {
+			if(PsnObj.Edit(&id, reinterpret_cast<void *>(Filt.PersonKindID)) == cmOK) {
+				AddTempRec(id, 0, 1);
+				ASSIGN_PTR(pID, id);
+				ok = 1;
+			}
+		}
+	}
+	return ok;	
 }
 
 int PPViewPerson::EditItem(PPID id)
@@ -3971,6 +3990,10 @@ int PPViewPerson::ExportUhtt()
 	return ok;
 }
 
+PPViewPerson::BrwHdr::BrwHdr() : ID(0)
+{
+}
+
 int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = 0;
@@ -3983,9 +4006,6 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 			if(P_Ct->GetIdxFields(hdr.ID, &fld_list) > 0)
 				fld_list.GetValue(0, &hdr.ID, 0);
 		}
-	}
-	else {
-		MEMSZERO(hdr);
 	}
 	if(ppvCmd == PPVCMD_QUERYDATASOURCETYPE) {
 		ok = IsInMemView() ? PPView::datasourcetypeArray : PPView::datasourcetypeDBQuery;
@@ -4018,6 +4038,19 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 							pBrw->search2(&id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
 							ok = -1; // Не надо обновлять таблицу после этого вызова
 						}
+					}
+					break;
+				case PPVCMD_ADDBYSAMPLE: // @v12.8.2
+					ok = -1;
+					{
+						#if 0 // @construction {
+						PPID   id = 0;
+						if(hdr.ID && PsnObj.AddBySample(&id, hdr.ID) == cmOK) {
+							pBrw->Update();
+							pBrw->search2(&id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
+							ok = 1;
+						}
+						#endif // } 0
 					}
 					break;
 				case PPVCMD_DELETEITEM:

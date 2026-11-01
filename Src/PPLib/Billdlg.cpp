@@ -1874,11 +1874,12 @@ int LinkFilesDialog::addItem(long * pPos, long * pID)
 		}
 	}
 	sel_id = 1;
-	while(!selected && ComboBoxSelDialog2(items_list, PPTXT_CREATEFILETYPE, PPTXT_CREATEFILETYPE, &sel_id, 0) > 0)
+	while(!selected && ComboBoxSelDialog2(items_list, PPTXT_CREATEFILETYPE, PPTXT_CREATEFILETYPE, &sel_id, 0) > 0) {
 		if(sel_id)
 			selected = 1;
 		else
 			PPError(PPERR_FILETYPENOTSEL);
+	}
 	if(selected) {
 		PPInputStringDialogParam isd_param;
 		PPLoadText(PPTXT_INPUTDESCR, isd_param.Title);
@@ -2085,7 +2086,7 @@ int BillDialog::calcDate(uint ctlID)
 		PPInputStringDialogParam isd_param;
 		PPLoadText(PPTXT_INPUTNUMDAYS, isd_param.InputTitle);
 		if(InputStringDialog(isd_param, input_buf) > 0) {
-			const int num_days = input_buf.ToLong();
+			const  int num_days = input_buf.ToLong();
 			if(num_days > 0) {
 				setCtrlDate(ctlID, plusdate(dt, num_days));
 				ok = 1;
@@ -4022,7 +4023,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 				getCtrlData(sel = CTL_FREIGHT_ISSDT, &local_dtm.d);
 				THROW_SL(checkdate(local_dtm.d, 1));
 				getCtrlData(sel = CTL_FREIGHT_ISSTM, &local_dtm.t);
-				THROW_SL(checktime(local_dtm.t));
+				THROW_SL(checkltime(local_dtm.t));
 				Data.SetDespatchTime(local_dtm);
 			}
 			{
@@ -4030,7 +4031,7 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 				getCtrlData(sel = CTL_FREIGHT_ARRIVDT, &local_dtm.d);
 				THROW_SL(checkdate(local_dtm.d, 1));
 				getCtrlData(sel = CTL_FREIGHT_ARRIVTM, &local_dtm.t);
-				THROW_SL(checktime(local_dtm.t));
+				THROW_SL(checkltime(local_dtm.t));
 				Data.SetArrivalTime(local_dtm);
 			}
 			getCtrlData(CTL_FREIGHT_NMBORIGSBSL, &Data.NmbOrigsBsL);

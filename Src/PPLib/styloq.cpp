@@ -9307,12 +9307,12 @@ int PPStyloQInterchange::Document::FromTSessionPacket(const TSessionPacket & rS,
 		Document::BookingItem * p_bi = BkList.CreateNewItem();
 		p_bi->RowIdx = 1;
 		p_bi->PrcID = rS.Rec.PrcID;
-		if(checkdate(rS.Rec.StDt) && checktime(rS.Rec.StTm)) {
+		if(checkdate(rS.Rec.StDt) && checkltime(rS.Rec.StTm)) {
 			long duration = 0;
 			LDATETIME st_dtm;
 			st_dtm.Set(rS.Rec.StDt, rS.Rec.StTm);
 			p_bi->ReqTime = st_dtm;
-			if(checkdate(rS.Rec.FinDt) && checktime(rS.Rec.FinTm)) {
+			if(checkdate(rS.Rec.FinDt) && checkltime(rS.Rec.FinTm)) {
 				LDATETIME fin_dtm;
 				fin_dtm.Set(rS.Rec.FinDt, rS.Rec.FinTm);
 				duration = diffdatetimesec(fin_dtm, st_dtm);

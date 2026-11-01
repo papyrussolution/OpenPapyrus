@@ -519,6 +519,9 @@ public class BusinessEntity {
 			GTIN gtin_chzn = GTIN.ParseChZnCode(code, 0);
 			if(gtin_chzn != null && gtin_chzn.GetChZnParseResult() > 0) {
 				String gtin14 = gtin_chzn.GetToken(GTIN.fldGTIN14);
+				if(SLib.GetLen(gtin14) == 0) {
+					gtin14 = gtin_chzn.GetToken(GTIN.fldContainerCt); // @v12.8.2
+				}
 				if(SLib.GetLen(gtin14) == 14) {
 					if(result == null)
 						result = new PreprocessBarcodeResult();

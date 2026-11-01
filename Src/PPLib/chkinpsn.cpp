@@ -55,9 +55,9 @@ IMPL_INVARIANT_C(PPCheckInPersonItem)
 	S_ASSERT_P(Kind == kTSession, pInvP);
 	S_ASSERT_P(PrmrID != 0, pInvP);
 	S_ASSERT_P(checkdate(RegDtm.d, 1), pInvP);
-	S_ASSERT_P(checktime(RegDtm.t), pInvP);
+	S_ASSERT_P(checkltime(RegDtm.t), pInvP);
 	S_ASSERT_P(checkdate(CiDtm.d, 1), pInvP);
-	S_ASSERT_P(checktime(CiDtm.t), pInvP);
+	S_ASSERT_P(checkltime(CiDtm.t), pInvP);
 	S_ASSERT_P(Amount >= 0.0 && Amount <= 1000000.0, pInvP);
 
 	S_INVARIANT_EPILOG(pInvP);

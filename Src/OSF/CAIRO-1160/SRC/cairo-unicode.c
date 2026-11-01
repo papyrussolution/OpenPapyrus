@@ -226,7 +226,7 @@ cairo_status_t _cairo_utf8_to_ucs4(const char * str, int len, uint32 ** result, 
 	const uchar * in = ustr;
 	int n_chars = 0;
 	while((len < 0 || ustr + len - in > 0) && *in) {
-		uint32 wc = _utf8_get_char_extended(in, ustr + len - in);
+		uint32 wc = _utf8_get_char_extended(in, static_cast<long>(ustr + len - in));
 		if(wc & 0x80000000 || !UNICODE_VALID(wc))
 			return _cairo_error(CAIRO_STATUS_INVALID_STRING);
 		n_chars++;
@@ -352,7 +352,7 @@ cairo_status_t FASTCALL _cairo_utf8_to_utf16(const char * str, int len, uint16 *
 	const uchar * in = ustr;
 	int n16 = 0;
 	while((len < 0 || ustr + len - in > 0) && *in) {
-		uint32 wc = _utf8_get_char_extended(in, ustr + len - in);
+		uint32 wc = _utf8_get_char_extended(in, static_cast<long>(ustr + len - in));
 		if(wc & 0x80000000 || !UNICODE_VALID(wc))
 			return _cairo_error(CAIRO_STATUS_INVALID_STRING);
 		if(wc < 0x10000)

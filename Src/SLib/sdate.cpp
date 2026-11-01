@@ -809,10 +809,10 @@ FORCEINLINE void implement_decodetime(int * h, int * m, int * s, int * ts, const
 	ASSIGN_PTR(ts, static_cast<const char *>(tm)[0]);
 }
 
-int STDCALL  checktime(int hr, int mn, int sc, int msec)
+bool STDCALL checktime(int hr, int mn, int sc, int msec, bool allowHourOver24)
 {
 	int    err = SLERR_SUCCESS;
-	if(hr < 0 || hr > 23)
+	if(hr < 0 || (!allowHourOver24 && hr > 23))
 		err = SLERR_INVHOUR;
 	else if(mn < 0 || mn > 59)
 		err = SLERR_INVMIN;
@@ -824,25 +824,25 @@ int STDCALL  checktime(int hr, int mn, int sc, int msec)
 		//char   temp_buf[64];
 		//timefmt(tm, TIMF_HMS | TIMF_MSEC, temp_buf);
 		SLS.SetError(err);
-		return 0;
+		return false;
 	}
 	else
-		return 1;
+		return true;
 }
 
-int FASTCALL checktime(LTIME tm)
+bool FASTCALL checkltime(LTIME tm)
 {
 	int    err = SLERR_SUCCESS;
 	int    h, m, s, ts;
 	implement_decodetime(&h, &m, &s, &ts, &tm);
-	if(!checktime(h, m, s, ts*10)) {
+	if(!checktime(h, m, s, ts*10, true/*allowHourOver24*/)) {
 		char   temp_buf[64];
-		timefmt(tm, TIMF_HMS | TIMF_MSEC, temp_buf);
+		timefmt(tm, TIMF_HMS|TIMF_MSEC, temp_buf);
 		SLS.SetError(err, temp_buf);
-		return 0;
+		return false;
 	}
 	else
-		return 1;
+		return true;
 }
 
 OleDate LTIME::GetOleDate() const
@@ -2832,14 +2832,14 @@ SUniTime_Internal::SUniTime_Internal(SCtrGenerate)
 	assert(IsValid());
 }
 
-bool SUniTime_Internal::IsValidTime() const
+bool SUniTime_Internal::IsValidTime(bool allowHourOver24) const
 {
-	return ((Hr < 24) && (Mn < 60) && (Sc < 60) && (MSc < 1000ULL) && ValidateTimeZone(TimeZoneSc));
+	return ((allowHourOver24 || (Hr < 24)) && (Mn < 60) && (Sc < 60) && (MSc < 1000ULL) && ValidateTimeZone(TimeZoneSc));
 }
 
 bool SUniTime_Internal::IsValid() const
 {
-	return (IsValidDate() && IsValidTime());
+	return (IsValidDate() && IsValidTime(false/*allowHourOver24*/));
 }
 	
 int FASTCALL SUniTime_Internal::Cmp(const SUniTime_Internal & rS) const
@@ -3205,7 +3205,7 @@ bool FASTCALL SUniTime_Internal::GetDate(LDATE * pDt) const
 bool FASTCALL SUniTime_Internal::SetTime(LTIME tm)
 {
 	bool    ok = true;
-	if(checktime(tm)) {
+	if(checkltime(tm)) {
 		Hr = tm.hour();
 		Mn = tm.minut();
 		Sc = tm.sec();
@@ -3219,7 +3219,7 @@ bool FASTCALL SUniTime_Internal::SetTime(LTIME tm)
 bool FASTCALL SUniTime_Internal::GetTime(LTIME * pTm) const
 {
 	bool    ok = true;
-	if(checktime(Hr, Mn, Sc, MSc)) {
+	if(checktime(Hr, Mn, Sc, MSc, true/*allowHourOver24*/)) {
 		CALLPTRMEMB(pTm, encode(Hr, Mn, Sc, MSc));
 	}
 	else {
@@ -3454,7 +3454,7 @@ bool SUniTime_Internal::DifferenceTime(const SUniTime_Internal & rS, uint suomDi
 {
 	bool   ok = false;
 	int    result = 0;
-	if(IsValidTime() && rS.IsValidTime()) {
+	if(IsValidTime(true/*allowHourOver24*/) && rS.IsValidTime(true/*allowHourOver24*/)) {
 		ok = true;
 		const  int d = (MSc-rS.MSc) + 1000L * ((Sc-rS.Sc) + 60L * ((Mn-rS.Mn) + 60L * (Hr-rS.Hr)));
 		switch(suomDim) {

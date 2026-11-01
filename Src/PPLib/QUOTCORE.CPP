@@ -3066,12 +3066,10 @@ int Quotation2Core::Implement_Set(const PPQuot & rQ, long qtaID, int logSj, bool
 			if(ok > 0) {
 				const long mask = PPQuot::fDbMask;
 				if((rec.Flags & mask) || rec.Quot != 0.0) {
-					// @v11.3.0 {
-					if(keepTime && checkdate(rQ.Dtm.d) && checktime(rQ.Dtm.t)) {
+					if(keepTime && checkdate(rQ.Dtm.d) && checkltime(rQ.Dtm.t)) {
 						rec.Dt = rQ.Dtm.d;
 						rec.Tm = rQ.Dtm.t;
 					}
-					// } @v11.3.0 
 					THROW(AdjustTime(rec));
 					THROW_DB(insertRecBuf(&rec));
 					if(logSj)
@@ -3368,7 +3366,7 @@ int Quotation2Core::VerifyRecord(Quotation2Tbl::Rec & rRec)
 	THROW_PP(SearchByID(&RelT, 0, rRec.RelID, &rel_rec) > 0, PPERR_QII_NEXISTREL);
 	THROW_PP(rRec.GoodsID != 0, PPERR_QII_ZEROGOODS);
 	THROW_SL(checkdate(rRec.Dt));
-	THROW_SL(checktime(rRec.Tm));
+	THROW_SL(checkltime(rRec.Tm));
 	THROW_PP(oneof2(rRec.Actual, 0, 1), PPERR_QII_INVACTUAL);
 	THROW_PP((rRec.Flags & ~PPQuot::fDbMask) == 0, PPERR_QII_INVFLAGS);
 	{

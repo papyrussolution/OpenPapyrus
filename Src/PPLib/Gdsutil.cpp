@@ -529,15 +529,28 @@ int PPObjGoods::SearchByCodeExt(GoodsCodeSrchBlock * pBlk)
 		else {
 			const  int pczcr = PPChZnPrcssr::ParseChZnCode(pBlk->Code_, pBlk->GtS, 0);
 			if(PPChZnPrcssr::InterpretChZnCodeResult(pczcr) != PPChZnPrcssr::chznciNone) {
+				// @v12.8.2 Изменения ради трактовки префикса 02 (GtinStruc::fldContainerCt) как праймера для gtin (если префикса 01 нет)
+				SString gtin;
 				if(pBlk->GtS.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
 					assert(temp_buf.Len() == 14);
+					if(temp_buf.Len() == 14) {
+						gtin = temp_buf;
+					}
+				}
+				else if(pBlk->GtS.GetToken(GtinStruc::fldContainerCt, &temp_buf)) {
+					if(temp_buf.Len() == 14) {
+						gtin = temp_buf;
+					}
+				}
+				if(gtin.Len() == 14) {
+					temp_buf = gtin;
 					if(oneof2(temp_buf.C(0), '0', '1'))
 						temp_buf.ShiftLeft(1);
 					else {
 						temp_buf.ShiftLeft(1);
 						temp_buf.TrimRight();
 						assert(temp_buf.Len() == 12);
-						int    cd = CalcBarcodeCheckDigit(temp_buf);
+						const  int cd = CalcBarcodeCheckDigit(temp_buf);
 						temp_buf.CatChar('0'+cd);
 					}
 					if(SearchByBarcode(temp_buf, &bcr, &goods_rec, BIN(pBlk->Flags & GoodsCodeSrchBlock::fAdoptSearch)) > 0) {
@@ -832,10 +845,22 @@ int PPObjGoods::Helper_SelectGoodsByBarcode_LotExtCode(uint32 sntok, GoodsCodeSr
 		ok = 1;
 	}
 	//
-	if(sntok == SNTOK_CHZN_GENERAL && rBlk.GtS.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
-		assert(temp_buf.Len() == 14);
-		if(temp_buf.Len() == 14) {
-			temp_buf.ShiftLeft();
+	if(sntok == SNTOK_CHZN_GENERAL) {
+		// @v12.8.2 Изменения ради трактовки префикса 02 (GtinStruc::fldContainerCt) как праймера для gtin (если префикса 01 нет)
+		SString gtin;
+		if(rBlk.GtS.GetToken(GtinStruc::fldGTIN14, &temp_buf)) {
+			assert(temp_buf.Len() == 14);
+			if(temp_buf.Len() == 14) {
+				gtin = temp_buf;
+			}
+		}
+		else if(rBlk.GtS.GetToken(GtinStruc::fldContainerCt, &temp_buf)) {
+			if(temp_buf.Len() == 14) {
+				gtin = temp_buf;
+			}
+		}
+		if(gtin.Len() == 14) {
+			(temp_buf = gtin).ShiftLeft();
 			BarcodeTbl::Rec bc_rec;
 			if(SearchByBarcode(temp_buf, &bc_rec, &goods_rec_by_code, BIN(rBlk.Flags & GoodsCodeSrchBlock::fAdoptSearch)) > 0) {
 				rBlk.GoodsID = goods_rec_by_code.ID;

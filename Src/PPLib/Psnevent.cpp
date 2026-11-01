@@ -314,7 +314,7 @@ int PPObjPersonEvent::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				ok = RetRefsExistsErr(Obj, P_Tbl->data.ID);
 		}
 	}
-	else if(msg == DBMSG_OBJREPLACE) { // @v11.0.10
+	else if(msg == DBMSG_OBJREPLACE) {
 		const  PPID new_id = reinterpret_cast<long>(extraPtr);
 		if(_obj == PPOBJ_PERSON) {
 			PPIDArray id_to_upd_list;

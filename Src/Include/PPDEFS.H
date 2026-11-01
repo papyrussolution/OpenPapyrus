@@ -1973,6 +1973,8 @@
 #define STDCTL_INSFOLDERBUTTON    179 // @v12.6.11 кнопка создания папки (элемента иерархии верхнего уровня)
 #define STDCTL_LANGLISTBUTTON     180 // @v12.7.0 Кнопка выбора списка натуральных языков
 #define STDCTL_GOODSSTRUC         181 // @v12.7.1 Кнопка просмотра товарной структуры
+#define STDCTL_PERSONLISTBUTTON   182 // @v12.8.2 Кнопка выбора списка персоналий
+#define STDCTL_SWAPBUTTON         183 // @v12.8.2 cmSwap 
 
 #define cmPPAccSelected          1101 // Сообщение, посылаемое группой
 	// AcctCtrlGroup диалогу-владельцу когда пользователь выбрал новый счет. (AcctCtrlGroup*)InfoPtr
@@ -4777,6 +4779,11 @@
 	#define CTL_PSNOPK_RSC               (15 + WINDOWS_ID_BIAS)
 	#define CTLSEL_PSNOPK_RSC            (16 + WINDOWS_ID_BIAS)
 	#define CTL_PSNOPK_RSCMAXTIMES       (17 + WINDOWS_ID_BIAS)
+	#define CTL_PSNOPK_CMD_PSNOPKPRMR    (18 + WINDOWS_ID_BIAS)
+	#define CTL_PSNOPK_CMD_PSNOPKSCND    (19 + WINDOWS_ID_BIAS)
+	#define CTL_PSNOPK_CMD_PSNOPKEXTRAOBJ (20 + WINDOWS_ID_BIAS)
+	#define CTL_PSNOPK_CMD_PSNOPKACTL    (21 + WINDOWS_ID_BIAS)  
+
 #define DLG_PSNOPKPC              329 // Ограничения по первичной персоналии
 #define DLG_PSNOPKSC              384 // Ограничения по вторичной персоналии
 	#define CTL_PSNOPKPC_KIND            (1 + WINDOWS_ID_BIAS)
@@ -6786,6 +6793,16 @@
 	#define cmDbMonitor                  114
 	#define CTL_BU_PRELUDE_DB            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_BU_PRELUDE_DB         (2 + WINDOWS_ID_BIAS)
+	#define CTL_BU_PRELUDE_CMD_BUAUTOBACKUP    (3 + WINDOWS_ID_BIAS)
+	#define CTL_BU_PRELUDE_CMD_BUBACKUP        (4 + WINDOWS_ID_BIAS)
+	#define CTL_BU_PRELUDE_CMD_BURESTORE       (5 + WINDOWS_ID_BIAS)  
+	#define CTL_BU_PRELUDE_CMD_DBMONITOR       (6 + WINDOWS_ID_BIAS)
+	#define CTL_BU_PRELUDE_CMD_RECOVER         (7 + WINDOWS_ID_BIAS)
+	#define CTL_BU_PRELUDE_CMD_PROTECT         (8 + WINDOWS_ID_BIAS)
+	#define CTL_BU_PRELUDE_CMD_DUMP            (9 + WINDOWS_ID_BIAS)
+	#define CTL_BU_PRELUDE_CMD_SETUPBACKUPCFG  (10 + WINDOWS_ID_BIAS)
+	#define CTL_BU_PRELUDE_CMD_CREATEDB        (11 + WINDOWS_ID_BIAS) 
+
 #define DLG_BU_BACKUP             603 // Резервное копирование
 #define DLG_BU_RSTR               604 // Восстановление копии
 	#define CTL_BU_BACKUP_SCEN           (1 + WINDOWS_ID_BIAS)
@@ -8574,6 +8591,7 @@
 	#define CTLBRW_CMDITEM_ICON        (7 + WINDOWS_ID_BIAS)
 	#define CTL_CMDITEM_CLEARFILT      (8 + WINDOWS_ID_BIAS)
 	#define CTL_CMDITEM_FLAGS          (9 + WINDOWS_ID_BIAS)
+	#define CTL_CMDITEM_PARAM          (10 + WINDOWS_ID_BIAS)  
 #define DLG_MENULIST              900
 	#define cmEditMenu                 101
 	#define cmEditAsscCmdCommonList    102
@@ -9040,6 +9058,8 @@
 	#define CTL_PSNCFG_CALQUANT        (10 + WINDOWS_ID_BIAS)
 	#define CTL_PSNCFG_SMSTIMEOUT      (11 + WINDOWS_ID_BIAS)
 	#define CTL_PSNCFG_SMSPRTR         (12 + WINDOWS_ID_BIAS)
+	#define CTL_PSNCFG_CMD_EXTFIELDS   (13 + WINDOWS_ID_BIAS) // @v12.8.2
+	#define CTL_PSNCFG_CMD_CLIENTACTIVITYCONFIG (14 + WINDOWS_ID_BIAS) // @v12.8.2
 #define DLG_REPLOBJ               978
 	#define CTL_REPLOBJ_SRC            (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_REPLOBJ_SRC         (2 + WINDOWS_ID_BIAS)
@@ -12302,6 +12322,10 @@
 	// Ctrls CTL_ACCOUNT_XXX
 #define DLG_ATURNPERSONAL        1602 // @v12.7.5 Проводка в персональных финансах
 	// Ctrls CTL_ATURN_XXX
+#define DLG_IMPEXPWORKBOOK       1603 // @v12.8.2 Параметры импорта/экспорта рабочих книг
+	#define CTL_IMPEXPWORKBOOK_FLAGS            (IMPEXP_CTL_BIAS+1)
+	#define CTL_IMPEXPWORKBOOK_PDFMT            (IMPEXP_CTL_BIAS+2)
+	#define CTLSEL_IMPEXPWORKBOOK_PDFMT         (IMPEXP_CTL_BIAS+3)
 //
 // Win32 Dialog Identifiers
 //
@@ -12863,6 +12887,9 @@
 	#define IMPEXPPARAM_CC_PREDEFFMT          0 // Значение такое же, как и для параметров импорта/экспорта документов!
 	#define IMPEXPPARAM_CC_FLAGS              1 //
 	#define IMPEXPPARAM_CC_POSNODE            2 //
+#define PPTXT_IMPEXPPARAM_WORKBOOK          660 // @v12.8.2 Дополнительные параметры импорта/экспорта рабочих книг
+	#define IMPEXPPARAM_WORKBOOK_PREDEFFMT    0 // Значение такое же, как и для параметров импорта/экспорта документов!
+	#define IMPEXPPARAM_WORKBOOK_FLAGS        1 //
 // LastText
 //
 // Intrinsic calculator functions

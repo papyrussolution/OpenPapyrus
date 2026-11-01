@@ -303,7 +303,7 @@ int AccTurnCore::ConvertRec_(const BillTbl::Rec & rBillRec, const AccTurnTbl::Re
 	rAt.Z();
 	PPID   acc_id = reverse ? pRec->CorrAcc : pRec->Acc;
 	if(useCache) {
-		THROW(AccRel.Fetch(acc_id, &acr_rec) > 0);
+		THROW(AccRel.Fetch_(acc_id, &acr_rec) > 0);
 	}
 	else {
 		THROW(AccRel.Search(acc_id, &acr_rec) > 0);
@@ -313,7 +313,7 @@ int AccTurnCore::ConvertRec_(const BillTbl::Rec & rBillRec, const AccTurnTbl::Re
 	acc_id = reverse ? pRec->Acc : pRec->CorrAcc;
 	if(acc_id) {
 		if(useCache) {
-			THROW(AccRel.Fetch(acc_id, &acr_rec) > 0);
+			THROW(AccRel.Fetch_(acc_id, &acr_rec) > 0);
 		}
 		else {
 			THROW(AccRel.Search(acc_id, &acr_rec) > 0);
@@ -385,7 +385,7 @@ int AccTurnCore::AccBelongToOrd(PPID accRelID, int ord, const Acct * pAcct, PPID
 		AcctRelTbl::Rec acr_rec;
 		int    r;
 		if(accRelID)
-			r = useCache ? AccRel.Fetch(accRelID, &acr_rec) : AccRel.Search(accRelID, &acr_rec);
+			r = useCache ? AccRel.Fetch_(accRelID, &acr_rec) : AccRel.Search(accRelID, &acr_rec);
 		else
 			r = 1;
 		if(r > 0) {

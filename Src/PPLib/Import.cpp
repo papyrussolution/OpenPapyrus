@@ -1701,16 +1701,18 @@ int EditSpecSeriesFormatDescription()
 	int    ok = -1;
 	ImpExpParamDialog * dlg = 0;
 	PPImpExpParam param;
-	SString ini_file_name, sect_name;
+	SString ini_file_name;
+	SString sect_name;
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPORT_INI, ini_file_name));
 	{
 		PPIniFile::GetSectSymb(PPINISECT_IMP_SPECSER, sect_name);
 		PPIniFile ini_file(ini_file_name, 0, 1, 1);
 		THROW(LoadSdRecord(PPREC_SPECSERIES, &param.InrRec));
 		THROW(param.ReadIni(&ini_file, sect_name, 0));
-		THROW(CheckDialogPtr(&(dlg = new ImpExpParamDialog(DLG_IMPEXP, ImpExpParamDialog::fDisableExport))));
+		dlg = new ImpExpParamDialog(DLG_IMPEXP, ImpExpParamDialog::fDisableExport);
+		THROW(CheckDialogPtr(&dlg));
 		dlg->setDTS(&param);
-		while(ok <= 0 && ExecView(dlg) == cmOK)
+		while(ok <= 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(&param)) {
 				ini_file.ClearSection(sect_name);
 				if(param.WriteIni(&ini_file, sect_name) && ini_file.FlashIniBuf()) {
@@ -1719,6 +1721,7 @@ int EditSpecSeriesFormatDescription()
 				else
 					PPError();
 			}
+		}
 	}
 	CATCHZOKPPERR
 	delete dlg;
@@ -1727,11 +1730,14 @@ int EditSpecSeriesFormatDescription()
 
 int ImportSpecSeries()
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	PPLogger logger;
 	PPImpExp * p_impexp = 0;
 	PPImpExpParam param;
-	SString ini_file_name, sect_name, wait_msg;
+	SString ini_file_name;
+	SString sect_name;
+	SString wait_msg;
 	PPIniFile::GetSectSymb(PPINISECT_IMP_SPECSER, sect_name);
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPORT_INI, ini_file_name));
 	{

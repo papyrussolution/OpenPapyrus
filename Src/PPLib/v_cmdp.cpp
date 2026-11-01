@@ -31,7 +31,7 @@ int EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, /*int isDekstopC
 			CmdSymbList.SortByText(); // @v12.3.7
 			if(/*IsDesktopCmd*/CmdGrpC == cmdgrpcDesktop)
 				FileBrowseCtrlGroup::Setup(this, CTLBRW_CMDITEM_ICON, CTL_CMDITEM_ICON, ctlgroupFbg, PPTXT_SELCMDICON, PPTXT_FILPAT_ICONS, FileBrowseCtrlGroup::fbcgfFile);
-			disableCtrl(CTL_CMDITEM_ICON, true);
+			setCtrlReadOnly(CTL_CMDITEM_ICON, true); // @v12.8.2 disableCtrl->setCtrlReadOnly
 			disableCtrl(CTL_CMDITEM_USEDEFICON, /*!IsDesktopCmd*/CmdGrpC != cmdgrpcDesktop);
 			disableCtrl(CTLBRW_CMDITEM_ICON, /*!IsDesktopCmd*/CmdGrpC != cmdgrpcDesktop);
 			enableCommand(cmCmdParam, /*IsDesktopCmd*/CmdGrpC == cmdgrpcDesktop);
@@ -54,8 +54,8 @@ int EditCmdItem(const PPCommandGroup * pGrp, PPCommand * pData, /*int isDekstopC
 			AddClusterAssoc(CTL_CMDITEM_FLAGS, 0, PPCommand::fAllowEditFilt);
 			SetClusterData(CTL_CMDITEM_FLAGS, Data.Flags);
 			disableCtrl(CTLBRW_CMDITEM_ICON, Data.Icon.ToLong() || !Data.Icon.Len());
-			disableCtrl(CTLSEL_CMDITEM_CMD, Data.CmdID);
-			disableCtrl(CTL_CMDITEM_ID, true);
+			setCtrlReadOnly(CTLSEL_CMDITEM_CMD, Data.CmdID); // @v12.8.2 disableCtrl->setCtrlReadOnly
+			setCtrlReadOnly(CTL_CMDITEM_ID, true); // @v12.8.2 disableCtrl->setCtrlReadOnly
 			if(Data.GetID() && CmdDescr.LoadResource(Data.CmdID) > 0)
 				enableCommand(cmCmdParam, !(CmdDescr.Flags & PPCommandDescr::fNoParam));
 			else

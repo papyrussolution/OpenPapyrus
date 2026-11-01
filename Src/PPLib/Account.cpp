@@ -122,13 +122,36 @@ ArticleCore::ArticleCore() : ArticleTbl()
 
 int ArticleCore::Search(PPID id, void * b) { return SearchByID(this, PPOBJ_ARTICLE, id, b); }
 
-int ArticleCore::SearchName(PPID accSheetID, const char * pName, void * b)
+int ArticleCore::SearchName(PPID accSheetID, const char * pName, ArticleTbl::Rec * pRec)
 {
 	ArticleTbl::Key2 k2;
 	MEMSZERO(k2);
 	k2.AccSheetID = accSheetID;
 	STRNSCPY(k2.Name, pName);
-	return SearchByKey(this, 2, &k2, b);
+	return SearchByKey(this, 2, &k2, pRec);
+}
+
+int ArticleCore::GetListBySubstring(const char * pSubstr, PPIDArray & rList) // @v12.8.2 @construction
+{
+	rList.Z();
+	int    ok = -1;
+	if(!isempty(pSubstr)) {
+		PPTextSrchPattern tsp;
+		tsp.Init(pSubstr);
+		ArticleTbl::Key0 k0;
+		MEMSZERO(k0);
+		BExtQuery q(this, 0);
+		q.select(this->ID, this->AccSheetID, this->ObjID, this->Flags, this->Name, 0L);
+		for(q.initIteration(false, &k0, spFirst); q.nextIteration() > 0;) {
+			const  PPID id = data.ID;
+			const  int  r = tsp.Detect(data.Name);
+			if(r > 0) {
+				rList.add(id);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
 }
 
 int ArticleCore::EnumBySheet(PPID accSheetID, long * pArticleNo, void * b)
@@ -481,7 +504,7 @@ void AcctRelCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec) co
 #undef CPYFLD
 }
 
-int AcctRel::Fetch(PPID id, AcctRelTbl::Rec * pRec)
+int AcctRel::Fetch_(PPID id, AcctRelTbl::Rec * pRec)
 {
 	AcctRelCache * p_cache = GetDbLocalCachePtr <AcctRelCache> (PPOBJ_ACCTREL);
 	return p_cache ? p_cache->Get(id, pRec) : Search(id, pRec);

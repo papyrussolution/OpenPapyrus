@@ -19,7 +19,7 @@
 	#include <slconfig.h>
 #endif
 // @v11.7.12 (defined at slconfig.h) #define WINDOWS_IGNORE_PACKING_MISMATCH // @v10.9.11
-#define U_STATIC_IMPLEMENTATION // @v11.3.0 ICU включается как статическая библиотека
+#define U_STATIC_IMPLEMENTATION // ICU включается как статическая библиотека
 //
 // Далее идут включения файлов из штатных библиотек компилятора и Windows API
 // Visual Studio требует default-выравнивания структур данных. Потому обрамляем эту зону 
@@ -1623,10 +1623,12 @@ template <typename T, int N> static constexpr size_t sizeofarray(const T(&arr)[N
 #include <asmlib.h>
 
 #if USE_ASMLIB
-	#define memcpy   A_memcpy
-	#define memmove  A_memmove
-	#define memset   A_memset
-	#define memcmp   A_memcmp
+	#ifndef SL_USE_STD_MEMFUNC // @v12.8.2
+		#define memcpy   A_memcpy
+		#define memmove  A_memmove
+		#define memset   A_memset
+		#define memcmp   A_memcmp
+	#endif 
 	//#define strcat   A_strcat
 	//#define strlen   A_strlen
 	//#define strcmp   A_strcmp
@@ -3346,7 +3348,7 @@ struct SUniTime_Internal : public SUniDate_Internal { // @internal
 	SUniTime_Internal(SCtrGenerate); // for-testing-only
 	SUniTime_Internal & Z();
 	SUniTime_Internal & Z_ThisOnly(); // Очищает только this без очистки родительского объекта SUniDate_Internal
-	bool   IsValidTime() const;
+	bool   IsValidTime(bool allowHourOver24) const;
 	bool   IsValid() const;
 	int    FASTCALL Cmp(const SUniTime_Internal & rS) const;
 	//
@@ -5963,8 +5965,8 @@ LDATE  FASTCALL ValidDateOr(LDATE dt, LDATE defaultDate); // @v12.3.0
 //   0 - набор аргументов не соответствует правильному представлению времени
 //   !0 - набор аргументов соответствует правильному представлению времени
 //
-int    STDCALL  checktime(int hr, int mn, int sc, int msec);
-int    FASTCALL checktime(LTIME tm);
+bool   STDCALL  checktime(int hr, int mn, int sc, int msec, bool allowHourOver24);
+bool   FASTCALL checkltime(LTIME tm); 
 //
 //
 //

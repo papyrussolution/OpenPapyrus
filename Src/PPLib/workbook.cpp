@@ -1469,6 +1469,118 @@ int PPObjWorkbook::ProcessObjRefs(PPObjPack * pPack, PPObjIDArray * ary, int rep
 	return ok;
 }
 
+PPWorkboolImpExpParam::PPWorkboolImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), Flags(0), PredefFormat(0)
+{
+}
+
+/*virtual*/int PPWorkboolImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
+{
+	int    ok = 1;
+	SString params;
+	SString fld_name;
+	SString param_val;
+	THROW(PPImpExpParam::WriteIni(pFile, pSect));
+	THROW(PPLoadText(PPTXT_IMPEXPPARAM_WORKBOOK, params));
+	if(Direction != 0) { // import
+		;
+	}
+	else { // export
+	}
+	PPGetSubStr(params, IMPEXPPARAM_WORKBOOK_PREDEFFMT, fld_name);
+	pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(PredefFormat), 1);
+	PPGetSubStr(params, IMPEXPPARAM_WORKBOOK_FLAGS, fld_name);
+	pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(Flags), 1);
+	CATCHZOK
+	return ok;
+}
+
+/*virtual*/int PPWorkboolImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList)
+{
+	PredefFormat = piefUndef;
+	Flags = 0;
+	int    ok = 1;
+	SString params;
+	SString fld_name;
+	SString param_val;
+	StringSet excl;
+	RVALUEPTR(excl, pExclParamList);
+	THROW(PPLoadText(PPTXT_IMPEXPPARAM_WORKBOOK, params));
+	if(PPGetSubStr(params, IMPEXPPARAM_WORKBOOK_PREDEFFMT, fld_name)) {
+		excl.add(fld_name);
+		if(pFile->GetParam(pSect, fld_name, param_val) > 0)
+			PredefFormat = param_val.ToLong();
+	}
+	if(PPGetSubStr(params, IMPEXPPARAM_WORKBOOK_FLAGS, fld_name)) {
+		excl.add(fld_name);
+		if(pFile->GetParam(pSect, fld_name, param_val) > 0)
+			Flags = param_val.ToLong();
+	}
+	THROW(PPImpExpParam::ReadIni(pFile, pSect, &excl));
+	CATCHZOK
+	return ok;
+}
+
+/*
+class WorkbookImpExpDialog : public ImpExpParamDialog { // @v12.8.2
+	DECL_DIALOG_DATA(PPWorkbookImpExpParam);
+public:
+	WorkbookImpExpDialog();
+	int    setDTS(const PPWorkbookImpExpParam * pData);
+	int    getDTS(PPWorkbookImpExpParam * pData);
+private:
+	DECL_HANDLE_EVENT;
+	void   SetupCtrls(long direction);
+};
+*/
+
+WorkbookImpExpDialog::WorkbookImpExpDialog() : ImpExpParamDialog(DLG_IMPEXPWORKBOOK)
+{
+}
+
+IMPL_HANDLE_EVENT(WorkbookImpExpDialog)
+{
+	ImpExpParamDialog::handleEvent(event);
+	if(event.isClusterClk(CTL_IMPEXP_DIR))
+		SetupCtrls(GetClusterData(CTL_IMPEXP_DIR));
+	/*else if(event.isClusterClk(CTL_IMPEXPWORKBOOK_FLAGS))
+		GetClusterData(CTL_IMPEXPWORKBOOK_FLAGS, &Data.Flags);*/
+	else if(event.isCbSelected(CTLSEL_IMPEXPWORKBOOK_PDFMT))
+		SetupCtrls(GetClusterData(CTL_IMPEXP_DIR));
+	else
+		return;
+	clearEvent(event);
+}
+
+void WorkbookImpExpDialog::SetupCtrls(long direction/* 0 - import, 1 - export */)
+{
+	//DisableClusterItem(CTL_IMPEXPWORKBOOK_FLAGS, 0, direction == 0);
+	//DisableClusterItem(CTL_IMPEXPWORKBOOK_FLAGS, 3, direction);
+}
+
+int WorkbookImpExpDialog::setDTS(const PPWorkbookImpExpParam * pData)
+{
+	RVALUEPTR(Data, pData);
+	ImpExpParamDialog::setDTS(&Data);
+	SetupStringCombo(this, CTLSEL_IMPEXPWORKBOOK_PDFMT, PPTXT_PREDEFIMPEXPBILLFMT, Data.PredefFormat);
+	//AddClusterAssoc(CTL_IMPEXPWORKBOOK_FLAGS, 0, PPCCheckImpExpParam::fPrintAsseblyOrders);
+	//SetClusterData(CTL_IMPEXPWORKBOOK_FLAGS, Data.Flags);
+	SetupCtrls(Data.Direction);
+	return 1;
+}
+
+int WorkbookImpExpDialog::getDTS(PPWorkbookImpExpParam * pData)
+{
+	int    ok = 1;
+	THROW(ImpExpParamDialog::getDTS(&Data));
+	getCtrlData(CTLSEL_IMPEXPWORKBOOK_PDFMT, &Data.PredefFormat);
+	//GetClusterData(CTL_IMPEXPCC_FLAGS, &Data.Flags);
+	ASSIGN_PTR(pData, Data);
+	CATCH
+		ok = PPErrorByDialog(this, 0);
+	ENDCATCH
+	return ok;
+}
+
 int PPObjWorkbook::Helper_Export(PPID rootID, PPWorkbookExporter & rExporter, PPIDArray * pRecurTrace)
 {
 	int    ok = 1;
@@ -1503,9 +1615,10 @@ int PPObjWorkbook::Helper_Export(PPID rootID, PPWorkbookExporter & rExporter, PP
 
 int PPObjWorkbook::Export(PPID rootID)
 {
-	int    ok = 1, r;
+	int    ok = 1;
 	PPWorkbookExporter exporter;
-	THROW(r = exporter.Init(0));
+	const  int r = exporter.Init(0);
+	THROW(r);
 	if(r > 0) {
 		PPWaitStart();
 		THROW(Helper_Export(rootID, exporter, 0));
@@ -2669,7 +2782,7 @@ int PPObjWorkbook::Fetch(PPID id, WorkbookTbl::Rec * pRec)
 //
 IMPLEMENT_IMPEXP_HDL_FACTORY(WORKBOOK, PPWorkbookImpExpParam);
 
-PPWorkbookImpExpParam::PPWorkbookImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags)
+PPWorkbookImpExpParam::PPWorkbookImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), PredefFormat(0)
 {
 }
 
@@ -2916,57 +3029,66 @@ int PPWorkbookExporter::ExportPacket(const PPWorkbookPacket * pPack)
 {
 	int    ok = 1;
 	SString temp_buf;
-	WorkbookTbl::Rec inner_rec;
-	Sdr_Workbook sdr_rec;
-	THROW_INVARG(pPack);
-	sdr_rec.ID = pPack->Rec.ID;
-	STRNSCPY(sdr_rec.Name, pPack->Rec.Name);
-	STRNSCPY(sdr_rec.Symb, pPack->Rec.Symb);
-	sdr_rec.Type = pPack->Rec.Type;
-	sdr_rec.Order = pPack->Rec.Rank;
-	sdr_rec.Flags = pPack->Rec.Flags;
-	if(sdr_rec.Type == PPWBTYP_KEYWORD) {
-		sdr_rec.KeywordCount = pPack->Rec.KeywordCount;
-		sdr_rec.KeywordDilute = pPack->Rec.KeywordDilute;
-	}
-	if(pPack->Rec.ParentID && WbObj.Fetch(pPack->Rec.ParentID, &inner_rec) > 0) {
-		sdr_rec.ParentID = inner_rec.ID;
-		STRNSCPY(sdr_rec.ParentName, inner_rec.Name);
-		STRNSCPY(sdr_rec.ParentSymb, inner_rec.Symb);
-	}
-	if(pPack->Rec.LinkID && WbObj.Fetch(pPack->Rec.LinkID, &inner_rec) > 0) {
-		sdr_rec.LinkID = inner_rec.ID;
-		STRNSCPY(sdr_rec.LinkName, inner_rec.Name);
-		STRNSCPY(sdr_rec.LinkSymb, inner_rec.Symb);
-	}
-	if(pPack->Rec.CssID && WbObj.Fetch(pPack->Rec.CssID, &inner_rec) > 0) {
-		sdr_rec.CssID = inner_rec.ID;
-		STRNSCPY(sdr_rec.CssName, inner_rec.Name);
-		STRNSCPY(sdr_rec.CssSymb, inner_rec.Symb);
-	}
-	{
-		const ObjTagItem * p_tag_keywords = pPack->TagL.GetItem(PPTAG_WORKBOOK_KEYWORDS);
-		if(p_tag_keywords) {
-			p_tag_keywords->GetStr(temp_buf);
-			temp_buf.CopyTo(sdr_rec.KeywordTag, sizeof(sdr_rec.KeywordTag));
+	if(Param.PredefFormat) { // @v12.8.2 @construction
+		if(Param.PredefFormat == piefWorkbook_Astro) { 
+			
 		}
+		else
+			ok = -1;
 	}
-	{
-		ObjLinkFiles _lf(PPOBJ_WORKBOOK);
-		_lf.Load(pPack->Rec.ID, 0L);
-		if(_lf.At(0, temp_buf.Z())) {
-			if(DestFilesPath.NotEmpty() && !fileExists(DestFilesPath)) {
-				THROW_SL(SFile::CreateDir(DestFilesPath));
+	else {
+		WorkbookTbl::Rec inner_rec;
+		Sdr_Workbook sdr_rec;
+		THROW_INVARG(pPack);
+		sdr_rec.ID = pPack->Rec.ID;
+		STRNSCPY(sdr_rec.Name, pPack->Rec.Name);
+		STRNSCPY(sdr_rec.Symb, pPack->Rec.Symb);
+		sdr_rec.Type = pPack->Rec.Type;
+		sdr_rec.Order = pPack->Rec.Rank;
+		sdr_rec.Flags = pPack->Rec.Flags;
+		if(sdr_rec.Type == PPWBTYP_KEYWORD) {
+			sdr_rec.KeywordCount = pPack->Rec.KeywordCount;
+			sdr_rec.KeywordDilute = pPack->Rec.KeywordDilute;
+		}
+		if(pPack->Rec.ParentID && WbObj.Fetch(pPack->Rec.ParentID, &inner_rec) > 0) {
+			sdr_rec.ParentID = inner_rec.ID;
+			STRNSCPY(sdr_rec.ParentName, inner_rec.Name);
+			STRNSCPY(sdr_rec.ParentSymb, inner_rec.Symb);
+		}
+		if(pPack->Rec.LinkID && WbObj.Fetch(pPack->Rec.LinkID, &inner_rec) > 0) {
+			sdr_rec.LinkID = inner_rec.ID;
+			STRNSCPY(sdr_rec.LinkName, inner_rec.Name);
+			STRNSCPY(sdr_rec.LinkSymb, inner_rec.Symb);
+		}
+		if(pPack->Rec.CssID && WbObj.Fetch(pPack->Rec.CssID, &inner_rec) > 0) {
+			sdr_rec.CssID = inner_rec.ID;
+			STRNSCPY(sdr_rec.CssName, inner_rec.Name);
+			STRNSCPY(sdr_rec.CssSymb, inner_rec.Symb);
+		}
+		{
+			const ObjTagItem * p_tag_keywords = pPack->TagL.GetItem(PPTAG_WORKBOOK_KEYWORDS);
+			if(p_tag_keywords) {
+				p_tag_keywords->GetStr(temp_buf);
+				temp_buf.CopyTo(sdr_rec.KeywordTag, sizeof(sdr_rec.KeywordTag));
 			}
-			SString dest_filename;
-			SFsPath ps(temp_buf);
-			MakeTempFileName(DestFilesPath, "wbf", ps.Ext, dest_filename);
-			THROW_SL(SCopyFile(temp_buf, dest_filename, 0, FILE_SHARE_READ, 0));
-			dest_filename.CopyTo(sdr_rec.Content, sizeof(sdr_rec.Content));
 		}
+		{
+			ObjLinkFiles _lf(PPOBJ_WORKBOOK);
+			_lf.Load(pPack->Rec.ID, 0L);
+			if(_lf.At(0, temp_buf.Z())) {
+				if(DestFilesPath.NotEmpty() && !fileExists(DestFilesPath)) {
+					THROW_SL(SFile::CreateDir(DestFilesPath));
+				}
+				SString dest_filename;
+				SFsPath ps(temp_buf);
+				MakeTempFileName(DestFilesPath, "wbf", ps.Ext, dest_filename);
+				THROW_SL(SCopyFile(temp_buf, dest_filename, 0, FILE_SHARE_READ, 0));
+				dest_filename.CopyTo(sdr_rec.Content, sizeof(sdr_rec.Content));
+			}
+		}
+		P_IEWorkbook->GetParamConst().InrRec.ConvertDataFields(CTRANSF_INNER_TO_OUTER, &sdr_rec);
+		THROW(P_IEWorkbook->AppendRecord(&sdr_rec, sizeof(sdr_rec)));
 	}
-	P_IEWorkbook->GetParamConst().InrRec.ConvertDataFields(CTRANSF_INNER_TO_OUTER, &sdr_rec);
-	THROW(P_IEWorkbook->AppendRecord(&sdr_rec, sizeof(sdr_rec)));
 	CATCHZOK
 	return ok;
 }

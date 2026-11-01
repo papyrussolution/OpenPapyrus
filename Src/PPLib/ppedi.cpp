@@ -1005,7 +1005,7 @@ int PPDocumentInterchangeContext::GetGoodsInfo(PPID goodsID, PPID arID, Goods2Tb
 	// У предпочтительного кода приоритет при проврке - потому поднимаем его вверх списка {
 	{
 		uint   pref_bc_pos = 0;
-		const BarcodeTbl::Rec * p_pref_bc_rec = bc_list.GetPreferredItem(&pref_bc_pos);
+		const  BarcodeTbl::Rec * p_pref_bc_rec = bc_list.GetPreferredItem(&pref_bc_pos);
 		if(p_pref_bc_rec) {
 			assert(pref_bc_pos < bc_list.getCount()); // @paranoic
 			if(pref_bc_pos > 0)

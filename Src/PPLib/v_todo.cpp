@@ -1227,10 +1227,7 @@ PPViewPrjTask::InternalViewItem & PPViewPrjTask::InternalViewItem::Z()
 	return *this;
 }
 
-bool PPViewPrjTask::IsInMemView() const
-{
-	return LOGIC(Filt.Flags & PrjTaskFilt::fInMemView);
-}
+bool PPViewPrjTask::IsInMemView() const { return LOGIC(Filt.Flags & PrjTaskFilt::fInMemView); }
 
 int PPViewPrjTask::RemooveInternalEntry(PPID id, TSArray <InternalViewItem> & rList)
 {

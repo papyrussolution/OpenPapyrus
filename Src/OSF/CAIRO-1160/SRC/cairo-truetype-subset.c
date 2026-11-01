@@ -268,56 +268,41 @@ static void cairo_truetype_font_destroy(cairo_truetype_font_t * font)
 	SAlloc::F(font);
 }
 
-static cairo_status_t cairo_truetype_font_allocate_write_buffer(cairo_truetype_font_t * font,
-    size_t length,
-    uchar  ** buffer)
+static cairo_status_t cairo_truetype_font_allocate_write_buffer(cairo_truetype_font_t * font, size_t length, uchar  ** buffer)
 {
 	cairo_status_t status;
-
 	if(font->status)
 		return font->status;
-
-	status = _cairo_array_allocate(&font->output, length, (void **)buffer);
+	status = _cairo_array_allocate(&font->output, static_cast<uint>(length), (void **)buffer);
 	if(UNLIKELY(status))
 		return _cairo_truetype_font_set_error(font, status);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static void cairo_truetype_font_write(cairo_truetype_font_t * font,
-    const void * data,
-    size_t length)
+static void cairo_truetype_font_write(cairo_truetype_font_t * font, const void * data, size_t length)
 {
 	cairo_status_t status;
-
 	if(font->status)
 		return;
-
-	status = _cairo_array_append_multiple(&font->output, data, length);
+	status = _cairo_array_append_multiple(&font->output, data, static_cast<uint>(length));
 	if(UNLIKELY(status))
 		status = _cairo_truetype_font_set_error(font, status);
 }
 
-static void cairo_truetype_font_write_be16(cairo_truetype_font_t * font,
-    uint16 value)
+static void cairo_truetype_font_write_be16(cairo_truetype_font_t * font, uint16 value)
 {
 	uint16 be16_value;
-
 	if(font->status)
 		return;
-
 	be16_value = cpu_to_be16(value);
 	cairo_truetype_font_write(font, &be16_value, sizeof be16_value);
 }
 
-static void cairo_truetype_font_write_be32(cairo_truetype_font_t * font,
-    uint32 value)
+static void cairo_truetype_font_write_be32(cairo_truetype_font_t * font, uint32 value)
 {
 	uint32 be32_value;
-
 	if(font->status)
 		return;
-
 	be32_value = cpu_to_be32(value);
 	cairo_truetype_font_write(font, &be32_value, sizeof be32_value);
 }

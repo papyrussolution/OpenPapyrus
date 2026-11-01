@@ -295,7 +295,7 @@ int PPViewBrowser::Helper_Export_Excel_OXLSX(SString & rResultFileName)
 								else if(_st == S_TIME) {
 									LTIME v = ZEROTIME;
 									v = *reinterpret_cast<const LTIME *>(cell_data);
-									if(checktime(v)) {
+									if(checkltime(v)) {
 										wks.cell(row + beg_row, static_cast<uint16>(cn+1)).value() = XLDateTime(v.GetOleDate());
 									}
 								}

@@ -1204,12 +1204,13 @@ int PPObjGoodsTax::StrToOrder(const char * buf, long * pOrder, long * pUnionVect
 
 int PPObjGoodsTax::HandleMsg(int msg, PPID objTypeID, PPID objID, void * extraPtr)
 {
-	if(msg == DBMSG_OBJREPLACE)
+	if(msg == DBMSG_OBJREPLACE) {
 		if(objTypeID == PPOBJ_GOODSTAX) {
 			PPID    dest_id = objID;
 			if(!BroadcastObjMessage(DBMSG_OBJREPLACE, Obj, dest_id, extraPtr /*srcID*/))
 				return DBRPL_ERROR;
 		}
+	}
 	return DBRPL_OK;
 }
 /*

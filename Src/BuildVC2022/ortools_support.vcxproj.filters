@@ -1,0 +1,186 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Lib">
+      <UniqueIdentifier>{2fe1f305-a87c-4ee1-bad0-1c6e5b233ae3}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\PPLib\ortools_support.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\LIB\or-tools\lib\abseil_dll.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_decode_rust_punycode.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_demangle_rust.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_flags_commandlineflag.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_flags_commandlineflag_internal.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_flags_config.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_flags_internal.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_flags_marshalling.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_flags_parse.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_flags_private_handle_accessor.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_flags_program_name.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_flags_reflection.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_flags_usage.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_flags_usage_internal.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_hashtable_profiler.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_log_flags.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_log_internal_structured_proto.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_poison.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_profile_builder.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_random_internal_entropy_pool.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_tracing_internal.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\absl_utf8_for_code_point.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\bz2.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\Cbc.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\CbcSolver.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\Cgl.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\Clp.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\ClpSolver.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\CoinUtils.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\highs.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\libboost_atomic-vc143-mt-x64-1_87.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\libboost_chrono-vc143-mt-x64-1_87.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\libboost_container-vc143-mt-x64-1_87.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\libboost_date_time-vc143-mt-x64-1_87.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\libboost_random-vc143-mt-x64-1_87.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\libboost_serialization-vc143-mt-x64-1_87.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\libboost_thread-vc143-mt-x64-1_87.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\libboost_wserialization-vc143-mt-x64-1_87.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\libprotobuf.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\libprotobuf-lite.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\libprotoc.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\libscip.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\libsoplex.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\libsoplex-pic.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\libsoplexshared.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\libupb.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\libutf8_range.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\libutf8_validity.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\ortools.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\ortools_flatzinc.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\Osi.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\OsiCbc.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\OsiClp.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\re2.lib">
+      <Filter>Lib</Filter>
+    </Library>
+    <Library Include="..\LIB\or-tools\lib\zlib.lib">
+      <Filter>Lib</Filter>
+    </Library>
+  </ItemGroup>
+</Project>

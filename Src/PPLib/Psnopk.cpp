@@ -1,5 +1,5 @@
 // PSNOPK.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2024, 2025, 2026
 // @codepage UTF-8
 // Виды персональных операций
 //
@@ -1429,7 +1429,7 @@ int EditPoClause(PPPsnOpKindPacket * pPokPack, PoClause_ * pClause)
 			if(PokPack && PokPack->AllowedTags.IsExists())
 				allowed_tags = PokPack->AllowedTags.Get();
 			for(uint i = 0; i < allowed_tags.getCount(); i++) {
-				PPID   tag_id = allowed_tags.at(i);
+				const  PPID tag_id = allowed_tags.at(i);
 				if(tag_obj.Fetch(tag_id, &tag_rec) > 0)
 					tag_name = tag_rec.Name;
 				else
@@ -1674,9 +1674,9 @@ int PPObjPsnOpKind::Edit(PPID * pID, void * extraPtr)
 	int    valid_data = 0;
 	int    apply = 1;
 	uint   what = 0;
-	PsnOpDialog * dlg = 0;
 	PPPsnOpKindPacket pack;
-	THROW(CheckDialogPtr(&(dlg = new PsnOpDialog)));
+	PsnOpDialog * dlg = new PsnOpDialog();
+	THROW(CheckDialogPtr(&dlg));
 	if(*pID) {
 		THROW(GetPacket(*pID, &pack) > 0);
 	}
@@ -1687,7 +1687,7 @@ int PPObjPsnOpKind::Edit(PPID * pID, void * extraPtr)
 		apply = 0;
 	if(apply > 0) {
 		THROW(dlg->setDTS(&pack));
-		while(!valid_data && ExecView(dlg) == cmOK)
+		while(!valid_data && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(&pack)) {
 				valid_data = 1;
 				THROW(PutPacket(pID, &pack, 1));
@@ -1695,6 +1695,7 @@ int PPObjPsnOpKind::Edit(PPID * pID, void * extraPtr)
 			}
 			else
 				PPError();
+		}
 	}
 	CATCHZOKPPERR
 	delete dlg;

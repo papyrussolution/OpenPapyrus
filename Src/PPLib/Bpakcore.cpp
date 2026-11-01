@@ -508,7 +508,7 @@ LDATETIME PPFreight::GetArrivalTime() const // @v12.8.0
 bool PPFreight::SetDespatchTime(LDATETIME dtm) // @v12.8.0 @construction
 {
 	bool   ok = false;
-	if(checkdate(dtm.d) && checktime(dtm.t)) {
+	if(checkdate(dtm.d) && checkltime(dtm.t)) {
 		IssueDate_Obsolete = dtm.d;
 		const  ued_t _meta = UED_META_TIME_MSEC;
 		SUniTime_Internal ut(dtm);
@@ -526,7 +526,7 @@ bool PPFreight::SetDespatchTime(LDATETIME dtm) // @v12.8.0 @construction
 bool PPFreight::SetArrivalTime(LDATETIME dtm) // @v12.8.0 @construction
 {
 	bool   ok = false;
-	if(checkdate(dtm.d) && checktime(dtm.t)) {
+	if(checkdate(dtm.d) && checkltime(dtm.t)) {
 		ArrivalDate_Obsolete = dtm.d;
 		const  ued_t _meta = UED_META_TIME_MSEC;
 		SUniTime_Internal ut(dtm);

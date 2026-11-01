@@ -2696,14 +2696,15 @@ int PPImpExp::ConvertOuterToInner(void * pInnerBuf, size_t bufLen, SdRecord * pD
 {
 	int    ok = 1;
 	uint   dyn_fld_pos = 0;
-	char   temp_cbuf[1024];
+	//char   temp_cbuf[1024];
 	SdbField outer_fld;
 	SString formula_result;
 	SString temp_buf;
 	SdbField inner_fld; // Определение выносим за пределы цикла во избежании лишних распределений памяти
 		// (внутри этой структуры находятся элементы SString)
-	if(P.OtrRec.GetDataC() == 0)
+	if(P.OtrRec.GetDataC() == 0) {
 		THROW_SL(P.OtrRec.AllocDataBuf());
+	}
 	for(uint i = 0; P.OtrRec.EnumFields(&i, &outer_fld);) {
 		void * p_outer_fld_buf = P.OtrRec.GetData(i-1);
 		THROW(p_outer_fld_buf);
@@ -3288,13 +3289,13 @@ ImpExpParamDialog * ImpExpCfgsListDialog::GetParamDlg(uint cfgPos)
 			case PPREC_PRICELIST:
 			case PPREC_CSESS:
 			case PPREC_CCHECKS:
-			case PPREC_CCLINES:
-			case PPREC_WORKBOOK: p_dlg = new ImpExpParamDialog(DLG_IMPEXP, 0); break;
+			case PPREC_CCLINES: p_dlg = new ImpExpParamDialog(DLG_IMPEXP, 0); break;
+			case PPREC_WORKBOOK: p_dlg = new WorkbookImpExpDialog; break; // @v12.8.2
 			case PPREC_LOT: p_dlg = new LotImpExpDialog; break; // @Muxa
 			case PPREC_PHONELIST: p_dlg = new PhoneListImpExpDialog; break;
 			case PPREC_SCARD: p_dlg = new SCardImpExpDialog; break;
 			case PPREC_QUOTVAL: p_dlg = new QuotImpExpDialog; break;
-			case PPREC_CCHECK2: p_dlg = new CCheckImpExpDialog; break; // @v11.8.4 @construction
+			case PPREC_CCHECK2: p_dlg = new CCheckImpExpDialog; break; // @v11.8.4
 		}
 	}
 	return p_dlg;
@@ -3313,8 +3314,8 @@ int ImpExpCfgsListDialog::SetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, 
 			case PPREC_PRICELIST:
 			case PPREC_CSESS:
 			case PPREC_CCHECKS:
-			case PPREC_CCLINES:
-			case PPREC_WORKBOOK: ok = static_cast<ImpExpParamDialog *>(pDlg)->setDTS(pParam); break;
+			case PPREC_CCLINES: ok = static_cast<ImpExpParamDialog *>(pDlg)->setDTS(pParam); break;
+			case PPREC_WORKBOOK: ok = static_cast<WorkbookImpExpDialog *>(pDlg)->setDTS(static_cast<PPWorkbookImpExpParam *>(pParam)); break;
 			case PPREC_LOT: ok = static_cast<LotImpExpDialog *>(pDlg)->setDTS(static_cast<PPLotImpExpParam *>(pParam)); break; // @Muxa
 			case PPREC_PHONELIST: ok = static_cast<PhoneListImpExpDialog *>(pDlg)->setDTS(static_cast<PPPhoneListImpExpParam *>(pParam)); break;
 			case PPREC_SCARD: ok = static_cast<SCardImpExpDialog *>(pDlg)->setDTS(static_cast<PPSCardImpExpParam *>(pParam)); break;
@@ -3338,8 +3339,8 @@ int ImpExpCfgsListDialog::GetParamDlgDTS(ImpExpParamDialog * pDlg, uint cfgPos, 
 			case PPREC_PRICELIST:
 			case PPREC_CSESS:
 			case PPREC_CCHECKS:
-			case PPREC_CCLINES:
-			case PPREC_WORKBOOK: ok = static_cast<ImpExpParamDialog *>(pDlg)->getDTS(pParam); break;
+			case PPREC_CCLINES: ok = static_cast<ImpExpParamDialog *>(pDlg)->getDTS(pParam); break;
+			case PPREC_WORKBOOK: ok = static_cast<WorkbookImpExpDialog *>(pDlg)->getDTS(static_cast<PPWorkbookImpExpParam *>(pParam)); break;
 			case PPREC_LOT: ok = static_cast<LotImpExpDialog *>(pDlg)->getDTS(static_cast<PPLotImpExpParam *>(pParam)); break; // @Muxa
 			case PPREC_PHONELIST: ok = static_cast<PhoneListImpExpDialog *>(pDlg)->getDTS(static_cast<PPPhoneListImpExpParam *>(pParam)); break;
 			case PPREC_SCARD: ok = static_cast<SCardImpExpDialog *>(pDlg)->getDTS(static_cast<PPSCardImpExpParam *>(pParam)); break;
@@ -3355,10 +3356,10 @@ int ImpExpCfgsListDialog::EditParam(const char * pIniSection, long * pCDbID)
 	int    ok = -1;
 	int    is_exists = 0;
 	// @v12.6.2 (тупиковая ветвь) long   cdb_id = DEREFPTRORZ(pCDbID);
-	ImpExpParamDialog * p_param_dlg = 0;
 	SString ini_file_name, section;
 	PPImpExpParam * p_param = P_ParamList[CfgPos];
-	THROW(CheckDialogPtr(&(p_param_dlg = GetParamDlg(CfgPos))));
+	ImpExpParamDialog * p_param_dlg = GetParamDlg(CfgPos);
+	THROW(CheckDialogPtr(&p_param_dlg));
 	p_param->Init();
 	THROW(LoadSdRecord(CfgsList.Get(CfgPos).Id, &p_param->InrRec));
 	/* @v12.6.2 (тупиковая ветвь) if(DS.CheckExtFlag(ECF_USECDB)) {

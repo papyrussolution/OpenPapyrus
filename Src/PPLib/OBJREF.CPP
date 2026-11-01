@@ -3000,7 +3000,7 @@ int PPObjGlobalUserAcc::Register(PPID & ID, const char * pName, const char * pPa
 			}
 		}
 	}
-	else if(msg == DBMSG_OBJREPLACE) { // @v11.0.10
+	else if(msg == DBMSG_OBJREPLACE) {
 		const  PPID new_id = reinterpret_cast<long>(extraPtr);
 		if(_obj == PPOBJ_PERSON) {
 			PPIDArray id_to_upd_list;

@@ -2287,7 +2287,7 @@ int PPObjPerson::AddSimple(PPID * pID, const char * pName, PPID kindID, PPID sta
 int PPObjPerson::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 {
 	int    ok = DBRPL_OK;
-	if(msg == DBMSG_OBJDELETE)
+	if(msg == DBMSG_OBJDELETE) {
 		switch(_obj) {
 			case PPOBJ_PERSONKIND:
 				{
@@ -2333,12 +2333,14 @@ int PPObjPerson::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 				ok = ReplyPersonTagDel(_id);
 				break;
 		}
+	}
 	else if(msg == DBMSG_OBJREPLACE) {
 		if(_obj == PPOBJ_PERSON) {
 			PPIDArray kind_list;
 			THROW(P_Tbl->GetKindList(_id, &kind_list));
-			for(uint i = 0; i < kind_list.getCount(); i++)
+			for(uint i = 0; i < kind_list.getCount(); i++) {
 				THROW(P_Tbl->AddKind(reinterpret_cast<long>(extraPtr), kind_list.get(i), 0));
+			}
 			THROW(BroadcastObjMessage(DBMSG_OBJREPLACE, Obj, _id, extraPtr));
 		}
 		else if(_obj == PPOBJ_LOCATION) {
@@ -4871,7 +4873,7 @@ private:
 	int    PrefPos;
 };
 
-PPObjPerson::EditBlock::EditBlock() : InitKindID(0), InitStatusID(0), ShortDialog(0), SCardSeriesID(0), RetSCardID(0), UpdFlags(0)
+PPObjPerson::EditBlock::EditBlock() : SamplePsnID(0), InitKindID(0), InitStatusID(0), ShortDialog(0), SCardSeriesID(0), RetSCardID(0), UpdFlags(0)
 {
 }
 
@@ -4981,6 +4983,7 @@ int PPObjPerson::SelectAnalog(const char * pName, PPID * pID)
 int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 {
 	int    ok = 1;
+	bool   done = false;
 	int    valid_data = 0;
 	int    r = cmCancel;
 	bool   is_new = false;
@@ -5002,26 +5005,30 @@ int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 				rBlk.ShortDialog = temp_blk.ShortDialog;
 				kind_id = rBlk.InitKindID;
 			}
-			else
-				return cmCancel;
+			else {
+				done = true;
+				r = cmCancel;
+			}
 		}
-		pack.Kinds.add(kind_id);
-		rBlk.Name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
-		pack.Rec.Status = rBlk.InitStatusID;
-		if(rBlk.ShortDialog == 1) {
-			dlg_id = DLG_PERSON_S1;
-			short_dlg_kind_id = kind_id;
+		if(!done) {
+			pack.Kinds.add(kind_id);
+			rBlk.Name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
+			pack.Rec.Status = rBlk.InitStatusID;
+			if(rBlk.ShortDialog == 1) {
+				dlg_id = DLG_PERSON_S1;
+				short_dlg_kind_id = kind_id;
+			}
+			// @v12.5.12 {
+			else if(rBlk.ShortDialog > 1) {
+				dlg_id = rBlk.ShortDialog;
+			}
+			// } @v12.5.12 
+			// @v12.5.4 {
+			else if(kind_id == PPPRK_EMPL) {
+				is_staff = true;
+			}
+			// } @v12.5.4 
 		}
-		// @v12.5.12 {
-		else if(rBlk.ShortDialog > 1) {
-			dlg_id = rBlk.ShortDialog;
-		}
-		// } @v12.5.12 
-		// @v12.5.4 {
-		else if(kind_id == PPPRK_EMPL) {
-			is_staff = true;
-		}
-		// } @v12.5.4 
 	}
 	else {
 		// @v12.5.12 {
@@ -5045,58 +5052,62 @@ int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 			}
 		}
 	}
-	pack.UpdFlags = rBlk.UpdFlags;
-	SETIFZQ(dlg_id, ((is_staff && LConfig.Flags & CFGFLG_STAFFMGMT) ? DLG_PERSONEXT : DLG_PERSON)); // @v12.5.4 is_staff
-	if(short_dlg_kind_id) {
-		THROW(CheckDialogPtr(&(dlg = new ShortPersonDialog(dlg_id, short_dlg_kind_id, rBlk.SCardSeriesID))));
-		{
-			ShortPersonDialog * p_dlg = static_cast<ShortPersonDialog *>(dlg);
-			p_dlg->enableCommand(cmFullPersonDialog, 1);
-			if(!is_new && !CheckRights(PPR_MOD))
-				p_dlg->enableCommand(cmOK, false);
-			if(rBlk.InitPhone.NotEmpty()) {
-				p_dlg->SetupPhoneOnInit(rBlk.InitPhone);
-			}
-			p_dlg->setDTS(&pack);
-			while(!valid_data && (r = ExecView(p_dlg)) == cmOK) {
-				const PPID dup_id = p_dlg->GetDupID();
-				const bool rt_mod = CheckRights(PPR_MOD);
-				if((valid_data = p_dlg->getDTS(&pack)) != 0) {
-					PPID   psn_id = pack.Rec.ID;
-					THROW((is_new && !dup_id) || (rt_mod || pack.GetSCard()));
-					if(!PutPacket(&psn_id, &pack, 1))
-						valid_data = PPErrorZ();
-					else {
-						rBlk.RetSCardID = pack.GetSCard() ? pack.GetSCard()->Rec.ID : 0;
-						ASSIGN_PTR(pID, psn_id);
+	if(!done) {
+		pack.UpdFlags = rBlk.UpdFlags;
+		SETIFZQ(dlg_id, ((is_staff && LConfig.Flags & CFGFLG_STAFFMGMT) ? DLG_PERSONEXT : DLG_PERSON)); // @v12.5.4 is_staff
+		if(short_dlg_kind_id) {
+			dlg = new ShortPersonDialog(dlg_id, short_dlg_kind_id, rBlk.SCardSeriesID);
+			THROW(CheckDialogPtr(&dlg));
+			{
+				ShortPersonDialog * p_dlg = static_cast<ShortPersonDialog *>(dlg);
+				p_dlg->enableCommand(cmFullPersonDialog, 1);
+				if(!is_new && !CheckRights(PPR_MOD))
+					p_dlg->enableCommand(cmOK, false);
+				if(rBlk.InitPhone.NotEmpty()) {
+					p_dlg->SetupPhoneOnInit(rBlk.InitPhone);
+				}
+				p_dlg->setDTS(&pack);
+				while(!valid_data && (r = ExecView(p_dlg)) == cmOK) {
+					const PPID dup_id = p_dlg->GetDupID();
+					const bool rt_mod = CheckRights(PPR_MOD);
+					if((valid_data = p_dlg->getDTS(&pack)) != 0) {
+						PPID   psn_id = pack.Rec.ID;
+						THROW((is_new && !dup_id) || (rt_mod || pack.GetSCard()));
+						if(!PutPacket(&psn_id, &pack, 1))
+							valid_data = PPErrorZ();
+						else {
+							rBlk.RetSCardID = pack.GetSCard() ? pack.GetSCard()->Rec.ID : 0;
+							ASSIGN_PTR(pID, psn_id);
+						}
 					}
 				}
 			}
 		}
-	}
-	else {
-		THROW(CheckDialogPtr(&(dlg = new PersonDialog(dlg_id))));
-		{
-			PersonDialog * p_dlg = static_cast<PersonDialog *>(dlg);
-			if(rBlk.InitPhone.NotEmpty()) {
-				p_dlg->SetupPhoneOnInit(rBlk.InitPhone);
-			}
-			p_dlg->setDTS(&pack);
-			if(!is_new && !CheckRights(PPR_MOD)) {
-				p_dlg->enableCommand(cmOK, false);
-			}
-			while(!valid_data && (r = ExecView(p_dlg)) == cmOK) {
-				THROW(is_new || CheckRights(PPR_MOD));
-				const  PPID dup_id = p_dlg->GetDupID();
-				if(dup_id) {
-					valid_data = 1;
-					ASSIGN_PTR(pID, dup_id);
+		else {
+			dlg = new PersonDialog(dlg_id);
+			THROW(CheckDialogPtr(&dlg));
+			{
+				PersonDialog * p_dlg = static_cast<PersonDialog *>(dlg);
+				if(rBlk.InitPhone.NotEmpty()) {
+					p_dlg->SetupPhoneOnInit(rBlk.InitPhone);
 				}
-				else {
-					valid_data = p_dlg->getDTS(&pack);
-					if(valid_data) {
-						if(!PutPacket(pID, &pack, 1))
-							valid_data = PPErrorZ();
+				p_dlg->setDTS(&pack);
+				if(!is_new && !CheckRights(PPR_MOD)) {
+					p_dlg->enableCommand(cmOK, false);
+				}
+				while(!valid_data && (r = ExecView(p_dlg)) == cmOK) {
+					THROW(is_new || CheckRights(PPR_MOD));
+					const  PPID dup_id = p_dlg->GetDupID();
+					if(dup_id) {
+						valid_data = 1;
+						ASSIGN_PTR(pID, dup_id);
+					}
+					else {
+						valid_data = p_dlg->getDTS(&pack);
+						if(valid_data) {
+							if(!PutPacket(pID, &pack, 1))
+								valid_data = PPErrorZ();
+						}
 					}
 				}
 			}
@@ -5115,7 +5126,6 @@ int PPObjPerson::Edit(PPID * pID, void * extraPtr)
 	assert(pID != 0);
 	EditBlock eb;
 	InitEditBlock(reinterpret_cast<PPID>(extraPtr), eb);
-	// @v11.7.4 {
 	if(!eb.SCardSeriesID) {
 		PPSCardConfig sc_cfg;
 		PPObjSCardSeries scs_obj;
@@ -5127,7 +5137,6 @@ int PPObjPerson::Edit(PPID * pID, void * extraPtr)
 		else if(scs_obj.Fetch(sc_cfg.DefSerID, &scs_rec) > 0)
 			eb.SCardSeriesID = sc_cfg.DefSerID;
 	}
-	// } @v11.7.4 
 	ok = Edit_(pID, eb);
 	CATCHZOK
 	return ok;
@@ -6409,10 +6418,10 @@ int PersonRelListDialog::editItem(long pos, long id)
 	int    ok = -1;
 	const  LAssocArray * p_rel_list = IsReverse ? &Reverse : &Data.GetRelList();
 	if(p_rel_list && pos >= 0 && pos < (long)p_rel_list->getCount()) {
-		PPID psn_id = p_rel_list->at(pos).Key;
-		PPObjPerson::EditBlock edit_block;
-		edit_block.UpdFlags |= PPPersonPacket::ufDontEditRelPsn;
-		const int r = PsnObj.Edit_(&psn_id, edit_block);
+		PPID   psn_id = p_rel_list->at(pos).Key;
+		PPObjPerson::EditBlock eb;
+		eb.UpdFlags |= PPPersonPacket::ufDontEditRelPsn;
+		const int r = PsnObj.Edit_(&psn_id, eb);
 		ok = (r == cmOK) ? 1 : (r ? -1 : 0);
 	}
 	return ok;

@@ -3603,9 +3603,10 @@ int PPViewCCheck::Recover()
 	return ok;
 }
 
-/*static*/int PPViewCCheck::ParseCCheckJsonInput(const SJson * pJs, TSCollection <CCheckPacket> & rList) // @v12.8.1 testing-purpose
+/*static*/int PPViewCCheck::ParseCCheckJsonInput(const SJson * pJs, TSCollection <CCheckPacket> & rList, bool appendMode) // @v12.8.1 testing-purpose
 {
-	rList.freeAll();
+	if(!appendMode)
+		rList.freeAll();
 	int    ok = 0;
 	if(SJson::IsObject(pJs)) {
 		for(const SJson * p_cur = pJs->P_Child; p_cur; p_cur = p_cur->P_Next) {

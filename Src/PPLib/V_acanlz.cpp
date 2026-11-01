@@ -19,8 +19,7 @@ static SString & GetAccAnlzTitle(int aco, PPID accID, PPID curID, SString & rStr
 	Acct   acct;
 	AccIDToAcct(accID, aco, &acct);
 	acct.ToStr_Obsolete(ACCF_DEFAULT, acc_buf);
-	rStr = acc_buf;
-	rStr.Space();
+	(rStr = acc_buf).Space();
 	if(curID < 0)
 		rStr.CatCharN('*', 3);
 	else if(curID == 0) {
@@ -148,6 +147,15 @@ char * AccAnlzFilt::GetAccText(char * pBuf, size_t bufLen) const
 //
 //
 //
+PPViewAccAnlz::BrwHdr::BrwHdr()
+{
+	THISZERO();
+}
+
+PPViewAccAnlz::InternalViewItem::InternalViewItem() : BrwHdr(), Amount(0.0)
+{
+}
+
 PPViewAccAnlz::PPViewAccAnlz() : PPView(0, &Filt, PPVIEW_ACCANLZ, 0, 0), P_BObj(BillObj), P_TmpAATbl(0), P_TmpATTbl(0), P_TmpAGTbl(0), P_TmpBillTbl(0),
 	EffDlvrLocID(0), State(0), OuterReportId(0)
 {
@@ -852,13 +860,13 @@ int PPViewAccAnlz::EnumerateByIdentifiedAcc(long aco, PPID accID, AccAnlzViewEnu
 					if(AccObj.Fetch(p_item->ObjID, &acc_rec) > 0)
 						acct.ac = acc_rec.A.Ac;
 				}
-				else if(P_ATC->AccRel.Fetch(p_item->ObjID, &acrel_rec) > 0)
+				else if(P_ATC->AccRel.Fetch_(p_item->ObjID, &acrel_rec) > 0)
 					acct = acrel_rec;
 				THROW_SL(p_acct_list->insert(&acct));
 			}
 		}
 		else if(Filt.Aco == ACO_3) {
-			THROW(P_ATC->AccRel.Fetch(Filt.AccID, &acrel_rec) > 0);
+			THROW(P_ATC->AccRel.Fetch_(Filt.AccID, &acrel_rec) > 0);
 			acct = acrel_rec;
 		}
 		else {
@@ -1011,7 +1019,7 @@ int IterProc_CrtTmpAATbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 	trec.Reverse = pRec->Reverse;
 	trec.ThisAccRelID = pRec->Acc;
 	trec.Acc     = r_blk.IsRegister ? pRec->Acc : pRec->CorrAcc; // @v12.1.5 pRec->CorrAcc-->(r_blk.IsRegister ? pRec->Acc : pRec->CorrAcc)
-	if(r_blk.P_ATC->AccRel.Fetch(/*pRec->CorrAcc*/trec.Acc, &arel_rec) > 0) {
+	if(r_blk.P_ATC->AccRel.Fetch_(/*pRec->CorrAcc*/trec.Acc, &arel_rec) > 0) {
 		if(ObjRts.CheckAccID(arel_rec.AccID, PPR_READ)) {
 			trec.Ac  = arel_rec.Ac;
 			trec.Sb  = arel_rec.Sb;
@@ -1124,7 +1132,7 @@ int IterProc_CrtTmpATTbl(AccTurnTbl::Rec * pRec, void * extraPtr)
 	}
 	else {
 		trec.AccRelID = pRec->CorrAcc;
-		if(p.P_ATC->AccRel.Fetch(pRec->CorrAcc, &arel_rec) > 0) {
+		if(p.P_ATC->AccRel.Fetch_(pRec->CorrAcc, &arel_rec) > 0) {
 			trec.CurID = arel_rec.CurID;
 			if(r_orts.CheckAccID(arel_rec.AccID, PPR_READ)) {
 				if(p.Filt->CorAco) {
@@ -1207,6 +1215,8 @@ bool PPViewAccAnlz::IsDedicatedRestEvaluationNeeded() const
 
 void PPViewAccAnlz::SetOuterReportId(uint rptId) { OuterReportId = rptId; } // @v12.7.11
 
+bool PPViewAccAnlz::IsInMemView() const { return false; } // @v12.8.2
+
 /*virtual*/int PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 {
 	ExpiryDate = ZERODATE;
@@ -1215,6 +1225,7 @@ void PPViewAccAnlz::SetOuterReportId(uint rptId) { OuterReportId = rptId; } // @
 	EffDlvrLocID = 0;
 	ExtGenAccList.clear();
 	OpList.Z();
+	InternalViewList.clear(); // @v12.8.2
 
 	int    ok = 1;
 	PPAccount acc_rec;
@@ -1251,14 +1262,43 @@ void PPViewAccAnlz::SetOuterReportId(uint rptId) { OuterReportId = rptId; } // @
 	if(!(Filt.Flags & AccAnlzFilt::fTotalOnly && IsDedicatedRestEvaluationNeeded())) {
 		THROW(AdjustPeriodToRights(Filt.Period, false));
 	}
-#if 1 // @construction {
 	if(!Filt.AccID && !Filt.AcctId.AcID) {
 		// ... Режим описи проводок (типа PPViewAccTurn)
 		State |= stATurnList;
+		if(Filt.Flags & AccAnlzFilt::fPersonalFinance) { // @construction
+			#if 0 // @construction {
+			AccTurnTbl * p_att = this->P_ATC;
+			AccTurnTbl::Key2 k2;
+			double ip;
+			double min_amt = Filt.AmtR.low;
+			double max_amt = Filt.AmtR.upp;
+			MEMSZERO(k2);
+			DBQ * dbq = 0;
+			BExtQuery q(p_att, 2);
+			dbq = & daterange(p_att->Dt, &Filt.Period);
+			if(min_amt == max_amt && min_amt != 0L) {
+				min_amt = (modf(min_amt, &ip) == 0) ? (ip - 1L) : ip;
+				max_amt = ip + 1L;
+			}
+			dbq = & (*dbq && realrange(p_att->Amount, min_amt, max_amt) && p_att->Reverse == 0L);
+			q.selectAll().where(*dbq);
+			k2.Dt = Filt.Period.low;
+			k2.OprNo = 0;
+			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
+				InternalViewItem item;
+				const AccTurnTbl::Rec & r_rec = p_att->data;
+				item.BillID = r_rec.BillID;
+				item.Dt = r_rec.Dt;
+				item.OprNo = r_rec.OprNo;
+				item.AccRelID = r_rec.Acc;
+				item.CorAccID = r_rec.CorrAcc;
+				item.Amount = MONEYTOLDBL(r_rec.Amount);
+				InternalViewList.insert(&item);
+			}
+			#endif // } 0 @construction
+		}
 	}
-	else 
-#endif // } 0 @construction
-	{
+	else {
 		if(Filt.AccID && (!Filt.AcctId.AcID || !Filt.AcctId.ArID)) {
 			if(Filt.Aco == ACO_3)
 				P_ATC->AcctRelToID(Filt.AccID, &Filt.AcctId, &Filt.AccSheetID);
@@ -1829,9 +1869,63 @@ static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserW
 	return ok;
 }
 
+int PPViewAccAnlz::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+{
+	int    ok = 1;
+	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
+	//const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+	int    r = 0;
+	/*
+		"@date",       1, notype, DATF_DMY, 8
+		"Op",          2, notype, ALIGN_LEFT, 10
+		"Account",     3, notype, ALIGN_LEFT, 10
+		"@amount",     5, notype, NMBF_DELCOMMA, 12.2
+		"CorrAccount", 4, notype, ALIGN_LEFT, 10
+		"Category",    6, notype, ALIGN_LEFT, 10
+		"Contractor",  7, notype, ALIGN_LEFT, 10
+		"@memo",       8, notype, 0, 32
+	*/ 
+	switch(pBlk->ColumnN) {
+		case 0: // rbybill
+			break;
+		case 1: // date
+			break;
+		case 2: // op
+			break;
+		case 3: // account
+			break;
+		case 4: // corr-account
+			break;
+		case 5: // amount
+			break;
+		case 6: // category
+			break;
+		case 7: // contractor
+			break;
+		case 8: // memo
+			break;
+	}
+	return ok;
+}
+
 void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	CALLPTRMEMB(pBrw, SetCellStyleFunc(CellStyleFunc, this));
+	if(pBrw) {
+		pBrw->SetDefUserProc([](SBrowserDataProcBlock * pBlk) -> int
+			{
+				return (pBlk && pBlk->ExtraPtr) ? static_cast<PPViewAccAnlz *>(pBlk->ExtraPtr)->_GetDataForBrowser(pBlk) : 0;				
+			}, this);
+		pBrw->SetCellStyleFunc(CellStyleFunc, this);
+	}
+}
+
+/*virtual*/SArray * PPViewAccAnlz::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
+{
+	SArray * p_result = 0;
+	uint   brw_id = BROWSER_ATURNLIST_PERSONAL;
+
+	ASSIGN_PTR(pBrwId, brw_id);
+	return p_result;
 }
 
 /*virtual*/DBQuery * PPViewAccAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
@@ -2150,7 +2244,7 @@ int PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 		if(State & stATurnList) { // @v12.7.12
 			hdr.BillID = *reinterpret_cast<const PPID *>(p_hdr);
 		}
-		else if((Filt.Flags & (AccAnlzFilt::fGroupByCorAcc |	AccAnlzFilt::fTrnovrBySheet)) || Filt.Cycl.Cycle) {
+		else if((Filt.Flags & (AccAnlzFilt::fGroupByCorAcc|AccAnlzFilt::fTrnovrBySheet)) || Filt.Cycl.Cycle) {
 			hdr.AccRelID = *reinterpret_cast<const PPID *>(p_hdr);
 			hdr.Dt = *reinterpret_cast<const LDATE *>(p_hdr + sizeof(PPID));
 			hdr.A = *reinterpret_cast<const Acct *>(p_hdr + sizeof(PPID) + sizeof(LDATE));
@@ -2172,8 +2266,12 @@ int PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 /*virtual*/int PPViewAccAnlz::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
 {
 	int    ok = -2;
-	if(ppvCmd != PPVCMD_DETAIL)
+	if(ppvCmd == PPVCMD_QUERYDATASOURCETYPE) {
+		ok = IsInMemView() ? PPView::datasourcetypeArray : PPView::datasourcetypeDBQuery;
+	}
+	else if(ppvCmd != PPVCMD_DETAIL) {
 		ok = PPView::ProcessCommand(ppvCmd, pHdr, pBrw);
+	}
 	if(ok == -2) {
 		BrwHdr hdr;
 		int    r = 0;
@@ -3182,7 +3280,7 @@ int PPALDD_AccRel::InitData(PPFilt & rFilt, long rsrv)
 		H.ID = rFilt.ID;
 		AcctRel & r_acr_tbl = BillObj->atobj->P_Tbl->AccRel;
 		AcctRelTbl::Rec rec;
-		if(r_acr_tbl.Fetch(rFilt.ID, &rec) > 0) {
+		if(r_acr_tbl.Fetch_(rFilt.ID, &rec) > 0) {
 			SString temp_buf;
 			H.ID    = rec.ID;
 			H.AccID = rec.AccID;

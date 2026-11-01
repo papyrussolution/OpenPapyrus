@@ -669,6 +669,7 @@ enum PredefinedImpExpFormat { // @persistent
 	piefNalogR_Etrn_T2           = 15, // @v12.6.9 ON_TRNACLPPRIN Электронная транспортная накладная stage T2 (грузоперевозчик - получил)
 	piefNalogR_Etrn_T3           = 16, // @v12.6.9 ON_TRNACLGRPO Электронная транспортная накладная stage T3 (ACK грузополучатель)
 	piefNalogR_Etrn_T4           = 17, // @v12.6.9 ON_TRNACLPVYN Электронная транспортная накладная stage T4 (грузоперевозчик - отгрузил)
+	piefWorkbook_Astro           = 18, // @v12.8.2 Формат экспорта рабочих книг для движка web-сайтов Astro
 };
 //
 // Descr: Габаритные размеры (mm).
@@ -10192,7 +10193,8 @@ public:
 	int    Update(PPID, const void * pRec, int use_ta);
 	int    Remove(PPID, int use_ta);
 	int    Search(PPID, void * = 0);
-	int    SearchName(PPID accSheetID, const char * pName, void * = 0);
+	int    SearchName(PPID accSheetID, const char * pName, ArticleTbl::Rec * pRec = 0);
+	int    GetListBySubstring(const char * pSubstr, PPIDArray & rList); // @v12.8.2
 	int    EnumBySheet(PPID sheetID, long * pArticleNo, void * = 0);
 	int    GetListBySheet(PPID accSheetID, PPIDArray * pList, long * pCount);
 	int    GetListByGroup(PPID grpArID, PPIDArray * pList);
@@ -22861,7 +22863,7 @@ public:
 
 	AcctRel();
 	int    Search(PPID id, AcctRelTbl::Rec * pRec = 0);
-	int    Fetch(PPID id, AcctRelTbl::Rec * pRec);
+	int    Fetch_(PPID id, AcctRelTbl::Rec * pRec);
 	//
 	// Descr: перебирает записи, соответствующие счету accID и возвращает
 	//   каждую найденную запись в буфере pRec.
@@ -24862,11 +24864,11 @@ public:
 	enum {
 		ufDontChgContent = 0x0001, // Функция PPObjWorkbook::PutPacket не должна изменять контент записей
 	};
-	long   UpdFlags;        // @transient Флаги, определяющие правила изменения некоторых полей
-	ObjTagList TagL;        // Список тегов
+	long   UpdFlags;   // @transient Флаги, определяющие правила изменения некоторых полей
+	ObjTagList TagL;   // Список тегов
 	ObjLinkFiles F;
 	SString ExtString;
-	SString NTextUtf8;      // @v12.5.6 Отдельное поле для текста заметки (PPWBTYP_NOTE). Этот текст может быть очень 
+	SString NTextUtf8; // @v12.5.6 Отдельное поле для текста заметки (PPWBTYP_NOTE). Этот текст может быть очень 
 		// большим потому нет резона инкапсулировать его в ExtString со специальным идентификатором.
 };
 
@@ -28019,6 +28021,7 @@ public:
 		static constexpr PPID CentrigoNewContactSpecialKind = 0x0A701B4EL; 
 		EditBlock();
 
+		PPID   SamplePsnID;   // @v12.8.2 Ид персоналии, принимаемой за образец при создании нового объекта
 		PPID   InitKindID;
 		PPID   InitStatusID;
 		int    ShortDialog;  // 0 - использовать обычный диалог, 1 - использовать сокращенный диалог,
@@ -29888,6 +29891,7 @@ struct PersonViewItem : public PersonTbl::Rec {
 class PPViewPerson : public PPView {
 public:
 	struct BrwHdr {
+		BrwHdr();
 		PPID   ID;
 	};
 	PPViewPerson();
@@ -29901,6 +29905,7 @@ public:
 	int    InitIteration();
 	int    FASTCALL NextIteration(PersonViewItem * pViewItem);
 	int    AddItem(PPID * pID);
+	int    AddItemBySample(PPID * pID, PPID patternID);
 	int    EditItem(PPID);
 	int    DeleteItem(PPID);
 	int	   OpenClientDir(PPID personId);
@@ -41648,7 +41653,7 @@ private:
 //
 struct AccturnFilt : public PPBaseFilt {
 	enum {
-		// @v12.7.11 fLastOnly      = 0x0001,
+		fLastOnly      = 0x0001, // @v12.7.11 убрал, @v12.8.2 вернул назад
 		fLabelOnly     = 0x0002,
 		fAllCurrencies = 0x0004
 	};
@@ -45652,6 +45657,7 @@ public:
 		fIterNegRest = 0x0001 // В итераторе менять знак входящего и исходящего сальдо
 	};
 	struct BrwHdr {
+		BrwHdr();
 		LDATE  Dt;
 		long   OprNo;
 		PPID   BillID;
@@ -45660,12 +45666,18 @@ public:
 		PPID   CurID;
 		Acct   A;
 	};
+	struct InternalViewItem : public BrwHdr { // @v12.8.2
+		InternalViewItem();
+
+		double Amount;
+	};
 	PPViewAccAnlz();
 	~PPViewAccAnlz();
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	virtual PPBaseFilt * CreateFilt(const void * extraPtr) const;
 	virtual int EditBaseFilt(PPBaseFilt *);
 	virtual int Browse(bool modeless);
+	bool   IsInMemView() const; // @v12.8.2
 	int    InitIteration();
 	int    FASTCALL NextIteration(AccAnlzViewItem *);
 	int    GetTotal(AccAnlzTotal *) const;
@@ -45677,6 +45689,7 @@ public:
 	uint   IterFlags;  // PPViewAccAnlz::fIterXXX
 private:
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
+	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int  ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw);
 	virtual int  Print(const void *);
@@ -45697,6 +45710,7 @@ private:
 		PPID   LinkBillID; // Связанный документ
 	};
 	int    FetchBill(PPID billID, BillEntry * pEntry);
+	int    _GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 
 	AccAnlzFilt Filt;
 	enum {
@@ -45721,6 +45735,7 @@ private:
 	TempAccTrnovrTbl * P_TmpATTbl;
 	TempAccturnGrpngTbl * P_TmpAGTbl; // @v12.7.11 stATurnList
 	TempAssocTbl * P_TmpBillTbl; // @v12.7.11 stATurnList
+	TSVector <InternalViewItem> InternalViewList; // @v12.8.2
 };
 //
 // @ModuleDecl(PPViewVatBook)
@@ -46609,8 +46624,9 @@ public:
 	static int CreateDraftBySuspCheck(PPViewCCheck * pV, PPID chkID);
 	//
 	// Descr: Разбирает json-коллекцию чеков, построенную функцией PPViewCCheck::ExportToJson().
+	// ARG(appendMode IN): Если true, то чеки из pJs добавляются к коллекции rList, в противном случае rList предварительно очищается.
 	//
-	static int ParseCCheckJsonInput(const SJson * pJs, TSCollection <CCheckPacket> & rList); // @v12.8.1 testing-purpose
+	static int ParseCCheckJsonInput(const SJson * pJs, TSCollection <CCheckPacket> & rList, bool appendMode); // @v12.8.1 testing-purpose
 
 	struct BrwHdr {
 		PPID  ID;
@@ -54951,6 +54967,34 @@ private:
 //
 //
 //
+struct PPTextSrchPatternEntry {
+	PPTextSrchPatternEntry();
+	~PPTextSrchPatternEntry();
+	enum {
+		kText    = 0,
+		kLinkOr  = 1,
+		kLinkAnd = 2,
+		kApproxText = 0x0100,
+		kFromStart  = 0x0200,
+	};
+	int    Kind;
+	SString Text;
+	SSrchPattern * P_Sp;
+	ApproxStrSrchParam * P_ApxP;
+};
+
+class PPTextSrchPattern : public TSCollection <PPTextSrchPatternEntry> {
+public:
+	PPTextSrchPattern();
+	int    Init(const char * pPattern);
+	int    Detect(const char * pText) const;
+private:
+	int    Helper_Detect(const char * pText, size_t textLen, uint entryIdx) const;
+    int    Helper_Init(const char * pPattern);
+};
+//
+//
+//
 class IntermediateImportedGoodsCollection : private SStrGroup {
 private:
 	friend DECL_CMPFUNC(IntermediateImportedGoodsCollection_Entry_ByName);
@@ -59782,7 +59826,7 @@ public:
 	uint   RecId;
 	long   DataFormat;     // dfXXX
 	long   Direction;      // 0 - экспорт, 1 - импорт
-	long   EDIDocType;     // Тип докумнта для импорт/экспорта с помощью EDI // @vmiller
+	long   EDIDocType;     // Тип документа для импорта/экспорта с помощью EDI // @vmiller
 	long   BaseFlags;      // PPImpExpParam::bfXXX
 	PPID   InetAccID;      // Учетная запись интернет-соединения
 	TextDbFile::Param  TdfParam;
@@ -60043,6 +60087,8 @@ int InitImpExpDbfParam(uint recType, PPImpExpParam * pParam, const char * pFileN
 class PPWorkbookImpExpParam : public PPImpExpParam {
 public:
 	explicit PPWorkbookImpExpParam(uint recId = 0, long flags = 0);
+
+	long   PredefFormat; // @v12.8.2 @persistent PredefinedImpExpFormat
 };
 
 class PPWorkbookExporter {
@@ -60291,7 +60337,7 @@ private:
 // 
 class PPCCheckImpExpParam : public PPImpExpParam { // @v11.8.4
 public:
-	PPCCheckImpExpParam(uint recId = 0, long flags = 0);
+	explicit PPCCheckImpExpParam(uint recId = 0, long flags = 0);
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
 	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
@@ -60323,6 +60369,16 @@ private:
 	PPObjCashNode CnObj;
 	PPObjCSession CsObj;
 	PPLogger Logger;
+};
+
+class PPWorkboolImpExpParam : public PPImpExpParam { // @v12.8.2
+public:
+	explicit PPWorkboolImpExpParam(uint recId = 0, long flags = 0);
+	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
+	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
+
+	long   Flags;
+	long   PredefFormat; // @persistent PredefinedImpExpFormat
 };
 //
 // Descr: Базовый класс для реализации механизмов экспорта/импорта в форматах, предопределенных
@@ -61099,6 +61155,17 @@ public:
 	CCheckImpExpDialog();
 	int    setDTS(const PPCCheckImpExpParam * pData);
 	int    getDTS(PPCCheckImpExpParam * pData);
+private:
+	DECL_HANDLE_EVENT;
+	void   SetupCtrls(long direction);
+};
+
+class WorkbookImpExpDialog : public ImpExpParamDialog { // @v12.8.2
+	DECL_DIALOG_DATA(PPWorkbookImpExpParam);
+public:
+	WorkbookImpExpDialog();
+	int    setDTS(const PPWorkbookImpExpParam * pData);
+	int    getDTS(PPWorkbookImpExpParam * pData);
 private:
 	DECL_HANDLE_EVENT;
 	void   SetupCtrls(long direction);

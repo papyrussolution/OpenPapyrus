@@ -2646,36 +2646,51 @@ SLTEST_R(PPChZnPrcssr_EstimateQuantityAdequacy) // @v12.7.10
 SLTEST_R(CCheck_DiscountDistribution) // @v12.8.1 @construction
 {
 	SJson * p_js_in = 0;
-	SString in_file_name(MakeInputFilePath("ccheck_list.json"));
-	SString out_file_name_00(MakeOutputFilePath("ccheck_list-00.json"));
-	SString out_file_name_01(MakeOutputFilePath("ccheck_list-meth01.json"));
-	SString out_file_name_02(MakeOutputFilePath("ccheck_list-meth02.json"));
+	const  char * p_in_file_name_list[] = {
+		"ccheck_list-01.json", "ccheck_list-02.json"
+	};
+	//SString out_file_name_00(MakeOutputFilePath("ccheck_list-00.json"));
+	//SString out_file_name_01(MakeOutputFilePath("ccheck_list-meth01.json"));
+	//SString out_file_name_02(MakeOutputFilePath("ccheck_list-meth02.json"));
 	SString out_file_name_csv_log(MakeOutputFilePath("discount_distribution.csv"));
-	SJson * p_js_out00 = 0;
-	SJson * p_js_out01 = 0;
-	SJson * p_js_out02 = 0;
+	//SJson * p_js_out00 = 0;
+	//SJson * p_js_out01 = 0;
+	//SJson * p_js_out02 = 0;
 	//TSCollection <CCheckPacket> cc_list_out00;
 	//TSCollection <CCheckPacket> cc_list_out01;
 	//TSCollection <CCheckPacket> cc_list_out02;
 	uint  cc_idx = 0;
-	if(fileExists(in_file_name)) {
-		SString line_buf;
-		TSCollection <CCheckPacket> cc_list;
-		p_js_in = SJson::ParseFile(in_file_name);
-		THROW(SLCHECK_NZ(p_js_in));
-		if(PPViewCCheck::ParseCCheckJsonInput(p_js_in, cc_list) > 0) {
-			assert(cc_list.getCount());
-			{
-				SFile f_log(out_file_name_csv_log, SFile::mWrite);
-				const double pct_discount = 3.0;
-				{
-					line_buf.Z().Cat("id").Semicol().Cat("dtm").Semicol().Cat("lncount").Semicol().
-						Cat("orgamt1").Semicol().Cat("amt1").Semicol().Cat("reqdis1").Semicol().Cat("dis1").Semicol().
-						Cat("orgamt2").Semicol().Cat("amt2").Semicol().Cat("reqdis2").Semicol().Cat("dis2").Semicol().
-						Cat("round_reqdis").Semicol().Cat("round_amt1").Semicol().Cat("round_dis1").Semicol().Cat("round_amt2").Semicol().Cat("round_dis2");
-					f_log.WriteLine(line_buf.CR());
-					// round_reqdis, round_dis1, round_amt1, round_dis2, round_amt2
+	StatBase diff_dis_stat_01;
+	StatBase diff_dis_stat_02;
+	TSCollection <CCheckPacket> cc_list;
+	{
+		for(uint fni = 0; fni < SIZEOFARRAY(p_in_file_name_list); fni++) {
+			const char * p_file_name = p_in_file_name_list[fni];
+			if(!isempty(p_file_name)) {
+				SString in_file_name(MakeInputFilePath(p_file_name));
+				if(fileExists(in_file_name)) {
+					p_js_in = SJson::ParseFile(in_file_name);
+					if(PPViewCCheck::ParseCCheckJsonInput(p_js_in, cc_list, true) > 0) {
+						;
+					}
+					ZDELETE(p_js_in);
 				}
+			}
+		}
+	}
+	if(cc_list.getCount()) {
+		SString line_buf;
+		{
+			SFile f_log(out_file_name_csv_log, SFile::mWrite);
+			{
+				line_buf.Z().Cat("id").Semicol().Cat("dtm").Semicol().Cat("lncount").Semicol().
+					Cat("orgamt").Semicol().Cat("reqdis").Semicol().Cat("amt1").Semicol().Cat("dis1").Semicol().Cat("amt2").Semicol().Cat("dis2");
+				f_log.WriteLine(line_buf.CR());
+			}
+			const double pct_dis_list[] = { 3.0, 7.0, 13.0 };
+			uint  _count = 0;
+			for(uint pdi = 0; pdi < SIZEOFARRAY(pct_dis_list); pdi++) {
+				const  double _pct_dis = pct_dis_list[pdi];
 				for(cc_idx = 0; cc_idx < cc_list.getCount(); cc_idx++) {
 					CCheckPacket * p_cc = cc_list.at(cc_idx);
 					if(p_cc) {
@@ -2686,22 +2701,49 @@ SLTEST_R(CCheck_DiscountDistribution) // @v12.8.1 @construction
 						CCheckPacket::SetupTotalDiscountResult round_dr2;
 						p_cc->SetTotalDiscount__(0.0, 0); // Сбрасываем существующую скидку
 						p_cc->CalcAmount(&cct);
-						const  double round_amt = R0(cct.Amount);
-						const  double round_dis = -(round_amt - cct.Amount);
 						THROW(cct.Discount == 0.0);
-						/*{
-							CCheckPacket * p_cc00 = new CCheckPacket(*p_cc);
-							THROW_MEM(p_cc00);
-							THROW_SL(cc_list_out00.insert(p_cc00));
-						}*/
 						{
 							CCheckPacket cc01(*p_cc);
-							THROW(cc01.SetTotalDiscount_Debug(1, pct_discount, CCheckPacket::stdfPctDis, &dr1));
+							THROW(cc01.SetTotalDiscount_Debug(1, _pct_dis, CCheckPacket::stdfPctDis, &dr1));
 						}
 						{
 							CCheckPacket cc02(*p_cc);
-							THROW(cc02.SetTotalDiscount_Debug(2, pct_discount, CCheckPacket::stdfPctDis, &dr2));
+							THROW(cc02.SetTotalDiscount_Debug(2, _pct_dis, CCheckPacket::stdfPctDis, &dr2));
 						}
+						{
+							if(!feqeps(dr1.ReqDiscount, dr1.Discount, 1E-7)) {
+								diff_dis_stat_01.Step(fabs(dr1.ReqDiscount - dr1.Discount));
+							}
+							if(!feqeps(dr2.ReqDiscount, dr2.Discount, 1E-7)) {
+								diff_dis_stat_02.Step(fabs(dr2.ReqDiscount - dr2.Discount));
+							}
+						}
+						_count++;
+						{
+							LDATETIME dtm;
+							dtm.Set(p_cc->Rec.Dt, p_cc->Rec.Tm);
+							line_buf.Z().Cat(p_cc->Rec.ID).Semicol().Cat(dtm, DATF_ISO8601CENT).Semicol().
+								Cat(p_cc->GetCount()).Semicol().
+								Cat(dr1.OrgAmount, MKSFMTD_050).Semicol().Cat(dr1.ReqDiscount, MKSFMTD_050).Semicol().
+								Cat(dr1.Amount, MKSFMTD_050).Semicol().Cat(dr1.Discount, MKSFMTD_050).Semicol().
+								Cat(dr2.Amount, MKSFMTD_050).Semicol().Cat(dr2.Discount, MKSFMTD_050);
+							f_log.WriteLine(line_buf.CR());
+						}
+					}
+				}
+			}
+			{
+				for(cc_idx = 0; cc_idx < cc_list.getCount(); cc_idx++) {
+					CCheckPacket * p_cc = cc_list.at(cc_idx);
+					if(p_cc) {
+						CcTotal cct;
+						CCheckPacket::SetupTotalDiscountResult round_dr1;
+						CCheckPacket::SetupTotalDiscountResult round_dr2;
+						p_cc->SetTotalDiscount__(0.0, 0); // Сбрасываем существующую скидку
+						p_cc->CalcAmount(&cct);
+						const  double round_amt = R0(cct.Amount);
+						const  double round_dis = -(round_amt - cct.Amount);
+						THROW(cct.Discount == 0.0);
 						{
 							{
 								CCheckPacket cc01(*p_cc);
@@ -2713,31 +2755,52 @@ SLTEST_R(CCheck_DiscountDistribution) // @v12.8.1 @construction
 							}
 						}
 						{
+							if(!feqeps(round_dr1.ReqDiscount, round_dr1.Discount, 1E-7)) {
+								diff_dis_stat_01.Step(fabs(round_dr1.ReqDiscount - round_dr1.Discount));
+							}
+							if(!feqeps(round_dr2.ReqDiscount, round_dr2.Discount, 1E-7)) {
+								diff_dis_stat_02.Step(fabs(round_dr2.ReqDiscount - round_dr2.Discount));
+							}
+						}
+						_count++;
+						{
 							LDATETIME dtm;
 							dtm.Set(p_cc->Rec.Dt, p_cc->Rec.Tm);
 							line_buf.Z().Cat(p_cc->Rec.ID).Semicol().Cat(dtm, DATF_ISO8601CENT).Semicol().
 								Cat(p_cc->GetCount()).Semicol().
-								Cat(dr1.OrgAmount, MKSFMTD(0, 5, 0)).Semicol().Cat(dr1.Amount, MKSFMTD(0, 5, 0)).Semicol().
-								Cat(dr1.ReqDiscount, MKSFMTD(0, 5, 0)).Semicol().Cat(dr1.Discount, MKSFMTD(0, 5, 0)).Semicol().
-								Cat(dr2.OrgAmount, MKSFMTD(0, 5, 0)).Semicol().Cat(dr2.Amount, MKSFMTD(0, 5, 0)).Semicol().
-								Cat(dr2.ReqDiscount, MKSFMTD(0, 5, 0)).Semicol().Cat(dr2.Discount, MKSFMTD(0, 5, 0)).Semicol().
-								
-								Cat(round_dis, MKSFMTD(0, 5, 0)).Semicol().
-								Cat(round_dr1.Amount, MKSFMTD(0, 5, 0)).Semicol().Cat(round_dr1.Discount, MKSFMTD(0, 5, 0)).Semicol().
-								Cat(round_dr2.Amount, MKSFMTD(0, 5, 0)).Semicol().Cat(round_dr2.Discount, MKSFMTD(0, 5, 0));
+								Cat(round_dr1.OrgAmount, MKSFMTD_050).Semicol().Cat(round_dr1.ReqDiscount, MKSFMTD_050).Semicol().
+								Cat(round_dr1.Amount, MKSFMTD_050).Semicol().Cat(round_dr1.Discount, MKSFMTD_050).Semicol().
+								Cat(round_dr2.Amount, MKSFMTD_050).Semicol().Cat(round_dr2.Discount, MKSFMTD_050);
 							f_log.WriteLine(line_buf.CR());
 						}
 					}
 				}
 			}
+			diff_dis_stat_01.Finish();
+			diff_dis_stat_02.Finish();
+			line_buf.Z();
+			line_buf.CatCharN('-', 20).CR();
+			line_buf.CatEq("cc_count", cc_list.getCount()).CR();
+			line_buf.CatEq("_count", _count).CR();
+			line_buf.CatEq("diff_dis_stat_01.Count", diff_dis_stat_01.GetCount()).Semicol().
+				CatEq("diff_dis_stat_01.Pct", fdivui(diff_dis_stat_01.GetCount(), _count), MKSFMTD_050).Semicol().
+				CatEq("diff_dis_stat_01.Exp", diff_dis_stat_01.GetExp(), MKSFMTD_050).CR().
+				CatEq("diff_dis_stat_01.StdDev", diff_dis_stat_01.GetStdDev(), MKSFMTD_050).CR().
+				CatEq("diff_dis_stat_01.Max", diff_dis_stat_01.GetMax(), MKSFMTD_050).CR();
+			line_buf.CatEq("diff_dis_stat_02.Count", diff_dis_stat_02.GetCount()).Semicol().
+				CatEq("diff_dis_stat_02.Pct", fdivui(diff_dis_stat_02.GetCount(), _count), MKSFMTD_050).Semicol().
+				CatEq("diff_dis_stat_02.Exp", diff_dis_stat_02.GetExp(), MKSFMTD_050).CR().
+				CatEq("diff_dis_stat_02.StdDev", diff_dis_stat_02.GetStdDev(), MKSFMTD_050).CR().
+				CatEq("diff_dis_stat_02.Max", diff_dis_stat_02.GetMax(), MKSFMTD_050).CR();
+			f_log.WriteLine(line_buf);
 		}
 	}
 	CATCH
 		CurrentStatus = 0;
 	ENDCATCH
 	delete p_js_in;
-	delete p_js_out00;
-	delete p_js_out01;
-	delete p_js_out02;
+	//delete p_js_out00;
+	//delete p_js_out01;
+	//delete p_js_out02;
 	return CurrentStatus;
 }

@@ -3837,6 +3837,7 @@ PPWORD_AVGSKUCOUNT         "SKU (ср)"
 657 "Метапеременная;@{documents};Оплаты по документам;@{poscheck_pl};Товарные остатки;@{personevent_pl};Долги;@{bizscore_pl}"
 658 /!/ "DefQuotKind;DefCurrency;DefArticle;DefLoc;Flags"
 659 /!/ "PredefFormat;Flags;PosNode"
+660 /!/ "PredefFormat;Flags"
 
 // @v11.2.4
 PPTXT_FASTPRD2                     "1,@{today};2,@{yesterday};3,Последние 7 дней;4,Прошлая неделя (@{monday_s}-@{sunday_s});5,Прошлая рабочая неделя (@{monday_s}-@{friday_s});6,@{currentmonth};7,@{lastmonth}"
@@ -5284,7 +5285,8 @@ PPTXT_PREDEFIMPEXPBILLFMT           "1,Nalog.ru @{invoice} (ON_SFAKT);\
 	11,Nalog.ru ON_NKORSCHFDOPPR (корректировочная счет-фактура);\
 	12,Импорт чеков - заказной формат - контракт 01;\
 	13,EANCOM;\
-	14,Nalog.ru Транспортная накладная T1"
+	14,Nalog.ru Транспортная накладная T1;\
+	15,Рабочие книги - Astro"
 PPTXT_NALOGRU_WORKSWERETRANSFERED   "Результаты работ переданы (услуги оказаны)"
 PPTXT_NALOGRU_SHIPPINGBILL          "Документ об отгрузке товаров (выполнении работ), передаче имущественных прав (документ об оказании услуг)"
 PPTXT_NALOGRU_UPDOPCONTENT          "Товары переданы и услуги оказаны в полном объеме"

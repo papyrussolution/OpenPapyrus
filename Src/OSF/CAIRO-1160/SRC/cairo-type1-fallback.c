@@ -124,7 +124,7 @@ static void FASTCALL charstring_encode_command(cairo_array_t * data, int command
 	*p++ = command & 0x00ff;
 	// Ensure the array doesn't grow, which allows this function to have no possibility of failure.
 	orig_size = _cairo_array_size(data);
-	status = _cairo_array_append_multiple(data, buf, p - buf);
+	status = _cairo_array_append_multiple(data, buf, static_cast<uint>(p - buf));
 	assert(status == CAIRO_STATUS_SUCCESS);
 	assert(_cairo_array_size(data) == orig_size);
 }
@@ -169,7 +169,7 @@ static void FASTCALL charstring_encode_integer(cairo_array_t * data, int i, cair
 	}
 	// Ensure the array doesn't grow, which allows this function to have no possibility of failure.
 	orig_size = _cairo_array_size(data);
-	status = _cairo_array_append_multiple(data, buf, p - buf);
+	status = _cairo_array_append_multiple(data, buf, static_cast<uint>(p - buf));
 	assert(status == CAIRO_STATUS_SUCCESS);
 	assert(_cairo_array_size(data) == orig_size);
 }

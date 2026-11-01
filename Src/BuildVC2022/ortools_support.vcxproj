@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{4d92af06-7301-4371-82c9-c2393c0cacde}</ProjectGuid>
+    <RootNamespace>ortoolssupport</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir>$(ProjectDir)..\..\__TEMP__\VC2022\$(PlatformShortName)\$(Configuration)\$(ProjectName)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <StringPooling>true</StringPooling>
+      <AdditionalIncludeDirectories>..\LIB\or-tools\include;..\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\or-tools\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;Dwmapi.lib;Netapi32.lib;Userenv.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <AdditionalIncludeDirectories>..\LIB\or-tools\include;..\include</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\or-tools\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;Dwmapi.lib;Netapi32.lib;Userenv.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <SupportJustMyCode>false</SupportJustMyCode>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <StringPooling>true</StringPooling>
+      <AdditionalIncludeDirectories>..\LIB\or-tools\include;..\include</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\or-tools\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;Dwmapi.lib;Netapi32.lib;Userenv.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>false</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>false</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>false</ExceptionHandling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <StringPooling>true</StringPooling>
+      <AdditionalIncludeDirectories>..\LIB\or-tools\include;..\include</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <OutputFile>$(ProjectDir)..\..\ppy\bin\or-tools\$(TargetName)$(TargetExt)</OutputFile>
+      <AdditionalDependencies>comctl32.lib;wininet.lib;wsock32.lib;Ws2_32.lib;mpr.lib;shlwapi.lib;winmm.lib;wbemuuid.lib;gdiplus.lib;version.lib;Msimg32.lib;Crypt32.lib;Secur32.lib;Imm32.lib;wldap32.lib;hid.lib;Setupapi.lib;Usp10.lib;Rpcrt4.lib;Dwmapi.lib;Netapi32.lib;Userenv.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\PPLib\ortools_support.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="..\LIB\or-tools\lib\abseil_dll.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_decode_rust_punycode.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_demangle_rust.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_flags_commandlineflag.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_flags_commandlineflag_internal.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_flags_config.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_flags_internal.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_flags_marshalling.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_flags_parse.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_flags_private_handle_accessor.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_flags_program_name.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_flags_reflection.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_flags_usage.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_flags_usage_internal.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_hashtable_profiler.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_log_flags.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_log_internal_structured_proto.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_poison.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_profile_builder.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_random_internal_entropy_pool.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_tracing_internal.lib" />
+    <Library Include="..\LIB\or-tools\lib\absl_utf8_for_code_point.lib" />
+    <Library Include="..\LIB\or-tools\lib\bz2.lib" />
+    <Library Include="..\LIB\or-tools\lib\Cbc.lib" />
+    <Library Include="..\LIB\or-tools\lib\CbcSolver.lib" />
+    <Library Include="..\LIB\or-tools\lib\Cgl.lib" />
+    <Library Include="..\LIB\or-tools\lib\Clp.lib" />
+    <Library Include="..\LIB\or-tools\lib\ClpSolver.lib" />
+    <Library Include="..\LIB\or-tools\lib\CoinUtils.lib" />
+    <Library Include="..\LIB\or-tools\lib\highs.lib" />
+    <Library Include="..\LIB\or-tools\lib\libboost_atomic-vc143-mt-x64-1_87.lib" />
+    <Library Include="..\LIB\or-tools\lib\libboost_chrono-vc143-mt-x64-1_87.lib" />
+    <Library Include="..\LIB\or-tools\lib\libboost_container-vc143-mt-x64-1_87.lib" />
+    <Library Include="..\LIB\or-tools\lib\libboost_date_time-vc143-mt-x64-1_87.lib" />
+    <Library Include="..\LIB\or-tools\lib\libboost_random-vc143-mt-x64-1_87.lib" />
+    <Library Include="..\LIB\or-tools\lib\libboost_serialization-vc143-mt-x64-1_87.lib" />
+    <Library Include="..\LIB\or-tools\lib\libboost_thread-vc143-mt-x64-1_87.lib" />
+    <Library Include="..\LIB\or-tools\lib\libboost_wserialization-vc143-mt-x64-1_87.lib" />
+    <Library Include="..\LIB\or-tools\lib\libprotobuf-lite.lib" />
+    <Library Include="..\LIB\or-tools\lib\libprotobuf.lib" />
+    <Library Include="..\LIB\or-tools\lib\libprotoc.lib" />
+    <Library Include="..\LIB\or-tools\lib\libscip.lib" />
+    <Library Include="..\LIB\or-tools\lib\libsoplex-pic.lib" />
+    <Library Include="..\LIB\or-tools\lib\libsoplex.lib" />
+    <Library Include="..\LIB\or-tools\lib\libsoplexshared.lib" />
+    <Library Include="..\LIB\or-tools\lib\libupb.lib" />
+    <Library Include="..\LIB\or-tools\lib\libutf8_range.lib" />
+    <Library Include="..\LIB\or-tools\lib\libutf8_validity.lib" />
+    <Library Include="..\LIB\or-tools\lib\ortools.lib" />
+    <Library Include="..\LIB\or-tools\lib\ortools_flatzinc.lib" />
+    <Library Include="..\LIB\or-tools\lib\Osi.lib" />
+    <Library Include="..\LIB\or-tools\lib\OsiCbc.lib" />
+    <Library Include="..\LIB\or-tools\lib\OsiClp.lib" />
+    <Library Include="..\LIB\or-tools\lib\re2.lib" />
+    <Library Include="..\LIB\or-tools\lib\zlib.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="slib.vcxproj">
+      <Project>{d507e468-21fc-4209-a5a8-de1f055866dc}</Project>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

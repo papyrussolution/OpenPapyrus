@@ -1777,6 +1777,7 @@ int CCheckPacket::SetTotalDiscount_Debug(uint method/*1||2*/, double dis, long f
 {
 	int    ok = 1;
 	bool   debug_mark = false; // @debug
+	const  bool is_ret = LOGIC(Rec.Flags & CCHKF_RETURN);
 	SetupTotalDiscountResult stat;
 	THROW(oneof2(method, 1, 2));
 	{
@@ -1786,13 +1787,13 @@ int CCheckPacket::SetTotalDiscount_Debug(uint method/*1||2*/, double dis, long f
 		double discount_to_setup = 0.0;
 		CcTotal init_total;
 		CalcAmount(&init_total);
-		stat.OrgAmount = init_total.Amount;
+		stat.OrgAmount = fabs(init_total.Amount);
 		if(flags & stdfPlus) {
-			discount_to_setup = (flags & stdfPctDis) ? ((dis * init_total.Amount) / (100.0 - dis)) : dis;
+			discount_to_setup = (flags & stdfPctDis) ? ((dis * stat.OrgAmount) / (100.0 - dis)) : dis;
 			//amount += discount;
 		}
 		else
-			discount_to_setup = (flags & stdfPctDis) ? (dis * fdiv100r(init_total.Amount)) : dis;
+			discount_to_setup = (flags & stdfPctDis) ? (dis * fdiv100r(stat.OrgAmount)) : dis;
 		stat.ReqDiscount = discount_to_setup;
 		{
 			for(uint i = 0; i < Items_.getCount(); i++) {
@@ -1801,7 +1802,7 @@ int CCheckPacket::SetTotalDiscount_Debug(uint method/*1||2*/, double dis, long f
 				GetLineExt(i+1, le);
 				//const double ccl_price = intmnytodbl(r_ccl.Price);
 				//uint64 init_price = R0i64((ccl_price) * 100.0);
-				uint64 init_price = r_ccl.Price; // r_ccl.Price уже в копейках!
+				uint64 init_price = abs(r_ccl.Price); // r_ccl.Price уже в копейках!
 				uint   item_flags = 0;
 				if(le.Flags & LineExt::fFixedPrice)
 					item_flags |= DiscountDistribution::fNoDiscount;
@@ -1823,6 +1824,8 @@ int CCheckPacket::SetTotalDiscount_Debug(uint method/*1||2*/, double dis, long f
 				//assert(p_dd_item);
 				if(p_dd_item) {
 					r_ccl.Dscnt = intmnytodbl(p_dd_item->Discount);
+					if(is_ret)
+						r_ccl.Dscnt = -r_ccl.Dscnt;	
 				}
 				else {
 					; 
@@ -1831,7 +1834,7 @@ int CCheckPacket::SetTotalDiscount_Debug(uint method/*1||2*/, double dis, long f
 			}
 			CcTotal final_total;
 			CalcAmount(&final_total);
-			stat.Amount = final_total.Amount;
+			stat.Amount = fabs(final_total.Amount);
 			stat.Discount = final_total.Discount;
 		}
 	}
@@ -4177,7 +4180,7 @@ int CCheckCore::ToggleDeliveryCloseTag(PPID checkID, const LDATETIME & rDtm, int
 			THROW_PP_S(cc_rec.Flags & CCHKF_DELIVERY, PPERR_CCHKNDELIVERY, CCheckCore::MakeCodeString(&cc_rec, 0, msg_buf));
 			if(set) {
 				THROW_SL(checkdate(rDtm.d, 1));
-				THROW_SL(checktime(rDtm.t));
+				THROW_SL(checkltime(rDtm.t));
 			}
 			if(GetExt(checkID, &ext_rec) <= 0) {
 				ext_rec.Clear();

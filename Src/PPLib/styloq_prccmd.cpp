@@ -947,7 +947,7 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 				const bool is_ex_tsess = (tses_obj.SearchByGuid(doc.Uuid, &ex_rec) > 0);
 				THROW(p_item);
 				THROW(gobj.Search(p_item->GoodsID, &goods_rec) > 0);
-				THROW(checkdate(p_item->ReqTime.d) && checktime(p_item->ReqTime.t));
+				THROW(checkdate(p_item->ReqTime.d) && checkltime(p_item->ReqTime.t));
 				if(p_item->PrcID) {
 					THROW(tses_obj.GetPrc(p_item->PrcID, &prc_rec, 1, 0) > 0);
 					THROW(tses_obj.GetTechByGoods(p_item->GoodsID, p_item->PrcID, &tec_rec) > 0); // @todo @err
@@ -986,23 +986,19 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 						if(duration == 0.0)
 							duration = 3600.0;
 						dtm_finish.addsec(R0i(duration));
-						if(checkdate(dtm_finish.d) && checktime(dtm_finish.t)) {
+						if(checkdate(dtm_finish.d) && checkltime(dtm_finish.t)) {
 							tses_pack.Rec.FinDt = dtm_finish.d;
 							tses_pack.Rec.FinTm = dtm_finish.t;
-							tses_pack.Rec.PlannedTiming = R0i(duration); // @v11.3.12
+							tses_pack.Rec.PlannedTiming = R0i(duration);
 						}
-						tses_pack.Rec.PlannedQtty = 1.0; // @v11.3.12
+						tses_pack.Rec.PlannedQtty = 1.0;
 					}
-					// @v11.3.12 {
 					(temp_buf = doc.Memo).Strip().Transf(CTRANSF_UTF8_TO_INNER);
 					tses_pack.Ext.PutExtStrData(PRCEXSTR_MEMO, temp_buf);
-					// } @v11.3.12
-					// @v11.6.6 {
 					if(doc.Code.NotEmpty()) {
 						(temp_buf = doc.Code).Transf(CTRANSF_UTF8_TO_INNER);
 						tses_pack.TagL.PutItemStrNE(PPTAG_TSESS_OUTERCODE, temp_buf);
 					}
-					// } @v11.6.6
 					tses_pack.SetGuid(doc.Uuid);
 					{
 						PPTransaction tra(1);
