@@ -1614,9 +1614,9 @@ browser ATURNLIST_PERSONAL north(100), 1, 0, "@{view_accturn} {%s}", OWNER|GRID,
 		ALTPRINT                : kbAltF7, PPDV_PRINTER_EXCLGREEN01, "Печать описи\tAlt-F7" // @v12.6.0 TBBM_PRINTLIST-->PPDV_PRINTER_EXCLGREEN01
 		TOTAL                   : kbF9,    PPDV_SIGMA02,           "@{totals}\tF9"
 		separator
-		CVTGENATURNTOEXTACCBILL : kbCtrlC,  PPDV_NOICON,      "@{doconvertgenaturntoextaturn}\tCtrl-C"
-		EDITBILLINFO            : kbCtrlF3, PPDV_NOICON,      "@{doeditbillinfo}\tCtrl-F3"
-		separator
+		//CVTGENATURNTOEXTACCBILL : kbCtrlC,  PPDV_NOICON,      "@{doconvertgenaturntoextaturn}\tCtrl-C"
+		//EDITBILLINFO            : kbCtrlF3, PPDV_NOICON,      "@{doeditbillinfo}\tCtrl-F3"
+		//separator
 		CHANGEFILT : kbCtrlV, PPDV_FILTER01,      "@{filter}\tCtrl-V"
 	}
 }

@@ -405,9 +405,9 @@ SLTEST_FIXTURE(SuffixArray, TestFixtureSuffixArray)
 	//assert(in_buf.GetSize() >= in_buf_size);
 	if(bm == 0) {
 		//sfxarray_sais = new int32[in_buf_size];
-		THROW(SLCHECK_Z(libsais(F.InBuf.ucptr(), (int32_t *)F.SfxArray_Sais, F.InBufSize, 0, 0/*freq*/)));
+		THROW(SLCHECK_Z(libsais(F.InBuf.ucptr(), (int32_t *)F.SfxArray_Sais, static_cast<int32>(F.InBufSize), 0, 0/*freq*/)));
 		//sfxarray_divsufsort = new int32[in_buf_size];
-		THROW(SLCHECK_Z(divsufsort(F.InBuf.ucptr(), (int *)F.SfxArray_DivSufSort, F.InBufSize, 0)));
+		THROW(SLCHECK_Z(divsufsort(F.InBuf.ucptr(), (int *)F.SfxArray_DivSufSort, static_cast<int>(F.InBufSize), 0)));
 		THROW(SLCHECK_Z(memcmp(F.SfxArray_Sais, F.SfxArray_DivSufSort, F.InBufSize * sizeof(int32))));
 		{
 			const char * p_pattern = "trophies";
@@ -428,11 +428,11 @@ SLTEST_FIXTURE(SuffixArray, TestFixtureSuffixArray)
 	}
 	else if(bm == 1) {
 		memzero(F.SfxArray_Sais, F.InBufSize * sizeof(int));
-		THROW(SLCHECK_Z(libsais(F.InBuf.ucptr(), (int32_t *)F.SfxArray_Sais, F.InBufSize, 0, 0/*freq*/)));
+		THROW(SLCHECK_Z(libsais(F.InBuf.ucptr(), (int32_t *)F.SfxArray_Sais, static_cast<int32>(F.InBufSize), 0, 0/*freq*/)));
 	}
 	else if(bm == 2) {
 		memzero(F.SfxArray_DivSufSort, F.InBufSize);
-		THROW(SLCHECK_Z(divsufsort(F.InBuf.ucptr(), (int *)F.SfxArray_DivSufSort, F.InBufSize, 0)));
+		THROW(SLCHECK_Z(divsufsort(F.InBuf.ucptr(), (int *)F.SfxArray_DivSufSort, static_cast<int>(F.InBufSize), 0)));
 	}
 	CATCH
 		CurrentStatus = 0;
@@ -700,7 +700,7 @@ SLTEST_R(Bechmark_ByRefVsByVal)
 	volatile uint round_count = 1000000000U;
 	volatile uint sum_a = 0;
 	volatile uint sum_b = 0;
-	volatile uint sum_len = 0;
+	volatile size_t sum_len = 0;
 	if(pBenchmark == 0) {
 		;	
 	}
@@ -1789,7 +1789,7 @@ SLTEST_R(LocalStateBinderyCore) // @v12.5.9
 						LocalStateBinderyCore::StateIdent ident;
 						ident.Kind = LocalStateBinderyCore::kInput;
 						ident.Subj = subj;
-						const  int gr = instance.GetStateSerial(ident, &test_list);
+						const  int gr = instance.GetStateSerial(ident, 0, &test_list);
 						if(gr > 0) {
 							SLCHECK_EQ(test_list.getCount(), pattern_list.getCount());
 							if(test_list.getCount() == pattern_list.getCount()) {
@@ -1812,7 +1812,7 @@ SLTEST_R(LocalStateBinderyCore) // @v12.5.9
 									}
 								}
 							}
-							const  int gr2 = instance.FetchStateSerial(ident, &test_list2);
+							const  int gr2 = instance.FetchStateSerial(ident, 0, &test_list2);
 							SLCHECK_EQ(gr2, 2); // Так как RegisterState внес данные в inmem-список, то этот вызов должен быть строго из памяти
 							{
 								if(test_list2.getCount() == pattern_list.getCount()) {

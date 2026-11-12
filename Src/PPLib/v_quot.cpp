@@ -702,8 +702,9 @@ int PPViewQuot::MakeOrderEntry(IterOrder ord, const TempQuotTbl::Rec & rSrcRec, 
 {
 	static const char * p_fmt = "%04.0lf%030.8lf";
 	int    ok = 1;
-	SString temp_buf, goods_name;
-	MEMSZERO(rDestRec);
+	SString temp_buf;
+	SString goods_name;
+	rDestRec.Clear();
 	rDestRec.ID = rSrcRec.ID__;
 	if(oneof2(ord, OrdByDefault, OrdByGoods)) {
 		GetGoodsName(rSrcRec.GoodsID, temp_buf);

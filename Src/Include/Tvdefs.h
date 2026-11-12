@@ -524,11 +524,11 @@
 #define cbxDisposeData     lbtDisposeData
 #define cbxAutoID          lbtAutoID
 #define cbxWordID          lbtWordID
-#define cbxListOnly        0x1000
-#define cbxNoActivate      0x0800 // User can't directly select item from list
+#define cbxListOnly        0x00001000
+#define cbxNoActivate      0x00000800 // User can't directly select item from list
 #define cbxTransferData    lbtTransferData
-#define cbxSimple          0x4000
-#define cbxAllowEmpty      0x8000
+#define cbxSimple          0x00004000
+#define cbxAllowEmpty      0x00008000
 //
 // OwnerDrawCtrls definition
 //
@@ -546,12 +546,12 @@ extern struct ODC OwnerDrawCtrls[32]; // @defined(TDIALOG.CPP)
 //
 // File Dialog flags
 //
-#define fdOKButton       0x0001       // Put an OK button in the dialog
-#define fdOpenButton     0x0002       // Put an Open button in the dialog
-#define fdReplaceButton  0x0004       // Put a Replace button in the dialog
-#define fdClearButton    0x0008       // Put a Clear button in the dialog
-#define fdHelpButton     0x0010       // Put a Help button in the dialog
-#define fdNoLoadDir      0x0100       // Do not load the current directory contents into the dialog at Init.
+#define fdOKButton       0x0001 // Put an OK button in the dialog
+#define fdOpenButton     0x0002 // Put an Open button in the dialog
+#define fdReplaceButton  0x0004 // Put a Replace button in the dialog
+#define fdClearButton    0x0008 // Put a Clear button in the dialog
+#define fdHelpButton     0x0010 // Put a Help button in the dialog
+#define fdNoLoadDir      0x0100 // Do not load the current directory contents into the dialog at Init.
 	// This means you intend to change the WildCard by using SetData or store the dialog on a stream.
 //
 // Change Dir Dialog flags

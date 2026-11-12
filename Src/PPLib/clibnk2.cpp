@@ -14,7 +14,7 @@ PPCliBnkImpExpParam::PPCliBnkImpExpParam(uint recId, long flags) : PPImpExpParam
 {
 }
 
-/*virtual*/int PPCliBnkImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
+/* @v12.8.3 (тупиковая ветвь) int PPCliBnkImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	long   flags = 0;
@@ -50,7 +50,7 @@ PPCliBnkImpExpParam::PPCliBnkImpExpParam(uint recId, long flags) : PPImpExpParam
 	}
 	CATCHZOK
 	return ok;
-}
+}*/
 
 int PPCliBnkImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 {

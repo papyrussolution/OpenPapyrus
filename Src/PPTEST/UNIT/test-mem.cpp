@@ -503,7 +503,7 @@ SLTEST_R(SBuffer)
 							r = set.Put(i+1, *p_chunk, to_compress ? &ds : 0);
 						}
 						else {
-							r = set.Put(i+1, p_chunk->PtrC(), p_chunk->Len(), to_compress ? &ds : 0);
+							r = set.Put(i+1, p_chunk->PtrC(), static_cast<uint32>(p_chunk->Len()), to_compress ? &ds : 0);
 						}
 						SLCHECK_NZ(r);
 					}
@@ -536,7 +536,7 @@ SLTEST_R(SBuffer)
 					const  bool to_compress = (p_chunk && p_chunk->Len() >= ds.MinChunkSizeToCompress && (i & 1)); // нечетные индексы и размер данных больше порога
 					if(p_chunk) {
 						uint32 internal_id = SVaultPool::MakeInternalId(i+1);
-						int    r = set.PutEncrypted(internal_id, p_chunk->PtrC(), p_chunk->Len(), 
+						int    r = set.PutEncrypted(internal_id, p_chunk->PtrC(), static_cast<uint32>(p_chunk->Len()), 
 							set.GetUedSymmCipher(), reinterpret_cast<void *>(set.GetKeyRef()), to_compress ? &ds : 0);
 						SLCHECK_NZ(r);
 					}

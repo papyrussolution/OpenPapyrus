@@ -91,8 +91,10 @@ bool FASTCALL checkupper(uint nmb, uint upper)
 
 bool STDCALL checkfrange(double nmb, double low, double upp)
 {
-	if((low == 0.0 && upp == 0.0) || (nmb >= low && nmb <= upp))
+	// @v12.8.3 if((low == 0.0 && upp == 0.0) || (nmb >= low && nmb <= upp)) {
+	if(nmb >= low && nmb <= upp) { // @v12.8.3
 		return true;
+	}
 	else {
 		SLS.SetError(SLERR_BOUNDS, SLS.AcquireRvlStr().CatChar('[').Cat(low, NMBF_NOTRAILZ).CatCharN('.', 2).Cat(upp, NMBF_NOTRAILZ).CatChar(']'));
 		return false;

@@ -2610,8 +2610,9 @@ int ToolingSelector::LoadList(PPID prcID)
 		else if(prc_rec.Kind == PPPRCK_PROCESSOR)
 			prc_kind = 1;
 	}
-	else
-		MEMSZERO(prc_rec);
+	else {
+		prc_rec.Clear();
+	}
 	TechTbl::Key2 k2;
 	TechTbl * p_t = TecObj.P_Tbl;
 	BExtQuery q(p_t, 2, 64);

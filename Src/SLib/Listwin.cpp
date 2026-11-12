@@ -7,7 +7,7 @@
 
 // @v12.2.4 (более на актуально) static const TRect _DefLwRect(0, 0, /*80*/0, 25); // @v11.9.5 Из-за того, что ширина списка теперь определяется настройками в uid-papyrus.json здесь она должна быть равна 0
 
-ListWindow::ListWindow(ListBoxDef * pDef, TView * pLinkView) : TDialog(0, 0, coNothing), PrepareSearchLetter(0), TbId(0)
+ListWindow::ListWindow(ListBoxDef * pDef, TView * pLinkView) : TDialog(0, 0, coNothing), P_HintButton(0), PrepareSearchLetter(0), TbId(0)
 {
 	P_Lb = new ListWindowSmartListBox(TRect::_defr_, pDef, pLinkView);
 	setDef(pDef);
@@ -15,7 +15,7 @@ ListWindow::ListWindow(ListBoxDef * pDef, TView * pLinkView) : TDialog(0, 0, coN
 	Insert_(&b->SetId(IDOK)); /*CTLID_LISTBOXOKBUTTON*/
 }
 
-ListWindow::ListWindow() : TDialog(0, 0, coNothing), P_Def(0), PrepareSearchLetter(0), P_Lb(0), TbId(0)
+ListWindow::ListWindow() : TDialog(0, 0, coNothing), P_Def(0), P_HintButton(0), PrepareSearchLetter(0), P_Lb(0), TbId(0)
 {
 }
 
@@ -37,11 +37,12 @@ void ListWindow::executeNM(HWND parent)
 	SetParent(H(), hwnd_parent);
 	if(oneof2(Id, DLGW_LBX, DLGW_TREELBX)) {
 		SFontDescr list_font_descr = APPL->GetUiSettings().ListFont;
-		if(list_font_descr.Face.NotEmpty())
+		if(list_font_descr.Face.NotEmpty()) {
 			if(Id == DLGW_LBX)
 				SetCtrlFont(CTL_LBX_LIST, list_font_descr);
 			else if(Id == DLGW_TREELBX)
 				SetCtrlFont(CTL_TREELBX_TREELIST, list_font_descr);
+		}
 	}
 	CALLPTRMEMB(P_Lb, SetLBLnkToUISrchState());
 	APPL->SetWindowViewByKind(H(), TProgram::wndtypListDialog);
@@ -87,7 +88,7 @@ void FASTCALL ListWindow::setDef(ListBoxDef * pDef)
 
 IMPL_HANDLE_EVENT(ListWindow)
 {
-	if(event.isCmd(cmExecute)) {
+	if(event.isCmd(cmExecute)) {		
 		const  int lw_dlg_id = (DlgFlags & fLarge) ? DLGW_LBX_L : DLGW_LBX;
 		ComboBox * p_combo = P_Lb ? P_Lb->GetCombo() : 0;
 		TView * p_link_view = P_Lb ? P_Lb->GetLinkView() : 0; // @v12.5.6
@@ -221,7 +222,6 @@ IMPL_HANDLE_EVENT(ListWindow)
 		/*
 		else if(TVBROADCAST) {
 			if(TVCMD == cmReleasedFocus) {
-
 			}
 		}
 		*/

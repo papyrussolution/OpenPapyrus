@@ -237,7 +237,9 @@ int LocalStateBinderyCore::RegisterInMemState(PPID id, int64 uedTm, const StateI
 	THROW(rIdent.Kind && (rIdent.Subj || rIdent.Symb.NotEmpty())); // @todo @err
 	if(IsStateSerial(rIdent.Kind)) {
 		uint   pos = 0;
-		if(SearchInMemSerial(rIdent, &pos)) {
+		if(SearchInMemSerial(rIdent, 0/*maxCount*/, &pos)) { // @v12.8.3 По поводу maxCount=0. Вообще-то, это значение должно задаваться из-вне, но
+			// я пока не сообразил правильный интерфейс для RegisterInMemState. Эта функция вызывается только из LocalStateBinderyCore::RegisterState,
+			// а вот последняя - из множества точек и не ясно как в конкретной точке устанавиливать правильное значение maxCount
 			InMemSerialEntry * p_ex_entry = InMemSerialList.at(pos);
 			assert(p_ex_entry);
 			if(p_ex_entry) {
@@ -458,7 +460,7 @@ int LocalStateBinderyCore::GetState(const StateIdent & rIdent, PPID * pID, SBuff
 	return ok;
 }
 
-int LocalStateBinderyCore::GetStateSerial(const StateIdent & rIdent, TSCollection <LocalStateBinderyCore::SerialEntry> * pList)
+int LocalStateBinderyCore::GetStateSerial(const StateIdent & rIdent, uint maxCount, TSCollection <LocalStateBinderyCore::SerialEntry> * pList)
 {
 	CALLPTRMEMB(pList, freeAll());
 	int    ok = -1;
@@ -490,10 +492,12 @@ int LocalStateBinderyCore::GetStateSerial(const StateIdent & rIdent, TSCollectio
 		if(P_Tbl->search(idx, &k, spLe) && LocalStateBinderyCore::CheckKeyForIdent(rIdent, P_Tbl->data)) do {
 			ok = 1;
 			if(pList) {
-				SerialEntry * p_new_entry = pList->CreateNewItem();
-				p_new_entry->ID = P_Tbl->data.ID;
-				p_new_entry->UedTm = P_Tbl->data.UedTm;
-				P_Tbl->readLobData(P_Tbl->VT, p_new_entry->Buf);
+				if(!maxCount || pList->getCount() < maxCount) { // @v12.8.3 @condition
+					SerialEntry * p_new_entry = pList->CreateNewItem();
+					p_new_entry->ID = P_Tbl->data.ID;
+					p_new_entry->UedTm = P_Tbl->data.UedTm;
+					P_Tbl->readLobData(P_Tbl->VT, p_new_entry->Buf);
+				}
 			}
 			P_Tbl->destroyLobData(P_Tbl->VT);
 		} while(P_Tbl->search(idx, &k, spPrev) && LocalStateBinderyCore::CheckKeyForIdent(rIdent, P_Tbl->data));
@@ -518,7 +522,7 @@ const LocalStateBinderyCore::InMemStateEntry * LocalStateBinderyCore::SearchInMe
 	return p_result;
 }
 
-const LocalStateBinderyCore::InMemSerialEntry * LocalStateBinderyCore::SearchInMemSerial(const StateIdent & rIdent, uint * pPos)
+const LocalStateBinderyCore::InMemSerialEntry * LocalStateBinderyCore::SearchInMemSerial(const StateIdent & rIdent, uint maxCount, uint * pPos)
 {
 	const  InMemSerialEntry * p_result = 0;
 	uint   pos = 0;
@@ -532,7 +536,7 @@ const LocalStateBinderyCore::InMemSerialEntry * LocalStateBinderyCore::SearchInM
 	if(!p_result) {
 		InMemSerialEntry * p_new_entry = new InMemSerialEntry();
 		if(p_new_entry) {
-			int    r2 = GetStateSerial(rIdent, &p_new_entry->D);
+			int    r2 = GetStateSerial(rIdent, maxCount, &p_new_entry->D);
 			if(r2 > 0) {
 				assert(p_new_entry->D.getCount());
 				*static_cast<StateIdent *>(p_new_entry) = rIdent;
@@ -568,11 +572,11 @@ int LocalStateBinderyCore::FetchState(const StateIdent & rIdent, PPID * pID, SBu
 	return ok;
 }
 
-int LocalStateBinderyCore::FetchStateSerial(const StateIdent & rIdent, TSCollection <SerialEntry> * pList)
+int LocalStateBinderyCore::FetchStateSerial(const StateIdent & rIdent, uint maxCount, TSCollection <SerialEntry> * pList)
 {
 	CALLPTRMEMB(pList, freeAll());
 	int    ok = -1;
-	const  InMemSerialEntry * p_in_mem_entry = SearchInMemSerial(rIdent, 0);
+	const  InMemSerialEntry * p_in_mem_entry = SearchInMemSerial(rIdent, maxCount, 0);
 	if(p_in_mem_entry) {
 		if(pList) {
 			TSCollection_Copy(*pList, p_in_mem_entry->D);
@@ -580,7 +584,7 @@ int LocalStateBinderyCore::FetchStateSerial(const StateIdent & rIdent, TSCollect
 		ok = 2;
 	}
 	else {
-		ok = GetStateSerial(rIdent, pList);
+		ok = GetStateSerial(rIdent, maxCount, pList);
 	}
 	return ok;
 }
@@ -4715,7 +4719,7 @@ int PPTest_SQLite_OneWriterManyReaders_Block::DoProcess(bool useConsole) const
 							ident.Subj = _worker_ident;
 							ident.Symb = "Test_SQLite_OneWriterManyReaders";
 							//
-							instance.GetStateSerial(ident, &s);
+							instance.GetStateSerial(ident, 0, &s);
 							bool   is_eq = true;
 							uint   ssp_written = 0;
 							for(uint i = 0; is_eq && i < s.getCount(); i++) {
@@ -4745,7 +4749,7 @@ int PPTest_SQLite_OneWriterManyReaders_Block::DoProcess(bool useConsole) const
 						ident.Subj = _worker_ident;
 						ident.Symb = "Test_SQLite_OneWriterManyReaders";
 						//
-						instance.GetStateSerial(ident, &s);
+						instance.GetStateSerial(ident, 0, &s);
 						bool   is_eq = true;
 						uint   ssp_written = 0;
 						for(uint i = 0; is_eq && i < s.getCount(); i++) {
@@ -4839,7 +4843,7 @@ int PPTest_SQLite_OneWriterManyReaders_Block::DoProcess(bool useConsole) const
 									if(useConsole)
 										printf("Process %u/%u: READING phase\n", WorkerIdent, CountOfWorkers);
 									TSCollection <LocalStateBinderyCore::SerialEntry> s;
-									instance.GetStateSerial(ident, &s);
+									instance.GetStateSerial(ident, 0, &s);
 									bool   is_eq = true;
 									uint   ssp_written = 0;
 									for(uint i = 0; is_eq && i < s.getCount(); i++) {

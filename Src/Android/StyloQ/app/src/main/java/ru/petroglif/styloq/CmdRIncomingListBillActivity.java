@@ -71,6 +71,8 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 	private Timer RefreshSvcDataPollTmr; // @v11.6.2
 	private long  LastRefreshTime; // @v11.6.4
 	private boolean DocsSharingEnabled; // @v11.9.0
+	private boolean DocHdrItemsVisible; // @v12.8.3 Если false, то часть полей шапки выбранного
+		// документа скрывается дабы расчистить дополнительное пространство для просмотра строк документа.
 	private static final int RefreshSvcDataPollPeriodMs = 1 * 60 * 1000; // @v11.6.2
 	private void RefreshCurrentDocStatus()
 	{
@@ -150,6 +152,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 		RefreshSvcDataPollTmr = null; // @v11.6.2
 		LastRefreshTime = 0; // @v11.6.4
 		DocsSharingEnabled = false; // @v11.9.0
+		DocHdrItemsVisible = true; // @v12.8.3
 		BSCReader = null; // @v12.2.10
 	}
 	private void CreateTabList(boolean force)
@@ -1603,9 +1606,13 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 								}
 								if(_doc.H.DueTime != null && SLib.CheckDate(_doc.H.DueTime.d)) {
 									SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DUEDATE, _doc.H.DueTime.d.Format(SLib.DATF_ISO8601 | SLib.DATF_CENTURY));
+									SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_DUEDATE_NEXT, View.VISIBLE);
+									SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_DUEDATE_PREV, View.VISIBLE);
 								}
-								SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_DUEDATE_NEXT, _doc.H.IncrementDueDate(true) ? View.VISIBLE : View.GONE);
-								SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_DUEDATE_PREV, _doc.H.DecrementDueDate(true) ? View.VISIBLE : View.GONE);
+								else {
+									SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_DUEDATE_NEXT, View.GONE);
+									SLib.SetCtrlVisibility(vg, R.id.CTL_DOCUMENT_DUEDATE_PREV, View.GONE);
+								}
 								{
 									View btn = vg.findViewById(R.id.CTL_DOCUMENT_DUEDATE_PREV);
 									if(btn != null) {
@@ -1619,6 +1626,14 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 									if(btn != null) {
 										btn.setOnClickListener(new View.OnClickListener() {
 											@Override public void onClick(View v) { HandleEvent(SLib.EV_COMMAND, v, null); }
+										});
+									}
+								}
+								{ // @v12.8.3
+									View btn = vg.findViewById(R.id.CTL_DOCUMENT_OPENETC);
+									if(btn != null) {
+										btn.setOnClickListener(new View.OnClickListener() {
+											@Override public void onClick(View v) { HandleEvent(SLib.EV_COMMAND, v, vg); }
 										});
 									}
 								}
@@ -2106,6 +2121,19 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 								}
 							}
 							break;
+						case R.id.CTL_DOCUMENT_OPENETC: // @v12.8.3
+							if(subj != null && subj instanceof ViewGroup) {
+								ViewGroup vg = (ViewGroup)subj;
+								View btn = SLib.FindViewById(vg, R.id.CTL_DOCUMENT_OPENETC);
+								if(btn != null) {
+									DocHdrItemsVisible = !DocHdrItemsVisible;
+									SLib.SetCtrlVisibility(vg, R.id.CTLGRP_DOCUMENT_HDRETC, DocHdrItemsVisible ? View.VISIBLE : View.GONE);
+									if(btn instanceof ImageView) {
+										((ImageView)btn).setImageResource(DocHdrItemsVisible ? R.drawable.ic_triangledown03 : R.drawable.ic_triangleright03);
+									}
+								}
+							}
+							break;
 						case R.id.CTL_BUTTON_MATCH:
 							if(subj != null && subj instanceof SLib.ListViewEvent) {
 								SLib.ListViewEvent lve = (SLib.ListViewEvent)subj;
@@ -2496,6 +2524,7 @@ public class CmdRIncomingListBillActivity extends SLib.SlActivity {
 						}
 						else if(ScanSource == ScanType.Setting) {
 							try {
+								// pbr.ChZnMark = "010460677997072611261024100000882809"; // @debug
 								int amr = _doc.AssignGoodsMark(pbr.ChZnMark, CPM.GoodsListData);
 								if(amr > 0) {
 									CPM.OnCurrentDocumentModification();

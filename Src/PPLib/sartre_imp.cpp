@@ -5,7 +5,6 @@
 #include <pp.h>
 #pragma hdrstop
 #include <sartre.h>
-// @v11.7.1 #include <locale.h>
 #include <unicode/urename.h>
 #include <unicode/ures.h>
 #include <unicode/locid.h>
@@ -59,7 +58,7 @@ static int ReadAncodeDescrLine_Ru(const char * pLine, SString & rAncode, SrWordF
 			while(!oneof4(*p, ' ', '\t', ',', 0))
 				temp_buf.CatChar(*p++);
 			if(temp_buf.NotEmpty()) {
-				temp_buf.Transf(CTRANSF_OUTER_TO_UTF8); // @v10.4.5 (module has been translated to utf-8)
+				temp_buf.Transf(CTRANSF_OUTER_TO_UTF8); // (module has been translated to utf-8)
 				if(temp_buf == "сравн")
 					rForm.SetTag(SRWG_ADJCMP, prev_compr = SRADJCMP_COMPARATIVE);
 				else {
@@ -1265,7 +1264,6 @@ int SrConceptParser::_SkipSpaces(int * pToken, SString & rExtBuf)
 
 int FASTCALL SrConceptParser::_IsIdent(const char * pText) const
 {
-// @v10.9.8 #define _ISALPHA(c) (((c) >= 'a' && (c) <= 'z') || ((c) >= 'A' && (c) <= 'Z'))
 	char c = *pText++;
 	if(isasciialpha(c) || c == '_') {
 		do {
@@ -1277,7 +1275,6 @@ int FASTCALL SrConceptParser::_IsIdent(const char * pText) const
 	}
 	else
 		return 0;
-// @v10.9.8 #undef _ISALPHA
 }
 
 struct SrCTypeSymb {
@@ -2120,16 +2117,14 @@ public:
 		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 0, Data.fImportFlexia);
 		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 1, Data.fImportConcepts);
 		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 2, Data.fImportHumNames);
-		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 3, Data.fImportBioTaxonomy); // @v10.0.0
-		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 4, Data.fImportTickers); // @v10.0.08
+		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 3, Data.fImportBioTaxonomy);
+		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 4, Data.fImportTickers);
 		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 5, Data.fTestFlexia);
 		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 6, Data.fTestConcepts);
 		AddClusterAssoc(CTL_PRCRSARTR_FLAGS, 7, Data.fTestSyntaxParser);
 		SetClusterData(CTL_PRCRSARTR_FLAGS, Data.Flags);
-		// @v10.9.5 {
 		AddClusterAssoc(CTL_PRCRSARTR_UEDFLAGS, 0, Data.fImport_UED_Llcc);
 		SetClusterData(CTL_PRCRSARTR_UEDFLAGS, Data.Flags);
-		// } @v10.9.5 
 		FileBrowseCtrlGroup::Setup(this, CTLBRW_PRCRSARTR_SRCPATH, CTL_PRCRSARTR_SRCPATH, 1, 0,
 			0, FileBrowseCtrlGroup::fbcgfPath|FileBrowseCtrlGroup::fbcgfSaveLastPath);
 		setCtrlString(CTL_PRCRSARTR_SRCPATH, Data.SrcPath);
@@ -2140,7 +2135,7 @@ public:
 		int    ok = 1;
 		uint   sel = 0;
 		GetClusterData(CTL_PRCRSARTR_FLAGS, &Data.Flags);
-		GetClusterData(CTL_PRCRSARTR_UEDFLAGS, &Data.Flags); // @v10.9.5
+		GetClusterData(CTL_PRCRSARTR_UEDFLAGS, &Data.Flags);
 		getCtrlString(sel = CTL_PRCRSARTR_SRCPATH, Data.SrcPath);
 		ASSIGN_PTR(pData, Data);
 		return ok;
@@ -3637,13 +3632,13 @@ int PrcssrSartre::Run()
 				logger.LogLastError();
 			if(!ImportHumanNames(db, "name-firstname-en.csv", "en", SRPROPN_PERSONNAME, 0))
 				logger.LogLastError();
-			if(!ImportHumanNames(db, "name-firstname-es.csv", "es", SRPROPN_PERSONNAME, 0)) // @v10.0.06
+			if(!ImportHumanNames(db, "name-firstname-es.csv", "es", SRPROPN_PERSONNAME, 0))
 				logger.LogLastError();
 		}
 		if(P.Flags & P.fImportBioTaxonomy) {
 			SrDatabase db;
 			const char * p_file_name = "D:/DEV/Resource/Data/Bio/Taxonomy/GBIF_registration-archive-complete/taxa.txt";
-			THROW(db.Open(0, SrDatabase::oWriteStatOnClose|SrDatabase::oExclusive)); // @v10.0.12 SrDatabase::oExclusive
+			THROW(db.Open(0, SrDatabase::oWriteStatOnClose|SrDatabase::oExclusive));
 			if(!PrcssrSartre::ImportBioTaxonomy(db, p_file_name)) {
 				logger.LogLastError();
 			}
@@ -3724,7 +3719,7 @@ int PrcssrSartre::TestSearchWords()
 		{
 			const char * p_word = "Я"; /*"ТЕХНОЛОГИЧЕСКАЯ";*/ /*"КОНСТАНТИНОВИЧУ";*/
 			SrWordForm wf;
-			(temp_buf = p_word)/* @v10.4.5 .ToUtf8()*/;
+			(temp_buf = p_word);
 			info_list.clear();
 			wf.SetTag(SRWG_CASE, SRCASE_DATIVE);
 			wf.SetTag(SRWG_COUNT, SRCNT_PLURAL);
@@ -4307,7 +4302,6 @@ int SrSyntaxRuleSet::MatchListToStr(const TSVector <MatchEntry> & rML, const STo
 	}
 	return 1;
 }
-
 
 /*int SrSyntaxRuleSet::ResolveRuleBlock::MatchListToStr(const STokenizer & rT, const SrSyntaxRuleSet & rSet, SString & rBuf) const
 {

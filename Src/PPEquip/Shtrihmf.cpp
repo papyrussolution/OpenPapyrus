@@ -881,9 +881,10 @@ int ACS_SHTRIHMFRK::ConvertWareList(const char * pImpPath, int numSmena)
 							SETFLAG(fl, CCHKF_BANKING, check_pack.Rec.Flags & CCHKF_BANKING);
 							THROW(AddTempCheck(&id, numSmena, fl, cash_no, chk_no, 0, 0, dttm, 0, 0));
 						}
-						if(check_pack.Rec.SCardID)
+						if(check_pack.Rec.SCardID) {
 							THROW(AddTempCheckSCardID(id, check_pack.Rec.SCardID));
-						PPID   chk_id = P_TmpCcTbl->data.ID;
+						}
+						const  PPID chk_id = P_TmpCcTbl->data.ID;
 						{
 							//
 							// Установка скидки на чек и выравнивание суммы чека до величины, заданной

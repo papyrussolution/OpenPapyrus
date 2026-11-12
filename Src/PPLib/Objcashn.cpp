@@ -79,10 +79,12 @@ int PPGenCashNode::SetRoundParam(const RoundParam * pParam)
 	Flags &= ~(CASHF_DISROUNDUP | CASHF_DISROUNDDOWN);
 	ExtFlags &= ~(CASHFX_ROUNDAMTUP | CASHFX_ROUNDAMTDOWN);
 	if(pParam) {
-		if(pParam->DisRoundPrec < 0.0 || pParam->DisRoundPrec > 50.0)
+		if(!checkfrange(pParam->DisRoundPrec, 0.0, 50.0)) {
 			ok = PPSetError(PPERR_INVROUNDPREC);
-		else if(pParam->AmtRoundPrec < 0.0 || pParam->AmtRoundPrec > 100.0)
+		}
+		else if(!checkfrange(pParam->AmtRoundPrec, 0.0, 100.0)) {
 			ok = PPSetError(PPERR_INVROUNDPREC);
+		}
 		else {
 			if(pParam->DisRoundPrec != 0.0) {
 				DisRoundPrec = static_cast<uint16>(pParam->DisRoundPrec * 100.0);
@@ -550,8 +552,7 @@ StrAssocArray * PPObjCashNode::MakeStrAssocList(void * extraPtr)
 {
 	int    valid_data = 0;
 	PPID   id = -1;
-	ListWindow * lw = 0;
-	StrAssocArray * p_ary = 0;
+	ListWindow * p_lw = 0;
 	SelFilt f;
 	f.LocID = locID;
 	f.SyncGroup = syncGroup;
@@ -559,7 +560,8 @@ StrAssocArray * PPObjCashNode::MakeStrAssocList(void * extraPtr)
 	f.Flags |= SelFilt::fSkipPassive;
 	ASSIGN_PTR(pIsSingle, 0);
 	PPObjCashNode cn_obj;
-	THROW(p_ary = cn_obj.MakeStrAssocList(&f));
+	StrAssocArray * p_ary = cn_obj.MakeStrAssocList(&f);
+	THROW(p_ary);
 	if(isAny) {
 		id = p_ary->getCount();
 		ZDELETE(p_ary);
@@ -576,11 +578,11 @@ StrAssocArray * PPObjCashNode::MakeStrAssocList(void * extraPtr)
 	}
 	else {
 		SString title;
-		THROW(lw = new ListWindow(new StrAssocListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify), 0));
-		lw->setTitle(PPLoadTextS(PPTXT_SELECTCASHNODE, title));
+		THROW(p_lw = new ListWindow(new StrAssocListBoxDef(p_ary, lbtDisposeData|lbtDblClkNotify), 0));
+		p_lw->setTitle(PPLoadTextS(PPTXT_SELECTCASHNODE, title));
 		// @v12.5.3 (@unused) lw->ViewOptions |= (ofCenterX | ofCenterY);
-		while(!valid_data && ExecView(lw) == cmOK) {
-			lw->getResult(&id);
+		while(!valid_data && ExecView(p_lw) == cmOK) {
+			p_lw->getResult(&id);
 			if(id == PPCMT_OKA500) {
 				id = -1;
 				PPError(PPERR_OKA500NOTSUPPORTED);
@@ -592,7 +594,7 @@ StrAssocArray * PPObjCashNode::MakeStrAssocList(void * extraPtr)
 	CATCH
 		id = PPErrorZ();
 	ENDCATCH
-	delete lw;
+	delete p_lw;
 	return id;
 }
 

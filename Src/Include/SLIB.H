@@ -18,7 +18,6 @@
 #ifndef __SLCONFIG_H
 	#include <slconfig.h>
 #endif
-// @v11.7.12 (defined at slconfig.h) #define WINDOWS_IGNORE_PACKING_MISMATCH // @v10.9.11
 #define U_STATIC_IMPLEMENTATION // ICU включается как статическая библиотека
 //
 // Далее идут включения файлов из штатных библиотек компилятора и Windows API
@@ -880,13 +879,13 @@ typedef int32               TYPEID;
 #define SLERR_DUPSYMBWITHUNEQID                457 // Дублирование символа '%s' элемента с отличным идентификатором
 #define SLERR_INVIMAGESIZE                     458 // Недопустимый размер изображения ([1..30000], [1..30000])
 #define SLERR_WTM_DUPLAYOUTSYMB                459 // Дублирование символа layout
-#define SLERR_STRINGISNTUTF8                   460 // @v11.3.3 Строка - не в кодировке utf-8
-#define SLERR_LMDB                             461 // @v11.3.6 Ошибка базы данных LMDB
-#define SLERR_FILSTRG_INVHANDLE                462 // @v11.3.7 Внутренняя ошибка: недопустимый манипулятор чтения/записи объекта SFileStorage
-#define SLERR_FILSTRG_INVNAME                  463 // @v11.3.7 Имя сохраняемого файла объекта SFileStorage должно быть не длиннее 255 символов и содержать только [0-9a-z_+-,.=@]
-#define SLERR_FILSTRG_FILENFOUND               464 // @v11.3.7 Файл с именем '%s' в хранилище SFileStorage отсутствует
-#define SLERR_INVORUNSUPPHASHFUNC              465 // @v11.3.7 Недопустимая либо неподдерживаемая хэш-функция // 
-#define SLERR_INVALIDSFILTYP                   466 // @v11.4.3 Внутренняя ошибка: недопустимый тип экземпляра SFile
+#define SLERR_STRINGISNTUTF8                   460 // Строка - не в кодировке utf-8
+#define SLERR_LMDB                             461 // Ошибка базы данных LMDB
+#define SLERR_FILSTRG_INVHANDLE                462 // Внутренняя ошибка: недопустимый манипулятор чтения/записи объекта SFileStorage
+#define SLERR_FILSTRG_INVNAME                  463 // Имя сохраняемого файла объекта SFileStorage должно быть не длиннее 255 символов и содержать только [0-9a-z_+-,.=@]
+#define SLERR_FILSTRG_FILENFOUND               464 // Файл с именем '%s' в хранилище SFileStorage отсутствует
+#define SLERR_INVORUNSUPPHASHFUNC              465 // Недопустимая либо неподдерживаемая хэш-функция // 
+#define SLERR_INVALIDSFILTYP                   466 // Внутренняя ошибка: недопустимый тип экземпляра SFile
 #define SLERR_INVDATERANGETEXT                 467 // @v12.3.7 Строка '%s' не соответствует правилам представления диапазона дат
 #define SLERR_OPENFAULT_EMPTYNAME              468 // @v12.3.11 Ошибка открытия файла - пустое имя //
 #define SLERR_OPENFAULT_XMLWR                  469 // @v12.3.12 Ошибка открытия xml-файла '%s' для записи //
@@ -4238,7 +4237,7 @@ public:
 	SPoint2F Combine(SPoint2F a, SPoint2F b) const;
 	SPoint2F Swap() const;
 	int    FASTCALL Write(SBuffer &) const;
-	int    FASTCALL Read(SBuffer &);
+	size_t FASTCALL Read(SBuffer &); // @v12.8.3 return int-->size_t
 
 	float  x;
 	float  y;
@@ -7757,6 +7756,7 @@ double trunc(double n, int prec);
 // Операции с представлением числа с фиксированной точкой.
 //
 double FASTCALL intmnytodbl(long m);
+double FASTCALL intmnytodbl(int64 m); // @v12.8.3
 long   FASTCALL dbltointmny(double r);
 double FASTCALL inttodbl2(long v);
 long   FASTCALL dbltoint2(double r);
@@ -11800,6 +11800,7 @@ public:
 		XlsM             = 134, // @v12.3.7 MS Excel (xml-format with macroses) // @todo Сигнатуры
 		WinWord          = 135, // @v12.3.7 MS Word (OLE-format)                // @todo Сигнатуры 
 		WinWordX         = 136, // @v12.3.7 MS Word (xml-format)                // @todo Сигнатуры 
+		Markdown         = 137, // @v12.8.3 Markdown (.md) текстовый файл с упрощенной разметкой для публикации
 
 		FirstUser        = 10000
 	};
@@ -12543,6 +12544,7 @@ protected:
 	int    InitReEmail();
 	int    InitRePhone();
 	SRegExp2 * P_ReQuotedStr;
+	SRegExp2 * P_ReApoStr; // @v12.8.3
 	SRegExp2 * P_ReNumber;
 	SRegExp2 * P_ReIdent;
 	SRegExp2 * P_ReIdentWithHyphen; // @v12.0.1
@@ -12625,6 +12627,7 @@ struct SStrScan : public SRegExpSet {
 	//
 	SString & FASTCALL Get(SString & rBuf) const;
 	bool   FASTCALL GetQuotedString(SString & rBuf);
+	bool   FASTCALL GetApostrophedString(SString & rBuf);
 	//
 	// ARG(format IN): Формат данных, в соответствии с которым следует обрабатывать данные внутри кавычек.
 	//   Принимаются следующие значения: SFileFormat::Json, SFileFormat::Csv, SFileFormat::Tsv, SFileFormat::Xml
@@ -14012,6 +14015,12 @@ private:
 //
 class SFileStorage {
 public:
+	struct ObjRef : public SObjID {
+		ObjRef() : Serial(0)
+		{
+		}
+		uint   Serial;
+	};
 	explicit SFileStorage(const char * pBasePath);
 	~SFileStorage();
 	bool   IsValid() const { return !(State & stError); }
@@ -14045,6 +14054,12 @@ public:
 	// Descr: Закрывает файл, открытый либо функцией Write_Start() либо GetFile()
 	//
 	bool   CloseFile(SPtrHandle handle);
+	//
+	//
+	//
+	int    PutFile(const ObjRef & rRef, const char * pSourceFilePath); // @v12.8.3 @construction
+	int    GetFilePath(const ObjRef & rRef, SString & rFilePath); // @v12.8.3 @construction
+	int    GetFilePathList(const SObjID & rOid, StringSet & rSs); // @v12.8.3 @construction
 private:
 	bool   ValidateName(const char * pName) const;
 	int    MakeFileEntry(const char * pName, SString & rEntryName, bool writing);
@@ -14081,7 +14096,7 @@ public:
 		tUnkn  = 0,
 		tZLib  = 1,
 		tLz4   = 2,
-		tBZip2 = 3  // @v11.7.4
+		tBZip2 = 3
 	};
 	explicit SCompressor(int type);
 	~SCompressor();
@@ -14792,9 +14807,6 @@ ulong  FASTCALL Lcm(ulong a, ulong b);
 //
 // use next three functions for replacing (is_)power_of_two in assimilated projects
 //
-//FORCEINLINE bool IsPowerOfTwo(uint val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
-//FORCEINLINE bool IsPowerOfTwo(uint32 val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
-//FORCEINLINE bool IsPowerOfTwo(uint64 val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
 template <class T> CONSTEXPR bool IsPowerOfTwo(T val) { return ((val != 0) && ((val & (val - 1)) == 0)); }
 //
 // Descr: Если val - простое число, то возвращает !0, в противном случае - 0.
@@ -14820,7 +14832,7 @@ void   RationalBestApproximation(ulong givenNumerator, ulong givenDenominator, u
 //
 // Descr: Класс, реализующий базовый механизм распределения действительной скидки по группе элементов DiscountDistribution::Item
 //
-class DiscountDistribution { // @v12.7.10 @construction
+class DiscountDistribution { // @v12.7.10
 public:
 	static bool CheckInvariant();
 
@@ -14831,15 +14843,9 @@ public:
 		DECL_INVARIANT_C();
 
 		Item(int64 refId, uint64 price, double qtty, uint flags);
-		bool   IsVariable() const { return (!(Flags & fNoDiscount) && Price != 0ULL && Qtty != 0.0); }
-		bool   FASTCALL IsEqExceptDiscount(const Item & rS) const
-		{
-			return (RefId == rS.RefId && Price == rS.Price && Qtty == rS.Qtty && Flags == rS.Flags);
-		}
-		bool   FASTCALL IsEq(const Item & rS) const
-		{
-			return (IsEqExceptDiscount(rS) && Discount == rS.Discount);
-		}
+		bool   IsVariable() const;
+		bool   FASTCALL IsEqExceptDiscount(const Item & rS) const;
+		bool   FASTCALL IsEq(const Item & rS) const;
 		const  int64  RefId; // Идентификатор, с помощью которого можно ссылаться на внешние данные
 		const  uint64 Price; // Начальная цена за единицу. Если Price == 0, то элемент не участвует в распределении скидки
 		const  double Qtty;  // Количество единиц. Если Qtty == 0, то элемент не участвует в распределении скидки
@@ -14891,8 +14897,8 @@ public:
 	//   Формулируем этот критерий так (только для строк, на которые распространяется скидка):
 	//   mininum of abs((totalDiscount / rResult.EvaluateInitialAmount(true)) - ((Item.Discount * Item.Qtty) / (Item.Price * Item.Qtty)))
 	//
-	int    Run_01(double totalDiscount, Result & rResult);
-	int    Run_02(double totalDiscount, Result & rResult);
+	int    Run(double totalDiscount, Result & rResult); // variant #2 (для правильной ориентации в тестах)
+	int    Run_ReferenceMethod01(double totalDiscount, Result & rResult); // variant #1 (для правильной ориентации в тестах)
 private:
 	//
 	// Descr: Метрики качества распределения
@@ -16182,9 +16188,27 @@ public:
 	//
 	operator POINT & ();
 	SPoint2I & Z();
+	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	bool   IsZero() const { return (x == 0 && y == 0); }
+	bool   IsSquare() const { return (x == y); }
+	int    GetMinDim() const { return smin(x, y); }
+	int    GetMaxDim() const { return smax(x, y); }
+	int    GetArea() const { return (x * y); }
+
 	int    x;
 	int    y;
+};
+
+class SRect2I { // @v12.8.3
+public:
+	SRect2I()
+	{
+	}
+	SRect2I(int luX, int luY, int rlX, int rlY) : LU(luX, luY), RL(rlX, rlY)
+	{
+	}
+	SPoint2I LU;
+	SPoint2I RL;
 };
 //
 //

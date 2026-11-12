@@ -4017,7 +4017,7 @@ class PersonDialogBase : public TDialog {
 		ctlgroupIbg = 1
 	};
 public:
-	explicit PersonDialogBase(uint dlgID) : TDialog(dlgID), DupID(0), PhonePos(-1), EmailPos(-1)
+	explicit PersonDialogBase(uint dlgID) : TDialog(dlgID), DupID(0), PhonePos(-1), EmailPos(-1), SamplePsnID(0)
 	{
 		TView * p_ctrl = getCtrlView(CTL_PERSON_GENDER);
 		if(p_ctrl) {
@@ -4031,6 +4031,10 @@ public:
 		InitPhone = pPhone;
 	}
 	PPID   GetDupID() const { return DupID; }
+	void   SetSamplePersonID(PPID id)
+	{
+		SamplePsnID = id;
+	}
 protected:
 	DECL_DIALOG_DATA(PPPersonPacket);
 	DECL_HANDLE_EVENT
@@ -4184,6 +4188,7 @@ protected:
 	}
 	PPObjPerson PsnObj;
 	PPID   DupID;
+	PPID   SamplePsnID; // @v12.8.3 Персоналия, по образцу которой создается новая //
 	int    PhonePos;
 	int    EmailPos;
 	SString Name_;
@@ -4644,7 +4649,7 @@ IMPL_HANDLE_EVENT(ShortPersonDialog)
 				Name_ = temp_buf;
 				PPID   dup_id = 0;
 				PPPersonPacket sel_pack;
-				if(PsnObj.CheckDuplicateName(temp_buf, &dup_id) == 2 && PsnObj.GetPacket(dup_id, &sel_pack, 0) > 0) {
+				if(PsnObj.CheckDuplicateName(temp_buf, &dup_id, SamplePsnID) == 2 && PsnObj.GetPacket(dup_id, &sel_pack, 0) > 0) {
 					SCardSerID = getCtrlLong(CTLSEL_PERSON_SCARDSER);
 					SCardID = 0;
 					DupID = sel_pack.Rec.ID;
@@ -4915,7 +4920,7 @@ void PPObjPerson::InitEditBlock(PPID kindID, EditBlock & rBlk)
 	}
 }
 
-int PPObjPerson::CheckDuplicateName(const char * pName, PPID * pID)
+int PPObjPerson::CheckDuplicateName(const char * pName, PPID * pID, PPID idToExclude)
 {
 	int    ok = -1;
 	SString name(pName);
@@ -4929,7 +4934,9 @@ int PPObjPerson::CheckDuplicateName(const char * pName, PPID * pID)
 		PPIDArray id_list;
 		PPIDArray kind_list;
 		if(P_Tbl->search(1, &k1, spEq)) do {
-			id_list.addUnique(P_Tbl->data.ID);
+			if(idToExclude && P_Tbl->data.ID != idToExclude) { // @v12.8.3 @condition
+				id_list.addUnique(P_Tbl->data.ID);
+			}
 		} while(P_Tbl->search(1, &k1, spNext) && name.CmpNC(P_Tbl->data.Name) == 0);
 		for(uint i = 0; i < id_list.getCount(); i++) {
 			const  PPID person_id = id_list.get(i);
@@ -4995,25 +5002,46 @@ int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 	THROW(EditPrereq(pID, 0, &is_new));
 	if(is_new) {
 		PPID   kind_id = rBlk.InitKindID;
+		PPPersonPacket sample_pack;
+		if(rBlk.SamplePsnID) {
+			THROW(GetPacket(rBlk.SamplePsnID, &sample_pack, 0) > 0);
+		}
 		if(kind_id <= 0) {
-			kind_id = SelectPersonKind();
-			if(kind_id > 0) {
-				EditBlock temp_blk;
-				InitEditBlock(kind_id, temp_blk);
-				rBlk.InitKindID = temp_blk.InitKindID;
-				rBlk.InitStatusID = temp_blk.InitStatusID;
-				rBlk.ShortDialog = temp_blk.ShortDialog;
-				kind_id = rBlk.InitKindID;
+			if(sample_pack.Kinds.getCount()) {
+				kind_id = sample_pack.Kinds.get(0);
 			}
-			else {
-				done = true;
-				r = cmCancel;
+			if(kind_id <= 0) {
+				kind_id = SelectPersonKind();
+				if(kind_id > 0) {
+					EditBlock temp_blk;
+					InitEditBlock(kind_id, temp_blk);
+					rBlk.InitKindID = temp_blk.InitKindID;
+					rBlk.InitStatusID = temp_blk.InitStatusID;
+					rBlk.ShortDialog = temp_blk.ShortDialog;
+					kind_id = rBlk.InitKindID;
+				}
+				else {
+					done = true;
+					r = cmCancel;
+				}
 			}
 		}
 		if(!done) {
-			pack.Kinds.add(kind_id);
-			rBlk.Name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
-			pack.Rec.Status = rBlk.InitStatusID;
+			if(sample_pack.Rec.ID) {
+				pack.Kinds = sample_pack.Kinds;
+				STRNSCPY(pack.Rec.Name, sample_pack.Rec.Name);
+				pack.Rec.Status = sample_pack.Rec.Status;
+				pack.Rec.Flags = sample_pack.Rec.Flags;
+				pack.Rec.CatID = sample_pack.Rec.CatID;
+				pack.Rec.Division = sample_pack.Rec.Division;
+				pack.Rec.Position = sample_pack.Rec.Position;
+				pack.SMemo = sample_pack.SMemo;
+			}
+			else {
+				pack.Kinds.add(kind_id);
+				rBlk.Name.CopyTo(pack.Rec.Name, sizeof(pack.Rec.Name));
+				pack.Rec.Status = rBlk.InitStatusID;
+			}
 			if(rBlk.ShortDialog == 1) {
 				dlg_id = DLG_PERSON_S1;
 				short_dlg_kind_id = kind_id;
@@ -5060,6 +5088,9 @@ int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 			THROW(CheckDialogPtr(&dlg));
 			{
 				ShortPersonDialog * p_dlg = static_cast<ShortPersonDialog *>(dlg);
+				if(is_new && rBlk.SamplePsnID) { // @v12.8.3
+					p_dlg->SetSamplePersonID(rBlk.SamplePsnID);
+				}
 				p_dlg->enableCommand(cmFullPersonDialog, 1);
 				if(!is_new && !CheckRights(PPR_MOD))
 					p_dlg->enableCommand(cmOK, false);
@@ -5088,6 +5119,9 @@ int PPObjPerson::Edit_(PPID * pID, EditBlock & rBlk)
 			THROW(CheckDialogPtr(&dlg));
 			{
 				PersonDialog * p_dlg = static_cast<PersonDialog *>(dlg);
+				if(is_new && rBlk.SamplePsnID) { // @v12.8.3
+					p_dlg->SetSamplePersonID(rBlk.SamplePsnID);
+				}
 				if(rBlk.InitPhone.NotEmpty()) {
 					p_dlg->SetupPhoneOnInit(rBlk.InitPhone);
 				}
@@ -5678,7 +5712,7 @@ IMPL_HANDLE_EVENT(PersonDialog)
 			if(name.Len() > 0 && Name_.CmpNC(name) != 0) {
 				Name_ = name;
 				PPID   dup_id = 0;
-				if(PsnObj.CheckDuplicateName(name, &dup_id) == 2) {
+				if(PsnObj.CheckDuplicateName(name, &dup_id, SamplePsnID) == 2) {
 					DupID = dup_id;
 					endModal(cmOK);
 					return; // После endModal не следует обращаться к this

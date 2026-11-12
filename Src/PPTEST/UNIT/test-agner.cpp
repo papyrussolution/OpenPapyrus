@@ -100,15 +100,16 @@ SLTEST_R(AgnerFog)
 	temp_buf.Z().Cat("string converted to lower and upper case").CatDiv(':', 2).Cat(teststring).Slash().Cat(string1).Slash().Cat(string2).CR();
 	SetInfo(temp_buf);
 	// test strspn and strcspn
-	int n1, n2;
-	const int nset = 4;
-	const char * tset[] = {"abc", "", "01234567890123456789", "abcdefghijklmnopqrstuvwxyz"};
+	int    n1;
+	int    n2;
+	const  int nset = 4;
+	const  char * tset[] = {"abc", "", "01234567890123456789", "abcdefghijklmnopqrstuvwxyz"};
 	for(i = 0; i < nset; i++) {
-		n1 = A_strspn(teststring, tset[i]);
-		n2 = strspn(teststring, tset[i]);
+		n1 = static_cast<int>(A_strspn(teststring, tset[i]));
+		n2 = static_cast<int>(strspn(teststring, tset[i]));
 		SLCHECK_EQ(n1, n2); // Failure("A_strspn");
-		n1 = A_strcspn(teststring, tset[i]);
-		n2 = strcspn(teststring, tset[i]);
+		n1 = static_cast<int>(A_strcspn(teststring, tset[i]));
+		n2 = static_cast<int>(strcspn(teststring, tset[i]));
 		SLCHECK_EQ(n1, n2); // Failure("A_strcspn");
 	}
 

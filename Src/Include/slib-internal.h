@@ -1,5 +1,5 @@
 // SLIB-INTERNAL.H
-// Copyright (c) A.Sobolev 2020, 2022, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 2020, 2022, 2023, 2024, 2025, 202
 // @codepage UTF-8
 //
 #ifndef __SLIB_INTERNAL_H
@@ -12,10 +12,10 @@
 	#ifndef SKIP_UED_ID_H // @v12.2.1
 		#include <ued-id.h> // @v11.8.9
 	#endif
-	#include <..\slib\libxml\libxml.h> // @v11.7.9
+	#include <..\slib\libxml\libxml.h>
 	#include <slui.h>
-	#include <snet.h> // @v11.7.0
-	#include <uri.h>  // @v11.7.0
+	#include <snet.h>
+	#include <uri.h>
 
 FORCEINLINE uint implement_iseol(const char * pIn, SEOLFormat eolf)
 {

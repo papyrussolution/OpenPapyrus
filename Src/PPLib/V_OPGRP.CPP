@@ -663,7 +663,7 @@ IMPL_HANDLE_EVENT(OpGroupingFiltDialog)
 		Data.GoodsGrpID = gf_rec.GoodsGrpID;
 		Data.GoodsID    = gf_rec.GoodsID;
 		disableCtrl(CTLSEL_GTO_EXTGOODSTYPE, Data.GoodsGrpID || Data.GoodsID);
-		DisableClusterItem(CTL_GTO_FLAGS, 2, Data.GoodsGrpID || Data.GoodsID || Data.OpID); // @v8.6.1
+		DisableClusterItem(CTL_GTO_FLAGS, 2, Data.GoodsGrpID || Data.GoodsID || Data.OpID);
 	}
 	else if(event.isCbSelected(CTLSEL_GTO_OPR))
 		ReplyOprKindSelection();

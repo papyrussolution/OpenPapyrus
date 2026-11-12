@@ -249,7 +249,7 @@ int WriteQuotedString(const char * pInBuf, size_t inBufLen, uint flags, SString 
 //
 //
 //
-SRegExpSet::SRegExpSet() : P_ReQuotedStr(0), P_ReNumber(0), P_ReHex(0), P_ReIdent(0), P_ReIdentWithHyphen(0), 
+SRegExpSet::SRegExpSet() : P_ReQuotedStr(0), P_ReApoStr(0), P_ReNumber(0), P_ReHex(0), P_ReIdent(0), P_ReIdentWithHyphen(0), 
 	P_ReDigits(0), P_ReXDigits(0), P_ReEMail(0), P_ReDate(0), P_RePhone(0)
 {
 }
@@ -257,6 +257,7 @@ SRegExpSet::SRegExpSet() : P_ReQuotedStr(0), P_ReNumber(0), P_ReHex(0), P_ReIden
 SRegExpSet::~SRegExpSet()
 {
 	ZDELETE(P_ReQuotedStr);
+	ZDELETE(P_ReApoStr); // @v12.8.3
 	ZDELETE(P_ReNumber);
 	ZDELETE(P_ReHex);
 	ZDELETE(P_ReIdent);
@@ -520,7 +521,6 @@ SString & FASTCALL SStrScan::Get(SString & rBuf) const
 bool SStrScan::GetQuotedString(SFileFormat format, SString & rBuf)
 {
 	bool   result = false;
-	// @v11.7.7 {
 	size_t end_pos = 0;
 	uint   qsf = QSF_INBUFZTERM;
 	if(format == SFileFormat::Csv)
@@ -530,37 +530,6 @@ bool SStrScan::GetQuotedString(SFileFormat format, SString & rBuf)
 		Offs += end_pos;
 		result = true;
 	}
-	// } @v11.7.7 
-	/* @v11.7.7
-	rBuf.Z(); 
-	size_t _ofs = Offs;
-	char   c = P_Buf[_ofs];
-	if(c == '\"') {
-		_ofs++;
-		do {
-			c = P_Buf[_ofs];
-			if(c != 0) {
-				_ofs++;
-				if(c == '\"') {
-					char c2 = P_Buf[_ofs];
-					if(format == SFileFormat::Csv && c2 == '\"') {
-						_ofs++;
-						rBuf.CatChar(c);
-					}
-					else {
-						Offs = _ofs;
-						ok = 1;
-						break;
-					}
-				}
-				else
-					rBuf.CatChar(c);
-			}
-			else
-				break;
-		} while(true);
-	}
-	*/
 	return result;
 }
 
@@ -571,6 +540,22 @@ bool FASTCALL SStrScan::GetQuotedString(SString & rBuf)
 	if(P_ReQuotedStr->Find(this, 0)) {
 		Offs++;   // "
 		Len -= 2; // ""
+		Get(rBuf);
+		Len++; // Убрать завершающую кавычку
+		IncrLen();
+		result = true;
+	}
+	return result;
+}
+
+bool FASTCALL SStrScan::GetApostrophedString(SString & rBuf)
+{
+	rBuf.Z();
+	bool   result = false;
+	SETIFZQ(P_ReApoStr, new SRegExp2("^\'[^\']*\'", cp1251, SRegExp2::syntaxDefault, 0));
+	if(P_ReApoStr->Find(this, 0)) {
+		Offs++;   // '
+		Len -= 2; // ''
 		Get(rBuf);
 		Len++; // Убрать завершающую кавычку
 		IncrLen();

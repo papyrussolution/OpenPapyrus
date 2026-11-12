@@ -664,14 +664,14 @@ void CPosProcessor::CardState::SetID(PPID id, const char * pCode)
 
 double CPosProcessor::CardState::GetDiscount(double ccAmount) const
 {
-	double ret = 0.0;
+	double result = 0.0;
 	if(P_DisByAmtRule && ccAmount > 0.0) {
 		const TrnovrRngDis * p_item = P_DisByAmtRule->SearchItem(ccAmount);
-		ret = (p_item && !(p_item->Flags & TrnovrRngDis::fBonusAbsoluteValue)) ? p_item->Value : Discount;
+		result = (p_item && !(p_item->Flags & TrnovrRngDis::fBonusAbsoluteValue)) ? p_item->Value : Discount;
 	}
 	else
-		ret = Discount;
-	return ret;
+		result = Discount;
+	return result;
 }
 
 const RetailPriceExtractor::ExtQuotBlock * CPosProcessor::GetCStEqb(PPID goodsID, bool * pNoDiscount)
@@ -1976,13 +1976,14 @@ CcTotal CPosProcessor::CalcTotal() const
 	return _t;
 }
 
-CPosProcessor::SetupDiscontBlock::SetupDiscontBlock(double roundingDiscount, bool distributeGiftDiscount) : 
+CPosProcessor::SetupDiscountBlock::SetupDiscountBlock(double roundingDiscount, bool distributeGiftDiscount) : 
 	RoundingDiscount(roundingDiscount), IsRounding(roundingDiscount != 0.0),
-	DistributeGiftDiscount(distributeGiftDiscount), LastIndex(0), Amount(0.0), P_Scst(0)
+	DistributeGiftDiscount(distributeGiftDiscount), LastIndex(0), Amount_Base(0.0), P_Scst(0), 
+	UseDiscountDistributionMeth(SlDebugMode::CT() ? true : false)
 {
 }
 	
-CPosProcessor::SetupDiscontBlock::~SetupDiscontBlock()
+CPosProcessor::SetupDiscountBlock::~SetupDiscountBlock()
 {
 	delete P_Scst;
 }
@@ -1991,10 +1992,9 @@ CPosProcessor::SetupDiscontBlock::~SetupDiscontBlock()
 //   1 - если карта в чеке имеет SCardSpecialTreatment, то это - первый цикл для запроса к стороннему сервису
 //   0 - регулярный режим (если требуется mode == 1, то вызов с mode == 0 осуществляется после оного).
 //
-int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, SetupDiscontBlock & rBlk)
+int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, SetupDiscountBlock & rBlk)
 {
 	int    result = 1;
-	//CPosProcessor::SetupDiscontBlock & r_blk = *static_cast<CPosProcessor::SetupDiscontBlock *>(pBlk);
 	if(mode == 0 || (mode == 1 && rBlk.P_Scst)) {
 		PPObjBill * p_bobj(BillObj);
 		double min_qtty  = SMathConst::Max;
@@ -2097,7 +2097,7 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, SetupDiscontBlock & r
 						assert(row_id > 0);
 						rBlk.GiftDisList.Add((row_id-1), gift_item_dis);
 						if(!rBlk.IsRounding)
-							rBlk.Amount = R2(rBlk.Amount - gift_item_dis); // Сумму подарочной скидки необходимо вычесть из базы для расчета общей скидки
+							rBlk.Amount_Base = R2(rBlk.Amount_Base - gift_item_dis); // Сумму подарочной скидки необходимо вычесть из базы для расчета общей скидки
 					}
 					assert(r_item.Price == 0.0);
 					r_item.Discount = 0.0;
@@ -2130,7 +2130,7 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, SetupDiscontBlock & r
 				}
 				else {
 					const  double p = R2(rBlk.IsRounding ? r_item.NetPrice() : r_item.Price);
-					rBlk.Amount = R2(rBlk.Amount + p * qtty);
+					rBlk.Amount_Base = R2(rBlk.Amount_Base + p * qtty);
 					if(qtty > 0.0 && (qtty < min_qtty || (qtty == min_qtty && p > max_price))) {
 						rBlk.LastIndex = row_id;
 						min_qtty = qtty;
@@ -2158,17 +2158,16 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, SetupDiscontBlock & r
 				}
 			}
 		}
-		rBlk.Amount = R2(rBlk.Amount);
+		rBlk.Amount_Base = R2(rBlk.Amount_Base);
 	}
 	return result;
 }
 
-void CPosProcessor::Helper_SetupDiscount(/*double roundingDiscount, bool distributeGiftDiscount*/SetupDiscontBlock & rBlk)
+void CPosProcessor::Helper_SetupDiscount(SetupDiscountBlock & rBlk)
 {
 	//
 	// Если товар не имеет котировки, то на него распространяется общая скидка.
 	//
-	//CPosProcessor::SetupDiscontBlock sdb(roundingDiscount, distributeGiftDiscount);
 	if(CSt.GetID() && CSt.CSTRB.SpecialTreatment) {
 		SCardSpecialTreatment * p_st = SCardSpecialTreatment::CreateInstance(CSt.CSTRB.SpecialTreatment);
 		if(p_st && p_st->GetCapability() & SCardSpecialTreatment::capfItemDiscount)
@@ -2201,18 +2200,18 @@ void CPosProcessor::Helper_SetupDiscount(/*double roundingDiscount, bool distrib
 			discount = rBlk.RoundingDiscount; // @v12.7.10 
 		}
 		else {
-			const  double _dis = CSt.GetDiscount(rBlk.Amount);
-			discount = _dis * fdiv100r(rBlk.Amount);
+			const  double _dis = CSt.GetDiscount(rBlk.Amount_Base);
+			discount = _dis * fdiv100r(rBlk.Amount_Base);
 			CSt.SettledDiscount = _dis;
-			if(discount < rBlk.Amount && ManDis.Discount > 0.0) {
+			if(discount < rBlk.Amount_Base && ManDis.Discount > 0.0) {
 				double mandiscount = 0.0;
 				if(ManDis.Flags & ManualDiscount::fPct) {
 					const  double _mpctdis = smin(ManDis.Discount, 100.0);
-					mandiscount = _mpctdis * (rBlk.Amount - discount) / 100.0;
+					mandiscount = _mpctdis * (rBlk.Amount_Base - discount) / 100.0;
 				}
 				else {
 					mandiscount = discount + ManDis.Discount;
-					SETMIN(mandiscount, rBlk.Amount);
+					SETMIN(mandiscount, rBlk.Amount_Base);
 				}
 				ManDis.SettledAbsolutDiscount = mandiscount;
 				discount = mandiscount;
@@ -2223,9 +2222,42 @@ void CPosProcessor::Helper_SetupDiscount(/*double roundingDiscount, bool distrib
 		if(!rBlk.IsRounding) {
 			if(discount != 0.0) {
 				const  double temp_dis = this->RoundDis(discount);
-				if(temp_dis < rBlk.Amount)
+				if(temp_dis < rBlk.Amount_Base)
 					discount = temp_dis;
 			}
+			// @v12.8.3 @construction {
+			if(/*rBlk.UseDiscountDistributionMeth*/false) {
+				DiscountDistribution dd; 
+				DiscountDistribution::Result r_;
+				{
+					for(uint i = 0; i < P.getCount(); i++) {
+						CCheckItem & r_item = P.at(i);
+						const  int row_id = static_cast<int>(i+1); // [1..]
+						const  double qtty = fabs(r_item.Quantity);
+						uint64 init_price = R0(abs(rBlk.IsRounding ? r_item.NetPrice() : r_item.Price) * 100.0);
+						uint   item_flags = 0;
+						if(rBlk.PosList_WoDis.lsearch(row_id))
+							item_flags |= DiscountDistribution::fNoDiscount;
+						dd.AddItem(row_id, init_price, qtty, item_flags);
+					}
+				}
+				dd.Run(R0(discount * 100.0), r_);
+				{
+					for(uint i = 0; i < P.getCount(); i++) {
+						CCheckItem & r_item = P.at(i);
+						const DiscountDistribution::Item * p_dd_item = r_.GetItemByRef(i+1);
+						if(p_dd_item) {
+							r_item.Discount = (p_dd_item->Discount / 100.0);
+							/*if(is_ret)
+								r_item.Discount = -r_item.Discount;*/
+						}
+						else {
+							; 
+						}
+					}
+				}
+			}
+			// } @v12.8.3 @construction 
 			// @v12.6.2 {
 			{
 				for(uint i = 0; i < P.getCount(); i++) {
@@ -2234,7 +2266,7 @@ void CPosProcessor::Helper_SetupDiscount(/*double roundingDiscount, bool distrib
 					if(row_id != rBlk.LastIndex && !rBlk.PosList_WoDis.lsearch(row_id)) {
 						const  double qtty = fabs(r_item.Quantity);
 						const  double p    = R2(rBlk.IsRounding ? r_item.NetPrice() : r_item.Price); // @R2
-						double d01 = fdivnz(p * (discount - part_dis), (rBlk.Amount - part_amount));
+						double d01 = fdivnz(p * (discount - part_dis), (rBlk.Amount_Base - part_amount));
 						double d02 = 0.0;
 						// @v12.6.9 @fix if(rBlk.PosList_PriceAdjustment.addUnique(row_id)) {
 						if(rBlk.PosList_PriceAdjustment.lsearch(row_id)) { // @v12.6.9 @fix 
@@ -2291,7 +2323,7 @@ void CPosProcessor::Helper_SetupDiscount(/*double roundingDiscount, bool distrib
 						const  CCheckItem & r_item = P.at(pos);
 						const  double item_amt = r_item.NetPrice() * fabs(r_item.Quantity);
 						gift_amt = R2(gift_amt + R2(item_amt));
-						if(r_item.Flags & cifMainGiftItem /*&& dis < item_amt*/)
+						if(r_item.Flags & cifMainGiftItem/*&& dis < item_amt*/)
 							main_pos_list.addUnique(static_cast<int>(pos));
 					}
 				}
@@ -2355,15 +2387,15 @@ void CPosProcessor::Helper_SetupDiscount(/*double roundingDiscount, bool distrib
 
 void CPosProcessor::SetupDiscount(bool distributeGiftDiscount/*=false*/)
 {
-	CPosProcessor::SetupDiscontBlock sdb1(0.0/*roundingDiscount*/, distributeGiftDiscount);
-	Helper_SetupDiscount(/*0.0, distributeGiftDiscount*/sdb1);
+	CPosProcessor::SetupDiscountBlock sdb1(0.0/*roundingDiscount*/, distributeGiftDiscount);
+	Helper_SetupDiscount(sdb1);
 	const  CcTotal cct = CalcTotal();
 	const  double new_amt = (R__.AmtRoundPrec != 0.0) ? PPRound(cct.Amount, R__.AmtRoundPrec, R__.AmtRoundDir) : R2(cct.Amount);
 	const  double diff = R2(cct.Amount - new_amt);
 	double diff2 = 0.0;
 	if(!feqeps(diff, 0.0, 1E-6)) {
-		CPosProcessor::SetupDiscontBlock sdb2(diff/*roundingDiscount*/, false/*distributeGiftDiscount*/);
-		Helper_SetupDiscount(/*diff, falsedistributeGiftDiscount*/sdb2);
+		CPosProcessor::SetupDiscountBlock sdb2(diff/*roundingDiscount*/, false/*distributeGiftDiscount*/);
+		Helper_SetupDiscount(sdb2);
 		//
 		const  CcTotal cct2 = CalcTotal();
 		const  double new_amt2 = (R__.AmtRoundPrec != 0.0) ? PPRound(cct2.Amount, R__.AmtRoundPrec, R__.AmtRoundDir) : R2(cct2.Amount);
@@ -13104,7 +13136,7 @@ int CPosProcessor::SetupNewRow(PgsBlock & rBlk, PPID giftID/*=0*/)
 					GObj.FetchSingleBarcode(rBlk.GoodsID, temp_buf);
 					temp_buf.CopyTo(rgi.BarCode, sizeof(rgi.BarCode));
 				}
-				rBlk.Qtty = 0.0;
+				// @v12.8.3 (выше по стеку значение было инициализировано, а здесь оно обнулилось!) rBlk.Qtty = 0.0;
 				if(r <= 0)
 					rgi.Price = 1.0;
 				r = 2000;

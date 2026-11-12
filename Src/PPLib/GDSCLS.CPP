@@ -310,6 +310,95 @@ int PPObjGoodsClass::GetDim(PPID gdsClsID, PPID propID, PPGdsClsDim * pDim)
 //
 //
 //
+class SelGcSubstSymbDialog : public TDialog { // @v12.8.3
+public:
+	SelGcSubstSymbDialog(long options) : TDialog(DLG_SELGCSUBSTSYMB), SelID(0)
+	{
+		P_List = static_cast<SmartListBox *>(getCtrlView(CTL_SELGCSUBSTSYMB_LIST));
+		StrAssocListBoxDef * p_def = new StrAssocListBoxDef(0, lbtDisposeData|lbtDblClkNotify);
+		if(p_def) {
+			P_List->setDef(p_def);
+			updateList();
+		}
+		else
+			PPError(PPERR_NOMEM);
+	}
+	int GetSelectedSymb(SString & rSymbBuf) const
+	{
+		int    ok = 1;
+		rSymbBuf = SelSymb;
+		return ok;
+	}
+private:
+	DECL_HANDLE_EVENT;
+	int    MakeList(StrAssocArray * pList)
+	{
+		// GCNAME;GCKIND;GCGRADE;GCADDPROP;GCADD2PROP;GCDIMX;GCDIMY;GCDIMZ;GCDIMW
+		// PPSYM_GC_NAME,     // @gcname     Наименование класса товара
+		// PPSYM_GC_KIND,     // @gckind     Вид товара
+		// PPSYM_GC_GRADE,    // @gcgrade    Сорт товара
+		// PPSYM_GC_ADDPROP,  // @gcaddprop  Доп свойство товара
+		// PPSYM_GC_ADD2PROP, // @gcadd2prop Доп 2 свойство товара
+		// PPSYM_GC_DIMX,     // @gcdimx     Размерность X
+		// PPSYM_GC_DIMY,     // @gcdimy     Размерность Y
+		// PPSYM_GC_DIMZ,     // @gcdimz     Размерность Z
+		// PPSYM_GC_DIMW,     // @gcdimw     Размерность W
+		/*
+		@gcsubstsymbdescr_gcname     "Наименование класса товара"
+		@gcsubstsymbdescr_gckind     "Вид товара"
+		@gcsubstsymbdescr_gcgrade    "Сорт товара"
+		@gcsubstsymbdescr_gcaddprop  "Дополнительное свойство товара"
+		@gcsubstsymbdescr_gcadd2prop "Дополнительное свойство товара 2"
+		@gcsubstsymbdescr_gcdimx     "Размерность X"
+		@gcsubstsymbdescr_gcdimy     "Размерность Y"
+		@gcsubstsymbdescr_gcdimz     "Размерность Z"
+		@gcsubstsymbdescr_gcdimw     "Размерность W"
+		*/
+		struct GcSubstEntry {
+			const char * P_Symb;
+			const char * P_DescrTag;
+		};
+		static const GcSubstEntry gcslist[] = {
+			{ "gcname", "gcsubstsymbdescr_gcname" },
+			{ "gckind", "gcsubstsymbdescr_gckind" },
+			{ "gcgrade", "gcsubstsymbdescr_gcgrade" },
+			{ "gcaddprop", "gcsubstsymbdescr_gcaddprop" },
+			{ "gcadd2prop", "gcsubstsymbdescr_gcadd2prop" },
+			{ "gcdimx", "gcsubstsymbdescr_gcdimx" },
+			{ "gcdimy", "gcsubstsymbdescr_gcdimy" },
+			{ "gcdimz", "gcsubstsymbdescr_gcdimz" },
+			{ "gcdimw", "gcsubstsymbdescr_gcdimw" },
+		};
+
+		int    ok = 1;
+		SString temp_buf;
+		StringSet ss(SLBColumnDelim);
+		// @todo
+		return ok;
+	}
+	void updateList()
+	{
+		if(P_List) {
+			StrAssocArray * p_list = new StrAssocArray;
+			if(MakeList(p_list)) {
+				static_cast<StrAssocListBoxDef *>(P_List->P_Def)->setArray(p_list);
+				Draw_();
+			}
+			else
+				delete p_list;
+		}
+	}
+	SmartListBox * P_List;
+	PPID   SelID;
+	SString SelSymb;
+};
+
+int STDCALL SelectGcSubstSymb(SString & rSymbBuf)
+{
+	int    ok = -1;
+	return ok;
+}
+
 class GoodsClassDialog : public TDialog {
 	DECL_DIALOG_DATA(PPGdsClsPacket);
 public:
@@ -390,111 +479,9 @@ private:
 	int    editDynGenMask();
 	int    EditLotDimParam();
 };
-
-class GoodsClassProp2Dialog : public TDialog {
-public:
-	GoodsClassProp2Dialog() : TDialog(DLG_GDSCLSPROP2), OrgObjType(0), P_GcPack(0), GcProp(0)
-	{
-	}
-	int    setDTS(const PPGdsClsProp *, int gcProp, const PPGdsClsPacket * pGcPack);
-	int    getDTS(PPGdsClsProp *);
-private:
-	DECL_HANDLE_EVENT;
-	void   createObject();
-	void   replaceObject();
-	PPGdsClsProp Data;
-	int    GcProp;
-	const  PPGdsClsPacket * P_GcPack;
-
-	PPID   OrgObjType;
-};
-
-void GoodsClassProp2Dialog::createObject()
-{
-	getCtrlData(CTLSEL_GDSCLSPROP_OBJ, &Data.ItemsListID);
-	if(!Data.ItemsListID) {
-		PPID   dyn_obj_type = 0;
-		PPObjDynamicObjs dyn_obj;
-		if(dyn_obj.Edit(&dyn_obj_type, 0) == cmOK) {
-			Data.ItemsListID = dyn_obj_type;
-			SetupObjListCombo(this, CTLSEL_GDSCLSPROP_OBJ, Data.ItemsListID);
-			enableCommand(cmGcPropViewObj,    Data.ItemsListID);
-			enableCommand(cmGcPropReplaceObj, Data.ItemsListID);
-			enableCommand(cmGcPropCreateObj, !Data.ItemsListID);
-		}
-	}
-}
-
-void GoodsClassProp2Dialog::replaceObject()
-{
-	getCtrlData(CTLSEL_GDSCLSPROP_OBJ, &Data.ItemsListID);
-	if(Data.ItemsListID != OrgObjType && P_GcPack && P_GcPack->Rec.ID) {
-		PPObjGoods goods_obj;
-		LAssocArray goods_list;
-		if(goods_obj.P_Tbl->GetExtPropRefList(P_GcPack->Rec.ID, GcProp, 0, &goods_list) > 0) {
-			if(CONFIRMCRIT(PPCFM_REPLACEGCPROP)) {
-				;
-			}
-			else {
-				Data.ItemsListID = OrgObjType;
-				setCtrlData(CTLSEL_GDSCLSPROP_OBJ, &Data.ItemsListID);
-			}
-		}
-	}
-	enableCommand(cmGcPropViewObj, Data.ItemsListID);
-}
-
-IMPL_HANDLE_EVENT(GoodsClassProp2Dialog)
-{
-	TDialog::handleEvent(event);
-	if(TVCOMMAND)
-		switch(TVCMD) {
-			case cmCBSelected:
-				if(event.isCtlEvent(CTLSEL_GDSCLSPROP_OBJ))
-					replaceObject();
-				break;
-			case cmGcPropViewObj:
-				getCtrlData(CTLSEL_GDSCLSPROP_OBJ, &Data.ItemsListID);
-				if(Data.ItemsListID)
-					ShowObjects(Data.ItemsListID, 0);
-				break;
-			case cmGcPropCreateObj:
-				createObject();
-				break;
-			default:
-				return;
-		}
-	else
-		return;
-	clearEvent(event);
-}
-
-int GoodsClassProp2Dialog::setDTS(const PPGdsClsProp * pData, int gcProp, const PPGdsClsPacket * pGcPack)
-{
-	P_GcPack = pGcPack;
-	GcProp = gcProp;
-	Data = *pData;
-	OrgObjType = Data.ItemsListID;
-	setCtrlData(CTL_GDSCLSPROP_NAME, Data.Name);
-	SetupObjListCombo(this, CTLSEL_GDSCLSPROP_OBJ, Data.ItemsListID);
-	enableCommand(cmGcPropViewObj,    Data.ItemsListID);
-	enableCommand(cmGcPropReplaceObj, Data.ItemsListID);
-	enableCommand(cmGcPropCreateObj, !Data.ItemsListID);
-	return 1;
-}
-
-int GoodsClassProp2Dialog::getDTS(PPGdsClsProp * pData)
-{
-	getCtrlData(CTL_GDSCLSPROP_NAME, Data.Name);
-	getCtrlData(CTLSEL_GDSCLSPROP_OBJ, &Data.ItemsListID);
-	ASSIGN_PTR(pData, Data);
-	return 1;
-}
-//
-//
 //
 // prototype
-int EditGcFormulaList(PPGdsClsPacket * pData);
+int EditGcFormulaList(PPGdsClsPacket & rData);
 
 IMPL_HANDLE_EVENT(GoodsClassDialog)
 {
@@ -509,7 +496,7 @@ IMPL_HANDLE_EVENT(GoodsClassDialog)
 			case cmGdsClsY:     replyDimCmd(&Data.DimY);       break;
 			case cmGdsClsZ:     replyDimCmd(&Data.DimZ);       break;
 			case cmGdsClsW:     replyDimCmd(&Data.DimW);       break;
-			case cmGdsClsFormList:   EditGcFormulaList(&Data); break;
+			case cmGdsClsFormList:   EditGcFormulaList(Data); break;
 			case cmGdsClsDynGenMask: editDynGenMask();         break;
 			case cmGdsClsLotDim:     EditLotDimParam();        break;
 			case cmClusterClk: 
@@ -572,8 +559,10 @@ int GdsClsParamMask::Edit(long options)
 	TDialog * dlg = new TDialog(DLG_GCDGM);
 	if(CheckDialogPtrErr(&dlg)) {
 		SetupPPObjCombo(dlg, CTLSEL_GCDGM_GDSCLS, PPOBJ_GOODSCLASS, ClsID, 0, 0);
-		if(options & 0x0001)
-			dlg->disableCtrl(CTLSEL_GCDGM_GDSCLS, true);
+		if(options & 0x0001) {
+			dlg->setCtrlReadOnly(CTLSEL_GCDGM_GDSCLS, true); // @v12.8.3 disableCtrl-->setCtrlReadOnly
+			dlg->selectCtrl(CTL_GCDGM_MASK);
+		}
 		dlg->AddClusterAssoc(CTL_GCDGM_MASK, 0, 1<<(PPGdsCls::eKind-1));
 		dlg->AddClusterAssoc(CTL_GCDGM_MASK, 1, 1<<(PPGdsCls::eGrade-1));
 		dlg->AddClusterAssoc(CTL_GCDGM_MASK, 2, 1<<(PPGdsCls::eAdd-1));
@@ -584,7 +573,7 @@ int GdsClsParamMask::Edit(long options)
 		dlg->AddClusterAssoc(CTL_GCDGM_MASK, 7, 1<<(PPGdsCls::eW-1));
 		dlg->SetClusterData(CTL_GCDGM_MASK, Mask);
 		if(ExecView(dlg) == cmOK) {
-			GdsClsParamMask temp = *this;
+			GdsClsParamMask temp(*this);
 			dlg->getCtrlData(CTLSEL_GCDGM_GDSCLS, &temp.ClsID);
 			dlg->GetClusterData(CTL_GCDGM_MASK, &temp.Mask);
 			*this = temp;
@@ -629,18 +618,108 @@ int GoodsClassDialog::EditLotDimParam()
 
 int GoodsClassDialog::replyPropCmd(PPGdsClsProp * pData, int gcProp)
 {
+	class GoodsClassProp2Dialog : public TDialog {
+		DECL_DIALOG_DATA(PPGdsClsProp);
+		const  int GcProp;
+		const  PPGdsClsPacket * P_GcPack;
+		PPID   OrgObjType;
+	public:
+		GoodsClassProp2Dialog(const PPGdsClsPacket * pGcPack, int gcProp) : TDialog(DLG_GDSCLSPROP2), OrgObjType(0), P_GcPack(pGcPack), GcProp(gcProp)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			RVALUEPTR(Data, pData);
+			OrgObjType = Data.ItemsListID;
+			setCtrlData(CTL_GDSCLSPROP_NAME, Data.Name);
+			SetupObjListCombo(this, CTLSEL_GDSCLSPROP_OBJ, Data.ItemsListID);
+			enableCommand(cmGcPropViewObj,    Data.ItemsListID);
+			enableCommand(cmGcPropReplaceObj, Data.ItemsListID);
+			enableCommand(cmGcPropCreateObj, !Data.ItemsListID);
+			return 1;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			getCtrlData(CTL_GDSCLSPROP_NAME, Data.Name);
+			getCtrlData(CTLSEL_GDSCLSPROP_OBJ, &Data.ItemsListID);
+			ASSIGN_PTR(pData, Data);
+			return 1;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(TVCOMMAND) {
+				switch(TVCMD) {
+					case cmCBSelected:
+						if(event.isCtlEvent(CTLSEL_GDSCLSPROP_OBJ))
+							replaceObject();
+						break;
+					case cmGcPropViewObj:
+						getCtrlData(CTLSEL_GDSCLSPROP_OBJ, &Data.ItemsListID);
+						if(Data.ItemsListID)
+							ShowObjects(Data.ItemsListID, 0);
+						break;
+					case cmGcPropCreateObj:
+						createObject();
+						break;
+					default:
+						return;
+				}
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		void createObject()
+		{
+			getCtrlData(CTLSEL_GDSCLSPROP_OBJ, &Data.ItemsListID);
+			if(!Data.ItemsListID) {
+				PPID   dyn_obj_type = 0;
+				PPObjDynamicObjs dyn_obj;
+				if(dyn_obj.Edit(&dyn_obj_type, 0) == cmOK) {
+					Data.ItemsListID = dyn_obj_type;
+					SetupObjListCombo(this, CTLSEL_GDSCLSPROP_OBJ, Data.ItemsListID);
+					enableCommand(cmGcPropViewObj,    Data.ItemsListID);
+					enableCommand(cmGcPropReplaceObj, Data.ItemsListID);
+					enableCommand(cmGcPropCreateObj, !Data.ItemsListID);
+				}
+			}
+		}
+		void replaceObject()
+		{
+			getCtrlData(CTLSEL_GDSCLSPROP_OBJ, &Data.ItemsListID);
+			if(Data.ItemsListID != OrgObjType && P_GcPack && P_GcPack->Rec.ID) {
+				PPObjGoods goods_obj;
+				LAssocArray goods_list;
+				if(goods_obj.P_Tbl->GetExtPropRefList(P_GcPack->Rec.ID, GcProp, 0, &goods_list) > 0) {
+					if(CONFIRMCRIT(PPCFM_REPLACEGCPROP)) {
+						;
+					}
+					else {
+						Data.ItemsListID = OrgObjType;
+						setCtrlData(CTLSEL_GDSCLSPROP_OBJ, &Data.ItemsListID);
+					}
+				}
+			}
+			enableCommand(cmGcPropViewObj, Data.ItemsListID);
+		}
+	};
+	/* @v12.8.3
 	int    ok = -1;
-	GoodsClassProp2Dialog * dlg = new GoodsClassProp2Dialog;
-	if(CheckDialogPtrErr(&dlg) && dlg->setDTS(pData, gcProp, &Data)) {
-		while(ok <= 0 && ExecView(dlg) == cmOK)
+	GoodsClassProp2Dialog * dlg = new GoodsClassProp2Dialog(&Data, gcProp);
+	if(CheckDialogPtrErr(&dlg) && dlg->setDTS(pData)) {
+		while(ok <= 0 && ExecView(dlg) == cmOK) {
 			if(dlg->getDTS(pData))
 				ok = 1;
+		}
 	}
 	else
 		ok = 0;
 	delete dlg;
 	return ok;
-	//DIALOG_PROC_BODY(GoodsClassPropDialog, pData);
+	*/
+	DIALOG_PROC_BODY_P2(GoodsClassProp2Dialog, &Data, gcProp, pData); // @v12.8.3
 }
 
 int GoodsClassDialog::replyDimCmd(PPGdsClsDim * pData)
@@ -1245,14 +1324,18 @@ private:
 int GdsClsFormListDialog::setupList()
 {
 	SString temp_buf;
+	StringSet ss(SLBColumnDelim);
 	for(uint i = 1; i <= P_Data->FormulaList.getCount(); i++) {
 		PPGdsClsFormula form;
 		P_Data->GetFormula(i, &form);
+		ss.Z();
 		temp_buf.Z();
 		if(form.Flags & PPGdsClsFormula::fDefault)
 			temp_buf.CatChar('!');
-		temp_buf.Cat(form.Name);
-		if(!addStringToList(i, temp_buf))
+		ss.add(temp_buf);
+		ss.add(form.Name);
+		ss.add(form.Formula);
+		if(!addStringToList(i, ss.getBuf()))
 			return 0;
 	}
 	return 1;
@@ -1301,23 +1384,23 @@ int GdsClsFormListDialog::delItem(long pos, long id)
 	int    ok = -1;
 	int    idx = id;
 	PPGdsClsFormula form;
-	if(P_Data->GetFormula(idx, &form))
+	if(P_Data->GetFormula(idx, &form)) {
 		if(!P_Data->PutFormula(&idx, 0))
 			ok = PPErrorZ();
 		else
 			ok = 1;
+	}
 	return ok;
 }
 
-int EditGcFormulaList(PPGdsClsPacket * pData)
+int EditGcFormulaList(PPGdsClsPacket & rData)
 {
 	int    ok = -1;
-	PPGdsClsPacket temp_data;
-	temp_data = *pData;
+	PPGdsClsPacket temp_data(rData);
 	GdsClsFormListDialog * dlg = new GdsClsFormListDialog(&temp_data);
 	if(CheckDialogPtrErr(&dlg)) {
 		if(ExecView(dlg) == cmOK) {
-			*pData = temp_data;
+			rData = temp_data;
 			ok = 1;
 		}
 	}
@@ -1336,7 +1419,7 @@ public:
 	}
 	int    setDTS(PPID goodsID, PPID tsessID);
 	int    getDTS(double * pResult);
-	void   SetArg(int argIdx /* 1..3 */, double arg);
+	void   SetArg(int argIdx/*1..3*/, double arg);
 private:
 	DECL_HANDLE_EVENT;
 	int    SetupFormulaCombo();

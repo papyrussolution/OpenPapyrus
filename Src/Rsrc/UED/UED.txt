@@ -594,6 +594,7 @@
 	0000004900000086 "xlsm"           // @v12.3.7 MS Excel (xml-format with macroses)
 	0000004900000087 "winword"        // @v12.3.7 MS Word (OLE-format)
 	0000004900000088 "winwordx"       // @v12.3.7 MS Word (xml-format)
+	0000004900000089 "markdown"       // @v12.8.3 Markdown (текст с упрощенной разметкой для публикации)
 	0000004900010001 "prv_papyrudbdivxchg" //  Приватный формат проекта Papyrus: файл обмена данными между разделами
 //
 000000010000004A "urischeme"

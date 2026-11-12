@@ -1531,7 +1531,7 @@ int PPObjectTransmit::RestoreObj(RestoreObjBlock & rBlk, RestoreObjItem & rItem,
 	bool   mark_item_as_processed = false;
 	PPObject * ppobj = 0;
 	PPID   primary_id = 0;
-	SObjID oi_f = rItem.Oi;
+	SObjID oi_f(rItem.Oi);
 	PPCommSyncID comm_id(rItem.CommID);
 	SObjID dont_process_pair;
 	SString added_buf;

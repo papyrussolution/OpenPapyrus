@@ -2287,12 +2287,11 @@ int PPObjCSession::GetListByUuid(const S_GUID & rUuid, uint backDays, PPIDArray 
 //
 IMPLEMENT_IMPEXP_HDL_FACTORY(CCHECK2, PPCCheckImpExpParam);
 
-
 PPCCheckImpExpParam::PPCCheckImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), Flags(0), PredefFormat(0), CcByUuidSearchMaxDays(0)
 {
 }
 
-/*virtual*/int PPCCheckImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
+/* @v12.8.3 (тупиковая ветвь) int PPCCheckImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2315,7 +2314,7 @@ PPCCheckImpExpParam::PPCCheckImpExpParam(uint recId, long flags) : PPImpExpParam
 	}
 	CATCHZOK
 	return ok;
-}
+}*/
 
 int PPCCheckImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 {

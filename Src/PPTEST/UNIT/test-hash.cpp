@@ -1299,16 +1299,16 @@ SLTEST_R(HashFunction)
 		const char * p_data = "Hello, world!";
 		uint32 rh;
 		SLCHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234U)), 0xfaf6cdb3U);
-		SLCHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 1234), rh);
+		SLCHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen32(p_data), 1234), rh);
 
 		SLCHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 4321U)), 0xbf505788U);
-		SLCHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 4321), rh);
+		SLCHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen32(p_data), 4321), rh);
 		p_data = "xxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 		SLCHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234U)), 0x8905ac28U);
-		SLCHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 1234), rh);
+		SLCHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen32(p_data), 1234), rh);
 		p_data = "";
 		SLCHECK_EQ((rh = SlHash::Murmur3_32(p_data, sstrlen(p_data), 1234U)), 0x0f2cc00bU);
-		SLCHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen(p_data), 1234), rh);
+		SLCHECK_EQ(SlEqualityTest_gravity_murmur3_32(p_data, sstrlen32(p_data), 1234), rh);
 		//
 		{
 			//uint32 h128[4];

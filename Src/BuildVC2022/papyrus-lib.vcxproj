@@ -1448,6 +1448,7 @@
     <ClCompile Include="..\PPLib\Objutil.cpp" />
     <ClCompile Include="..\PPLib\Objvatbk.cpp" />
     <ClCompile Include="..\PPLib\objworld.cpp" />
+    <ClCompile Include="..\PPLib\ortools_module_client.cpp" />
     <ClCompile Include="..\PPLib\PACKAGE.CPP" />
     <ClCompile Include="..\PPLib\Path.cpp" />
     <ClCompile Include="..\PPLib\Payment.cpp" />

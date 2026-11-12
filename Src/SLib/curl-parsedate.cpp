@@ -210,12 +210,11 @@ static int FASTCALL checkmonth(const char * check)
 //
 static int FASTCALL checktz(const char * check)
 {
-	uint i;
-	bool found = FALSE;
-	const struct tzinfo * what = tz;
-	for(i = 0; i< sizeof(tz)/sizeof(tz[0]); i++) {
+	bool   found = false;
+	const  struct tzinfo * what = tz;
+	for(uint i = 0; i < SIZEOFARRAY(tz); i++) {
 		if(sstreqi_ascii(check, what->name)) {
-			found = TRUE;
+			found = true;
 			break;
 		}
 		what++;

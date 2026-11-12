@@ -1960,11 +1960,11 @@ int STDCALL SetupSCollectionComboBox(TDialog * dlg, uint ctl, SCollection * pSC,
 	int    ok = 1;
 	ComboBox * cb = static_cast<ComboBox *>(dlg->getCtrlView(ctl));
 	if(cb && pSC && pSC->getCount()) {
-		ListWindow * lw = CreateListWindow_Simple(0);
+		ListWindow * p_lw = CreateListWindow_Simple(0);
 		for(uint i = 0; i < pSC->getCount(); i++) {
 			char * p_buf = (char *)pSC->at(i);
 			if(p_buf && p_buf[0] != '\0') {
-				char   temp_buf[256]; // @v11.2.5 [128]-->[256]
+				char   temp_buf[256];
 				long   id = 0;
 				uint   pos = 0;
 				StringSet ss(',', p_buf);
@@ -1975,10 +1975,10 @@ int STDCALL SetupSCollectionComboBox(TDialog * dlg, uint ctl, SCollection * pSC,
 				else
 					id = i + 1;
 				ss.get(&pos, temp_buf, sizeof(temp_buf));
-				lw->GetListBox()->addItem(id, temp_buf);
+				p_lw->GetListBox()->addItem(id, temp_buf);
 			}
 		}
-		cb->setListWindow(lw, initID);
+		cb->setListWindow(p_lw, initID);
 	}
 	return ok;
 }
@@ -4260,7 +4260,7 @@ int PhoneSelExtra::SearchText(const char * pText, long * pID, SString & rBuf)
 //
 //
 //
-LocalStateBinderySelExtra::LocalStateBinderySelExtra(const LocalStateBinderyCore::StateIdent & rIdent) : WordSel_ExtraBlock(), StI(rIdent)
+LocalStateBinderySelExtra::LocalStateBinderySelExtra(const LocalStateBinderyCore::StateIdent & rIdent) : WordSel_ExtraBlock(), StI(rIdent), MaxCount(20)
 {
 }
 
@@ -4275,7 +4275,7 @@ LocalStateBinderySelExtra::LocalStateBinderySelExtra(const LocalStateBinderyCore
 			key.Transf(CTRANSF_INNER_TO_UTF8);
 			TSCollection <LocalStateBinderyCore::SerialEntry> serial_list;
 			LongArray pos_list; // [+1]
-			p_lstb->FetchStateSerial(StI, &serial_list);
+			p_lstb->FetchStateSerial(StI, MaxCount, &serial_list);
 			LocalStateBinderyCore::SearchInSerial(serial_list, key, LocalStateBinderyCore::treatsSubStringUtf8List, pos_list);
 			if(pos_list.getCount()) {
 				for(uint i = 0; i < pos_list.getCount(); i++) {
@@ -4307,7 +4307,7 @@ LocalStateBinderySelExtra::LocalStateBinderySelExtra(const LocalStateBinderyCore
 	if(p_lstb) {
 		SString temp_buf;
 		TSCollection <LocalStateBinderyCore::SerialEntry> serial_list;
-		p_lstb->FetchStateSerial(StI, &serial_list);
+		p_lstb->FetchStateSerial(StI, MaxCount, &serial_list);
 		{
 			// Строки далее извлекаем с конца - в начало дабы в начале списка были бы самый свежие элементы
 			uint   i = serial_list.getCount();
@@ -4338,7 +4338,7 @@ LocalStateBinderySelExtra::LocalStateBinderySelExtra(const LocalStateBinderyCore
 		LocalStateBinderyCore * p_lstb = DS.GetTLA().GetLocalStateBindery();
 		if(p_lstb) {
 			TSCollection <LocalStateBinderyCore::SerialEntry> serial_list;
-			p_lstb->FetchStateSerial(StI, &serial_list);
+			p_lstb->FetchStateSerial(StI, MaxCount, &serial_list);
 			uint   pos = 0;
 			if(serial_list.lsearch(&id, &pos, CMPF_LONG)) {
 				const  LocalStateBinderyCore::SerialEntry * p_entry = serial_list.at(pos);
@@ -4363,7 +4363,7 @@ LocalStateBinderySelExtra::LocalStateBinderySelExtra(const LocalStateBinderyCore
 			SString key(pText);
 			TSCollection <LocalStateBinderyCore::SerialEntry> serial_list;
 			LongArray pos_list; // [+1]
-			p_lstb->FetchStateSerial(StI, &serial_list);
+			p_lstb->FetchStateSerial(StI, MaxCount, &serial_list);
 			LocalStateBinderyCore::SearchInSerial(serial_list, key, LocalStateBinderyCore::treatsStringUtf8List, pos_list);
 			if(pos_list.getCount()) {
 				const  long _idx = pos_list.get(0);
@@ -4626,16 +4626,19 @@ int PersonListCtrlGroup::Setup(TDialog * pDlg, PPID psnKindID, int force /*=0*/)
 		PPID   new_psn_kind_id = pDlg->getCtrlLong(CtlselPsnKind);
 		SETIFZ(new_psn_kind_id, Data.PsnKindID);
 		if(new_psn_kind_id != Data.PsnKindID || force) {
-			SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_PERSON, Data.List.getSingle(), 0, reinterpret_cast<void *>(Data.PsnKindID = new_psn_kind_id));
+			// @v12.8.3 OLW_WORDSELECTOR
+			SetupPPObjCombo(pDlg, Ctlsel, PPOBJ_PERSON, Data.List.getSingle(), OLW_WORDSELECTOR, reinterpret_cast<void *>(Data.PsnKindID = new_psn_kind_id));
 		}
 		pDlg->enableCommand(CmPsnList, LOGIC(Data.PsnKindID));
 
 		PPID   id = Data.List.getSingle();
-		PPID   prev_id = pDlg->getCtrlLong(Ctlsel);
-		if(id != prev_id)
+		const  PPID prev_id = pDlg->getCtrlLong(Ctlsel);
+		if(id != prev_id) {
 			pDlg->setCtrlData(Ctlsel, &id);
-		if(Data.List.getCount() > 1)
+		}
+		if(Data.List.getCount() > 1) {
 			SetComboBoxListText(pDlg, Ctlsel);
+		}
 		pDlg->disableCtrl(Ctlsel, (Data.List.getCount() > 1));
 		ok = 1;
 	}

@@ -375,7 +375,7 @@ private:
 class PPDS_CrrBarcodeStruc : public PPDeclStruc {
 public:
 	PPDS_CrrBarcodeStruc() : PPDeclStruc() {}
-	PPBarcodeStruc Data;
+	PPBarcodeStruc2 Data;
 private:
 	virtual int InitData(Ido op, void * dataPtr, long addedParam);
 	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
@@ -458,7 +458,7 @@ private:
 class PPDS_CrrPersonKind : public PPDeclStruc {
 public:
 	PPDS_CrrPersonKind() : PPDeclStruc() {}
-	PPPersonKind Data;
+	PPPersonKind2 Data;
 private:
 	virtual int InitData(Ido op, void * dataPtr, long addedParam);
 	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
@@ -481,7 +481,7 @@ private:
 class PPDS_CrrCurRateType : public PPDeclStruc {
 public:
 	PPDS_CrrCurRateType() : PPDeclStruc() {}
-	PPCurRateType Data;
+	PPCurRateType2 Data;
 private:
 	virtual int InitData(Ido op, void * dataPtr, long addedParam);
 	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
@@ -492,7 +492,7 @@ private:
 class PPDS_CrrAssetWrOffGrp : public PPDeclStruc {
 public:
 	PPDS_CrrAssetWrOffGrp() : PPDeclStruc() {}
-	PPAssetWrOffGrp Data;
+	PPAssetWrOffGrp2 Data;
 private:
 	virtual int InitData(Ido op, void * dataPtr, long addedParam);
 	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
@@ -642,7 +642,7 @@ private:
 class PPDS_CrrOprKindEntry : public PPDeclStruc {
 public:
 	PPDS_CrrOprKindEntry() : PPDeclStruc() {}
-	PPOprKind Data;
+	PPOprKind2 Data;
 private:
 	virtual int InitData(Ido op, void * dataPtr, long addedParam);
 	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);
@@ -724,7 +724,7 @@ class PPDS_CrrBillStatus : public PPDeclStruc {
 public:
 	PPDS_CrrBillStatus() : PPDeclStruc() {}
 
-	PPBillStatus Data;
+	PPBillStatus2 Data;
 private:
 	virtual int InitData(Ido op, void * dataPtr, long addedParam);
 	virtual int TransferField(long fldID, Tfd dir, uint *, SString & rBuf);

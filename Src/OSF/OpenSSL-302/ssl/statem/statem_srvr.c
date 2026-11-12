@@ -3133,18 +3133,14 @@ static int tls_process_cke_gost(SSL * s, PACKET * pkt)
 		if(EVP_PKEY_derive_set_peer(pkey_ctx, client_pub_pkey) <= 0)
 			ERR_clear_error();
 	}
-
 	ptr = PACKET_data(pkt);
 	/* Some implementations provide extra data in the opaqueBlob
 	* We have nothing to do with this blob so we just skip it */
 	pKX = d2i_GOST_KX_MESSAGE(NULL, &ptr, PACKET_remaining(pkt));
-	if(pKX == NULL
-	    || pKX->kxBlob == NULL
-	    || ASN1_TYPE_get(pKX->kxBlob) != V_ASN1_SEQUENCE) {
+	if(pKX == NULL || pKX->kxBlob == NULL || ASN1_TYPE_get(pKX->kxBlob) != V_ASN1_SEQUENCE) {
 		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_R_DECRYPTION_FAILED);
 		goto err;
 	}
-
 	if(!PACKET_forward(pkt, ptr - PACKET_data(pkt))) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_R_DECRYPTION_FAILED);
 		goto err;

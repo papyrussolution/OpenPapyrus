@@ -2109,7 +2109,7 @@ int PPViewGoods::RemoveAll()
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 8, GoodsMoveParam::aSplitBarcodeItems);
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 9, GoodsMoveParam::aMergeDiezNames);
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 10, GoodsMoveParam::aAssignCodeByTemplate);
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 11, GoodsMoveParam::aSetAlcoCategory); // @v11.3.8
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 11, GoodsMoveParam::aSetAlcoCategory);
 			SetClusterData(CTL_REMOVEALL_WHAT, Data.Action);
 			AddClusterAssoc(CTL_REMOVEALL_FLAGS, 0, GoodsMoveParam::fRemoveExtTextA);
 			AddClusterAssoc(CTL_REMOVEALL_FLAGS, 1, GoodsMoveParam::fRemoveExtTextB);
@@ -4253,11 +4253,12 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 				break;
 			case PPVCMD_VIEWLOTS:
 				ok = -1;
-				if(id)
+				if(id) {
 					if(GObj.CheckFlag(id, GF_UNLIM))
 						GObj.EditQuotations(id, 0, -1L/*@curID*/, 0, PPQuot::clsGeneral);
 					else
 						::ViewLots(id, 0, Filt.SupplID, 0, 1);
+				}
 				break;
 			case PPVCMD_GOODSSTRUCT:
 				ok = -1;

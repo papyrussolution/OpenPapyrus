@@ -451,8 +451,8 @@ static PPID SetSingleRefAsEnumProp(PPID objTypeID, PPID * pRefID)
 int PPObjGoods::InitPacket(PPGoodsPacket * pPack, GoodsPacketKind gpk, PPID parentID, PPID clsID, const char * pBarcode)
 {
 	int    ok = 1;
-	MEMSZERO(pPack->Rec);
-	MEMSZERO(pPack->ExtRec);
+	pPack->Rec.Clear();
+	pPack->ExtRec.Clear();
 	pPack->Codes.freeAll();
 	pPack->GS.Items.freeAll();
 	pPack->P_Filt = 0;

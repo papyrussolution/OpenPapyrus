@@ -847,6 +847,8 @@ public class GTIN {
 		dedicatedcase_motoroil_01,     // @v12.6.2  "^01(\\d{14})21(.+?)91(.+?)92(.+)$"
 		dedicatedcase_sunfruit_01,     // @v12.7.0  "^01(\\d{14})10(.{4,20}?)21(.{4,20})$"
 		dedicatedcase_cheeseminsk,     // @v12.8.1  "^02(\\d{14})11(\\d{6})17(\\d{6})310([0-6])(\\d{6})10([!-~]{4,20})$";
+		dedicatedcase_cheesebrlit,     // @v12.8.3  "^01(\\d{14})310([0-6])(\\d{6})11(\\d{6})10([!-~]{4,20})$";
+		dedicatedcase_alpenland_pck,   // @v12.8.3  "^01(\\d{14})11(\\d{6})10([!-~]{4,20})$";
 	};
 	public static GTIN ParseChZnCode(String code, int flags)
 	{
@@ -1206,6 +1208,38 @@ public class GTIN {
 					}
 				}
 			}
+			if(dedicated_case == DedicatedCase.undef) { // @v12.8.3
+				//dedicatedcase_cheesebrlit      = 16, // @v12.8.3  "^01(\\d{14})310([0-6])(\\d{6})11(\\d{6})10([!-~]{4,20})$";
+				final String re_text = "^01(\\d{14})310([0-6])(\\d{6})11(\\d{6})10([!-~]{4,20})$";
+				Pattern re_pattern = Pattern.compile(re_text);
+				if(re_pattern != null) {
+					Matcher re_matcher = re_pattern.matcher(code);
+					if(re_matcher.matches()) {
+						//assert(reresult.getCount() == 5+1);
+						String _5 = re_matcher.group(5);
+						result.AddOnlyToken(fldGTIN14);
+						result.AddOnlyToken(fldWtNettKg);
+						result.AddOnlyToken(fldManufDate);
+						result.SetSpecialFixedToken(fldPart, SLib.GetLen(_5));
+						dedicated_case = DedicatedCase.dedicatedcase_cheesebrlit;
+					}
+				}
+			}
+			if(dedicated_case == DedicatedCase.undef) { // @v12.8.3
+				final String re_text = "^01(\\d{14})11(\\d{6})10([!-~]{4,20})$";
+				Pattern re_pattern = Pattern.compile(re_text);
+				if(re_pattern != null) {
+					Matcher re_matcher = re_pattern.matcher(code);
+					if(re_matcher.matches()) {
+						//assert(reresult.getCount() == 3+1);
+						String _3 = re_matcher.group(3);
+						result.AddOnlyToken(fldGTIN14);
+						result.AddOnlyToken(fldManufDate);
+						result.SetSpecialFixedToken(fldPart, SLib.GetLen(_3));
+						dedicated_case = DedicatedCase.dedicatedcase_alpenland_pck;
+					}
+				}
+			}
 			// } @v12.8.1
 			if(result.ChZnParseResult == 0) {
 				if(dedicated_case == DedicatedCase.undef) {
@@ -1267,6 +1301,14 @@ public class GTIN {
 							result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_SIGN_SGTIN;
 						else
 							result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_GS1_GTIN;
+					}
+					if(result.GetToken(fldGTIN14) != null && (temp_buf = result.GetToken(fldPart)) != null) {
+						if(result.GetToken(fldWtNettKg) != null) {
+							result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_BULK;
+						}
+						else if(dedicated_case == DedicatedCase.dedicatedcase_alpenland_pck) {
+							result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_GENERAL;
+						}
 					}
 					else if(result.GetToken(fldContainerCt) != null && result.GetToken(fldSerial) != null) {
 						result.ChZnParseResult = STokenRecognizer.SNTOK_CHZN_BULK;

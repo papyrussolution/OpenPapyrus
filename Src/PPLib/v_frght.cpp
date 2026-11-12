@@ -875,6 +875,9 @@ int PPViewFreight::UpdateFeatures()
 	long   _flags = 0;
     LDATE  issue_date = ZERODATE;
     LDATE  arrival_date = ZERODATE;
+	ued_t  ued_tm_loading; // @v12.8.3
+	ued_t  ued_tm_ld_arrv; // @v12.8.3
+	ued_t  ued_tm_ld_dprt; // @v12.8.3
     TDialog * dlg = new TDialog(DLG_UPDFREIGHT);
     THROW(CheckDialogPtr(&dlg));
 	SetupPPObjCombo(dlg, CTLSEL_UPDFREIGHT_TR, PPOBJ_TRANSPORT, ship_id, OLW_CANINSERT|OLW_WORDSELECTOR, reinterpret_cast<void *>(tr_type));
@@ -893,6 +896,11 @@ int PPViewFreight::UpdateFeatures()
 	// @v12.7.7 (dl600) dlg->SetupCalDate(CTLCAL_UPDFREIGHT_ARRDT, CTL_UPDFREIGHT_ARRDT);
 	dlg->setCtrlData(CTL_UPDFREIGHT_ISSDT, &issue_date);
 	dlg->setCtrlData(CTL_UPDFREIGHT_ARRDT, &arrival_date);
+	{ // @v12.8.3
+		dlg->setCtrlDatetime(CTL_UPDFREIGHT_LOADINGDT, CTL_UPDFREIGHT_LOADINGTM, ued_tm_loading);
+		dlg->setCtrlDatetime(CTL_UPDFREIGHT_LDARRVDT, CTL_UPDFREIGHT_LDARRVTM, ued_tm_ld_arrv);
+		dlg->setCtrlDatetime(CTL_UPDFREIGHT_LDDPRTDT, CTL_UPDFREIGHT_LDDPRTTM, ued_tm_ld_dprt);
+	}
 	dlg->AddClusterAssocDef(CTL_UPDFREIGHT_SHPF,  0, -1);
 	dlg->AddClusterAssoc(CTL_UPDFREIGHT_SHPF,  1,  1);
 	dlg->AddClusterAssoc(CTL_UPDFREIGHT_SHPF,  2,  0);
@@ -909,10 +917,16 @@ int PPViewFreight::UpdateFeatures()
 		// } @v12.7.7 
         issue_date = dlg->getCtrlDate(CTL_UPDFREIGHT_ISSDT);
         arrival_date = dlg->getCtrlDate(CTL_UPDFREIGHT_ARRDT);
+		{ // @v12.8.3
+			dlg->getCtrlDatetime(CTL_UPDFREIGHT_LOADINGDT, CTL_UPDFREIGHT_LOADINGTM, ued_tm_loading);
+			dlg->getCtrlDatetime(CTL_UPDFREIGHT_LDARRVDT, CTL_UPDFREIGHT_LDARRVTM, ued_tm_ld_arrv);
+			dlg->getCtrlDatetime(CTL_UPDFREIGHT_LDDPRTDT, CTL_UPDFREIGHT_LDDPRTTM, ued_tm_ld_dprt);
+		}
         shipm_flag_mode = dlg->GetClusterData(CTL_UPDFREIGHT_SHPF);
 		dlg->GetClusterData(CTL_UPDFREIGHT_FLAGS, &_flags);
         if(ship_id || captain_id || captain2_id || agent_id || port_of_loading || checkdate(issue_date) || 
-			checkdate(arrival_date) || oneof2(shipm_flag_mode, 0, 1) || (_flags & fSetPortOfDischargeByTrunkPt)) {
+			checkdate(arrival_date) || oneof2(shipm_flag_mode, 0, 1) || (_flags & fSetPortOfDischargeByTrunkPt) ||
+			ued_tm_loading || ued_tm_ld_arrv || ued_tm_ld_dprt) {
 			PPIDArray bill_list;
 			PPWaitStart();
 			{
@@ -966,6 +980,20 @@ int PPViewFreight::UpdateFeatures()
 							freight.SetArrivalTime(local_dtm);
 							do_update |= 1;
                         }
+						{ // @v12.8.3
+							if(ued_tm_loading && ued_tm_loading != freight.UedTmLoading) {
+								freight.UedTmLoading = ued_tm_loading;
+								do_update |= 1;
+							}
+							if(ued_tm_ld_arrv && ued_tm_ld_arrv != freight.UedTmLdArrv) {
+								freight.UedTmLdArrv = ued_tm_ld_arrv;
+								do_update |= 1;
+							}
+							if(ued_tm_ld_dprt && ued_tm_ld_dprt != freight.UedTmLdDprt) {
+								freight.UedTmLdDprt = ued_tm_ld_dprt;
+								do_update |= 1;
+							}
+						}
                     }
                     if(oneof2(shipm_flag_mode, 0, 1)) {
 						if(shipm_flag_mode == 0 && bill_rec.Flags & BILLF_SHIPPED) {

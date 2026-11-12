@@ -2755,8 +2755,22 @@ public:
 private:
 	int    Create(HWND hParent);
 	HWND   H;
-	//uint   Counter;    // Счетчик для формирования внутренних уникальных идентификаторов подсказок
 	uint   MaxWidthPix; // Максимальная ширина окна подстказки
+};
+
+class TFloatButton { // @v12.8.3 @construction
+public:
+	TFloatButton();
+	~TFloatButton();
+	//
+	// Descr: Обновить позицию (если target переместился)
+	//
+	void   UpdatePosition(HWND hTarget);
+	int    Create(HWND hParent, HWND hTarget, const wchar_t * pText);
+private:
+	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+	void   PositionButton(HWND hTarget);
+	HWND   H;
 };
 //
 //
@@ -4985,6 +4999,7 @@ protected:
 	void   prepareForSearching(int firstLetter);
 	ListBoxDef * P_Def;
 	ListWindowSmartListBox * P_Lb; // box;
+	TFloatButton * P_HintButton; // @v12.8.3
 	int    PrepareSearchLetter;
 	uint   TbId;
 };
@@ -5042,7 +5057,7 @@ class ComboBox : public TView {
 public:
 	static LRESULT CALLBACK DlgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-	ComboBox(const TRect &, ushort aFlags, TInputLine * pCorrespondCtrl);
+	ComboBox(const TRect &, long flags, TInputLine * pCorrespondCtrl); // @v12.8.3 (ushort aFlags)-->(long flags)
 	ComboBox(const TRect &, ListBoxDef * aDef);
 	~ComboBox();
 	virtual void   setState(uint aState, bool enable);

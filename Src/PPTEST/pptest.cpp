@@ -45,7 +45,6 @@ int  ClassfGoods();
 int  TestTddo();
 int  GetGoodsFromService(SString & rCode, PPGoodsPacket * pPack);
 int  TestSTree();
-// @v12.3.10 int  Test_ExecuteDialogByDl600Description();
 int  SimpleCpp_Test_Main(int argc, char ** argv);
 int  SimpleCpp_Test_Main2();
 int  TestGlobalServiceAccessibility();
@@ -993,12 +992,11 @@ const RngType * RngEnvSetup()
 {
 	uint seed = 0;
 	const char *p = getenv("RNG_TYPE");
-	if (!p) {
+	if(!p) {
 		RngDefault = Rng_Mt_19937;
 	}
 	p = getenv ("RNG_SEED");
-	if (p)
-	{
+	if(p) {
 		seed = strtoul (p, 0, 0);
 		/*fprintf (stderr, "RNG_SEED=%lu\n", seed);*/
 	};
@@ -2045,7 +2043,25 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	Test_DrawImageOnPrinter(); // @v12.7.1
+	{ // @v12.8.3
+		// Тест взаимодействия с сервером ORTools_support
+		PPOptiModule::CuttingStock2D::ExecutionBlock eb;
+		PPOptiModule::CuttingStock2D::MakeInitialTestCase(eb);
+		/*static*/PPOptiModule::BaseExecutionResult * p_result = PPOptiModule::ClientExecution(eb);
+		if(p_result && p_result->IsSuccess()) {
+			SString svg_out;
+			PPOptiModule::CuttingStock2D::GenerateSvg(eb, *static_cast<PPOptiModule::CuttingStock2D::Result *>(p_result), 1.0, svg_out);
+			if(svg_out.NotEmpty()) {
+				SString svg_file_name;
+				PPGetFilePath(PPPATH_OUT, "PPOptiModule_CuttingStock2D_Test.svg", svg_file_name);
+				SFile f_out(svg_file_name, SFile::mWrite);
+				if(f_out.IsValid()) {
+					f_out.WriteLine(svg_out);
+				}
+			}
+		}
+	}
+	//Test_DrawImageOnPrinter(); // @v12.7.1
 	//TestCRC();
 	//TestAutotranslateText(); // @v12.6.1
 	//TestAutotranslateCache(); // @v12.6.2
@@ -2059,7 +2075,6 @@ int DoConstructionTest()
 	//TestRestic();
 	//TestGlobalServiceAccessibility();
 	
-	//Test_ExecuteDialogByDl600Description();
 	//Test_Cristal2SetRetailGateway();
 	//TestTddo();
 	//PreprocessHFile();

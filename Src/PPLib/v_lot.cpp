@@ -3142,7 +3142,7 @@ PPLotImpExpParam::PPLotImpExpParam(uint recId, long flags) : PPImpExpParam(recId
 {
 }
 
-/*virtual*/int PPLotImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
+/* @v12.8.3 (тупиковая ветвь) int PPLotImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -3173,7 +3173,7 @@ PPLotImpExpParam::PPLotImpExpParam(uint recId, long flags) : PPImpExpParam(recId
 	}
 	CATCHZOK
 	return ok;
-}
+}*/
 
 /*virtual*/int PPLotImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 {

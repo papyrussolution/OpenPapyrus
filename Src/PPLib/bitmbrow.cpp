@@ -713,7 +713,7 @@ int BillItemBrowser::GetColPos(ColumnPosBlock & rBlk)
 								case PPChZnPrcssr::eqarMcZero:
 									if(is_marked_ware) {
 										msg_id = TCELHLD_TRFRLIST_MARKCOUNT_MCZERO;
-										ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_mczero", SClrIvory));
+										ok = pStyle->SetFullCellColor(UiDescription::GetColorR(p_uid, p_cs, "marktoqttyadequacy_mczero", SColor(0xAF, 0xDA, 0xFC))); // Синий-синий иней
 									}
 									break;
 								case PPChZnPrcssr::eqarMcGtQtty:

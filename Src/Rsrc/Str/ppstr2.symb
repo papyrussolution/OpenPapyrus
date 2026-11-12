@@ -1,6 +1,6 @@
 
 [hash]
-base=ppstr2.txt,aQKRB6NVc2Tu1za7JKUUQJN0p5J/k74w4muRyQF7zLU=,ppstr2.bin,3pLWiSQc+CtPYd2rKEzL4VPkBwueQX/1BVyBru7bjos=
+base=ppstr2.txt,aJkMvzILxkPowbSr+aWu62ZFBB8buMLbKLniWnukhOE=,ppstr2.bin,aS4ZdBIPQI9vZ1Q1g1MgT0bvr2pljfQjBU0sherqvTE=
 lang-de=ppstr2-de.txt,vBHXz7GFmSlWHN5nhQWFT6WBP/qX1NctpzLNyBKBRUs=,ppstr2-de.bin,IgP0oJq+StX6/pHGw3DlOEbNMrxZZeYYfFLh/tUQQD4=
 lang-en=ppstr2-en.txt,+28p3hMfvSudDV3CqfJDOjTZKho2umy1K4C92tm3UyY=,ppstr2-en.bin,JDl8q1nkd4ILSPASoUHHH8s6KZM7kP5OUXwUOH/Kvug=
 lang-es=ppstr2-es.txt,bvkiJX8i+13kNCalRFfPxci9gmGnLr6J9xhKF+0NtLo=,ppstr2-es.bin,hebe73IxmbxJ+qOeg1vD9+iWczPBOsihVl0WLPu2McE=
@@ -11,7 +11,7 @@ java=ppstr2.java,gKkSJ0gq6/KEDjvgorVXtFb2OQiDVGLYr87XaJvo+Jk=
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147499230
+LastSignatureCode=2147499244
 LastAutoCodeList=1,12483;102,10179;103,10074;110,10000;111,13070;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10314;120,10010;1001,10000;121,10000;122,10000;123,10662;124,10930;125,10128;126,10000;104,10162;105,10043
 
 [SignatureList]
@@ -110,6 +110,9 @@ lbt_fldcorrlist=2147499086
 lbt_goodsaggregation=2147499101
 lbt_goodstaxlist=2147499103
 lbt_divggrpassoclist=2147499109
+lbt_gdsclsformlist=2147499232
+lbt_selamtsymb=2147499233
+lbt_selgcsubstsymb=2147499234
 entmanagementsys=2147483734
 pgmcopylic_owner=2147483735
 pgmcopylic_regnum=2147483736
@@ -412,6 +415,7 @@ selection_goodsbyprice_s=2147494010
 selection_goodsbyname=2147483969
 selection_goodsbybarcode=2147483970
 selection_amount=2147483971
+selection_gcsubstsymb=2147499235
 selection_posnode=2147483972
 selection_tag=2147483973
 selection_tag_spcrestr_empty=2147483974
@@ -5912,6 +5916,15 @@ goodsclassformula_var3name=2147496582
 goodsclassformula_flags=2147496583
 goodsclassformula_fdefault=2147496584
 goodsclassformulalist=2147488544
+gcsubstsymbdescr_gcname=2147499236
+gcsubstsymbdescr_gckind=2147499237
+gcsubstsymbdescr_gcgrade=2147499238
+gcsubstsymbdescr_gcaddprop=2147499239
+gcsubstsymbdescr_gcadd2prop=2147499240
+gcsubstsymbdescr_gcdimx=2147499241
+gcsubstsymbdescr_gcdimy=2147499242
+gcsubstsymbdescr_gcdimz=2147499243
+gcsubstsymbdescr_gcdimw=2147499244
 goodsgroup_abbr=2147496585
 goodsgroup_brand=2147496586
 goodsgroup_defbcodestruc=2147488547
@@ -9793,6 +9806,7 @@ impexpparam_filename=2147498214
 impexpparam_inetacc=2147498215
 impexpparam_baseflags=2147498216
 impexpparam_bfdeletesrcfiles=2147498217
+impexpparam_imgpath=2147499231
 impexpparam_headers=2147493644
 impexpparam_textdb=2147492126
 impexpparam_textdb_hdrlinescount=2147492127

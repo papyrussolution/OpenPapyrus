@@ -86,6 +86,11 @@ SPoint2I & SPoint2I::Z()
 	y = 0;
 	return *this;
 }
+
+int SPoint2I::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
+{
+	return (pSCtx->Serialize(dir, x, rBuf) && pSCtx->Serialize(dir, y, rBuf));
+}
 //
 // SPoint2S
 //
@@ -1102,7 +1107,7 @@ bool   FASTCALL SPoint2F::IsEq(const SPoint2F & rS) const { return (x == rS.x &&
 bool   SPoint2F::IsZero() const { return (x == 0.0f && y == 0.0f); } // @v11.2.0 @fix (x != 0.0f && y != 0.0f)-->(x == 0.0f && y == 0.0f);
 bool   SPoint2F::IsPositive() const { return (x > 0.0f && y > 0.0f); }
 int    FASTCALL SPoint2F::Write(SBuffer & rBuf) const { return rBuf.Write(this, sizeof(*this)); }
-int    FASTCALL SPoint2F::Read(SBuffer & rBuf) { return rBuf.Read(this, sizeof(*this)); }
+size_t FASTCALL SPoint2F::Read(SBuffer & rBuf) { return rBuf.Read(this, sizeof(*this)); } // @v12.8.3 return int-->size_t
 SPoint2F SPoint2F::Neg() const { return SPoint2F(-x, -y); }
 float  SPoint2F::Ratio() const { return (y / x); }
 float  SPoint2F::Add() const { return x + y; }

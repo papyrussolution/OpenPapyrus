@@ -1,7 +1,6 @@
 // COMMCFG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2021, 2023, 2024, 2025
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2021, 2023, 2024, 2025, 2026
 // @codepage UTF-8
-//
 // Диалог редактирования общих параметров настройки
 //
 #include <pp.h>
@@ -16,12 +15,28 @@ public:
 	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
+		SString temp_buf;
 		RVALUEPTR(Data, pData);
-		setCtrlData(CTL_COMMCFG_SUPPLACC,   &Data.SupplAcct);
-		setCtrlData(CTL_COMMCFG_SELLACC,    &Data.SellAcct);
-		setCtrlData(CTL_COMMCFG_CASHACC,    &Data.CashAcct);
-		setCtrlData(CTL_COMMCFG_IMPRESTACC, &Data.ImprestAcct);
-		setCtrlData(CTL_COMMCFG_ASSETACC,   &Data.AssetAcct);
+		{
+			Data.SupplAcct.ToStr(0, temp_buf);
+			setCtrlString(CTL_COMMCFG_SUPPLACC, temp_buf);
+		}
+		{
+			Data.SellAcct.ToStr(0, temp_buf);
+			setCtrlString(CTL_COMMCFG_SELLACC, temp_buf);
+		}
+		{
+			Data.CashAcct.ToStr(0, temp_buf);
+			setCtrlString(CTL_COMMCFG_CASHACC, temp_buf);
+		}
+		{
+			Data.ImprestAcct.ToStr(0, temp_buf);
+			setCtrlString(CTL_COMMCFG_IMPRESTACC, temp_buf);
+		}
+		{
+			Data.AssetAcct.ToStr(0, temp_buf);
+			setCtrlString(CTL_COMMCFG_ASSETACC, temp_buf);
+		}
 		AddClusterAssocDef(CTL_COMMCFG_INCM,  0, INCM_DEFAULT);
 		AddClusterAssoc(CTL_COMMCFG_INCM,  1, INCM_BYSHIPMENT);
 		AddClusterAssoc(CTL_COMMCFG_INCM,  2, INCM_BYPAYMENT);
@@ -38,11 +53,11 @@ public:
 	{
 		int    ok = 1;
 		uint   sel = 0;
-		THROW(getAcc(sel = CTL_COMMCFG_SUPPLACC, &Data.SupplAcct));
-		THROW(getAcc(sel = CTL_COMMCFG_SELLACC, &Data.SellAcct));
-		THROW(getAcc(sel = CTL_COMMCFG_CASHACC, &Data.CashAcct));
-		THROW(getAcc(sel = CTL_COMMCFG_IMPRESTACC, &Data.ImprestAcct));
-		THROW(getAcc(sel = CTL_COMMCFG_ASSETACC, &Data.AssetAcct));
+		THROW(getAcc(sel = CTL_COMMCFG_SUPPLACC, Data.SupplAcct));
+		THROW(getAcc(sel = CTL_COMMCFG_SELLACC, Data.SellAcct));
+		THROW(getAcc(sel = CTL_COMMCFG_CASHACC, Data.CashAcct));
+		THROW(getAcc(sel = CTL_COMMCFG_IMPRESTACC, Data.ImprestAcct));
+		THROW(getAcc(sel = CTL_COMMCFG_ASSETACC, Data.AssetAcct));
 		GetClusterData(CTL_COMMCFG_FLAGS, &Data.Flags);
 		GetClusterData(CTL_COMMCFG_INCM,  &Data.IncomeCalcMethod);
 		// @v12.0.5 Data.Reserve2 = 0;
@@ -53,15 +68,18 @@ public:
 private:
 	DECL_HANDLE_EVENT;
 	int    editSysParams();
-	int    getAcc(uint ctl, Acct *);
+	int    getAcc(uint ctl, Acct &);
 	PPObjAccount AccObj;
 };
 
-int CommCfgDialog::getAcc(uint ctl, Acct * pAcc)
+int CommCfgDialog::getAcc(uint ctl, Acct & rAcc)
 {
-	getCtrlData(ctl, pAcc);
-	pAcc->ar = 0;
-	return BIN((!pAcc->ac && !pAcc->sb) || AccObj.SearchNum(pAcc->ac, pAcc->sb, 0L/*@curID*/) > 0);
+	SString temp_buf;
+	getCtrlString(ctl, temp_buf);
+	//getCtrlData(ctl, pAcc);
+	rAcc.FromStr(0, temp_buf);
+	rAcc.ar = 0;
+	return BIN((!rAcc.ac && !rAcc.sb) || AccObj.SearchNum(rAcc.ac, rAcc.sb, 0L/*@curID*/) > 0);
 }
 
 int CommCfgDialog::editSysParams()
@@ -256,7 +274,8 @@ int EditCommConfig()
 	CommCfgDialog * dlg = 0;
 	THROW(CheckCfgRights(PPCFGOBJ_COMMCONFIG, PPR_MOD, 0));
 	THROW(GetCommConfig(cfg));
-	THROW(CheckDialogPtr(&(dlg = new CommCfgDialog)));
+	dlg = new CommCfgDialog();
+	THROW(CheckDialogPtr(&dlg));
 	dlg->setDTS(&cfg);
 	while(ok < 0 && ExecView(dlg) == cmOK) {
 		if(dlg->getDTS(&cfg)) {

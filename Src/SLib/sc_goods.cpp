@@ -175,7 +175,6 @@ int SCDBObjGoods::LoadQuotKindList()
 		P_QkTbl->getFieldNumber("NAME", &fldn_name);
 		do {
 			QuotKind qk_rec;
-			MEMSZERO(qk_rec);
 			DbfRecord rec(P_QkTbl);
 			P_QkTbl->getRec(&rec);
 			rec.get(fldn_id, qk_rec.ID);

@@ -86,6 +86,10 @@ public class STokenRecognizer {
 			// Важно: SNTOK_CHZN_PALLET_GTIN является мутантной вариацией SSCC в связи с этим SNTOK_CHZN_PALLET_GTIN обработка, а, возможно, и символ кода изменится.
 	public static final int SNTOK_CHZN_PALLET_MOTOROIL     = 62; // @v12.5.12 Код транспортной упаковки чзн моторное масло
 	public static final int SNTOK_CHZN_BULK                = 63; // @v12.5.12 Код чзн весового товара с префиксом 02-
+	public static final int SNTOK_CHZN_GENERAL             = 64; // @v12.6.5  Код можно трактовать как маркировку честного знака (в любом из вариантов). Часто совмещен с одним из иных варантов SNTOK_CHZN_XXX
+	public static final int SNTOK_RU_LICPLATE              = 65; // @v12.7.4  Автомобильный номер (российский)
+	public static final int SNTOK_WININTERNALCMD           = 66; // @v12.7.6  Внутренняя команда windows
+	public static final int SNTOK_COUNTRYCODE              = 67; // @v12.7.9  Символьный код государства (2- или 3- буквенный)
 
 	public static final int SNTOKSEQ_DEC        = 0x00000001; // 0-9
 	public static final int SNTOKSEQ_LATLWR     = 0x00000002; // a-z

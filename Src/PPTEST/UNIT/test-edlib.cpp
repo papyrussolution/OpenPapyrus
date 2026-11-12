@@ -446,7 +446,7 @@ SLTEST_R(EdLib)
 		const char * query = "GCATATCAATAAGCGGAGGA";
 		const char * target =
 			"TAACAAGGTTTCCGTAGGTGAACCTGCGGAAGGATCATTATCGAATAAACTTGATGGGTTGTCGCTGGCTTCTAGGAGCATGTGCACATCCGTCATTTTTATCCATCCACCTGTGCACCTTTTGTAGTCTTTGGAGGTAATAAGCGTGAATCTATCGAGGTCCTCTGGTCCTCGGAAAGAGGTGTTTGCCATATGGCTCGCCTTTGATACTCGCGAGTTACTCTAAGACTATGTCCTTTCATATACTACGAATGTAATAGAATGTATTCATTGGGCCTCAGTGCCTATAAAACATATACAACTTTCAGCAACGGATCTCTTGGCTCTCGCATCGATGAAGAACGCAGCGAAATGCGATAAGTAATGTGAATTGCAGAATTCAGTGAATCATCGAATCTTTGAACGCACCTTGCGCTCCTTGGTATTCCGAGGAGCATGCCTGTTTGAGTGTCATTAAATTCTCAACCCCTTCCGGTTTTTTGACTGGCTTTGGGGCTTGGATGTGGGGGATTCATTTGCGGGCCTCTGTAGAGGTCGGCTCCCCTGAAATGCATTAGTGGAACCGTTTGCGGTTACCGTCGCTGGTGTGATAACTATCTATGCCAAAGACAAACTGCTCTCTGATAGTTCTGCTTCTAACCGTCCATTTATTGGACAACATTATTATGAACACTTGACCTCAAATCAGGTAGGACTACCCGCTGAACTTAAGCATATCAATAAGCGGAGGAAAAGAAACTAACAAGGATTCCCCTAGTAACTGCGAGTGAAGCGGGAAAAGCTCAAATTTAAAATCTGGCGGTCTTTGGCCGTCCGAGTTGTAATCTAGAGAAGCGACACCCGCGCTGGACCGTGTACAAGTCTCCTGGAATGGAGCGTCATAGAGGGTGAGAATCCCGTCTCTGACACGGACTACCAGGGCTTTGTGGTGCGCTCTCAAAGAGTCGAGTTGTTTGGGAATGCAGCTCTAAATGGGTGGTAAATTCCATCTAAAGCTAAATATTGGCGAGAGACCGATAGCGAACAAGTACCGTGAGGGAAAGATGAAAAGAACTTTGGAAAGAGAGTTAAACAGTACGTGAAATTGCTGAAAGGGAAACGCTTGAAGTCAGTCGCGTTGGCCGGGGATCAGCCTCGCTTTTGCGTGGTGTATTTCCTGGTTGACGGGTCAGCATCAATTTTGACCGCTGGAAAAGGACTTGGGGAATGTGGCATCTTCGGATGTGTTATAGCCCTTTGTCGCATACGGCGGTTGGGATTGAGGAACTCAGCACGCCGCAAGGCCGGGTTTCGACCACGTTCGTGCTTAGGATGCTGGCATAATGGCTTTAATCGACCCGTCTTGAAACACGGACCAAGGAGTCTAACATGCCTGCGAGTGTTTGGGTGGAAAACCCGAGCGCGTAATGAAAGTGAAAGTTGAGATCCCTGTCGTGGGGAGCATCGACGCCCGGACCAGAACTTTTGGGACGGATCTGCGGTAGAGCATGTATGTTGGGACCCGAAAGATGGTGAACTATGCCTGAATAGGGTGAAGCCAGAGGAAACTCTGGTGGAGGCTCGTAGCGATTCTGACGTGCAAATCGATCGTCAAATTTGGGTATAGGGGCGAAAGACTAATCGAACCATCTAGTAGCTGGTTCCTGCCGAAGTTTCCCTCAGGATAGCAGAAACTCATATCAGATTTATGTGGTAAAGCGAATGATTAGAGGCCTTGGGGTTGAAACAACCTTAACCTATTCTCAAACTTTAAATATGTAAGAACGAGCCGTTTCTTGATTGAACCGCTCGGCGATTGAGAGTTTCTAGTGGGCCATTTTTGGTAAGCAGAACTGGCGATGCGGGATGAACCGAACGCGAGGTTAAGGTGCCGGAATTCACGCTCATCAGACACCACAAAAGGTGTTAGTTCATCTAGACAGCAGGACGGTGGCCATGGAAGTCGGAATCCGCTAAGGAGTGTGTAACAACTCACCTGCCGAATGAACTAGCCCTGAAAATGGATGGCGCTTAAGCGTGATACCCATACCTCGCCGTCAGCGTTGAAGTGACGCGCTGACGAGTAGGCAGGCGTGGAGGTCAGTGAAGAAGCCTTGGCAGTGATGCTGGGTGAAACGGCCTCC";
-		EdlibAlignResult result = EdlibAlign(query, sstrlen(query), target, sstrlen(target),
+		EdlibAlignResult result = EdlibAlign(query, sstrlen32(query), target, sstrlen32(target),
 			edlibNewAlignConfig(-1, EDLIB_MODE_HW, EDLIB_TASK_LOC, additionalEqualities, 24));
 		SLCHECK_NZ(local_ok = (result.status == EDLIB_STATUS_OK && result.editDistance == 0));
 		printf(local_ok ? "\x1B[32m" "OK" "\x1B[0m\n" : "\x1B[31m" "FAIL" "\x1B[0m\n");
@@ -459,7 +459,7 @@ SLTEST_R(EdLib)
 		// which brings us into interesting situation where one of end locations is -1.
 		const char * query = "AA";
 		const char * target = "B";
-		EdlibAlignResult result = EdlibAlign(query, sstrlen(query), target, sstrlen(target),
+		EdlibAlignResult result = EdlibAlign(query, sstrlen32(query), target, sstrlen32(target),
 			edlibNewAlignConfig(-1, EDLIB_MODE_HW, EDLIB_TASK_PATH, NULL, 0));
 		SLCHECK_NZ(local_ok = (result.status == EDLIB_STATUS_OK && result.editDistance == 2));
 		printf(local_ok ? "\x1B[32m" "OK" "\x1B[0m\n" : "\x1B[31m" "FAIL" "\x1B[0m\n");
@@ -472,7 +472,7 @@ SLTEST_R(EdLib)
 		// which brings us into interesting situation where one of end locations is -1.
 		const char * query = "AA";
 		const char * target = "B";
-		EdlibAlignResult result = EdlibAlign(query, sstrlen(query), target, sstrlen(target),
+		EdlibAlignResult result = EdlibAlign(query, sstrlen32(query), target, sstrlen32(target),
 			edlibNewAlignConfig(-1, EDLIB_MODE_SHW, EDLIB_TASK_PATH, NULL, 0));
 		SLCHECK_NZ(local_ok = (result.status == EDLIB_STATUS_OK && result.editDistance == 2));
 		printf(local_ok ? "\x1B[32m" "OK" "\x1B[0m\n" : "\x1B[31m" "FAIL" "\x1B[0m\n");
@@ -482,7 +482,7 @@ SLTEST_R(EdLib)
 		// In this test, optimal alignment is when query and target overlap, query end with target start, HW.
 		const char* query = "AAABBB";
 		const char* target = "BBBC";
-		EdlibAlignResult result = EdlibAlign(query, sstrlen(query), target, sstrlen(target),
+		EdlibAlignResult result = EdlibAlign(query, sstrlen32(query), target, sstrlen32(target),
 			edlibNewAlignConfig(-1, EDLIB_MODE_HW, EDLIB_TASK_LOC, NULL, 0));
 		SLCHECK_NZ(local_ok = (result.status == EDLIB_STATUS_OK && result.editDistance == 3));
 		printf(local_ok ? "\x1B[32m" "OK" "\x1B[0m\n" : "\x1B[31m" "FAIL" "\x1B[0m\n");
@@ -492,8 +492,8 @@ SLTEST_R(EdLib)
 		// In this test, optimal alignment is when query and target overlap, query start with target end, HW.
 		const char* query = "BBBAAA";
 		const char* target = "CBBB";
-		EdlibAlignResult result = EdlibAlign(query, sstrlen(query),
-			target, sstrlen(target), edlibNewAlignConfig(-1, EDLIB_MODE_HW, EDLIB_TASK_LOC, NULL, 0));
+		EdlibAlignResult result = EdlibAlign(query, sstrlen32(query),
+			target, sstrlen32(target), edlibNewAlignConfig(-1, EDLIB_MODE_HW, EDLIB_TASK_LOC, NULL, 0));
 		SLCHECK_NZ(local_ok = (result.status == EDLIB_STATUS_OK && result.editDistance == 3));
 		printf(local_ok ? "\x1B[32m" "OK" "\x1B[0m\n" : "\x1B[31m" "FAIL" "\x1B[0m\n");
 		EdlibFreeAlignResult(&result);
@@ -605,8 +605,8 @@ SLTEST_R(EdLib)
 				long line_no = 0;
 				while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
 					line_no++;
-					EdlibAlignResult result = EdlibAlign(pattern_buf, pattern_buf.Len(), 
-						line_buf, line_buf.Len(), edlibNewAlignConfig(-1, EDLIB_MODE_NW, EDLIB_TASK_DISTANCE, 0, 0));				
+					EdlibAlignResult result = EdlibAlign(pattern_buf, pattern_buf.Len32(), 
+						line_buf, line_buf.Len32(), edlibNewAlignConfig(-1, EDLIB_MODE_NW, EDLIB_TASK_DISTANCE, 0, 0));				
 					if(result.editDistance >= 0) {
 						str_list.AddFast(line_no, line_buf);
 						dist_list.Add(line_no, result.editDistance);

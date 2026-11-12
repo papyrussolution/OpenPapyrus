@@ -622,6 +622,11 @@ DRAFTBEER HORECA @v11.9.4
 	//   • (17) 270517 — Срок годности: 17 мая 2027 года.
 	//   • (3103) 010460 — Вес нетто: 10,460 кг. Идентификатор 3103 указывает на три знака после запятой.
 	//   • (10) 09094376211 — Номер производственной партии.
+	// 
+	// 010460677997072611261024100000882809                    /// йогурт alpenland упаковка
+	//      (01)04606779970726(11)261024(10)0000882809
+	// 0124810268052228310301128011261103101002210017          /// сыр брест-литовск
+	//      (01)24810268052228(3103)011280(11)261103(10)1002210017 
 	//
 	int    ok = 0;
 	static const int8 serial_len_variant_list[] = { 6, 7, 8, 11, 12, 13 };
@@ -695,7 +700,15 @@ DRAFTBEER HORECA @v11.9.4
 				dedicatedcase_sunfruit_01      = 13, // @v12.7.0  "^01(\\d{14})10(.{4,20}?)21(.{4,20})$"
 				dedicatedcase_sunfruit_02      = 14, // @v12.7.2  "^01(\\d{14})21(.{8,15}?)93(.+)$";
 				dedicatedcase_cheeseminsk      = 15, // @v12.8.1  "^02(\\d{14})11(\\d{6})17(\\d{6})310([0-6])(\\d{6})10([!-~]{4,20})$";
+				dedicatedcase_cheesebrlit      = 16, // @v12.8.3  "^01(\\d{14})310([0-6])(\\d{6})11(\\d{6})10([!-~]{4,20})$";
+				dedicatedcase_alpenland_pck    = 17, // @v12.8.3  "^01(\\d{14})11(\\d{6})10([!-~]{4,20})$";
 			};
+
+	// 0124810268052228310301128011261103101002210017          /// сыр брест-литовск
+	//      (01)24810268052228(3103)011280(11)261103(10)1002210017 
+	// 010460677997072611261024100000882809                    /// йогурт alpenland упаковка
+	//      (01)04606779970726(11)261024(10)0000882809
+
 			// const char * re_tobacco = "^(\\d{14})(.{7})(.{4})(.{4})?$";
 			// const char * re_rigid_mark = "^01(\\d{14})21(.{16})240(.{8})$";
 			// const char* re_weight_mark = "^02(\\d{14})13(\\d{6})21(.{9})$";
@@ -1043,6 +1056,37 @@ DRAFTBEER HORECA @v11.9.4
 					}
 				}
 			}
+			if(!dedicated_case) {
+				//dedicatedcase_cheesebrlit      = 16, // @v12.8.3  "^01(\\d{14})310([0-6])(\\d{6})11(\\d{6})10([!-~]{4,20})$";
+				const char * p_re_01_310y_11_10 = "^01(\\d{14})310([0-6])(\\d{6})11(\\d{6})10([!-~]{4,20})$";
+				SRegExp2 re(p_re_01_310y_11_10, cpANSI, SRegExp2::syntaxDefault, 0);
+				if(re.IsValid()) {
+					SRegExp2::FindResult reresult;
+					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+						assert(reresult.getCount() == 5+1);
+						rS.AddOnlyToken(GtinStruc::fldGTIN14);
+						rS.AddOnlyToken(GtinStruc::fldWtNettKg);
+						rS.AddOnlyToken(GtinStruc::fldManufDate);
+						rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(5));
+						dedicated_case = dedicatedcase_cheesebrlit;
+					}
+				}
+			}
+			if(!dedicated_case) {
+				//dedicatedcase_alpenland_pck    = 17, // @v12.8.3  "^01(\\d{14})11(\\d{6})10([!-~]{4,20})$";
+				const char * p_re_01_11_10 = "^01(\\d{14})11(\\d{6})10([!-~]{4,20})$";
+				SRegExp2 re(p_re_01_11_10, cpANSI, SRegExp2::syntaxDefault, 0);
+				if(re.IsValid()) {
+					SRegExp2::FindResult reresult;
+					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+						assert(reresult.getCount() == 3+1);
+						rS.AddOnlyToken(GtinStruc::fldGTIN14);
+						rS.AddOnlyToken(GtinStruc::fldManufDate);
+						rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(3));
+						dedicated_case = dedicatedcase_alpenland_pck;
+					}
+				}
+			}
 			int   pr = 0;
 			{
 				{
@@ -1097,6 +1141,14 @@ DRAFTBEER HORECA @v11.9.4
 								ok = SNTOK_CHZN_SIGN_SGTIN;
 							else
 								ok = SNTOK_CHZN_GS1_GTIN;
+						}
+						else if(rS.GetToken(GtinStruc::fldGTIN14, 0) && rS.GetToken(GtinStruc::fldPart, &temp_buf)) { // @
+							if(rS.GetToken(GtinStruc::fldWtNettKg, 0)) {
+								ok = SNTOK_CHZN_BULK;
+							}
+							else if(dedicated_case == dedicatedcase_alpenland_pck) {
+								ok = SNTOK_CHZN_GENERAL;
+							}
 						}
 						else if(rS.GetToken(GtinStruc::fldContainerCt, 0) && (rS.GetToken(GtinStruc::fldSerial, &temp_buf) || rS.GetToken(GtinStruc::fldPart, &temp_buf))) {
 							ok = SNTOK_CHZN_BULK;
@@ -2850,7 +2902,7 @@ int ChZnInterface::GetSign(const InitBlock & rIb, const void * pData, size_t dat
 			si.cb = sizeof(si);
 			MEMSZERO(pi);
 			strnzcpy(static_cast<TCHAR *>(cmd_line.vptr()), SUcSwitch(temp_buf), cmd_line.GetSize() / sizeof(TCHAR));
-			int    r = ::CreateProcess(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, 0, &si, &pi);
+			int    r = ::CreateProcessW(0, static_cast<TCHAR *>(cmd_line.vptr()), 0, 0, FALSE, 0, 0, 0, &si, &pi);
 			if(!r) {
 				SLS.SetOsError(0, 0);
 				CALLEXCEPT_PP(PPERR_SLIB);

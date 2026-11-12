@@ -1,5 +1,5 @@
 // STOCKOPT.CPP
-// Copirught (c) A.Sobolev 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025
+// Copirught (c) A.Sobolev 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2024, 2025, 2026
 //
 #include <pp.h>
 #pragma hdrstop

@@ -123,8 +123,7 @@ int LogsDialog::SendByEmail()
 		if(InputStringDialog(isd_param, support) > 0) {
 			THROW_PP(support.Len() > 0, PPERR_SUPPORTMAILNOTDEF);
 			uis.SupportMail = support;
-			// @v11.2.6 THROW(uis.Save());
-			APPL->UpdateUiSettings(uis); // @v11.2.6
+			APPL->UpdateUiSettings(uis);
 			PPGetFilePath(PPPATH_LOG, r_e.FileName, path);
 			THROW(PPAlbatrosCfgMngr::Get(&alb_cfg) > 0);
 			acct_id = alb_cfg.Hdr.MailAccID;

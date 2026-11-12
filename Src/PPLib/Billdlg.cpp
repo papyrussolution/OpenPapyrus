@@ -5168,7 +5168,7 @@ public:
 			// Для расхода редактирумого (не нового) документа меняем дебет с кредитом местами. В getDTS поменяем снова.
 			// Идея в том, что при редактировании в дебете всегда настраиваемый счет (понятный пользователю - касса, банк и т.д.), а 
 			// в кредите - либо автомат расход/доход, либо получатель трансфера
-			const  int nbf = P_At->GetNonBalancedFlow(Data.Rec);
+			const  int nbf = P_At->GetNonBalancedFlow();
 			if(oneof2(nbf, PPATFLOW_EXPENSE, PPATFLOW_TRANSFER)) {
 				P_At->SwapDbtCrd();
 			}
@@ -5176,7 +5176,7 @@ public:
 		AddClusterAssocDef(CTL_ATURN_FLOWDIR, 0, PPATFLOW_EXPENSE);
 		AddClusterAssoc(CTL_ATURN_FLOWDIR, 1, PPATFLOW_INCOME);
 		AddClusterAssoc(CTL_ATURN_FLOWDIR, 2, PPATFLOW_TRANSFER);
-		SetClusterData(CTL_ATURN_FLOWDIR, P_At->GetNonBalancedFlow(Data.Rec));
+		SetClusterData(CTL_ATURN_FLOWDIR, P_At->GetNonBalancedFlow());
 		setCtrlReal(CTL_ATURN_AMOUNT, fabs(P_At->Amount));
 		setCtrlDate(CTL_ATURN_DATE, P_At->Date);
 		//
@@ -5210,7 +5210,7 @@ public:
 		getCtrlData(sel = CTLSEL_ATURN_PA_CATEGORY, &P_At->CrdID.ArID);
 		P_At->CrdAcsID = acc_rec.AccSheetID;
 		{
-			const  int nbf = P_At->GetNonBalancedFlow(Data.Rec);
+			const  int nbf = P_At->GetNonBalancedFlow();
 			if(oneof2(nbf, PPATFLOW_EXPENSE, PPATFLOW_TRANSFER)) {
 				P_At->SwapDbtCrd();
 			}

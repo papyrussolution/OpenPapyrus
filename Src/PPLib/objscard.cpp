@@ -4987,7 +4987,7 @@ PPSCardImpExpParam::PPSCardImpExpParam(uint recId, long flags) : PPImpExpParam(r
 {
 }
 
-/*virtual*/int PPSCardImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
+/* @v12.8.3 (тупиковая ветвь) int PPSCardImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -5018,7 +5018,7 @@ PPSCardImpExpParam::PPSCardImpExpParam(uint recId, long flags) : PPImpExpParam(r
 	}
 	CATCHZOK
 	return ok;
-}
+}*/
 
 int PPSCardImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 {

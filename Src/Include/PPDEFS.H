@@ -2665,6 +2665,7 @@
 	#define CTL_LOCATION_ACN1           (36 + WINDOWS_ID_BIAS)
 	#define CTL_LOCATION_WHLIST         (37 + WINDOWS_ID_BIAS)
 	#define CTL_LOCATION_PASSIVE        (38 + WINDOWS_ID_BIAS)
+	#define CTL_LOCATION_CMD_ADDR       (39 + WINDOWS_ID_BIAS)
 
 #define DLG_ATURN                  74 // Бух. проводка
 #define DLG_REGATURN               78 // Регистровая проводка
@@ -3176,6 +3177,7 @@
 	#define CTL_GTO_CMD_TAGRPNGOPTIONS  (51 + WINDOWS_ID_BIAS) // @v12.5.8 Команда обращения к опциям группировки
 	#define CTL_GTO_CMD_BILLTAGS        (52 + WINDOWS_ID_BIAS) // @v12.5.8 Команда фильтрации по тегам документов
 	#define CTL_GTO_CMD_DLVRLOCTAGS     (53 + WINDOWS_ID_BIAS) // @v12.7.9 Команда фильтрации по тегам адресов доставки
+	#define CTL_GTO_CMD_ADVOPTIONS      (54 + WINDOWS_ID_BIAS) // @v12.8.3 
 #define DLG_PRINT                 134 // Общий диалог параметров печати
 	#define CTL_PRINT_PORT               (1 + WINDOWS_ID_BIAS) // Порт вывода
 	#define CTL_PRINT_PGHT               (2 + WINDOWS_ID_BIAS) // Длина листа
@@ -3680,6 +3682,10 @@
 	#define CTL_COMMCFG_FRRLDAYS         (11 + WINDOWS_ID_BIAS)
 	#define CTL_COMMCFG_IMPRESTACC       (12 + WINDOWS_ID_BIAS)
 	#define CTL_COMMCFG_ASSETACC         (13 + WINDOWS_ID_BIAS)
+	#define CTL_COMMCFG_CMD_OPS          (14 + WINDOWS_ID_BIAS)
+	#define CTL_COMMCFG_CMD_MAINORG      (15 + WINDOWS_ID_BIAS)
+	#define CTL_COMMCFG_CMD_SYS          (16 + WINDOWS_ID_BIAS)
+
 #define DLG_CCFGSYS               221 // CCFGSYS Системные параметры общей конфигурации
 	#define CTL_CCFGSYS_MAXGBLINES       (1 + WINDOWS_ID_BIAS)
 	#define CTL_CCFGSYS_FRRLDAYS         (2 + WINDOWS_ID_BIAS)
@@ -5720,6 +5726,17 @@
 	#define CTL_GDSCLS_E_W               (26 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLS_SYMB              (27 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLS_BRUTTO            (28 + WINDOWS_ID_BIAS) // @v12.0.10 Формула для расчета брутто
+	#define CTL_GDSCLS_CMD_KIND          (29 + WINDOWS_ID_BIAS)
+	#define CTL_GDSCLS_CMD_ADD           (30 + WINDOWS_ID_BIAS)
+	#define CTL_GDSCLS_CMD_GRADE         (31 + WINDOWS_ID_BIAS)
+	#define CTL_GDSCLS_CMD_ADD2          (32 + WINDOWS_ID_BIAS)
+	#define CTL_GDSCLS_CMD_X             (33 + WINDOWS_ID_BIAS)
+	#define CTL_GDSCLS_CMD_Y             (34 + WINDOWS_ID_BIAS)
+	#define CTL_GDSCLS_CMD_Z             (35 + WINDOWS_ID_BIAS)
+	#define CTL_GDSCLS_CMD_W             (36 + WINDOWS_ID_BIAS) 
+	#define CTL_GDSCLS_CMD_DYNGENMASK    (37 + WINDOWS_ID_BIAS)  
+	#define CTL_GDSCLS_CMD_FORMLIST      (38 + WINDOWS_ID_BIAS)  
+	#define CTL_GDSCLS_CMD_LOTDIM        (39 + WINDOWS_ID_BIAS)
 
 #define DLG_GDSCLSPROP            481 // Свойство класса товаров
 #define DLG_GDSCLSPROP2           697
@@ -5730,6 +5747,9 @@
 	#define CTL_GDSCLSPROP_OBJ           (2 + WINDOWS_ID_BIAS)
 	#define CTLSEL_GDSCLSPROP_OBJ        (3 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLSPROP_LIST          (4 + WINDOWS_ID_BIAS)
+	#define CTL_GDSCLSPROP_CMD_VIEWOBJ   (5 + WINDOWS_ID_BIAS)
+	#define CTL_GDSCLSPROP_CMD_CREATEOBJ (6 + WINDOWS_ID_BIAS)
+
 #define DLG_GDSCLSDIM             482 // Размерность класса товаров
 	#define CTL_GDSCLSDIM_NAME           (1 + WINDOWS_ID_BIAS)
 	#define CTL_GDSCLSDIM_SCALE          (2 + WINDOWS_ID_BIAS)
@@ -8654,6 +8674,8 @@
 	#define CTL_IMPEXP_FTPACC          (10 + WINDOWS_ID_BIAS)
 	#define CTLSEL_IMPEXP_FTPACC       (11 + WINDOWS_ID_BIAS)
 	#define CTL_IMPEXP_OUTERFMTVER     (12 + WINDOWS_ID_BIAS) // @v11.6.5
+	#define CTL_IMPEXP_IMGPATH         (13 + WINDOWS_ID_BIAS) // @v12.8.3 
+	#define CTLBRW_IMPEXP_IMGPATH      (14 + WINDOWS_ID_BIAS) // @v12.8.3 
 //
 #define DLG_PAYPLAN               906 // B_PAYPLN План платежей по документу
 	#define cmPayPlanCalc              101
@@ -11162,6 +11184,19 @@
 	#define CTLSEL_UPDFREIGHT_AGENT   (14 + WINDOWS_ID_BIAS) // @v12.7.7
 	#define CTL_UPDFREIGHT_ISSLOC     (15 + WINDOWS_ID_BIAS) // @v12.7.7
 	#define CTLSEL_UPDFREIGHT_ISSLOC  (16 + WINDOWS_ID_BIAS) // @v12.7.7
+	#define CTL_UPDFREIGHT_LOADINGDT     (17 + WINDOWS_ID_BIAS) // @v12.8.3 
+	#define CTLCAL_UPDFREIGHT_LOADINGDT  (18 + WINDOWS_ID_BIAS) // @v12.8.3 
+	#define CTL_UPDFREIGHT_LOADINGTM     (19 + WINDOWS_ID_BIAS) // @v12.8.3 
+	#define CTLTM_UPDFREIGHT_LOADINGTM   (20 + WINDOWS_ID_BIAS) // @v12.8.3  
+	#define CTL_UPDFREIGHT_LDARRVDT      (21 + WINDOWS_ID_BIAS) // @v12.8.3 
+	#define CTLCAL_UPDFREIGHT_LDARRVDT   (22 + WINDOWS_ID_BIAS) // @v12.8.3 
+	#define CTL_UPDFREIGHT_LDARRVTM      (23 + WINDOWS_ID_BIAS) // @v12.8.3 
+	#define CTLTM_UPDFREIGHT_LDARRVTM    (24 + WINDOWS_ID_BIAS) // @v12.8.3 
+	#define CTL_UPDFREIGHT_LDDPRTDT      (25 + WINDOWS_ID_BIAS) // @v12.8.3 
+	#define CTLCAL_UPDFREIGHT_LDDPRTDT   (26 + WINDOWS_ID_BIAS) // @v12.8.3    
+	#define CTL_UPDFREIGHT_LDDPRTTM      (27 + WINDOWS_ID_BIAS) // @v12.8.3 
+	#define CTLTM_UPDFREIGHT_LDDPRTTM    (28 + WINDOWS_ID_BIAS) // @v12.8.3 
+
 #define DLG_CVTCIPHER             1312
 	#define CTL_CVTCIPHER_DB          (1 + WINDOWS_ID_BIAS)
 	#define CTLSEL_CVTCIPHER_DB       (2 + WINDOWS_ID_BIAS)
@@ -11930,6 +11965,7 @@
 	#define CTL_STQINLPARAM_PERIOD           (16 + WINDOWS_ID_BIAS)
 	#define CTLCAL_STQINLPARAM_PERIOD        (17 + WINDOWS_ID_BIAS)
 	#define CTL_STQINLPARAM_ACCEPT           (18 + WINDOWS_ID_BIAS) // @v11.7.0
+	#define CTL_STQINLPARAM_CMD_STATUSLIST   (19 + WINDOWS_ID_BIAS) // @v12.8.3
 #define DLG_STQSTATUSL            1423
 	#define CTL_STQSTATUSL_LIST              (1  + WINDOWS_ID_BIAS)
 #define DLG_STQSTATUSE            1424
@@ -12326,6 +12362,8 @@
 	#define CTL_IMPEXPWORKBOOK_FLAGS            (IMPEXP_CTL_BIAS+1)
 	#define CTL_IMPEXPWORKBOOK_PDFMT            (IMPEXP_CTL_BIAS+2)
 	#define CTLSEL_IMPEXPWORKBOOK_PDFMT         (IMPEXP_CTL_BIAS+3)
+#define DLG_SELGCSUBSTSYMB       1604 // @v12.8.3 Список символов для подстановки в формулах класса товаров
+	#define CTL_SELGCSUBSTSYMB_LIST             (1 + WINDOWS_ID_BIAS)
 //
 // Win32 Dialog Identifiers
 //
@@ -12890,6 +12928,7 @@
 #define PPTXT_IMPEXPPARAM_WORKBOOK          660 // @v12.8.2 Дополнительные параметры импорта/экспорта рабочих книг
 	#define IMPEXPPARAM_WORKBOOK_PREDEFFMT    0 // Значение такое же, как и для параметров импорта/экспорта документов!
 	#define IMPEXPPARAM_WORKBOOK_FLAGS        1 //
+	#define IMPEXPPARAM_WORKBOOK_IMGPATH      2 // @v12.8.3
 // LastText
 //
 // Intrinsic calculator functions

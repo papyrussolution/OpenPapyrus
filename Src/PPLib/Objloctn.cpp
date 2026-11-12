@@ -2136,11 +2136,12 @@ int PPObjLocation::EditDialog(PPID locTyp, PPLocationPacket * pData, long flags)
 		else if(locTyp == LOCTYP_WAREHOUSE && pData->OwnerID == 0)
 			dlg->disableCtrl(CTLSEL_LOCATION_OWNER, true);
 		dlg->setDTS(pData);
-		for(int valid_data = 0; !valid_data && (ok = ExecView(dlg)) == cmOK;)
+		for(int valid_data = 0; !valid_data && (ok = ExecView(dlg)) == cmOK;) {
 			if(dlg->getDTS(pData) && Validate(pData, 0))
 				valid_data = 1;
 			else
 			   	PPError();
+		}
 	}
 	else
 		ok = 0;

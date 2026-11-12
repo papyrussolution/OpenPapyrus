@@ -9,7 +9,13 @@
 // @v12.5.3 (@movedto slib.h) #include <AccCtrl.h>
 
 DBFCreateFld * LoadDBFStruct(uint rezID, uint * pNumFlds); // @prototype
-
+//
+//
+//
+SString & GetCrr32ProxiPipeName(SString & rBuf) { return SFile::MakeNamedPipeName(PPConst::PipeCrr32Proxi, rBuf); } // @v11.9.5
+//
+//
+//
 int FASTCALL dbl_cmp(double v1, double v2) { return CMPSIGN(R6(v1 - v2), 0.0); }
 IMPL_CMPFUNC(PPLBItem, i1, i2) { return stricmp866(static_cast<const char *>(i1)+sizeof(long), static_cast<const char *>(i2)+sizeof(long)); }
 

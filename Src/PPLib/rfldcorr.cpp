@@ -1085,7 +1085,7 @@ enum {
 	iefFtpAccID,       // Идентификатор FTP-аккаунта
 };
 
-/*virtual*/int PPImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
+/* @v12.8.3 (тупиковая ветвь) int PPImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	if(dir > 0) {
@@ -1164,7 +1164,7 @@ enum {
 	}
 	CATCHZOK
 	return ok;
-}
+}*/
 
 int PPImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 {
@@ -3027,7 +3027,7 @@ int GetImpExpSectionsCDb(PPConfigDatabase & rCDb, uint sdRecID, StrAssocArray & 
 	return ok;
 }
 
-int Helper_ConvertImpExpConfig_IniToBdb(PPConfigDatabase & rCDb, SSerializeContext & rSCtx, uint iniFileNameId, uint sdRecID, /*PPImpExpParam * pParam,*/ PPLogger * pLogger)
+/* @v12.8.3 (тупиковая ветвь) int Helper_ConvertImpExpConfig_IniToBdb(PPConfigDatabase & rCDb, SSerializeContext & rSCtx, uint iniFileNameId, uint sdRecID, PPLogger * pLogger)
 {
 	int    ok = 1;
 	SString ini_file_name, section, db_dir;
@@ -3069,9 +3069,8 @@ int Helper_ConvertImpExpConfig_IniToBdb(PPConfigDatabase & rCDb, SSerializeConte
 	CATCHZOK
 	delete p_param;
 	return ok;
-}
-
-int ConvertImpExpConfig_IniToBdb()
+}*/
+/* @v12.8.3 (тупиковая ветвь) int ConvertImpExpConfig_IniToBdb()
 {
 	int    ok = 1;
 	SString db_dir;
@@ -3099,7 +3098,7 @@ int ConvertImpExpConfig_IniToBdb()
 	}
 	CATCHZOK
 	return ok;
-}
+}*/
 //
 //
 //
@@ -3405,7 +3404,7 @@ int ImpExpCfgsListDialog::EditParam(const char * pIniSection, long * pCDbID)
 			SetParamDlgDTS(p_param_dlg, CfgPos, p_param);
 			while(ok <= 0 && ExecView(p_param_dlg) == cmOK) {
 				if(GetParamDlgDTS(p_param_dlg, CfgPos, p_param)) {
-					int    is_new = (pIniSection && *pIniSection && p_param->Direction == direction) ? 0 : 1;
+					const  bool is_new = !(pIniSection && *pIniSection && p_param->Direction == direction);
 					if(!isempty(pIniSection)) {
 						if(is_new)
 							ini_file.RemoveSection(pIniSection);

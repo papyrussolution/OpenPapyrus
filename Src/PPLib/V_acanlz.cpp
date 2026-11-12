@@ -152,7 +152,7 @@ PPViewAccAnlz::BrwHdr::BrwHdr()
 	THISZERO();
 }
 
-PPViewAccAnlz::InternalViewItem::InternalViewItem() : BrwHdr(), Amount(0.0)
+PPViewAccAnlz::InternalViewItem::InternalViewItem()
 {
 }
 
@@ -1215,7 +1215,43 @@ bool PPViewAccAnlz::IsDedicatedRestEvaluationNeeded() const
 
 void PPViewAccAnlz::SetOuterReportId(uint rptId) { OuterReportId = rptId; } // @v12.7.11
 
-bool PPViewAccAnlz::IsInMemView() const { return false; } // @v12.8.2
+bool PPViewAccAnlz::IsInMemView() const { return LOGIC(State & stUseInternalList); } // @v12.8.2
+
+/*static*/IMPL_CMPMEMBFUNC(PPViewAccAnlz, PPViewAccAnlz_InternalViewItem_ByDate, i1, i2)
+{
+	const  PPViewAccAnlz::InternalViewItem * p1 = static_cast<const PPViewAccAnlz::InternalViewItem *>(i1);
+	const  PPViewAccAnlz::InternalViewItem * p2 = static_cast<const PPViewAccAnlz::InternalViewItem *>(i2);
+	RET_CMPCASCADE2(p1, p2, At.Date, At.RByBill);
+}
+
+int PPViewAccAnlz::PutAccTurnToInternalList(const BillTbl::Rec & rBillRec, const PPAccTurn & rAt, TSVector <InternalViewItem> & rList) // @v12.8.3
+{
+	int    ok = -1;
+	if(State & stUseInternalList) {
+		if(State & stATurnList) {
+			InternalViewItem item;
+			PPAccount dbt_acc_rec;
+			PPAccount crd_acc_rec;
+			bool  skip = false;
+			if(Filt.Flags & AccAnlzFilt::fPersonalFinance) { // @construction
+				if(AccObj.Fetch(rAt.DbtID.AcID, &dbt_acc_rec) > 0 && dbt_acc_rec.Type == ACY_PERSONAL) {
+					skip = false;
+				}
+				else if(AccObj.Fetch(rAt.CrdID.AcID, &crd_acc_rec) > 0 && crd_acc_rec.Type == ACY_PERSONAL) {
+					skip = false;
+				}
+				else 
+					skip = true;
+			}
+			if(!skip) {
+				item.At = rAt;
+				rList.insert(&item);
+				ok = 1;
+			}
+		}
+	}
+	return ok;
+}
 
 /*virtual*/int PPViewAccAnlz::Init_(const PPBaseFilt * pFilt)
 {
@@ -1266,9 +1302,13 @@ bool PPViewAccAnlz::IsInMemView() const { return false; } // @v12.8.2
 		// ... Режим описи проводок (типа PPViewAccTurn)
 		State |= stATurnList;
 		if(Filt.Flags & AccAnlzFilt::fPersonalFinance) { // @construction
-			#if 0 // @construction {
+			#if 1 // @construction {
+			State |= stUseInternalList;
+			//
 			AccTurnTbl * p_att = this->P_ATC;
 			AccTurnTbl::Key2 k2;
+			BillTbl::Rec bill_rec;
+			PPAccount acc_rec;
 			double ip;
 			double min_amt = Filt.AmtR.low;
 			double max_amt = Filt.AmtR.upp;
@@ -1285,16 +1325,19 @@ bool PPViewAccAnlz::IsInMemView() const { return false; } // @v12.8.2
 			k2.Dt = Filt.Period.low;
 			k2.OprNo = 0;
 			for(q.initIteration(false, &k2, spGe); q.nextIteration() > 0;) {
-				InternalViewItem item;
+				PPAccTurn at;
 				const AccTurnTbl::Rec & r_rec = p_att->data;
-				item.BillID = r_rec.BillID;
-				item.Dt = r_rec.Dt;
-				item.OprNo = r_rec.OprNo;
-				item.AccRelID = r_rec.Acc;
-				item.CorAccID = r_rec.CorrAcc;
-				item.Amount = MONEYTOLDBL(r_rec.Amount);
-				InternalViewList.insert(&item);
+				if(P_BObj->Fetch(r_rec.BillID, &bill_rec) > 0) {
+					P_ATC->ConvertRec_(bill_rec, &r_rec, at, 1/*useCaceh*/);
+				}
+				else { 
+					// Аварийная ветка!
+					bill_rec.Clear();
+					P_ATC->ConvertRec_(bill_rec, &r_rec, at, 1/*useCaceh*/);
+				}
+				PutAccTurnToInternalList(bill_rec, at, InternalViewList);
 			}
+			InternalViewList.sort2(PTR_CMPFUNC(PPViewAccAnlz_InternalViewItem_ByDate));
 			#endif // } 0 @construction
 		}
 	}
@@ -1874,35 +1917,86 @@ int PPViewAccAnlz::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	int    ok = 1;
 	assert(pBlk->P_SrcData && pBlk->P_DestData); // Функция вызывается только из одной локации и эти members != 0 равно как и pBlk != 0
 	//const  BrwItem * p_item = static_cast<const BrwItem *>(pBlk->P_SrcData);
+	const  InternalViewItem * p_item = static_cast<const InternalViewItem *>(pBlk->P_SrcData);
 	int    r = 0;
+	SString temp_buf;
 	/*
-		"@date",       1, notype, DATF_DMY, 8
-		"Op",          2, notype, ALIGN_LEFT, 10
-		"Account",     3, notype, ALIGN_LEFT, 10
-		"@amount",     5, notype, NMBF_DELCOMMA, 12.2
-		"CorrAccount", 4, notype, ALIGN_LEFT, 10
-		"Category",    6, notype, ALIGN_LEFT, 10
-		"Contractor",  7, notype, ALIGN_LEFT, 10
-		"@memo",       8, notype, 0, 32
+	"@date",       101, date,        DATF_DMY,    8, BCO_USERPROC
+	"Op",          102, zstring(48), ALIGN_LEFT, 10, BCO_USERPROC
+	"Account",     103, zstring(128), ALIGN_LEFT, 10, BCO_USERPROC
+	"@amount",     105, double,       NMBF_DELCOMMA, 12.2, BCO_USERPROC
+	"CorrAccount", 104, zstring(128), ALIGN_LEFT, 10, BCO_USERPROC
+	"Category",    106, zstring(48), ALIGN_LEFT, 10, BCO_USERPROC
+	"Contractor",  107, zstring(128), ALIGN_LEFT, 10, BCO_USERPROC
+	"@memo",       108, zstring(128), 0,          32, BCO_USERPROC
 	*/ 
 	switch(pBlk->ColumnN) {
 		case 0: // rbybill
+			pBlk->Set(static_cast<int32>(p_item->At.RByBill));
 			break;
-		case 1: // date
+		case 101: // date
+			pBlk->Set(p_item->At.Date);
 			break;
-		case 2: // op
+		case 102: // op
+			{
+				const  int nbf = p_item->At.GetNonBalancedFlow();
+				const  char * p_symb = 0;
+				switch(nbf) {
+					case PPATFLOW_INCOME: p_symb = "incoming"; break;
+					case PPATFLOW_EXPENSE: p_symb = "expend"; break;
+					case PPATFLOW_TRANSFER: p_symb = "remittance"; break;
+				}
+				if(p_symb) {
+					PPLoadString(p_symb, temp_buf);
+				}
+				pBlk->Set(temp_buf);
+				//if(oneof2(nbf, PPATFLOW_EXPENSE, PPATFLOW_TRANSFER)) { /*P_At->SwapDbtCrd();*/ }
+			}
 			break;
-		case 3: // account
+		case 103: // account
+			{
+				const  int nbf = p_item->At.GetNonBalancedFlow();
+				const  AccIdent * p_acc_id = oneof2(nbf, PPATFLOW_EXPENSE, PPATFLOW_TRANSFER) ? &p_item->At.CrdID : &p_item->At.DbtID;
+				PPAccount acc_rec;
+				if(AccObj.Fetch(p_acc_id->AcID, &acc_rec) > 0) {
+					temp_buf = acc_rec.Name;
+				}
+				pBlk->Set(temp_buf);
+			}
 			break;
-		case 4: // corr-account
+		case 104: // corr-account
+			{
+				const  int nbf = p_item->At.GetNonBalancedFlow();
+				const  AccIdent * p_acc_id = oneof2(nbf, PPATFLOW_EXPENSE, PPATFLOW_TRANSFER) ? &p_item->At.DbtID : &p_item->At.CrdID;
+				PPAccount acc_rec;
+				if(AccObj.Fetch(p_acc_id->AcID, &acc_rec) > 0) {
+					temp_buf = acc_rec.Name;
+				}
+				pBlk->Set(temp_buf);
+			}
 			break;
-		case 5: // amount
+		case 105: // amount
+			pBlk->Set(p_item->At.Amount);
 			break;
-		case 6: // category
+		case 106: // category
+			{
+				const  int nbf = p_item->At.GetNonBalancedFlow();
+				const  AccIdent * p_acc_id = oneof2(nbf, PPATFLOW_EXPENSE, PPATFLOW_TRANSFER) ? &p_item->At.DbtID : &p_item->At.CrdID;
+				ArticleTbl::Rec ar_rec;
+				if(p_acc_id->ArID && ArObj.Fetch(p_acc_id->ArID, &ar_rec) > 0) {
+					temp_buf = ar_rec.Name;
+				}
+				pBlk->Set(temp_buf);
+			}
 			break;
-		case 7: // contractor
+		case 107: // contractor
+			pBlk->Set(temp_buf);
 			break;
-		case 8: // memo
+		case 108: // memo
+			{
+				P_BObj->P_Tbl->GetItemMemo(p_item->At.BillID, temp_buf);
+				pBlk->Set(temp_buf);
+			}
 			break;
 	}
 	return ok;
@@ -1921,11 +2015,18 @@ void PPViewAccAnlz::PreprocessBrowser(PPViewBrowser * pBrw)
 
 /*virtual*/SArray * PPViewAccAnlz::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 {
-	SArray * p_result = 0;
+	SArray * p_array = 0;
 	uint   brw_id = BROWSER_ATURNLIST_PERSONAL;
-
+	if(IsInMemView()) {
+		p_array = new SArray(sizeof(InternalViewItem));
+		if(p_array) {
+			for(uint i = 0; i < InternalViewList.getCount(); i++) {
+				p_array->insert(&InternalViewList.at(i));
+			}
+		}
+	}
 	ASSIGN_PTR(pBrwId, brw_id);
-	return p_result;
+	return p_array;
 }
 
 /*virtual*/DBQuery * PPViewAccAnlz::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
@@ -2241,7 +2342,11 @@ int PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 	MEMSZERO(hdr);
 	if(pRow) {
 		const  char * p_hdr = static_cast<const char *>(pRow);
-		if(State & stATurnList) { // @v12.7.12
+		if(State & stUseInternalList) {
+			const InternalViewItem * p_ivi = static_cast<const InternalViewItem *>(pRow);
+			hdr.BillID = p_ivi->At.BillID;
+		}
+		else if(State & stATurnList) { // @v12.7.12
 			hdr.BillID = *reinterpret_cast<const PPID *>(p_hdr);
 		}
 		else if((Filt.Flags & (AccAnlzFilt::fGroupByCorAcc|AccAnlzFilt::fTrnovrBySheet)) || Filt.Cycl.Cycle) {
@@ -2361,6 +2466,9 @@ int PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 							}
 							if(P_BObj->AddAccturn(&bill_id, &ab) == cmOK) {
 								//AddBillToList(id);
+								if(IsInMemView()) {
+									//InternalViewList
+								}
 								ok = 1;
 							}
 						}
@@ -2438,8 +2546,18 @@ int PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 				ok = ChangeFilt(1, pBrw);
 		}
 	}
-	if(ok > 0 && oneof3(ppvCmd, PPVCMD_DETAIL, PPVCMD_ADDITEM, PPVCMD_DELETEITEM)) {
-		CALLPTRMEMB(pBrw, Update());
+	if(ok > 0) {
+		// @v12.8.3 @construction {
+		if(IsInMemView()) {
+			AryBrowserDef * p_def = pBrw ? static_cast<AryBrowserDef *>(pBrw->getDef()) : 0;
+			if(p_def) {
+				;
+			}
+		}
+		// } @v12.8.3 @construction 
+		if(oneof3(ppvCmd, PPVCMD_DETAIL, PPVCMD_ADDITEM, PPVCMD_DELETEITEM)) {
+			CALLPTRMEMB(pBrw, Update());
+		}
 	}
 	return ok;
 }

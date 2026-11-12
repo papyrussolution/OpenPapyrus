@@ -143,6 +143,7 @@
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <StringPooling>true</StringPooling>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;OPENXLSX_STATIC_DEFINE;ENABLE_NOWIDE;CHARCONV_ENABLED;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
@@ -220,6 +221,7 @@
       </PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)$(ProjectName).pch</PrecompiledHeaderOutputFile>
       <StringPooling>true</StringPooling>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;OPENXLSX_STATIC_DEFINE;ENABLE_NOWIDE;CHARCONV_ENABLED;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>

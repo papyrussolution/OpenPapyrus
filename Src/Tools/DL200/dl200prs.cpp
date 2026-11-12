@@ -1234,7 +1234,7 @@ IMPL_HANDLE_EVENT(DL200_ParamDialog)
 int DL200_ParamDialog::getSelectedFileName(char * pBuf, size_t bufLen)
 {
 	char   fname[MAX_PATH];
-	ComboBox   * p_cb = 0;
+	ComboBox * p_cb = 0;
 	fname[0] = 0;
 	ASSIGN_PTR(pBuf, 0);
 	if((p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_DL200P_FNAME))) != 0) {
@@ -1254,9 +1254,9 @@ int DL200_ParamDialog::setupFormCombo()
 {
 	int    ok = 1;
 	char   path[MAX_PATH];
-	ComboBox   * p_cb = 0;
 	ListWindow * p_lw = 0;
-	if((p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_DL200P_DATANAME))) != 0) {
+	ComboBox   * p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_DL200P_DATANAME));
+	if(p_cb) {
 		SStrCollection data_list;
 		long   sel = 0;
 		THROW(p_lw = CreateListWindow_Simple(lbtDblClkNotify));
@@ -1284,30 +1284,33 @@ int DL200_ParamDialog::setupFormCombo()
 int DL200_ParamDialog::setupFileCombo()
 {
 	int    ok = 1;
-	ComboBox   * p_cb = 0;
-	ListWindow * p_lw = 0;
-	if((p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_DL200P_FNAME))) != 0) {
-		long sel = 0;
-		p_lw = CreateListWindow_Simple(lbtDblClkNotify);
-		THROW(p_lw);
+	ComboBox * p_cb = static_cast<ComboBox *>(getCtrlView(CTLSEL_DL200P_FNAME));
+	if(p_cb) {
+		SString path;
+		SFileEntryPool fep;
+		THROW(PPGetPath(PPPATH_DD, path));
+		THROW(fep.Scan(path.SetLastSlash(), "*.BIN", 0));
 		{
-			uint   p, i = 0;
-			SString path, file_path;
-			SFileEntryPool fep;
-			SFileEntryPool::Entry fe;
-			THROW(PPGetPath(PPPATH_DD, path));
-			THROW(fep.Scan(path.SetLastSlash(), "*.BIN", 0));
-			for(p = 0; p < fep.GetCount(); p++) {
-				if(fep.Get(p, &fe, &file_path)) {
-					if(DL2_Storage::IsDL200File(file_path) > 0) {
-						if(stricmp(Data.FileName, file_path) == 0)
-							sel = i+1;
-						p_lw->GetListBox()->addItem(++i, fe.Name);
+			long   sel = 0;
+			ListWindow * p_lw = CreateListWindow_Simple(lbtDblClkNotify);
+			THROW(p_lw);
+			{
+				uint   p;
+				uint   i = 0;
+				SString file_path;
+				SFileEntryPool::Entry fe;
+				for(p = 0; p < fep.GetCount(); p++) {
+					if(fep.Get(p, &fe, &file_path)) {
+						if(DL2_Storage::IsDL200File(file_path) > 0) {
+							if(stricmp(Data.FileName, file_path) == 0)
+								sel = i+1;
+							p_lw->GetListBox()->addItem(++i, fe.Name);
+						}
 					}
 				}
 			}
+			p_cb->setListWindow(p_lw, sel);
 		}
-		p_cb->setListWindow(p_lw, sel);
 	}
 	CATCHZOK
 	return ok;

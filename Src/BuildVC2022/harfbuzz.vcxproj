@@ -353,7 +353,7 @@
       <OmitFramePointers>false</OmitFramePointers>
       <PrecompiledHeaderFile />
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <ControlFlowGuard>false</ControlFlowGuard>
@@ -643,7 +643,7 @@
       <OmitFramePointers>true</OmitFramePointers>
       <PrecompiledHeaderFile />
       <CreateHotpatchableImage>false</CreateHotpatchableImage>
-      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
       <EnableParallelCodeGeneration>false</EnableParallelCodeGeneration>
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <ControlFlowGuard>false</ControlFlowGuard>

@@ -1,6 +1,6 @@
 // UED-ID-TEMP.H
-// version: 21
-// sha256: c32db1fa0948f976c112113200430bf8aa1cb3e82877eabfeb2ba905d973412e
+// version: 22
+// sha256: 542d98fc270281afa73fa4fe894e3cfc6aa9b3c66ed23330aaa9edc3b6a8314e
 //
 #ifndef __UED_ID_H
 #define __UED_ID_H
@@ -2511,6 +2511,7 @@
 	#define UED_DATAFORMAT_XLSM                          0x4900000086ULL
 	#define UED_DATAFORMAT_WINWORD                       0x4900000087ULL
 	#define UED_DATAFORMAT_WINWORDX                      0x4900000088ULL
+	#define UED_DATAFORMAT_MARKDOWN                      0x4900000089ULL
 	#define UED_DATAFORMAT_PRV_PAPYRUDBDIVXCHG           0x4900010001ULL
 #define UED_META_URISCHEME                           0x10000004aULL
 #define UED_META_BRAND                               0x10000004bULL

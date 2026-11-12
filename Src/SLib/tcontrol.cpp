@@ -2339,9 +2339,9 @@ ComboBox::ComboBox(const TRect & bounds, ListBoxDef * aDef) : TView(bounds)
 	setDef(aDef);
 }
 
-ComboBox::ComboBox(const TRect & bounds, ushort aFlags, TInputLine * pCorrespondCtrl) : TView(bounds)
+ComboBox::ComboBox(const TRect & bounds, long flags, TInputLine * pCorrespondCtrl) : TView(bounds) // @v12.8.3 (ushort aFlags)-->(long flags)
 {
-	Init(aFlags);
+	Init(flags);
 	CALLPTRMEMB(pCorrespondCtrl, setupCombo(this));
 }
 
@@ -2487,26 +2487,27 @@ int ComboBox::handleWindowsMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			P_ListWin->prepareForSearching(static_cast<int>(wParam));
 		case WM_COMMAND:
 			if(!IsInState(sfReadOnly)) { // @v12.7.4 @condition
-				ListWindow * p_list_win = P_ListWin;
-				if(!(State & stExecSemaphore) && p_list_win) {
+				ListWindow * p_lw = P_ListWin;
+				if(!(State & stExecSemaphore) && p_lw) {
 					State |= stExecSemaphore;
 					long   v = 0;
-					int    res = cmCancel;
-					HWND   w_link = GetDlgItem(Parent, GetLink()->GetId());
+					const  HWND w_link = GetDlgItem(Parent, GetLink()->GetId());
 					if(GetFocus() != w_link)
 						SetFocus(w_link);
 					if(!(State & stUndef))
-						p_list_win->getResult(&v);
+						p_lw->getResult(&v);
 					else
 						v = NoDefID;
-					if((res = APPL->P_DeskTop->execView(p_list_win)) == cmOK)
-						p_list_win->getResult(&v);
+					const  int res = APPL->P_DeskTop->execView(p_lw);
+					if(res == cmOK) {
+						p_lw->getResult(&v);
+					}
 					//
 					// Список P_ListWin был анулирован в функции ComboBox::setListWindow(ListWindow *)
 					// Во избежании утечки памяти здесь необходимо разрушить оставшийся висячим p_list_win
 					//
-					if(p_list_win != P_ListWin)
-						delete p_list_win;
+					if(p_lw != P_ListWin)
+						delete p_lw;
 					//
 					TransmitData(+1, (v > 0) ? &v : 0);
 					State &= ~stExecSemaphore;
@@ -2997,3 +2998,191 @@ int TToolTip::RemoveAllTools()
 	}
 	return ok;
 }
+//
+// @v12.8.3 @construction {
+//
+TFloatButton::TFloatButton() : H(0)
+{
+}
+	
+TFloatButton::~TFloatButton()
+{
+	if(H) {
+		::DestroyWindow(H);
+		H = 0;
+	}
+}
+
+/*static*/LRESULT CALLBACK TFloatButton::WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	TFloatButton * p_this = reinterpret_cast<TFloatButton *>(::GetWindowLongW(hWnd, GWLP_USERDATA));
+	switch(uMsg) {
+		case WM_CREATE:
+			{
+				CREATESTRUCT * p_cs = reinterpret_cast<CREATESTRUCT *>(lParam);
+				::SetWindowLongW(hWnd, GWLP_USERDATA, (LONG_PTR)p_cs->lpCreateParams);
+				return 0;
+			}
+		case WM_DESTROY:
+			{
+				HFONT h_font = (HFONT)::SendMessageW(hWnd, WM_GETFONT, 0, 0);
+				if(h_font)
+					::DeleteObject(h_font);
+				if(p_this) {
+					p_this->H = 0;
+				}
+				return 0;
+			}
+		case WM_ERASEBKGND:
+			return 1; // Подавляем стирание, рисуем всё в WM_PAINT
+		case WM_PAINT:
+			{
+				PAINTSTRUCT ps;
+				HDC  hdc = BeginPaint(hWnd, &ps);
+				RECT rc;
+				GetClientRect(hWnd, &rc);
+
+				// Фон
+				HBRUSH hBrush = CreateSolidBrush(RGB(240, 240, 240));
+				FillRect(hdc, &rc, hBrush);
+				DeleteObject(hBrush);
+
+				// Рамка
+				HPEN hPen = CreatePen(PS_SOLID, 1, RGB(128, 128, 128));
+				HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
+				HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, GetStockObject(NULL_BRUSH));
+				Rectangle(hdc, rc.left, rc.top, rc.right, rc.bottom);
+				SelectObject(hdc, hOldPen);
+				SelectObject(hdc, hOldBrush);
+				DeleteObject(hPen);
+
+				// Текст
+				SetBkMode(hdc, TRANSPARENT);
+				SetTextColor(hdc, RGB(0, 100, 200));
+				HFONT hFont = (HFONT)SendMessageW(hWnd, WM_GETFONT, 0, 0);
+				HFONT hOldFont = hFont ? (HFONT)SelectObject(hdc, hFont) : NULL;
+
+				wchar_t text[256];
+				text[0] = 0;
+				GetWindowTextW(hWnd, text, SIZEOFARRAY(text));
+				DrawTextW(hdc, text, -1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+				if(hOldFont) 
+					SelectObject(hdc, hOldFont);
+				EndPaint(hWnd, &ps);
+				return 0;
+			}
+		case WM_LBUTTONDOWN:
+			if(p_this) {
+				//return p_this->OnLButtonDown();
+				// Отправляем сообщение родителю о нажатии
+				HWND h_parent = ::GetParent(hWnd);
+				if(h_parent)
+					::SendMessageW(h_parent, WM_COMMAND, MAKEWPARAM(1001, BN_CLICKED), (LPARAM)hWnd);
+				return 0;
+			}
+			break;
+		case WM_MOUSEMOVE:
+			{
+				TRACKMOUSEEVENT tme = {0};
+				tme.cbSize = sizeof(tme);
+				tme.dwFlags = TME_LEAVE;
+				tme.hwndTrack = hWnd;
+				TrackMouseEvent(&tme);
+            
+				// Эффект при наведении
+				InvalidateRect(hWnd, NULL, FALSE);
+				return 0;
+			}
+		case WM_MOUSEHOVER:
+			if(p_this) {
+				//return p_this->OnMouseHover();
+			}
+			break;
+		case WM_MOUSELEAVE:
+			if(p_this) {
+				//return p_this->OnMouseLeave();
+				::InvalidateRect(hWnd, NULL, FALSE);
+				return 0;
+			}
+			break;
+	}
+	return ::DefWindowProcW(hWnd, uMsg, wParam, lParam);
+}
+
+const wchar_t * P_TFloatButton_ClsName = L"TFloatButton";
+// Размер кнопки
+const SPoint2I TFloatButton_Size(24, 24);
+//const int btn_width = 24;
+//const int btn_height = 24;
+	
+int TFloatButton::Create(HWND hParent, HWND hTarget, const wchar_t * pText)
+{
+	int    ok = TRUE;
+	if(!hParent/*|| !hTargetControl*/)
+		ok = FALSE;
+	else {
+		// Регистрируем класс окна если нужно
+		WNDCLASSEXW wcex = {0};
+		wcex.cbSize = sizeof(WNDCLASSEX);
+		wcex.style = CS_HREDRAW|CS_VREDRAW;
+		wcex.lpfnWndProc = WindowProc;
+		wcex.hInstance = GetModuleHandle(NULL);
+		wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wcex.hbrBackground = (HBRUSH)(COLOR_BTNFACE + 1);
+		wcex.lpszClassName = P_TFloatButton_ClsName;
+    
+		::RegisterClassExW(&wcex);
+
+		//m_hParent = hParent;
+		//m_hTarget = hTargetControl;
+
+		// Создаем кнопку как popup окно
+		
+		H = ::CreateWindowExW(WS_EX_TOOLWINDOW|WS_EX_TOPMOST|WS_EX_NOACTIVATE, P_TFloatButton_ClsName,
+			pText, WS_POPUP|WS_VISIBLE, 0, 0, TFloatButton_Size.x, TFloatButton_Size.y, hParent, NULL, GetModuleHandle(NULL), this);
+		if(!H)
+			ok = FALSE;
+		else {
+			// Сохраняем указатель на объект в окне
+			::SetWindowLongPtrW(H, GWLP_USERDATA, (LONG_PTR)this);
+			UpdatePosition(hTarget); // Позиционируем кнопку
+			// Устанавливаем шрифт (жирный для "+")
+			HFONT hFont = ::CreateFontW(16, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
+				DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI");
+			::SendMessageW(H, WM_SETFONT, (WPARAM)hFont, TRUE);
+		}
+	}
+	return ok;
+}
+
+void TFloatButton::UpdatePosition(HWND hTarget)
+{
+    if(H && hTarget)
+		PositionButton(hTarget);
+}
+
+void TFloatButton::PositionButton(HWND hTarget)
+{
+	if(H && hTarget) {
+		RECT rc_target;
+		::GetWindowRect(hTarget, &rc_target);
+		// Экранные координаты для WS_POPUP
+		int x = rc_target.right - TFloatButton_Size.x - 2;
+		int y = rc_target.top + 2;
+		// Опционально: ограничиваем экраном
+		RECT rc_work;
+		SystemParametersInfoW(SPI_GETWORKAREA, 0, &rc_work, 0);
+		if(x + TFloatButton_Size.x > rc_work.right)
+			x = rc_work.right - TFloatButton_Size.x;
+		if(y + TFloatButton_Size.y > rc_work.bottom)
+			y = rc_work.bottom - TFloatButton_Size.y;
+		if(x < rc_work.left) 
+			x = rc_work.left;
+		if(y < rc_work.top)  
+			y = rc_work.top;
+		::SetWindowPos(H, HWND_TOP, x, y, TFloatButton_Size.x, TFloatButton_Size.y, SWP_SHOWWINDOW | SWP_NOACTIVATE);
+	}
+}
+//
+// } @v12.8.3 @construction
+//

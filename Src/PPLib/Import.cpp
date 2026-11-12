@@ -1853,7 +1853,7 @@ PPPhoneListImpExpParam::PPPhoneListImpExpParam(uint recId, long flags) : PPImpEx
 
 #define IMPEXPPARAM_PHONELIST_DEFCITYPHONEPREFIX 1
 
-/*virtual*/int PPPhoneListImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
+/* @v12.8.3 (тупиковая ветвь) int PPPhoneListImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1878,7 +1878,7 @@ PPPhoneListImpExpParam::PPPhoneListImpExpParam(uint recId, long flags) : PPImpEx
 	}
 	CATCHZOK
 	return ok;
-}
+}*/
 
 int PPPhoneListImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 {
@@ -2859,7 +2859,7 @@ static IeCfgParamItem PersonIeCfgParamList[] = {
 	{ IMPEXPPARAM_PERSON_FLAGS, "Flags" }
 };
 
-int PPPersonImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
+/* @v12.8.3 (тупиковая ветвь) int PPPersonImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2898,7 +2898,7 @@ int PPPersonImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader &
 	}
 	CATCHZOK
 	return ok;
-}
+}*/
 
 int PPPersonImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 {

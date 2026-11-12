@@ -8384,7 +8384,6 @@ int PPVetisInterface::PrepareOutgoingConsignment2(OutcomingEntry & rEntry, TSVec
 	if(GetVetDocumentByUuid(org_doc_entity.Uuid, org_doc_reply) > 0 && org_doc_reply.VetDocList.getCount() == 1) {
 		rReply.Clear();
 		app_data.OrgDoc = *org_doc_reply.VetDocList.at(0);
-		// @v11.0.1 {
 		{
 			//
 			// Выше была проверка на срок годности, но там этот срок брался из внутренней базы данных.
@@ -8398,8 +8397,7 @@ int PPVetisInterface::PrepareOutgoingConsignment2(OutcomingEntry & rEntry, TSVec
 				THROW_PP_S(final_expiry_date > getcurdate_(), PPERR_VETISORGDOCEXPIRY, temp_buf);
 			}
 		}
-		// } @v11.0.1
-		app_data.P_RegionRules = rEntry.P_RegRuleList; // @v11.0.11
+		app_data.P_RegionRules = rEntry.P_RegRuleList;
 		{
 			THROW_PP(app_data.VdRec.FromEntityID, PPERR_VETISFROMBUSENTUNDEF);
 			PeC.GetEntity(app_data.VdRec.FromEntityID, sub_entity);

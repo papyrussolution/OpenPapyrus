@@ -109,23 +109,6 @@
                 </LinearLayout>
             </LinearLayout>
             <LinearLayout
-                android:id="@+id/CTLGRP_DOCUMENT_STATUS"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:paddingTop="4dp"
-                android:layout_marginLeft="4dp"
-                android:layout_marginRight="4dp"
-                >
-                <TextView style="@style/FormText"
-                    android:id="@+id/CTLLBL_DOCUMENT_STATUS"
-                    android:layout_height="wrap_content"
-                    android:layout_width="match_parent"
-                    android:text="@{status}"
-                    />
-                <Spinner style="@style/ComboBox" android:id="@+id/CTLSEL_DOCUMENT_STATUS"/>
-            </LinearLayout>
-            <LinearLayout
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:orientation="horizontal">
@@ -140,27 +123,57 @@
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         />
-                    <TextView style="@style/FormText"
-                        android:id="@+id/CTL_DOCUMENT_DLVRLOC"
-                        android:layout_height="wrap_content"
-                        android:layout_width="match_parent"
-                        />
                 </LinearLayout>
+                <ImageView
+                    android:id="@+id/CTL_DOCUMENT_OPENETC"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_triangledown03">
+                </ImageView>
             </LinearLayout>
-            <TextView style="@style/FormText"
-                android:id="@+id/CTL_DOCUMENT_AGENT"
+            <LinearLayout
+                android:id="@+id/CTLGRP_DOCUMENT_HDRETC"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                />
-            <com.google.android.material.textfield.TextInputLayout style="@style/InputLine"
-                android:id="@+id/CTL_DOCUMENT_MEMO"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <com.google.android.material.textfield.TextInputEditText style="@style/InputLineTextCompact"
+                android:orientation="vertical"
+                >
+                <TextView style="@style/FormText"
+                    android:id="@+id/CTL_DOCUMENT_DLVRLOC"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    />
+                <LinearLayout
+                    android:id="@+id/CTLGRP_DOCUMENT_STATUS"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="@{memo}" />
-            </com.google.android.material.textfield.TextInputLayout>
+                    android:orientation="vertical"
+                    android:paddingTop="4dp"
+                    android:layout_marginLeft="4dp"
+                    android:layout_marginRight="4dp"
+                    >
+                    <TextView style="@style/FormText"
+                        android:id="@+id/CTLLBL_DOCUMENT_STATUS"
+                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:text="@{status}"
+                        />
+                    <Spinner style="@style/ComboBox" android:id="@+id/CTLSEL_DOCUMENT_STATUS"/>
+                </LinearLayout>
+                <TextView style="@style/FormText"
+                    android:id="@+id/CTL_DOCUMENT_AGENT"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    />
+                <com.google.android.material.textfield.TextInputLayout style="@style/InputLine"
+                    android:id="@+id/CTL_DOCUMENT_MEMO"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <com.google.android.material.textfield.TextInputEditText style="@style/InputLineTextCompact"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@{memo}" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"

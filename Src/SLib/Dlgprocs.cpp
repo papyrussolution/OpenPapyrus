@@ -303,8 +303,9 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 				uint16 hiw = HIWORD(wParam);
 				uint16 low = LOWORD(wParam);
 				p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
-				if(GetKeyState(VK_CONTROL) & 0x8000 && low != cmaCalculate && hiw != EN_UPDATE && hiw != EN_CHANGE)
+				if(GetKeyState(VK_CONTROL) & 0x8000 && low != cmaCalculate && hiw != EN_UPDATE && hiw != EN_CHANGE) {
 					return 0;
+				}
 				else if(p_dlg) {
 					if(hiw == 0 && low == IDCANCEL) {
 						TView::messageCommand(p_dlg, cmCancel, p_dlg);
@@ -420,8 +421,8 @@ void TDialog::InitControls(HWND hwndDlg, WPARAM wParam, LPARAM lParam)
 		case WM_CHAR:
 			p_dlg = static_cast<TDialog *>(TView::GetWindowUserData(hwndDlg));
 			if(p_dlg) {
-				short  ctrl_id = GetDlgCtrlID(reinterpret_cast<HWND>(lParam));
-				short  def_inln_id = (p_dlg->DefInputLine && GetDlgItem(hwndDlg, p_dlg->DefInputLine)) ? p_dlg->DefInputLine : 0;
+				const  short ctrl_id = GetDlgCtrlID(reinterpret_cast<HWND>(lParam));
+				const  short def_inln_id = (p_dlg->DefInputLine && GetDlgItem(hwndDlg, p_dlg->DefInputLine)) ? p_dlg->DefInputLine : 0;
 				if(def_inln_id && def_inln_id != ctrl_id) {
 					::SetFocus(GetDlgItem(hwndDlg, def_inln_id));
 					TView::SSetWindowText(GetDlgItem(hwndDlg, def_inln_id), SLS.AcquireRvlStr().CatChar(static_cast<char>(LOWORD(wParam))));

@@ -62,7 +62,6 @@ int SFileStorage::MakeFileEntry(const char * pName, SString & rEntryName, bool w
 	THROW(ValidateName(pName));
 	THROW(IsValid());
 	{
-		//char   subdir[64];
 		SString & r_subdir = SLS.AcquireRvlStr();
 		const uint32 hash = SlHash::XX32(pName, sstrlen(pName), /*HashSeed*/SlConst::Seed32_FileName);
 		const uint   bucket_no = hash % BucketCount;
@@ -70,7 +69,6 @@ int SFileStorage::MakeFileEntry(const char * pName, SString & rEntryName, bool w
 		if(r_subdir.Len() < 2) {
 			r_subdir.PadLeft(2 - r_subdir.Len(), '0');
 		}
-		//ultoa(bucket_no, subdir, 16);
 		(rEntryName = BasePath).SetLastDSlash().Cat(r_subdir);
 		if(writing) {
 			THROW(SFile::CreateDir(rEntryName));

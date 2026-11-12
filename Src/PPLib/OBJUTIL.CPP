@@ -1896,10 +1896,7 @@ int PPGetConfigList(StrAssocArray * pAry)
 //
 #define MAX_LINKED_FILES 32
 
-/* @v12.0.4 ObjLinkFiles::ObjLinkFiles()
-{
-	Clear();
-}*/
+constexpr bool ObjLinkFiles_UseSFileStorage = false; // @v12.8.3 @construction Отладочный флаг для перестройки технологии хранения файлов в каталоге.
 
 ObjLinkFiles::ObjLinkFiles(PPID objType) : ObjType(objType)
 {
@@ -1924,7 +1921,6 @@ void ObjLinkFiles::Clear()
 	Files.freeAll();
 	State = 0;
 	StoreDir.Z();
-	// @v12.0.4 ObjType = 0;
 	ObjID = 0;
 	FilesNums = 0;
 	InitFilesNums = 0;
@@ -1933,20 +1929,18 @@ void ObjLinkFiles::Clear()
 void FASTCALL ObjLinkFiles::Init(PPID objType)
 {
 	Clear();
-	assert(objType == ObjType); // @v12.0.4
+	assert(objType == ObjType);
 	SString temp_buf;
 	DBS.GetDbPath(DBS.GetDbPathID(), StoreDir);
 	PPLoadText(PPTXT_LNKFILESDIR, temp_buf);
 	StoreDir.SetLastSlash().Cat(temp_buf).SetLastSlash();
-	// @v12.0.4 ObjType = objType;
 }
 
 void ObjLinkFiles::Init(PPID objType, const char * pDir)
 {
 	Clear();
-	assert(objType == ObjType); // @v12.0.4
+	assert(objType == ObjType);
 	(StoreDir = pDir).SetLastSlash();
-	// @v12.0.4 ObjType = objType;
 }
 
 int FASTCALL ObjLinkFiles::Copy(const ObjLinkFiles & rS)
@@ -1959,7 +1953,6 @@ int FASTCALL ObjLinkFiles::Copy(const ObjLinkFiles & rS)
 	}
 	FilesNums = rS.FilesNums;
 	StoreDir  = rS.StoreDir;
-	// @v12.0.4 ObjType   = rS.ObjType;
 	ObjID     = rS.ObjID;
 	return ok;
 }
@@ -1976,23 +1969,24 @@ uint ObjLinkFiles::GetCount() const { return Files.getCount(); }
 int ObjLinkFiles::CheckFile(uint pos, const char * pPath)
 {
 	SString path(pPath);
-	const char * p_exist_file = (pos < Files.getCount()) ? Files.at(pos) : 0;
-	const int    is_store_path = BIN(!(State & stIgnoreCheckStorageDir) && path.HasPrefixNC(StoreDir));
+	const  char * p_exist_file = (pos < Files.getCount()) ? Files.at(pos) : 0;
+	const  int    is_store_path = BIN(!(State & stIgnoreCheckStorageDir) && path.HasPrefixNC(StoreDir));
 	if(p_exist_file && is_store_path && path.CmpNC(p_exist_file) == 0)
 		return -1;
 	else
 		return (path.NotEmptyS() && !is_store_path) ? 1 : PPSetError(PPERR_LNKFILESPATHINV);
 }
 
-int ObjLinkFiles::IsChanged(PPID id, PPID addedID /*=0*/) const
+int ObjLinkFiles::IsChanged(PPID id, PPID addedID/*=0*/) const
 {
-	ObjLinkFiles lnk_files = *this;
+	ObjLinkFiles lnk_files(*this);
 	lnk_files.Load(id, addedID);
 	const  uint _c = lnk_files.GetCount();
 	int    r = BIN(lnk_files.FilesNums == FilesNums && _c == GetCount());
 	if(r) {
-		for(uint i = 0; r && i < _c; i++)
+		for(uint i = 0; r && i < _c; i++) {
 			r = BIN(stricmp866(Files.at(i), lnk_files.Files.at(i)) == 0);
+		}
 	}
 	return !r;
 }
@@ -2029,21 +2023,6 @@ int ObjLinkFiles::GetZeroPositionFile(PPID objType, PPID objID, SString & rPath)
 	return ok;
 }
 
-/*
-int ObjLinkFiles::Add(const char * pPath)
-{
-	int    ok = 1;
-	SString buf;
-	THROW(CheckFile(pPath));
-	buf.Cat(MAX_LINKED_FILES);
-	PPSetAddedMsgString(buf);
-	THROW_PP(pPath && Files.getCount() < MAX_LINKED_FILES, PPERR_MAXLINKFILESREACHED);
-	THROW(Files.insert(newStr(pPath)));
-	CATCHZOK
-	return ok;
-}
-*/
-
 int ObjLinkFiles::Remove(uint i)
 {
 	int    ok = -1;
@@ -2058,7 +2037,7 @@ int ObjLinkFiles::Remove(uint i)
 	return ok;
 }
 
-int ObjLinkFiles::MakeFilePath(PPID objID, /*PPID addedID*/const char * pAddedStr, SString & rPath)
+int ObjLinkFiles::MakeFilePath(PPID objID, const char * pAddedStr, SString & rPath)
 {
 	SString added_buf(pAddedStr);
 	if(added_buf.NotEmptyS()) {
@@ -2184,7 +2163,7 @@ int ObjLinkFiles::Load(PPID objID, PPID addedID /*=0*/)
 		return Load(objID, static_cast<const char *>(0));
 }
 
-int ObjLinkFiles::MakeExistsFilePath(uint i, PPID objID, /*PPID addedID*/const char * pAddedStr, SString & rPath)
+int ObjLinkFiles::MakeExistsFilePath(uint i, PPID objID, const char * pAddedStr, SString & rPath)
 {
 	int    ok = 0;
 	if(i < MAX_LINKED_FILES) {

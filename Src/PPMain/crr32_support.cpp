@@ -26,26 +26,15 @@
 //
 // Descr: Класс сервера, коммуницирующего с клиентом по именованному каналу (NamedPipe)
 //
-class PipeServer : public SlThread_WithStartupSignal {
+class PipeServer_Crr32Support : public SlThread_WithStartupSignal {
 	static constexpr uint32 BufSize = 1024;
-	//SIntHandle H_Pipe;
 	HWND HwParent;
 	SString ExternalPipeName;
-	//AppBlock * P_AppBlk;
 public:
-	/*struct AppBlock {
-		AppBlock(HWND hwParent, const char * pExternalPipeName) : HwParent(hwParent), ExternalPipeName(pExternalPipeName)
-		{
-			memzero(Dummy, sizeof(Dummy));
-		}
-		HWND HwParent;
-		SString ExternalPipeName;
-		uint8 Dummy[64];
-	};*/
-	PipeServer(HWND hwParent, const char * pExternalPipeName) : SlThread_WithStartupSignal(), HwParent(hwParent), ExternalPipeName(pExternalPipeName)
+	PipeServer_Crr32Support(HWND hwParent, const char * pExternalPipeName) : SlThread_WithStartupSignal(), HwParent(hwParent), ExternalPipeName(pExternalPipeName)
 	{
 	}
-	~PipeServer()
+	~PipeServer_Crr32Support()
 	{
 	}
 	virtual void Run()
@@ -73,7 +62,7 @@ public:
 					if(PEOpenEngine()) {
 						do {
 							DWORD rd_size = 0;
-							const boolint rd_ok = ::ReadFile(H_Pipe, rd_buf, rd_buf.GetSize(), &rd_size, NULL/*not overlapped I/O*/);
+							const boolint rd_ok = ::ReadFile(H_Pipe, rd_buf, rd_buf.GetSize32(), &rd_size, NULL/*not overlapped I/O*/);
 							if(rd_ok) {
 								temp_buf.Z().CatN(rd_buf.cptr(), rd_size);
 								//printf(msg_buf.Z().Cat("Q").CatDiv(':', 2).Cat(temp_buf).CR().cptr()); // @debug
@@ -93,8 +82,6 @@ public:
 										(cmd_buf = p_c->Text).Unescape();
 									}
 									if(cmd_buf.IsEqiAscii("ping")) {
-										//js_reply.InsertString("status", "ok");
-										//js_reply.InsertString("info", "pong");
 										rep_info_text = "pong";
 									}
 									else if(cmd_buf.IsEqiAscii("run")) {
@@ -169,7 +156,7 @@ public:
 										}
 										js_reply.ToStr(temp_buf);
 										temp_buf.CopyTo(wr_buf, wr_buf.GetSize());
-										DWORD reply_size = temp_buf.Len()+1;
+										DWORD reply_size = temp_buf.Len32()+1;
 										DWORD wr_size = 0;
 										boolint wr_ok = ::WriteFile(H_Pipe, wr_buf, reply_size, &wr_size, NULL/*not overlapped I/O*/);
 										if(wr_ok) {
@@ -265,7 +252,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 					::PostQuitMessage(0);
 					break;
 				default:
-					result = DefWindowProc(hWnd, message, wParam, lParam);
+					result = ::DefWindowProcW(hWnd, message, wParam, lParam);
 					break;
 			}
 			return result;
@@ -374,7 +361,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 								p_eec->Start(false);
 						}
 						{
-							PipeServer * p_psrv = new PipeServer(pb.HMainWindow, external_pipe_name);
+							PipeServer_Crr32Support * p_psrv = new PipeServer_Crr32Support(pb.HMainWindow, external_pipe_name);
 							if(p_psrv) {
 								p_psrv->Start(/*true*/false);
 								//::WaitForSingleObject(*p_psrv, INFINITE);
@@ -401,7 +388,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				if(p_eec)
 					p_eec->Start(false);
 			}
-			PipeServer * p_psrv = new PipeServer(0, 0);
+			PipeServer_Crr32Support * p_psrv = new PipeServer_Crr32Support(0, 0);
 			if(p_psrv) {
 				p_psrv->Start(true);
 				::WaitForSingleObject(*p_psrv, INFINITE);

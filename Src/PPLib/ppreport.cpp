@@ -1723,10 +1723,6 @@ int FASTCALL PPExportDL600DataToJson(const char * pDataName, StrAssocArray * pSt
 //
 //
 //
-SString & GetCrr32ProxiPipeName(SString & rBuf) { return SFile::MakeNamedPipeName(PPConst::PipeCrr32Proxi, rBuf); } // @v11.9.5
-//
-//
-//
 class Crr32SupportClient {
 public:
 	Crr32SupportClient(const char * pPipeNameUtf8) : BusyPipeTimeoutMs(20000), WrBuf(SKILOBYTE(4)), RdBuf(SKILOBYTE(4))

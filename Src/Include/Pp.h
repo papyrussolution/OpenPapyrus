@@ -540,6 +540,8 @@ public:
 	// } @v11.8.11 
 	static constexpr const char * PipeCrr32Proxi = "PapyrusCrr32Proxi"; // @v11.9.5 Имя именованного канала, по которому осуществляется взаимодействие
 		// с proxi-сервером, обеспечивающим интерфейс с 32-битным клиентом CristalReports.
+	static constexpr const char * PipeORToolsProxi = "PapyrusORToolsProxi"; // @v12.8.3 Имя именованного канала, по которому осуществляется взаимодействие
+		// с proxi-сервером, обеспечивающим интерфейс с модулем OR-Tools.
 	static constexpr GUID TsPiotRegUUID = {0x41d489c3, 0x3ca2, 0x4d4e, { 0x99, 0xbd, 0x08, 0x61, 0x44, 0xd7, 0x42, 0x7f }}; // @v12.6.6 Регистрационный GUID Papyrus для работы с тс пиот (получен 20260601)
 	static constexpr const char * P_PredefAccountSymb_Exp = "rPSNACCEXP"; // @v12.7.9
 	static constexpr const char * P_PredefAccountSymb_Inc = "rPSNACCINC"; // @v12.7.9
@@ -712,7 +714,6 @@ public:
 		stIgnoreCheckStorageDir    = 0x0002  //
 	};
 
-	// @v12.0.4 ObjLinkFiles();
 	explicit ObjLinkFiles(PPID objType);
 	ObjLinkFiles(const ObjLinkFiles & rS);
 	void   SetMode_IgnoreCheckStorageDir(int set);
@@ -768,8 +769,8 @@ public:
 	};
 	static bool SplitInnerFileName(const char * pFileName, Fns * pS) /*const*/;
 private:
-	int    MakeFilePath(PPID objID, /*PPID addedID*/const char * pAddedStr, SString & rPath);
-	int    MakeExistsFilePath(uint i, PPID objID, /*PPID addedID*/const char * pAddedStr, SString & rPath);
+	int    MakeFilePath(PPID objID, const char * pAddedStr, SString & rPath);
+	int    MakeExistsFilePath(uint i, PPID objID, const char * pAddedStr, SString & rPath);
 	int    GetFreeNum(uint * pNum) const;
 	int    GetNum(const char * pPath, uint * pNum);
 	int    Helper_ClearBeforeSaving(PPID objID, const char * pAddedStr);
@@ -777,7 +778,7 @@ private:
 
 	const  PPID ObjType; // @v12.0.4 const
 	PPID   ObjID;
-	ulong  FilesNums;
+	ulong  FilesNums;     // Битовая карта индексов присоединенных файлов  
 	ulong  InitFilesNums; // номера файлов присоединенных к объекту, не изменяется после загрузки
 	long   State;         // Флаги состояния объекта
 	SString StoreDir;
@@ -2109,8 +2110,9 @@ public:
 	int    GetState(const StateIdent & rIdent, PPID * pID, SBuffer * pBuf);
 	//
 	// Descr: Извлекает из базы данных серийное состояние, идентифицируемое ключом rIdent.
+	// ARG(maxCount IN): Если !0, то извлекает не более maxCount записей, в противном случае - все что есть.
 	//
-	int    GetStateSerial(const StateIdent & rIdent, TSCollection <SerialEntry> * pList);
+	int    GetStateSerial(const StateIdent & rIdent, uint maxCount, TSCollection <SerialEntry> * pList);
 	//
 	// Descr: Извлекает из InMem-буфера состояние, идентифицируемое ключом rIdent. Если в буфере
 	//   нет такого состояния, то обращается к базе данных.
@@ -2119,8 +2121,9 @@ public:
 	//
 	// Descr: Извлекает из InMem-буфера серийное состояние, идентифицируемое ключом rIdent. Если в буфере
 	//   нет такого состояния, то обращается к базе данных.
+	// ARG(maxCount IN): Если !0, то извлекает не более maxCount записей, в противном случае - все что есть.
 	//
-	int    FetchStateSerial(const StateIdent & rIdent, TSCollection <SerialEntry> * pList);
+	int    FetchStateSerial(const StateIdent & rIdent, uint maxCount, TSCollection <SerialEntry> * pList);
 	//
 	static int PutStringToStateBuf(int treat, SBuffer & rBuf, const char * pStr);
 	static int GetStringFromStateBuf(int treat, const SBuffer & rBuf, SString & rStr);
@@ -2156,7 +2159,7 @@ private:
 
 	int    RegisterInMemState(PPID id, int64 uedTm, const StateIdent & rIdent, SBuffer & rRawData);
 	const  InMemStateEntry * SearchInMemState(const StateIdent & rIdent, uint * pPos) const;
-	const  InMemSerialEntry * SearchInMemSerial(const StateIdent & rIdent, uint * pPos);
+	const  InMemSerialEntry * SearchInMemSerial(const StateIdent & rIdent, uint maxCount, uint * pPos);
 	ued_t  AdjustTime(int kind, ued_t uedTime);
 };
 //
@@ -5402,13 +5405,13 @@ void RegisterSTAcct();
 //   Трансфер (Transfer):
 //     Flags: PPAF_OUTBAL | PPAF_OUTBAL_TRANSFER; DbtID: Receiver Acc; CrdID: Sender Acc; Amount > 0
 //
-struct PPAccTurn { // @persistent
+struct PPAccTurn { // @persistent @flat
 	PPAccTurn();
 	PPAccTurn & Z();
 	void   SwapDbtCrd();
 	bool   FASTCALL IsEq(const PPAccTurn & rS) const;
 	bool   SetNonBalancedFlow(int dir/*PPATFLOW_XXX*/, BillTbl::Rec & rBillRec);
-	int    GetNonBalancedFlow(const BillTbl::Rec & rBillRec) const;
+	int    GetNonBalancedFlow() const;
 
 	AccIdent DbtID;
 	PPID   DbtAcsID;
@@ -9567,7 +9570,7 @@ public:
 private:
 	//
 	// Descr: Список отношений с другими персоналиями.
-	//   Каждое отношение храниться как {Key = PersonID, Val = PersonRelTypeID}
+	//   Каждое отношение хранится как {Key = PersonID, Val = PersonRelTypeID}
 	//   В базе данных список отношений храниться в таблице ObjAssoc где:
 	//   AsscType = PPASS_PERSONREL, PrmrObjID = this->Rec.ID, ScndObjID = RelList[].Key,
 	//   Val1 = RelList[].Val
@@ -11141,7 +11144,7 @@ public:
 	//   Семантически аналогична FreightPackage
 	//   @todo Шаблонизировать методы ToStr и FromStr для совместного использования с FreightPackage
 	//
-	struct Acceptance { // @v11.7.0
+	struct Acceptance {
 		static int Edit(const PPTransferItem * pTi, PPTransferItem::Acceptance * pData);
 		Acceptance();
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -19721,7 +19724,7 @@ struct PPAmountTypePacket {
 	PPAmountTypePacket();
 	int    FASTCALL IsEq(const PPAmountTypePacket & rS) const;
 
-	PPAmountType Rec;
+	PPAmountType2 Rec;
 	//
 	// Замечание по использованию поля Formula:
 	//   Функция PPObjBill::SetupSpecialAmounts ...
@@ -24886,7 +24889,10 @@ public:
 	};
 
 	WorkbookCore();
+	int    Search(PPID id, WorkbookTbl::Rec * pRec);
+	int    HasChildren(PPID id); // @v12.8.3
 	int    GetChildList(PPID id, int recursive, PPIDArray & rList);
+	int    GetPathToParent(PPID thisID, PPID parentID, PPIDArray & rList); // @v12.8.3
 	SEnum::Imp * Enum(int options);
 	SEnum::Imp * EnumByParent(PPID parentID, int options);
 	SEnum::Imp * EnumByType(long type, int options);
@@ -28310,7 +28316,7 @@ public:
 	// pSwap = 1, значит что элемент 2 сравнивался с элементом 1, иначе элемент 1 с элементом 2
 	//
 	double CalcLikeness(const PersonTbl::Rec * pRec1, const PersonTbl::Rec * pRec2, int * pSwap, long extra);
-	int    CheckDuplicateName(const char * pName, PPID * pID);
+	int    CheckDuplicateName(const char * pName, PPID * pID, PPID idToExclude);
 	int    SelectAnalog(const char * pName, PPID * pID);
 	int    Helper_WritePersonInfoInICalendarFormat(PPID personID, int icalToken, const char * pRole, SString & rBuf);
 	//
@@ -37448,7 +37454,7 @@ struct PPSCardSeries2 {    // @persistent @store(Reference2Tbl+)
 	long   ParentID;           //
 };
 
-struct TrnovrRngDis {      // @persistent @flat
+struct TrnovrRngDis { // @persistent @flat
 	TrnovrRngDis();
 	int    GetResult(double currentValue, double * pResult) const;
 	enum {
@@ -37458,10 +37464,10 @@ struct TrnovrRngDis {      // @persistent @flat
 		fZeroTurnover       = 0x0008  // Если флаг установлен, то правило применяется к нулевым оборотам
 	};
 	RealRange R;
-	double Value;          //
-	PPID   SeriesID;       // ->Ref(PPOBJ_SCARDSERIES) Серия, в которую следует переместить карту, если обороты по ней попадают в интервал [Beg..End]
-	PPID   LocID;          // Локация, для которой применяется данный элемент правила.
-	long   Flags;          // @flags
+	double Value;
+	PPID   SeriesID; // ->Ref(PPOBJ_SCARDSERIES) Серия, в которую следует переместить карту, если обороты по ней попадают в интервал [Beg..End]
+	PPID   LocID;    // Локация, для которой применяется данный элемент правила.
+	long   Flags;    // @flags
 };
 
 #define SCARDSER_AUTODIS_PREVPRD      1L // Предшествующий период
@@ -37486,16 +37492,16 @@ public:
 		rultCcAmountDisc,
 		rultBonus
 	};
-	int32  Ver;            //
+	int32  Ver;
 	//
 	// Следующий блок выделен в структуру для того, чтобы сериализоваться общим отрезком.
 	// При вводе вместо зарезервированного пространства новых полей следует сохранять общий
 	// размер блока.
 	//
 	struct FlatBlock {
-		uint8  Reserve[48];    // @reserve // @v11.4.9 [52]-->[48]
-		int16  CancelPrd;      // @v11.4.9 Тип периода обнуления суммы бонусов 
-		uint16 CancelPrcCount; // @v11.4.9 Количество периодов типа CancelPrd после истечения которых сумма бонусов обнуляется.
+		uint8  Reserve[48];    // @reserve
+		int16  CancelPrd;      // Тип периода обнуления суммы бонусов 
+		uint16 CancelPrcCount; // Количество периодов типа CancelPrd после истечения которых сумма бонусов обнуляется.
 		uint32 Internal[2];    // @internal
 		long   Flags;          // @flags
 	} Fb;
@@ -37565,7 +37571,7 @@ struct PPSCardConfig {         // @persistent @store(PropertyTbl)
 	PPID   Tag;                // Const=PPOBJ_CONFIG
 	PPID   ID;                 // Const=PPCFG_MAIN
 	PPID   Prop;               // Const=PPPRP_SCARDCFG
-	long   Flags;              //
+	long   Flags;
 	PPID   PersonKindID;       // ->Ref(PPOBJ_PERSONKIND) Вид персоналии, используемый для владельцев карт.
 		// Этот параметр может быть переопределен серией карт.
 	PPID   DefPersonID;        // ->Person.ID Персоналия, используемая как владелец карты по умолчанию
@@ -37588,7 +37594,7 @@ struct SCardSeriesFilt {
 	};
 	PPID   ParentID;   // Группа серий
 	int    SpecialTreatment;
-	long   Flags;      //
+	long   Flags;
 };
 
 class PPObjSCardSeries : public PPObjReference {
@@ -37668,7 +37674,7 @@ public:
 	enum { // @persistent
 		extssMemo     = 1,
 		extssPassword = 2,
-		extssPhone    = 3, //
+		extssPhone    = 3,
 		extssOuterId  = 4  // Если эмитентом карты является сторонняя организация, то здесь может быть указан ид карты, заданный эмитентом (guid, например)
 	};
 	SCardTbl::Rec Rec;
@@ -44162,17 +44168,17 @@ public:
 	//
 	enum {
 		evvAll = 0,
-		evvTarget = 1,       // evvIncome, evvExpend
-		evvOptRestDiscr,     // Оптимальный остаток (с дискретностью, заданной емкостью упаковки)
-		evvOptRest,          // Абсолютный оптимальный остаток (без дискретности)
-		evvMinValAdd,        // Минимальная цена продажи при заданных средних ежедн продажах
-		evvMinDemand,        // Минимальные средние ежедн продажи при заданных себестоимости и цене реализации
-		evvIncome,           // Сумма ожидаемого дохода от продажи запаса. param - значение остатка
-		evvExpend,           // Сумма расходов на закупку, содержание и продажу запаса. param - значение остатка
-		evvProfit,           // Разница между evvIncome и evvExpend. param - значение остатка
-		evvMinStock,         // Минимальный допустимый запас. param - текущий остаток
-		evvMaxStock,         // Максимальный допустимый запас. param - текущий остаток
-		evvStockBounds       // evvMinStock, evvMaxStock
+		evvTarget = 1,   // evvIncome, evvExpend
+		evvOptRestDiscr, // Оптимальный остаток (с дискретностью, заданной емкостью упаковки)
+		evvOptRest,      // Абсолютный оптимальный остаток (без дискретности)
+		evvMinValAdd,    // Минимальная цена продажи при заданных средних ежедн продажах
+		evvMinDemand,    // Минимальные средние ежедн продажи при заданных себестоимости и цене реализации
+		evvIncome,       // Сумма ожидаемого дохода от продажи запаса. param - значение остатка
+		evvExpend,       // Сумма расходов на закупку, содержание и продажу запаса. param - значение остатка
+		evvProfit,       // Разница между evvIncome и evvExpend. param - значение остатка
+		evvMinStock,     // Минимальный допустимый запас. param - текущий остаток
+		evvMaxStock,     // Максимальный допустимый запас. param - текущий остаток
+		evvStockBounds   // evvMinStock, evvMaxStock
 	};
 	struct Config { // @persistent
 		Config();
@@ -44195,20 +44201,20 @@ public:
 			fPckgSynth   = 0x0008, // Размер упаковки синтезирован
 			fPreproc     = 0x8000  // Структура обработана функцией PPStockOpt::PreporcessGoods
 		};
-		PPID   GoodsID;        // Ид товара
-		double Cost;           // Себестоимость единицы товара
-		double Price;          // Цена продажи единицы товара
-		double AvgD;           // Средний ежедневный спрос на товар (в торговых единицах)
-		double StdDev;         // Стандартное отклонение ежедневного спроса на товар.
-		double InRest;         // Входящий остаток на начало анализируемого периода.
+		PPID   GoodsID; // Ид товара
+		double Cost;    // Себестоимость единицы товара
+		double Price;   // Цена продажи единицы товара
+		double AvgD;    // Средний ежедневный спрос на товар (в торговых единицах)
+		double StdDev;  // Стандартное отклонение ежедневного спроса на товар.
+		double InRest;  // Входящий остаток на начало анализируемого периода.
 		//
 		// Ограничения //
 		//
-		double MinRest;        // Минимальный остаток
-		double Pckg;           // Размер упаковки
-		int16  ExpiryPeriod;   // Срок годности в днях
-		int16  Reserve;        // @alignment
-		long   Flags;          //
+		double MinRest;      // Минимальный остаток
+		double Pckg;         // Размер упаковки
+		int16  ExpiryPeriod; // Срок годности в днях
+		int16  Reserve;      // @alignment
+		long   Flags;        //
 	};
 	//
 	// Descr: Результаты расчетов по товару. Структура отделена от GoodsItem с целью оставить GoodsItem
@@ -44222,16 +44228,16 @@ public:
 		};
 		GoodsResult();
 
-		PPID   GoodsID;        //
+		PPID   GoodsID;
 		long   State;
-		RealRange Bounds;      // Допустимые границы изменения остатка.
-		double R0;             // Абсолютный оптимум запаса
-		double R0p;            // Оптимум запаса с учетом кратности упаковки
-		double R;              // Текущее расчетное значение оптимального запаса в объемной оптимизации
-		double Period;         // Количество дней, в течении которых ожидается ликвидация остатка R.
-		double Income;         // Ожидаемый доход от остатка R
-		double Expend;         // Ожидаемые издержки по закупке и хранению количества R
-		double LastDelta;      // Разность в критерии оптимальности, полученная в результате последней
+		RealRange Bounds; // Допустимые границы изменения остатка.
+		double R0;        // Абсолютный оптимум запаса
+		double R0p;       // Оптимум запаса с учетом кратности упаковки
+		double R;         // Текущее расчетное значение оптимального запаса в объемной оптимизации
+		double Period;    // Количество дней, в течении которых ожидается ликвидация остатка R.
+		double Income;    // Ожидаемый доход от остатка R
+		double Expend;    // Ожидаемые издержки по закупке и хранению количества R
+		double LastDelta; // Разность в критерии оптимальности, полученная в результате последней
 			// итерации. Нобходима для быстрого поиска позиции, которая может быть частично выведена из
 			// ассортимента для увеличения доли иной позиции.
 	};
@@ -44310,7 +44316,7 @@ struct StockOptViewItem {
 	double Pckg;           // Размер упаковки
 	int16  ExpiryPeriod;   // Срок годности в днях
 	int16  Reserve;        // @alignment
-	long   Flags;          //
+	long   Flags;
 	//
 	// Результаты препроцессинга и (или) оптимизации
 	//
@@ -45666,10 +45672,10 @@ public:
 		PPID   CurID;
 		Acct   A;
 	};
-	struct InternalViewItem : public BrwHdr { // @v12.8.2
+	struct InternalViewItem  { // @v12.8.2
 		InternalViewItem();
 
-		double Amount;
+		PPAccTurn At;
 	};
 	PPViewAccAnlz();
 	~PPViewAccAnlz();
@@ -45688,6 +45694,7 @@ public:
 	LDATE  ExpiryDate; //
 	uint   IterFlags;  // PPViewAccAnlz::fIterXXX
 private:
+	static DECL_CMPFUNC(PPViewAccAnlz_InternalViewItem_ByDate);
 	virtual DBQuery * CreateBrowserQuery(uint * pBrwId, SString * pSubTitle);
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void PreprocessBrowser(PPViewBrowser * pBrw);
@@ -45700,6 +45707,7 @@ private:
 	int    CalcTotalAccTrnovr(AccAnlzTotal *);
 	int    ViewGraph(const PPViewBrowser * pBrw);
 	bool   IsDedicatedRestEvaluationNeeded() const;
+	int    PutAccTurnToInternalList(const BillTbl::Rec & rBillRec, const PPAccTurn & rAt, TSVector <InternalViewItem> & rList); // @v12.8.3
 	struct BillEntry {
 		PPID   ID;
 		PPID   LocID;
@@ -45714,11 +45722,12 @@ private:
 
 	AccAnlzFilt Filt;
 	enum {
-		stIsGenAcc   = 0x0001,
-		stIsRegister = 0x0002,
-		stIsGenAr    = 0x0008,
-		stIsPersonal = 0x0010, // @v12.7.10 Персональный счет
-		stATurnList  = 0x0020, // @v12.7.11 Ведущий счет не выбран: мы в режиме просмотра проводок
+		stIsGenAcc        = 0x0001,
+		stIsRegister      = 0x0002,
+		stIsGenAr         = 0x0008,
+		stIsPersonal      = 0x0010, // @v12.7.10 Персональный счет
+		stATurnList       = 0x0020, // @v12.7.11 Ведущий счет не выбран: мы в режиме просмотра проводок
+		stUseInternalList = 0x0040, // @v12.8.3 Данные формируются в списке InternalViewList
 	};
 	uint   State;           // @v12.7.0 @*Init_()
 	PPID   EffDlvrLocID;    // Проекция Filt.DlvrLocID (так как этот критерий применим ни при любых условиях, возможно EffDlvrLocID != Filt.DlvrLocID)
@@ -51377,8 +51386,8 @@ struct StyloQBinderyViewItem { // @flat
 	long   ID;
 	long   Kind;
 	long   CorrespondID;
-	long   DocType; // @v11.4.5
-	long   Flags;   // @v11.4.5
+	long   DocType;
+	long   Flags;
 	uchar  BI[20];
 	LDATETIME Expiration;
 	SObjID LinkOid;
@@ -56525,11 +56534,12 @@ public:
 	explicit LocalStateBinderySelExtra(const LocalStateBinderyCore::StateIdent & rIdent);
 	virtual StrAssocArray * GetList(const char * pText);
 	virtual StrAssocArray * GetRecentList();
-	virtual int Search(long id, SString & rBuf);
-	virtual int SearchText(const char * pText, long * pID, SString & rBuf);
+	virtual int  Search(long id, SString & rBuf);
+	virtual int  SearchText(const char * pText, long * pID, SString & rBuf);
 	virtual void OnAcceptInput(const char * pText, long id);
 private:
 	const  LocalStateBinderyCore::StateIdent StI;
+	uint   MaxCount; // @v12.8.3 Максимальное количество элементов в истории. 0 - unlimited
 };
 
 class PersonCtrlGroup : public CtrlGroup {
@@ -59122,15 +59132,17 @@ protected:
 	int    Implement_AcceptSCard(const SCardTbl::Rec & rScRec, const SCardSpecialTreatment::IdentifyReplyBlock * pStirb);
 	double RoundDis(double d) const;
 
-	struct SetupDiscontBlock {
-		SetupDiscontBlock(double roundingDiscount, bool distributeGiftDiscount);
-		~SetupDiscontBlock();
+	struct SetupDiscountBlock {
+		SetupDiscountBlock(double roundingDiscount, bool distributeGiftDiscount);
+		~SetupDiscountBlock();
 		const  double RoundingDiscount; // @v12.7.10
 		const  bool IsRounding;
 		const  bool DistributeGiftDiscount;
-		uint8  Reserve[2]; // @alignment
+		bool   UseDiscountDistributionMeth; // @v12.8.3
+		uint8  Reserve[1]; // @alignment
 		uint   LastIndex;
-		double Amount;
+		double Amount_Base; // Базовая сумма для расчета отностительной величины скидки. Не включает позиции, 
+			// на которые не рапространяется скидка.
 		RAssocArray GiftDisList;
 		LongArray PosList_WoDis; // Список позиций чека ([1..]) для которых действует правило "без скидки"
 		LongArray PosList_PriceAdjustment; // @v12.6.2 Список позиций чека ([1..]) для которых должно применяться выравнивание цены
@@ -59138,14 +59150,14 @@ protected:
 		SCardSpecialTreatment::CardBlock ScstCb;
 	};
 
-	void   Helper_SetupDiscount(/*double roundingDiscount, bool distributeGiftDiscount*/SetupDiscontBlock & rBlk);
+	void   Helper_SetupDiscount(SetupDiscountBlock & rBlk);
 	//
 	// Descr: Хелпер, вызываемый из Helper_SetupDiscount для предварительной обработки строк чека.
 	// ARG(mode IN): Режим обработки строк чека
 	//   0 - основной режим
 	//   1 - режим запроса к строронним службам
 	//
-	int    Helper_PreprocessDiscountLoop(int mode, SetupDiscontBlock & rBlk);
+	int    Helper_PreprocessDiscountLoop(int mode, SetupDiscountBlock & rBlk);
 	void   SetupDiscount(bool distributeGiftDiscount);
 	int    VerifyPrices();
 	int    ProcessGift();
@@ -59762,7 +59774,7 @@ public:
 	virtual int Select();
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	// @v12.8.3 (тупиковая ветвь) virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
 	//
 	// Descr: Эта функция должна выполнить одну из трех операций над именем конфигурации экспорта:
 	//   (op == 1) - [decorate name] Модифицировать имя конфигурации так, чтобы обеспечить
@@ -60087,8 +60099,12 @@ int InitImpExpDbfParam(uint recType, PPImpExpParam * pParam, const char * pFileN
 class PPWorkbookImpExpParam : public PPImpExpParam {
 public:
 	explicit PPWorkbookImpExpParam(uint recId = 0, long flags = 0);
+	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
+	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
 
+	long   Flags;
 	long   PredefFormat; // @v12.8.2 @persistent PredefinedImpExpFormat
+	SString ImgPath; // @v12.8.3
 };
 
 class PPWorkbookExporter {
@@ -60096,8 +60112,10 @@ public:
 	PPWorkbookExporter();
 	~PPWorkbookExporter();
 	int    Init(const PPWorkbookImpExpParam * pParam);
-	int    ExportPacket(const PPWorkbookPacket * pPack);
+	int    ExportPacket(PPID topLevelID, const PPWorkbookPacket & rPack);
 private:
+	int    PreprocessContent(const SString & rSrc, SString & rResult);
+
 	PPWorkbookImpExpParam Param;
 	PPImpExp * P_IEWorkbook;
 	PPObjWorkbook WbObj;
@@ -60166,7 +60184,7 @@ public:
 	void   Clear();
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	// @v12.8.3 (тупиковая ветвь) virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
 
 	int32   AccSheetID;
 	int32   SupplID;
@@ -60225,11 +60243,11 @@ class PPQuotImpExpParam : public PPImpExpParam {
 public:
 	explicit PPQuotImpExpParam(uint recId = 0, long flags = 0);
 	PPQuotImpExpParam & Z();
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	// @v12.8.3 (тупиковая ветвь) virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
 
-	int32   QuotCls;    // @v11.4.2 Категория котировок
+	int32   QuotCls;    // Категория котировок
 	int32   QuotKindID;
 	int32   CurrID;
 	int32   __ArID;     // Статья привязки кодов
@@ -60249,7 +60267,7 @@ public:
 class PPPhoneListImpExpParam : public PPImpExpParam {
 public:
 	PPPhoneListImpExpParam(uint recId = 0, long flags = 0);
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	// @v12.8.3 (тупиковая ветвь) virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
 
@@ -60263,7 +60281,7 @@ int EditPhoneListParam(const char * pIniSection);
 class PPPersonImpExpParam : public PPImpExpParam {
 public:
 	explicit PPPersonImpExpParam(uint recId = 0, long flags = 0);
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	// @v12.8.3 (тупиковая ветвь) virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
 	enum {
@@ -60283,7 +60301,7 @@ public:
 class PPSCardImpExpParam : public PPImpExpParam {
 public:
 	PPSCardImpExpParam(uint recId = 0, long flags = 0);
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	// @v12.8.3 (тупиковая ветвь) virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
 
@@ -60296,7 +60314,7 @@ public:
 class PPCliBnkImpExpParam : public PPImpExpParam {
 public:
 	PPCliBnkImpExpParam(uint recId = 0, long flags = 0);
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	// @v12.8.3 (тупиковая ветвь) virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
 
@@ -60310,7 +60328,7 @@ public:
 class PPLotImpExpParam : public PPImpExpParam {
 public:
 	PPLotImpExpParam(uint recId = 0, long flags = 0);
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	// @v12.8.3 (тупиковая ветвь) virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
 
@@ -60340,7 +60358,7 @@ public:
 	explicit PPCCheckImpExpParam(uint recId = 0, long flags = 0);
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	// @v12.8.3 (тупиковая ветвь) virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
 	virtual int PreprocessImportFileSpec(StringSet & rList);
 
 	enum {
@@ -60369,16 +60387,6 @@ private:
 	PPObjCashNode CnObj;
 	PPObjCSession CsObj;
 	PPLogger Logger;
-};
-
-class PPWorkboolImpExpParam : public PPImpExpParam { // @v12.8.2
-public:
-	explicit PPWorkboolImpExpParam(uint recId = 0, long flags = 0);
-	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
-	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
-
-	long   Flags;
-	long   PredefFormat; // @persistent PredefinedImpExpFormat
 };
 //
 // Descr: Базовый класс для реализации механизмов экспорта/импорта в форматах, предопределенных
@@ -60793,7 +60801,7 @@ public:
 	
 	static int ParseText(const char * pText, const char * pTemplate, PPImpExpParam::PtTokenList & rResultList, SString * pFileTemplate);
 	explicit PPBillImpExpParam(uint recId = 0, long flags = 0);
-	virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
+	// @v12.8.3 (тупиковая ветвь) virtual int SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx);
 	virtual int WriteIni(PPIniFile * pFile, const char * pSect) const;
 	virtual int ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList);
 	virtual int MakeExportFileName(const void * extraPtr, SString & rResult) const;
@@ -63512,6 +63520,216 @@ struct LayoutEntryDialogBlock : public SUiLayoutParam {
 	SString OwnLayoutSymb;
 };
 //
+// Descr: Интерфейсный класс, связывающий внешнюю систему с решателями or-tools. Этот класс не должен содержать никаких
+//   символов из or-tools поскольку будет работать в другом процессе.
+//   Вся or-tools-специфика будет инкапсулирована в классы OrToolsSolver_XXX.
+//
+class PPOptiModule { // @v12.8.2
+public:
+	enum {
+		taskUndef   = 0,
+		taskPingIPC = 1,
+		taskCuttingStock2D = 2,
+	};
+	struct Config {
+		Config();
+		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+		uint   TimeLimitMSec; // Максимальное время решения (секунды)
+		uint   ThreadCount;   // Количество параллельных потоков
+	};
+	class BaseExecutionBlock {
+	protected:
+		uint32 Signature;
+		uint32 Task;
+	public:
+		explicit BaseExecutionBlock(uint32 task);
+		bool   SetModuleConfig(const PPOptiModule::Config & rCfg);
+		uint32 GetTask() const { return Task; }
+		virtual int SerializeV(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+		PPOptiModule::Config ModuleCfg;
+	};
+	//
+	// Descr: Результат решения
+	//
+	enum ResultStatus {
+		stError      = 0,
+		stOptimal    = 1,
+		stFeasible   = 2,
+		stInfeasible = 3,
+		stTimeout    = 4,
+	};
+	//
+	//
+	//
+	class BaseExecutionResult {
+	public:
+		BaseExecutionResult();
+		bool   IsSuccess() const { return oneof2(Status, stOptimal, stFeasible); }
+		virtual int SerializeV(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+		uint32 Signature;
+		uint32 Task;
+		int    Status;
+		uint   SolveTimeMSec;
+	};
+
+	static const char * GetResultStatusSymb(int status);
+	static BaseExecutionResult * ClientExecution(BaseExecutionBlock & rEB);
+	static BaseExecutionResult * Helper_ClientExecution_Task(SIntHandle hPipe, BaseExecutionBlock & rEB); // private
+
+	class CuttingStock2D {
+	public:
+		enum {
+			objvUndef     = 0, // не определено (на усмотрение модуля)
+			objvMinSheets = 1, // минимизация числа использованных листов
+			objvMinWaste  = 2, // минимизация отходов
+			objvMinCost   = 3, // минимизация стоимости			
+		};
+		struct Config {
+			Config();
+			int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+			enum {
+				fGuillotineCut    = 0x0001, // Гильотинный рез: каждый разрез проходит через весь лист/полосу
+				fTexturedMaterial = 0x0002, // Материал с текстурой: запрещает поворот деталей на 90°
+				fAllowPartial     = 0x0004, // Допускать ли частичное выполнение заказа
+			};
+			uint   Flags;
+			uint   GuillotineLevels; // Уровень гильотинности (2 = двухуровневый, 3 = трёхуровневый, 0 = неограничен)
+			uint   KerfWidth;        // Ширина реза (пропил), мм
+			uint   Spacing;          // Зазор между деталями (spacing)
+			uint   MinUsefulWaste;   // Минимальный размер отхода, который считается полезным обрезком
+			int    Objv;             // objvXXX целевая функция оптимизации
+		};
+		struct RawSheet {
+			RawSheet();
+			int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+			int    Id; // @firstintem
+			SPoint2I Size;
+			uint   Qtty;
+			double Cost;
+		};
+		struct BomItem {
+			BomItem();
+			int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+
+			int    Id; // @firstintem
+			SPoint2I Size;
+			uint   Qtty;
+			double Cost; // Стоимость единицы (для оптимизации по стоимости)
+		};
+		//
+		// Descr: Размещение одной детали на листе
+		//
+		struct Placement { // @flat
+			Placement();
+			int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+			bool   IsRotated() const { return LOGIC(Flags & fRotated); }
+			void   SetRotated(bool v) { SETFLAG(Flags, fRotated, v); }
+			enum {
+				fRotated = 0x0001 // была ли деталь повёрнута
+			};
+			int    ItemId;
+			uint   ItemInstance;  // какой экземпляр (если quantity > 1)
+			int    SheetId;
+			uint   SheetInstance; // какой экземпляр листа
+			SPoint2I Pt; // координаты левого нижнего угла
+			SPoint2I Sz; // фактические ширина и высота (с учётом поворота) 
+			uint   Flags; // fXXX
+		};
+		//
+		// Descr: Информация об использованном листе
+		//
+		struct UsedSheet {
+			UsedSheet();
+			int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+			double GetUtilization() const { return fdivui(UsedArea, TotalArea) * 100.0; }
+			int    SheetId;
+			uint   SheetInstance;
+			uint   TotalArea;
+			uint   UsedArea;
+			TSVector <Placement> ItemList;
+		};
+		struct Result : public BaseExecutionResult {
+			Result();
+			Result & Z();
+			virtual int SerializeV(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+			double GetTotalUtilization() const;
+			void   ToStr_Debug(SString & rBuf) const;
+			int    TotalSheetsUsed;
+			int    TotalPiecesPlaced;
+			int    TotalPiecesRequested;
+			uint   TotalWasteArea;
+			double TotalCost;
+			TSCollection <UsedSheet> SheetList;
+			TSVector <Placement> AllPlacements;
+		};
+		class ExecutionBlock : public BaseExecutionBlock {
+		public:
+			ExecutionBlock();
+			virtual int SerializeV(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
+			bool   SetConfig(const Config & rCfg);
+			bool   SearchSheetId(int id, uint * pIdx) const;
+			bool   SearchBomItemId(int id, uint * pIdx) const;
+			bool   AddSheet(const RawSheet & rSheet);
+			bool   AddBomItem(const BomItem & rItem);
+			bool   GetSheetSize(int sheetId, SPoint2I & rS) const;
+
+			Config TaskCfg;
+			TSVector <RawSheet> SheetList;
+			TSVector <BomItem>  BomList;
+		};
+
+		CuttingStock2D();
+		bool   SetConfig(const Config & rCfg);
+		bool   SetModuleConfig(const PPOptiModule::Config & rCfg);
+		bool   AddSheet(const RawSheet & rSheet);
+		//
+		// Descr: Находит размеры листа по его Id в оригинальном списке SheetList
+		//
+		void   GetSheetSize(int sheetId, int & rW, int & rH) const;
+		bool   AddBomItem(const BomItem & rItem);
+		CuttingStock2D & Z();
+		//
+		// Descr: Реашает задачу, сформулированную внутренним набором условий (сформированным вызовами 
+		//   SetModuleConfig, SetConfig, AddSheet, AddBomItem).
+		//
+		bool   Solve(Result & rR);
+		//
+		// Descr: Реашает задачу, сформулированную внешним набором условий rEb.
+		//
+		bool   Solve(const ExecutionBlock & rEb, Result & rR);
+		//
+		// Descr: Генерация SVG-визуализации результата раскроя.
+		//   Для каждого использованного листа рисуется прямоугольник листа и 
+		//   размещённые на нём детали. Детали одного типа (ItemId) окрашиваются 
+		//   одним цветом. Повёрнутые детали помечаются индикатором.
+		// ARG(rResult IN): результат раскроя
+		// ARG(scale IN): масштабный коэффициент (пикселей на единицу размера). 
+		//   Если 0.0 - вычисляется автоматически (чтобы ширина полотна была ~1200px).
+		// ARG(rSvgText OUT): текст SVG-документа
+		// Returns: true если результат содержит хотя бы один использованный лист
+		//
+		bool GenerateSvg(const Result & rResult, double scale, SString & rSvgText) const;
+		static bool GenerateSvg(const ExecutionBlock & rEb, const Result & rResult, double scale, SString & rSvgText);
+		
+		static int InitialTestCase();
+		static int MakeInitialTestCase(ExecutionBlock & rEb);
+	private:
+		friend class OrToolsSolver_CuttingStock2D;
+		//
+		// Descr: Детерминированно выбирает цвет для детали по её Id.
+		//   Одинаковые Id - одинаковый цвет.
+		//
+		static void PickColor(int itemId, SString & rColor);
+
+		ExecutionBlock EB; // Данные задачи
+	};
+};
+//
 // @erik {
 //
 class VkInterface {
@@ -65601,6 +65819,7 @@ SVerT  QueryCrrVersion();   // @v12.4.1
 int    OpenCrrEngine();     // @v12.4.1
 int    CloseCrrEngine();    // @v12.4.1
 SString & GetCrr32ProxiPipeName(SString & rBuf); // @v11.9.5
+SString & GetORToolsProxiPipeName(SString & rBuf); // @v12.8.3
 int    RecoverAbsenceLots();   // PPBILL\C_TRFR.CPP
 int    RecoverAbsenceGoods();  // PPBILL\C_TRFR.CPP
 int    RecoverAbsenceBills();  // Восстановление потерянных заголовков документов

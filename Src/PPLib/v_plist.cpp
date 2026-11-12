@@ -309,7 +309,7 @@ int PPViewPriceList::SetGoodsPrice(const RecalcParamBlock * pRPB, PPID quotKindI
 			THROW(Tbl.UpdateLine(&ident, &pline_rec, BIN(Filt.Sgg), 0)); // @vrf
 		}
 		else {
-			MEMSZERO(pline_rec);
+			pline_rec.Clear();
 			pline_rec.ListID  = Filt.PListID;
 			pline_rec.GoodsID = subst_id;
 			pline_rec.QuotKindID = quotKindID;
@@ -1675,7 +1675,6 @@ int PPViewPriceList::EditBaseFilt(PPBaseFilt * pBaseFilt)
 			// Изменяем либо создаем новый прайс-лист по заданным фильтром условиям
 			//
 			PriceListTbl::Rec plist_rec;
-			MEMSZERO(plist_rec);
 			plist_rec.ID      = p_filt->PListID;
 			plist_rec.SupplID = p_filt->ArticleID;
 			plist_rec.UserID  = p_filt->UserID;

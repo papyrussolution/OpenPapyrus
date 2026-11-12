@@ -1974,8 +1974,8 @@ static void InitTest()
 	// размер DBTable был кратен 32 (для выравнивания по кэш-линии).
 	//
 	STATIC_ASSERT(sizeof(DBTable) % 32 == 0);
-	STATIC_ASSERT(sizeof(SObjID_Base) == 8); // @v11.3.7
-	STATIC_ASSERT(sizeof(SObjID) == 8); // @v11.3.7
+	STATIC_ASSERT(sizeof(SObjID_Base) == 8);
+	STATIC_ASSERT(sizeof(SObjID) == 8);
 	//
 	// Записи системного журнала и резервной
 	// таблицы системного журнала должны быть эквивалентны.

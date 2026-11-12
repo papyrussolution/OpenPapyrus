@@ -17,8 +17,9 @@ public:
 		SString temp_buf;
 		PPIDArray op_type_list;
 		op_type_list.addzlist(PPOPT_GOODSORDER, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, 0);
-		if(!RVALUEPTR(Data, pData))
-			MEMSZERO(Data);
+		if(!RVALUEPTR(Data, pData)) {
+			Data.Z();
+		}
 		SetupOprKindCombo(this, CTLSEL_ALBTRCFG_OPKINDID, Data.Hdr.OpID, 0, &op_type_list, 0);
 		SetupPPObjCombo(this, CTLSEL_ALBTRCFG_MAILACC, PPOBJ_INTERNETACCOUNT, Data.Hdr.MailAccID, OLW_CANINSERT, reinterpret_cast<void *>(PPObjInternetAccount::filtfMail));
 		SetupPPObjCombo(this, CTLSEL_ALBTRCFG_SMSACC, PPOBJ_SMSPRVACCOUNT, Data.Hdr.SmsAccID, OLW_CANINSERT, 0);

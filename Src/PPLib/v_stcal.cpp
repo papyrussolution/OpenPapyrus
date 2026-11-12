@@ -206,13 +206,14 @@ int PPViewStaffCal::CreateEntryByObj(PPID objType, PPID objID, StrAssocArray * p
 		const  PPID cal_id = CalList.get(i);
 		const  PPID proj_cal_id = Filt.ProjCalID;
 		STimeChunkArray list;
-		MEMSZERO(post_rec);
+		post_rec.Clear();
 		if(objType == PPOBJ_PERSON)
 			post_rec.PersonID = objID;
 		else if(objType == PPOBJ_STAFFLIST2)
 			post_rec.StaffID = objID;
-		else if(objType == PPOBJ_PERSONPOST)
+		else if(objType == PPOBJ_PERSONPOST) {
 			THROW(r = SlObj.SearchPost(objID, &post_rec));
+		}
 		if(r > 0) {
 			STimeChunk * p_chunk;
 			ScObjAssoc sc_obj_assc;
@@ -554,7 +555,7 @@ int PPViewStaffCal::EditEntry(PPID calID, PPID objID, LDATETIME dtm, LTIME tmFin
 			PPStaffCalPacket pack;
 			if(Filt.LinkObjType && Obj.Fetch(calID, &par_rec) > 0) {
 				StaffCalendarTbl::Rec entry;
-				SObjID oid(Filt.LinkObjType, objID);
+				const  SObjID oid(Filt.LinkObjType, objID);
 				if(Obj.SearchByObj(calID, oid, &cal_rec) > 0) {
 					child_cal_id = cal_rec.ID;
 					THROW(Obj.GetPacket(child_cal_id, &pack) > 0);

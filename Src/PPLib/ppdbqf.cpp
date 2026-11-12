@@ -1225,7 +1225,7 @@ static IMPL_DBE_PROC(dbqf_objmemo_bill_i)
 	}
 }
 
-static IMPL_DBE_PROC(dbqf_billmemosubstr_is) // @v11.7.4
+static IMPL_DBE_PROC(dbqf_billmemosubstr_is)
 {
 	int    local_result = 0;
 	const  PPID id = params[0].lval;

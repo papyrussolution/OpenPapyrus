@@ -115,6 +115,7 @@
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <CompileAs>CompileAsCpp</CompileAs>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -145,6 +146,7 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <CompileAs>CompileAsCpp</CompileAs>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -176,6 +178,7 @@
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <AssemblerOutput>AssemblyAndSourceCode</AssemblerOutput>
       <CompileAs>CompileAsCpp</CompileAs>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -208,6 +211,7 @@
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <StructMemberAlignment>1Byte</StructMemberAlignment>
       <CompileAs>CompileAsCpp</CompileAs>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

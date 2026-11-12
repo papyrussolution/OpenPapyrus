@@ -99,7 +99,7 @@ bool PPAccTurn::SetNonBalancedFlow(int dir/*PPATFLOW_XXX*/, BillTbl::Rec & rBill
 	return false;
 }
 
-int PPAccTurn::GetNonBalancedFlow(const BillTbl::Rec & rBillRec) const
+int PPAccTurn::GetNonBalancedFlow() const
 {
 	int    result = PPATFLOW_UNDEF;
 	if(Flags & (PPAF_OUTBAL|PPAF_REGISTER|PPAF_PERSONAL)) {
@@ -1375,7 +1375,21 @@ public:
 		else
 			PPError(PPERR_NOMEM);
 	}
-	int    getSelectedSymb(PPID * pID, int * pKind, SString & rSymbBuf) const;
+	int GetSelectedSymb(PPID * pID, int * pKind, SString & rSymbBuf) const
+	{
+		int    ok = 0;
+		ASSIGN_PTR(pID, SelID);
+		if(SelID) {
+			ASSIGN_PTR(pKind, SelKind);
+			rSymbBuf = SelSymb;
+			ok = 1;
+		}
+		else {
+			ASSIGN_PTR(pKind, 0);
+			rSymbBuf.Z();
+		}
+		return ok;
+	}
 private:
 	DECL_HANDLE_EVENT;
 	int    MakeList(StrAssocArray * pList);
@@ -1389,22 +1403,6 @@ private:
 	int    SelKind;
 	SString SelSymb;
 };
-
-int SelAmtSymbDialog::getSelectedSymb(PPID * pID, int * pKind, SString & rSymbBuf) const
-{
-	if(SelID) {
-		ASSIGN_PTR(pID, SelID);
-		ASSIGN_PTR(pKind, SelKind);
-		rSymbBuf = SelSymb;
-		return 1;
-	}
-	else {
-		ASSIGN_PTR(pID, 0);
-		ASSIGN_PTR(pKind, 0);
-		rSymbBuf.Z();
-		return 0;
-	}
-}
 
 IMPL_HANDLE_EVENT(SelAmtSymbDialog)
 {
@@ -1458,7 +1456,8 @@ int SelAmtSymbDialog::MakeList(StrAssocArray * pList)
 {
 	int    ok = 1;
 	PPID   id;
-	SString frm_name, frm_expr;
+	SString frm_name;
+	SString frm_expr;
 	StringSet ss(SLBColumnDelim);
 	if(Options & selSymbAmount) {
 		PPAmountType at_rec;
@@ -1524,12 +1523,12 @@ void SelAmtSymbDialog::updateList()
 
 int STDCALL SelectAmountSymb(PPID * pID, long options, int * pKind, SString & rSymbBuf)
 {
-	int    ok = -1;
-	SelAmtSymbDialog * dlg = 0;
 	rSymbBuf.Z();
-	if(CheckDialogPtrErr(&(dlg = new SelAmtSymbDialog(options)))) {
+	int    ok = -1;
+	SelAmtSymbDialog * dlg = new SelAmtSymbDialog(options);
+	if(CheckDialogPtrErr(&dlg)) {
 		if(ExecView(dlg) == cmOK)
-			ok = dlg->getSelectedSymb(pID, pKind, rSymbBuf) ? 1 : -1;
+			ok = dlg->GetSelectedSymb(pID, pKind, rSymbBuf) ? 1 : -1;
 		delete dlg;
 	}
 	else

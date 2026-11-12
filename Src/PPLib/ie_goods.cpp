@@ -23,7 +23,7 @@ PPQuotImpExpParam & PPQuotImpExpParam::Z()
 	return *this;
 }
 
-/*virtual*/int PPQuotImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
+/* @v12.8.3 (тупиковая ветвь) int PPQuotImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -67,7 +67,7 @@ PPQuotImpExpParam & PPQuotImpExpParam::Z()
 	}
 	CATCHZOK
 	return ok;
-}
+}*/
 
 int PPQuotImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 {
@@ -800,7 +800,7 @@ void PPGoodsImpExpParam::Clear()
 	SubCode.Z();
 }
 
-/*virtual*/int PPGoodsImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
+/* @v12.8.3 (тупиковая ветвь) int PPGoodsImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -847,7 +847,7 @@ void PPGoodsImpExpParam::Clear()
 	}
 	CATCHZOK
 	return ok;
-}
+}*/
 
 int PPGoodsImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 {

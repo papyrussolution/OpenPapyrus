@@ -149,6 +149,7 @@
       <FunctionLevelLinking>false</FunctionLevelLinking>
       <StringPooling>true</StringPooling>
       <AdditionalIncludeDirectories>..\LIB\or-tools\include;..\include</AdditionalIncludeDirectories>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -172,6 +173,7 @@
       <StringPooling>true</StringPooling>
       <AdditionalIncludeDirectories>..\LIB\or-tools\include;..\include</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -184,6 +186,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\PPLib\ortools_support.cpp" />
+    <ClCompile Include="..\PPLib\pp-ifm.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="..\LIB\or-tools\lib\abseil_dll.lib" />

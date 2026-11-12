@@ -690,7 +690,9 @@ int PPViewPerson::AddItem(PPID * pID)
 	if(Filt.Flags & PersonFilt::fCentrigoContacts) {
 		PPObjPerson::EditBlock eb;
 		PsnObj.InitEditBlock(Filt.PersonKindID, eb);
-		ok = PsnObj.Edit_(pID, eb);
+		if(PsnObj.Edit_(pID, eb) == cmOK) {
+			ok = 1;
+		}
 	}
 	else {
 		if(PsnObj.Edit(&id, reinterpret_cast<void *>(Filt.PersonKindID)) == cmOK) {
@@ -707,20 +709,17 @@ int PPViewPerson::AddItemBySample(PPID * pID, PPID patternID)
 	int    ok = -1;
 	PPID   id = 0;
 	if(patternID) {
-		if(Filt.Flags & PersonFilt::fCentrigoContacts) {
-			PPObjPerson::EditBlock eb;
-			PsnObj.InitEditBlock(Filt.PersonKindID, eb);
-			eb.SamplePsnID = patternID;
-			ok = PsnObj.Edit_(pID, eb);
-		}
-		else {
-			if(PsnObj.Edit(&id, reinterpret_cast<void *>(Filt.PersonKindID)) == cmOK) {
+		PPObjPerson::EditBlock eb;
+		PsnObj.InitEditBlock(Filt.PersonKindID, eb);
+		eb.SamplePsnID = patternID;
+		if(PsnObj.Edit_(&id, eb) == cmOK) {
+			if(!(Filt.Flags & PersonFilt::fCentrigoContacts)) {
 				AddTempRec(id, 0, 1);
-				ASSIGN_PTR(pID, id);
-				ok = 1;
 			}
+			ok = 1;
 		}
 	}
+	ASSIGN_PTR(pID, id);
 	return ok;	
 }
 
@@ -4042,13 +4041,14 @@ int PPViewPerson::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser *
 					break;
 				case PPVCMD_ADDBYSAMPLE: // @v12.8.2
 					ok = -1;
-					{
-						#if 0 // @construction {
+					if(hdr.ID) {
+						#if 1 // @construction {
 						PPID   id = 0;
-						if(hdr.ID && PsnObj.AddBySample(&id, hdr.ID) == cmOK) {
+						ok = AddItemBySample(&id, hdr.ID);
+						if(ok > 0) {
 							pBrw->Update();
 							pBrw->search2(&id, CMPF_LONG, srchFirst, 0, nullptr/*pExtraData*/);
-							ok = 1;
+							ok = -1; // Не надо обновлять таблицу после этого вызова
 						}
 						#endif // } 0
 					}

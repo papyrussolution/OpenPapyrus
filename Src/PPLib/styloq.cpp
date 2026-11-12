@@ -9272,10 +9272,10 @@ private:
 	if(rParam.StQBaseCmdId == StyloQCommandList::sqbcIncomingListOrder) {
 		ok = PPDialogProcBody <IncomingListParam_Doc_Dialog, StyloQIncomingListParam> (&rParam);
 	}
-	else if(rParam.StQBaseCmdId == StyloQCommandList::sqbcIncomingListCCheck) { // @v11.5.2
+	else if(rParam.StQBaseCmdId == StyloQCommandList::sqbcIncomingListCCheck) {
 		ok = PPDialogProcBody <IncomingListParam_CCheck_Dialog, StyloQIncomingListParam> (&rParam);
 	}
-	else if(rParam.StQBaseCmdId == StyloQCommandList::sqbcIncomingListTSess) { // @v11.6.5
+	else if(rParam.StQBaseCmdId == StyloQCommandList::sqbcIncomingListTSess) {
 		ok = PPDialogProcBody <IncomingListParam_TSess_Dialog, StyloQIncomingListParam> (&rParam);
 	}
 	return ok;
@@ -10621,7 +10621,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 				StyloQCommandList * p_target_cmd_list = 0;
 				THROW(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0);
 				if(StyloQCommandList::GetFullList(db_symb, full_cmd_list)) {
-					SObjID oid(cli_pack.Rec.LinkObjType, cli_pack.Rec.LinkObjID);
+					const  SObjID oid(cli_pack.Rec.LinkObjType, cli_pack.Rec.LinkObjID);
 					p_target_cmd_list = full_cmd_list.CreateSubListByContext(oid, 0, true);
 				}
 				p_js_reply = StyloQCommandList::CreateJsonForClient(own_pack, p_target_cmd_list, 0, 0, 4 * 3600);
@@ -13312,13 +13312,13 @@ int PPStyloQInterchange::Helper_ExecuteIndexingRequest(const StyloQCore::Storage
 		if(stored_oid_list.getCount()) {
 			stored_oid_list.SortAndUndup();
 			for(uint i = 0; i < stored_oid_list.getCount(); i++) {
-				SObjID local_oid = stored_oid_list.at(i);
+				SObjID  local_oid(stored_oid_list.at(i));
 				Stq_CmdStat_MakeRsrv_Response::RegisterOid(&stat, local_oid);
 			}
 		}
 		stat.OidList.SortAndUndup();
 		for(uint oididx = 0; oididx < stat.OidList.getCount(); oididx++) {
-			SObjID oid = stat.OidList.at(oididx);
+			const  SObjID oid(stat.OidList.at(oididx));
 			AddImgBlobToReqBlobInfoList(own_ident, oid, req_blob_list);
 		}
 		SJson * p_js_query = req_blob_list.MakeRequestInfoListQuery();

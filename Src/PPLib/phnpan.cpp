@@ -735,7 +735,7 @@ void PhonePaneDialog::NewContact()
 				eb.InitPhone = p_phone;
 				if(PsnObj.Edit_(&psn_id, eb) > 0) {
 					OidList.Add(param.Oid.Obj, psn_id);
-					SObjID sel_oid(param.Oid.Obj, psn_id);
+					const  SObjID sel_oid(param.Oid.Obj, psn_id);
 					SetupOidList(&sel_oid);
 				}
 			}
@@ -749,7 +749,7 @@ void PhonePaneDialog::NewContact()
 				ap.Phone = p_phone;
 				if(ScObj.Edit(&sc_id, ap) > 0) {
 					OidList.Add(param.Oid.Obj, sc_id);
-					SObjID sel_oid(param.Oid.Obj, sc_id);
+					const  SObjID sel_oid(param.Oid.Obj, sc_id);
 					SetupOidList(&sel_oid);
 				}
 			}
@@ -762,7 +762,7 @@ void PhonePaneDialog::NewContact()
 				if(PsnObj.LocObj.EditDialog(LOCTYP_ADDRESS, &loc_pack, 0) > 0) {
 					if(PsnObj.LocObj.PutPacket(&loc_id, &loc_pack, 1)) {
 						OidList.Add(param.Oid.Obj, loc_id);
-						SObjID sel_oid(param.Oid.Obj, loc_id);
+						const  SObjID sel_oid(param.Oid.Obj, loc_id);
 						SetupOidList(&sel_oid);
 					}
 					else

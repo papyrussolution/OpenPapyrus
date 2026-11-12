@@ -842,6 +842,28 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 					SLCHECK_NZ(scan.GetQuotedString(SFileFormat::Unkn, str));
 					SLCHECK_EQ(scan.Offs, static_cast<size_t>(4U));
 					SLCHECK_EQ(str, "ab");
+					//
+					//
+					//
+					scan.Set("", 0);
+					SLCHECK_Z(scan.GetApostrophedString(str));
+					SLCHECK_EQ(scan.Offs, static_cast<size_t>(0U));
+					SLCHECK_NZ(str.IsEmpty());
+					//
+					scan.Set("abc", 0);
+					SLCHECK_Z(scan.GetApostrophedString(str));
+					SLCHECK_EQ(scan.Offs, static_cast<size_t>(0U));
+					SLCHECK_NZ(str.IsEmpty());
+					//
+					scan.Set("\'abc\'0123", 0);
+					SLCHECK_NZ(scan.GetApostrophedString(str));
+					SLCHECK_EQ(scan.Offs, static_cast<size_t>(5U));
+					SLCHECK_EQ(str, "abc");
+					//
+					scan.Set("\'abc\'", 0);
+					SLCHECK_NZ(scan.GetApostrophedString(str));
+					SLCHECK_EQ(scan.Offs, static_cast<size_t>(5U));
+					SLCHECK_EQ(str, "abc");
 				}
 				{
 					scan.Set(" 1q", 0);
@@ -1505,7 +1527,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 									bool  uvr = UED::GetRaw_Ru_LicPlate(uv, str);
 									SLCHECK_NZ(uvr);
 									{
-										SLCHECK_NZ(tr.NormalizeToken(line_buf.ucptr(), line_buf.Len(), nts, SNTOK_RU_LICPLATE, out_buf));
+										SLCHECK_NZ(tr.NormalizeToken(line_buf.ucptr(), line_buf.LenI(), nts, SNTOK_RU_LICPLATE, out_buf));
 										SLCHECK_NZ(str == out_buf);
 									}
 									out_buf.Z().CatHex(uv);
@@ -1528,7 +1550,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 									bool  uvr = UED::GetRaw_Ru_LicPlate(uv, str);
 									SLCHECK_NZ(uvr);
 									{
-										SLCHECK_NZ(tr.NormalizeToken(line_buf.ucptr(), line_buf.Len(), nts, SNTOK_RU_LICPLATE, out_buf));
+										SLCHECK_NZ(tr.NormalizeToken(line_buf.ucptr(), line_buf.LenI(), nts, SNTOK_RU_LICPLATE, out_buf));
 										out_buf.Transf(CTRANSF_OUTER_TO_UTF8);
 										SLCHECK_NZ(str == out_buf);
 									}
@@ -1551,7 +1573,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 									bool  uvr = UED::GetRaw_Ru_LicPlate(uv, str);
 									SLCHECK_NZ(uvr);
 									{
-										SLCHECK_NZ(tr.NormalizeToken(line_buf.ucptr(), line_buf.Len(), nts, SNTOK_RU_LICPLATE, out_buf));
+										SLCHECK_NZ(tr.NormalizeToken(line_buf.ucptr(), line_buf.LenI(), nts, SNTOK_RU_LICPLATE, out_buf));
 										out_buf.Transf(CTRANSF_INNER_TO_UTF8);
 										SLCHECK_NZ(str == out_buf);
 									}
@@ -1574,7 +1596,7 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 						};
 						for(uint i = 0; i < SIZEOFARRAY(p_inv_lic_plate_list); i++) {
 							const char * p_text = p_inv_lic_plate_list[i];
-							tr.Run(PTR8C(p_text), sstrlen(p_text), nta.Z(), 0);
+							tr.Run(PTR8C(p_text), sstrleni(p_text), nta.Z(), 0);
 							const float p = nta.Has(SNTOK_RU_LICPLATE);
 							SLCHECK_EQ(p, 0.0f);
 						}
@@ -1615,12 +1637,12 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 							for(uint i = 0; i < SIZEOFARRAY(licplate_nn_to_n_list); i++) {
 								const SStrToStrAssoc & r_entry = licplate_nn_to_n_list[i];
 								str = r_entry.Key;
-								tr.Run(str.ucptr(), str.Len(), nta.Z(), &ntstat);
+								tr.Run(str.ucptr(), str.LenI(), nta.Z(), &ntstat);
 								const float p = nta.Has(SNTOK_RU_LICPLATE);
 								SLCHECK_LE(0.1f, p);
 								if(p > 0.0f) {
 									normalized_token_pattern = r_entry.Val;
-									int r = tr.NormalizeToken(str.ucptr(), str.Len(), ntstat, SNTOK_RU_LICPLATE, normalized_token);
+									int r = tr.NormalizeToken(str.ucptr(), str.LenI(), ntstat, SNTOK_RU_LICPLATE, normalized_token);
 									SLCHECK_NZ(r > 0);
 									if(r > 0) {
 										SLCHECK_EQ(normalized_token, normalized_token_pattern);
@@ -1632,11 +1654,11 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 							for(uint i = 0; i < SIZEOFARRAY(licplate_nn_to_n_list); i++) {
 								const SStrToStrAssoc & r_entry = licplate_nn_to_n_list[i];
 								(str = r_entry.Key).Transf(CTRANSF_UTF8_TO_OUTER);
-								tr.Run(str.ucptr(), str.Len(), nta.Z(), &ntstat);
+								tr.Run(str.ucptr(), str.LenI(), nta.Z(), &ntstat);
 								const float p = nta.Has(SNTOK_RU_LICPLATE);
 								SLCHECK_LE(0.1f, p);
 								if(p > 0.0f) {
-									int r = tr.NormalizeToken(str.ucptr(), str.Len(), ntstat, SNTOK_RU_LICPLATE, normalized_token);
+									int r = tr.NormalizeToken(str.ucptr(), str.LenI(), ntstat, SNTOK_RU_LICPLATE, normalized_token);
 									SLCHECK_NZ(r > 0);
 									if(r > 0) {
 										if(normalized_token.IsLegalUtf8()) { 
@@ -1657,11 +1679,11 @@ SLTEST_FIXTURE(SString, SlTestFixtureSString)
 							for(uint i = 0; i < SIZEOFARRAY(licplate_nn_to_n_list); i++) {
 								const  SStrToStrAssoc & r_entry = licplate_nn_to_n_list[i];
 								(str = r_entry.Key).Transf(CTRANSF_UTF8_TO_INNER);
-								tr.Run(str.ucptr(), str.Len(), nta.Z(), &ntstat);
+								tr.Run(str.ucptr(), str.LenI(), nta.Z(), &ntstat);
 								const float p = nta.Has(SNTOK_RU_LICPLATE);
 								SLCHECK_LE(0.1f, p);
 								if(p > 0.0f) {
-									int r = tr.NormalizeToken(str.ucptr(), str.Len(), ntstat, SNTOK_RU_LICPLATE, normalized_token);
+									int r = tr.NormalizeToken(str.ucptr(), str.LenI(), ntstat, SNTOK_RU_LICPLATE, normalized_token);
 									SLCHECK_NZ(r > 0);
 									if(r > 0) {
 										if(normalized_token.IsLegalUtf8()) { 

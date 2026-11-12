@@ -189,7 +189,7 @@
 			"marktoqttyadequacy_ok": "#lightgreen",
 			"marktoqttyadequacy_undecomposable": "#lightpink",
 			"marktoqttyadequacy_undefpackage": "#lightyellow",
-			"marktoqttyadequacy_mczero": "#ivory",
+			"marktoqttyadequacy_mczero": "#AFDAFC",
 			"marktoqttyadequacy_mcgtqtty": "#lightcoral"
 		}
 	],

@@ -967,8 +967,7 @@ int PPShowCtrlIndicatorHint(const TWindow * pWin, const TView * pCtrl, const cha
 						RECT   ctl_rect;
 						SPoint2S origin;
 						GetWindowRect(h_ctl, &ctl_rect);
-						origin.x = ctl_rect.left+40;
-						origin.y = ctl_rect.bottom+2;
+						origin.Set(ctl_rect.left+40, ctl_rect.bottom+2);
 						ok = p_win->OpenP_(msg_buf, h_parent, origin, hint_timeout, color_bg, o);
 					}
 					else {

@@ -1679,7 +1679,7 @@ int PPViewGeoTracking::Export()
 				GeoTrackingViewItem item;
 				SObjID last_oid;
 				while(NextIteration(&item) > 0) {
-					SObjID oid(item.ObjType, item.ObjID);
+					const  SObjID oid(item.ObjType, item.ObjID);
 					LDATETIME dtm;
 					dtm.Set(GeoTrackCore::ConvertStorageDate(item.Dts2010), item.Tm);
 					if(!p_n_trk || oid != last_oid) {

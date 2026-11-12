@@ -411,3 +411,4 @@ int showInputLineCalc(TDialog * pParentDlg, uint fieldCtlId)
 		showInputLineCalc(p_vbwe->P_Dlg, p_vbwe->FieldCtrlId);
 	return CallWindowProc(p_vbwe->PrevWndProc, hWnd, msg, wParam, lParam);
 }
+

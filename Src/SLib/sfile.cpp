@@ -4204,6 +4204,7 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Json,       "json", "T[");
 	Register(Pbxproj,    "pbxproj", 0);
 	Register(Gravity,    "gravity", 0);
+	Register(Markdown,   "md", 0); // @v12.8.3
 	Register(PapyruDbDivXchg, mtApplication, "x-papyrus", "pps", "50504F53");
 	Register(CodeBlocks_Cbp,  mtApplication, "xml",   "cbp", "T<?xml"); // Code::Blocks Project File
 	Register(M4,              mtText,        "plain", "m4", 0); // m4 macroporcessor

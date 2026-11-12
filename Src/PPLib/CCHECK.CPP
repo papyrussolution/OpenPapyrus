@@ -1810,10 +1810,10 @@ int CCheckPacket::SetTotalDiscount_Debug(uint method/*1||2*/, double dis, long f
 			}
 		}
 		if(method == 1) {
-			dd.Run_01(discount_to_setup * 100.0, r_);
+			dd.Run_ReferenceMethod01(discount_to_setup * 100.0, r_);
 		}
 		else if(method == 2) {
-			dd.Run_02(discount_to_setup * 100.0, r_);
+			dd.Run(discount_to_setup * 100.0, r_);
 		}
 		else
 			ok = 0;

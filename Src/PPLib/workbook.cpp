@@ -13,6 +13,23 @@ WorkbookCore::WorkbookCore() : WorkbookTbl()
 {
 }
 
+int WorkbookCore::HasChildren(PPID id) // @v12.8.3
+{
+	int    ok = -1;
+	WorkbookTbl::Rec rec;
+	if(Search(id, &rec) > 0) {
+		WorkbookTbl::Key4 k4;
+		MEMSZERO(k4);
+		k4.ParentID = id;
+		if(search(4, &k4, spGe) && data.ParentID == id) {
+			ok = 1;
+		}
+	}
+	else
+		ok = 0;
+	return ok;
+}
+
 int WorkbookCore::Helper_GetChildList(PPID id, int recursive, PPIDArray & rList, PPIDArray * pRecurTrace)
 {
 	assert(pRecurTrace != 0);
@@ -43,10 +60,37 @@ int WorkbookCore::Helper_GetChildList(PPID id, int recursive, PPIDArray & rList,
 	return ok;
 }
 
+int WorkbookCore::Search(PPID id, WorkbookTbl::Rec * pRec)
+{
+	return SearchByID(this, PPOBJ_WORKBOOK, id, pRec);
+}
+
 int WorkbookCore::GetChildList(PPID id, int recursive, PPIDArray & rList)
 {
 	PPIDArray recur_trace;
 	return Helper_GetChildList(id, recursive, rList, &recur_trace);
+}
+
+int WorkbookCore::GetPathToParent(PPID thisID, PPID parentID, PPIDArray & rList) // @v12.8.3
+{
+	rList.Z();
+	int    ok = -1;
+	WorkbookTbl::Rec rec;
+	PPID iter_id = thisID; 
+	while(iter_id && Search(iter_id, &rec) > 0) {
+		rList.add(rec.ID);
+		if(rec.ID == parentID) {
+			ok = 1;
+			break;
+		}
+		else
+			iter_id = rec.ParentID;
+	}
+	if(ok < 0) {
+		if(parentID == 0 && rList.getCount())
+			ok = 1;
+	}
+	return ok;
 }
 
 int WorkbookCore::InitEnum(int flags, long * pHandle)
@@ -1468,58 +1512,6 @@ int PPObjWorkbook::ProcessObjRefs(PPObjPack * pPack, PPObjIDArray * ary, int rep
 	CATCHZOK
 	return ok;
 }
-
-PPWorkboolImpExpParam::PPWorkboolImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), Flags(0), PredefFormat(0)
-{
-}
-
-/*virtual*/int PPWorkboolImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
-{
-	int    ok = 1;
-	SString params;
-	SString fld_name;
-	SString param_val;
-	THROW(PPImpExpParam::WriteIni(pFile, pSect));
-	THROW(PPLoadText(PPTXT_IMPEXPPARAM_WORKBOOK, params));
-	if(Direction != 0) { // import
-		;
-	}
-	else { // export
-	}
-	PPGetSubStr(params, IMPEXPPARAM_WORKBOOK_PREDEFFMT, fld_name);
-	pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(PredefFormat), 1);
-	PPGetSubStr(params, IMPEXPPARAM_WORKBOOK_FLAGS, fld_name);
-	pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(Flags), 1);
-	CATCHZOK
-	return ok;
-}
-
-/*virtual*/int PPWorkboolImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList)
-{
-	PredefFormat = piefUndef;
-	Flags = 0;
-	int    ok = 1;
-	SString params;
-	SString fld_name;
-	SString param_val;
-	StringSet excl;
-	RVALUEPTR(excl, pExclParamList);
-	THROW(PPLoadText(PPTXT_IMPEXPPARAM_WORKBOOK, params));
-	if(PPGetSubStr(params, IMPEXPPARAM_WORKBOOK_PREDEFFMT, fld_name)) {
-		excl.add(fld_name);
-		if(pFile->GetParam(pSect, fld_name, param_val) > 0)
-			PredefFormat = param_val.ToLong();
-	}
-	if(PPGetSubStr(params, IMPEXPPARAM_WORKBOOK_FLAGS, fld_name)) {
-		excl.add(fld_name);
-		if(pFile->GetParam(pSect, fld_name, param_val) > 0)
-			Flags = param_val.ToLong();
-	}
-	THROW(PPImpExpParam::ReadIni(pFile, pSect, &excl));
-	CATCHZOK
-	return ok;
-}
-
 /*
 class WorkbookImpExpDialog : public ImpExpParamDialog { // @v12.8.2
 	DECL_DIALOG_DATA(PPWorkbookImpExpParam);
@@ -1532,7 +1524,6 @@ private:
 	void   SetupCtrls(long direction);
 };
 */
-
 WorkbookImpExpDialog::WorkbookImpExpDialog() : ImpExpParamDialog(DLG_IMPEXPWORKBOOK)
 {
 }
@@ -1564,6 +1555,7 @@ int WorkbookImpExpDialog::setDTS(const PPWorkbookImpExpParam * pData)
 	SetupStringCombo(this, CTLSEL_IMPEXPWORKBOOK_PDFMT, PPTXT_PREDEFIMPEXPBILLFMT, Data.PredefFormat);
 	//AddClusterAssoc(CTL_IMPEXPWORKBOOK_FLAGS, 0, PPCCheckImpExpParam::fPrintAsseblyOrders);
 	//SetClusterData(CTL_IMPEXPWORKBOOK_FLAGS, Data.Flags);
+	setCtrlString(CTL_IMPEXP_IMGPATH, Data.ImgPath); // @v12.8.3
 	SetupCtrls(Data.Direction);
 	return 1;
 }
@@ -1574,6 +1566,7 @@ int WorkbookImpExpDialog::getDTS(PPWorkbookImpExpParam * pData)
 	THROW(ImpExpParamDialog::getDTS(&Data));
 	getCtrlData(CTLSEL_IMPEXPWORKBOOK_PDFMT, &Data.PredefFormat);
 	//GetClusterData(CTL_IMPEXPCC_FLAGS, &Data.Flags);
+	getCtrlString(CTL_IMPEXP_IMGPATH, Data.ImgPath); // @v12.8.3
 	ASSIGN_PTR(pData, Data);
 	CATCH
 		ok = PPErrorByDialog(this, 0);
@@ -1599,7 +1592,7 @@ int PPObjWorkbook::Helper_Export(PPID rootID, PPWorkbookExporter & rExporter, PP
 				if(r > 0) {
 					PPWorkbookPacket pack;
 					THROW(GetPacket(rec.ID, &pack) > 0);
-					THROW(rExporter.ExportPacket(&pack));
+					THROW(rExporter.ExportPacket(rootID, pack));
 					THROW(Helper_Export(rec.ID, rExporter, pRecurTrace)); // @recursion
 				}
 				else {
@@ -1766,7 +1759,7 @@ int PPObjWorkbook::RemoveAll()
 							}
 							break;
 						case cmExport:
-							p_wb_obj->Export(0);
+							p_wb_obj->Export(current_id);
 							break;
 						case cmTransmit:
 							p_wb_obj->Transmit(0);
@@ -2782,8 +2775,67 @@ int PPObjWorkbook::Fetch(PPID id, WorkbookTbl::Rec * pRec)
 //
 IMPLEMENT_IMPEXP_HDL_FACTORY(WORKBOOK, PPWorkbookImpExpParam);
 
-PPWorkbookImpExpParam::PPWorkbookImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), PredefFormat(0)
+PPWorkbookImpExpParam::PPWorkbookImpExpParam(uint recId, long flags) : PPImpExpParam(recId, flags), Flags(0), PredefFormat(0)
 {
+}
+
+/*virtual*/int PPWorkbookImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
+{
+	int    ok = 1;
+	SString params;
+	SString fld_name;
+	SString param_val;
+	THROW(PPImpExpParam::WriteIni(pFile, pSect));
+	THROW(PPLoadText(PPTXT_IMPEXPPARAM_WORKBOOK, params));
+	if(Direction != 0) { // import
+		;
+	}
+	else { // export
+	}
+	PPGetSubStr(params, IMPEXPPARAM_WORKBOOK_PREDEFFMT, fld_name);
+	pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(PredefFormat), 1);
+	PPGetSubStr(params, IMPEXPPARAM_WORKBOOK_FLAGS, fld_name);
+	pFile->AppendParam(pSect, fld_name, param_val.Z().Cat(Flags), 1);
+	// @v12.8.3 {
+	PPGetSubStr(params, IMPEXPPARAM_WORKBOOK_IMGPATH, fld_name);
+	pFile->AppendParam(pSect, fld_name, param_val = ImgPath, 1);
+	// } @v12.8.3 
+	CATCHZOK
+	return ok;
+}
+
+/*virtual*/int PPWorkbookImpExpParam::ReadIni(PPIniFile * pFile, const char * pSect, const StringSet * pExclParamList)
+{
+	PredefFormat = piefUndef;
+	Flags = 0;
+	int    ok = 1;
+	SString params;
+	SString fld_name;
+	SString param_val;
+	StringSet excl;
+	RVALUEPTR(excl, pExclParamList);
+	THROW(PPLoadText(PPTXT_IMPEXPPARAM_WORKBOOK, params));
+	if(PPGetSubStr(params, IMPEXPPARAM_WORKBOOK_PREDEFFMT, fld_name)) {
+		excl.add(fld_name);
+		if(pFile->GetParam(pSect, fld_name, param_val) > 0)
+			PredefFormat = param_val.ToLong();
+	}
+	if(PPGetSubStr(params, IMPEXPPARAM_WORKBOOK_FLAGS, fld_name)) {
+		excl.add(fld_name);
+		if(pFile->GetParam(pSect, fld_name, param_val) > 0)
+			Flags = param_val.ToLong();
+	}
+	// @v12.8.3 {
+	if(PPGetSubStr(params, IMPEXPPARAM_WORKBOOK_IMGPATH, fld_name)) {
+		excl.add(fld_name);
+		if(pFile->GetParam(pSect, fld_name, param_val) > 0) {
+			ImgPath = param_val;
+		}
+	}
+	// } @v12.8.3 
+	THROW(PPImpExpParam::ReadIni(pFile, pSect, &excl));
+	CATCHZOK
+	return ok;
 }
 
 class PrcssrWorkbookImport {
@@ -2820,16 +2872,15 @@ static int SelectWorkbookImpExpConfig(PPWorkbookImpExpParam * pParam, int import
 {
 	int    ok = -1;
 	uint   p = 0;
-	long   id = 0;
 	SString temp_buf;
 	StrAssocArray list;
 	PPWorkbookImpExpParam param;
 	THROW_INVARG(pParam);
 	pParam->Direction = BIN(import);
 	THROW(GetImpExpSections(PPFILNAM_IMPEXP_INI, PPREC_WORKBOOK, &param, &list, import ? 2 : 1));
-	id = (list.SearchByTextNc(pParam->Name, &p) > 0) ? (uint)list.Get(p).Id : 0;
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, temp_buf));
 	{
+		long   id = (list.SearchByTextNc(pParam->Name, &p) > 0) ? list.Get(p).Id : 0;
 		PPIniFile ini_file(temp_buf, 0, 1, 1);
 		while(ok < 0 && ListBoxSelDialog::Run(&list, import ? PPTXT_TITLE_WORKBOOKIMPCFG : PPTXT_TITLE_WORKBOOKEXPCFG, &id) > 0) {
 			if(id) {
@@ -3005,7 +3056,7 @@ PPWorkbookExporter::~PPWorkbookExporter()
 int PPWorkbookExporter::Init(const PPWorkbookImpExpParam * pParam)
 {
 	int    ok = 1;
-	DestFilesPath = 0;
+	DestFilesPath.Z();
 	if(pParam)
 		Param = *pParam;
 	if(!pParam) {
@@ -3014,24 +3065,447 @@ int PPWorkbookExporter::Init(const PPWorkbookImpExpParam * pParam)
 	}
 	if(ok > 0) {
 		THROW_MEM(P_IEWorkbook = new PPImpExp(&Param, 0));
-		THROW(P_IEWorkbook->OpenFileForWriting(0, 1));
-		{
-			SFsPath ps(P_IEWorkbook->GetParamConst().FileName);
-			ps.Ext = "files";
-			ps.Merge(DestFilesPath);
+		if(Param.PredefFormat == piefWorkbook_Astro) {
+			THROW_SL(SFile::CreateDir(P_IEWorkbook->GetParamConst().FileName));
+		}
+		else {
+			THROW(P_IEWorkbook->OpenFileForWriting(0, 1));
+			{
+				SFsPath ps(P_IEWorkbook->GetParamConst().FileName);
+				ps.Ext = "files";
+				ps.Merge(DestFilesPath);
+			}
 		}
 	}
 	CATCHZOK
 	return ok;
 }
 
-int PPWorkbookExporter::ExportPacket(const PPWorkbookPacket * pPack)
+int PPWorkbookExporter::PreprocessContent(const SString & rSrc, SString & rResult)
+{
+	int   ok = 1;
+	/*
+		##
+		## IMAGE :: Вставка изображения
+		## $code - символ контента
+		## $width [optional] - ширина
+		## $height [optional] - высота
+		## $alt [optional] - альтернативный текст
+		## $style [optional] - CSS
+		##
+		#macro(IMAGE $code $width $height $alt $style)
+			#set($macro_pg = $siteUtil.getPage($code))
+			<img src="/dispatcher/workbook/content?code=${code}"
+				#if($width > 0)width="${width}"#end
+				#if($height > 0)height="${height}"#end
+				#if($alt)
+					alt="${alt}" title="${alt}"
+				#else 
+						alt="${macro_pg.Name}" title="${macro_pg.Name}"
+				#end
+				#if($style)style="${style}"#end
+			>
+		#end
+
+		#macro(IMAGEWITHCLS $code $width $height $alt $style, $cls)
+			#set($macro_pg = $siteUtil.getPage($code))
+			<img src="/dispatcher/workbook/content?code=${code}"
+				#if($width > 0)width="${width}"#end
+				#if($height > 0)height="${height}"#end
+				#if($alt)
+					alt="${alt}" title="${alt}"
+				#else 
+						alt="${macro_pg.Name}" title="${macro_pg.Name}"
+				#end
+				#if($style)style="${style}"#end
+				#if($cls)class="${cls}"#end
+			>
+		#end
+
+		##
+		## FLASH :: Вставка флеш объекта
+		## $code - символ контента
+		## $width [optional] - ширина
+		## $height [optional] - высота
+		##
+		#macro(FLASH $code $width $height)
+			<object
+				type="application/x-shockwave-flash"
+				#if(${width})width="${width}"#end #if(${height})height="${height}"#end
+				data="/dispatcher/workbook/content?id=${code}"
+			>
+				<param name="movie" value="/dispatcher/workbook/content?id=${code}">
+				<embed
+					src="/dispatcher/workbook/content?id=${code}"
+					#if(${width})width="${width}"#end #if(${height})height="${height}"#end
+				>
+				</embed>
+			</object>
+		#end
+
+		##
+		## REF :: Ссылка на страницу   //   @deprecated
+		## $code - символ контента
+		## $text [optional] - текст ссылки, если не указан, то подставляется имя контента
+		## $title [optional] - текст подсказки
+		##
+		#macro(REF $code $text $title)
+			<a href="?page=$code" #if($title)title="${title}"#end>$text</a>
+		#end
+
+
+		## ссылка в виде кнопки boostrap
+		#macro(REFB $code)
+			<a class="btn btn-info" href="?page=$code">Подробнее</a>
+		#end
+
+
+		##
+		## LINK :: Ссылка на страницу
+		## $code - символ контента
+		## $text [optional] - текст ссылки, если не указан, то подставляется имя контента
+		## $style [optional] - CSS
+		##
+		#macro(LINK $code $text $style)
+			#set($macro_pg = $siteUtil.getPage($code))
+			#if($macro_pg)
+				<a href="?page=${code}" title="${macro_pg.Name}" #if($style)style="${style}"#end>
+					#if($text)
+						${text}
+					#else
+						${macro_pg.Name}
+					#end
+				</a>
+			#end
+		#end
+		##
+		## !Не для использования!
+		##
+		#macro(__ANNOT $__pg $style)
+			#if($__pg)
+				<div class="uui-annot-blk" #if($style)style="${style}"#end>
+					<span class="uui-annot-title"><b>#REF(${__pg.Symb}, ${__pg.Name})</b></span>
+					<span class="uui-annot-text">${__pg.Descr}</span>
+					##<span class="uui-annot-link">#LINK(${__pg.Symb}, "Подробнее...")</span>
+				</div>
+			#end
+		#end
+
+		##
+		## ANNOT :: Простая аннотация
+		## $code - символ описываемого контента
+		## $style [optional] - CSS
+		##
+		#macro(ANNOT $code $style)
+			#__ANNOT($siteUtil.getPage($code), $style)
+		#end
+
+		##
+		## ANNOTIMG :: Аннотация с изображением
+		## $code - символ описываемого контента
+		## $img  - символ изображения
+		## $style [optional] - CSS
+		##
+		#macro(ANNOTIMG $code $image $style)
+			#set($macro_pg = $siteUtil.getPage($code))
+			<table border="0" style="width:100%;border-collapse:separate;border-spacing:5px">
+					<tbody>
+					<tr>
+						<td>
+							<img src="/dispatcher/workbook/content?code=$image" height="150px">
+						</td>
+						<td style="width:100%">
+							##__ANNOT($macro_pg, $style)
+							<div class="uui-annot-blk" #if($style)style="${style}"#end>
+								<span class="uui-annot-title"><b>#REF(${macro_pg.Symb}, ${macro_pg.Name})</b></span>
+								<span class="uui-annot-text">${macro_pg.Descr}</span>
+								<span class="uui-annot-link">#LINK(${macro_pg.Symb}, "Подробнее...")</span>
+							</div>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		#end
+
+		#IMAGE('SC-CAS-CL5000', 256, 256)
+	*/ 
+	rResult.Z();
+	SString temp_buf;
+	StringSet ss_arg;
+	SStrScan scan;
+	for(uint ci = 0; ci < rSrc.Len(); ci++) {
+		const  char * p_c = rSrc.cptr()+ci;
+		bool   macro_accepted = false;
+		//"IMAGEWITHCLS"
+		bool   is_img = false;
+		uint   tok_len = 0;
+		if(sstreqni_ascii(p_c, "#IMAGEWITHCLS", 13)) {
+			tok_len = 13;
+			is_img = true;
+		}
+		else if(sstreqni_ascii(p_c, "#IMAGE", 6)) {
+			tok_len = 6;
+			is_img = true;
+		}
+		if(is_img) {
+			bool  local_done = false;
+			SString unroll_buf;
+			SString img_symb;
+			SString alt_text;
+			SString style_text;
+			SString cls_text;
+			SPoint2I img_size;
+			//const uint tok_len = 6;
+			//#macro(IMAGE $code $width $height $alt $style)
+			const  char * p = p_c+tok_len;
+			scan.Set(p_c+tok_len, 0);
+			scan.Skip();
+			if(*scan == '(') {
+				scan.Incr();
+				scan.Skip();
+				if(scan.GetApostrophedString(temp_buf) || scan.GetQuotedString(temp_buf)) {
+					img_symb = temp_buf;
+					ss_arg.add(temp_buf);
+					scan.Skip();
+					if(scan[0] == ',') {
+						scan.Incr();
+						scan.Skip();
+						scan.GetNumber(temp_buf);
+						img_size.x = temp_buf.ToLong();
+						scan.Skip();
+						if(scan[0] == ',') {
+							scan.Incr();
+							scan.Skip();
+							scan.GetNumber(temp_buf);
+							img_size.y = temp_buf.ToLong();
+							scan.Skip();
+							if(scan[0] == ',') {
+								scan.Incr();
+								scan.Skip();
+								scan.GetApostrophedString(temp_buf);
+								alt_text = temp_buf;
+								scan.Skip();
+								if(scan[0] == ',') {
+									scan.Incr();
+									scan.Skip();
+									scan.GetApostrophedString(temp_buf);
+									style_text = temp_buf;
+									scan.Skip();
+									if(scan[0] == ',') {
+										scan.Incr();
+										scan.Skip();
+										scan.GetApostrophedString(temp_buf);
+										cls_text = temp_buf;
+										scan.Skip();
+										if(scan[0] == ')') {
+											local_done = true;
+										}
+										else {
+											// @err
+										}
+									}
+									else if(scan[0] == ')') {
+										local_done = true;
+									}
+								}
+								else if(scan[0] == ')') {
+									local_done = true;
+								}
+							}
+							else if(scan[0] == ')') {
+								local_done = true;
+							}
+						}
+						else if(scan[0] == ')') {
+							img_size.y = img_size.x;
+							local_done = true;
+						}
+					}
+					else if(scan[0] == ')') {
+						local_done = true;
+					}
+				}
+				else {
+					// @err
+				}
+			}
+			else {
+				// @err
+			}
+			if(local_done) {
+				if(img_symb.NotEmptyS()) {
+					PPID   img_wb_id = 0;
+					WorkbookTbl::Rec img_wb_rec;
+					if(WbObj.SearchBySymb(img_symb, &img_wb_id, &img_wb_rec) > 0) {
+						SString file_name;
+						SString file_ext;
+						ObjLinkFiles _f(PPOBJ_WORKBOOK);
+						_f.Load(img_wb_rec.ID, 0L);
+						if(_f.At(0, file_name) > 0) {
+							SFileFormat ff;
+							ff.Identify(file_name, &file_ext);
+							if(SImageBuffer::IsSupportedFormat(ff)) {
+								if(!SFile::IsDir(Param.ImgPath)) {
+									SFile::CreateDir(Param.ImgPath);
+								}
+								if(SFile::IsDir(Param.ImgPath)) {
+									SFsPath ps_src(file_name);
+									SString dest_file_path;
+									ps_src.Merge(&ps_src, SFsPath::fNam|SFsPath::fExt, temp_buf);
+									(dest_file_path = Param.ImgPath).SetLastDSlash().Cat(temp_buf);
+									SCopyFile(file_name, dest_file_path, 0, FILE_SHARE_READ, 0);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		else if(sstreqni_ascii(p_c, "#LINK", 5)) {
+		}
+		if(!macro_accepted) {
+			rResult.CatChar(p_c[0]);
+		}
+	}
+	return ok;
+}
+
+int PPWorkbookExporter::ExportPacket(PPID topLevelID, const PPWorkbookPacket & rPack)
 {
 	int    ok = 1;
 	SString temp_buf;
 	if(Param.PredefFormat) { // @v12.8.2 @construction
 		if(Param.PredefFormat == piefWorkbook_Astro) { 
-			
+			PPIDArray wb_path;
+			SString sub_path;
+
+			if(WbObj.P_Tbl->GetPathToParent(rPack.Rec.ID, topLevelID, wb_path) > 0) {
+				WorkbookTbl::Rec iter_rec;
+				uint i = wb_path.getCount();
+				if(i) do {
+					const  PPID iter_id = wb_path.get(--i);
+					if(WbObj.Search(iter_id, &iter_rec) > 0) {
+						if(i == 0 && WbObj.P_Tbl->HasChildren(iter_id) <= 0) {
+							break;
+						}
+						else {
+							sub_path.SetLastSlash();
+							if(iter_rec.Symb[0]) {
+								sub_path.Cat(iter_rec.Symb);
+							}
+							else {
+								sub_path.Cat("wbid").CatLongZ(iter_rec.ID, 6);
+							}
+							sub_path.CatChar('-').Cat("F");
+						}
+					}
+				} while(i);
+			}
+
+			SObjTextRefIdent tri(PPOBJ_WORKBOOK, rPack.Rec.ID, PPTRPROP_MEMO);
+			SString file_name;
+			SString file_ext;
+			ObjLinkFiles _f(PPOBJ_WORKBOOK);
+			_f.Load(rPack.Rec.ID, 0L);
+			if(_f.At(0, file_name) > 0) {
+				SFileFormat ff;
+				ff.Identify(file_name, &file_ext);
+				if(SImageBuffer::IsSupportedFormat(ff)) {
+					/*
+					PPTooltipImage(pPack->Rec.Name, file_name, 0, 5000, 0, 
+						SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow|
+						SMessageWindow::fLargeText|SMessageWindow::fShowOnCenter|SMessageWindow::fPreserveFocus);
+					*/
+				}
+				else if(oneof5(ff, SFileFormat::Html, SFileFormat::Txt, SFileFormat::TxtUtf8, SFileFormat::TxtAscii, SFileFormat::Markdown)) {
+					//PPViewTextBrowser(file_name, pPack->Rec.Name, "html", TOOLBAR_TEXTBROWSER_WB_HTML);
+					SFile f_in(file_name, SFile::mRead);
+					if(f_in.IsValid()) {
+						STempBuffer _content(SKILOBYTE(20));
+						size_t actual_size = 0;
+						int rr = f_in.ReadAll(_content, 0, &actual_size);
+						if(actual_size) {
+							assert(actual_size > 0);
+							SString result_file_path;
+							SString result_content;	
+							(result_file_path = Param.FileName).SetLastSlash().Cat(sub_path);
+							if(SFile::CreateDir(result_file_path)) {
+								SString org_content_buf;
+								SString intermediate_content_buf;
+								org_content_buf.CatN(_content.cptr(), actual_size);
+								PreprocessContent(org_content_buf, intermediate_content_buf);
+								result_file_path.SetLastSlash();
+								if(rPack.Rec.Symb[0]) {
+									result_file_path.Cat(rPack.Rec.Symb);
+								}
+								else {
+									result_file_path.Cat("wbid").CatLongZ(rPack.Rec.ID, 6);
+								}
+								result_file_path.DotCat("md");
+								/*
+									---
+									title: Фигня всякая
+									product: Papyrus магазин
+									summary: Круто мы с магазином обойдемся
+									icon: "/img/i00001.png"
+									order: 50
+									forWhom:
+									  - Магазины и пр.
+									---
+								*/ 
+								result_content.CatCharN('-', 3).CR();
+								(temp_buf = rPack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+								result_content.Cat("title").CatDiv(':', 2).Cat(temp_buf).CR();
+								{
+									LDATE  eff_date = ZERODATE;
+									if(checkdate(rPack.Rec.Dt)) 
+										eff_date = rPack.Rec.Dt;
+									else {
+										LDATETIME dtm = WbObj.GetContentLastModifTime(rPack.Rec.ID);
+										if(checkdate(dtm.d)) {
+											eff_date = dtm.d;
+										}
+										else {
+											dtm = WbObj.GetLastModifTime(rPack.Rec.ID);
+											if(checkdate(dtm.d)) {
+												eff_date = dtm.d;
+											}
+											else {
+												eff_date = getcurdate_();
+											}
+										}
+									}
+									result_content.Cat("date").CatDiv(':', 2).Cat(eff_date, DATF_ISO8601CENT).CR();
+								}
+								{
+									rPack.GetExtStrData(PPWorkbookPacket::extssDescription, temp_buf);
+									if(temp_buf.NotEmptyS()) {
+										temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+									}
+									else {
+										temp_buf = "no summary";
+									}
+									result_content.Cat("summary").CatDiv(':', 2).Cat(temp_buf).CR();
+								}
+								result_content.CatCharN('-', 3).CR();
+								//result_content.CatN(_content.cptr(), actual_size);
+								result_content.Cat(org_content_buf); // тут должен быть intermediate_content_buf, но пока на этапе отладки - org_content_buf
+								SFile f_out(result_file_path, SFile::mWrite);
+								if(f_out.IsValid()) {
+									f_out.Write(result_content.cptr(), result_content.Len());
+								}
+							}
+						}
+					}
+
+				}
+				else if(file_ext.IsEqiAscii("vm")) {
+					;
+				}
+				else if(oneof2(ff, SFileFormat::Xml, SFileFormat::Ini)) {
+					//PPViewTextBrowser(file_name, 0, pPack->Rec.Name);
+				}
+			}
 		}
 		else
 			ok = -1;
@@ -3039,34 +3513,33 @@ int PPWorkbookExporter::ExportPacket(const PPWorkbookPacket * pPack)
 	else {
 		WorkbookTbl::Rec inner_rec;
 		Sdr_Workbook sdr_rec;
-		THROW_INVARG(pPack);
-		sdr_rec.ID = pPack->Rec.ID;
-		STRNSCPY(sdr_rec.Name, pPack->Rec.Name);
-		STRNSCPY(sdr_rec.Symb, pPack->Rec.Symb);
-		sdr_rec.Type = pPack->Rec.Type;
-		sdr_rec.Order = pPack->Rec.Rank;
-		sdr_rec.Flags = pPack->Rec.Flags;
+		sdr_rec.ID = rPack.Rec.ID;
+		STRNSCPY(sdr_rec.Name, rPack.Rec.Name);
+		STRNSCPY(sdr_rec.Symb, rPack.Rec.Symb);
+		sdr_rec.Type = rPack.Rec.Type;
+		sdr_rec.Order = rPack.Rec.Rank;
+		sdr_rec.Flags = rPack.Rec.Flags;
 		if(sdr_rec.Type == PPWBTYP_KEYWORD) {
-			sdr_rec.KeywordCount = pPack->Rec.KeywordCount;
-			sdr_rec.KeywordDilute = pPack->Rec.KeywordDilute;
+			sdr_rec.KeywordCount = rPack.Rec.KeywordCount;
+			sdr_rec.KeywordDilute = rPack.Rec.KeywordDilute;
 		}
-		if(pPack->Rec.ParentID && WbObj.Fetch(pPack->Rec.ParentID, &inner_rec) > 0) {
+		if(rPack.Rec.ParentID && WbObj.Fetch(rPack.Rec.ParentID, &inner_rec) > 0) {
 			sdr_rec.ParentID = inner_rec.ID;
 			STRNSCPY(sdr_rec.ParentName, inner_rec.Name);
 			STRNSCPY(sdr_rec.ParentSymb, inner_rec.Symb);
 		}
-		if(pPack->Rec.LinkID && WbObj.Fetch(pPack->Rec.LinkID, &inner_rec) > 0) {
+		if(rPack.Rec.LinkID && WbObj.Fetch(rPack.Rec.LinkID, &inner_rec) > 0) {
 			sdr_rec.LinkID = inner_rec.ID;
 			STRNSCPY(sdr_rec.LinkName, inner_rec.Name);
 			STRNSCPY(sdr_rec.LinkSymb, inner_rec.Symb);
 		}
-		if(pPack->Rec.CssID && WbObj.Fetch(pPack->Rec.CssID, &inner_rec) > 0) {
+		if(rPack.Rec.CssID && WbObj.Fetch(rPack.Rec.CssID, &inner_rec) > 0) {
 			sdr_rec.CssID = inner_rec.ID;
 			STRNSCPY(sdr_rec.CssName, inner_rec.Name);
 			STRNSCPY(sdr_rec.CssSymb, inner_rec.Symb);
 		}
 		{
-			const ObjTagItem * p_tag_keywords = pPack->TagL.GetItem(PPTAG_WORKBOOK_KEYWORDS);
+			const ObjTagItem * p_tag_keywords = rPack.TagL.GetItem(PPTAG_WORKBOOK_KEYWORDS);
 			if(p_tag_keywords) {
 				p_tag_keywords->GetStr(temp_buf);
 				temp_buf.CopyTo(sdr_rec.KeywordTag, sizeof(sdr_rec.KeywordTag));
@@ -3074,7 +3547,7 @@ int PPWorkbookExporter::ExportPacket(const PPWorkbookPacket * pPack)
 		}
 		{
 			ObjLinkFiles _lf(PPOBJ_WORKBOOK);
-			_lf.Load(pPack->Rec.ID, 0L);
+			_lf.Load(rPack.Rec.ID, 0L);
 			if(_lf.At(0, temp_buf.Z())) {
 				if(DestFilesPath.NotEmpty() && !fileExists(DestFilesPath)) {
 					THROW_SL(SFile::CreateDir(DestFilesPath));

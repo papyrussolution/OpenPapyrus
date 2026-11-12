@@ -1274,36 +1274,36 @@ SLTEST_R(DiscountDistribution_Main) // variant 1
 		DiscountDistribution::Result res2;
 
 		// Пустой список
-		SLCHECK_Z(dd.Run_01(100.0, res1) == 1); // Ожидается отказ (-1)
-		SLCHECK_Z(dd.Run_02(100.0, res2) == 1);
+		SLCHECK_Z(dd.Run_ReferenceMethod01(100.0, res1) == 1); // Ожидается отказ (-1)
+		SLCHECK_Z(dd.Run(100.0, res2) == 1);
 
 		// Только нескидочные позиции
 		dd.AddItem(1, 1000, 1.0, DiscountDistribution::fNoDiscount);
 		dd.AddItem(2, 0,    5.0, 0); // Price == 0
 		dd.AddItem(3, 500,  0.0, 0); // Qtty == 0
-		SLCHECK_Z(dd.Run_01(50.0, res1) == 1);
-		SLCHECK_Z(dd.Run_02(50.0, res2) == 1);
+		SLCHECK_Z(dd.Run_ReferenceMethod01(50.0, res1) == 1);
+		SLCHECK_Z(dd.Run(50.0, res2) == 1);
 		{
 			dd.AddItem(4, 2000, 1.0, 0);
 			// Нулевая скидка на непустом списке с валидной позицией
 			{
-				SLCHECK_NZ(dd.Run_01(0.0, res1) == 1);
+				SLCHECK_NZ(dd.Run_ReferenceMethod01(0.0, res1) == 1);
 				SLCHECK_NZ(res1.CheckInvariants(0.0, 2000.0));
 				SLCHECK_EQ(res1.TotalDiscount, 0.0);
 			}
 			{
-				SLCHECK_NZ(dd.Run_02(0.0, res2) == 1);
+				SLCHECK_NZ(dd.Run(0.0, res2) == 1);
 				SLCHECK_NZ(res2.CheckInvariants(0.0, 2000.0));
 				SLCHECK_EQ(res2.TotalDiscount, 0.0);
 			}
 		}
 
 		// 100% скидка и превышение скидки (насыщение / cap)
-		SLCHECK_NZ(dd.Run_01(2000.0, res1) == 1);
+		SLCHECK_NZ(dd.Run_ReferenceMethod01(2000.0, res1) == 1);
 		SLCHECK_NZ(res1.CheckInvariants(2000.0, 2000.0));
 		SLCHECK_EQ(res1.at(3).Discount, 2000LL); // 100%
 
-		SLCHECK_NZ(dd.Run_01(5000.0, res1) == 1); // Превышение
+		SLCHECK_NZ(dd.Run_ReferenceMethod01(5000.0, res1) == 1); // Превышение
 		SLCHECK_NZ(res1.CheckInvariants(5000.0, 2000.0));
 		SLCHECK_EQ(res1.at(3).Discount, 2000LL); // Уперлись в цену
 	}
@@ -1315,14 +1315,14 @@ SLTEST_R(DiscountDistribution_Main) // variant 1
 		dd.AddItem(3, 500,  1.0, DiscountDistribution::fNoDiscount); // Не участвует
 
 		const double markup = -600.0; // Требуется наценка 600 (по 300 на каждую валидную группу)
-		SLCHECK_NZ(dd.Run_01(markup, res1) == 1);
+		SLCHECK_NZ(dd.Run_ReferenceMethod01(markup, res1) == 1);
 		SLCHECK_NZ(res1.CheckInvariants(markup, 4000.0));
 		SLCHECK_NZ(res1.at(0).Discount <= 0);
 		SLCHECK_NZ(res1.at(1).Discount <= 0);
 		SLCHECK_EQ(res1.at(2).Discount, 0LL); // fNoDiscount неприкосновенен
 		SLCHECK_NZ(feqeps(res1.TotalDiscount, markup, 1e-5));
 
-		SLCHECK_NZ(dd.Run_02(markup, res2) == 1);
+		SLCHECK_NZ(dd.Run(markup, res2) == 1);
 		SLCHECK_NZ(res2.CheckInvariants(markup, 4000.0));
 		SLCHECK_NZ(res2.at(0).Discount <= 0);
 		SLCHECK_NZ(res2.at(1).Discount <= 0);
@@ -1341,7 +1341,7 @@ SLTEST_R(DiscountDistribution_Main) // variant 1
 		// Идеальная скидка на строку 1 = 250 копеек -> d1* = 250 / 0.005 = 50000 (10% от 500000).
 		const double target_disc = 2251.0; // Неделимый 1 копейка остатка
 
-		SLCHECK_NZ(dd.Run_01(target_disc, res1) == 1);
+		SLCHECK_NZ(dd.Run_ReferenceMethod01(target_disc, res1) == 1);
 		SLCHECK_NZ(res1.CheckInvariants(target_disc, 22500.0));
 
 		// В Run_01 скидка за единицу ОБЯЗАНА быть строго FloorVal (50022) или CeilVal (50023)
@@ -1350,14 +1350,14 @@ SLTEST_R(DiscountDistribution_Main) // variant 1
 		SLCHECK_NZ(d1_01_00 >= 50022L && d1_01_00 <= 50023L);
 		SLCHECK_NZ(d1_01_01 >= 1000L  && d1_01_01 <= 1001L);
 
-		SLCHECK_NZ(dd.Run_02(target_disc, res2) == 1);
+		SLCHECK_NZ(dd.Run(target_disc, res2) == 1);
 		SLCHECK_NZ(res2.CheckInvariants(target_disc, 22500.0));
 		const int64 d1_02_00 = res2.at(0).Discount;
 		const int64 d1_02_01 = res2.at(1).Discount;
 
 		// Фиксируем порок Run_02: он вылетел за пределы [floor, ceil] коридора
 		// из-за сброса остатка на мелкий вес:
-		SLCHECK_NZ(labs(d1_02_00 - 50022L) > 10L);
+		SLCHECK_NZ(abs(d1_02_00 - 50022L) > 10L);
 	}
 	{ // Интенсивный стресс-тест / Монте-Карло (500 разнообразных корзин)
 		uint   invariant_fails_01 = 0;
@@ -1399,7 +1399,7 @@ SLTEST_R(DiscountDistribution_Main) // variant 1
 
 			// Вычисляем базу для формирования скидки
 			DiscountDistribution::Result probe_res;
-			dd.Run_01(0.0, probe_res);
+			dd.Run_ReferenceMethod01(0.0, probe_res);
 			const double var_amount = probe_res.EvaluateInitialAmount(true);
 			if(var_amount <= 0.0) 
 				continue;
@@ -1409,8 +1409,8 @@ SLTEST_R(DiscountDistribution_Main) // variant 1
 			const double total_discount = var_amount * (disc_percent / 100.0);
 
 			DiscountDistribution::Result r1, r2;
-			int ok1 = dd.Run_01(total_discount, r1);
-			int ok2 = dd.Run_02(total_discount, r2);
+			int ok1 = dd.Run_ReferenceMethod01(total_discount, r1);
+			int ok2 = dd.Run(total_discount, r2);
 
 			SLCHECK_NZ(ok1 == 1);
 			SLCHECK_NZ(ok2 == 1);
@@ -1534,8 +1534,8 @@ SLTEST_R(DiscountDistribution_Main) // variant 1
 			}
 			DiscountDistribution::Result result_01;
 			DiscountDistribution::Result result_02;
-			const int ok1 = dd1.Run_01(totalDiscount, result_01);
-			const int ok2 = dd2.Run_02(totalDiscount, result_02);
+			const int ok1 = dd1.Run_ReferenceMethod01(totalDiscount, result_01);
+			const int ok2 = dd2.Run(totalDiscount, result_02);
 			// Коды возврата обоих вариантов обязаны совпадать между собой и с ожиданием
 			SLCHECK_EQ(ok1, expectedOk);
 			SLCHECK_EQ(ok2, expectedOk);
@@ -1594,7 +1594,7 @@ SLTEST_R(DiscountDistribution_Main) // variant 1
 				SLCHECK_NZ(dd.AddItem(src.at(i).RefId, src.at(i).Price, src.at(i).Qtty, src.at(i).Flags));
 			}
 			DiscountDistribution::Result result;
-			SLCHECK_EQ(dd.Run_02(100.0, result), 1);
+			SLCHECK_EQ(dd.Run(100.0, result), 1);
 			SLCHECK_NZ(feqeps(result.TotalDiscount, 100.0, 1E-9));
 			{
 				// Мультимножество скидок {33,33,34} (какая строка получила 34 - не регламентируется)
@@ -1648,7 +1648,7 @@ SLTEST_R(DiscountDistribution_Main) // variant 1
 			for(uint i = 0; i < src.getCount(); i++)
 				SLCHECK_NZ(dd.AddItem(src.at(i).RefId, src.at(i).Price, src.at(i).Qtty, src.at(i).Flags));
 			DiscountDistribution::Result result;
-			SLCHECK_EQ(dd.Run_02(10000.0, result), 1);
+			SLCHECK_EQ(dd.Run(10000.0, result), 1);
 			SLCHECK_EQ(result.at(0).Discount, static_cast<int64>(100));
 			SLCHECK_EQ(result.at(1).Discount, static_cast<int64>(200));
 			SLCHECK_NZ(feqeps(result.TotalDiscount, 500.0, 1E-9)); // 100*1 + 200*2
@@ -1663,7 +1663,7 @@ SLTEST_R(DiscountDistribution_Main) // variant 1
 			for(uint i = 0; i < src.getCount(); i++)
 				SLCHECK_NZ(dd.AddItem(src.at(i).RefId, src.at(i).Price, src.at(i).Qtty, src.at(i).Flags));
 			DiscountDistribution::Result result;
-			SLCHECK_EQ(dd.Run_01(-400.0, result), 1);
+			SLCHECK_EQ(dd.Run_ReferenceMethod01(-400.0, result), 1);
 			SLCHECK_NZ(result.TotalDiscount < 0.0); // наценка реально распределена, не потеряна
 			run_case(src, -400.0, 1);
 		}
@@ -1694,7 +1694,7 @@ SLTEST_R(DiscountDistribution_Main) // variant 1
 			for(uint i = 0; i < src.getCount(); i++)
 				SLCHECK_NZ(dd.AddItem(src.at(i).RefId, src.at(i).Price, src.at(i).Qtty, src.at(i).Flags));
 			DiscountDistribution::Result result;
-			SLCHECK_EQ(dd.Run_02(2.0, result), 1);
+			SLCHECK_EQ(dd.Run(2.0, result), 1);
 			SLCHECK_LE(fabs(2.0 - result.TotalDiscount), 1.0 + 1E-9); // невязка не хуже оптимума на сетке
 			run_case(src, 2.0, 1);
 		}

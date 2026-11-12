@@ -263,8 +263,8 @@ int PPViewPredictSales::ViewGraph(PPViewBrowser * pBrw)
 		yticinc = PPRound(yticinc, 10.0, +1);
 	}
 	if(data_list.getCount()) {
-		LDATE low_date = static_cast<const PlotDataEntry *>(data_list.at(0))->Dt;
-		const int dow = dayofweek(low_date, 1);
+		LDATE  low_date = static_cast<const PlotDataEntry *>(data_list.at(0))->Dt;
+		const  int dow = dayofweek(low_date, 1);
 		if(dow != 1)
 			low_date = plusdate(low_date, -(dow-1));
 		param.Flags |= Generator_GnuPlot::PlotParam::fLines;

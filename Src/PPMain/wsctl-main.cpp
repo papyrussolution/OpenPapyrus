@@ -1901,7 +1901,7 @@ void WsCtl_ImGuiSceneBlock::WsCtl_CliSession::SendRequest(PPJobSrvClient & rCli,
 							PPJobSrvProtocol::TransmitFileBlock tfb;
 							const size_t rs = reply.Read(&tfb, sizeof(tfb));
 							if(rs == sizeof(tfb)) {
-								if(tfb.Size <= reply.GetAvailableSize()) {
+								if(tfb.Size <= static_cast<int64>(reply.GetAvailableSize())) {
 									STempBuffer img_buf(static_cast<size_t>(tfb.Size));
 									if(img_buf.IsValid()) {
 										const size_t rimgs = reply.Read(img_buf, img_buf.GetSize());

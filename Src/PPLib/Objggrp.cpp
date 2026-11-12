@@ -1098,7 +1098,7 @@ int PPObjPckgType::Put(PPID * pID, PPGdsPckgType * pRec, int use_ta)
 				THROW(P_Tbl->Update(pID, 0, 0));
 		}
 		else if(pRec) {
-			MEMSZERO(raw_rec);
+			raw_rec.Clear();
 			raw_rec.Kind = PPGDSK_PCKGTYPE;
 			STRNSCPY(raw_rec.Name, pRec->Name);
 			STRNSCPY(raw_rec.Abbr, pRec->CodeTempl);
@@ -2147,7 +2147,7 @@ int PPObjBrand::Put(PPID * pID, PPBrandPacket * pPack, int use_ta)
 					raw_rec.ManufID = pPack->Rec.OwnerID;
 					raw_rec.Flags   = pPack->Rec.Flags;
 					THROW(P_Tbl->Update(pID, &raw_rec, 0));
-					THROW(SetTagList(*pID, &pPack->TagL, 0)); // @v11.2.12
+					THROW(SetTagList(*pID, &pPack->TagL, 0));
 					if(pPack->LinkFiles.IsChanged(*pID, 0L)) {
 						// THROW_PP(CheckRights(PSNRT_UPDIMAGE), PPERR_NRT_UPDIMAGE);
 						pPack->LinkFiles.Save(*pID, 0L);
@@ -2160,7 +2160,7 @@ int PPObjBrand::Put(PPID * pID, PPBrandPacket * pPack, int use_ta)
 			else {
 				THROW(CheckRights(PPR_DEL));
 				THROW(P_Tbl->Update(pID, 0, 0));
-				THROW(SetTagList(*pID, 0, 0)); // @v11.2.12
+				THROW(SetTagList(*pID, 0, 0));
 				{
 					ObjLinkFiles _lf(PPOBJ_BRAND);
 					_lf.Save(*pID, 0L);
@@ -2170,13 +2170,13 @@ int PPObjBrand::Put(PPID * pID, PPBrandPacket * pPack, int use_ta)
 		}
 		else if(pPack) {
 			THROW(CheckRights(PPR_INS));
-			MEMSZERO(raw_rec);
+			raw_rec.Clear();
 			raw_rec.Kind = PPGDSK_BRAND;
 			STRNSCPY(raw_rec.Name, pPack->Rec.Name);
 			raw_rec.ManufID = pPack->Rec.OwnerID;
 			raw_rec.Flags   = pPack->Rec.Flags;
 			THROW(P_Tbl->Update(pID, &raw_rec, 0));
-			THROW(SetTagList(*pID, &pPack->TagL, 0)); // @v11.2.12
+			THROW(SetTagList(*pID, &pPack->TagL, 0));
 			if(pPack->LinkFiles.IsChanged(*pID, 0L)) {
 				// THROW_PP(CheckRights(PSNRT_UPDIMAGE), PPERR_NRT_UPDIMAGE);
 				pPack->LinkFiles.Save(*pID, 0L);

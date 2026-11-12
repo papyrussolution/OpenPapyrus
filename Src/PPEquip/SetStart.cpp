@@ -1268,11 +1268,11 @@ int ACS_SETSTART::ConvertWareList(const char * pImpPath)
 								if(barcode.NotEmptyS() && goods_obj.SearchByBarcode(barcode, 0, &goods_rec) > 0) {
 									goods_id = goods_rec.ID;
 								}
-								// @v10.1.7 В некоторых ситуациях на месте идентификатора может оказаться штрихкод товара: проверим эту гипотезу {
+								// В некоторых ситуациях на месте идентификатора может оказаться штрихкод товара: проверим эту гипотезу {
 								else if(goods_ident_txt.NotEmptyS() && goods_obj.SearchByBarcode(goods_ident_txt, 0, &goods_rec) > 0) {
 									goods_id = goods_rec.ID;
 								}
-								// } @v10.1.7
+								// }
 								else
 									goods_id = 0;
 							}

@@ -1092,7 +1092,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 	return ok;
 }
 
-/*virtual*/int PPBillImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
+/* @v12.8.3 (тупикова€ ветвь) int PPBillImpExpParam::SerializeConfig(int dir, PPConfigDatabase::CObjHeader & rHdr, SBuffer & rTail, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -1164,7 +1164,7 @@ PPBillImpExpParam::PPBillImpExpParam(uint recId, long flags) : PPImpExpParam(rec
 	}
 	CATCHZOK
 	return ok;
-}
+}*/
 
 int PPBillImpExpParam::WriteIni(PPIniFile * pFile, const char * pSect) const
 {
@@ -10130,15 +10130,18 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName, StringSet &
 						</—в“—>
 					*/ 
 					PPTransportPacket tr_pack;
+					SNaturalTokenArray nta;
+					SNaturalTokenStat nts;
+					SString lic_plate;
 					THROW_PP_S(tr_obj.Get(freight.ShipID, &tr_pack) > 0, PPERR_ETRNEXP_TRANSPORTNEEDED, bill_text); // @v12.7.2 @fix Search-->Get
 					{
 						SXml::WNode n3(G.P_X, G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_TRANSP));
 						{
-							SString lic_plate;
+							lic_plate.Z();
 							temp_buf = tr_pack.Rec.Code;
 							// @v12.7.6 {
-							SNaturalTokenArray nta;
-							SNaturalTokenStat nts;
+							nta.Z();
+							nts.Z();
 							G.Trgn.Run(temp_buf.ucptr(), static_cast<int>(temp_buf.Len()), nta, &nts);
 							if(nta.Has(SNTOK_RU_LICPLATE)) {
 								G.Trgn.NormalizeToken(temp_buf.ucptr(), static_cast<int>(temp_buf.Len()), nts, SNTOK_RU_LICPLATE, lic_plate);
@@ -10153,10 +10156,7 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName, StringSet &
 						{
 							SXml::WNode n4(G.P_X, G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_VPARAMS));
 							{
-								if(!isempty(tr_pack.Rec.Descr))
-									temp_buf = tr_pack.Rec.Descr;
-								else
-									temp_buf = tr_pack.Rec.Name;
+								temp_buf = !isempty(tr_pack.Rec.Descr) ? tr_pack.Rec.Descr : tr_pack.Rec.Name;
 								temp_buf.Strip();
 								n4.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_TYPE), G.EncText(temp_buf));
 							}
@@ -10181,6 +10181,40 @@ int DocNalogRu_WriteBillBlock::Do_Etrn_T1(SString & rResultFileName, StringSet &
 							}
 						}
 					}
+					// @v12.8.3 {
+					{
+						lic_plate.Z();
+						temp_buf = tr_pack.Rec.TrailerCode;
+						nta.Z();
+						nts.Z();
+						G.Trgn.Run(temp_buf.ucptr(), static_cast<int>(temp_buf.Len()), nta, &nts);
+						if(nta.Has(SNTOK_RU_LICPLATE)) {
+							G.Trgn.NormalizeToken(temp_buf.ucptr(), static_cast<int>(temp_buf.Len()), nts, SNTOK_RU_LICPLATE, lic_plate);
+						}
+						else {
+							lic_plate = temp_buf;
+						}
+						if(lic_plate.NotEmpty()) {
+							SXml::WNode n3(G.P_X, G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_TRAILER));
+							n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_REGN), G.EncText(lic_plate));
+							n3.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_OWNST), "1");
+							{
+								SXml::WNode n4(G.P_X, G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_VPARAMS));
+								temp_buf = "Trailer";
+								n4.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_TYPE), G.EncText(temp_buf));
+								//
+								temp_buf = "UNKN";
+								n4.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_MODEL), G.EncText(temp_buf));
+								//
+								temp_buf.Z().Cat("2"); // 2 тонны
+								n4.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_LCAPAS), G.EncText(temp_buf));
+								//
+								temp_buf.Z().Cat("2"); // 2 кубометра
+								n4.PutAttrib(G.GetToken_Ansi(PPHSC_RU_TRANSPORTINFO_VCAPAS), G.EncText(temp_buf));
+							}
+						}
+					}
+					// } @v12.8.3 
 				}
 				{
 					SString dt_buf;

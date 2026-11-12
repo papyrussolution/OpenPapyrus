@@ -345,5 +345,6 @@
     <ClCompile Include="..\PPLib\_sprinter.cpp" />
     <ClCompile Include="..\PPLib\ppcrr.cpp" />
     <ClCompile Include="..\PPLib\centrigo.cpp" />
+    <ClCompile Include="..\PPLib\ortools_module_client.cpp" />
   </ItemGroup>
 </Project>

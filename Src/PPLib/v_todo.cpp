@@ -1508,7 +1508,7 @@ public:
 			setGroupData(ctlgroupClient, &_grp_rec);
 			//SetupPersonCombo(this, CTLSEL_TODOFILT_CLIENT,   Data.ClientID, 0, PPPRK_CLIENT, 0);
 		}
-		SetupPPObjCombo(this,  CTLSEL_TODOFILT_CITY,     PPOBJ_WORLD,     Data.CliCityID, OLW_WORDSELECTOR, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
+		SetupPPObjCombo(this, CTLSEL_TODOFILT_CITY,      PPOBJ_WORLD,   Data.CliCityID, OLW_WORDSELECTOR, PPObjWorld::MakeExtraParam(WORLDOBJ_CITY, 0, 0));
 		SetupPPObjCombo(this, CTLSEL_TODOFILT_PRJ,       PPOBJ_PROJECT, Data.ProjectID, OLW_CANINSERT, 0);
 		SetupStringCombo(this, CTLSEL_TODOFILT_ORDER,    PPTXT_TODOORDER,     Data.Order);
 		SetupStringCombo(this, CTLSEL_TODOFILT_CROSSTAB, PPTXT_TODOCROSSTAB,  Data.TabType);
@@ -1736,6 +1736,9 @@ int PPViewPrjTask::InitIteration()
 			P_IterQuery->initIteration(false, &k, spGe);
 		}
 		else {
+			const  long single_cli_id = ClientList.GetSingle();
+			const  long single_emp_id = EmployeeList.GetSingle();
+			const  long single_crt_id = CreatorList.GetSingle();
 			DBQ  * dbq = 0;
 			PrjTaskTbl * t = TodoObj.P_Tbl;
 			union {
@@ -1756,14 +1759,14 @@ int PPViewPrjTask::InitIteration()
 				k.k2.ProjectID = Filt.ProjectID;
 				k.k2.Dt = Filt.Period.low;
 			}
-			else if(ClientList.GetSingle()) {
+			else if(single_cli_id) {
 				idx = 5;
-				k.k5.ClientID = ClientList.GetSingle();
+				k.k5.ClientID = single_cli_id;
 				k.k5.Dt = Filt.Period.low;
 			}
-			else if(EmployeeList.GetSingle()) {
+			else if(single_emp_id) {
 				idx = 4;
-				k.k4.EmployeeID = EmployeeList.GetSingle();
+				k.k4.EmployeeID = single_emp_id;
 				k.k4.Dt = Filt.Period.low;
 			}
 			else if(Filt.TemplateID) {
@@ -1775,12 +1778,12 @@ int PPViewPrjTask::InitIteration()
 				idx = 1;
 				k.k1.Dt = Filt.Period.low;
 			}
-			P_IterQuery = new BExtQuery(t, idx, 128);
+			P_IterQuery = new BExtQuery(t, idx/*, 128*/);
 			dbq = ppcheckfiltid(dbq, t->ProjectID,  Filt.ProjectID);
-			dbq = ppcheckfiltid(dbq, t->ClientID,   ClientList.GetSingle());
-			dbq = ppcheckfiltid(dbq, t->EmployeeID, EmployeeList.GetSingle());
+			dbq = ppcheckfiltid(dbq, t->ClientID,   single_cli_id);
+			dbq = ppcheckfiltid(dbq, t->EmployeeID, single_emp_id);
 			dbq = ppcheckfiltid(dbq, t->TemplateID, Filt.TemplateID);
-			dbq = ppcheckfiltid(dbq, t->CreatorID,  CreatorList.GetSingle());
+			dbq = ppcheckfiltid(dbq, t->CreatorID,  single_crt_id);
 			dbq = ppcheckfiltid(dbq, t->LinkTaskID, Filt.LinkTaskID);
 			dbq = ppcheckfiltid(dbq, t->Kind, Filt.Kind);
 			dbq = &(*dbq && daterange(t->Dt, &Filt.Period));
@@ -1793,8 +1796,7 @@ int PPViewPrjTask::InitIteration()
 			// Поля Priority, Status, ClientID, DlvrAddrID участвуют в выборке по тому, что
 			// функция NextIteration использует их для дополнительной фильтрации
 			//
-			P_IterQuery->select(t->ID, t->Priority, t->Status, t->ClientID,
-				t->DlvrAddrID, t->Flags, t->OpenCount, 0L).where(*dbq);
+			P_IterQuery->select(t->ID, t->Priority, t->Status, t->ClientID, t->DlvrAddrID, t->CreatorID, t->EmployeeID, t->Flags, t->OpenCount, 0L).where(*dbq);
 			k_ = k;
 			Counter.Init(P_IterQuery->countIterations(0, &k_, spGe));
 			P_IterQuery->initIteration(false, &k, spGe);
@@ -1865,10 +1867,12 @@ int PPViewPrjTask::NextOuterIteration()
 		}
 	}
 	else {
-		if((ok = P_IterQuery->nextIteration()) > 0) {
+		ok = P_IterQuery->nextIteration();
+		if(ok > 0) {
 			Counter.Increment();
-			if(Filt.TabType == PrjTaskFilt::crstNone)
+			if(Filt.TabType == PrjTaskFilt::crstNone) {
 				ok = TodoObj.Search(TodoObj.P_Tbl->data.ID, &rec);
+			}
 			else {
 				const TempPrjTaskTbl::Rec & r_src_rec = P_TempTbl->data;
 				rec.ID = r_src_rec.TabID;
@@ -1879,8 +1883,9 @@ int PPViewPrjTask::NextOuterIteration()
 			}
 		}
 	}
-	if(ok > 0)
+	if(ok > 0) {
 		Item = rec;
+	}
 	return ok;
 }
 
@@ -1891,11 +1896,11 @@ int FASTCALL PPViewPrjTask::NextIteration(PrjTaskViewItem * pItem)
 	MEMSZERO(Item);
 	do {
 		if(NextInnerIteration(pItem) > 0) {
-			if(CreatorList.IsExists() && !CreatorList.CheckID(Item.CreatorID))
+			if(CreatorList.GetCount() && !CreatorList.CheckID(Item.CreatorID))
 				continue;
-			else if(EmployeeList.IsExists() && !EmployeeList.CheckID(Item.EmployeeID))
+			else if(EmployeeList.GetCount() && !EmployeeList.CheckID(Item.EmployeeID))
 				continue;
-			else if(ClientList.IsExists() && !ClientList.CheckID(Item.ClientID))
+			else if(ClientList.GetCount() && !ClientList.CheckID(Item.ClientID))
 				continue;
 			else if(tm_period_valid && (Item.StartTm < Filt.StartTmPeriodBeg || Item.StartTm > Filt.StartTmPeriodEnd))
 				continue;

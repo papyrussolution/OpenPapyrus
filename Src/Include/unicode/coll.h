@@ -37,7 +37,6 @@
 #include "unicode/utypes.h"
 
 #if U_SHOW_CPLUSPLUS_API
-
 #if !UCONFIG_NO_COLLATION
 
 #include "unicode/uobject.h"
@@ -148,7 +147,6 @@ class CollationKey;
 
 class U_I18N_API Collator : public UObject {
 public:
-
 	// Collator public enums -----------------------------------------------
 
 	/**
@@ -243,7 +241,6 @@ public:
 	 * @stable ICU 2.0
 	 */
 	virtual Collator* clone() const = 0;
-
 	/**
 	 * Creates the Collator object for the current default locale.
 	 * The default locale is determined by Locale::getDefault.
@@ -937,8 +934,7 @@ public:
 
 	/**
 	 * Get the sort key as an array of bytes from a UnicodeString.
-	 * Sort key byte arrays are zero-terminated and can be compared using
-	 * strcmp().
+	 * Sort key byte arrays are zero-terminated and can be compared using strcmp().
 	 *
 	 * Note that sort keys are often less efficient than simply doing comparison.
 	 * For more details, see the ICU User Guide.
@@ -951,10 +947,7 @@ public:
 	 * @return Number of bytes needed for storing the sort key
 	 * @stable ICU 2.2
 	 */
-	virtual int32_t getSortKey(const UnicodeString & source,
-	    uint8* result,
-	    int32_t resultLength) const = 0;
-
+	virtual int32_t getSortKey(const UnicodeString & source, uint8* result, int32_t resultLength) const = 0;
 	/**
 	 * Get the sort key as an array of bytes from a char16_t buffer.
 	 * Sort key byte arrays are zero-terminated and can be compared using
@@ -974,9 +967,7 @@ public:
 	 * @return Number of bytes needed for storing the sort key
 	 * @stable ICU 2.2
 	 */
-	virtual int32_t getSortKey(const char16_t* source, int32_t sourceLength,
-	    uint8* result, int32_t resultLength) const = 0;
-
+	virtual int32_t getSortKey(const char16_t* source, int32_t sourceLength, uint8* result, int32_t resultLength) const = 0;
 	/**
 	 * Produce a bound for a given sortkey and a number of levels.
 	 * Return value is always the number of bytes needed, regardless of
@@ -1014,9 +1005,7 @@ public:
 	 * @see ucol_keyHashCode
 	 * @stable ICU 2.1
 	 */
-	static int32_t U_EXPORT2 getBound(const uint8       * source, int32_t sourceLength,
-	    UColBoundMode boundType, uint32_t noOfLevels, uint8             * result,
-	    int32_t resultLength, UErrorCode          &status);
+	static int32_t U_EXPORT2 getBound(const uint8 * source, int32_t sourceLength, UColBoundMode boundType, uint32_t noOfLevels, uint8 * result, int32_t resultLength, UErrorCode & status);
 protected:
 
 	// Collator protected constructors -------------------------------------

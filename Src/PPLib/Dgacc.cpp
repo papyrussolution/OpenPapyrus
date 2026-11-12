@@ -236,9 +236,9 @@ int AcctCtrlGroup::processArtInput(TDialog * dlg)
 	{
 		ComboBox * p_combo = static_cast<ComboBox *>(dlg->getCtrlView(CtlselArtName));
 		if(p_combo) {
-			ListWindow * p_listwin = p_combo->getListWindow();
-			if(p_listwin) {
-				TView::messageCommand(p_listwin, cmLBLoadDef);
+			ListWindow * p_lw = p_combo->getListWindow();
+			if(p_lw) {
+				TView::messageCommand(p_lw, cmLBLoadDef);
 				dlg->setCtrlLong(CtlselArtName, AcctId.ArID);
 			}
 		}
@@ -391,9 +391,9 @@ int ArticleCtrlGroup::selectByCode(TDialog * pDlg)
 				if(ar_obj.SearchByRegCode(Data.AcsID, reg_type_id, code, &ar_id, 0) > 0) {
 					ComboBox * p_combo = static_cast<ComboBox *>(pDlg->getCtrlView(CtlselAr));
 					if(p_combo) {
-						ListWindow * p_listwin = p_combo->getListWindow();
-						if(p_listwin) {
-							TView::messageCommand(p_listwin, cmLBLoadDef);
+						ListWindow * p_lw = p_combo->getListWindow();
+						if(p_lw) {
+							TView::messageCommand(p_lw, cmLBLoadDef);
 							pDlg->setCtrlLong(CtlselAr, ar_id);
 							TView::messageCommand(pDlg, cmCBSelected, p_combo);
 						}

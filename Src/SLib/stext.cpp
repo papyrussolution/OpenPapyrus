@@ -2089,19 +2089,31 @@ bool FASTCALL sstreqi_ascii(const wchar_t * pS1, const char * pS2)
 
 bool STDCALL sstreqni_ascii(const char * pS1, const char * pS2, size_t maxlen)
 {
-	if(static_cast<const void *>(pS1) != static_cast<const void *>(pS2)) {
-		// @20251227 @todo В следующих 2 строках правильнее использовать strnlen - так будет быстрее работать.
-		const size_t len1 = smin(sstrlen(pS1), maxlen); 
-		const size_t len2 = smin(sstrlen(pS2), maxlen);
-		if(len1 != len2)
-			return false;
-		else if(len1) {
-            for(size_t i = 0; i < len1; i++)
-				if(!chreqi_ascii(static_cast<int>(pS1[i]), static_cast<int>(pS2[i])))
-					return false;
+	bool   ok = false;
+	if(maxlen == 0 || static_cast<const void *>(pS1) == static_cast<const void *>(pS2)) {
+		ok = true;
+	}
+	else if(pS1 && pS2 && pS1[0] == pS2[0]) {
+		if(pS1[0] == 0)
+			ok = true;
+		else {
+			// @20251227 @todo В следующих 2 строках правильнее использовать strnlen - так будет быстрее работать.
+			// @v12.8.3 const size_t len1 = smin(sstrlen(pS1, maxlen), maxlen); 
+			// @v12.8.3 const size_t len2 = smin(sstrlen(pS2, maxlen), maxlen);
+			const size_t len1 = sstrnlen(pS1, maxlen); // @v12.8.3 
+			const size_t len2 = sstrnlen(pS2, maxlen); // @v12.8.3 
+			if(len1 == len2) {
+				ok = true;
+				for(size_t i = 1; i < len1; i++) { // init i = 1 потому что первый символ мы уже сравнивли выше
+					if(!chreqi_ascii(static_cast<int>(pS1[i]), static_cast<int>(pS2[i]))) {
+						ok = false;
+						break;
+					}
+				}
+			}
 		}
 	}
-	return true;
+	return ok;
 }
 
 int FASTCALL sstrcmpi_ascii(const char * pS1, const char * pS2)

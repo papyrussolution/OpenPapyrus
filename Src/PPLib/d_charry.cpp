@@ -314,7 +314,7 @@ int PPDS_Barcode::InitData(Ido op, void * dataPtr, long /*addedParam*/)
 {
 	int    ok = 1;
 	if(op == idoAlloc) {
-		MEMSZERO(Data);
+		Data.Clear();
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
@@ -522,7 +522,7 @@ int PPDS_CrrQCert::InitData(Ido op, void * dataPtr, long addedParam)
 {
 	int    ok = 1;
 	if(op == idoAlloc) {
-		MEMSZERO(Data);
+		Data.Clear();
 		RegOrgName[0] = 0;
 	}
 	else if(op == idoExtract) {
@@ -1288,7 +1288,7 @@ int PPDS_CrrStaffCalEntry::InitData(Ido op, void * dataPtr, long /*addedParam*/)
 {
 	int    ok = -1;
 	if(op == idoAlloc) {
-		MEMSZERO(Data);
+		Data.Clear();
 		Duration = ZEROTIME;
 	}
 	else if(op == idoExtract) {
@@ -2167,7 +2167,7 @@ int PPDS_CrrScale::InitData(Ido op, void * dataPtr, long addedParam)
 {
 	int    ok = 1;
 	if(op == idoAlloc) {
-		MEMSZERO(Data);
+		Data.Z();
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
@@ -2254,7 +2254,6 @@ int PPDS_CrrScale::TransferField(long fldID, Tfd dir, uint * pIter, SString & rB
 				SString buf;
 				if(dir == tfdDataToBuf) {
 					PPQuotKind2 qk_rec;
-					MEMSZERO(qk_rec);
 					if(QKObj.Search(Data.Rec.QuotKindID, &qk_rec) > 0)
 						buf.CopyFrom(qk_rec.Symb);
 				}
@@ -2908,7 +2907,6 @@ int PPDS_CrrMailAccount::TransferField(long fldID, Tfd dir, uint * pIter, SStrin
 				SString buf;
 				if(dir == tfdDataToBuf) {
 					PersonTbl::Rec psn_rec;
-					MEMSZERO(psn_rec);
 					if(PsnObj.Search(Data.PersonID, &psn_rec) > 0)
 						buf.CopyFrom(psn_rec.Name);
 				}
@@ -3461,8 +3459,9 @@ int PPDS_CrrDraftWrOff::CreateListItem(long fldID, uint * pIter, PPDeclStruc * p
 int PPDS_CrrLocation::InitData(Ido op, void * dataPtr, long addedParam)
 {
 	int    ok = 1;
-	if(op == idoAlloc)
-		MEMSZERO(Data);
+	if(op == idoAlloc) {
+		Data.Clear();
+	}
 	else if(op == idoExtract) {
 		if(dataPtr)
 			Data = *static_cast<const LocationTbl::Rec *>(dataPtr);
@@ -3680,8 +3679,9 @@ int PPDS_CrrLocation::CreateListItem(long fldID, uint * pIter, PPDeclStruc * pDa
 int PPDS_CrrArticle::InitData(Ido op, void * dataPtr, long addedParam)
 {
 	int    ok = 1;
-	if(op == idoAlloc)
-		MEMSZERO(Data);
+	if(op == idoAlloc) {
+		Data.Clear();
+	}
 	else if(op == idoExtract) {
 		if(dataPtr)
 			Data = *static_cast<const ArticleTbl::Rec *>(dataPtr);
@@ -3852,8 +3852,9 @@ int PPDS_CrrArticle::CreateListItem(long fldID, uint * pIter, PPDeclStruc * pDat
 int PPDS_CrrAccSheet::InitData(Ido op, void * dataPtr, long addedParam)
 {
 	int    ok = 1;
-	if(op == idoAlloc)
-		MEMSZERO(Data);
+	if(op == idoAlloc) {
+		Data.Z();
+	}
 	else if(op == idoExtract) {
 		if(dataPtr)
 			Data = *static_cast<const PPAccSheet2 *>(dataPtr);
@@ -4261,7 +4262,7 @@ int PPDS_CrrAcctEntry::InitData(Ido op, void * dataPtr, long /*addedParam*/)
 {
 	int    ok = 1;
 	if(op == idoAlloc) {
-		MEMSZERO(Data);
+		Data.Z();
 	}
 	else if(op == idoExtract) {
 		if(dataPtr)
