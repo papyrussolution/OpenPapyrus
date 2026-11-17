@@ -267,8 +267,6 @@ int SlSession::ResetStopState()
 	return ok;
 }
 
-bool FASTCALL IsMadeOfEightDigitsFast(const uint8 * pS);
-
 static void InitTest()
 {
 	static_assert(sizeof(SAlloc::VcCrtMemBlockHeader) % 16 == 0); // @v12.7.3
@@ -578,6 +576,7 @@ static void InitTest()
 		{
 			//bool FASTCALL IsMadeOfEightDigitsFast(const uint8 * pS);
 			assert(IsMadeOfEightDigitsFast(PTR8C("00000000")));
+			assert(IsMadeOfEightDigitsFast(PTR8C("12345678")));
 			assert(!IsMadeOfEightDigitsFast(PTR8C("00000z00")));
 			/*{
 				uint8   random_buf[1024];

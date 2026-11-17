@@ -9537,8 +9537,8 @@ dialog DLG_GCDGM [vertical title: "@goodsclass_dyngenmask" size: (360, 300) mins
 	checkcluster CTL_GCDGM_MASK [tabstop width: bycontainer margin: 4 padding: 4] {
 		checkbox [title: "@kind"];
 		checkbox [title: "@sort"];
-		checkbox [title: "@{parameter}"];
-		checkbox [title: "@{parameter} 2"];
+		checkbox [title: "@{classifier}"];
+		checkbox [title: "@{classifier} 2"];
 		checkbox [title: "@goodsclass_fusedimx"];
 		checkbox [title: "@goodsclass_fusedimy"];
 		checkbox [title: "@goodsclass_fusedimz"];
@@ -9683,7 +9683,155 @@ dialog DLG_GDSCLSLD [vertical title: "@goodsclass_lotdim" size: (430, 220) minsi
 	}
 }
 
-// @20261104 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
+dialog DLG_SELAMTSYMB [vertical title: "@selection_amount" size: (420, 330) minsize: (420, 330) padding: 4] { // @v12.8.3
+	listbox CTL_SELAMTSYMB_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_selamtsymb"];
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 3 height: bycontainer gravity: left justifycontent: start] {
+			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
+			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end alignitems: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_SELGCSUBSTSYMB [vertical title: "@selection_gcsubstsymb" size: (450, 250) minsize: (450, 250) padding: 4] { // @v12.8.3
+	listbox CTL_SELGCSUBSTSYMB_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_selgcsubstsymb"];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_RAWMAT [vertical title: "@rawmaterial" size: (600, 150) minsize: (600, 150) padding: 8 justifycontent: spacebetween] { // @v12.8.3
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_RAWMAT_NAME [growfactor: 2 height: 21 margin: 4 tabstop label: "@appellation" ] string[48];
+		input CTL_RAWMAT_SYMB [growfactor: 1 height: 21 margin: 4 tabstop label: "@symbol" ] string[20];
+		input CTL_RAWMAT_ID [size: (60, 21) margin: 4 tabstop readonly label: "@id" ] int32;
+	}
+	view [horizontal width: bycontainer(40) height: 30] {
+		input CTL_RAWMAT_DENS [design: B size: (75, 21) margin: 4 tabstop fmtprec: 0 label: "@materialdensity_kgpqbm"] double;
+	}
+	view [horizontal width: bycontainer height: 30] {
+		view [horizontal growfactor: 1 height: bycontainer gravity: left justifycontent: start] {
+			button STDCTL_TAGSBUTTON [title: "@but_tags" tabstop size: (75, 21) margin: 4 command: cmTags];
+		}
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end alignitems: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+		}
+	}
+}
+
+dialog DLG_PSNKIND [vertical title: "@psnkind" size: (430, 360) minsize: (430, 360) padding: 8 justifycontent: spacebetween] { // @v12.8.4
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_PSNKIND_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation"] string[48];
+		input CTL_PSNKIND_ID [size: (60, 21) margin: 4 readonly label: "@id" ] int32;
+	}
+	input CTL_PSNKIND_SYMB [width: bycontainer(60) height: 21 margin: 4 tabstop label: "@symbol"] string[20];
+	combobox CTLSEL_PSNKIND_CODEREGT [width: bycontainer height: 21 margin: 4 tabstop label: "@prsnkind_coderegtype" cblinesymb: CTL_PSNKIND_CODEREGT ];
+	combobox CTLSEL_PSNKIND_FOLDREGT [width: bycontainer height: 21 margin: 4 tabstop label: "@prsnkind_folderregtype" cblinesymb: CTL_PSNKIND_FOLDREGT ];
+	combobox CTLSEL_PSNKIND_DEFSTATUS [width: bycontainer height: 21 margin: 4 tabstop label: "@prsnkind_defstatus" cblinesymb: CTL_PSNKIND_DEFSTATUS ];
+	checkbox CTL_PSNKIND_FLAGS [title: "@prsnkind_fuseshortpersondialog" tabstop width: bycontainer height: 21 margin: 4];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_PSNST [vertical title: "@person_status" size: (390, 260) minsize: (390, 260) padding: 8 justifycontent: spacebetween] { // @v12.8.4
+	input CTL_PSNST_NAME [width: bycontainer height: 21 margin: 4 tabstop label: "@appellation" ] string[48];
+	view [horizontal width: bycontainer height: 45] {
+		input CTL_PSNST_SYMB [growfactor: 1 height: 21 margin: 4 tabstop label: "@symbol" ] string[20];
+		input CTL_PSNST_ID [size: (60, 21) margin: 4 tabstop readonly label: "@id" ] int32;
+	}
+	radiocluster CTL_PSNST_TYPE [tabstop width: bycontainer margin: 4 padding: 4] {
+		radiobutton [title: "@natural_person"];
+		radiobutton [title: "@legal_person"];
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_SYSJFILT [vertical title: "@sysjfilt" size: (640, 330) minsize: (640, 330) padding: 8 justifycontent: spacebetween] { // @v12.8.4
+	view [horizontal width: bycontainer height: 135] {
+		view [vertical growfactor: 1 height: bycontainer] {
+			input CTL_SYSJFILT_PERIOD [width: bycontainer height: 21 margin: 4 tabstop label: "@sysjfilt_period"] string[30] supplement daterangecalbutton(CTLCAL_SYSJFILT_PERIOD);
+		}
+		view [vertical growfactor: 2 height: bycontainer] {
+			combobox CTLSEL_SYSJFILT_ACTION [width: bycontainer height: 21 margin: 4 tabstop label: "@sysjfilt_eventlist" cblinesymb: CTL_SYSJFILT_ACTION]
+				supplement listbutton(CTLCMD_SYSJFILT_ACTIONLIST cmSysJActionList);
+			combobox CTLSEL_SYSJFILT_OBJ [width: bycontainer height: 21 margin: 4 tabstop label: "@sysjfilt_objtype" cblinesymb: CTL_SYSJFILT_OBJ];
+			combobox CTLSEL_SYSJFILT_USER [width: bycontainer height: 21 margin: 4 tabstop label: "@sysjfilt_user" cblinesymb: CTL_SYSJFILT_USER];
+		}
+	}
+	view [horizontal width: bycontainer height: 110] {
+		framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4] {
+			combobox CTLSEL_SYSJFILT_SUBST [width: bycontainer height: 21 margin: 4 tabstop label: "@sysjfilt_sgsj" cblinesymb: CTL_SYSJFILT_SUBST];
+			combobox CTLSEL_SYSJFILT_SUBSTDT [width: bycontainer height: 21 margin: 4 tabstop label: "@sysjfilt_sgd" cblinesymb: CTL_SYSJFILT_SUBSTDT];
+		}
+		checkcluster CTL_SYSJFILT_FLAGS [tabstop growfactor: 1 margin: 4 padding: 4] {
+			checkbox [title: "@sysjfilt_fshowobjects"];
+			checkbox [title: "@sysjfilt_fshowhistoryobj"];
+		}
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_TEST [vertical title: "Test dialog" size: (300, 300) minsize: (300, 300) padding: 8 justifycontent: spacebetween] { // @v12.8.4
+	view [horizontal width: bycontainer height: 60] {
+		input CTL_TEST_DATE [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy) label: "@date"] date supplement datecalbutton(CTLCAL_TEST_DATE);
+		input CTL_TEST_CHARGE [growfactor: 1 height: 21 margin: 4 tabstop fmtf: (dmy) label: "Charge Date"] date supplement datecalbutton(CTLCAL_TEST_CHARGE);
+		radiocluster CTL_TEST_PREV [vertical growfactor: 1 margin: 4 padding: 4] {
+			radiobutton [title: "Next"];
+			radiobutton [title: "Prev"];
+		}
+	}
+	combobox CTLSEL_TEST_COMBO01 [width: bycontainer height: 21 margin: 4 tabstop label: "Combo 01" cblinesymb: CTL_TEST_COMBO01];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_CFGROUND [vertical title: "@cfgrounding" size: (235, 230) minsize: (235, 230) padding: 12 justifycontent: spacebetween] { // @v12.8.4
+	view [horizontal width: bycontainer height: 30] {
+		input CTL_CFGROUND_PREC [design: B width: 60 height: 21 margin: 4 tabstop fmtprec: 2 label: "@precision"] double;
+	}
+	radiocluster CTL_CFGROUND_DIR [tabstop title: "@cfgrounding_bound" width: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
+		radiobutton [title: "@round_near"];
+		radiobutton [title: "@round_up"];
+		radiobutton [title: "@round_down"];
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_CURCFG [vertical title: "@config_currencyblock" size: (540, 210) minsize: (540, 210) padding: 8 justifycontent: spacebetween] { // @v12.8.4
+	view [horizontal width: bycontainer height:45] {
+		combobox CTLSEL_CURCFG_RATETYPE [growfactor: 1 height: 21 margin: 4 tabstop label: "@config_baseratetypeid" cblinesymb: CTL_CURCFG_RATETYPE];
+		combobox CTLSEL_CURCFG_BASECUR [growfactor: 1 height: 21 margin: 4 tabstop label: "@config_basecur" cblinesymb: CTL_CURCFG_BASECUR];
+	}
+	checkcluster CTL_CURCFG_FLAGS [tabstop width: bycontainer(60) margin: 4 padding: 4] {
+		checkbox [title: "@config_cfgflg_multicuracct"];
+		checkbox [title: "@config_cfgflg_multicurbill_disable"];
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+// @20261116 До этой точки все диалоги имеющие соответствие в ppdlg.list помечены там как присутствующие в uiview (для дальнейшей элиминации).
 // Диалоги, представленные здесь с изменными символами (DLG_CASHREPORTS_L__, например) в ppdlg.list не отмечены поскольку находятся в работе.
 
 // @construction
@@ -10095,42 +10243,61 @@ dialog DLG_ATURNPERSONAL [vertical size: (600, 480) minsize: (600, 480) padding:
 	}
 }
 
-dialog DLG_SELAMTSYMB [vertical title: "@selection_amount" size: (420, 330) minsize: (420, 330) padding: 4] { // @v12.8.3
-	listbox CTL_SELAMTSYMB_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_selamtsymb"];
+dialog DLG_ORTCS2DPARAM [vertical title: "@ortcs2dparam" size: (600, 400) minsize: (600, 400) padding: 8 justifycontent: spacebetween] {
+	combobox CTLSEL_ORTCS2DPARAM_RAWGRP [width: bycontainer height: 21 margin: 4 tabstop label: "@ortcs2dparam_rawwaregrp" cblinesymb: CTL_ORTCS2DPARAM_RAWGRP];
+	combobox CTLSEL_ORTCS2DPARAM_RAW [width: bycontainer height: 21 margin: 4 tabstop label: "@ortcs2dparam_rawware" cblinesymb: CTL_ORTCS2DPARAM_RAW];
+	combobox CTLSEL_ORTCS2DPARAM_LOC [width: bycontainer height: 21 margin: 4 tabstop label: "@ortcs2dparam_warehouse" cblinesymb: CTL_ORTCS2DPARAM_LOC];
+	listbox CTL_ORTCS2DPARAM_DEMANDLIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_ortcs2dparam_demandlist"];
 	view [horizontal width: bycontainer height: 30] {
 		view [horizontal growfactor: 3 height: bycontainer gravity: left justifycontent: start] {
 			button STDCTL_EDITBUTTON [title: "@but_edit" tabstop defaultitem size: (90, 21) margin: 4 command: cmaEdit];
 			button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+			button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
 		}
-		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end alignitems: end] {
-			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		view [horizontal growfactor: 2 height: bycontainer margin_right: 8 justifycontent: end] {
+			button STDCTL_OKBUTTON [title: "@but_ok" tabstop size: (75, 21) margin: 4 command: cmOK];
 			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 		}
-	}
+	}	
 }
 
-dialog DLG_SELGCSUBSTSYMB [vertical title: "@selection_gcsubstsymb" size: (450, 250) minsize: (450, 250) padding: 4] { // @v12.8.3
-	listbox CTL_SELGCSUBSTSYMB_LIST [tabstop width: bycontainer growfactor: 1 margin: 4 columns: "@lbt_selgcsubstsymb"];
+dialog DLG_ORTCS2DPARAM_ITEM [vertical title: "@ortcs2dparam" size: (400, 250) minsize: (400, 250) padding: 8 justifycontent: spacebetween] {
+	combobox CTLSEL_ORTCS2DPARAM_ITEM_GOODSGRP [width: bycontainer height: 21 margin: 4 tabstop label: "@goodsgroup" cblinesymb: CTL_ORTCS2DPARAM_ITEM_GOODSGRP];
+	combobox CTLSEL_ORTCS2DPARAM_ITEM_GOODS [width: bycontainer height: 21 margin: 4 tabstop label: "@ware" cblinesymb: CTL_ORTCS2DPARAM_ITEM_GOODS];
+	view [horizontal width: bycontainer height: 35] {
+		view [horizontal growfactor: 1 height: bycontainer] {
+			input CTL_ORTCS2DPARAM_ITEM_QTTY [design: B width: 90 height: 21 margin: 4 fmtprec: 0 label: "@qtty"] double;
+		}
+		view [horizontal growfactor: 0.2 height: bycontainer] {} // @stub
+		view [horizontal growfactor: 1 height: bycontainer] {
+			input CTL_ORTCS2DPARAM_ITEM_PRICE [design: B width: 90 height: 21 margin: 4 fmtprec: 2 label: "@price"] double;
+		}
+	}
 	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
 
-dialog DLG_RAWMAT [vertical title: "@rawmaterial" size: (600, 150) minsize: (600, 150) padding: 8 justifycontent: spacebetween] { // @v12.8.3
+dialog DLG_BRAND [vertical title: "@brand" size: (450, 450) minsize: (450, 450) padding: 8 justifycontent: spacebetween] { // @v12.8.4
 	view [horizontal width: bycontainer height: 45] {
-		input CTL_RAWMAT_NAME [growfactor: 2 height: 21 margin: 4 tabstop label: "@appellation" ] string[48];
-		input CTL_RAWMAT_SYMB [growfactor: 1 height: 21 margin: 4 tabstop label: "@symbol" ] string[20];
-		input CTL_RAWMAT_ID [size: (60, 21) margin: 4 tabstop readonly label: "@id" ] int32;
+		input CTL_GOODS_NAME [growfactor: 1 height: 21 margin: 4 tabstop label: "@appellation" ] string[64];
+		input CTL_GOODS_ID [size: (60, 21) margin: 4 tabstop readonly fmtf: (nozero) label: "@id" ] int32;
 	}
-	view [horizontal width: bycontainer(40) height: 30] {
-		input CTL_RAWMAT_DENS [design: B size: (75, 21) margin: 4 tabstop fmtprec: 0 label: "@materialdensity_kgpqbm"] double;
-	}
-	view [horizontal width: bycontainer height: 30] {
-		view [horizontal growfactor: 1 height: bycontainer gravity: left justifycontent: start] {
-			button STDCTL_TAGSBUTTON [title: "@but_tags" tabstop size: (75, 21) margin: 4 command: cmTags];
+	combobox CTLSEL_GOODS_MANUF [width: bycontainer height: 21 margin: 4 tabstop label: "@owner" cblinesymb: CTL_GOODS_MANUF];
+	framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+		imageview CTL_GOODS_IMAGE [width: bycontainer growfactor: 1 margin: 4];
+		view [horizontal width: bycontainer height: 30] {
+			button STDCTL_IMGADDBUTTON [title: "" tabstop size: (21, 21) margin: 4 command: cmAddImage];
+			button STDCTL_IMGDELBUTTON [title: "" tabstop size: (21, 21) margin: 4 command: cmDelImage];
+			button STDCTL_IMGPSTBUTTON [title: "" tabstop size: (21, 21) margin: 4 command: cmPasteImage];
 		}
-		view [horizontal growfactor: 2 height: bycontainer margin_right: 12 justifycontent: end alignitems: end] {
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		view [horizontal growfactor: 1 height: bycontainer justifycontent: start alignitems: end] {
+			button STDCTL_TAGSBUTTON [title: "@but_tags" tabstop size: (90, 21) margin: 4 command: cmTags];
+		}
+		view [horizontal growfactor: 2 height: bycontainer justifycontent: end alignitems: end] {
 			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
 			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 		}

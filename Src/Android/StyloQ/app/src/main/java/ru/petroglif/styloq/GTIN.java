@@ -1202,6 +1202,7 @@ public class GTIN {
 						result.AddOnlyToken(fldManufDate);
 						result.AddOnlyToken(fldExpiryDate);
 						result.AddOnlyToken(fldWtNettKg);
+						result.AddOnlyToken(fldPart);
 						result.SetSpecialFixedToken(fldPart, SLib.GetLen(_6));
 						//
 						dedicated_case = DedicatedCase.dedicatedcase_cheeseminsk;
@@ -1220,6 +1221,7 @@ public class GTIN {
 						result.AddOnlyToken(fldGTIN14);
 						result.AddOnlyToken(fldWtNettKg);
 						result.AddOnlyToken(fldManufDate);
+						result.AddOnlyToken(fldPart);
 						result.SetSpecialFixedToken(fldPart, SLib.GetLen(_5));
 						dedicated_case = DedicatedCase.dedicatedcase_cheesebrlit;
 					}
@@ -1235,6 +1237,7 @@ public class GTIN {
 						String _3 = re_matcher.group(3);
 						result.AddOnlyToken(fldGTIN14);
 						result.AddOnlyToken(fldManufDate);
+						result.AddOnlyToken(fldPart);
 						result.SetSpecialFixedToken(fldPart, SLib.GetLen(_3));
 						dedicated_case = DedicatedCase.dedicatedcase_alpenland_pck;
 					}

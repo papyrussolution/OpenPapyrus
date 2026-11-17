@@ -1033,13 +1033,13 @@ int Transfer::GetRest(GoodsRestParam & rP)
 	return ok;
 }
 
-int Transfer::Search(PPID lot, LDATE date, long oprno, int spMode)
+int Transfer::Search(PPID lotID, LDATE date, long oprno, int spMode)
 {
 	TransferTbl::Key2 k;
-	k.LotID = lot;
+	k.LotID = lotID;
 	k.Dt    = date;
 	k.OprNo = oprno;
-	return (search(2, &k, spMode) && k.LotID == lot) ? 1 : PPDbSearchError();
+	return (search(2, &k, spMode) && k.LotID == lotID) ? 1 : PPDbSearchError();
 }
 
 int Transfer::GetRest(PPID lotID, LDATE date, long oprno, double * pRest, double * pPhRest)

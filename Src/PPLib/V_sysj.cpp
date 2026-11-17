@@ -86,7 +86,8 @@ int SysJFiltDialog::setDTS(const SysJournalFilt * pData)
 	SetPeriodInput(this, CTL_SYSJFILT_PERIOD, Data.Period);
 	SetupPPObjCombo(this, CTLSEL_SYSJFILT_USER, PPOBJ_USR, Data.UserID, 0, 0);
 	SetupPPObjCombo(this, CTLSEL_SYSJFILT_ACTION, PPOBJ_ACTION, 0, 0, 0);
-	if(Id == DLG_SYSJFILT) {
+	const  uint dlg_id = NZOR(Id, resourceID);
+	if(dlg_id == DLG_SYSJFILT) {
 		SetupObjListCombo(this, CTLSEL_SYSJFILT_OBJ, Data.ObjType);
 		AddClusterAssoc(CTL_SYSJFILT_FLAGS, 0, SysJournalFilt::fShowObjects);
 		AddClusterAssoc(CTL_SYSJFILT_FLAGS, 1, SysJournalFilt::fShowHistoryObj);
@@ -109,13 +110,14 @@ int SysJFiltDialog::setDTS(const SysJournalFilt * pData)
 int SysJFiltDialog::getDTS(SysJournalFilt * pData)
 {
 	int    ok = 1;
+	const  uint dlg_id = NZOR(Id, resourceID);
 	if(!GetPeriodInput(this, CTL_SYSJFILT_PERIOD, &Data.Period))
 		ok = PPErrorByDialog(this, CTL_SYSJFILT_PERIOD);
 	else {
 		getCtrlData(CTLSEL_SYSJFILT_USER, &Data.UserID);
 		if(!Data.ActionIDList.isList())
 			Data.ActionIDList.setSingleNZ(getCtrlLong(CTLSEL_SYSJFILT_ACTION));
-		if(Id == DLG_SYSJFILT) {
+		if(dlg_id == DLG_SYSJFILT) {
 			getCtrlData(CTLSEL_SYSJFILT_OBJ, &Data.ObjType);
 			GetClusterData(CTL_SYSJFILT_FLAGS, &Data.Flags);
 			getCtrlData(CTL_SYSJFILT_SUBST, &Data.Sgsj);

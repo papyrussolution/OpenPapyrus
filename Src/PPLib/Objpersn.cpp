@@ -4884,8 +4884,15 @@ PPObjPerson::EditBlock::EditBlock() : SamplePsnID(0), InitKindID(0), InitStatusI
 
 void PPObjPerson::InitEditBlock(PPID kindID, EditBlock & rBlk)
 {
+	PPObjPersonKind pk_obj;
+	PPPersonKind2 pk_rec;
 	if(kindID == PPObjPerson::EditBlock::CentrigoNewContactSpecialKind) {
-		rBlk.InitKindID = PPPRK_UNKNOWN;
+		if(pk_obj.Search(PPPRK_PERSONALCONTACT, &pk_rec) > 0) {
+			rBlk.InitKindID = PPPRK_PERSONALCONTACT;
+		}
+		else {
+			rBlk.InitKindID = PPPRK_UNKNOWN;
+		}
 		rBlk.ShortDialog = DLG_CNTRG_PERSON;
 	}
 	else {
@@ -4898,8 +4905,6 @@ void PPObjPerson::InitEditBlock(PPID kindID, EditBlock & rBlk)
 	rBlk.RetSCardID = 0;
 	rBlk.UpdFlags = 0;
 	if(rBlk.InitKindID) {
-		PPObjPersonKind pk_obj;
-		PPPersonKind2 pk_rec;
 		if(pk_obj.Fetch(rBlk.InitKindID, &pk_rec) > 0) {
 			rBlk.InitStatusID = pk_rec.DefStatusID;
 			if(!rBlk.ShortDialog && pk_rec.Flags & PPPersonKind::fUseShortPersonDialog) {
@@ -7097,13 +7102,38 @@ PPObjPersonKind::PPObjPersonKind(void * extraPtr) : PPObjReference(PPOBJ_PERSONK
 {
 }
 
+/*virtual*/int PPObjPersonKind::ProcessReservedItem(TVRez & rRez, long _flags) // @v12.8.4
+{
+	int    ok = 1;
+	int    r;
+	SString name;
+	const  PPID id = rRez.getLONG();
+	rRez.getString(name, 2);
+	PPExpandString(name, CTRANSF_UTF8_TO_INNER);
+	THROW(r = Search(id));
+	if(r < 0) {
+		Reference2Tbl::Rec rec;
+		rec.ObjType = Obj;
+		rec.ObjID   = id;
+		STRNSCPY(rec.ObjName, name);
+		if(id != PPPRK_PERSONALCONTACT || (_flags & mrfPersonalFinance)) {
+			THROW(StoreItem(Obj, 0, &rec, 1));
+		}
+		else {
+			ok = -1;
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPObjPersonKind::Edit(PPID * pID, void * extraPtr)
 {
 	int    ok = cmCancel;
 	bool   is_new = false;
 	PPPersonKind psnk;
-	TDialog * dlg = 0;
-	THROW(CheckDialogPtr(&(dlg = new TDialog(DLG_PSNKIND))));
+	TDialog * dlg = new TDialog(DLG_PSNKIND);
+	THROW(CheckDialogPtr(&dlg));
 	THROW(EditPrereq(pID, dlg, &is_new));
 	if(!is_new) {
 		THROW(Search(*pID, &psnk) > 0);

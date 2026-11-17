@@ -286,7 +286,7 @@ int PPObjRegisterType::GetFormat(PPID id, SString & rBuf) { return P_Ref->GetPro
 int PPObjRegisterType::PutFormat(PPID id, const char * pBuf) { return P_Ref->PutPropVlrString(PPOBJ_REGISTERTYPE, id, REGTPRP_FORMAT, pBuf); }
 int PPObjRegisterType::SearchSymb(PPID * pID, const char * pSymb) { return P_Ref->SearchSymb(Obj, pID, pSymb, offsetof(PPRegisterType2, Symb)); }
 
-int PPObjRegisterType::ProcessReservedItem(TVRez & rez)
+int PPObjRegisterType::ProcessReservedItem(TVRez & rez, long _flags)
 {
 	int    ok = 1, r;
 	SString name;

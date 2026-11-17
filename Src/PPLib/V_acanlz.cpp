@@ -1990,7 +1990,13 @@ int PPViewAccAnlz::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 			}
 			break;
 		case 107: // contractor
-			pBlk->Set(temp_buf);
+			{
+				BillTbl::Rec bill_rec;
+				if(P_BObj->Fetch(p_item->At.BillID, &bill_rec) > 0 && bill_rec.Object) {
+					GetArticleName(bill_rec.Object, temp_buf);
+				}
+				pBlk->Set(temp_buf);
+			}
 			break;
 		case 108: // memo
 			{
@@ -2467,7 +2473,7 @@ int PPViewAccAnlz::GetBrwHdr(const void * pRow, BrwHdr * pHdr) const
 							if(P_BObj->AddAccturn(&bill_id, &ab) == cmOK) {
 								//AddBillToList(id);
 								if(IsInMemView()) {
-									//InternalViewList
+									// @todo //InternalViewList
 								}
 								ok = 1;
 							}

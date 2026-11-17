@@ -403,7 +403,6 @@ int PPGoodsStruc::ResolveItemFormula(const PPGoodsStrucItem & rItem, double * pV
 {
 	int    result = -1;
 	double value = 0.0;
-	//const PPGoodsStrucItem & r_item = R_Gs.Items.at(itemIdx);
 	SString temp_buf;
 	bool   is_evaluated = false;
 	if(rItem.Formula__[0]) {
@@ -957,12 +956,13 @@ int PPGoodsStrucItem::GetQttyAsPrice(double complPriceSum, double * pItemPrice) 
 	return ok;
 }
 
+/*static*/double PPGoodsStrucItem::GetSimpleQttyValue(double median, double denom) { return (denom != 0.0 && denom != 1.0) ? (median / denom) : median; }
+double PPGoodsStrucItem::GetSimpleQttyValue() const { return PPGoodsStrucItem::GetSimpleQttyValue(Median, Denom); }
+
 /*static*/int FASTCALL PPGoodsStrucItem::GetEffectiveQuantity(double complQtty, PPID goodsID, double median, double denom, long flags, double * pItemQtty)
 {
 	int    ok = 1;
-	double qtty = complQtty * median;
-	if(denom != 0.0 && denom != 1.0)
-		qtty /= denom;
+	double qtty = complQtty * GetSimpleQttyValue(median, denom);
 	if(flags & GSIF_PCTVAL)
 		qtty = fdiv100r(qtty);
 	else if(flags & GSIF_PHUVAL) {
@@ -1759,19 +1759,35 @@ int GSDialog::setupList()
 			}
 		}
 		else {
-			r_item.GetEstimationString(sub, qtty_fmt);
-			if(r_item.Flags & GSIF_PCTVAL)
-				sub.CatChar('%');
-			else if(r_item.Flags & GSIF_PHUVAL) {
-				PPUnit u_rec;
-				sub.Space();
-				if(GObj.FetchUnit(goods_rec.PhUnitID, &u_rec) > 0)
-					sub.Cat(u_rec.Name);
-				else
-					sub.CatChar('?');
+			// Formula__
+			double formula_result = 0.0; // @debug
+			double item_qtty = 0.0;
+			if(!isempty(r_item.Formula__)) {
+				GdsClsCalcExprContext ctx(&Data, 0L);
+				if(PPCalcExpression(r_item.Formula__, &formula_result, &ctx)) {
+					item_qtty = formula_result;
+					sub.Z().Cat(item_qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ));
+				}
+				else {
+					sub = r_item.Formula__;
+				}
 			}
+			else {
+				item_qtty = r_item.GetSimpleQttyValue();
+				r_item.GetEstimationString(sub, qtty_fmt);
+				if(r_item.Flags & GSIF_PCTVAL)
+					sub.CatChar('%');
+				else if(r_item.Flags & GSIF_PHUVAL) {
+					PPUnit u_rec;
+					sub.Space();
+					if(GObj.FetchUnit(goods_rec.PhUnitID, &u_rec) > 0)
+						sub.Cat(u_rec.Name);
+					else
+						sub.CatChar('?');
+				}
+			}
+			t_qtty += item_qtty;
 			ss.add(sub);
-			t_qtty  += sub.ToReal();
 			sub.Z();
 			if(inner_struc.Rec.ID) {
 				if(GsObj.CheckStruc(inner_struc.Rec.ID, 0) != 2) {

@@ -285,4 +285,144 @@ private:
 	}
 	return p_result;
 }
+//
+//
+//
+class CuttingStock2DTestParam {
+public:
+	struct DemandItem {
+		DemandItem() : GoodsID(0), Qtty(0.0), Price(0.0)
+		{
+		}
+		PPID   GoodsID;
+		double Qtty;
+		double Price;
+	};
+	struct RawItem {
+		RawItem() : GoodsID(0), LocID(0)
+		{
+		}
+		PPID   GoodsID;
+		PPID   LocID; // Склад, с которого мы возьмем сырье для раскроя //
+	};
+	TSVector <DemandItem> DL;
+	RawItem RawI;
+	//
+	// Идея такова: зная набор изделий которые трубуются, получаем их BOM'ы и ищем путь производства до сырьевого товара RawI.GoodsID.
+	//   Таким образом, мы понимаем какие детали из какого сырья будем кроить. После этого уточняем остатки и цену сырья на скаде RawI.LocID,
+	//   формулирем задачу раскроя и отправляем ее ortools'у.
+	// 
+	static int Edit(CuttingStock2DTestParam & rData)
+	{
+		class CuttingStock2DTestParamDialog : public PPListDialog {
+			DECL_DIALOG_DATA(CuttingStock2DTestParam);
+		public:
+			int    EditItem(DemandItem & rData)
+			{
+				enum {
+					ctlgroupGoods = 1
+				};
+				int    ok = -1;
+				TDialog * dlg = new TDialog(DLG_ORTCS2DPARAM_ITEM);
+				if(CheckDialogPtrErr(&dlg)) {
+					dlg->addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_ORTCS2DPARAM_ITEM_GOODSGRP, CTLSEL_ORTCS2DPARAM_ITEM_GOODS));
+					{
+						GoodsCtrlGroup::Rec ggrp_rec(0, rData.GoodsID, 0, 0);
+						dlg->setGroupData(ctlgroupGoods, &ggrp_rec);
+					}
+					dlg->setCtrlReal(CTL_ORTCS2DPARAM_ITEM_QTTY, rData.Qtty);
+					dlg->setCtrlReal(CTL_ORTCS2DPARAM_ITEM_PRICE, rData.Price);
+					while(ok < 0 && ExecView(dlg) == cmOK) {
+						{
+							GoodsCtrlGroup::Rec ggrp_rec;
+							dlg->getGroupData(ctlgroupGoods, &ggrp_rec);
+							rData.GoodsID = ggrp_rec.GoodsID;
+						}
+						rData.Qtty = dlg->getCtrlReal(CTL_ORTCS2DPARAM_ITEM_QTTY);
+						rData.Price = dlg->getCtrlReal(CTL_ORTCS2DPARAM_ITEM_PRICE);
+						ok = 1;
+					}
+				}
+				else
+					ok = 0;
+				delete dlg;
+				return ok;
+			}
 
+			CuttingStock2DTestParamDialog() : PPListDialog(DLG_ORTCS2DPARAM, CTL_ORTCS2DPARAM_DEMANDLIST)
+			{
+				updateList(-1);
+			}
+			DECL_DIALOG_SETDTS()
+			{
+				int    ok = 1;
+				RVALUEPTR(Data, pData);
+				//
+				return ok;
+			}
+			DECL_DIALOG_GETDTS()
+			{
+				int    ok = 1;
+				//
+				ASSIGN_PTR(pData, Data);
+				return ok;
+			}
+		private:
+			virtual int setupList()
+			{
+				SString temp_buf;
+				StringSet ss(SLBColumnDelim);
+				for(uint i = 0; i < Data.DL.getCount(); i++) {
+					const  DemandItem & r_item = Data.DL.at(i);
+					ss.Z();
+					GetGoodsName(r_item.GoodsID, temp_buf);
+					ss.add(temp_buf);
+					temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ));
+					ss.add(temp_buf);
+					temp_buf.Z().Cat(r_item.Price, MKSFMTD_020);
+					addStringToList(i+1, ss.getBuf());
+				}
+				return 1;
+			}
+			virtual int addItem(long * pPos, long * pID)
+			{
+				int   ok = -1;
+				long  pos = 0;
+				long  id = 0;
+				DemandItem new_item;
+				new_item.Qtty = 1.0;
+				if(EditItem(new_item) > 0) {
+					Data.DL.insert(&new_item);
+					pos = Data.DL.getCount()-1;
+					id = Data.DL.getCount();
+					ok = 1;
+				}
+				ASSIGN_PTR(pPos, pos);
+				ASSIGN_PTR(pID, id);
+				return ok;
+			}
+			virtual int editItem(long pos, long id)
+			{
+				int    ok = -1;
+				if(pos >= 0 && pos < Data.DL.getCountI()) {
+					DemandItem & r_item = Data.DL.at(pos);
+					if(EditItem(r_item) > 0) {
+						ok = 1;
+					}
+				}
+				return ok;
+			}
+			virtual int delItem(long pos, long id)
+			{
+				int    ok = -1;
+				if(pos >= 0 && pos < Data.DL.getCountI()) {
+					Data.DL.atFree(pos);
+					ok = 1;
+				}
+				return ok;
+			}
+		};
+		int    ok = -1;
+		return ok;
+	}
+};

@@ -702,7 +702,7 @@ int main()
 }
 #endif // }
 
-int GtinStruc::Parse(const char * pCode)
+int GtinStruc::Parse(const char * pCode, SNaturalTokenArray * pNta)
 {
 	int    ok = 1;
 	SString code_buf(pCode);
@@ -714,20 +714,21 @@ int GtinStruc::Parse(const char * pCode)
 		};
 		SString temp_buf;
 		StrAssocArray::Add(fldOriginalText, code_buf);
-		STokenRecognizer tr;
-		SNaturalTokenArray nta;
+		SNaturalTokenArray nta_internal;
 		uint tokn = 0;
-		{
+		if(!pNta) {
 			temp_buf.Z();
 			for(uint i = 0; i < code_buf.Len(); i++) {
 				if(!IsSpecialStopChar(code_buf.cptr() + i)) {
 					temp_buf.CatChar(code_buf.C(i));
 				}
 			}
-			tr.Run(temp_buf, nta, 0);
-			//tr.Run(code_buf.ucptr(), code_buf.Len(), nta, 0);
+			STokenRecognizer tr;
+			tr.Run(temp_buf, nta_internal, 0);
+			pNta = &nta_internal;
 		}
-		if(nta.Has(SNTOK_CHZN_CIGITEM) || nta.Has(SNTOK_CHZN_ALTCIGITEM)) { // @v11.9.4 (SNTOK_CHZN_ALTCIGITEM)
+		assert(pNta != 0);
+		if(pNta->Has(SNTOK_CHZN_CIGITEM) || pNta->Has(SNTOK_CHZN_ALTCIGITEM)) { // @v11.9.4 (SNTOK_CHZN_ALTCIGITEM)
 			// Розничные сигареты и альтернативная табачная продукция по структуре кода схожи. Разница в том, что 
 			// код альтернативной табачной продукции вместо цены содержит "AAAA".
 			assert(oneof2(code_buf.Len(), 29, 25)); // Возможно,что у марки не будет криптохвоста (len==25)
@@ -740,12 +741,12 @@ int GtinStruc::Parse(const char * pCode)
 				}
 			}
 			assert(offs == code_buf.Len());
-			if(nta.Has(SNTOK_CHZN_CIGITEM))
+			if(pNta->Has(SNTOK_CHZN_CIGITEM))
 				SpecialNaturalToken = SNTOK_CHZN_CIGITEM;
-			else if(nta.Has(SNTOK_CHZN_ALTCIGITEM))
+			else if(pNta->Has(SNTOK_CHZN_ALTCIGITEM))
 				SpecialNaturalToken = SNTOK_CHZN_ALTCIGITEM;
 		}
-		else if(nta.Has(SNTOK_CHZN_CIGBLOCK)) {
+		else if(pNta->Has(SNTOK_CHZN_CIGBLOCK)) {
 			// 010460043993816321>n>!3E?8005173000938SSf24015063283
 			//  010460043993816321>n>!3E? 8005173000 938SSf 24015063283
 			// 
@@ -949,11 +950,11 @@ int TestGtinStruc()
 						//gts.AddOnlyToken(GtinStruc::fldPrice);
 						gts.AddSpecialStopChar(0x1D);
 						gts.AddSpecialStopChar(0xE8);
-						int pr = gts.Parse(original_text);
+						int pr = gts.Parse(original_text, 0);
 						if(gts.GetToken(GtinStruc::fldGTIN14, 0)) {
 							while(pr != 1 && serial_len_variant_idx < SIZEOFARRAY(serial_len_variant_list)) {
 								gts.SetSpecialFixedToken(GtinStruc::fldSerial, serial_len_variant_list[serial_len_variant_idx++]);
-								pr = gts.Parse(original_text);					
+								pr = gts.Parse(original_text, 0);					
 							}
 						}
 						out_buf.Z().CR().Cat(original_text).Space().CatEq("parse-result", pr);

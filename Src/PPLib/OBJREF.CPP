@@ -694,7 +694,7 @@ int PPObjReference::ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replac
 	return ok;
 }
 
-int PPObjReference::ProcessReservedItem(TVRez & rez)
+int PPObjReference::ProcessReservedItem(TVRez & rez, long _flags)
 {
 	int    ok = 1;
 	int    r;
@@ -714,16 +714,16 @@ int PPObjReference::ProcessReservedItem(TVRez & rez)
 	return ok;
 }
 
-int PPObjReference::LoadReservedItems(uint rezID)
+int PPObjReference::LoadReservedItems(uint rezID, long flags)
 {
 	int    ok = 1;
-	uint   num_recs, i;
+	uint   num_recs;
 	TVRez * p_rez(P_SlRez);
 	THROW_PP(p_rez, PPERR_RESFAULT);
 	THROW_PP(p_rez->findResource(rezID, PP_RCDATA), PPERR_RESFAULT);
 	THROW_PP(num_recs = p_rez->getUINT(), PPERR_RESFAULT);
-	for(i = 0; i < num_recs; i++) {
-		THROW(ProcessReservedItem(*p_rez));
+	for(uint i = 0; i < num_recs; i++) {
+		THROW(ProcessReservedItem(*p_rez, flags));
 	}
 	CATCHZOK
 	return ok;
@@ -750,7 +750,7 @@ int PPObjReference::MakeReserved(long flags)
 		case PPOBJ_TAXSYSTEMKIND: rez_id = ROD_TAXSYSTEMKIND; break;
 		case PPOBJ_GOODSBASKET:   rez_id = ROD_GOODSBASKET;   break;
 	}
-	return rez_id ? LoadReservedItems(rez_id) : 1;
+	return rez_id ? LoadReservedItems(rez_id, flags) : 1;
 }
 //
 // @ModuleDef(PPObjUnit)
@@ -1151,7 +1151,7 @@ int PPObjUnit::Edit(PPID * pID, void * extraPtr)
 	return ok ? r : 0;
 }
 
-int PPObjUnit::ProcessReservedItem(TVRez & rez)
+int PPObjUnit::ProcessReservedItem(TVRez & rez, long _flags)
 {
 	int    ok = 1;
 	int    r;
@@ -1217,6 +1217,17 @@ int PPALDD_Unit::InitData(PPFilt & rFilt, long rsrv)
 //
 // @ModuleDef(PPObjPersonStatus}
 //
+PPPersonStatus2::PPPersonStatus2()
+{
+	THISZERO();
+}
+	
+PPPersonStatus2 & PPPersonStatus2::Z()
+{
+	THISZERO();
+	return *this;
+}
+
 PPObjPersonStatus::PPObjPersonStatus(void * extraPtr) : PPObjReference(PPOBJ_PRSNSTATUS, extraPtr)
 {
 }
@@ -1235,8 +1246,6 @@ int PPObjPersonStatus::Edit(PPID * pID, void * extraPtr)
 	if(*pID) {
 		THROW(Search(*pID, &rec) > 0);
 	}
-	else
-		MEMSZERO(rec);
 	dlg->setCtrlData(CTL_PSNST_NAME, rec.Name);
 	dlg->setCtrlData(CTL_PSNST_SYMB, rec.Symb);
 	dlg->setCtrlData(CTL_PSNST_ID,   &rec.ID);
@@ -1508,7 +1517,7 @@ int PPObjELinkKind::AddSimple(PPID * pID, const char * pName, int use_ta)
 	return ok;
 }
 
-int PPObjELinkKind::ProcessReservedItem(TVRez & rez)
+int PPObjELinkKind::ProcessReservedItem(TVRez & rez, long _flags)
 {
 	int    ok = 1;
 	int    r;
@@ -4550,7 +4559,7 @@ PPObjTaxSystemKind::PPObjTaxSystemKind(void * extraPtr) : PPObjReference(PPOBJ_T
 {
 }
 
-int PPObjTaxSystemKind::ProcessReservedItem(TVRez & rRez)
+int PPObjTaxSystemKind::ProcessReservedItem(TVRez & rRez, long _flags)
 {
 	int    ok = 1;
 	int    r;

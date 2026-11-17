@@ -190,7 +190,9 @@
 			"marktoqttyadequacy_undecomposable": "#lightpink",
 			"marktoqttyadequacy_undefpackage": "#lightyellow",
 			"marktoqttyadequacy_mczero": "#AFDAFC",
-			"marktoqttyadequacy_mcgtqtty": "#lightcoral"
+			"marktoqttyadequacy_mcgtqtty": "#lightcoral",
+			"floatbutton_bg": "#0EA5E9",
+			"floatbutton_fg": "#020617"
 		}
 	],
 	"layout_list": [

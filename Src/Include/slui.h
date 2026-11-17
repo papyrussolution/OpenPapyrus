@@ -2759,6 +2759,13 @@ private:
 };
 
 class TFloatButton { // @v12.8.3 @construction
+	//
+	// Descr: Идентификаторы внутренних таймеров
+	//
+	enum {
+		tmrClose = 1,
+		tmrHide  = 2,
+	};
 public:
 	TFloatButton();
 	~TFloatButton();
@@ -2767,10 +2774,12 @@ public:
 	//
 	void   UpdatePosition(HWND hTarget);
 	int    Create(HWND hParent, HWND hTarget, const wchar_t * pText);
+	void   Show(bool doShow, uint showTimeoutMs);
 private:
 	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void   PositionButton(HWND hTarget);
 	HWND   H;
+	uint   ShowTimeoutMs; // Таймаут отображения окна в миллисекундах (0 - не скрывать)
 };
 //
 //
@@ -5565,12 +5574,15 @@ public:
 		tbiListSelFgPen     = 93, // @v12.5.7 "list_sel_fg"   Перо текста для selected элементов списка
 		tbiExtInfoBrush     = 94, // @v12.7.0 Цвет, индицирующий факт того, что для элемента существует расширенная информация //
 		tbiExtInfoBadBrush  = 95, // @v12.7.0 Цвет, индицирующий факт того, что для элемента существует расширенная информация и она негативная //
+		tbiFloatButtonBrush = 96, // @v12.8.4 "floatbutton_bg": "#0EA5E9",
+		tbiFloatButtonPen   = 97, // @v12.8.4 "floatbutton_fg": "#020617"
 		//
 		tbiControlFont      = 110, // Шрифт для отрисовки стандартных управляющих элементов 
 		tbiAccentInputFont  = 111, // @v12.5.5 Шрифт для отрисовки увеличенного поля ввода и сопутствующих элементов 
 		//
 		tbiCurResizeHorz    = 201, // @v12.5.5 Курсор изменения горизонтального размера
 		tbiCurResizeVert    = 202, // @v12.5.5 Курсор изменения верикального размера
+		//
 	};
 
 	const  UserInterfaceSettings & GetUiSettings();

@@ -676,9 +676,10 @@ int PPGdsClsPacket::CheckForSgg(long sym, SubstGrpGoods sgg) const
 int PPGdsClsPacket::GetNameByTemplate(PPGoodsPacket * pPack, const char * pTemplate, char * pBuf, size_t bufLen, SubstGrpGoods sgg) const
 {
 	int    ok = 1;
-	SString buf, temp_buf;
+	SString buf;
+	SString temp_buf;
 	PPSymbTranslator st;
-	for(const char * p = pTemplate; p && *p;)
+	for(const char * p = pTemplate; p && *p;) {
 		if(*p == '@') {
 			size_t next = 1;
 			long   sym  = st.Translate(p, &next);
@@ -735,7 +736,9 @@ int PPGdsClsPacket::GetNameByTemplate(PPGoodsPacket * pPack, const char * pTempl
 		}
 		else
 			buf.CatChar(*p++);
+	}
 	if(buf.NotEmptyS()) {
+		buf.ElimDblSpaces(); // @v12.8.4
 		buf.CopyTo(pBuf, bufLen);
 		ok = 1;
 	}

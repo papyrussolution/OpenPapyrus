@@ -491,6 +491,28 @@ void ExtGoodsSelDialog::updateList(int pos)
 			}
 			p_def = new StrAssocListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData);
 		}
+		else if(NameSubStr.NotEmpty()) { // @v12.8.4
+			GoodsFilt filt;
+			filt.PutExtssData(GoodsFilt::extssNameText, NameSubStr);
+			if(Flags & fHidePassive) {
+				filt.Flags |= GoodsFilt::fHidePassive;
+			}
+			if(Flags & fHideGeneric) {
+				filt.Flags |= GoodsFilt::fHideGeneric;
+			}
+			if(Flags & fMatrix) {
+				filt.Flags |= GoodsFilt::fRestrictByMatrix;
+				if(IsIntrExpndOp(OpID) && ArID)
+					filt.MtxLocID = NZOR(PPObjLocation::ObjToWarehouse(ArID), LocID);
+				else
+					filt.MtxLocID = LocID;
+			}
+			StrAssocArray * p_list = new StrAssocArray();
+			if(p_list) {
+				GoodsIterator::GetListByFilt(&filt, p_list, 0);
+			}
+			p_def = new StrAssocListBoxDef(p_list, lbtDblClkNotify|lbtFocNotify|lbtDisposeData);
+		}
 		else {
 			PPID   mtx_loc_id = LocID;
 			long   _sel_options = 0;
@@ -645,6 +667,7 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 		updateList(0);
 	}
 	else if(event.isCbSelected(CTLSEL_EXTGSEL_GGRP) || event.isCbSelected(CTLSEL_EXTGSEL_BRAND)) {
+		NameSubStr.Z(); // @v12.8.4
 		updateList(0);
 	}
 	else if(event.isCmd(cmaInsert)) {
@@ -750,6 +773,23 @@ IMPL_HANDLE_EVENT(ExtGoodsSelDialog)
 	}
 	else if(event.isKeyDown(kbF2)) {
 		searchBarcode();
+	}
+	else if(event.isKeyDown(kbF4)) { // @v12.8.4
+		SString temp_buf(NameSubStr);
+		PPInputStringDialogParam isd_param;
+		//isd_param.P_Wse = new TextHistorySelExtra("goodsnamefragment-common");
+		{
+			//LocalStateBinderyCore::StateIdent si;
+			//si.Kind = LocalStateBinderyCore::kInput;
+			//si.Subj = UED::SetRaw_UXControlIdent(SObjID(winIdent, ctlIdent));
+			//si.Symb = "goodsnamefragment-common";
+			//isd_param.P_Wse = new LocalStateBinderySelExtra(si);
+		}
+		PPLoadText(PPTXT_SELGOODSBYNAME, isd_param.Title);
+		if(InputStringDialog(isd_param, temp_buf) > 0) {
+			NameSubStr = temp_buf;
+			updateList(0);
+		}
 	}
 	else if(event.isKeyDown(kbAltF2)) {
 		PPID   n = 0;

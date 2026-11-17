@@ -1358,17 +1358,29 @@ int PPObjOprKind::GetGenericAccTurnForRegisterOp(PPID * pID, int use_ta) // @v12
 /*virtual*/int PPObjOprKind::MakeReserved(long flags)
 {
     int    ok = -1;
+	PPObjAccSheet acs_obj;
+	PPAccSheet2 acs_rec;
 	if(flags & mrfPersonalFinance) { // @v12.8.0
 		{
 			ReservedOpCreateBlock blk;
 			PPID   op_id = PPOPK_GENERICPSNACCTURN;
-			blk.OpID = PPOPK_GENERICPSNACCTURN;
+			blk.OpID = op_id;
 			blk.OpTypeID = PPOPT_ACCTURN;
 			blk.NameTxtId = PPTXT_OPK_GENERICPERSONALACCTURN;
 			blk.Flags = 0;
 			blk.SubType = OPSUBT_PERSONALFINANCE;
 			blk.P_Symb = "GENPTA";
 			blk.P_CodeTempl = "%06";
+			// @v12.8.4 {
+			if(acs_obj.SearchBySymb("rPSNACSCONTRACTOR", 0, &acs_rec) > 0) {
+				blk.AccSheetID = acs_rec.ID;
+				PPOprKindPacket ex_op_pack;
+				if(GetPacket(blk.OpID, &ex_op_pack) > 0 && ex_op_pack.Rec.AccSheetID == 0) {
+					ex_op_pack.Rec.AccSheetID = blk.AccSheetID;
+					THROW(PutPacket(&op_id, &ex_op_pack, 1));
+				}
+			}
+			// } @v12.8.4 
 			THROW(Helper_GetReservedOp(&op_id, blk, 1));
 		}
 	}
@@ -1390,8 +1402,6 @@ int PPObjOprKind::GetGenericAccTurnForRegisterOp(PPID * pID, int use_ta) // @v12
 			}
 		}
         if(_count == 0) {
-			PPObjAccSheet acs_obj;
-			PPAccSheet2 acs_rec;
 			PPIDArray acs_id_list;
 			{
 				ReservedOpCreateBlock blk;

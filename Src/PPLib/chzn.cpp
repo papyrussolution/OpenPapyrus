@@ -633,20 +633,65 @@ DRAFTBEER HORECA @v11.9.4
 	static const int8 serial_len_variant_list_83[] = { 13 }; // Длины серии [21] для марок с длиной 83 байта
 	size_t serial_len_variant_idx = 0;
 	const size_t code_len = sstrlen(pCode);
-	const SString code_buf(pCode);
+	const SString _code_buf(pCode);
 	SString temp_buf;
 	SString sub_buf;
 	STokenRecognizer tr;
 	SNaturalTokenArray nta;
+	SNaturalTokenStat nts;
 	rS.Z();
 	if(code_len >= 16) {
-		if(code_buf.HasPrefix("02") && code_buf.Len() >/*strictly GT*/ (2+14+2)) { // Специальный случай: никакая не марка, но суррогатная комбинация 02 GTIN 37 QTY
-			code_buf.Sub(2, 14, sub_buf);
+		SString raw_buf;
+		SString preprocessed_code_buf; // Код, из которого удалены специальные символы и, если надо, переведенный из кириллической клавиатуры в латинскую.
+		{
+			temp_buf = _code_buf;
+			temp_buf.ShiftLeftChr('\xE8'); // Специальный символ. Может присутствовать в начале кода 
+			// "]C1"
+			if(temp_buf.HasPrefixIAscii("]C1")) { // Выяснилось, что и такие служебные префиксы встречаются //
+				temp_buf.ShiftLeft(3);
+				temp_buf.ShiftLeftChr('\xE8'); // Черт его знает: на всякий случай снова проверим этого обдолбыша
+			}
+			TranslateLocaleKeyboardTextToLatin(temp_buf, raw_buf);
+			preprocessed_code_buf = raw_buf;
+			{
+				const char spc_chr_list[] = { '\x1D', '\xE8' };
+				for(uint sci = 0; sci < SIZEOFARRAY(spc_chr_list); sci++) {
+					size_t local_pos = 0;
+					while(preprocessed_code_buf.SearchChar(spc_chr_list[sci], &local_pos)) {
+						preprocessed_code_buf.Excise(local_pos, 1);
+					}
+				}
+			}
+		}
+		tr.Run(preprocessed_code_buf, nta, &nts);
+		if(nta.Has(SNTOK_CHZN_SURROGATE_PARTN)) { // @v12.8.4
+			{
+				rS.Add(GtinStruc::fldOriginalText, preprocessed_code_buf);
+				if(checkirange(preprocessed_code_buf.Len(), (14U+6U+1U), (14U+6U+12U))) {
+					// 046067797671042610220000881756
+					preprocessed_code_buf.Sub(0, 14, temp_buf);
+					rS.Add(GtinStruc::fldGTIN14, temp_buf);
+					//
+					const int y = _texttodec32(preprocessed_code_buf.cptr()+14, 2);
+					const int m = _texttodec32(preprocessed_code_buf.cptr()+14+2, 2);
+					const int d = _texttodec32(preprocessed_code_buf.cptr()+14+2+2, 2);
+					if(y >= 25 && checkirange(m, 1, 12) && checkirange(d, 1, 31)) {
+						temp_buf.Z().CatLongZ(y, 2).CatLongZ(m, 2).CatLongZ(d, 2);
+						rS.Add(GtinStruc::fldManufDate, temp_buf);
+					}
+					preprocessed_code_buf.Sub(14+6, preprocessed_code_buf.Len(), temp_buf);
+					rS.Add(GtinStruc::fldPart, temp_buf);
+				}
+			}
+			ok = SNTOK_CHZN_SURROGATE_PARTN;
+		}
+		else if(preprocessed_code_buf.HasPrefix("02") && preprocessed_code_buf.Len() >/*strictly GT*/ (2+14+2)) { // Специальный случай: никакая не марка, но суррогатная комбинация 02 GTIN 37 QTY
+			preprocessed_code_buf.Sub(2, 14, sub_buf);
 			if(sub_buf.IsDec()) {
 				rS.Add(GtinStruc::fldGTIN14, sub_buf);
-				code_buf.Sub((2+14), 2, sub_buf);
+				preprocessed_code_buf.Sub((2+14), 2, sub_buf);
 				if(sub_buf == "37") {
-					code_buf.Sub((2+14+2), code_buf.Len()/*up to end*/, sub_buf);
+					preprocessed_code_buf.Sub((2+14+2), preprocessed_code_buf.Len()/*up to end*/, sub_buf);
 					if(sub_buf.IsDec()) {
 						rS.Add(GtinStruc::fldCount, sub_buf);
 						ok = SNTOK_CHZN_SURROGATE_GTINCOUNT;
@@ -654,35 +699,27 @@ DRAFTBEER HORECA @v11.9.4
 				}
 			}
 		}
-		else if(code_buf.HasPrefix("02") && code_buf.Len() == (2+14)) { // Специальный случай: никакая не марка, но суррогатная комбинация 02 GTIN
-			code_buf.Sub(2, 14, sub_buf);
+		else if(preprocessed_code_buf.HasPrefix("02") && preprocessed_code_buf.Len() == (2+14)) { // Специальный случай: никакая не марка, но суррогатная комбинация 02 GTIN
+			preprocessed_code_buf.Sub(2, 14, sub_buf);
 			if(sub_buf.IsDec()) {
 				rS.Add(GtinStruc::fldGTIN14, sub_buf);
 				ok = SNTOK_CHZN_SURROGATE_GTIN;
 			}
 		}
-		/* @v12.5.12 (see below) else if(code_buf.HasPrefix("00") && code_buf.Len() == (2+14+4) && code_buf.IsDec()) { // @v12.3.5 Специальный случай: никакая не марка, но код паллеты комбинация 00 GTIN 9999
-			code_buf.Sub(2, 14, sub_buf);
-			rS.Add(GtinStruc::fldGTIN14, sub_buf);
-			rS.Add(GtinStruc::fldOriginalText, pCode);
-			ok = SNTOK_CHZN_PALLET_GTIN;
-		}*/
-		else if(code_buf.Len() == 20) { // @v12.5.12 SNTOK_SSCC
+		else if(preprocessed_code_buf.Len() == 20) { // SNTOK_SSCC
 			// 00 14660256060000 5791 /// (00)SSCC
-			tr.Run(code_buf, nta, 0);
 			if(nta.Has(SNTOK_SSCC)) {
-				code_buf.Sub(2, 14, sub_buf);
+				preprocessed_code_buf.Sub(2, 14, sub_buf);
 				assert(sub_buf.IsDec()); // По другому и быть не может, иначе STokenRecognizer работает неправильно!
 				if(sub_buf.IsDec()) {
 					rS.Add(GtinStruc::fldGTIN14, sub_buf);
-					rS.Add(GtinStruc::fldOriginalText, code_buf);
+					rS.Add(GtinStruc::fldOriginalText, preprocessed_code_buf);
 					ok = SNTOK_SSCC;
 				}
 			}
 		}
 		if(!ok) {
-			SString raw_buf;
-			SString preprocessed_code_buf; // Код, из которого удалены специальные символы и, если надо, переведенный из кириллической клавиатуры в латинскую.
+			SRegExp2::FindResult reresult;
 			uint   dedicated_case = 0;
 			enum {
 				dedicatedcase_37_01_21_93      =  1,
@@ -704,10 +741,10 @@ DRAFTBEER HORECA @v11.9.4
 				dedicatedcase_alpenland_pck    = 17, // @v12.8.3  "^01(\\d{14})11(\\d{6})10([!-~]{4,20})$";
 			};
 
-	// 0124810268052228310301128011261103101002210017          /// сыр брест-литовск
-	//      (01)24810268052228(3103)011280(11)261103(10)1002210017 
-	// 010460677997072611261024100000882809                    /// йогурт alpenland упаковка
-	//      (01)04606779970726(11)261024(10)0000882809
+			// 0124810268052228310301128011261103101002210017          /// сыр брест-литовск
+			//      (01)24810268052228(3103)011280(11)261103(10)1002210017 
+			// 010460677997072611261024100000882809                    /// йогурт alpenland упаковка
+			//      (01)04606779970726(11)261024(10)0000882809
 
 			// const char * re_tobacco = "^(\\d{14})(.{7})(.{4})(.{4})?$";
 			// const char * re_rigid_mark = "^01(\\d{14})21(.{16})240(.{8})$";
@@ -718,28 +755,7 @@ DRAFTBEER HORECA @v11.9.4
 			// const char* re_oil_universal = "^01(\\d{14})21(.+?)91(.{4})92(.{44})$";
 			// 01189011482005211724040010V90043621B63DAJFKF22C | const char* re_pharma_variable_serial = "^01(\\d{14})17(\\d{6})10(.{1,20}?)21(.{1,20})$";
 			// 01189011482005211724040010A900046212U07SBCE80L  |
-			
-			// @v12.5.3 {
-			{
-				temp_buf = code_buf;
-				temp_buf.ShiftLeftChr('\xE8'); // Специальный символ. Может присутствовать в начале кода 
-				// "]C1"
-				if(temp_buf.HasPrefixIAscii("]C1")) { // Выяснилось, что и такие служебные префиксы встречаются //
-					temp_buf.ShiftLeft(3);
-					temp_buf.ShiftLeftChr('\xE8'); // Черт его знает: на всякий случай снова проверим этого обдолбыша
-				}
-				TranslateLocaleKeyboardTextToLatin(temp_buf, raw_buf);
-				preprocessed_code_buf = raw_buf;
-				{
-					const char spc_chr_list[] = { '\x1D', '\xE8' };
-					for(uint sci = 0; sci < SIZEOFARRAY(spc_chr_list); sci++) {
-						size_t local_pos = 0;
-						while(preprocessed_code_buf.SearchChar(spc_chr_list[sci], &local_pos)) {
-							preprocessed_code_buf.Excise(local_pos, 1);
-						}
-					}
-				}
-			}
+			//
 			// dedicated_case#01 len=37, GtinStruc::fldGTIN14[14], GtinStruc::fldSerial[13], fldInner2[4]
 			//                           01                        21                        93            
 			rS.Z();
@@ -748,20 +764,17 @@ DRAFTBEER HORECA @v11.9.4
 				// (240)...(00)...(11)...(10)...(37)...
 				const char * p_re_motoroil_package = "^240(.*?)00(\\d{18})11(\\d{6})10(.*?)37(\\d{1,8})$";
 				SRegExp2 re(p_re_motoroil_package, cpANSI, SRegExp2::syntaxDefault, 0);
-				if(re.IsValid()) {
-					SRegExp2::FindResult reresult;
-					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
-						assert(reresult.getCount() == 5+1);
-						rS.AddOnlyToken(GtinStruc::fldAddendumId);
-						rS.SetSpecialFixedToken(GtinStruc::fldAddendumId, reresult.GetItemLen(1));
-						rS.AddOnlyToken(GtinStruc::fldSscc18);
-						rS.AddOnlyToken(GtinStruc::fldManufDate);
-						rS.AddOnlyToken(GtinStruc::fldPart);
-						rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(4));
-						rS.AddOnlyToken(GtinStruc::fldCount);
-						rS.SetSpecialFixedToken(GtinStruc::fldCount, reresult.GetItemLen(5));
-						dedicated_case = dedicatedcase_motoroil_package;
-					}
+				if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+					assert(reresult.getCount() == 5+1);
+					rS.AddOnlyToken(GtinStruc::fldAddendumId);
+					rS.SetSpecialFixedToken(GtinStruc::fldAddendumId, reresult.GetItemLen(1));
+					rS.AddOnlyToken(GtinStruc::fldSscc18);
+					rS.AddOnlyToken(GtinStruc::fldManufDate);
+					rS.AddOnlyToken(GtinStruc::fldPart);
+					rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(4));
+					rS.AddOnlyToken(GtinStruc::fldCount);
+					rS.SetSpecialFixedToken(GtinStruc::fldCount, reresult.GetItemLen(5));
+					dedicated_case = dedicatedcase_motoroil_package;
 				}
 			} // } @v12.5.12 
 			else if(preprocessed_code_buf.Len() == 37) {
@@ -796,41 +809,35 @@ DRAFTBEER HORECA @v11.9.4
 				// "01189011480058361722030010V900310240300421B6CL03VI4NAUH",
 				const char * p_re_mdlp_01 = "^01(\\d{14})17(\\d{6})10(.{4,20}?)21(.{13})$";
 				SRegExp2 re(p_re_mdlp_01, cpANSI, SRegExp2::syntaxDefault, 0);
-				if(re.IsValid()) {
-					SRegExp2::FindResult reresult;
-					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
-						assert(reresult.getCount() == 4+1);
-						rS.AddOnlyToken(GtinStruc::fldGTIN14);
-						rS.AddOnlyToken(GtinStruc::fldExpiryDate);
-						rS.AddOnlyToken(GtinStruc::fldPart);
-						rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(3));
-						rS.AddOnlyToken(GtinStruc::fldSerial);
-						rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(4));
-						dedicated_case = dedicatedcase_mdlp_01;
-					}
+				if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+					assert(reresult.getCount() == 4+1);
+					rS.AddOnlyToken(GtinStruc::fldGTIN14);
+					rS.AddOnlyToken(GtinStruc::fldExpiryDate);
+					rS.AddOnlyToken(GtinStruc::fldPart);
+					rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(3));
+					rS.AddOnlyToken(GtinStruc::fldSerial);
+					rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(4));
+					dedicated_case = dedicatedcase_mdlp_01;
 				}
 			}
 			if(!dedicated_case) {
 				//dedicatedcase_mdlp_02          = 10, // @v12.5.12 "^01(\\d{14})17(\\d{6})10(.{1,20}?)11(\\d{6})21(.{13})91(.{4})92(.{44})$"
 				const char * p_re_mdlp_02 = "^01(\\d{14})17(\\d{6})10(.{1,20}?)11(\\d{6})21(.{13})91(.{4})92(.{44})$";
 				SRegExp2 re(p_re_mdlp_02, cpANSI, SRegExp2::syntaxDefault, 0);
-				if(re.IsValid()) {
-					SRegExp2::FindResult reresult;
-					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
-						assert(reresult.getCount() == 7+1);
-						rS.AddOnlyToken(GtinStruc::fldGTIN14);
-						rS.AddOnlyToken(GtinStruc::fldExpiryDate);
-						rS.AddOnlyToken(GtinStruc::fldPart);
-						rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(3));
-						rS.AddOnlyToken(GtinStruc::fldManufDate);
-						rS.AddOnlyToken(GtinStruc::fldSerial);
-						rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(5));
-						rS.AddOnlyToken(GtinStruc::fldUSPS);
-						rS.SetSpecialFixedToken(GtinStruc::fldUSPS, reresult.GetItemLen(6));
-						rS.AddOnlyToken(GtinStruc::fldInner1);
-						rS.SetSpecialFixedToken(GtinStruc::fldInner1, reresult.GetItemLen(7));
-						dedicated_case = dedicatedcase_mdlp_02;
-					}
+				if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+					assert(reresult.getCount() == 7+1);
+					rS.AddOnlyToken(GtinStruc::fldGTIN14);
+					rS.AddOnlyToken(GtinStruc::fldExpiryDate);
+					rS.AddOnlyToken(GtinStruc::fldPart);
+					rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(3));
+					rS.AddOnlyToken(GtinStruc::fldManufDate);
+					rS.AddOnlyToken(GtinStruc::fldSerial);
+					rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(5));
+					rS.AddOnlyToken(GtinStruc::fldUSPS);
+					rS.SetSpecialFixedToken(GtinStruc::fldUSPS, reresult.GetItemLen(6));
+					rS.AddOnlyToken(GtinStruc::fldInner1);
+					rS.SetSpecialFixedToken(GtinStruc::fldInner1, reresult.GetItemLen(7));
+					dedicated_case = dedicatedcase_mdlp_02;
 				}
 			}
 			if(!dedicated_case) { // @v12.6.2
@@ -838,40 +845,34 @@ DRAFTBEER HORECA @v11.9.4
 				//dedicatedcase_motoroil_01      = 12, // @v12.6.2  "^01(\\d{14})21(.+?)91(.+?)92(.+)$"
 				const char * p_re_dedicatedcase_motoroil_01 = "^01(\\d{14})21(.{4,13})91(.{4})92(.+)$"; // @v12.7.12 "^01(\\d{14})21(.{4,13}?)91(.{4})92(.+)$"-->"^01(\\d{14})21(.{4,13})91(.{4})92(.+)$"
 				SRegExp2 re(p_re_dedicatedcase_motoroil_01, cpANSI, SRegExp2::syntaxDefault, 0);
-				if(re.IsValid()) {
-					SRegExp2::FindResult reresult;
-					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
-						assert(reresult.getCount() == 4+1);
-						rS.AddOnlyToken(GtinStruc::fldGTIN14);
-						rS.AddOnlyToken(GtinStruc::fldSerial);
-						rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(2));
-						rS.AddOnlyToken(GtinStruc::fldUSPS);
-						rS.SetSpecialFixedToken(GtinStruc::fldUSPS, reresult.GetItemLen(3));
-						rS.AddOnlyToken(GtinStruc::fldInner1);
-						rS.SetSpecialFixedToken(GtinStruc::fldInner1, reresult.GetItemLen(4));
-						dedicated_case = dedicatedcase_motoroil_01;
-					}
+				if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+					assert(reresult.getCount() == 4+1);
+					rS.AddOnlyToken(GtinStruc::fldGTIN14);
+					rS.AddOnlyToken(GtinStruc::fldSerial);
+					rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(2));
+					rS.AddOnlyToken(GtinStruc::fldUSPS);
+					rS.SetSpecialFixedToken(GtinStruc::fldUSPS, reresult.GetItemLen(3));
+					rS.AddOnlyToken(GtinStruc::fldInner1);
+					rS.SetSpecialFixedToken(GtinStruc::fldInner1, reresult.GetItemLen(4));
+					dedicated_case = dedicatedcase_motoroil_01;
 				}
 			}
 			if(!dedicated_case) { // @v12.6.1
 				//dedicatedcase_mdlp_03          = 11, // @v12.6.1  "^01(\\d{14})21(.{1,13}?)10(.{1,20}?)91(.{4})92(.{44})$"
 				const char * p_re_mdlp_03 = "^01(\\d{14})21(.{4,13}?)10(.{1,20}?)91(.{4})92(.+)$";
 				SRegExp2 re(p_re_mdlp_03, cpANSI, SRegExp2::syntaxDefault, 0);
-				if(re.IsValid()) {
-					SRegExp2::FindResult reresult;
-					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
-						assert(reresult.getCount() == 5+1);
-						rS.AddOnlyToken(GtinStruc::fldGTIN14);
-						rS.AddOnlyToken(GtinStruc::fldSerial);
-						rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(2));
-						rS.AddOnlyToken(GtinStruc::fldPart);
-						rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(3));
-						rS.AddOnlyToken(GtinStruc::fldUSPS);
-						rS.SetSpecialFixedToken(GtinStruc::fldUSPS, reresult.GetItemLen(4));
-						rS.AddOnlyToken(GtinStruc::fldInner1);
-						rS.SetSpecialFixedToken(GtinStruc::fldInner1, reresult.GetItemLen(5));
-						dedicated_case = dedicatedcase_mdlp_03;
-					}
+				if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+					assert(reresult.getCount() == 5+1);
+					rS.AddOnlyToken(GtinStruc::fldGTIN14);
+					rS.AddOnlyToken(GtinStruc::fldSerial);
+					rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(2));
+					rS.AddOnlyToken(GtinStruc::fldPart);
+					rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(3));
+					rS.AddOnlyToken(GtinStruc::fldUSPS);
+					rS.SetSpecialFixedToken(GtinStruc::fldUSPS, reresult.GetItemLen(4));
+					rS.AddOnlyToken(GtinStruc::fldInner1);
+					rS.SetSpecialFixedToken(GtinStruc::fldInner1, reresult.GetItemLen(5));
+					dedicated_case = dedicatedcase_mdlp_03;
 				}
 			}
 			if(!dedicated_case) {
@@ -879,106 +880,88 @@ DRAFTBEER HORECA @v11.9.4
 				//dedicatedcase_01_21_91_92      = 4, // @v12.5.12 "^01(\\d{14})21(.{13})91(.{1,4}?)92(.+)$";
 				const char * p_re_01_21_91_92 = "^01(\\d{14})21(.{13})91(.{1,4}?)92(.+)$";
 				SRegExp2 re(p_re_01_21_91_92, cpANSI, SRegExp2::syntaxDefault, 0);
-				if(re.IsValid()) {
-					SRegExp2::FindResult reresult;
-					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
-						assert(reresult.getCount() == 4+1);
-						rS.AddOnlyToken(GtinStruc::fldGTIN14);
-						rS.AddOnlyToken(GtinStruc::fldSerial);
-						rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(2));
-						rS.AddOnlyToken(GtinStruc::fldUSPS);
-						rS.SetSpecialFixedToken(GtinStruc::fldUSPS, reresult.GetItemLen(3));
-						rS.AddOnlyToken(GtinStruc::fldInner1);
-						rS.SetSpecialFixedToken(GtinStruc::fldInner1, reresult.GetItemLen(4));
-						dedicated_case = dedicatedcase_01_21_91_92;
-					}
+				if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+					assert(reresult.getCount() == 4+1);
+					rS.AddOnlyToken(GtinStruc::fldGTIN14);
+					rS.AddOnlyToken(GtinStruc::fldSerial);
+					rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(2));
+					rS.AddOnlyToken(GtinStruc::fldUSPS);
+					rS.SetSpecialFixedToken(GtinStruc::fldUSPS, reresult.GetItemLen(3));
+					rS.AddOnlyToken(GtinStruc::fldInner1);
+					rS.SetSpecialFixedToken(GtinStruc::fldInner1, reresult.GetItemLen(4));
+					dedicated_case = dedicatedcase_01_21_91_92;
 				}
 			}
 			if(!dedicated_case) {
 				const char * p_re_01_21_240_10_17 = "^01(\\d{14})21(.{13})240(.+?)10(.+?)17(\\d{6})$";
 				SRegExp2 re(p_re_01_21_240_10_17, cpANSI, SRegExp2::syntaxDefault, 0);
-				if(re.IsValid()) {
-					SRegExp2::FindResult reresult;
-					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
-						assert(reresult.getCount() == 5+1);
-						rS.AddOnlyToken(GtinStruc::fldGTIN14);
-						rS.AddOnlyToken(GtinStruc::fldSerial);
-						rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(2));
-						rS.AddOnlyToken(GtinStruc::fldAddendumId);
-						rS.SetSpecialFixedToken(GtinStruc::fldAddendumId, reresult.GetItemLen(3));
-						rS.AddOnlyToken(GtinStruc::fldPart);
-						rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(4));
-						rS.AddOnlyToken(GtinStruc::fldExpiryDate);
-						dedicated_case = dedicatedcase_01_21_240_10_17;
-					}
+				if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+					assert(reresult.getCount() == 5+1);
+					rS.AddOnlyToken(GtinStruc::fldGTIN14);
+					rS.AddOnlyToken(GtinStruc::fldSerial);
+					rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(2));
+					rS.AddOnlyToken(GtinStruc::fldAddendumId);
+					rS.SetSpecialFixedToken(GtinStruc::fldAddendumId, reresult.GetItemLen(3));
+					rS.AddOnlyToken(GtinStruc::fldPart);
+					rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(4));
+					rS.AddOnlyToken(GtinStruc::fldExpiryDate);
+					dedicated_case = dedicatedcase_01_21_240_10_17;
 				}
 			}
 			if(!dedicated_case) {
 				//dedicatedcase_01_17_10_21      = 6, // @v12.5.12 "^01(\\d{14})17(\\d{6})10(.{1,20}?)21(.{1,20})$";
 				const char * p_re_01_17_10_21 = "^01(\\d{14})17(\\d{6})10(.{2,20}?)21(.{2,20})$";
 				SRegExp2 re(p_re_01_17_10_21, cpANSI, SRegExp2::syntaxDefault, 0);
-				if(re.IsValid()) {
-					SRegExp2::FindResult reresult;
-					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
-						assert(reresult.getCount() == 4+1);
-						rS.AddOnlyToken(GtinStruc::fldGTIN14);
-						rS.AddOnlyToken(GtinStruc::fldExpiryDate);
-						rS.AddOnlyToken(GtinStruc::fldPart);
-						rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(3));
-						rS.AddOnlyToken(GtinStruc::fldSerial);
-						rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(4));
-						dedicated_case = dedicatedcase_01_17_10_21;
-					}
+				if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+					assert(reresult.getCount() == 4+1);
+					rS.AddOnlyToken(GtinStruc::fldGTIN14);
+					rS.AddOnlyToken(GtinStruc::fldExpiryDate);
+					rS.AddOnlyToken(GtinStruc::fldPart);
+					rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(3));
+					rS.AddOnlyToken(GtinStruc::fldSerial);
+					rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(4));
+					dedicated_case = dedicatedcase_01_17_10_21;
 				}
 			}
 			if(!dedicated_case) {
 				//dedicatedcase_01_21_240        = 8, // @v12.5.12 "^01(\\d{14})21(.{16})240(.{8})$" 012460081800728621069162482170081024014501203
 				const char * p_re_01_21_240 = "^01(\\d{14})21(.{16})240(.{8})$";
 				SRegExp2 re(p_re_01_21_240, cpANSI, SRegExp2::syntaxDefault, 0);
-				if(re.IsValid()) {
-					SRegExp2::FindResult reresult;
-					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
-						assert(reresult.getCount() == 3+1);
-						rS.AddOnlyToken(GtinStruc::fldGTIN14);
-						rS.AddOnlyToken(GtinStruc::fldSerial);
-						rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(2));
-						rS.AddOnlyToken(GtinStruc::fldAddendumId);
-						rS.SetSpecialFixedToken(GtinStruc::fldAddendumId, reresult.GetItemLen(3));
-						dedicated_case = dedicatedcase_01_21_240;
-					}
+				if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+					assert(reresult.getCount() == 3+1);
+					rS.AddOnlyToken(GtinStruc::fldGTIN14);
+					rS.AddOnlyToken(GtinStruc::fldSerial);
+					rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(2));
+					rS.AddOnlyToken(GtinStruc::fldAddendumId);
+					rS.SetSpecialFixedToken(GtinStruc::fldAddendumId, reresult.GetItemLen(3));
+					dedicated_case = dedicatedcase_01_21_240;
 				}
 			}
 			if(!dedicated_case) {
 				//dedicatedcase_02_13_21         = 9, // @v12.5.12 "^02(\\d{14})13(\\d{6})21(.{9})$" весовой товар
 				const char * p_re_02_13_21 = "^02(\\d{14})13(\\d{6})21(.{10})$";
 				SRegExp2 re(p_re_02_13_21, cpANSI, SRegExp2::syntaxDefault, 0);
-				if(re.IsValid()) {
-					SRegExp2::FindResult reresult;
-					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
-						assert(reresult.getCount() == 3+1);
-						rS.AddOnlyToken(GtinStruc::fldContainerCt);
-						rS.AddOnlyToken(GtinStruc::fldPackDate);
-						rS.AddOnlyToken(GtinStruc::fldSerial);
-						rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(3));
-						dedicated_case = dedicatedcase_02_13_21;
-					}
+				if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+					assert(reresult.getCount() == 3+1);
+					rS.AddOnlyToken(GtinStruc::fldContainerCt);
+					rS.AddOnlyToken(GtinStruc::fldPackDate);
+					rS.AddOnlyToken(GtinStruc::fldSerial);
+					rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(3));
+					dedicated_case = dedicatedcase_02_13_21;
 				}
 			}
 			if(!dedicated_case) { // @v12.6.10
 				//dedicatedcase_sunfruit_01      = 13, // @v12.7.0  "^01(\\d{14})10(.{4,20}?)21(.{4,20})$"
 				const char * p_re_01_10_21 = "^01(\\d{14})10(.{4,20}?)21(.{4,20})$";
 				SRegExp2 re(p_re_01_10_21, cpANSI, SRegExp2::syntaxDefault, 0);
-				if(re.IsValid()) {
-					SRegExp2::FindResult reresult;
-					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
-						assert(reresult.getCount() == 3+1);
-						rS.AddOnlyToken(GtinStruc::fldGTIN14);
-						rS.AddOnlyToken(GtinStruc::fldPart);
-						rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(2));
-						rS.AddOnlyToken(GtinStruc::fldSerial);
-						rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(3));
-						dedicated_case = dedicatedcase_sunfruit_01;
-					}
+				if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+					assert(reresult.getCount() == 3+1);
+					rS.AddOnlyToken(GtinStruc::fldGTIN14);
+					rS.AddOnlyToken(GtinStruc::fldPart);
+					rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(2));
+					rS.AddOnlyToken(GtinStruc::fldSerial);
+					rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(3));
+					dedicated_case = dedicatedcase_sunfruit_01;
 				}
 			}
 			if(!dedicated_case) { // @v12.7.2
@@ -986,28 +969,22 @@ DRAFTBEER HORECA @v11.9.4
 				// @v12.7.12 const char * p_re_01_21_93 = "^01(\\d{14})21(.{8,15}?)93(.+)$";
 				const char * p_re_01_21_93 = "^01(\\d{14})21(.{7,15}?)93(.{4,8})$"; // @v12.7.12
 				SRegExp2 re(p_re_01_21_93, cpANSI, SRegExp2::syntaxDefault, 0);
-				if(re.IsValid()) {
-					SRegExp2::FindResult reresult;
-					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
-						assert(reresult.getCount() == 3+1);
-						rS.AddOnlyToken(GtinStruc::fldGTIN14);
-						rS.AddOnlyToken(GtinStruc::fldSerial);
-						rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(2));
-						rS.AddOnlyToken(GtinStruc::fldInner2);
-						rS.SetSpecialFixedToken(GtinStruc::fldInner2, reresult.GetItemLen(3));
-						dedicated_case = dedicatedcase_sunfruit_02;
-					}
+				if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+					assert(reresult.getCount() == 3+1);
+					rS.AddOnlyToken(GtinStruc::fldGTIN14);
+					rS.AddOnlyToken(GtinStruc::fldSerial);
+					rS.SetSpecialFixedToken(GtinStruc::fldSerial, reresult.GetItemLen(2));
+					rS.AddOnlyToken(GtinStruc::fldInner2);
+					rS.SetSpecialFixedToken(GtinStruc::fldInner2, reresult.GetItemLen(3));
+					dedicated_case = dedicatedcase_sunfruit_02;
 				}
 			}
 			/*if(!dedicated_case) {
 				// dedicatedcase_tobacco_wo_ct    = 7, // @v12.5.12 "^(\\d{14})(.{7})(.{4})$" // ["^(\\d{14})(.{7})(.{4})(.{4})?$"]
 				const char * p_re_tobacco_wo_ct = "^(\\d{14})(.{7})(.{4})$";
 				SRegExp2 re(p_re_tobacco_wo_ct, cpANSI, SRegExp2::syntaxDefault, 0);
-				if(re.IsValid()) {
-					SRegExp2::FindResult reresult;
-					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
-						//SNTOK_CHZN_CIGITEM
-					}
+				if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+					//SNTOK_CHZN_CIGITEM
 				}
 			}*/
 			// } @v12.5.12 
@@ -1043,68 +1020,49 @@ DRAFTBEER HORECA @v11.9.4
 				const char * p_re_02_11_17_310y_10 = "^02(\\d{14})11(\\d{6})17(\\d{6})310([0-6])(\\d{6})10([!-~]{4,20})$"; // @v12.8.1
 				//                                       1          2         3          4      5         6   
 				SRegExp2 re(p_re_02_11_17_310y_10, cpANSI, SRegExp2::syntaxDefault, 0);
-				if(re.IsValid()) {
-					SRegExp2::FindResult reresult;
-					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
-						assert(reresult.getCount() == 6+1);
-						rS.AddOnlyToken(GtinStruc::fldContainerCt/*fldGTIN14*/); // 02xxx
-						rS.AddOnlyToken(GtinStruc::fldManufDate);
-						rS.AddOnlyToken(GtinStruc::fldExpiryDate);
-						rS.AddOnlyToken(GtinStruc::fldWtNettKg);
-						rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(6));
-						dedicated_case = dedicatedcase_cheeseminsk;
-					}
+				if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+					assert(reresult.getCount() == 6+1);
+					rS.AddOnlyToken(GtinStruc::fldContainerCt/*fldGTIN14*/); // 02xxx
+					rS.AddOnlyToken(GtinStruc::fldManufDate);
+					rS.AddOnlyToken(GtinStruc::fldExpiryDate);
+					rS.AddOnlyToken(GtinStruc::fldWtNettKg);
+					rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(6));
+					dedicated_case = dedicatedcase_cheeseminsk;
 				}
 			}
 			if(!dedicated_case) {
 				//dedicatedcase_cheesebrlit      = 16, // @v12.8.3  "^01(\\d{14})310([0-6])(\\d{6})11(\\d{6})10([!-~]{4,20})$";
 				const char * p_re_01_310y_11_10 = "^01(\\d{14})310([0-6])(\\d{6})11(\\d{6})10([!-~]{4,20})$";
 				SRegExp2 re(p_re_01_310y_11_10, cpANSI, SRegExp2::syntaxDefault, 0);
-				if(re.IsValid()) {
-					SRegExp2::FindResult reresult;
-					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
-						assert(reresult.getCount() == 5+1);
-						rS.AddOnlyToken(GtinStruc::fldGTIN14);
-						rS.AddOnlyToken(GtinStruc::fldWtNettKg);
-						rS.AddOnlyToken(GtinStruc::fldManufDate);
-						rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(5));
-						dedicated_case = dedicatedcase_cheesebrlit;
-					}
+				if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+					assert(reresult.getCount() == 5+1);
+					rS.AddOnlyToken(GtinStruc::fldGTIN14);
+					rS.AddOnlyToken(GtinStruc::fldWtNettKg);
+					rS.AddOnlyToken(GtinStruc::fldManufDate);
+					rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(5));
+					dedicated_case = dedicatedcase_cheesebrlit;
 				}
 			}
 			if(!dedicated_case) {
 				//dedicatedcase_alpenland_pck    = 17, // @v12.8.3  "^01(\\d{14})11(\\d{6})10([!-~]{4,20})$";
 				const char * p_re_01_11_10 = "^01(\\d{14})11(\\d{6})10([!-~]{4,20})$";
 				SRegExp2 re(p_re_01_11_10, cpANSI, SRegExp2::syntaxDefault, 0);
-				if(re.IsValid()) {
-					SRegExp2::FindResult reresult;
-					if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
-						assert(reresult.getCount() == 3+1);
-						rS.AddOnlyToken(GtinStruc::fldGTIN14);
-						rS.AddOnlyToken(GtinStruc::fldManufDate);
-						rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(3));
-						dedicated_case = dedicatedcase_alpenland_pck;
-					}
+				if(re.Find(preprocessed_code_buf, preprocessed_code_buf.Len(), 0, &reresult)) {
+					assert(reresult.getCount() == 3+1);
+					rS.AddOnlyToken(GtinStruc::fldGTIN14);
+					rS.AddOnlyToken(GtinStruc::fldManufDate);
+					rS.SetSpecialFixedToken(GtinStruc::fldPart, reresult.GetItemLen(3));
+					dedicated_case = dedicatedcase_alpenland_pck;
 				}
 			}
 			int   pr = 0;
 			{
-				{
-					/* @v12.5.3
-					temp_buf = pCode;
-					temp_buf.ShiftLeftChr('\xE8'); // Специальный символ. Может присутствовать в начале кода 
-					// "]C1"
-					if(temp_buf.HasPrefixIAscii("]C1")) { // Выяснилось, что и такие служебные префиксы встречаются //
-						temp_buf.ShiftLeft(3);
-						temp_buf.ShiftLeftChr('\xE8'); // Черт его знает: на всякий случай снова проверим этого обдолбыша
-					}
-					TranslateLocaleKeyboardTextToLatin(temp_buf, raw_buf);
-					*/
+				/* @v12.8.4 {
 					raw_buf = preprocessed_code_buf; // @v12.5.3
 					pCode = raw_buf;
-				}
-				pr = rS.Parse(pCode);
-				assert(!dedicated_case || pr == 1); // @v12.5.3 Если у нас специально обрабатываемый случай, то не может быть, что функция Parse сбойнула - иначе надо искать ошибку в коде!
+				}*/
+				pr = rS.Parse(preprocessed_code_buf, &nta);
+				assert(!dedicated_case || pr == 1); // Если у нас специально обрабатываемый случай, то не может быть, что функция Parse сбойнула - иначе надо искать ошибку в коде!
 				if(dedicated_case == dedicatedcase_motoroil_package) {
 					if(rS.GetToken(GtinStruc::fldSscc18, &temp_buf)) {
 						temp_buf.Sub(0, 14, sub_buf);
@@ -1121,13 +1079,13 @@ DRAFTBEER HORECA @v11.9.4
 						if(code_len == 83) {
 							while(pr != 1 && serial_len_variant_idx < SIZEOFARRAY(serial_len_variant_list_83)) {
 								rS.SetSpecialFixedToken(GtinStruc::fldSerial, serial_len_variant_list_83[serial_len_variant_idx++]);
-								pr = rS.Parse(pCode);					
+								pr = rS.Parse(preprocessed_code_buf, &nta);
 							}
 						}
 						else {
 							while(pr != 1 && serial_len_variant_idx < SIZEOFARRAY(serial_len_variant_list)) {
 								rS.SetSpecialFixedToken(GtinStruc::fldSerial, serial_len_variant_list[serial_len_variant_idx++]);
-								pr = rS.Parse(pCode);					
+								pr = rS.Parse(preprocessed_code_buf, &nta);
 							}
 						}
 					}
@@ -1157,9 +1115,6 @@ DRAFTBEER HORECA @v11.9.4
 				}
 			}
 			if(!ok && flags & pchzncfPretendEverythingIsOk) {
-				SNaturalTokenStat nts;
-				uint tokn = 0;
-				tr.Run(reinterpret_cast<const uchar *>(pCode), sstrleni(pCode), nta, &nts);
 				if(nts.Seq & SNTOKSEQ_ASCII && nts.Len >= 25)
 					ok = 100000;
 			}
@@ -7800,6 +7755,10 @@ int PPChZnPrcssr::TsPiotInterface::CheckCodeList_v2(const QueryBlock & rQBlk, Co
 			else if(ichzncr == PPChZnPrcssr::chznciSurrogate) {
 				ok = 1;
 				rInfoBuf.CRB().Cat("surrogate chzn-mark");
+			}
+			else if(ichzncr == PPChZnPrcssr::chznciSurrogateBatchN) { // @v12.8.4
+				ok = 1;
+				rInfoBuf.CRB().Cat("surrogate batch number");
 			}
 			else {
 				rInfoBuf.CRB().Cat("no chzn-mark");

@@ -1433,14 +1433,14 @@ IMPL_HANDLE_EVENT(SelAmtSymbDialog)
 		}
 		else*/ if(event.isCmd(cmaEdit) || event.isCmd(cmLBDblClk)) {
 			if(SmartListBox::IsValidS(P_List)) {
-				int    upd = 0;
+				bool   upd = false;
 				long   i = 0;
 				P_List->getCurID(&i);
 				PPID   id = (i & ~0xff000000L);
 				switch(i >> 24) {
-					case selSymbAmount:   upd = BIN(AtObj.Edit(&id, 0) == cmOK); break;
-					case selSymbFormula:  upd = BIN(FrmObj.Edit(&id, 0) == cmOK); break;
-					case selSymbStaffCal: upd = BIN(ScObj.Edit(&id, 0) == cmOK); break;
+					case selSymbAmount:   upd = (AtObj.Edit(&id, 0) == cmOK); break;
+					case selSymbFormula:  upd = (FrmObj.Edit(&id, 0) == cmOK); break;
+					case selSymbStaffCal: upd = (ScObj.Edit(&id, 0) == cmOK); break;
 				}
 				if(upd)
 					updateList();

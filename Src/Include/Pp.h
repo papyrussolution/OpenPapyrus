@@ -15,7 +15,7 @@
 //   Кретову Алексею
 //   Ванаг Светлане
 //   Родькиной Алене
-//   Поценковскоей Элине
+//   Поценковской Элине
 //   Соболеву Эрику
 //   Егорову Геннадию Николаевичу [rip]
 //   Соболеву Всеволоду (SevaSob)
@@ -8660,7 +8660,10 @@ enum {
 	PPSYM_FGDUEDATE,   // @fgduedate Дата исполнения документа в 'плоском' представлении (25032015)
 	PPSYM_OBJINN,      // @objinn ИНН персоналии, ассоциированной со основной статьей документа
 	PPSYM_OBJKPP,      // @objkpp КПП персоналии, ассоциированной со основной статьей документа
-	PPSYM_CLIENTEXTNAME // @v11.1.10 @CLIENTEXTNAME расширенное наименование персоналии клиента
+	PPSYM_CLIENTEXTNAME, // @CLIENTEXTNAME расширенное наименование персоналии клиента
+	PPSYM_DENSITY,     // @v12.8.4 @density Плотность (для товара)  
+	PPSYM_TYPE,        // @v12.8.4 @type Для товара - тип товара
+	PPSYM_ID,          // @v12.8.4 @id Ид объекта
 };
 //
 class PPSymbTranslator {
@@ -14827,12 +14830,12 @@ private:
 	int    ProcessLotFault(PPLotFaultArray & rList, int fault, double act, double valid);
 	int    UpdateFwRevalCostAndPrice(PPID lotID, LDATE dt, long oprno, double cost, double price, uint * pUF /* TRUCLF_UPDCOST || TRUCLF_UPDPRICE */);
 	int    UpdateFwRevalCostAndPrice2(PPID lotID, LDATE dt, long oprno, double cost, double price, uint * pUF);
-	int    Search(PPID lot, LDATE, long oprno, int spMode);
+	int    Search(PPID lotID, LDATE, long oprno, int spMode);
 	int    GetLotOprNo(LDATE, long * oprno);
 	int    UpdateForward(const TransferTbl::Rec &, double addendum, double phAdd);
 	int    UpdateCurRest(PPID goodsID, PPID loc, double addendum);
-	int    RemoveItem(PPID bill, int rvrs, short rByBill, int force, int use_ta);
-	int    UpdateTransferItem(PPTransferItem *, int16 & rByBill, int rvrs, long flags, int use_ta);
+	int    RemoveItem(PPID billID, int rvrs, short rByBill, int force, int use_ta);
+	int    UpdateTransferItem(PPTransferItem * pTi, int16 & rByBill, int rvrs, long flags, int use_ta);
 	int    UpdateReceipt(PPID lotID, PPTransferItem *, PPID prevLotID, long flags);
 		// @<<Transfer::UpdateItem(PPTransferItem *, int, long, int)
 	int    EnumIncorrectReverse(PPID * billID, short * rByBill, TransferTbl::Rec * orgRec);
@@ -17738,7 +17741,7 @@ public:
 protected:
 	virtual const char * GetNamePtr();
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
-	virtual int  ProcessReservedItem(TVRez &);
+	virtual int  ProcessReservedItem(TVRez &, long _flags);
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
@@ -17754,7 +17757,7 @@ protected:
 	//
 	virtual int  IsRecEq(const Reference2Tbl::Rec & rR1, const Reference2Tbl::Rec & rR2);
 	int    StoreItem(PPID obj, PPID id, void * rec, int use_ta);
-	int    LoadReservedItems(uint rezID);
+	int    LoadReservedItems(uint rezID, long flags); // @v12.8.4 +arg flags
 	int    Serialize_(int dir, Reference2Tbl::Rec * pPack, void * stream, ObjTransmContext * pCtx);
 public:
 	void * ExtraPtr;
@@ -18166,7 +18169,7 @@ public:
 protected:
 	virtual int  HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
 	virtual int  Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx);
-	virtual int  ProcessReservedItem(TVRez &);
+	virtual int  ProcessReservedItem(TVRez &, long _flags);
 };
 //
 // @ModuleDecl(RawMaterial) // @v12.0.10
@@ -18266,6 +18269,7 @@ protected:
 	virtual int  HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr);
 	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual int  Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx);
+	virtual int  ProcessReservedItem(TVRez &, long _flags); // @v12.8.4
 };
 //
 // @ModuleDecl(PPObjPersonStatus)
@@ -18274,6 +18278,9 @@ protected:
 #define PSNSTF_PRIVATE   0x0001L // Физическое лицо, иначе юридическое
 
 struct PPPersonStatus2 {   // @persistent @store(Reference2Tbl+)
+	PPPersonStatus2();
+	PPPersonStatus2 & Z();
+
 	long   Tag;            // Const=PPOBJ_PRSNSTATUS
 	long   ID;             // @id
 	char   Name[48];       // @name
@@ -18356,7 +18363,7 @@ public:
 	int    AddSimple(PPID * pID, const char * pName, int use_ta);
 	int    FASTCALL Fetch(PPID id, PPELinkKind * pRec);
 private:
-	virtual int  ProcessReservedItem(TVRez &);
+	virtual int  ProcessReservedItem(TVRez &, long _flags);
 };
 
 struct PPELink {
@@ -19393,7 +19400,7 @@ public:
 private:
 	virtual int RemoveObjV(PPID id, ObjCollection * pObjColl, uint options/* = rmv_default*/, void * pExtraParam);
 	virtual int HandleMsg(int, PPID, PPID, void * extraPtr);
-	//virtual int  ProcessReservedItem(TVRez &);
+	//virtual int  ProcessReservedItem(TVRez &, long _flags);
 	virtual int Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
@@ -19778,7 +19785,7 @@ private:
 	virtual int  Read(PPObjPack * pPack, PPID id, void * stream, ObjTransmContext * pCtx);
 	virtual int  Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext * pCtx);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
-	virtual int  ProcessReservedItem(TVRez &);
+	virtual int  ProcessReservedItem(TVRez &, long _flags);
 	virtual void FASTCALL Dirty(PPID);
 	int    GetFormula(PPID id, SString & rBuf);
 };
@@ -20728,7 +20735,7 @@ public:
 	virtual ListBoxDef * Selector(ListBoxDef * pOrgDef, long flags, void * extraPtr);
 	virtual int  Edit(PPID * pID, void * extraPtr);
 	virtual int  RemoveObjV(PPID id, ObjCollection * pObjColl, uint options, void * pExtraParam);
-	virtual int  ProcessReservedItem(TVRez &);
+	virtual int  ProcessReservedItem(TVRez &, long _flags);
 	int    GetPacket(PPID id, PPSecurPacket * pPack);
 	int    PutPacket(PPID * pID, PPSecurPacket * pPack, int use_ta);
 	int    AssignPrivateDesktop(PPID userID, const S_GUID & rDesktopUuid, const char * pDeskName, int use_ta);
@@ -21564,7 +21571,11 @@ public:
 	void   AddSpecialStopChar(uchar stopChar);
 	void   AddOnlyToken(int token);
 	GtinStruc & Z();
-	int    Parse(const char * pCode);
+	//
+	// ARG(pNta IN): Если вызывающая функция уже прогнала идентификацию натуральных токенов в pCode,
+	//   то она может передать функции Parse результат этого прогона дабы сэкономить время.
+	//
+	int    Parse(const char * pCode, SNaturalTokenArray * pNta);
 	int    GetToken(int tokenId, SString * pToken) const;
 	int    GetSpecialNaturalToken() const;
 	bool   IsSpecificOrder(const int pTokIdList[], uint tokIdListCount) const; // @v12.7.10
@@ -25474,6 +25485,7 @@ struct PPGoodsStrucHeader2 { // @persistent @store(Reference2Tbl+)
 	// Используется в структурах планирования стоимости продаж (GSF_PRICEPLANNING)
 
 struct PPGoodsStrucItem {  // @persistent(DBX) @size=52 @flat
+	static double GetSimpleQttyValue(double median, double denom);
 	//
 	// Descr: Статическая реализация определения эффективного количества компонента на complQtty
 	//   результирующего товара.
@@ -25484,6 +25496,11 @@ struct PPGoodsStrucItem {  // @persistent(DBX) @size=52 @flat
 	bool   FASTCALL operator == (const PPGoodsStrucItem & rS) const;
 	bool   FASTCALL operator != (const PPGoodsStrucItem & rS) const;
 	bool   FASTCALL IsEq(const PPGoodsStrucItem & rS) const;
+	//
+	// Descr: Возвращает явно заданное номинальное количество компонента на одну единицу основного товара без учета
+	//   флагов и формул. Фактически, возвращает fdivnz(Median / Denon)
+	//
+	double GetSimpleQttyValue() const;
 	int    SetEstimationString(const char *);
 	SString & GetEstimationString(SString &, long format = 0) const;
 	int    SetFormula(const char * pStr, const PPGoodsStruc * pStruc);
@@ -26233,7 +26250,7 @@ public:
 	int    Fetch(PPID, PPRegisterType2 *);
 	int    SearchSymb(PPID * pID, const char * pSymb);
 private:
-	virtual int  ProcessReservedItem(TVRez &);
+	virtual int  ProcessReservedItem(TVRez &, long _flags);
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 };
 //
@@ -27134,7 +27151,7 @@ class PPObjTaxSystemKind : public PPObjReference {
 public:
 	PPObjTaxSystemKind(void * extraPtr = 0);
 private:
-	virtual int  ProcessReservedItem(TVRez &);
+	virtual int  ProcessReservedItem(TVRez &, long _flags);
 };
 //
 // @ModuleDecl(PPObjRegister)
@@ -27744,7 +27761,7 @@ private:
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
-	virtual int  ProcessReservedItem(TVRez &);
+	virtual int  ProcessReservedItem(TVRez &, long _flags);
 };
 //
 // @ModuleDecl(PPObjPerson)
@@ -48190,14 +48207,14 @@ private:
 	static  void SetAddLockErrInfo(PPID mutexID);
 	static  ILTI & ObjAssocRecToBasketEntry(const ObjAssocTbl::Rec & rSrcRec, ILTI & rDest);
 	static  void BasketEntryToObjAssocRec(const ILTI & rSrc, long internalNum, bool dontResetDestRecBefore, ObjAssocTbl::Rec & rDestRec);
-	virtual StrAssocArray * MakeStrAssocList(void * extraPtr); // @v11.4.1
+	virtual StrAssocArray * MakeStrAssocList(void * extraPtr);
 	virtual void FASTCALL Destroy(PPObjPack * pPack);
-	virtual int HandleMsg(int, PPID, PPID, void * extraPtr); // @v11.4.0
+	virtual int HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual int Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  ProcessObjRefs(PPObjPack * p, PPObjIDArray * ary, int replace, ObjTransmContext * pCtx);
 	virtual void * CreateObjListWin(uint flags, void * extraPtr);
-	virtual int ProcessReservedItem(TVRez &);
+	virtual int ProcessReservedItem(TVRez &, long _flags);
 };
 
 class PPBasketCombine {
@@ -52273,6 +52290,7 @@ public:
 		SString AddendumFeature;
 	};
 	PrcssrUniFindObj();
+	~PrcssrUniFindObj();
 	int    InitParam(UniFindObjFilt * pParam);
 	int    EditParam(UniFindObjFilt * pParam);
 	int    Init(const UniFindObjFilt * pParam);
@@ -52291,6 +52309,7 @@ private:
 	PPObjSCard ScObj;
 	PPObjProject PrjObj;
 	PPObjPrjTask TodoObj;
+	ExtCodeRefCore * P_EcRefC; // @v12.8.4 для поиска чзн-марок, по которым получена информация из црпт
 };
 
 class PPViewUniFindObj : public PPView {
@@ -57158,7 +57177,7 @@ public:
 		fUseLotSelOnExp   = 0x0200, // Если fExistsOnly, то выбирать из лотов
 		fSelectModifMode  = 0x0400, // В диалог включается выбор знака операции (для модификации): расход/выход/рекомплектация
 		fHideGeneric      = 0x0800, // @construction Не отображать обобщенные товары
-		fForceMatrixUsage = 0x1000  // @v11.2.8 Диалог применяет органичения по товарной матрице независимо от других параметров
+		fForceMatrixUsage = 0x1000  // Диалог применяет органичения по товарной матрице независимо от других параметров
 	};
 	static long GetDefaultFlags();
 	ExtGoodsSelDialog(PPID opID, PPID initGoodsGrpID/*= 0*/, long flags/*= 0*/);
@@ -57195,6 +57214,7 @@ private:
 	double Price;
 	PPObjTSession::SerialByGoodsListItem SerialData;
 	int    UseBrand;
+	SString NameSubStr; // @v12.8.4 @construction Подстрока, по содержанию которой подбираются товары. Не работает, если (fSelByPrice|fSelByList|fSelByStrList)
 	RECORDNUMBER G2RecCount; // @*ExtGoodsSelDialog::ExtGoodsSelDialog Количество записей в таблице Goods2
 	PPObjectTokenizer * P_ObjTkn;
 	enum {
@@ -58199,11 +58219,12 @@ public:
 	// Note: Значение больше нуля трактуется как марка, пригодная к обработке честным знаком
 	//
 	enum {
-		chznciNone      = 0, // Код ни на что не похож. 
-		chznciReal      = 1, // Валидный код марки честный знак
-		chznciPallet    = 2, // @v12.3.5 (SNTOK_CHZN_PALLET_GTIN) Код паллеты
-		chznciSurrogate = -1, // Суррогатный код (не является кодом марки, но из кода можно извлечь полезную информацию: GTIN и, возможно, количество)
-		chznciPretend   = 1000 // Разбор кода закончился ошибкой, но тем не менее в нем есть GTIN и серия.
+		chznciNone            =  0, // Код ни на что не похож. 
+		chznciReal            =  1, // Валидный код марки честный знак
+		chznciPallet          =  2, // @v12.3.5 (SNTOK_CHZN_PALLET_GTIN) Код паллеты
+		chznciSurrogate       = -1, // Суррогатный код (не является кодом марки, но из кода можно извлечь полезную информацию: GTIN и, возможно, количество)
+		chznciSurrogateBatchN = -2, // @v12.8.4 Суррогатный партионный код (это - не код марки, но код партии продукции. Новая идейка у мудаков из црпт)
+		chznciPretend         = 1000 // Разбор кода закончился ошибкой, но тем не менее в нем есть GTIN и серия.
 	};
 	//
 	// Descr: Критерии сигнализации о провале проверки марки в разрешительном режиме и(или) тс пиот
@@ -58237,8 +58258,10 @@ public:
 			return chznciPallet;
 		else if(oneof2(r, SNTOK_CHZN_SURROGATE_GTINCOUNT, SNTOK_CHZN_SURROGATE_GTIN))
 			return chznciSurrogate;
-		else if(oneof6(r, SNTOK_CHZN_ALTCIGITEM, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SIGN_SGTIN, 
-			SNTOK_CHZN_GS1_GTIN/*, SNTOK_CHZN_SSCC*/, SNTOK_CHZN_BULK)) // @v11.9.0 SNTOK_CHZN_ALTCIGITEM // @v12.8.1 SNTOK_CHZN_BULK
+		else if(r == SNTOK_CHZN_SURROGATE_PARTN) // @v12.8.4
+			return chznciSurrogateBatchN;
+		else if(oneof7(r, SNTOK_CHZN_ALTCIGITEM, SNTOK_CHZN_CIGITEM, SNTOK_CHZN_CIGBLOCK, SNTOK_CHZN_SIGN_SGTIN, 
+			SNTOK_CHZN_GS1_GTIN/*, SNTOK_CHZN_SSCC*/, SNTOK_CHZN_BULK, SNTOK_CHZN_GENERAL)) // @v11.9.0 SNTOK_CHZN_ALTCIGITEM // @v12.8.1 SNTOK_CHZN_BULK // @v12.8.4 SNTOK_CHZN_GENERAL
 			return chznciReal;
 		else
 			return chznciNone;
@@ -60115,11 +60138,13 @@ public:
 	int    ExportPacket(PPID topLevelID, const PPWorkbookPacket & rPack);
 private:
 	int    PreprocessContent(const SString & rSrc, SString & rResult);
+	int    GetPathToEntry(PPID entryID, PPID topLevelID, SString & rBuf);
 
 	PPWorkbookImpExpParam Param;
 	PPImpExp * P_IEWorkbook;
 	PPObjWorkbook WbObj;
 	SString DestFilesPath; // @*PPWorkbookExporter::Init()
+	PPIDArray ProcessedIdList; // @v12.8.4
 };
 //
 //
@@ -60666,8 +60691,6 @@ public:
 private:
 	int    MakeOutFileIdent(const PPBillPacket * pBPack, FileInfo & rHi);
 	int    MakeOutFileName(const char * pFileIdent, SString & rFileName);
-	// @v12.5.12 void   WriteMarkListOnInvoiceItem(SXml::WNode & rN, const PPBillImpExpParam & rParam, int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet);
-	// @v12.6.1 void   WriteMarkListOnInvoiceItem2(xmlTextWriter * pX, int tagToken, bool tagTokenOnEachItem, const PPBillImpExpParam & rParam, int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet);
 	enum {
 		wmlictxInvoice = 1,
 		wmlictxCorrectionBefore = 2,
@@ -60681,6 +60704,12 @@ private:
 	//    0 - error
 	//
 	int    WriteMarkListOnInvoiceItem3(xmlTextWriter * pX, int contextId, const PPBillImpExpParam & rParam, int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet);
+	//
+	// Descr: Возвращает >0 если лот lotID содержит суррогатную чзн-марку, работающую в режиме партионного учета.
+	//   То есть, марка несет в себе GTIN и номер партии (возможно, дату производства и иные маловажные факторы). Важно то, что 
+	//   такая маркировка предназначена не для помарочного учета каждой единицы, а количественного учета в разрезе одной производственной партии.
+	//
+	int    IsLotInChZnBatchMode(PPID lotID, SString & rMark); // @v12.8.4
 	//
 	// Descr: Извлекает из базы данных идентификатор участника документооборота.
 	//   Сложность в том, что этот идентификатор может быть задан либо в виде тега персоналии (PPTAG_PERSON_ENALOGID),

@@ -2120,10 +2120,7 @@ private:
 	const  PPID Kind;
 };
 
-int PPViewVatBook::EditAutoBuildFilt(AutoBuildFilt * pFilt)
-{
-	DIALOG_PROC_BODY_P1(AutoBuildFiltDialog, Filt.Kind, pFilt);
-}
+int PPViewVatBook::EditAutoBuildFilt(AutoBuildFilt * pFilt) { DIALOG_PROC_BODY_P1(AutoBuildFiltDialog, Filt.Kind, pFilt); }
 
 enum {
 	mrbbfIsNeg          = 0x0001,

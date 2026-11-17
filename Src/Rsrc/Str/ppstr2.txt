@@ -5623,8 +5623,9 @@ PPTXT_HINT_TAG_USEKEYFORSELRIGHTS      "Нажмите F2 для выбора п
 PPSSYM_SYMB "LINK;BILLNO;DATE;PAYDATE;AMOUNT,AMT;LOCATION,LOC;OBJECT,OBJ;PAYER;\
 AGENT;REGNAME;REGSN;REGNO;REGORG;TRADELIC;BILLMEMO;OBJ2INN;OBJ2KPP;BILLOBJ2,OBJ2,EXTOBJ;GCNAME;GCKIND;GCGRADE;GCADDPROP;GCDIMX;GCDIMY;GCDIMZ;ALACC;ALAR;ALAMT;RCKN;\
 CLIENTADDR;GRNAME;PHPU;BRAND;CLIENT;PARENT;GCADD2PROP;GCDIMW;TSESS;PRC;TECH;MEMO;EXPIRY;AGTCODE;AGTDATE;AGTEXPIRY;\
-MODEL;CODE;SUBCODE;OWNER;CAPTAIN;INVOICEDATE;INVOICENO;DLVRLOCCODE;FGDATE;INN;KPP;LOCCODE;DLVRLOCID;DUMMY;CSESS;POSNODE;DLVRLOCTAG;DUEDATE;FGDUEDATE;OBJINN;OBJKPP;CLIENTEXTNAME"
-// @v10.4.1 DLVRLOCTAG.tagsymb // @v10.4.8 DUEDATE FGDUEDATE // @v10.5.0 OBJINN OBJKPP // @v11.1.10 CLIENTEXTNAME
+MODEL;CODE;SUBCODE;OWNER;CAPTAIN;INVOICEDATE;INVOICENO;DLVRLOCCODE;FGDATE;INN;KPP;LOCCODE;DLVRLOCID;DUMMY;CSESS;POSNODE;DLVRLOCTAG;DUEDATE;FGDUEDATE;OBJINN;OBJKPP;\
+CLIENTEXTNAME;DENSITY;TYPE;ID"
+// @v10.4.1 DLVRLOCTAG.tagsymb // @v10.4.8 DUEDATE FGDUEDATE // @v10.5.0 OBJINN OBJKPP // @v11.1.10 CLIENTEXTNAME // @v12.8.4 DENSITY, TYPE, ID
 
 // Мнемоника сторон баланса (Дб|Кр)
 PPSSYM_ACCSIDE "0DBT,0DB,0D,0ДБТ,0ДБ,0Д,1CRD,1CR,1KRD,1KR,1C,1K,1КРД,1КР,1К"
@@ -6494,6 +6495,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @lbt_gdsclsformlist                  "2,L,;20,L,@appellation;30,L,@formula" // @v12.8.3
 @lbt_selamtsymb                      "3,L,@kind;15,L,@symbol;43,L,@appellation" // @v12.8.3
 @lbt_selgcsubstsymb                  "15,L,@symbol;43,L,@description" // @v12.8.3
+@lbt_ortcs2dparam_demandlist         "20,L,Товар;8,R,Количество;8,R,Цена"
 
 @entmanagementsys                    "Система управления предприятием"
 @pgmcopylic_owner                    "Владелец лицензии"
@@ -7380,6 +7382,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @executor                            "Исполнитель"
 @transport                           "Транспорт"
 @freightagent                        "Транспортный брокер"
+@personalcontact                     "Персональный контакт"  // @v12.8.4 @centrigo
+@personalcontact_pl                  "Персональные контакты" // @v12.8.4 @centrigo
 @bank                                "Банк"
 @bank_pl                             "Банки"
 @bankcode                            "Код банка"
@@ -10142,6 +10146,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @accsheet_tag                             "@{tag}"
 @accsheet_reserved_expcat                 "Категории персональных расходов" // @v12.7.7
 @accsheet_reserved_inccat                 "Категории персональных доходов"  // @v12.7.7
+@accsheet_reserved_personalcontact        "Контрагенты персональных транзакций"  // @v12.8.4
 @accturn_amount                           "@{amount}"
 @accturn_bill                             "Идентификатор документа"
 @accturn_billcode                         "@{billno}"
@@ -12559,14 +12564,17 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @goodsclassformulalist                    "Формулы класса товаров"
 
 @gcsubstsymbdescr_gcname     "Наименование класса товара"
-@gcsubstsymbdescr_gckind     "Вид товара"
-@gcsubstsymbdescr_gcgrade    "Сорт товара"
-@gcsubstsymbdescr_gcaddprop  "Дополнительное свойство товара"
-@gcsubstsymbdescr_gcadd2prop "Дополнительное свойство товара 2"
-@gcsubstsymbdescr_gcdimx     "Размерность X"
-@gcsubstsymbdescr_gcdimy     "Размерность Y"
-@gcsubstsymbdescr_gcdimz     "Размерность Z"
-@gcsubstsymbdescr_gcdimw     "Размерность W"
+@gcsubstsymbdescr_gckind     "Вид классифицированного товара"
+@gcsubstsymbdescr_gcgrade    "Сорт классифицированного товара"
+@gcsubstsymbdescr_gcaddprop  "Дополнительное свойство классифицированного товара"
+@gcsubstsymbdescr_gcadd2prop "Дополнительное свойство классифицированного товара 2"
+@gcsubstsymbdescr_gcdimx     "Размерность X классифицированного товара"
+@gcsubstsymbdescr_gcdimy     "Размерность Y классифицированного товара"
+@gcsubstsymbdescr_gcdimz     "Размерность Z классифицированного товара"
+@gcsubstsymbdescr_gcdimw     "Размерность W классифицированного товара"
+@gcsubstsymbdescr_density    "Плотность материала"
+@gcsubstsymbdescr_type       "Тип товара"
+@gcsubstsymbdescr_id         "Идентификатор"
 
 @goodsgroup_abbr                          "@{abbr}"
 @goodsgroup_brand                         "@{brand}"
@@ -12681,7 +12689,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @gsitem_denom                             ""
 @gsitem_netto                             "@{netto}"
 @gsitem_symb                              "@{symbol}"
-@gsitem_formula                           "@{formula}"
+@gsitem_formula                           "Формула расчета количества"
 @gsitem_price                             "@{price} @{forreference}" // generic
 //
 @goodstax_excise                          "@{excise} (A)"
@@ -17428,12 +17436,12 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @chznprcssrparam_param                    "Параметр запроса"
 @chznprcssrparam_ar                       "@{supplier}"
 @chznprcssrparam_afqueryticket            "Запрос тикета по документу"
-@chznprcssrparam_afquerykizinfo           "Запрос информации о марке"
+@chznprcssrparam_afquerykizinfo           "Запрос информации о марке (MDLP)"
 @chznprcssrparam_afquerydoclistin         "Запрос списка входящих документов"
 @chznprcssrparam_afdebugauth              "Авторизация (тест)"
-@chznprcssrparam_afqueryaggrmarklist      "Запрос списка агрегированных марок"
-@chznprcssrparam_afquerymarkinfo          "Запрос информации о марках" // @v12.6.9
-@chznprcssrparam_afquerymarkops           "Запрос информации о движении марки" // @v12.7.1
+@chznprcssrparam_afqueryaggrmarklist      "Запрос списка агрегированных марок (TrueAPI)"
+@chznprcssrparam_afquerymarkinfo          "Запрос информации о марках (TrueAPI)" // @v12.6.9
+@chznprcssrparam_afquerymarkops           "Запрос информации о движении марки (TrueAPI)" // @v12.7.1
 @chznprcssrparam_loc                      "@{warehouse}"
 @chznprcssrparam_foutputtofile            "Выводить результаты в файл"
 
@@ -18828,7 +18836,10 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @centrigo_cmd_wallet     "Кошелек"
 @centrigo_cmd_secrets    "@{secretpool}"
 
-
+@ortcs2dparam            "Параметры 2D-раскроя"
+@ortcs2dparam_rawwaregrp "Группа сырьевого товара"
+@ortcs2dparam_rawware    "Сырьевой товар"
+@ortcs2dparam_warehouse  "@{warehouse}"
 
 [121]
 1   "Вход"
@@ -19549,6 +19560,9 @@ PPHSC_RU_WAREIDENTBLOCK_AFTER  "НомСредИдентТовПосле" // @v1
 PPHSC_RU_WAREIDENT_PACKCODE    "НомУпак"
 PPHSC_RU_WAREIDENT_TPACKCODE   "ИдентТрансУпак" // @v11.5.1
 PPHSC_RU_WAREIDENT_KIZ         "КИЗ"
+PPHSC_RU_WAREIDENT_MANUFPART   "ПрПартМарк" // @v12.8.4 Производственная партия (КОД)
+PPHSC_RU_WAREIDENT_MARKQTTY    "КолВедМарк" // @v12.8.4 Количество товара в единицах измерения маркированного товара средствами идентификации.
+	// Указывается количество маркированных товаров в потребительской упаковке (КИЗ). Элемент обязателен при отсутствии <КИЗ>, <НомУпак>, <ИдентТрансУпак>
 PPHSC_RU_OKEI                  "ОКЕИ"
 PPHSC_RU_UOM                   "ЕдИзм" // @v11.9.5 SBIS
 PPHSC_RU_UNITNAME              "НаимЕдИзм"

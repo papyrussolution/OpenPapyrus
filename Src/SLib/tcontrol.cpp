@@ -2778,7 +2778,7 @@ void ComboBox::freeAll()
 								pic_bounds.MoveCenterTo(rect_elem.GetCenter());
 							}
 							else {
-
+								;
 							}
 						}
 						canv.AddTransform(vp.GetMatrix(pic_bounds, mtx));
@@ -3001,7 +3001,7 @@ int TToolTip::RemoveAllTools()
 //
 // @v12.8.3 @construction {
 //
-TFloatButton::TFloatButton() : H(0)
+TFloatButton::TFloatButton() : H(0), ShowTimeoutMs(0)
 {
 }
 	
@@ -3033,44 +3033,71 @@ TFloatButton::~TFloatButton()
 				}
 				return 0;
 			}
+		case WM_TIMER:
+			if(p_this) {
+				if(wParam == tmrHide) {
+					p_this->Show(false, 0);
+					return 0;
+				}
+				else if(wParam == tmrClose) {
+					::DestroyWindow(hWnd);
+					return 0;
+				}
+			}
+			break;
 		case WM_ERASEBKGND:
 			return 1; // Подавляем стирание, рисуем всё в WM_PAINT
 		case WM_PAINT:
 			{
 				PAINTSTRUCT ps;
-				HDC  hdc = BeginPaint(hWnd, &ps);
+				HDC  hdc = ::BeginPaint(hWnd, &ps);
 				RECT rc;
-				GetClientRect(hWnd, &rc);
+				::GetClientRect(hWnd, &rc);
+				if(true) {
+					const  TRect rect_elem_i(rc);
+					APPL->InitUiToolBox();
+					SPaintToolBox * p_tb = APPL->GetUiToolBox();
+					if(p_tb) {
+						TCanvas2 canv(*p_tb, ps.hdc);
+						FRect fr(rc);
+						//p_tb->GetObj(TProgram::tbiBlackPen);
+						canv.Ellipse(fr);
+						canv.Fill(TProgram::tbiFloatButtonBrush, 0);
+						//canv._DrawTextUtf8(fr, "+", DT_LEFT|DT_VCENTER|DT_SINGLELINE);
+					}
+				}
+				else {
+					// Фон
+					HBRUSH hBrush = CreateSolidBrush(RGB(240, 240, 240));
+					FillRect(hdc, &rc, hBrush);
+					DeleteObject(hBrush);
 
-				// Фон
-				HBRUSH hBrush = CreateSolidBrush(RGB(240, 240, 240));
-				FillRect(hdc, &rc, hBrush);
-				DeleteObject(hBrush);
+					// Рамка
+					HPEN hPen = CreatePen(PS_SOLID, 1, RGB(128, 128, 128));
+					HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
+					HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, GetStockObject(NULL_BRUSH));
+					//::Rectangle(hdc, rc.left, rc.top, rc.right, rc.bottom);
+					::Ellipse(hdc, rc.left, rc.top, rc.right, rc.bottom);
+					SelectObject(hdc, hOldPen);
+					SelectObject(hdc, hOldBrush);
+					DeleteObject(hPen);
 
-				// Рамка
-				HPEN hPen = CreatePen(PS_SOLID, 1, RGB(128, 128, 128));
-				HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
-				HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, GetStockObject(NULL_BRUSH));
-				Rectangle(hdc, rc.left, rc.top, rc.right, rc.bottom);
-				SelectObject(hdc, hOldPen);
-				SelectObject(hdc, hOldBrush);
-				DeleteObject(hPen);
+					// Текст
+					SetBkMode(hdc, TRANSPARENT);
+					SetTextColor(hdc, RGB(0, 100, 200));
+					HFONT hFont = (HFONT)SendMessageW(hWnd, WM_GETFONT, 0, 0);
+					HFONT hOldFont = hFont ? (HFONT)SelectObject(hdc, hFont) : NULL;
 
-				// Текст
-				SetBkMode(hdc, TRANSPARENT);
-				SetTextColor(hdc, RGB(0, 100, 200));
-				HFONT hFont = (HFONT)SendMessageW(hWnd, WM_GETFONT, 0, 0);
-				HFONT hOldFont = hFont ? (HFONT)SelectObject(hdc, hFont) : NULL;
-
-				wchar_t text[256];
-				text[0] = 0;
-				GetWindowTextW(hWnd, text, SIZEOFARRAY(text));
-				DrawTextW(hdc, text, -1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
-				if(hOldFont) 
-					SelectObject(hdc, hOldFont);
-				EndPaint(hWnd, &ps);
-				return 0;
+					wchar_t text[256];
+					text[0] = 0;
+					GetWindowTextW(hWnd, text, SIZEOFARRAY(text));
+					DrawTextW(hdc, text, -1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+					if(hOldFont) 
+						SelectObject(hdc, hOldFont);
+				}
+				::EndPaint(hWnd, &ps);
 			}
+			return 0;
 		case WM_LBUTTONDOWN:
 			if(p_this) {
 				//return p_this->OnLButtonDown();
@@ -3110,10 +3137,7 @@ TFloatButton::~TFloatButton()
 }
 
 const wchar_t * P_TFloatButton_ClsName = L"TFloatButton";
-// Размер кнопки
-const SPoint2I TFloatButton_Size(24, 24);
-//const int btn_width = 24;
-//const int btn_height = 24;
+const SPoint2I TFloatButton_Size(36, 36); // Размер кнопки
 	
 int TFloatButton::Create(HWND hParent, HWND hTarget, const wchar_t * pText)
 {
@@ -3147,12 +3171,23 @@ int TFloatButton::Create(HWND hParent, HWND hTarget, const wchar_t * pText)
 			::SetWindowLongPtrW(H, GWLP_USERDATA, (LONG_PTR)this);
 			UpdatePosition(hTarget); // Позиционируем кнопку
 			// Устанавливаем шрифт (жирный для "+")
-			HFONT hFont = ::CreateFontW(16, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
-				DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Segoe UI");
+			HFONT hFont = ::CreateFontW(20, 0, 0, 0, FW_BOLD, FALSE, FALSE, FALSE,
+				DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH|FF_DONTCARE, L"Segoe UI");
 			::SendMessageW(H, WM_SETFONT, (WPARAM)hFont, TRUE);
 		}
 	}
 	return ok;
+}
+
+void TFloatButton::Show(bool doShow, uint showTimeoutMs)
+{
+	if(H) {
+		::ShowWindow(H, doShow ? SW_SHOWNOACTIVATE : SW_HIDE);
+		if(doShow && showTimeoutMs) {
+			ShowTimeoutMs = showTimeoutMs;
+			::SetTimer(H, tmrHide, ShowTimeoutMs, static_cast<TIMERPROC>(0));
+		}
+	}
 }
 
 void TFloatButton::UpdatePosition(HWND hTarget)

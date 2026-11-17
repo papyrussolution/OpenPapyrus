@@ -722,7 +722,7 @@ int PPObjSecur::Browse(void * extraPtr)
 	return new PPObjSecurListWindow(this, flags, extraPtr);
 }
 
-int PPObjSecur::ProcessReservedItem(TVRez & rez)
+int PPObjSecur::ProcessReservedItem(TVRez & rez, long _flags)
 {
 	int    ok = 1;
 	int    r = 0;

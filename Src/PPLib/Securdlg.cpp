@@ -565,7 +565,7 @@ private:
 			SetupPPObjCombo(dlg, CTLSEL_CURCFG_BASECUR, PPOBJ_CURRENCY, Data.BaseCurID, OLW_CANINSERT, 0);
 			SetupPPObjCombo(dlg, CTLSEL_CURCFG_RATETYPE, PPOBJ_CURRATETYPE, Data.BaseRateTypeID, OLW_CANINSERT, 0);
 			dlg->AddClusterAssoc(CTL_CURCFG_FLAGS, 0, CFGFLG_MULTICURACCT);
-			dlg->AddClusterAssoc(CTL_CURCFG_FLAGS, 1, CFGFLG_MULTICURBILL_DISABLE); // @v10.7.8
+			dlg->AddClusterAssoc(CTL_CURCFG_FLAGS, 1, CFGFLG_MULTICURBILL_DISABLE);
 			dlg->SetClusterData(CTL_CURCFG_FLAGS, Data.Flags);
 			for(int valid_data = 0; !valid_data && ExecView(dlg) == cmOK;) {
 				dlg->getCtrlData(CTLSEL_CURCFG_BASECUR,  &Data.BaseCurID);

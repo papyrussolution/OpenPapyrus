@@ -780,7 +780,7 @@ int PPObjGoodsBasket::SelectBasket(PPBasketCombine & rBasket)
 	return ok;
 }
 
-/*virtual*/int PPObjGoodsBasket::ProcessReservedItem(TVRez & rRez)
+/*virtual*/int PPObjGoodsBasket::ProcessReservedItem(TVRez & rRez, long _flags)
 {
 	int    ok = 1;
 	int    r;

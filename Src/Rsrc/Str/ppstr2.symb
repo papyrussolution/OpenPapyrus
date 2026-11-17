@@ -1,18 +1,18 @@
 
 [hash]
-base=ppstr2.txt,aJkMvzILxkPowbSr+aWu62ZFBB8buMLbKLniWnukhOE=,ppstr2.bin,aS4ZdBIPQI9vZ1Q1g1MgT0bvr2pljfQjBU0sherqvTE=
+base=ppstr2.txt,w9KnGEdRjDk7MXw+Ab6X/ty6yrTDmQJqTemYLfR9Kj0=,ppstr2.bin,zgui5FqkXbtdhHo/Ji3CRL/ihSPzudxLuCTbrrqBM78=
 lang-de=ppstr2-de.txt,vBHXz7GFmSlWHN5nhQWFT6WBP/qX1NctpzLNyBKBRUs=,ppstr2-de.bin,IgP0oJq+StX6/pHGw3DlOEbNMrxZZeYYfFLh/tUQQD4=
 lang-en=ppstr2-en.txt,+28p3hMfvSudDV3CqfJDOjTZKho2umy1K4C92tm3UyY=,ppstr2-en.bin,JDl8q1nkd4ILSPASoUHHH8s6KZM7kP5OUXwUOH/Kvug=
 lang-es=ppstr2-es.txt,bvkiJX8i+13kNCalRFfPxci9gmGnLr6J9xhKF+0NtLo=,ppstr2-es.bin,hebe73IxmbxJ+qOeg1vD9+iWczPBOsihVl0WLPu2McE=
 lang-nl=ppstr2-nl.txt,Qu0aihpaC9sB5/9X+XW+O/SEjNj1xI04rRvezRthdLQ=,ppstr2-nl.bin,b7LDKYhsEWl1AxDnuhKaxFsW5LwqMpWA7P8pk/Z8tqk=
 lang-pt=ppstr2-pt.txt,UCn636ls+9Wei7NF5wM/r/9urjXBchGWUIAnmqVDlGY=,ppstr2-pt.bin,pYieVsWs9JRwpEzswpHbuzr+/cRhm+Z4UUAdy5rZ3Do=
-chdr=ppstr2.h,cfCKHIIWXR7a5hxX3rzzY3OQWkTZMPhwWSI5tdw5M9U=
-java=ppstr2.java,gKkSJ0gq6/KEDjvgorVXtFb2OQiDVGLYr87XaJvo+Jk=
+chdr=ppstr2.h,LmMaBSG1E9TWmvU4S3FjUt0rQwPfTLM+DUhO8uj3f1w=
+java=ppstr2.java,3nVyLQHDCJfmDqyZpme/bDRdJreVzws++/GqKsAjR+8=
 
 [common]
 LastAutoGrpCode=1001
-LastSignatureCode=2147499244
-LastAutoCodeList=1,12483;102,10179;103,10074;110,10000;111,13070;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10314;120,10010;1001,10000;121,10000;122,10000;123,10662;124,10930;125,10128;126,10000;104,10162;105,10043
+LastSignatureCode=2147499255
+LastAutoCodeList=1,12483;102,10179;103,10074;110,10000;111,13070;112,10000;119,10000;114,10012;7,10000;4,10000;6,10000;342,10000;118,10314;120,10010;1001,10000;121,10000;122,10000;123,10662;124,10932;125,10128;126,10000;104,10162;105,10043
 
 [SignatureList]
 testsign1=2147495071
@@ -113,6 +113,7 @@ lbt_divggrpassoclist=2147499109
 lbt_gdsclsformlist=2147499232
 lbt_selamtsymb=2147499233
 lbt_selgcsubstsymb=2147499234
+lbt_ortcs2dparam_demandlist=2147499251
 entmanagementsys=2147483734
 pgmcopylic_owner=2147483735
 pgmcopylic_regnum=2147483736
@@ -980,6 +981,8 @@ creator=2147484395
 executor=2147484396
 transport=2147484397
 freightagent=2147484398
+personalcontact=2147499245
+personalcontact_pl=2147499246
 bank=2147484399
 bank_pl=2147484400
 bankcode=2147484401
@@ -3633,6 +3636,7 @@ accsheet_symb=2147495666
 accsheet_tag=2147495667
 accsheet_reserved_expcat=2147499210
 accsheet_reserved_inccat=2147499211
+accsheet_reserved_personalcontact=2147499250
 accturn_amount=2147495668
 accturn_bill=2147486459
 accturn_billcode=2147495669
@@ -5925,6 +5929,9 @@ gcsubstsymbdescr_gcdimx=2147499241
 gcsubstsymbdescr_gcdimy=2147499242
 gcsubstsymbdescr_gcdimz=2147499243
 gcsubstsymbdescr_gcdimw=2147499244
+gcsubstsymbdescr_density=2147499247
+gcsubstsymbdescr_type=2147499248
+gcsubstsymbdescr_id=2147499249
 goodsgroup_abbr=2147496585
 goodsgroup_brand=2147496586
 goodsgroup_defbcodestruc=2147488547
@@ -11652,6 +11659,10 @@ centrigo_cmd_contacts=2147499122
 centrigo_cmd_todo=2147499106
 centrigo_cmd_wallet=2147499107
 centrigo_cmd_secrets=2147499108
+ortcs2dparam=2147499254
+ortcs2dparam_rawwaregrp=2147499255
+ortcs2dparam_rawware=2147499252
+ortcs2dparam_warehouse=2147499253
 
 [GrpSymbList]
 .N.=342
@@ -17662,6 +17673,8 @@ PPHSC_RU_CONSIGNORDIRECTION_NORM=8137391
 PPHSC_RU_GTD=8137392
 PPHSC_RU_GTD_COUNTRYCODE=8137393
 PPHSC_RU_GTD_NUMBER=8137394
+PPHSC_RU_WAREIDENT_MANUFPART=8137395
+PPHSC_RU_WAREIDENT_MARKQTTY=8137396
 PPHSC_AGPLUS_WAREHOUSE_PL=8202065
 PPHSC_AGPLUS_DLVRLOC_PL=8202066
 PPHSC_AGPLUS_CONTRACTOR_PL=8202067

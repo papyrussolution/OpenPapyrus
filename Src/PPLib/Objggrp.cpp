@@ -2416,15 +2416,16 @@ int PPObjBrand::Edit(PPID * pID, void * extraPtr)
 	int    ok = -1;
 	bool   valid_data = false;
 	bool   is_new = false;
-	BrandDialog * dlg = 0;
 	PPBrandPacket pack;
+	BrandDialog * dlg = new BrandDialog();
 	THROW(EditPrereq(pID, dlg, &is_new));
-	THROW(CheckDialogPtr(&(dlg = new BrandDialog())));
+	THROW(CheckDialogPtr(&dlg));
 	if(!is_new) {
 		THROW(Get(*pID, &pack) > 0);
 	}
-	else
+	else {
 		pack.Init();
+	}
 	THROW(dlg->setDTS(&pack));
 	while(!valid_data && ExecView(dlg) == cmOK) {
 		if(dlg->getDTS(&pack)) {

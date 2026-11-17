@@ -245,6 +245,29 @@ PPObjAccSheet::PPObjAccSheet(void * extraPtr) : PPObjReference(PPOBJ_ACCSHEET, e
 				THROW(StoreItem(PPOBJ_ACCSHEET, 0, &acs_rec, 1));
 				ok = 1;
 			}
+		}
+		{ // @v12.8.4
+			const  PPID psn_kind_id = PPPRK_PERSONALCONTACT;
+			PPObjPersonKind pk_obj;
+			PPPersonKind2 pk_rec;
+			if(pk_obj.Search(psn_kind_id, &pk_rec) > 0) {
+				const char * p_symb = "rPSNACSCONTRACTOR";
+				PPID   _id = 0;
+				if(SearchBySymb(p_symb, &_id, &acs_rec) > 0) {
+					;
+				}
+				else {
+					acs_rec.Z();
+					PPLoadString("accsheet_reserved_personalcontact", temp_buf);
+					STRNSCPY(acs_rec.Name, temp_buf);
+					STRNSCPY(acs_rec.Symb, p_symb);
+					acs_rec.Flags |= ACSHF_AUTOCREATART;
+					acs_rec.Assoc = PPOBJ_PERSON;
+					acs_rec.ObjGroup = psn_kind_id;
+					THROW(StoreItem(PPOBJ_ACCSHEET, 0, &acs_rec, 1));
+					ok = 1;
+				}
+			}
 		}		
 	}
     CATCHZOK

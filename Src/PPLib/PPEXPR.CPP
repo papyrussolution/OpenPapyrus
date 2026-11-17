@@ -1298,7 +1298,6 @@ int GoodsContext::ResolveRefQtty(PPID goodsID, int cbItemRef, int isPhQtty, doub
 	int    ok = 1;
 	double v = 0.0;
 	if(goodsID) {
-		// @v11.0.7 {
 		if(P_TslRec) {
 			if(isPhQtty) {
 				double phqtty = 0.0;
@@ -1317,7 +1316,6 @@ int GoodsContext::ResolveRefQtty(PPID goodsID, int cbItemRef, int isPhQtty, doub
 				v = P_TslRec->Qtty;
 			}
 		}
-		// } @v11.0.7 
 		else if(P.TSessID) {
 			SETIFZ(P_TSesObj, new PPObjTSession);
 			TSessGoodsTotal tsgt;

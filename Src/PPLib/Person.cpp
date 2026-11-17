@@ -226,7 +226,7 @@ int PPObjPersonRelType::GetGroupingList(PPIDArray * pList)
 	return ok;
 }
 
-int PPObjPersonRelType::ProcessReservedItem(TVRez & rez)
+int PPObjPersonRelType::ProcessReservedItem(TVRez & rez, long _flags)
 {
 	int    ok = 1;
 	int    r;

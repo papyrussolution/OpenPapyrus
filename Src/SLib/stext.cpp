@@ -1406,29 +1406,31 @@ uint   FASTCALL hexw(wchar_t c) { return (c >= L'0' && c <= L'9') ? (c-L'0') : (
 
 uint8 FASTCALL hextobyte(const char * pBuf)
 {
-	return (ishex(pBuf[0]) && ishex(pBuf[1])) ? hex2(pBuf[0], pBuf[1]) : 0; // @v11.9.3
-	/* @v11.9.3
-	uint8  c0 = pBuf[1];
-	uint8  c1 = pBuf[0];
-	uint8  r = 0;
-	if(c0 >= '0' && c0 <= '9')
-		r |= c0 - '0';
-	else if(c0 >= 'A' && c0 <= 'F')
-		r |= c0 - 'A' + 10;
-	else if(c0 >= 'a' && c0 <= 'f')
-		r |= c0 - 'a' + 10;
+	return (ishex(pBuf[0]) && ishex(pBuf[1])) ? hex2(pBuf[0], pBuf[1]) : 0;
+}
+
+bool FASTCALL isdecseq(const char * pBuf, size_t len) // @v12.8.4
+{
+	bool   result = true;
+	if(pBuf && len) {
+		while(len >= 8) {
+			if(!IsMadeOfEightDigitsFast(PTR8C(pBuf))) {
+				result = false;
+				break;
+			}
+			else {
+				pBuf += 8;
+				len -= 8;
+			}
+		}
+		for(size_t i = 0; result && i < len; i++) {
+			if(!isdec(pBuf[i]))
+				result = false;
+		}
+	}
 	else
-		return 0;
-	if(c1 >= '0' && c1 <= '9')
-		r |= (c1 - '0') << 4;
-	else if(c1 >= 'A' && c1 <= 'F')
-		r |= (c1 - 'A' + 10) << 4;
-	else if(c1 >= 'a' && c1 <= 'f')
-		r |= (c1 - 'a' + 10) << 4;
-	else
-		return 0;
-	return r;
-	*/
+		result = false;
+	return result;
 }
 
 /*static int experimental_isasciialpha(int c) 

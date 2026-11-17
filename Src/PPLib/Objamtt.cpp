@@ -471,7 +471,7 @@ int PPObjAmountType::PutPacket(PPID * pID, PPAmountTypePacket * pPack, int use_t
 	return ok;
 }
 
-int PPObjAmountType::ProcessReservedItem(TVRez & rez)
+int PPObjAmountType::ProcessReservedItem(TVRez & rez, long _flags)
 {
 	int    ok = 1, r;
 	SString name;

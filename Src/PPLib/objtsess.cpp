@@ -1425,27 +1425,23 @@ int PPObjTSession::RecalcSessionPacket(TSessionPacket & rPack, LongArray * pUpdR
 							double _cq_total = 0.0;
 							for(i = 0; i < rPack.Lines.getCount(); i++) {
 								const TSessLineTbl::Rec & r_item = rPack.Lines.at(i);
-								// @v11.0.7 if(r_item.GoodsID == r_gsi.GoodsID) {
-								if(GObj.IsEqualOrBelongToGeneric(r_item.GoodsID, r_gsi.GoodsID)) { // @v11.0.7 
-									// @v11.0.7 {
+								if(GObj.IsEqualOrBelongToGeneric(r_item.GoodsID, r_gsi.GoodsID)) {
 									double _cq  = 0.0;
 									if(r_gsi.Formula__[0]) {
 										double v = 0.0;
 										GdsClsCalcExprContext ctx(&r_item);
-										//GdsClsCalcExprContext ctx(r_item.GoodsID, rPack.Rec.ID);
 										if(PPCalcExpression(r_gsi.Formula__, &v, &ctx))
 											_cq = v;
 									}
 									else if(gs.GetItemExt(giidx, 0, tec_rec.GoodsID, 1.0, &_cq) > 0) {
 									}
-									// } @v11.0.7 
 									if(r_item.Sign > 0) {
 										gsi_qtty -= fabs(r_item.Qtty);
-										_cq_total -= fabs(_cq); // @v11.0.7 
+										_cq_total -= fabs(_cq);
 									}
 									else if(r_item.Sign < 0) {
 										gsi_qtty += fabs(r_item.Qtty);
-										_cq_total += fabs(_cq); // @v11.0.7 
+										_cq_total += fabs(_cq);
 									}
 								}
 							}

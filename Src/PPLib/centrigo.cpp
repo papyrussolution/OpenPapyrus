@@ -297,56 +297,56 @@ int TFacadeWindow::MakeNavList(CentrigoNavBlock & rBlk)
 
 void TFacadeWindow::InitLayout()
 {
-	if(true) {
-		SUiLayout * p_lo_main = new SUiLayout();
-		SUiLayoutParam alb;
-		p_lo_main->SetLayoutBlock(alb);
-		p_lo_main->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
-		{
-			// Ориентация горизонтальная потому что справа фиксированного размера полоса изменения размера, а слева - список, занимающий все оставшееся место
-			SUiLayoutParam alb_left(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
-			alb_left.GravityX = SIDE_LEFT;
-			alb_left.GravityY = SIDE_CENTER;
-			alb_left.SetFixedSizeX(128.0f);
-			alb_left.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-			SUiLayout * p_lo = new SUiLayout(alb_left);
-			p_lo->SetSymb("Facade_Left");
-			p_lo_main->Insert(p_lo);
-		}
-		{
-			SUiLayoutParam alb_ul(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
-			alb_ul.GravityX = SIDE_LEFT;
-			alb_ul.GravityY = SIDE_TOP;
-			alb_ul.SetFixedSizeX(128.0f);
-			alb_ul.SetFixedSizeY(64.0f);
-			SUiLayout * p_lo = new SUiLayout(alb_ul);
-			p_lo->SetSymb("Facade_UpperLeft");
-			p_lo_main->Insert(p_lo);
-		}
-		{
-			SUiLayoutParam alb_top(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
-			alb_top.GravityX = SIDE_CENTER;
-			alb_top.GravityY = SIDE_TOP;
-			alb_top.JustifyContent = SUiLayoutParam::alignCenter;
-			alb_top.AlignItems = SUiLayoutParam::alignCenter;
-			alb_top.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-			alb_top.SetFixedSizeY(96.0f);
-			SUiLayout * p_lo = new SUiLayout(alb_top);
-			p_lo->SetSymb("Facade_Top");
-			p_lo_main->Insert(p_lo);
-		}
-		{
-			SUiLayoutParam alb_center(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
-			alb_center.GravityX = SIDE_CENTER;
-			alb_center.GravityY = SIDE_CENTER;
-			alb_center.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
-			alb_center.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
-			SUiLayout * p_lo = new SUiLayout(alb_center);
-			p_lo->SetSymb("Facade_Center");
-			p_lo_main->Insert(p_lo);
-		}
-		SetLayout(p_lo_main);
+	SUiLayout * p_lo_main = new SUiLayout();
+	SUiLayoutParam alb;
+	p_lo_main->SetLayoutBlock(alb);
+	p_lo_main->SetCallbacks(0, TWindowBase::SetupLayoutItemFrame, this);
+	const  float left_part_size = 256.0f;
+	const  float top_part_size = 96.0f;
+	{
+		// Ориентация горизонтальная потому что справа фиксированного размера полоса изменения размера, а слева - список, занимающий все оставшееся место
+		SUiLayoutParam alb_left(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
+		alb_left.GravityX = SIDE_LEFT;
+		alb_left.GravityY = SIDE_CENTER;
+		alb_left.SetFixedSizeX(left_part_size);
+		alb_left.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+		SUiLayout * p_lo = new SUiLayout(alb_left);
+		p_lo->SetSymb("Facade_Left");
+		p_lo_main->Insert(p_lo);
 	}
+	{
+		SUiLayoutParam alb_ul(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
+		alb_ul.GravityX = SIDE_LEFT;
+		alb_ul.GravityY = SIDE_TOP;
+		alb_ul.SetFixedSizeX(left_part_size);
+		alb_ul.SetFixedSizeY(64.0f);
+		SUiLayout * p_lo = new SUiLayout(alb_ul);
+		p_lo->SetSymb("Facade_UpperLeft");
+		p_lo_main->Insert(p_lo);
+	}
+	{
+		SUiLayoutParam alb_top(DIREC_VERT, 0, SUiLayoutParam::alignStretch);
+		alb_top.GravityX = SIDE_CENTER;
+		alb_top.GravityY = SIDE_TOP;
+		alb_top.JustifyContent = SUiLayoutParam::alignCenter;
+		alb_top.AlignItems = SUiLayoutParam::alignCenter;
+		alb_top.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+		alb_top.SetFixedSizeY(top_part_size);
+		SUiLayout * p_lo = new SUiLayout(alb_top);
+		p_lo->SetSymb("Facade_Top");
+		p_lo_main->Insert(p_lo);
+	}
+	{
+		SUiLayoutParam alb_center(DIREC_HORZ, 0, SUiLayoutParam::alignStretch);
+		alb_center.GravityX = SIDE_CENTER;
+		alb_center.GravityY = SIDE_CENTER;
+		alb_center.SetVariableSizeX(SUiLayoutParam::szByContainer, 1.0f);
+		alb_center.SetVariableSizeY(SUiLayoutParam::szByContainer, 1.0f);
+		SUiLayout * p_lo = new SUiLayout(alb_center);
+		p_lo->SetSymb("Facade_Center");
+		p_lo_main->Insert(p_lo);
+	}
+	SetLayout(p_lo_main);
 }
 
 int TFacadeWindow::DoContacts(const PersonFilt * pFilt)
@@ -1253,6 +1253,12 @@ IMPL_HANDLE_EVENT(TFacadeWindow)
 											{
 												PersonFilt filt;
 												filt.Flags |= (PersonFilt::fInMemView|PersonFilt::fCentrigoContacts);
+												{ // @v12.8.4
+													PPPersonKind2 pk_rec;
+													if(SearchObject(PPOBJ_PERSONKIND, PPPRK_PERSONALCONTACT, &pk_rec) > 0) {
+														filt.PersonKindID = PPPRK_PERSONALCONTACT;
+													}
+												}
 												DoContacts(&filt);
 											}
 											break;

@@ -5182,6 +5182,11 @@ public:
 		//
 		SetupPPObjCombo(this, CTLSEL_ATURN_DACCNAME, PPOBJ_ACCOUNT2, P_At->DbtID.AcID, 
 			OLW_CANINSERT|OLW_WORDSELECTOR|OLW_CANSELUPLEVEL, reinterpret_cast<void *>(ACY_SEL_PERSONAL_USER));
+		{ // @v12.8.4
+			PPOprKind2 op_rec;
+			GetOpData(Data.Rec.OpID, &op_rec);
+			SetupArCombo(this, CTLSEL_ATURN_PA_CONTRACTOR, Data.Rec.Object, OLW_CANINSERT, op_rec.AccSheetID, sacfDisableIfZeroSheet);
+		}
 		//
 		SetupFlowDir();
 		setCtrlString(CTL_ATURN_MEMO, Data.SMemo);
@@ -5215,6 +5220,7 @@ public:
 				P_At->SwapDbtCrd();
 			}
 		}
+		getCtrlData(CTLSEL_ATURN_PA_CONTRACTOR, &Data.Rec.Object); // @v12.8.4
 		{
 			if(Data.Turns.getCount()) {
 				if(&Data.Turns.at(0) != P_At) {

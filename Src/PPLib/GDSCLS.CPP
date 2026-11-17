@@ -310,9 +310,47 @@ int PPObjGoodsClass::GetDim(PPID gdsClsID, PPID propID, PPGdsClsDim * pDim)
 //
 //
 //
+struct GcSubstEntry {
+	int    Id;
+	const char * P_Symb;
+	const char * P_DescrTag;
+};
+
+static const GcSubstEntry GcSList_Text[] = {
+	{ PPSYM_GC_NAME, "@gcname", "gcsubstsymbdescr_gcname" },
+	{ PPSYM_GC_KIND, "@gckind", "gcsubstsymbdescr_gckind" },
+	{ PPSYM_GC_GRADE, "@gcgrade", "gcsubstsymbdescr_gcgrade" },
+	{ PPSYM_GC_ADDPROP, "@gcaddprop", "gcsubstsymbdescr_gcaddprop" },
+	{ PPSYM_GC_ADD2PROP, "@gcadd2prop", "gcsubstsymbdescr_gcadd2prop" },
+	{ PPSYM_GC_DIMX, "@gcdimx", "gcsubstsymbdescr_gcdimx" },
+	{ PPSYM_GC_DIMY, "@gcdimy", "gcsubstsymbdescr_gcdimy" },
+	{ PPSYM_GC_DIMZ, "@gcdimz", "gcsubstsymbdescr_gcdimz" },
+	{ PPSYM_GC_DIMW, "@gcdimw", "gcsubstsymbdescr_gcdimw" },
+	{ PPSYM_BRAND, "@brand", "brand" },
+	{ PPSYM_GRNAME, "@grname", "groupname" },
+};
+
+static const GcSubstEntry GcSList_Formula[] = {
+	{ PPSYM_GC_KIND, "kind", "gcsubstsymbdescr_gckind" },
+	{ PPSYM_GC_GRADE, "grade", "gcsubstsymbdescr_gcgrade" },
+	{ PPSYM_GC_ADDPROP, "addprop", "gcsubstsymbdescr_gcaddprop" },
+	{ PPSYM_GC_ADD2PROP, "addprop2", "gcsubstsymbdescr_gcadd2prop" },
+	{ PPSYM_GC_DIMX, "x", "gcsubstsymbdescr_gcdimx" },
+	{ PPSYM_GC_DIMY, "y", "gcsubstsymbdescr_gcdimy" },
+	{ PPSYM_GC_DIMZ, "z", "gcsubstsymbdescr_gcdimz" },
+	{ PPSYM_GC_DIMW, "w", "gcsubstsymbdescr_gcdimw" },
+	{ PPSYM_DENSITY, "density", "gcsubstsymbdescr_density" },
+	{ PPSYM_TYPE, "type", "gcsubstsymbdescr_type" },
+	{ PPSYM_ID, "id", "gcsubstsymbdescr_id" },
+};
+
 class SelGcSubstSymbDialog : public TDialog { // @v12.8.3
 public:
-	SelGcSubstSymbDialog(long options) : TDialog(DLG_SELGCSUBSTSYMB), SelID(0)
+	enum {
+		ctxText = 1,
+		ctxFormula = 2
+	};
+	explicit SelGcSubstSymbDialog(int ctx) : TDialog(DLG_SELGCSUBSTSYMB), Ctx(ctx), SelID(0)
 	{
 		P_List = static_cast<SmartListBox *>(getCtrlView(CTL_SELGCSUBSTSYMB_LIST));
 		StrAssocListBoxDef * p_def = new StrAssocListBoxDef(0, lbtDisposeData|lbtDblClkNotify);
@@ -330,50 +368,42 @@ public:
 		return ok;
 	}
 private:
-	DECL_HANDLE_EVENT;
+	DECL_HANDLE_EVENT
+	{
+		if((event.isCmd(cmOK) || event.isCmd(cmLBDblClk)) && IsInState(sfModal)) {
+			SelSymb.Z();
+			if(SmartListBox::IsValidS(P_List)) {
+				long   id = 0;
+				P_List->getCurID(&id);
+				const  uint _count = (Ctx == ctxFormula) ? SIZEOFARRAY(GcSList_Formula) : SIZEOFARRAY(GcSList_Text);
+				for(uint i = 0; i < _count; i++) {
+					const  GcSubstEntry & r_entry = (Ctx == ctxFormula) ? GcSList_Formula[i] : GcSList_Text[i];
+					if(r_entry.Id == id) {
+						SelSymb = r_entry.P_Symb;
+					}
+				}
+			}
+			clearEvent(event);
+			endModal(cmOK); // После endModal не следует обращаться к this
+		}
+		else {
+			TDialog::handleEvent(event);
+		}
+	}
 	int    MakeList(StrAssocArray * pList)
 	{
-		// GCNAME;GCKIND;GCGRADE;GCADDPROP;GCADD2PROP;GCDIMX;GCDIMY;GCDIMZ;GCDIMW
-		// PPSYM_GC_NAME,     // @gcname     Наименование класса товара
-		// PPSYM_GC_KIND,     // @gckind     Вид товара
-		// PPSYM_GC_GRADE,    // @gcgrade    Сорт товара
-		// PPSYM_GC_ADDPROP,  // @gcaddprop  Доп свойство товара
-		// PPSYM_GC_ADD2PROP, // @gcadd2prop Доп 2 свойство товара
-		// PPSYM_GC_DIMX,     // @gcdimx     Размерность X
-		// PPSYM_GC_DIMY,     // @gcdimy     Размерность Y
-		// PPSYM_GC_DIMZ,     // @gcdimz     Размерность Z
-		// PPSYM_GC_DIMW,     // @gcdimw     Размерность W
-		/*
-		@gcsubstsymbdescr_gcname     "Наименование класса товара"
-		@gcsubstsymbdescr_gckind     "Вид товара"
-		@gcsubstsymbdescr_gcgrade    "Сорт товара"
-		@gcsubstsymbdescr_gcaddprop  "Дополнительное свойство товара"
-		@gcsubstsymbdescr_gcadd2prop "Дополнительное свойство товара 2"
-		@gcsubstsymbdescr_gcdimx     "Размерность X"
-		@gcsubstsymbdescr_gcdimy     "Размерность Y"
-		@gcsubstsymbdescr_gcdimz     "Размерность Z"
-		@gcsubstsymbdescr_gcdimw     "Размерность W"
-		*/
-		struct GcSubstEntry {
-			const char * P_Symb;
-			const char * P_DescrTag;
-		};
-		static const GcSubstEntry gcslist[] = {
-			{ "gcname", "gcsubstsymbdescr_gcname" },
-			{ "gckind", "gcsubstsymbdescr_gckind" },
-			{ "gcgrade", "gcsubstsymbdescr_gcgrade" },
-			{ "gcaddprop", "gcsubstsymbdescr_gcaddprop" },
-			{ "gcadd2prop", "gcsubstsymbdescr_gcadd2prop" },
-			{ "gcdimx", "gcsubstsymbdescr_gcdimx" },
-			{ "gcdimy", "gcsubstsymbdescr_gcdimy" },
-			{ "gcdimz", "gcsubstsymbdescr_gcdimz" },
-			{ "gcdimw", "gcsubstsymbdescr_gcdimw" },
-		};
-
 		int    ok = 1;
 		SString temp_buf;
 		StringSet ss(SLBColumnDelim);
-		// @todo
+		const  uint _count = (Ctx == ctxFormula) ? SIZEOFARRAY(GcSList_Formula) : SIZEOFARRAY(GcSList_Text);
+		for(uint i = 0; i < _count; i++) {
+			const  GcSubstEntry & r_entry = (Ctx == ctxFormula) ? GcSList_Formula[i] : GcSList_Text[i];
+			ss.Z();
+			ss.add(r_entry.P_Symb);
+			PPLoadString(r_entry.P_DescrTag, temp_buf);
+			ss.add(temp_buf);
+			pList->Add(r_entry.Id, ss.getBuf());			
+		}
 		return ok;
 	}
 	void updateList()
@@ -388,14 +418,25 @@ private:
 				delete p_list;
 		}
 	}
+	const  int Ctx; // ctxXXX
 	SmartListBox * P_List;
 	PPID   SelID;
 	SString SelSymb;
 };
 
-int STDCALL SelectGcSubstSymb(SString & rSymbBuf)
+static int SelectGcSubstSymb(int ctx, SString & rSymbBuf)
 {
+	rSymbBuf.Z();
 	int    ok = -1;
+	assert(oneof2(ctx, SelGcSubstSymbDialog::ctxFormula, SelGcSubstSymbDialog::ctxText));
+	SelGcSubstSymbDialog * dlg = new SelGcSubstSymbDialog(ctx);
+	if(CheckDialogPtrErr(&dlg)) {
+		if(ExecView(dlg) == cmOK)
+			ok = dlg->GetSelectedSymb(rSymbBuf) ? 1 : -1;
+		delete dlg;
+	}
+	else
+		ok = 0;
 	return ok;
 }
 
@@ -532,6 +573,47 @@ IMPL_HANDLE_EVENT(GoodsClassDialog)
 			default:
 				return;
 		}
+	}
+	else if(event.isKeyDown(kbF2)) { // @v12.8.4
+		const uint ctl_id_list_text[] = {CTL_GDSCLS_NAMECONV, CTL_GDSCLS_ABBRCONV};
+		const uint ctl_id_list_formula[] = {CTL_GDSCLS_PHUPERU, CTL_GDSCLS_TAXFACTOR, CTL_GDSCLS_PACKAGE, CTL_GDSCLS_BRUTTO};
+		const uint cur_ctl_id = GetCurrId();
+		int   ctx = 0;
+		{
+			for(uint i = 0; !ctx && i < SIZEOFARRAY(ctl_id_list_text); i++) {
+				if(cur_ctl_id == ctl_id_list_text[i]) {
+					ctx = SelGcSubstSymbDialog::ctxText;
+				}
+			}
+		}
+		if(!ctx) {
+			for(uint i = 0; !ctx && i < SIZEOFARRAY(ctl_id_list_formula); i++) {
+				if(cur_ctl_id == ctl_id_list_formula[i]) {
+					ctx = SelGcSubstSymbDialog::ctxFormula;
+				}
+			}
+		}
+		if(ctx) {
+			TInputLine * p_il = static_cast<TInputLine *>(getCtrlViewEnsureSubsign(cur_ctl_id, TV_SUBSIGN_INPUTLINE));
+			if(p_il) {
+				SString symb;
+				if(SelectGcSubstSymb(ctx, symb) > 0 && symb.NotEmptyS()) {
+					if(ctx == SelGcSubstSymbDialog::ctxText) {
+						if(symb.C(0) != '@')
+							symb.Insert(0, "@");
+					}
+					SString input;
+					p_il->getText(input);
+					size_t pos = p_il->getCaret();
+					input.Insert(pos, symb.Quot(' ', ' '));
+					p_il->setText(input);
+					p_il->Draw_();
+					p_il->selectAll(0);
+					p_il->setCaret(pos + symb.Len());
+				}
+			}
+		}
+		clearEvent(event);
 	}
 	else
 		return;
@@ -810,8 +892,8 @@ int PPObjGoodsClass::Edit(PPID * pID, void * extraPtr)
 	const  PPID org_id = DEREFPTRORZ(pID);
 	PPObjGoods goods_obj;
 	PPGdsClsPacket pack;
-	GoodsClassDialog * dlg = 0;
-	THROW(CheckDialogPtr(&(dlg = new GoodsClassDialog)));
+	GoodsClassDialog * dlg = new GoodsClassDialog();
+	THROW(CheckDialogPtr(&dlg));
 	THROW(EditPrereq(pID, dlg, &is_new));
 	if(!is_new) {
 		THROW(GetPacket(*pID, &pack) > 0);

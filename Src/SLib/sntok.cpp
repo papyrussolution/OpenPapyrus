@@ -80,6 +80,7 @@ static const SIntToSymbTabEntry SNTokSymb_List[] = {
 	{ SNTOK_LINGUACODE, "lingua-code" },
 	{ SNTOK_CHZN_SURROGATE_GTIN, "chzn-surrogate-gtin" },
 	{ SNTOK_CHZN_SURROGATE_GTINCOUNT, "chzn-surrogate-gtin-count" },
+	{ SNTOK_CHZN_SURROGATE_PARTN, "chzn-surrogate-partn" }, // @v12.8.4
 	{ SNTOK_CL_RUT, "cl-rut" },
 	{ SNTOK_CHZN_ALTCIGITEM, "chzn-altcigitem" },
 	{ SNTOK_AR_DNI, "ar-dni" },
@@ -1127,7 +1128,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 				if(rIb.DecCount >= 7 && rIb.DecCount <= 13) {
 					const char control = toupper(pToken[toklen-1]);
 					if(isdec(control) || control == 'K') {
-						char cctrl = 0;
+						char   cctrl = 0;
 						static const uint8 cl_rut_w[] = {2,3,4,5,6,7,2,3,4,5,6,7};
 						char   raw_code[32];
 						size_t raw_code_len = 0;
@@ -1238,6 +1239,23 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 							if(_offs == 0 && _len == toklen)
 								rResultList.AddTok(SNTOK_EMAIL, 1.0f, 0/*flags*/);
 						}
+					}
+				}
+				if(checkirange(toklen, (14U+6U+1U), (14U+6U+12U)) && isdecseq(PTRCHRC_(pToken), 14+6)) { // @v12.8.4 @construction
+					// 046067797671042610220000881756
+					const int y = _texttodec32(PTRCHRC_(pToken+14), 2);
+					const int m = _texttodec32(PTRCHRC_(pToken+14+2), 2);
+					const int d = _texttodec32(PTRCHRC_(pToken+14+2+2), 2);
+					if(y >= 25 && checkirange(m, 1, 12) && checkirange(d, 1, 31)) {
+						bool   is_valid_cd = false;
+						if(pToken[0] == '0') {
+							const  int cd = SCalcBarcodeCheckDigitL(PTRCHRC_(pToken+1), 12);
+							if((uchar)cd == pToken[13]) {
+								is_valid_cd = true;
+							}
+						}
+						const  float prob = is_valid_cd ? 0.9f : 0.4f;
+						rResultList.AddTok(SNTOK_CHZN_SURROGATE_PARTN, prob, 0/*flags*/);
 					}
 				}
 				//

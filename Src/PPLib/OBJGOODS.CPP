@@ -3725,9 +3725,11 @@ int PPObjGoods::EditClsdGoods(PPGoodsPacket * pPack, int modifyOnlyExtRec)
 	PPObjGoodsClass gc_obj;
 	PPGdsClsPacket  gc_pack;
 	ClsdGoodsDialog * dlg = 0;
-	if(modifyOnlyExtRec != 2)
+	if(modifyOnlyExtRec != 2) {
 		THROW(gc_obj.GetPacket(pPack->Rec.GdsClsID, &gc_pack) > 0);
-	THROW(CheckDialogPtr(&(dlg = new ClsdGoodsDialog(DLG_SG, &gc_pack, modifyOnlyExtRec))));
+	}
+	dlg = new ClsdGoodsDialog(DLG_SG, &gc_pack, modifyOnlyExtRec);
+	THROW(CheckDialogPtr(&dlg));
 	dlg->setDTS(pPack);
 	while(ok <= 0 && ((cmd = ExecView(dlg)) == cmOK || cmd == cmFullGoodsDialog)) {
 		if(dlg->getDTS(pPack)) {

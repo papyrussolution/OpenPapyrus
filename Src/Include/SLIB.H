@@ -2697,12 +2697,12 @@ public:
 };
 
 enum SEOLFormat {
-	eolAny          = -1, // @v11.3.6 Любая комбинация ('\x0D'; '\x0A'; '\x0D\x0A'; '\x0A\x0D') трактуется как конец строки
+	eolAny          = -1, // Любая комбинация ('\x0D'; '\x0A'; '\x0D\x0A'; '\x0A\x0D') трактуется как конец строки
 	eolUndef        =  0, // Неопределен
 	eolWindows      =  1, // \x0D\x0A
 	eolUnix         =  2, // \x0A
 	eolMac          =  3, // \x0D
-	eolSpcICalendar =  4, // @v11.0.3 Специальный тип строки: если после \xD\xA встречается пробел, то это трактуется как продолжение текущей строки
+	eolSpcICalendar =  4, // Специальный тип строки: если после \xD\xA встречается пробел, то это трактуется как продолжение текущей строки
 };
 //
 //
@@ -5827,6 +5827,13 @@ template <class T> bool ishex(T c) { return ((c >= '0' && c <= '9') || (c >= 'A'
 // Descr: Возвращает !0 если символ c является десятичным знаком [0-9]
 //
 template <class T> bool isdec(T c) { return (c >= '0' && c <= '9'); }
+//
+// Descr: Возвращает true если указатель pS ссылается на последовательность из 8 десятичных.
+// Attention: Эта функция - трюк для достижения максимальной производительности. Следовательно никаких проверок функция не делает.
+//   То есть, не проверяет pS на nullptr и не интересуется реальной доступной длиной данных по указателю pS.
+//
+bool   FASTCALL IsMadeOfEightDigitsFast(const uint8 * pS);
+bool   FASTCALL isdecseq(const char * pBuf, size_t len); // @v12.8.4
 //
 // Descr: Возвращает значение шестнадцатиричного знака c. Если c не является шестнадцатиричным знаком,
 //   то возвращает 0 (для того, чтобы избежать путаницы с hex('0') следует проверять
@@ -12963,6 +12970,7 @@ int STDCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags);
 #define SNTOK_RU_LICPLATE               65 // @v12.7.4  Автомобильный номер (российский)
 #define SNTOK_WININTERNALCMD            66 // @v12.7.6  Внутренняя команда windows 
 #define SNTOK_COUNTRYCODE               67 // @v12.7.9  Символьный код государства (2- или 3- буквенный)
+#define SNTOK_CHZN_SURROGATE_PARTN      68 // @v12.8.4  Номер партии в парадигме партионного учета чзн (GTIN14-ManufDate(6)-PartNo)
 
 #define SNTOKSEQ_DEC                0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR             0x00000002 // a-z

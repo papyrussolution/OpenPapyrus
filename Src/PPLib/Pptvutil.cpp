@@ -2001,15 +2001,18 @@ int STDCALL SetupSubstPersonCombo(TDialog * pDlg, uint ctlID, SubstGrpPerson sgp
 	PPObjPersonRelType relt_obj;
 	PPLoadText(PPTXT_SUBSTPERSONLIST, buf);
 	StringSet ss(';', buf);
-	for(uint i = 0; ss.get(&i, buf);)
-		if(buf.Divide(',', id_buf, txt_buf) > 0)
+	for(uint i = 0; ss.get(&i, buf);) {
+		if(buf.Divide(',', id_buf, txt_buf) > 0) {
 			ary.Add(id_buf.ToLong(), txt_buf);
+		}
+	}
 	PPLoadString("relation", word_rel);
-	for(id = 0; relt_obj.EnumItems(&id, &item) > 0;)
+	for(id = 0; relt_obj.EnumItems(&id, &item) > 0;) {
 		if(item.Cardinality & (PPPersonRelType::cOneToOne | PPPersonRelType::cManyToOne)) {
 			(buf = word_rel).Colon().Cat(item.Name);
 			ary.Add(id + (long)sgpFirstRelation, buf);
 		}
+	}
 	init_id = (long)sgp;
 	return SetupStrAssocCombo(pDlg, ctlID, ary, init_id, 0);
 }
@@ -4309,7 +4312,7 @@ LocalStateBinderySelExtra::LocalStateBinderySelExtra(const LocalStateBinderyCore
 		TSCollection <LocalStateBinderyCore::SerialEntry> serial_list;
 		p_lstb->FetchStateSerial(StI, MaxCount, &serial_list);
 		{
-			// Строки далее извлекаем с конца - в начало дабы в начале списка были бы самый свежие элементы
+			/*
 			uint   i = serial_list.getCount();
 			if(i) do {
 				const  LocalStateBinderyCore::SerialEntry * p_entry = serial_list.at(--i);
@@ -4324,6 +4327,22 @@ LocalStateBinderySelExtra::LocalStateBinderySelExtra(const LocalStateBinderyCore
 					}
 				}
 			} while(i);
+			*/
+			{
+				for(uint i = 0; i < serial_list.getCount(); i++) {
+					const  LocalStateBinderyCore::SerialEntry * p_entry = serial_list.at(i);
+					if(p_entry && p_entry->Buf.GetAvailableSize()) {
+						if(!p_result) {
+							p_result = new StrAssocArray();
+						}
+						LocalStateBinderyCore::GetStringFromStateBuf(LocalStateBinderyCore::treatbStringUtf8, p_entry->Buf, temp_buf);
+						if(temp_buf.NotEmpty()) {
+							if(!p_result->SearchByTextNcUtf8(temp_buf, 0))
+								p_result->AddFast(p_entry->ID, temp_buf);
+						}
+					}
+				}
+			}
 		}
 	}
 	// } @v12.7.9 
@@ -5518,10 +5537,7 @@ int InputNumberDialog(const char * pTitle, const char * pInpTitle, double & rVal
 	return ok;
 }
 
-int STDCALL EditSysjFilt2(SysJournalFilt * pFilt)
-{
-	DIALOG_PROC_BODY_P1(SysJFiltDialog, DLG_SYSJFILT2, pFilt);
-}
+int STDCALL EditSysjFilt2(SysJournalFilt * pFilt) { DIALOG_PROC_BODY_P1(SysJFiltDialog, DLG_SYSJFILT2, pFilt); }
 
 RemoveAllDialog::RemoveAllDialog(uint resID) : TDialog(resID)
 {

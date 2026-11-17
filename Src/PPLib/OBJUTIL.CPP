@@ -3068,8 +3068,13 @@ PrcssrUniFindObj::FoundEntry::FoundEntry() : Attr(0)
 {
 }
 
-PrcssrUniFindObj::PrcssrUniFindObj() : P_BObj(BillObj)
+PrcssrUniFindObj::PrcssrUniFindObj() : P_BObj(BillObj), P_EcRefC(0)
 {
+}
+
+PrcssrUniFindObj::~PrcssrUniFindObj()
+{
+	delete P_EcRefC;
 }
 
 int PrcssrUniFindObj::Init(const UniFindObjFilt * pParam)

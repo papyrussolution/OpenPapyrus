@@ -2504,6 +2504,8 @@ int PPSession::Init(long internalAppId, long flags, HINSTANCE hInst, const char 
 			UiToolBox_.CreatePen_(TProgram::tbiListFgPen,        SPaintObj::psSolid, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_fg",       SClrBlack)); // @v12.5.7
 			UiToolBox_.CreatePen_(TProgram::tbiListFocFgPen,     SPaintObj::psSolid, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_focus_fg", SClrWhite)); // @v12.5.7
 			UiToolBox_.CreatePen_(TProgram::tbiListSelFgPen,     SPaintObj::psSolid, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "list_sel_fg",   SClrBlack)); // @v12.5.7
+			UiToolBox_.CreateBrush_(TProgram::tbiFloatButtonBrush, SPaintObj::bsSolid, UiDescription::GetColorR(p_uid, p_cs, "floatbutton_bg", SColor(0x0E, 0xA5, 0xE9)), 0); // @v12.8.4
+			UiToolBox_.CreatePen_(TProgram::tbiFloatButtonPen,     SPaintObj::psSolid, 1.0f, UiDescription::GetColorR(p_uid, p_cs, "floatbutton_fg", SColor(0x02, 0x06, 0x17))); // @v12.8.4
 			{
 				// linear-gradient(to bottom, #f0f9ff 0%,#cbebff 47%,#a1dbff 100%)
 				/*

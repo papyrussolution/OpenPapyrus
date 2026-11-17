@@ -407,24 +407,25 @@
 	#define PPCTS_CITY           1L
 	#define PPCTS_STREET         2L
 #define PPOBJ_PERSONKIND          8L  // $ Виды персоналий
-	#define PPPRK_MAIN           1L // Главная организация (Владелец программы)
-	#define PPPRK_FILIAT         2L // Филиал главной организации
-	#define PPPRK_EMPL           3L // Персонал
-	#define PPPRK_CLIENT         4L // Клиенты
-	#define PPPRK_SUPPL          5L // Поставщики
-	#define PPPRK_BANK           6L // Банки
-	#define PPPRK_MANUF          7L // Производители
-	#define PPPRK_AGENT          8L // Агенты
-	#define PPPRK_HOMEOFFICE     9L // Отделы|Управления внутренних дел
-	#define PPPRK_BUSADMIN      10L // Гос. службы, регистрирующие юр. лица
-	#define PPPRK_EMPLOYER      11L // Работодатель
-	#define PPPRK_UNKNOWN       12L // Неизвестный вид (если персоналия теряет принадлежность ко всем видам, то приобретает принадлежность к виду
+	#define PPPRK_MAIN             1L // Главная организация (Владелец программы)
+	#define PPPRK_FILIAT           2L // Филиал главной организации
+	#define PPPRK_EMPL             3L // Персонал
+	#define PPPRK_CLIENT           4L // Клиенты
+	#define PPPRK_SUPPL            5L // Поставщики
+	#define PPPRK_BANK             6L // Банки
+	#define PPPRK_MANUF            7L // Производители
+	#define PPPRK_AGENT            8L // Агенты
+	#define PPPRK_HOMEOFFICE       9L // Отделы|Управления внутренних дел
+	#define PPPRK_BUSADMIN        10L // Гос. службы, регистрирующие юр. лица
+	#define PPPRK_EMPLOYER        11L // Работодатель
+	#define PPPRK_UNKNOWN         12L // Неизвестный вид (если персоналия теряет принадлежность ко всем видам, то приобретает принадлежность к виду
 		//  PPPRK_UNKNOWN. Приобретая любой вид кроме этого, персоналия теряет вид PPPRK_UNKNOWN).
-	#define PPPRK_SHIPOWNER     13L // Владельцы транспортных средств
-	#define PPPRK_VESSELSAGENT  14L // Транспортные брокеры
-	#define PPPRK_CAPTAIN       15L // Командиры транспортных средств
-	#define PPPRK_DTO           16L // Организации-операторы передачи данных
-	#define PPPRK_MARKETPLACE   17L // @v12.0.12 Маркетплейсы
+	#define PPPRK_SHIPOWNER       13L // Владельцы транспортных средств
+	#define PPPRK_VESSELSAGENT    14L // Транспортные брокеры
+	#define PPPRK_CAPTAIN         15L // Командиры транспортных средств
+	#define PPPRK_DTO             16L // Организации-операторы передачи данных
+	#define PPPRK_MARKETPLACE     17L // @v12.0.12 Маркетплейсы
+	#define PPPRK_PERSONALCONTACT 18L // @v12.8.4 @centrigo Персональные контакты 
 
 #define PPOBJ_PRSNSTATUS          9L  // $ Юридические статусы персоналий
 	#define PPPRS_PRIVATE        1L // Физическое лицо
@@ -9292,8 +9293,12 @@
 	#define CTL_TSESSCLRS_CANCELNEW   (15 + WINDOWS_ID_BIAS)
 #define DLG_TEST                 1000
 	#define CTL_TEST_DATE                (1 + WINDOWS_ID_BIAS)
-	#define CTL_TEST_PREV                (2 + WINDOWS_ID_BIAS)
-	#define CTL_TEST_CHARGE              (3 + WINDOWS_ID_BIAS)
+	#define CTLCAL_TEST_DATE             (2 + WINDOWS_ID_BIAS)
+	#define CTL_TEST_PREV                (3 + WINDOWS_ID_BIAS)
+	#define CTL_TEST_CHARGE              (4 + WINDOWS_ID_BIAS)
+	#define CTLCAL_TEST_CHARGE           (5 + WINDOWS_ID_BIAS)
+	#define CTL_TEST_COMBO01             (6 + WINDOWS_ID_BIAS)
+	#define CTLSEL_TEST_COMBO01          (7 + WINDOWS_ID_BIAS)
 #define DLG_ARGCODELIST          1001 // ARGDSCL Список кодов товаров, ассоциированных со статьями
 	#define CTL_ARGCODELIST_GOODS        (1 + WINDOWS_ID_BIAS)
 	#define CTL_ARGCODELIST_LIST         (2 + WINDOWS_ID_BIAS)
@@ -12364,6 +12369,21 @@
 	#define CTLSEL_IMPEXPWORKBOOK_PDFMT         (IMPEXP_CTL_BIAS+3)
 #define DLG_SELGCSUBSTSYMB       1604 // @v12.8.3 Список символов для подстановки в формулах класса товаров
 	#define CTL_SELGCSUBSTSYMB_LIST             (1 + WINDOWS_ID_BIAS)
+#define DLG_ORTCS2DPARAM         1605 // @v12.8.4  
+	#define CTL_ORTCS2DPARAM_RAWGRP             (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_ORTCS2DPARAM_RAWGRP          (2 + WINDOWS_ID_BIAS)
+	#define CTL_ORTCS2DPARAM_RAW                (3 + WINDOWS_ID_BIAS)
+	#define CTLSEL_ORTCS2DPARAM_RAW             (4 + WINDOWS_ID_BIAS)
+	#define CTL_ORTCS2DPARAM_LOC                (5 + WINDOWS_ID_BIAS)
+	#define CTLSEL_ORTCS2DPARAM_LOC             (6 + WINDOWS_ID_BIAS)
+	#define CTL_ORTCS2DPARAM_DEMANDLIST         (7 + WINDOWS_ID_BIAS)
+#define DLG_ORTCS2DPARAM_ITEM    1606 // @v12.8.4  
+	#define CTL_ORTCS2DPARAM_ITEM_GOODSGRP      (1 + WINDOWS_ID_BIAS)
+	#define CTLSEL_ORTCS2DPARAM_ITEM_GOODSGRP   (2 + WINDOWS_ID_BIAS) 
+	#define CTL_ORTCS2DPARAM_ITEM_GOODS         (3 + WINDOWS_ID_BIAS)
+	#define CTLSEL_ORTCS2DPARAM_ITEM_GOODS      (4 + WINDOWS_ID_BIAS) 
+	#define CTL_ORTCS2DPARAM_ITEM_QTTY          (5 + WINDOWS_ID_BIAS) 
+	#define CTL_ORTCS2DPARAM_ITEM_PRICE         (6 + WINDOWS_ID_BIAS) 
 //
 // Win32 Dialog Identifiers
 //

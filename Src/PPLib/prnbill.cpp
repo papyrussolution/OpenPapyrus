@@ -271,10 +271,7 @@ int BillMultiPrintParam::LocalRestore()
 	return ok;
 }
 
-/*static*/int BillMultiPrintParam::EditDialog(PPID opTypeID, BillMultiPrintParam * pData)
-{
-	DIALOG_PROC_BODY_P1(MultiPrintDialog, opTypeID, pData);
-}
+/*static*/int BillMultiPrintParam::EditDialog(PPID opTypeID, BillMultiPrintParam * pData) { DIALOG_PROC_BODY_P1(MultiPrintDialog, opTypeID, pData); }
 //
 // Descr: Структура, устанавливающая соответствие между опцией печати документа, 
 //    индексом элемента в диалогах и приоритетом вывода на печать.

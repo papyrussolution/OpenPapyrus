@@ -125,16 +125,89 @@ SArray * PPViewDialog::CreateBrowserArray(uint * pBrwId, SString * pSubTitle)
 	return new SArray(List);
 }
 
+static void ExecTestDialog(DlContext * pCtx, uint dlgId) // @v12.8.4
+{
+	class TestDialog : public TDialog {
+	public:
+		TestDialog(uint dlgId) : TDialog(dlgId), P_Fb(0)
+		{
+		}
+		~TestDialog()
+		{
+			delete P_Fb;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			bool   debug_mark = false;
+			TDialog::handleEvent(event);
+			if(event.isCmd(cmMouseHoverCtrl)) {
+				if(event.isCtlEvent(CTL_TEST_COMBO01)) {
+					if(!P_Fb) {
+						P_Fb = new TFloatButton();
+						if(P_Fb) {
+							TView * p_v = getCtrlView(CTL_TEST_COMBO01);
+							if(p_v) {
+								P_Fb->Create(this->H(), p_v->getHandle(), L"+");
+							}
+						}
+					}
+					if(P_Fb) {
+						P_Fb->Show(true, 3000);
+					}
+					debug_mark = true;
+					clearEvent(event);
+				}
+			}
+		}
+		TFloatButton * P_Fb;
+	};
+	TestDialog * dlg = 0;
+	if(dlgId == DLG_TEST) {
+		dlg = new TestDialog(dlgId);
+		if(CheckDialogPtr(&dlg)) {
+			{
+				StrAssocArray list;
+
+				SString in_file_path;
+				SString left, right;
+				SString line_buf;
+				SLS.QueryPath("testroot", in_file_path);
+				in_file_path.SetLastSlash().Cat("data").SetLastSlash().Cat("city-enru-pair.csv");
+				SFile f_in(in_file_path, SFile::mRead);
+				if(f_in.IsValid()) {
+					long   item_id = 0;
+					while(f_in.ReadLine(line_buf, SFile::rlfChomp|SFile::rlfStrip)) {
+						if(line_buf.Divide(';', left, right) > 0 && left.NotEmptyS()) {
+							item_id++;
+							right.Transf(CTRANSF_OUTER_TO_UTF8);
+							list.AddFast(item_id, right);
+						}
+					}
+				}
+				SetupStrAssocCombo(dlg, CTLSEL_TEST_COMBO01, list, 0, lbtTextUtf8);
+			}
+			ExecView(dlg);
+		}
+	}
+	delete dlg;
+}
+
 int PPViewDialog::TryDialog(DlContext * pCtx, uint dlgId) // @v12.4.6
 {
 	int    ok = -1;
 	TDialog * dlg = 0;
-	if(dlgId) {
-		dlg = new TDialog(dlgId);
-		if(CheckDialogPtrErr(&dlg))
-			ExecView(dlg);
-		else
-			ok = 0;
+	if(dlgId == DLG_TEST) {
+		ExecTestDialog(pCtx, dlgId);
+	}
+	else {
+		if(dlgId) {
+			dlg = new TDialog(dlgId);
+			if(CheckDialogPtrErr(&dlg))
+				ExecView(dlg);
+			else
+				ok = 0;
+		}
 	}
 	delete dlg;
 	return ok;

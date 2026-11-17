@@ -669,7 +669,7 @@ ROD_CITYSTATUS PP_RCDATA {
 // { ID, Name }
 //
 ROD_PRSNKIND PP_RCDATA {
-	16,
+	17,
 	1,  "@{mainorg}\0",
 //	2,  "Филиал главной организации\0",
 	3,  "@{personnel}\0",
@@ -686,7 +686,8 @@ ROD_PRSNKIND PP_RCDATA {
 	14, "Транспортные брокеры\0",
 	15, "Капитаны (водители)\0",
 	16, "Операторы передачи данных\0",
-	17, "@{marketplace_pl}\0"
+	17, "@{marketplace_pl}\0",
+	18, "@{personalcontact_pl}\0", // @v12.8.4 @centrigo Персональные контакты 
 };
 //
 // Зарезервированные записи объекта PPOBJ_PRSNSTATUS
