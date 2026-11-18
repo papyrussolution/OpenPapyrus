@@ -1930,6 +1930,7 @@ PPERR_DUPEXTLOTCODE                 "Расширенный код лота уж
 PPERR_DUPEXTLOTCODEINBILL           "Код марки '%s' уже есть в документе"
 PPERR_TEXTISNTEGAISMARK             "Текст '%s' не является кодом марки @{brand_egais}"
 PPERR_TEXTISNTCHZNMARK              "Текст '%s' не является кодом марки @{brand_chzn}"
+PPERR_TEXTISNTCHZNOREGAISMARK       "Текст '%s' не является кодом марки @{brand_egais} или @{brand_chzn}"
 PPERR_NORTTOLOC                     "Нет прав доступа для склада '%s'"
 PPERR_CNUNDEFSYNC                   "Не определенная либо не однозначная синхронность кассового узла '%s'"
 PPERR_FUNCNACCEPTEDFORPOSNODE       "Функция не применима для кассового узла '%s'"

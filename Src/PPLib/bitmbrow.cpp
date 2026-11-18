@@ -5981,19 +5981,22 @@ int LotXCodeListDialog::EditItemDialog(LotExtCodeTbl::Rec & rRec, char firstChar
 			GtinStruc gts;
 			const  bool iemr = PrcssrAlcReport::IsEgaisMark(temp_buf, &mark_buf);
 			const  int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(temp_buf, gts, PPChZnPrcssr::pchzncfPretendEverythingIsOk));
-			if(ipczcr > 0)
+			const  bool is_acceptable_chznmark = (ipczcr > 0 || ipczcr == PPChZnPrcssr::chznciSurrogateBatchN);
+			if(is_acceptable_chznmark) {
 				gts.GetToken(GtinStruc::fldOriginalText, &mark_buf);
-			if(!iemr && ipczcr <= 0) {
+			}
+			if(!iemr && !is_acceptable_chznmark) {
 				if(P_LotXcT) {
 					if(lot_id && P_LotXcT->FindMarkToTransfer(mark_buf, goods_id, lot_id, rSet) > 0)
 						ok = 1;
 					else {
-						// @todo Диагностика ошибки очень слабая - сообщение не говорит ничего осмысленного!
+						// @todo Диагностика ошибки очень слабая - сообщение не говорит ничего осмысленного! // @v12.8.4 @done
+						PPSetError(PPERR_TEXTISNTCHZNOREGAISMARK, temp_buf); // @v12.8.4
 						PPErrorByDialog(dlg, sel);
 					}
 				}
 				else {
-					PPSetError(PPERR_TEXTISNTEGAISMARK, mark_buf);
+					PPSetError(PPERR_TEXTISNTCHZNOREGAISMARK, temp_buf); // @v12.8.4 PPERR_TEXTISNTEGAISMARK-->PPERR_TEXTISNTCHZNOREGAISMARK
 					PPErrorByDialog(dlg, sel);
 				}
 			}
@@ -6013,8 +6016,9 @@ int LotXCodeListDialog::EditItemDialog(LotExtCodeTbl::Rec & rRec, char firstChar
 						const  long last_box_id = rSet.SearchLastBox(-1);
 						rSet.AddNum(last_box_id, mark_buf, 1);
 					}
-					else
+					else {
 						rSet.AddNum(0, mark_buf, 1);
+					}
 					STRNSCPY(rRec.Code, mark_buf);
 					ok = 1;
 				}
