@@ -2054,14 +2054,15 @@ bool FASTCALL RAssocArray::Has(long key) const
 	return lsearch(&_key, 0, CMPF_LONG);
 }
 
-int RAssocArray::GetList(LongArray & rList, int unique) const
+int RAssocArray::GetKeyList(LongArray & rList, bool unique) const
 {
 	int    ok = -1;
 	for(uint i = 0; i < getCount(); i++) {
+		const  long _key = at(i).Key;
 		if(unique)
-			rList.addUnique(at(i).Key);
+			rList.addUnique(_key);
 		else
-			rList.add(at(i).Key);
+			rList.add(_key);
 		ok = 1;
 	}
 	return ok;

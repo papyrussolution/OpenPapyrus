@@ -618,57 +618,57 @@ PPObjOprKind::PPObjOprKind(void * extraPtr) : PPObjReference(PPOBJ_OPRKIND, extr
 	return ok;
 }
 
-int PPObjOprKind::GetPacket(PPID id, PPOprKindPacket * pack)
+int PPObjOprKind::GetPacket(PPID id, PPOprKindPacket * pPack)
 {
 	int    ok = 1;
 	if(PPCheckGetObjPacketID(Obj, id)) {
 		PPObjOpCounter opc_obj;
-		THROW(Search(id, &pack->Rec) > 0);
-		THROW(opc_obj.GetPacket(pack->Rec.OpCounterID, &pack->OpCntrPack));
-		THROW(GetExAmountList(id, &pack->Amounts));
-		THROW(P_Ref->GetPropVlrString(Obj, id, OPKPRP_EXTSTRDATA, pack->ExtString));
-		pack->ATTmpls.freeAll();
-		ZDELETE(pack->P_GenList);
-		ZDELETE(pack->P_ReckonData);
-		ZDELETE(pack->P_PoolData);
-		if(pack->Rec.OpTypeID == PPOPT_INVENTORY) {
+		THROW(Search(id, &pPack->Rec) > 0);
+		THROW(opc_obj.GetPacket(pPack->Rec.OpCounterID, &pPack->OpCntrPack));
+		THROW(GetExAmountList(id, &pPack->Amounts));
+		THROW(P_Ref->GetPropVlrString(Obj, id, OPKPRP_EXTSTRDATA, pPack->ExtString));
+		pPack->ATTmpls.freeAll();
+		ZDELETE(pPack->P_GenList);
+		ZDELETE(pPack->P_ReckonData);
+		ZDELETE(pPack->P_PoolData);
+		if(pPack->Rec.OpTypeID == PPOPT_INVENTORY) {
 			PPInventoryOpEx ioe;
-			ZDELETE(pack->P_IOE);
+			ZDELETE(pPack->P_IOE);
 			if(P_Ref->GetProperty(PPOBJ_OPRKIND, id, OPKPRP_INVENTORY, &ioe, sizeof(ioe)) > 0) {
-				THROW_MEM(pack->P_IOE = new PPInventoryOpEx);
-				*pack->P_IOE = ioe;
+				THROW_MEM(pPack->P_IOE = new PPInventoryOpEx);
+				*pPack->P_IOE = ioe;
 			}
 		}
-		else if(pack->Rec.OpTypeID == PPOPT_GENERIC) {
-			THROW_MEM(pack->P_GenList = new ObjRestrictArray);
-			THROW(GetGenericList(id, pack->P_GenList));
+		else if(pPack->Rec.OpTypeID == PPOPT_GENERIC) {
+			THROW_MEM(pPack->P_GenList = new ObjRestrictArray);
+			THROW(GetGenericList(id, pPack->P_GenList));
 		}
-		else if(oneof4(pack->Rec.OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) { // @v10.5.7 PPOPT_DRAFTQUOTREQ
+		else if(oneof4(pPack->Rec.OpTypeID, PPOPT_DRAFTRECEIPT, PPOPT_DRAFTEXPEND, PPOPT_DRAFTTRANSIT, PPOPT_DRAFTQUOTREQ)) { // @v10.5.7 PPOPT_DRAFTQUOTREQ
 			PPDraftOpEx doe;
-			ZDELETE(pack->P_DraftData);
+			ZDELETE(pPack->P_DraftData);
 			if(GetDraftExData(id, &doe) > 0) {
-				THROW_MEM(pack->P_DraftData = new PPDraftOpEx);
-				*pack->P_DraftData = doe;
+				THROW_MEM(pPack->P_DraftData = new PPDraftOpEx);
+				*pPack->P_DraftData = doe;
 			}
 		}
 		else {
-			if(pack->Rec.OpTypeID == PPOPT_POOL) {
-				THROW_MEM(pack->P_PoolData = new PPBillPoolOpEx);
-				THROW(GetPoolExData(id, pack->P_PoolData));
+			if(pPack->Rec.OpTypeID == PPOPT_POOL) {
+				THROW_MEM(pPack->P_PoolData = new PPBillPoolOpEx);
+				THROW(GetPoolExData(id, pPack->P_PoolData));
 			}
-			THROW(PPObjOprKind::GetATTemplList(id, &pack->ATTmpls));
+			THROW(PPObjOprKind::GetATTemplList(id, &pPack->ATTmpls));
 		}
-		if(pack->Rec.Flags & OPKF_RECKON) {
-			THROW_MEM(pack->P_ReckonData = new PPReckonOpEx);
-			THROW(GetReckonExData(id, pack->P_ReckonData));
+		if(pPack->Rec.Flags & OPKF_RECKON) {
+			THROW_MEM(pPack->P_ReckonData = new PPReckonOpEx);
+			THROW(GetReckonExData(id, pPack->P_ReckonData));
 		}
-		if(pack->Rec.SubType == OPSUBT_DEBTINVENT) {
+		if(pPack->Rec.SubType == OPSUBT_DEBTINVENT) {
 			PPDebtInventOpEx dioe;
 			// @v12.6.9 @ctr MEMSZERO(dioe);
-			ZDELETE(pack->P_DIOE);
+			ZDELETE(pPack->P_DIOE);
 			if(P_Ref->GetProperty(PPOBJ_OPRKIND, id, OPKPRP_DEBTINVENT, &dioe, sizeof(dioe)) > 0) {
-				THROW_MEM(pack->P_DIOE = new PPDebtInventOpEx);
-				*pack->P_DIOE = dioe;
+				THROW_MEM(pPack->P_DIOE = new PPDebtInventOpEx);
+				*pPack->P_DIOE = dioe;
 			}
 		}
 	}

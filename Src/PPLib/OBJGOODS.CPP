@@ -4625,25 +4625,8 @@ int PPObjGoods::GetAltGenGoodsList(PPID goodsID, int kind, RAssocArray * pList)
 
 int PPObjGoods::GetStrucSubstList(PPID goodsID, RAssocArray & rList)
 {
-	// @v11.6.6 {
 	PPObjGoodsStruc gs_obj;
 	return gs_obj.FetchSubstList(goodsID, rList);
-	// } @v11.6.6 
-	/* @v11.6.6 
-	int    ok = -1;
-	PPGoodsStruc gs;
-	if(LoadGoodsStruc(PPGoodsStruc::Ident(goodsID, GSF_SUBST, GSF_COMPL|GSF_DECOMPL|GSF_PARTITIAL), &gs) > 0) {
-		PPGoodsStrucItem gsi;
-		double ratio = 0.0;
-		for(uint j = 0; gs.EnumItemsExt(&j, &gsi, goodsID, 1.0, &ratio) > 0;)
-			if(gsi.GoodsID != goodsID && ratio != 0) {
-				if(pList && !pList->Search(gsi.GoodsID, 0, 0, 0))
-					pList->Add(gsi.GoodsID, ratio);
-				ok = 1;
-			}
-	}
-	return ok;
-	*/
 }
 
 int PPObjGoods::GetSubstList(PPID goodsID, bool substStrucOnly, RAssocArray & rList)

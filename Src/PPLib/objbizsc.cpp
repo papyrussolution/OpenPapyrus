@@ -2055,9 +2055,10 @@ int DoBizScore(PPID bzsID)
 	proc.InitParam(&p);
 	p.BzsID = bzsID;
 	while(proc.EditParam(&p) > 0) {
-		if(!proc.Init(&p))
+		if(!proc.Init(&p)) {
 			PPError();
-		if(proc.Run()) {
+		}
+		else if(proc.Run()) {
 			ok = 1;
 			break;
 		}

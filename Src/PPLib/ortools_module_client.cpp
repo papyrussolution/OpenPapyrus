@@ -426,3 +426,225 @@ public:
 		return ok;
 	}
 };
+//
+// Идея такова: зная набор изделий которые трубуются, получаем их BOM'ы и ищем путь производства до сырьевого товара RawI.GoodsID.
+//   Таким образом, мы понимаем какие детали из какого сырья будем кроить. После этого уточняем остатки и цену сырья на скаде RawI.LocID,
+//   формулирем задачу раскроя и отправляем ее ortools'у.
+// 
+class PrcssrOrtCuttingStock2D {
+public:
+	struct DemandItem {
+		DemandItem() : GoodsID(0), Qtty(0.0), Price(0.0)
+		{
+		}
+		PPID   GoodsID;
+		double Qtty;
+		double Price;
+	};
+
+	struct RawItem {
+		RawItem() : GoodsID(0), LocID(0)
+		{
+		}
+		PPID   GoodsID;
+		PPID   LocID; // Склад, с которого мы возьмем сырье для раскроя //
+	};
+	
+	class Param {
+	public:
+		TSVector <DemandItem> DL;
+		RawItem RawI;
+	};
+	PrcssrOrtCuttingStock2D();
+	~PrcssrOrtCuttingStock2D();
+	int    InitParam(Param *);
+	int    EditParam(Param *);
+	int    Init(const Param *);
+	int    Run();
+private:
+	PPObjGoods GObj;
+	Param  P;
+};
+
+PrcssrOrtCuttingStock2D::PrcssrOrtCuttingStock2D()
+{
+}
+	
+PrcssrOrtCuttingStock2D::~PrcssrOrtCuttingStock2D()
+{
+}
+
+int PrcssrOrtCuttingStock2D::InitParam(Param * pParam)
+{
+	if(pParam) {
+		pParam->RawI.LocID = LConfig.Location;
+	}
+	return 1;
+}
+
+int PrcssrOrtCuttingStock2D::EditParam(Param * pParam)
+{
+	class CuttingStock2DTestParamDialog : public PPListDialog {
+		enum {
+			ctlgroupGoods = 1
+		};
+		DECL_DIALOG_DATA(PrcssrOrtCuttingStock2D::Param);
+	public:
+		int    EditItem(DemandItem & rData)
+		{
+			int    ok = -1;
+			TDialog * dlg = new TDialog(DLG_ORTCS2DPARAM_ITEM);
+			if(CheckDialogPtrErr(&dlg)) {
+				dlg->addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_ORTCS2DPARAM_ITEM_GOODSGRP, CTLSEL_ORTCS2DPARAM_ITEM_GOODS));
+				{
+					GoodsCtrlGroup::Rec ggrp_rec(0, rData.GoodsID, 0, 0);
+					dlg->setGroupData(ctlgroupGoods, &ggrp_rec);
+				}
+				dlg->setCtrlReal(CTL_ORTCS2DPARAM_ITEM_QTTY, rData.Qtty);
+				dlg->setCtrlReal(CTL_ORTCS2DPARAM_ITEM_PRICE, rData.Price);
+				while(ok < 0 && ExecView(dlg) == cmOK) {
+					{
+						GoodsCtrlGroup::Rec ggrp_rec;
+						dlg->getGroupData(ctlgroupGoods, &ggrp_rec);
+						rData.GoodsID = ggrp_rec.GoodsID;
+					}
+					rData.Qtty = dlg->getCtrlReal(CTL_ORTCS2DPARAM_ITEM_QTTY);
+					rData.Price = dlg->getCtrlReal(CTL_ORTCS2DPARAM_ITEM_PRICE);
+					ok = 1;
+				}
+			}
+			else
+				ok = 0;
+			delete dlg;
+			return ok;
+		}
+
+		CuttingStock2DTestParamDialog() : PPListDialog(DLG_ORTCS2DPARAM, CTL_ORTCS2DPARAM_DEMANDLIST)
+		{
+			addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_ORTCS2DPARAM_RAWGRP, CTLSEL_ORTCS2DPARAM_RAW));
+			updateList(-1);
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			{
+				GoodsCtrlGroup::Rec ggrp_rec(0, Data.RawI.GoodsID, 0, 0);
+				setGroupData(ctlgroupGoods, &ggrp_rec);
+			}
+			SetupLocationCombo(this, CTLSEL_ORTCS2DPARAM_LOC, Data.RawI.LocID, 0, LOCTYP_WAREHOUSE, 0);
+			updateList(-1);
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			{
+				GoodsCtrlGroup::Rec ggrp_rec;
+				getGroupData(ctlgroupGoods, &ggrp_rec);
+				Data.RawI.GoodsID = ggrp_rec.GoodsID;
+			}
+			getCtrlData(CTLSEL_ORTCS2DPARAM_LOC, &Data.RawI.LocID);
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	private:
+		virtual int setupList()
+		{
+			SString temp_buf;
+			StringSet ss(SLBColumnDelim);
+			for(uint i = 0; i < Data.DL.getCount(); i++) {
+				const  DemandItem & r_item = Data.DL.at(i);
+				ss.Z();
+				GetGoodsName(r_item.GoodsID, temp_buf);
+				ss.add(temp_buf);
+				temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ));
+				ss.add(temp_buf);
+				temp_buf.Z().Cat(r_item.Price, MKSFMTD_020);
+				addStringToList(i+1, ss.getBuf());
+			}
+			return 1;
+		}
+		virtual int addItem(long * pPos, long * pID)
+		{
+			int   ok = -1;
+			long  pos = 0;
+			long  id = 0;
+			DemandItem new_item;
+			new_item.Qtty = 1.0;
+			if(EditItem(new_item) > 0) {
+				Data.DL.insert(&new_item);
+				pos = Data.DL.getCount()-1;
+				id = Data.DL.getCount();
+				ok = 1;
+			}
+			ASSIGN_PTR(pPos, pos);
+			ASSIGN_PTR(pID, id);
+			return ok;
+		}
+		virtual int editItem(long pos, long id)
+		{
+			int    ok = -1;
+			if(pos >= 0 && pos < Data.DL.getCountI()) {
+				DemandItem & r_item = Data.DL.at(pos);
+				if(EditItem(r_item) > 0) {
+					ok = 1;
+				}
+			}
+			return ok;
+		}
+		virtual int delItem(long pos, long id)
+		{
+			int    ok = -1;
+			if(pos >= 0 && pos < Data.DL.getCountI()) {
+				Data.DL.atFree(pos);
+				ok = 1;
+			}
+			return ok;
+		}
+	};
+	DIALOG_PROC_BODY(CuttingStock2DTestParamDialog, pParam);
+}
+	
+int PrcssrOrtCuttingStock2D::Init(const Param * pParam)
+{
+	int    ok = 0;
+	if(pParam) {
+		if(pParam->RawI.GoodsID && pParam->DL.getCount()) {
+			ok = 1;
+		}
+	}
+	return ok;
+}
+
+int PrcssrOrtCuttingStock2D::Run()
+{
+	int    ok = -1;
+	if(P.RawI.GoodsID && P.DL.getCount()) {
+		PPIDArray raw_id_list;
+		RAssocArray raw_subst_list;
+		if(GObj.IsGeneric(P.RawI.GoodsID)) {
+			GObj.GetGenericList(P.RawI.GoodsID, &raw_id_list);
+		}
+		GObj.GetStrucSubstList(P.RawI.GoodsID, raw_subst_list);
+	}
+	return ok;
+}
+
+int DoOrtCuttingStock2D()
+{
+	int    ok = -1;
+	PrcssrOrtCuttingStock2D::Param p;
+	PrcssrOrtCuttingStock2D proc;
+	proc.InitParam(&p);
+	while(proc.EditParam(&p) > 0) {
+		if(!proc.Init(&p)) {
+			PPError();
+		}
+		else if(proc.Run()) {
+			ok = 1;
+			break;
+		}
+	}
+	return ok;
+}

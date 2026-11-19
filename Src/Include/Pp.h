@@ -20507,8 +20507,8 @@ public:
 	int    AddBySample(PPID * pID, PPID sampleID);
 	int    GetExtStrData(PPID opID, int fldID, SString & rBuf);
 	int    GetExAmountList(PPID, PPIDArray *);
-	int    GetGenericList(PPID, ObjRestrictArray *);
-	int    GetGenericList(PPID, PPIDArray *);
+	int    GetGenericList(PPID genID, ObjRestrictArray * pList);
+	int    GetGenericList(PPID genID, PPIDArray * pList);
 	int    GetReckonExData(PPID, PPReckonOpEx *);
 	int    GetPoolExData(PPID, PPBillPoolOpEx *);
 	int    GetDraftExData(PPID, PPDraftOpEx *);
@@ -31801,7 +31801,7 @@ public:
 	int    IsEqualOrBelongToGeneric(PPID goodsID, PPID otherGoodsID);
 	//
 	// Descr: Добавляет в список pList товары, принадлежащие обобщению genID.
-	//   Список pList предварительно не очищается, а новые элементы добавляются в ного методом LongArray::addUnique.
+	//   Список pList предварительно не очищается, а новые элементы добавляются в него методом LongArray::addUnique.
 	//
 	int    GetGenericList(PPID genID, PPIDArray * pList);
 	int    GetAltGenGoodsList(PPID goodsID, int kind, RAssocArray * pList);
@@ -60137,7 +60137,7 @@ public:
 	int    Init(const PPWorkbookImpExpParam * pParam);
 	int    ExportPacket(PPID topLevelID, const PPWorkbookPacket & rPack);
 private:
-	int    PreprocessContent(const SString & rSrc, SString & rResult);
+	int    PreprocessContent(PPID topLevelID, const SString & rSrc, SString & rResult);
 	int    GetPathToEntry(PPID entryID, PPID topLevelID, SString & rBuf);
 
 	PPWorkbookImpExpParam Param;
@@ -66109,6 +66109,7 @@ int DoBizScore(PPID bzsID);
 int DoProcessObjText(const PrcssrObjTextFilt * pFilt);
 int DoProcessOsm(PrcssrOsmFilt * pFilt);
 int DoProcessSartre(PrcssrSartreFilt * pFilt);
+int DoOrtCuttingStock2D(); // @v12.8.5 @construction
 int DoConstructionTest();
 
 template <typename Dlg, typename D> int PPDialogProcBodyID(uint dlgID, D * pData)

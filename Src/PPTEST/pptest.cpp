@@ -2043,11 +2043,12 @@ int DoConstructionTest()
 		}
 	}
 #endif // } 0
-	{ // @v12.8.3
+	DoOrtCuttingStock2D(); // @v12.8.5 @construction
+	/*{ // @v12.8.3
 		// Тест взаимодействия с сервером ORTools_support
 		PPOptiModule::CuttingStock2D::ExecutionBlock eb;
 		PPOptiModule::CuttingStock2D::MakeInitialTestCase(eb);
-		/*static*/PPOptiModule::BaseExecutionResult * p_result = PPOptiModule::ClientExecution(eb);
+		PPOptiModule::BaseExecutionResult * p_result = PPOptiModule::ClientExecution(eb);
 		if(p_result && p_result->IsSuccess()) {
 			SString svg_out;
 			PPOptiModule::CuttingStock2D::GenerateSvg(eb, *static_cast<PPOptiModule::CuttingStock2D::Result *>(p_result), 1.0, svg_out);
@@ -2060,7 +2061,7 @@ int DoConstructionTest()
 				}
 			}
 		}
-	}
+	}*/
 	//Test_DrawImageOnPrinter(); // @v12.7.1
 	//TestCRC();
 	//TestAutotranslateText(); // @v12.6.1

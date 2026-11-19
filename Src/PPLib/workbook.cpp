@@ -3082,7 +3082,7 @@ int PPWorkbookExporter::Init(const PPWorkbookImpExpParam * pParam)
 	return ok;
 }
 
-int PPWorkbookExporter::PreprocessContent(const SString & rSrc, SString & rResult)
+int PPWorkbookExporter::PreprocessContent(PPID topLevelID, const SString & rSrc, SString & rResult)
 {
 	int   ok = 1;
 	/*
@@ -3470,7 +3470,38 @@ int PPWorkbookExporter::PreprocessContent(const SString & rSrc, SString & rResul
 							ObjLinkFiles _f(PPOBJ_WORKBOOK);
 							_f.Load(ref_wb_rec.ID, 0L);
 							if(_f.At(0, file_name) > 0) {
-								// 
+								SString sub_path;
+								GetPathToEntry(ref_wb_rec.ID, topLevelID, sub_path);
+
+								SFsPath ps_src(file_name);
+								SString dest_file_path;
+								SString content_file_name;
+								//ps_src.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
+								content_file_name.Z().Cat(ref_symb).DotCat("md");
+								(dest_file_path = Param.FileName).SetLastDSlash().Cat(sub_path);
+								SFile::CreateDir(dest_file_path);
+								dest_file_path.SetLastDSlash().Cat(content_file_name);
+								if(SCopyFile(file_name, dest_file_path, 0, FILE_SHARE_READ, 0)) {
+								}
+
+								{
+									/*<a href="?page=${code}" title="${macro_pg.Name}" #if($style)style="${style}"#end>
+										#if($text)
+											${text}
+										#else
+											${macro_pg.Name}
+										#end
+									</a>*/
+									(temp_buf = ref_wb_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+									if(alt_text.IsEmpty())
+										alt_text = temp_buf;
+
+									//<a href="etc/D:\Papyrus\ppy\data\uhtt-actual\LinkFiles\1066@3576@1" title="Viki Scan."a>Viki Scan.</a>
+									sub_path.Insert(0, "/").SetLastDSlash().Cat(content_file_name);
+									rResult.CatChar('<').Cat("a").Space().Cat("href").Eq().
+										CatChar('\"').Cat(sub_path).CatChar('\"').Space().
+										Cat("title").Eq().CatQStr(temp_buf).CatChar('>').Cat(alt_text).CatTagBrace("a", 1);
+								}
 							}
 						}
 					}
@@ -3489,9 +3520,8 @@ int PPWorkbookExporter::GetPathToEntry(PPID entryID, PPID topLevelID, SString & 
 	rBuf.Z();
 	int    ok = -1;
 	PPIDArray wb_path;
-	//SString sub_path;
+	WorkbookTbl::Rec iter_rec;
 	if(WbObj.P_Tbl->GetPathToParent(entryID, topLevelID, wb_path) > 0) {
-		WorkbookTbl::Rec iter_rec;
 		uint i = wb_path.getCount();
 		if(i) do {
 			const  PPID iter_id = wb_path.get(--i);
@@ -3508,9 +3538,26 @@ int PPWorkbookExporter::GetPathToEntry(PPID entryID, PPID topLevelID, SString & 
 						rBuf.Cat("wbid").CatLongZ(iter_rec.ID, 6);
 					}
 					rBuf.CatChar('-').Cat("F");
+					ok = 1;
 				}
 			}
 		} while(i);
+	}
+	else {
+		const  PPID iter_id = entryID;
+		rBuf.SetLastSlash().Cat("etc");
+		if(WbObj.Search(iter_id, &iter_rec) > 0) {
+			if(WbObj.P_Tbl->HasChildren(iter_id) > 0) {
+				rBuf.SetLastSlash();
+				if(iter_rec.Symb[0]) {
+					rBuf.Cat(iter_rec.Symb);
+				}
+				else {
+					rBuf.Cat("wbid").CatLongZ(iter_rec.ID, 6);
+				}
+				rBuf.CatChar('-').Cat("F");
+			}
+		}
 	}
 	return ok;
 }
@@ -3525,31 +3572,8 @@ int PPWorkbookExporter::ExportPacket(PPID topLevelID, const PPWorkbookPacket & r
 	else {
 		if(Param.PredefFormat) { // @v12.8.2 @construction
 			if(Param.PredefFormat == piefWorkbook_Astro) { 
-				PPIDArray wb_path;
 				SString sub_path;
-				if(WbObj.P_Tbl->GetPathToParent(rPack.Rec.ID, topLevelID, wb_path) > 0) {
-					WorkbookTbl::Rec iter_rec;
-					uint i = wb_path.getCount();
-					if(i) do {
-						const  PPID iter_id = wb_path.get(--i);
-						if(WbObj.Search(iter_id, &iter_rec) > 0) {
-							if(i == 0 && WbObj.P_Tbl->HasChildren(iter_id) <= 0) {
-								break;
-							}
-							else {
-								sub_path.SetLastSlash();
-								if(iter_rec.Symb[0]) {
-									sub_path.Cat(iter_rec.Symb);
-								}
-								else {
-									sub_path.Cat("wbid").CatLongZ(iter_rec.ID, 6);
-								}
-								sub_path.CatChar('-').Cat("F");
-							}
-						}
-					} while(i);
-				}
-
+				GetPathToEntry(rPack.Rec.ID, topLevelID, sub_path);
 				SObjTextRefIdent tri(PPOBJ_WORKBOOK, rPack.Rec.ID, PPTRPROP_MEMO);
 				SString file_name;
 				SString file_ext;
@@ -3581,7 +3605,7 @@ int PPWorkbookExporter::ExportPacket(PPID topLevelID, const PPWorkbookPacket & r
 									SString org_content_buf;
 									SString intermediate_content_buf;
 									org_content_buf.CatN(_content.cptr(), actual_size);
-									PreprocessContent(org_content_buf, intermediate_content_buf);
+									PreprocessContent(topLevelID, org_content_buf, intermediate_content_buf);
 									result_file_path.SetLastSlash();
 									if(rPack.Rec.Symb[0]) {
 										result_file_path.Cat(rPack.Rec.Symb);

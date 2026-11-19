@@ -1069,7 +1069,7 @@ int LocTransfDisposer::Dispose(const LocTransfDisposeItem & rItem, LocTransfDisp
 		RAssocArray cell_list_for_goods;
 		THROW(LtT.GetCellListForGoods(rItem.GoodsID, p_cell_list, &cell_list_for_goods));
 		temp_list.clear();
-		THROW_SL(cell_list_for_goods.GetList(temp_list, 1));
+		THROW_SL(cell_list_for_goods.GetKeyList(temp_list, true));
 		THROW(ArrangeCellList(rItem, temp_list));
 		while(req_qtty > 0.0) {
 			int    min_delta_idx = -1;

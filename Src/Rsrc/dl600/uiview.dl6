@@ -10266,11 +10266,11 @@ dialog DLG_ORTCS2DPARAM_ITEM [vertical title: "@ortcs2dparam" size: (400, 250) m
 	combobox CTLSEL_ORTCS2DPARAM_ITEM_GOODS [width: bycontainer height: 21 margin: 4 tabstop label: "@ware" cblinesymb: CTL_ORTCS2DPARAM_ITEM_GOODS];
 	view [horizontal width: bycontainer height: 35] {
 		view [horizontal growfactor: 1 height: bycontainer] {
-			input CTL_ORTCS2DPARAM_ITEM_QTTY [design: B width: 90 height: 21 margin: 4 fmtprec: 0 label: "@qtty"] double;
+			input CTL_ORTCS2DPARAM_ITEM_QTTY [design: B width: 90 height: 21 margin: 4 fmtprec: 0 label: "@qtty" tabstop] double;
 		}
 		view [horizontal growfactor: 0.2 height: bycontainer] {} // @stub
 		view [horizontal growfactor: 1 height: bycontainer] {
-			input CTL_ORTCS2DPARAM_ITEM_PRICE [design: B width: 90 height: 21 margin: 4 fmtprec: 2 label: "@price"] double;
+			input CTL_ORTCS2DPARAM_ITEM_PRICE [design: B width: 90 height: 21 margin: 4 fmtprec: 2 label: "@price" tabstop] double;
 		}
 	}
 	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
@@ -10301,5 +10301,39 @@ dialog DLG_BRAND [vertical title: "@brand" size: (450, 450) minsize: (450, 450) 
 			button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
 			button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 		}
+	}
+}
+
+dialog DLG_RUNIE_BILL_IMP [vertical title: "@billrunie_imp" size: (745, 360) minsize: (745, 360) padding: 8 justifycontent: spacebetween] { // @v12.8.5
+	view [horizontal width: bycontainer growfactor: 1] {
+		framebox [vertical growfactor: 1 height: bycontainer margin: 4 padding: 4 justifycontent: spacebetween] {
+			radiocluster CTL_IEBILLSEL_TECH [tabstop width: bycontainer(60) margin: 4 padding: 4] {
+				radiobutton [title: "@billrunie_standardmode"];
+				radiobutton [title: "@billrunie_fuhttimport"];
+				radiobutton [title: "@billrunie_fediimpexp"];
+				radiobutton [title: "@billrunie_fegaisimpexp"];
+				radiobutton [title: "@billrunie_fchznimpexp"];
+			}
+			combobox CTLSEL_IEBILLSEL_BILL [width: bycontainer height: 21 margin: 4 tabstop label: "@billrunie_cfgimpnameheader" cblinesymb: CTL_IEBILLSEL_BILL];
+			combobox CTLSEL_IEBILLSEL_BROW [width: bycontainer height: 21 margin: 4 tabstop label: "@billrunie_cfgimpnamerows" cblinesymb: CTL_IEBILLSEL_BROW];
+		}
+		view [vertical growfactor: 1.2 height: bycontainer justifycontent: spacebetween] {
+			combobox CTLSEL_IEBILLSEL_OP [width: bycontainer height: 21 margin: 4 tabstop label: "@billrunie_op" cblinesymb: CTL_IEBILLSEL_OP];
+			combobox CTLSEL_IEBILLSEL_LOC [width: bycontainer height: 21 margin: 4 tabstop label: "@billrunie_loc" cblinesymb: CTL_IEBILLSEL_LOC];
+			combobox CTLSEL_IEBILLSEL_GUA [width: bycontainer height: 21 margin: 4 tabstop label: "@billrunie_gua" cblinesymb: CTL_IEBILLSEL_GUA];
+			view [horizontal width: bycontainer(70) height: 30] {
+				input CTL_IEBILLSEL_PERIOD [design: B size: (135, 21) margin: 4 tabstop label: "@billrunie_period" ] string[32] supplement daterangecalbutton(CTLCAL_IEBILLSEL_PERIOD);
+			}
+			checkcluster CTL_IEBILLSEL_FLAGS [tabstop width: bycontainer margin: 4 padding: 4] {
+				checkbox [title: "@billrunie_ftestmode"];
+				checkbox [title: "@billrunie_fdontremovetags"];
+				checkbox [title: "@billrunie_fegaisver3"];
+				checkbox [title: "@billrunie_fegaisver4"];
+			}
+		}
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }

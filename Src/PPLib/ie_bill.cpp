@@ -584,21 +584,31 @@ int DocNalogRu_Reader::ReadSingleXmlFile(const char * pFileName, FileInfo & rHea
 												// PPHSC_RU_WAREIDENT_MARKQTTY    " ол¬едћарк" // @v12.8.4  оличество товара в единицах измерени€ маркированного товара средствами идентификации.
 													// ”казываетс€ количество маркированных товаров в потребительской упаковке ( »«). Ёлемент об€зателен при отсутствии < »«>, <Ќом”пак>, <»дент“ранс”пак>
 												if(SXml::IsName(p_n5, GetToken_Utf8(PPHSC_RU_WAREIDENTBLOCK))) { // Ќом—ред»дент
+													uint   mark_qtty = 0; 
+													bool   is_there_manuf_part = false;
 													if(SXml::GetAttrib(p_n5, GetToken_Utf8(PPHSC_RU_WAREIDENT_TPACKCODE), temp_buf)) { // Ѕывает и такое: единственна€ марка в атрибуте!
 														p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
 													}
 													if(SXml::GetAttrib(p_n5, GetToken_Utf8(PPHSC_RU_WAREIDENT_MANUFPART), temp_buf)) { // @v12.8.4
-														p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
+														if(temp_buf.NotEmpty()) {
+															p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
+															is_there_manuf_part = true;
+														}
 													}
-													for(const xmlNode * p_n6 = p_n5->children; p_n6; p_n6 = p_n6->next) {
-														if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_PACKCODE), temp_buf) > 0) {
-															p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
-														}
-														else if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_KIZ), temp_buf) > 0) {
-															p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
-														}
-														else if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_TPACKCODE), temp_buf) > 0) {
-															p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
+													if(SXml::GetAttrib(p_n5, GetToken_Utf8(PPHSC_RU_WAREIDENT_MARKQTTY), temp_buf)) { // @v12.8.5
+														mark_qtty = temp_buf.ToULong();
+													}
+													if(!is_there_manuf_part) { // @v12.8.5 @condition ≈сли указан номер партии (партионный учет чзн), то остальные марки не работают
+														for(const xmlNode * p_n6 = p_n5->children; p_n6; p_n6 = p_n6->next) {
+															if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_PACKCODE), temp_buf) > 0) {
+																p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
+															}
+															else if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_KIZ), temp_buf) > 0) {
+																p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
+															}
+															else if(SXml::GetContentByName(p_n6, GetToken_Utf8(PPHSC_RU_WAREIDENT_TPACKCODE), temp_buf) > 0) {
+																p_item->MarkList.add(temp_buf.Transf(CTRANSF_UTF8_TO_INNER)); // номер марки
+															}
 														}
 													}
 												}
@@ -1894,9 +1904,10 @@ int PPBillImpExpBaseProcessBlock::Select(int import)
 	SelectBillImpCfgDialog * dlg = 0;
 	THROW(PPGetFilePath(PPPATH_BIN, PPFILNAM_IMPEXP_INI, ini_file_name));
 	{
-		BillParam.Direction = BIN(import);
-		BRowParam.Direction = BIN(import);
-		dlg = new SelectBillImpCfgDialog((import ? DLG_RUNIE_BILL_IMP : DLG_RUNIE_BILL_EXP), ini_file_name, import);
+		const  bool is_imprt = LOGIC(import);
+		BillParam.Direction = is_imprt;
+		BRowParam.Direction = is_imprt;
+		dlg = new SelectBillImpCfgDialog((is_imprt ? DLG_RUNIE_BILL_IMP : DLG_RUNIE_BILL_EXP), ini_file_name, import);
 		THROW(CheckDialogPtr(&dlg));
 		{
 			PrcssrAlcReport::Config parc;
@@ -7756,13 +7767,20 @@ int DocNalogRu_Generator::WriteWareInfoAddendum(const PPBillImpExpParam & rParam
 						if(is_batch_mark > 0) {
 							assert(batch_mark.NotEmpty());
 							SXml::WNode n_marks(P_X, GetToken_Ansi(PPHSC_RU_WAREIDENTBLOCK));
-							n_marks.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREIDENT_MARKQTTY), temp_buf.Z().Cat(static_cast<uint>(fabs(r_ti.Qtty()))));
+							uint   batch_qtty = 0U;
+							if(checkirange(chzn_int_qty, 1, 1000)) { // @v12.8.5
+								batch_qtty = static_cast<uint>(chzn_int_qty);
+							}
+							else {
+								batch_qtty = static_cast<uint>(fabs(r_ti.Qtty()));
+							}
+							n_marks.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREIDENT_MARKQTTY), temp_buf.Z().Cat(batch_qtty));
 							n_marks.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREIDENT_MANUFPART), EncText(temp_buf = batch_mark));
 						} // } @v12.8.4
 						else if(rGcS.CodeForMarking.NotEmpty() && PPChZnPrcssr::IsTypeSuitableForSurrogateMarking(chzn_prod_type)) {
 							assert(rGcS.CodeForMarking.Len() < 14);
 							// @v12.4.8 if(chzn_prod_type == GTCHZNPT_MILK && is_weighted_ware) { // @v11.9.7
-							if(chzn_int_qty > 0 && chzn_int_qty < 1000) { // @v12.4.8
+							if(checkirange(chzn_int_qty, 1, 1000)) { // @v12.4.8
 								assert(chzn_prod_type == GTCHZNPT_MILK && is_weighted_ware); // @v12.4.8 подразумеваетс€ условием (chzn_int_qty > 0 && chzn_int_qty < 1000)
 								// ƒл€ весовой молочной продукции указываетс€ количество упаковок - пока пишем фиксированную единицу
 								(temp_buf = rGcS.CodeForMarking).PadLeft(14-rGcS.CodeForMarking.Len(), '0').Insert(0, "02").Cat("37").Cat(chzn_int_qty);

@@ -9346,7 +9346,10 @@ public:
 	bool   Search(long key, double * pVal, uint * pPos, int binary = 0) const;
 	bool   FASTCALL Has(long key) const;
 	double Get(long key, int binary = 0) const; // @>>RAssocArray::Search
-	int    GetList(LongArray & rList, int unique) const;
+	//
+	// Descr: Включает с массив rList все идентификаторы из списка this. Массив rList не очищается в прологе функции.
+	//
+	int    GetKeyList(LongArray & rList, bool unique) const;
 	void   Scale(double rate);
 	int    SearchMinMaxVal(uint * pMinValPos, uint * pMaxValPos) const; // @v12.5.1
 
