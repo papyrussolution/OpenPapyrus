@@ -2411,13 +2411,13 @@ int BillItemBrowser::PostprocessModifItemAdding(const PPTransferItem & rTi, uint
 {
 	int    ok = 1;
 	if(!rTi.IsRecomplete()) {
-		PPGoodsStruc::Ident gs_ident(rTi.GoodsID, -1L, GSF_PARTITIAL, R_Pack.Rec.Dt);
+		PPGoodsStruc::Ident gsi(rTi.GoodsID, -1L, GSF_PARTITIAL, R_Pack.Rec.Dt);
 		if(sign > 0)
-			gs_ident.AndFlags = (GSF_COMPL);
+			gsi.AndFlags = (GSF_COMPL);
 		else if(sign < 0)
-			gs_ident.AndFlags = (GSF_DECOMPL);
+			gsi.AndFlags = (GSF_DECOMPL);
 		TSCollection <PPGoodsStruc> gs_list;
-		if(GObj.LoadGoodsStruc(gs_ident, gs_list) > 0) {
+		if(GObj.LoadGoodsStruc(gsi, gs_list) > 0) {
 			if(gs_list.getCount() == 1) {
 				THROW(R_Pack.InsertComplete(*gs_list.at(0), pos, 0, 0, 0/*goods-replacement-array*/, recursive));
 			}

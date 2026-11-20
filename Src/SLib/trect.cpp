@@ -1138,6 +1138,11 @@ SPoint2F FASTCALL trans01(SPoint2F p, SPoint2F radius, float angle) { return SPo
 //
 //
 //
+SPoint2R & SPoint2R::Z()
+{
+	return Set(0.0);
+}
+
 SPoint2R & SPoint2R::Set(double _xy)
 {
 	x = y = _xy;

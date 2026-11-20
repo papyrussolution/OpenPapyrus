@@ -8412,26 +8412,24 @@ int StyloQTestCmdParam::InitInstance()
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
 			setCtrlString(CTL_STQATTCPARAM_PRCTTL, Data.PrcTitle);
-			setCtrlLong(CTL_STQATTCPARAM_MAXSCHD, Data.MaxScheduleDays); // @v11.3.10
-			SetupLocationCombo(this, CTLSEL_STQATTCPARAM_LOC, Data.LocID, 0, LOCTYP_WAREHOUSE, 0); // @v11.3.12
-			SetupPPObjCombo(this, CTLSEL_STQATTCPARAM_QK, PPOBJ_QUOTKIND, Data.QuotKindID, 0); // @v11.3.12
+			setCtrlLong(CTL_STQATTCPARAM_MAXSCHD, Data.MaxScheduleDays);
+			SetupLocationCombo(this, CTLSEL_STQATTCPARAM_LOC, Data.LocID, 0, LOCTYP_WAREHOUSE, 0);
+			SetupPPObjCombo(this, CTLSEL_STQATTCPARAM_QK, PPOBJ_QUOTKIND, Data.QuotKindID, 0);
 			SetDataRef(&Data.PrcList);
-			// @v11.4.3 {
 			AddClusterAssocDef(CTL_STQATTCPARAM_TSD, 0, 5);
 			AddClusterAssoc(CTL_STQATTCPARAM_TSD, 1, 10);
 			AddClusterAssoc(CTL_STQATTCPARAM_TSD, 2, 15);
 			SetClusterData(CTL_STQATTCPARAM_TSD, Data.TimeSheetDiscreteness);
-			// } @v11.4.3 
 			return ok;
 		}
 		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
 			getCtrlString(CTL_STQATTCPARAM_PRCTTL, Data.PrcTitle);
-			Data.MaxScheduleDays = inrangeordefault(getCtrlLong(CTL_STQATTCPARAM_MAXSCHD), 1L, 365L, 7L); // @v11.3.10
-			Data.LocID = getCtrlLong(CTLSEL_STQATTCPARAM_LOC); // @v11.3.12
-			Data.QuotKindID = getCtrlLong(CTLSEL_STQATTCPARAM_QK); // @v11.3.12
-			Data.TimeSheetDiscreteness = static_cast<uint16>(GetClusterData(CTL_STQATTCPARAM_TSD)); // @v11.4.3
+			Data.MaxScheduleDays = inrangeordefault(getCtrlLong(CTL_STQATTCPARAM_MAXSCHD), 1L, 365L, 7L);
+			Data.LocID = getCtrlLong(CTLSEL_STQATTCPARAM_LOC);
+			Data.QuotKindID = getCtrlLong(CTLSEL_STQATTCPARAM_QK);
+			Data.TimeSheetDiscreteness = static_cast<uint16>(GetClusterData(CTL_STQATTCPARAM_TSD));
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}

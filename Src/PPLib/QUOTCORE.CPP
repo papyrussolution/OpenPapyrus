@@ -1648,7 +1648,8 @@ int QuotCacheBase::Implement_DirtyMatrix(const PPIDArray * pGoodsList, const PPI
 				PPIDArray loc_list;
 				PPIDArray to_rmv_list;
 				PPIDArray rel_list;
-				LAssocArray loc_mtx_list, prev_loc_mtx_list;
+				LAssocArray loc_mtx_list;
+				LAssocArray prev_loc_mtx_list;
 				PPQuotArray ql;
 				PPIDArray wh_list;
 				loc_obj.GetWarehouseList(&wh_list, 0);

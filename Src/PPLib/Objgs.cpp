@@ -4088,6 +4088,45 @@ int PPObjGoodsStruc::LoadAutoDecomplList(TSVector <SaAutoDecomplItem> & rList) /
 	}
 	return ok;
 }
+
+int PPObjGoodsStruc::FindComplPath(PPID resultGoodsID, PPID rawGoodsID, LAssocArray * pPath) // @v12.8.5 @construction
+{
+	PPID   parent_goods_id = 0;
+	CALLPTRMEMB(pPath, clear());
+	int    ok = -1;
+	PPObjGoods goods_obj;
+	TSCollection <PPGoodsStruc> gs_list;
+	PPGoodsStruc::Ident gsi(resultGoodsID, GSF_COMPL, GSF_PARTITIAL|GSF_SUBST);
+	goods_obj.LoadGoodsStruc(gsi, gs_list);
+	for(uint gsi = 0; ok < 0 && gsi < gs_list.getCount(); gsi++) {
+		const  PPGoodsStruc * p_gs = gs_list.at(gsi);
+		if(p_gs) {
+			for(uint i = 0; ok < 0 && i < p_gs->Items.getCount(); i++) {
+				PPGoodsStrucItem gs_item;
+				double qtty = 0.0;
+				if(p_gs->GetItemExt(i, &gs_item, parent_goods_id, 1.0, &qtty) > 0) {
+					if(gs_item.GoodsID == rawGoodsID) {
+						if(pPath) {
+							pPath->Add(gs_item.GoodsID, p_gs->Rec.ID);
+						}
+						ok = 1;
+					}
+					else {
+						LAssocArray sub_path;
+						if(FindComplPath(gs_item.GoodsID, rawGoodsID, &sub_path) > 0) { // @recursion
+							if(pPath) {
+								pPath->Add(gs_item.GoodsID, p_gs->Rec.ID);
+								pPath->Add(sub_path);
+							}
+							ok = 1;
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
 //
 //
 //

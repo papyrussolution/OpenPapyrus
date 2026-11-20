@@ -9171,6 +9171,7 @@ public:
 	int    GetValList(LongArray & rList) const;
 	int    Add(long key, long val);
 	int    Add(long key, long val, uint * pPos, int inOrder = 0);
+	int    Add(const LAssocArray & rAddendum); // @v12.8.5
 	int    AddUnique(long key, long val, uint * pPos, int inOrder = 0);
 	//
 	// Descr: Если находит в массиве элемент со ключем key, то увеличивает соответствующее значение val на единицу,
@@ -9571,8 +9572,8 @@ public:
 	//
 	Item   FASTCALL at_WithoutParent(uint pos) const;
 	int    AtFree(uint pos);
-	int    Search(long id, uint * pPos) const;
-	int    FASTCALL Search(long id) const;
+	bool   Search(long id, uint * pPos) const;
+	bool   FASTCALL Search(long id) const;
 	//
 	// Descr: Ищет в массиве элемент, текст которого совпадает с параметром pTxt.
 	//   поиск не чувствителен к регистру.
@@ -16382,6 +16383,7 @@ private:
 //
 class SPoint2R {
 public:
+	SPoint2R & Z();
 	SPoint2R & Set(double _xy);
 	SPoint2R & Set(double _x, double _y);
 	//
@@ -16392,6 +16394,7 @@ public:
 	SPoint2R & SetPolar(double v, double rad);
 	void   GetInt(int * pX, int * pY) const;
 	void   GetUInt(uint * pX, uint * pY) const;
+	double GetArea() const { return (x * y); }
 	int    FASTCALL FromStr(const char * pStr);
 	friend SPoint2R & FASTCALL operator - (const SPoint2R & one, const SPoint2R & two);
 	friend SPoint2R & FASTCALL operator + (const SPoint2R & one, const SPoint2R & two);

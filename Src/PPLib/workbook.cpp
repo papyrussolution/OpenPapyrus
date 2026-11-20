@@ -1592,7 +1592,7 @@ int PPObjWorkbook::Helper_Export(PPID rootID, PPWorkbookExporter & rExporter, PP
 				if(r > 0) {
 					PPWorkbookPacket pack;
 					THROW(GetPacket(rec.ID, &pack) > 0);
-					THROW(rExporter.ExportPacket(rootID, pack));
+					THROW(rExporter.ExportPacket(rootID, pack, 0));
 					THROW(Helper_Export(rec.ID, rExporter, pRecurTrace)); // @recursion
 				}
 				else {
@@ -3355,6 +3355,7 @@ int PPWorkbookExporter::PreprocessContent(PPID topLevelID, const SString & rSrc,
 				if(local_done) {
 					if(ref_symb.NotEmptyS()) {
 						if(WbObj.SearchBySymb(ref_symb, &ref_wb_id, &ref_wb_rec) > 0) {
+							SString dest_file_path;
 							ObjLinkFiles _f(PPOBJ_WORKBOOK);
 							_f.Load(ref_wb_rec.ID, 0L);
 							if(_f.At(0, file_name) > 0) {
@@ -3366,7 +3367,6 @@ int PPWorkbookExporter::PreprocessContent(PPID topLevelID, const SString & rSrc,
 									}
 									if(SFile::IsDir(Param.ImgPath)) {
 										SFsPath ps_src(file_name);
-										SString dest_file_path;
 										SString img_file_name;
 										//ps_src.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
 										ff.GetExt(ff, file_ext);
@@ -3394,10 +3394,14 @@ int PPWorkbookExporter::PreprocessContent(PPID topLevelID, const SString & rSrc,
 									}
 								}
 							}
-							ProcessedIdList.add(ref_wb_rec.ID);
+							ProcessedIdList.AddFast(ref_wb_rec.ID, dest_file_path);
 						}
 					}
 				}
+			}
+			else if(sstreqni_ascii(p_c, "#ANNOT", 6)) {
+				tok_len = 6;
+				// @todo
 			}
 			else if(sstreqni_ascii(p_c, "#LINK", 5)) {
 				/*
@@ -3467,6 +3471,12 @@ int PPWorkbookExporter::PreprocessContent(PPID topLevelID, const SString & rSrc,
 				if(local_done) {
 					if(ref_symb.NotEmptyS()) {
 						if(WbObj.SearchBySymb(ref_symb, &ref_wb_id, &ref_wb_rec) > 0) {
+							/*
+							PPWorkbookPacket ref_pack;
+							if(WbObj.GetPacket(ref_wb_rec.ID, &ref_pack) > 0) {
+								ExportPacket(topLevelID, ref_pack);
+							}
+							*/
 							ObjLinkFiles _f(PPOBJ_WORKBOOK);
 							_f.Load(ref_wb_rec.ID, 0L);
 							if(_f.At(0, file_name) > 0) {
@@ -3562,11 +3572,15 @@ int PPWorkbookExporter::GetPathToEntry(PPID entryID, PPID topLevelID, SString & 
 	return ok;
 }
 
-int PPWorkbookExporter::ExportPacket(PPID topLevelID, const PPWorkbookPacket & rPack)
+int PPWorkbookExporter::ExportPacket(PPID topLevelID, const PPWorkbookPacket & rPack, SString * pContentPath)
 {
 	int    ok = 1;
 	SString temp_buf;
-	if(ProcessedIdList.lsearch(rPack.Rec.ID)) {
+	SString result_file_path;
+	uint   processed_idx = 0;
+	if(ProcessedIdList.Search(rPack.Rec.ID, &processed_idx)) {
+		StrAssocArray::Item pli = ProcessedIdList.Get(processed_idx);
+		result_file_path = pli.Txt;
 		ok = -1;
 	}
 	else {
@@ -3598,7 +3612,6 @@ int PPWorkbookExporter::ExportPacket(PPID topLevelID, const PPWorkbookPacket & r
 							int rr = f_in.ReadAll(_content, 0, &actual_size);
 							if(actual_size) {
 								assert(actual_size > 0);
-								SString result_file_path;
 								SString result_content;	
 								(result_file_path = Param.FileName).SetLastSlash().Cat(sub_path);
 								if(SFile::CreateDir(result_file_path)) {
@@ -3666,7 +3679,7 @@ int PPWorkbookExporter::ExportPacket(PPID topLevelID, const PPWorkbookPacket & r
 									if(f_out.IsValid()) {
 										f_out.Write(result_content.cptr(), result_content.Len());
 									}
-									ProcessedIdList.add(rPack.Rec.ID);
+									ProcessedIdList.AddFast(rPack.Rec.ID, result_file_path);
 								}
 							}
 						}
@@ -3725,19 +3738,20 @@ int PPWorkbookExporter::ExportPacket(PPID topLevelID, const PPWorkbookPacket & r
 					if(DestFilesPath.NotEmpty() && !fileExists(DestFilesPath)) {
 						THROW_SL(SFile::CreateDir(DestFilesPath));
 					}
-					SString dest_filename;
+					//SString dest_filename;
 					SFsPath ps(temp_buf);
-					MakeTempFileName(DestFilesPath, "wbf", ps.Ext, dest_filename);
-					THROW_SL(SCopyFile(temp_buf, dest_filename, 0, FILE_SHARE_READ, 0));
-					dest_filename.CopyTo(sdr_rec.Content, sizeof(sdr_rec.Content));
+					MakeTempFileName(DestFilesPath, "wbf", ps.Ext, result_file_path);
+					THROW_SL(SCopyFile(temp_buf, result_file_path, 0, FILE_SHARE_READ, 0));
+					result_file_path.CopyTo(sdr_rec.Content, sizeof(sdr_rec.Content));
 				}
 			}
 			P_IEWorkbook->GetParamConst().InrRec.ConvertDataFields(CTRANSF_INNER_TO_OUTER, &sdr_rec);
 			THROW(P_IEWorkbook->AppendRecord(&sdr_rec, sizeof(sdr_rec)));
-			ProcessedIdList.add(rPack.Rec.ID);
+			ProcessedIdList.AddFast(rPack.Rec.ID, result_file_path);
 		}
 	}
 	CATCHZOK
+	ASSIGN_PTR(pContentPath, result_file_path);
 	return ok;
 }
 //

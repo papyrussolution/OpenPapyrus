@@ -3841,8 +3841,12 @@ int FASTCALL ReadDBSR25::NextIteration(PPSuprWareAssoc & rGoodComp)
 int ImportSR25()
 {
 	int    ok = 1, r = 1;
-	uint   count = 0, i = 0, pos = 0;
-	SString wait_msg, brc_str, msg_buf;
+	uint   count = 0;
+	uint   i = 0;
+	uint   pos = 0;
+	SString wait_msg;
+	SString brc_str;
+	SString msg_buf;
 	SString temp_buf;
 	SString unit_abbr;
 	ReadDBSR25 sr25;
@@ -3853,7 +3857,8 @@ int ImportSR25()
 	PPSuprWarePacket comp_goods_pack;
 	StrAssocArray goods_arr;
 	PPLogger logger;
-	LAssocArray goods_ids_assoc, nutrs_ids_assoc; // Это ассоциации ИД товаров/компонентов, указанные в файле импорта, и их ИД в Papyrus
+	LAssocArray goods_ids_assoc; // ...
+	LAssocArray nutrs_ids_assoc; // Это ассоциации ИД товаров/компонентов, указанные в файле импорта, и их ИД в Papyrus 
 	TSArray <PPComps> nutr_arr;
 
 	PPWaitStart();

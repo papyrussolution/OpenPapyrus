@@ -840,7 +840,8 @@ int GoodsClassDialog::replyDimCmd(PPGdsClsDim * pData)
 int PPObjGoodsClass::ReplacePropRefList(PPID prevObjType, PPID newObjType, LAssocArray * pAssc, LAssocArray * pBadRefList)
 {
 	int    ok = 1;
-	LAssocArray new_assc, bad_ref_list;
+	LAssocArray new_assc;
+	LAssocArray bad_ref_list;
 	SString name_buf;
 	THROW_PP(IS_REF_OBJTYPE(newObjType), PPERR_CANTUPDGDSCLSPROP);
 	for(uint i = 0; i < pAssc->getCount(); i++) {
@@ -1212,8 +1213,12 @@ void GoodsClassCache::EntryToData(const ObjCacheEntry * pEntry, void * pDataRec)
 
 int PPObjGoodsClass::Fetch(PPID id, PPGdsClsPacket * pRec)
 {
-	GoodsClassCache * p_cache = GetDbLocalCachePtr <GoodsClassCache> (Obj);
-	return p_cache ? p_cache->Get(id, pRec) : GetPacket(id, pRec);
+	int    ok = -1;
+	if(id) {
+		GoodsClassCache * p_cache = GetDbLocalCachePtr <GoodsClassCache> (Obj);
+		ok = p_cache ? p_cache->Get(id, pRec) : GetPacket(id, pRec);
+	}
+	return ok;
 }
 //
 //

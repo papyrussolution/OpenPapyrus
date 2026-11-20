@@ -61,12 +61,12 @@ public:
 	// Внутренние развёрнутые экземпляры деталей (pieces) и сырьевых плоскостей (sheets)
 	//
 	struct BaseInstance {
-		BaseInstance() : RefIdx(0), OriginalId(0), Instance(0), Cost(0.0)
+		BaseInstance() : RefIdx(0), Instance(0), Cost(0.0)
 		{
 		}
-		int    RefIdx;       // Индекс в массиве оригинальных исходных данных
-		int    OriginalId;   // ИД в массиве оригинальных исходных данных
-		uint   Instance;     // 0..Qtty-1
+		int    RefIdx;        // Индекс в массиве оригинальных исходных данных
+		ued_t  OriginalUedID; // ИД в массиве оригинальных исходных данных
+		uint   Instance;      // 0..Qtty-1
 		SPoint2I Size;
 		double Cost;
 	};
@@ -201,7 +201,7 @@ void OrToolsSolver_CuttingStock2D::ExpandInstances()
 			pi.RefIdx = static_cast<int>(i);
 			pi.Instance = q;
 			pi.Size = bi.Size;
-			pi.OriginalId = bi.Id;
+			pi.OriginalUedID = bi.UedID;
 			PieceInst.push_back(pi);
 		}
 	}
@@ -213,7 +213,7 @@ void OrToolsSolver_CuttingStock2D::ExpandInstances()
 			si.Instance = q;
 			si.Size = rs.Size;
 			si.Cost = rs.Cost;
-			si.OriginalId = rs.Id;
+			si.OriginalUedID = rs.UedID;
 			SheetInst.push_back(si);
 		}
 	}
@@ -640,7 +640,7 @@ bool OrToolsSolver_CuttingStock2D::SolveInternal_(PPOptiModule::CuttingStock2D::
 				if(SolutionBooleanValue(response, sheet_used[s])) {
 					PPOptiModule::CuttingStock2D::UsedSheet * p_us = rR.SheetList.CreateNewItem();
 					if(p_us) {
-						p_us->SheetId = SheetInst[s].OriginalId;
+						p_us->SheetUedID = SheetInst[s].OriginalUedID;
 						p_us->SheetInstance  = SheetInst[s].Instance;
 						p_us->TotalArea = static_cast<uint>(SheetInst[s].Size.GetArea());
 						p_us->UsedArea  = 0;
@@ -651,9 +651,9 @@ bool OrToolsSolver_CuttingStock2D::SolveInternal_(PPOptiModule::CuttingStock2D::
 								for(const auto & pos : pieceOnStrip[s][k]) {
 									if(SolutionBooleanValue(response, pos.assigned)) {
 										PPOptiModule::CuttingStock2D::Placement pl;
-										pl.ItemId       = PieceInst[pos.pieceIdx].OriginalId;
+										pl.ItemUedID     = PieceInst[pos.pieceIdx].OriginalUedID;
 										pl.ItemInstance  = PieceInst[pos.pieceIdx].Instance;
-										pl.SheetId      = SheetInst[s].OriginalId;
+										pl.SheetUedID    = SheetInst[s].OriginalUedID;
 										pl.SheetInstance = SheetInst[s].Instance;
                     
 										int aw = static_cast<int>(SolutionIntegerValue(response, pos.actualW));
@@ -974,16 +974,16 @@ void OrToolsSolver_CuttingStock2D::ExtractResult(const CpSolverResponse & respon
 			if(SolutionBooleanValue(response, rSheetUsed[s])) {
 				PPOptiModule::CuttingStock2D::UsedSheet * p_us = rR.SheetList.CreateNewItem();
 				if(p_us) {
-					p_us->SheetId = SheetInst[s].OriginalId;
+					p_us->SheetUedID = SheetInst[s].OriginalUedID;
 					p_us->SheetInstance = SheetInst[s].Instance;
 					p_us->TotalArea = static_cast<uint>(SheetInst[s].Size.x * SheetInst[s].Size.y);
 					p_us->UsedArea = 0;
 					for(const auto & pv : pvars[s]) {
 						if(SolutionBooleanValue(response, pv.Assigned)) {
 							PPOptiModule::CuttingStock2D::Placement pl;
-							pl.ItemId       = PieceInst[pv.PieceInstIdx].OriginalId;
+							pl.ItemUedID     = PieceInst[pv.PieceInstIdx].OriginalUedID;
 							pl.ItemInstance  = PieceInst[pv.PieceInstIdx].Instance;
-							pl.SheetId      = SheetInst[s].OriginalId;
+							pl.SheetUedID    = SheetInst[s].OriginalUedID;
 							pl.SheetInstance = SheetInst[s].Instance;
 							pl.Pt.Set(static_cast<int>(SolutionIntegerValue(response, pv.XStart)), static_cast<int>(SolutionIntegerValue(response, pv.YStart)));
 							pl.Sz.Set(static_cast<int>(SolutionIntegerValue(response, pv.ActualWidth)), static_cast<int>(SolutionIntegerValue(response, pv.ActualHeight)));
@@ -1020,7 +1020,7 @@ void OrToolsSolver_CuttingStock2D::ExtractResult(const CpSolverResponse & respon
 					//int sh = 0;
 					SPoint2I found_sz;
 					for(uint j = 0; j < R_Base.EB.SheetList.getCount(); j++) {
-						if(R_Base.EB.SheetList.at(j).Id == p_us->SheetId) {
+						if(R_Base.EB.SheetList.at(j).UedID == p_us->SheetUedID) {
 							//sw = R_Base.SheetList.at(j).Size.x;
 							//sh = R_Base.SheetList.at(j).Size.y;
 							found_sz = R_Base.EB.SheetList.at(j).Size;
@@ -1070,13 +1070,13 @@ bool PPOptiModule::CuttingStock2D::Solve(PPOptiModule::CuttingStock2D::Result & 
 	return ok;
 }
 
-void PPOptiModule::CuttingStock2D::GetSheetSize(int sheetId, int & rW, int & rH) const
+void PPOptiModule::CuttingStock2D::GetSheetSize(uint64 sheetId, int & rW, int & rH) const
 {
 	rW = 0;
 	rH = 0;
 	for(uint i = 0; i < EB.SheetList.getCount(); i++) {
 		const PPOptiModule::CuttingStock2D::RawSheet & r_s = EB.SheetList.at(i);
-		if(r_s.Id == sheetId) {
+		if(r_s.UedID == sheetId) {
 			rW = r_s.Size.x;
 			rH = r_s.Size.y;
 			break;
@@ -1101,11 +1101,11 @@ void PPOptiModule::CuttingStock2D::Result::ToStr_Debug(SString & rBuf) const
 	rBuf.Cat("Total cost").CatDiv(':', 2).Cat(TotalCost).CR();
 	for(uint i = 0; i < SheetList.getCount(); i++) {
 		const UsedSheet * p_us = SheetList.at(i);
-		rBuf.Tab().Cat("Sheet").Space().CatChar('#').Cat(p_us->SheetId).Space().CatChar('(').CatEq("inst", p_us->SheetInstance).CatChar(')').CatDiv(':', 2).
+		rBuf.Tab().Cat("Sheet").Space().CatChar('#').Cat(p_us->SheetUedID).Space().CatChar('(').CatEq("inst", p_us->SheetInstance).CatChar(')').CatDiv(':', 2).
 			Cat("utilization").Eq().Cat(p_us->GetUtilization(), MKSFMTD(0, 1, 0)).CatChar('%').CR();
 		for(uint j = 0; j < p_us->ItemList.getCount(); j++) {
 			const Placement & r_pl = p_us->ItemList.at(j);
-			rBuf.Tab_(2).Cat("Item").Space().CatChar('#').Cat(r_pl.ItemId).CatChar('[').Cat(r_pl.ItemInstance).CatChar(']').CatDiv(':', 2).
+			rBuf.Tab_(2).Cat("Item").Space().CatChar('#').Cat(r_pl.ItemUedID).CatChar('[').Cat(r_pl.ItemInstance).CatChar(']').CatDiv(':', 2).
 				Cat("pos").Eq().CatChar('(').Cat(r_pl.Pt.x).Comma().Cat(r_pl.Pt.y).CatChar(')').Space().
 				Cat("size").Eq().Cat(r_pl.Sz.x).CatChar('x').Cat(r_pl.Sz.y);
 			if(r_pl.IsRotated()) {

@@ -148,7 +148,8 @@ int FASTCALL SrWordForm::IsEq(const SrWordForm & rS) const
 {
 	int    r = 0;
 	if(Len == rS.Len) {
-		LAssocArray list1, list2;
+		LAssocArray list1;
+		LAssocArray list2;
 		size_t p;
 		for(p = 0; P_Buf[p]; p = Step(p)) {
 			list1.Add(Tag(p), Get(p), 0);

@@ -7718,13 +7718,18 @@ int DocNalogRu_Generator::WriteWareInfoAddendum(const PPBillImpExpParam & rParam
 		bool   is_whs_marking_ware = false; // @v12.7.9 проекция флага GTF_GMARKED_WHS товарного типа. Означает, что оптовая отгрузка осуществляется по-марочно.
 		int    chzn_prod_type = 0;
 		int    chzn_int_qty = 0;
+		double _goods_kg_ratio = 0.0; // @v12.8.5
 		Goods2Tbl::Rec goods_rec;
 		if(GObj.Fetch(goods_id, &goods_rec) > 0) {
+			PPObjUnit u_obj;
 			PPUnit u_rec;
 			PPGoodsType2 gt_rec;
-			if(GObj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
+			if(u_obj.Fetch(goods_rec.UnitID, &u_rec) > 0) {
 				is_weighted_ware = (u_rec.ID == SUOM_KILOGRAM || u_rec.BaseUnitID == SUOM_KILOGRAM);
 				(unit_name = u_rec.Name).Transf(CTRANSF_INNER_TO_OUTER);
+				if(is_weighted_ware) { // @v12.8.5
+					u_obj.TranslateToBase(goods_rec.UnitID, SUOM_KILOGRAM, &_goods_kg_ratio);
+				}
 			}
 			if(goods_rec.GoodsTypeID && GObj.FetchGoodsType(goods_rec.GoodsTypeID, &gt_rec) > 0) {
 				chzn_prod_type = gt_rec.ChZnProdType;
@@ -7733,9 +7738,24 @@ int DocNalogRu_Generator::WriteWareInfoAddendum(const PPBillImpExpParam & rParam
 			}
 		}
 		{
+			PPLotExtCodeContainer::MarkSet ext_codes_set;
+			SString batch_mark;
+			SString batch_gtin;
+			const  bool is_there_extcodes = (rBp.XcL.Get(itemIdx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount());
+			const  int  is_batch_mark = is_there_extcodes ? 0 : IsLotInChZnBatchMode(r_ti.LotID, batch_mark); // @v12.8.4
+
 			SXml::WNode n_e(P_X, GetToken_Ansi(PPHSC_RU_WAREEXTRAINFO));
 			// !!! <ДопСведТов ПрТовРаб="3" КодТов="00000000027" НаимЕдИзм="шт"/>
+			// <ДопСведТов ГТИН="04601234567890">
 			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WARECODE), rGcS.Code);
+			// @v12.8.5 {
+			if(is_batch_mark) {
+				if(batch_mark.Len() >= 14) {
+					batch_mark.Sub(0, 14, batch_gtin);
+				}
+				n_e.PutAttribSkipEmpty(GetToken_Ansi(PPHSC_RU_WAREIDENT_GTIN), batch_gtin);
+			}
+			// } @v12.8.5 
 			if(!IsVer503()) {
 				if(correction) {
 					n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_UNITNAME_BEFORE), unit_name);
@@ -7755,27 +7775,37 @@ int DocNalogRu_Generator::WriteWareInfoAddendum(const PPBillImpExpParam & rParam
 			n_e.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREARTICLE), temp_buf.Z().Cat(goods_id)); // Собственный идентификатор (по специальной просьбе)
 			if(!correction) {
 				if(!no_marks_because_notch) { // @v12.5.10 @condition
-					PPLotExtCodeContainer::MarkSet ext_codes_set;
-					const  bool is_there_extcodes = (rBp.XcL.Get(itemIdx+1, 0, ext_codes_set) > 0 && ext_codes_set.GetCount());
 					if(is_there_extcodes) {
 						WriteMarkListOnInvoiceItem3(P_X, wmlictxUnified, rParam, chzn_prod_type, chzn_int_qty, ext_codes_set);
 					}
 					else {
-						// @v12.8.4 { @todo здесь проверка и, если надо, вставка кода по партионному учету чзн
-						SString batch_mark;
-						const  int is_batch_mark = IsLotInChZnBatchMode(r_ti.LotID, batch_mark); // @v12.8.4
+						// @v12.8.4 {
 						if(is_batch_mark > 0) {
 							assert(batch_mark.NotEmpty());
 							SXml::WNode n_marks(P_X, GetToken_Ansi(PPHSC_RU_WAREIDENTBLOCK));
 							uint   batch_qtty = 0U;
-							if(checkirange(chzn_int_qty, 1, 1000)) { // @v12.8.5
-								batch_qtty = static_cast<uint>(chzn_int_qty);
+							if(is_weighted_ware) {
+								/*
+									Товар с переменным весом. Когда в строке несколько партий весового товара, вместо атрибутов ГТИН и КолВедМарк 
+									заполняется элемент НомУпак по шаблону [02][код товара][37][количество][3103][вес в граммах, (((9 цифр)) - видимо, 6) ]. 
+									Совмещать оба способа в одной строке нельзя — документ обработается с ошибкой. 
+								*/
+								if(batch_gtin.NotEmpty()) {
+									temp_buf.Z().Cat("02").Cat(batch_gtin).Cat("37").Cat(checkirange(chzn_int_qty, 1, 1000) ? chzn_int_qty : 1).
+										Cat("3103").CatLongZ(R0i(qtty_local * _goods_kg_ratio * 1000.0), 6);
+									n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
+								}
 							}
 							else {
-								batch_qtty = static_cast<uint>(fabs(r_ti.Qtty()));
+								if(checkirange(chzn_int_qty, 1, 1000)) { // @v12.8.5
+									batch_qtty = static_cast<uint>(chzn_int_qty);
+								}
+								else {
+									batch_qtty = static_cast<uint>(qtty_local);
+								}
+								n_marks.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREIDENT_MARKQTTY), temp_buf.Z().Cat(batch_qtty));
+								n_marks.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREIDENT_MANUFPART), EncText(temp_buf = batch_mark));
 							}
-							n_marks.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREIDENT_MARKQTTY), temp_buf.Z().Cat(batch_qtty));
-							n_marks.PutAttrib(GetToken_Ansi(PPHSC_RU_WAREIDENT_MANUFPART), EncText(temp_buf = batch_mark));
 						} // } @v12.8.4
 						else if(rGcS.CodeForMarking.NotEmpty() && PPChZnPrcssr::IsTypeSuitableForSurrogateMarking(chzn_prod_type)) {
 							assert(rGcS.CodeForMarking.Len() < 14);

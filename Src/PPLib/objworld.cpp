@@ -2004,7 +2004,8 @@ int GetAddrListByZIP(const char * pZip, PPIDArray & rList)
 		PPID   id = 1;
 		PPID   temp_id = 0;
 		City_ObsoleteTbl::Key0 k0;
-		LAssocArray cntry_list, reg_list;
+		LAssocArray cntry_list;
+		LAssocArray reg_list;
 		City_ObsoleteTbl    city_tbl;
 		Region_ObsoleteTbl  reg_tbl;
 		Country_ObsoleteTbl cntry_tbl;

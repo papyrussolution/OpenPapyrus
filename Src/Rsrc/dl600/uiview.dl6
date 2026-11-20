@@ -10337,3 +10337,68 @@ dialog DLG_RUNIE_BILL_IMP [vertical title: "@billrunie_imp" size: (745, 360) min
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
 	}
 }
+
+dialog DLG_BBTSEL [vertical title: "@selbbt" size: (480, 290) minsize: (480, 290) padding: 8 justifycontent: spacebetween] { // @v12.8.5
+	radiocluster CTL_BBTSEL_TYPE [tabstop title: "@typeofdocuments" width: bycontainer margin: 4 padding: (4, 12, 4, 4)] {
+		radiobutton [title: "@bbt_goodsbills"];
+		radiobutton [title: "@bbt_orderbills"];
+		radiobutton [title: "@bbt_accturnbills"];
+		radiobutton [title: "@bbt_inventorybills"];
+		radiobutton [title: "@bbt_poolbills"];
+		radiobutton [title: "@bbt_clientdebt"];
+		radiobutton [title: "@bbt_clientrpayment"];
+		radiobutton [title: "@bbt_draftbills"];
+		radiobutton [title: "@bbt_realtypes"];
+		radiobutton [title: "@bbt_wmsbills"];
+	}
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}
+
+dialog DLG_MODTRANSM_ [vertical title: "@objtransmmod" size: (510, 430) minsize: (510, 430) padding: 8 justifycontent: spacebetween] { // @v12.8.5
+	view [horizontal width: bycontainer growfactor: 1] {
+		view [vertical growfactor: 1 height: bycontainer] {
+			framebox [horizontal width: bycontainer height: 60 margin: 4 padding: 4] {
+				view [vertical growfactor: 1 height: bycontainer] {
+					view [horizontal width: bycontainer growfactor: 1] {
+						input CTL_OBJTRANSM_DT [design: B size: (70, 21) margin: 4 tabstop] string[10];
+						//statictext CTL_MODTRANSM_ST_04002 [title: "(@{date})" size: (42, 13) ];
+					}
+					view [horizontal width: bycontainer growfactor: 1] {
+						input CTL_OBJTRANSM_TM [size: (68, 21)  tabstop fmtf: (hms)] time;
+						//statictext CTL_MODTRANSM_ST_04003 [title: "(@{time})" size: (42, 13) ];
+					}
+				}
+				view [vertical width: 32 height: bycontainer] {
+					button STDCTL_DOWNBUTTON [title: "+" tabstop size: (23, 21) margin: 4 command: cmaLevelDown];
+					button STDCTL_UPBUTTON [title: "-" tabstop size: (23, 21) margin: 4 command: cmaLevelUp];
+				}
+			}
+		}
+		view [vertical growfactor: 1.2 height: bycontainer] {
+		}
+	}
+
+	statictext CTL_MODTRANSM_ST_04004 [title: "@objtransm_fsynccmp_note" size: (252, 81) ];
+	checkbox CTL_OBJTRANSM_FLAGS [title: "@objtransm_fsynccmp" tabstop size: (252, 21) ];
+	checkcluster CTL_OBJTRANSM_TRNSMFLAGS [tabstop size: (195, 57) ] {
+		checkbox [title: "@objtransm_trnsmfdelinfiles"];
+		checkbox [title: "@objtransm_trnsmfdeloutfiles"];
+	}
+	listbox CTL_OBJTRANSM_DBDIVLIST [size: (163, 130) ];
+	button CTL_CMD_INSERT [title: "@but_add" tabstop size: (68, 21)  command: cmaInsert];
+	button CTL_CMD_DELETE [title: "@but_delete" tabstop size: (68, 21)  command: cmaDelete];
+	listbox CTL_OBJTRANSM_OBJLIST [size: (238, 130) ];
+	button CTL_CMD_ADDTRNSMOBJ [title: "@{add}..." tabstop size: (68, 21)  command: cmAddTrnsmObj];
+	button CTL_CMD_DELTRNSMOBJ [title: "@{delete}" tabstop size: (68, 21)  command: cmDelTrnsmObj];
+	framebox [title: "@objtransm_since" size: (195, 73) ];
+	framebox [size: (270, 130) ];
+	framebox [title: "@objtransm_destdbdivlist" size: (195, 195) ];
+	framebox [title: "@objtransm_objlist" size: (270, 195) ];
+	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
+		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
+		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];
+	}
+}

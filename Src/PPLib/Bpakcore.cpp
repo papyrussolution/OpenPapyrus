@@ -1400,6 +1400,10 @@ PPLotExtCodeContainer::Item2 & PPLotExtCodeContainer::Item2::Z()
 	return *this;
 }
 
+PPLotExtCodeContainer::MarkSet::InnerEntry::InnerEntry() : Id(0), ParentId(0), Flags(0), CodeP(0)
+{
+}
+
 PPLotExtCodeContainer::MarkSet::Entry::Entry() : Id(0), ParentId(0), Flags(0)
 {
 }

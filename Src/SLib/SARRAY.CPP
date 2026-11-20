@@ -1547,6 +1547,22 @@ int LAssocArray::Add(long key, long val)
 	return Add(key, val, 0);
 }
 
+int LAssocArray::Add(const LAssocArray & rAddendum) // @v12.8.5
+{
+	int    ok = -1;
+	for(uint i = 0; i < rAddendum.getCount(); i++) {
+		const  LAssoc & r_item = rAddendum.at(i);
+		if(Add(r_item.Key, r_item.Val, 0, 0)) {
+			ok = 1;
+		}
+		else {
+			ok = 0;
+			break;
+		}
+	}
+	return ok;
+}
+
 int LAssocArray::Add(long key, long val, uint * pPos, int inOrder)
 {
 	int    ok = 1;
@@ -2983,8 +2999,8 @@ int StrAssocArray::BuildSaIndex()
 	return Pool.BuildSa();
 }
 
-int StrAssocArray::Search(long id, uint * pPos) const { return LAssocArray::Search(id, pPos); }
-int FASTCALL StrAssocArray::Search(long id) const { return LAssocArray::Search(id, 0); }
+bool StrAssocArray::Search(long id, uint * pPos) const { return LAssocArray::Search(id, pPos); }
+bool FASTCALL StrAssocArray::Search(long id) const { return LAssocArray::Search(id, 0); }
 
 int StrAssocArray::SearchByText(const char * pTxt, /* @v11.8.0 int ignoreCase,*/uint * pPos) const
 {

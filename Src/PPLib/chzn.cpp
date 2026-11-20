@@ -667,7 +667,7 @@ DRAFTBEER HORECA @v11.9.4
 		if(nta.Has(SNTOK_CHZN_SURROGATE_PARTN)) { // @v12.8.4
 			{
 				rS.Add(GtinStruc::fldOriginalText, preprocessed_code_buf);
-				if(checkirange(preprocessed_code_buf.Len(), (14U+6U+1U), (14U+6U+12U))) {
+				if(checkirange(preprocessed_code_buf.Len32(), (14U+6U+1U), (14U+6U+12U))) {
 					// 046067797671042610220000881756
 					preprocessed_code_buf.Sub(0, 14, temp_buf);
 					rS.Add(GtinStruc::fldGTIN14, temp_buf);

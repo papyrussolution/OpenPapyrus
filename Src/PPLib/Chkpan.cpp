@@ -2234,7 +2234,7 @@ void CPosProcessor::Helper_SetupDiscount(SetupDiscountBlock & rBlk)
 						CCheckItem & r_item = P.at(i);
 						const  int row_id = static_cast<int>(i+1); // [1..]
 						const  double qtty = fabs(r_item.Quantity);
-						uint64 init_price = R0(abs(rBlk.IsRounding ? r_item.NetPrice() : r_item.Price) * 100.0);
+						uint64 init_price = R0i64(abs(rBlk.IsRounding ? r_item.NetPrice() : r_item.Price) * 100.0);
 						uint   item_flags = 0;
 						if(rBlk.PosList_WoDis.lsearch(row_id))
 							item_flags |= DiscountDistribution::fNoDiscount;
@@ -13347,11 +13347,13 @@ int CPosProcessor::ProcessGift()
 			PPID   last_gift_id = 0;
 			int    is_gift = 0;
 			SaGiftArray::Gift gift;
-			SString buf, goods_name;
-			TSVector <SaSaleItem> sale_list, full_sale_list;
+			SString buf;
+			SString goods_name;
+			TSVector <SaSaleItem> sale_list;
+			TSVector <SaSaleItem> full_sale_list;
 			LAssocArray ex_gift_list;    // Список подарочных товаров, уже находящихся в чеке
 			RAssocArray ex_gift_id_list; // Список подарков, уже находящихся в чеке
-			LAssocArray preserve_gift_assoc = P.GiftAssoc;
+			const  LAssocArray preserve_gift_assoc(P.GiftAssoc);
 			TSCollection <SaGiftArray::Gift> _gift_list; // Список обработанных схем подарков - необходим для избежания зацикливания
 			P.GiftAssoc.clear();
 			for(i = 0; i < P.getCount(); i++) {

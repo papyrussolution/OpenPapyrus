@@ -6,9 +6,12 @@
 #include <pp.h>
 #pragma hdrstop
 
-ClsdGoodsFilt::ClsdGoodsFilt()
+ClsdGoodsFilt::ClsdGoodsFilt() : GdsClsID(0), Flags(0)
 {
-	Z();
+	DimX_Rng.Z();
+	DimY_Rng.Z();
+	DimZ_Rng.Z();
+	DimW_Rng.Z();
 }
 
 ClsdGoodsFilt & ClsdGoodsFilt::Z()
@@ -19,6 +22,10 @@ ClsdGoodsFilt & ClsdGoodsFilt::Z()
 	DimY_Rng.Z();
 	DimZ_Rng.Z();
 	DimW_Rng.Z();
+	KindList.Z();
+	GradeList.Z();
+	AddObjList.Z();
+	AddObj2List.Z();
 	return *this;
 }
 

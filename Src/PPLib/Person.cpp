@@ -1290,7 +1290,7 @@ int PersonCore::PutRelList(PPID id, const LAssocArray * pList, int use_ta)
 		THROW(p_ref->AsscC.Remove(PPASS_PERSONREL, id, 0, 0));
 		if(pList) {
 			LAssoc * p_item = 0;
-			LAssocArray list = *pList;
+			LAssocArray list(*pList);
 			list.Sort();
 			PPID  prev_scnd = 0;
 			uint  c = 0;

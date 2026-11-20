@@ -2919,8 +2919,12 @@ static int PutGdsCorr(BExtInsert * pBei, PPID goods1ID, PPID goods2ID, const SSt
 int PPViewCCheck::CreateGoodsCorrTbl()
 {
 	int    ok = 1, c;
-	uint   pos, pos1, goods_chk_pos = 0;
-	LAssocArray * p_la_ary = 0, * p_goods_ary = 0, goods_chk_ary;
+	uint   pos;
+	uint   pos1;
+	uint   goods_chk_pos = 0;
+	LAssocArray * p_la_ary = 0;
+	LAssocArray * p_goods_ary = 0;
+	LAssocArray goods_chk_ary;
 	CCheckViewItem  item;
 	IterCounter cntr;
 	PPIDArray   excl_goods_list;
@@ -2935,7 +2939,8 @@ int PPViewCCheck::CreateGoodsCorrTbl()
 	//
 	void * laa_ary[1024];
 	MEMSZERO(laa_ary);
-	SString  goods1_name, goods2_name;
+	SString  goods1_name;
+	SString  goods2_name;
 	RAssocArray gds_qtty_ary;
 	PPObjGoods::SubstBlock sgg_blk;
 	sgg_blk.ExclParentID = Filt.GoodsGrpID;

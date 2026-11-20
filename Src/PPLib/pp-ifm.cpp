@@ -60,10 +60,10 @@ bool PPOptiModule::CuttingStock2D::ExecutionBlock::SetConfig(const Config & rCfg
 	return ok;
 }
 
-bool PPOptiModule::CuttingStock2D::ExecutionBlock::SearchSheetId(int id, uint * pIdx) const { return SheetList.lsearch(&id, pIdx, CMPF_LONG); }
-bool PPOptiModule::CuttingStock2D::ExecutionBlock::SearchBomItemId(int id, uint * pIdx) const { return BomList.lsearch(&id, pIdx, CMPF_LONG); }
+bool PPOptiModule::CuttingStock2D::ExecutionBlock::SearchSheetId(uint64 id, uint * pIdx) const { return SheetList.lsearch(&id, pIdx, CMPF_UINT64); }
+bool PPOptiModule::CuttingStock2D::ExecutionBlock::SearchBomItemId(uint64 id, uint * pIdx) const { return BomList.lsearch(&id, pIdx, CMPF_UINT64); }
 
-bool PPOptiModule::CuttingStock2D::ExecutionBlock::GetSheetSize(int sheetId, SPoint2I & rS) const
+bool PPOptiModule::CuttingStock2D::ExecutionBlock::GetSheetSize(uint64 sheetId, SPoint2I & rS) const
 {
 	bool   ok = false;
 	uint   idx = 0;
@@ -80,10 +80,10 @@ bool PPOptiModule::CuttingStock2D::ExecutionBlock::GetSheetSize(int sheetId, SPo
 bool PPOptiModule::CuttingStock2D::ExecutionBlock::AddSheet(const RawSheet & rSheet)
 {
 	bool   ok = true;
-	if(rSheet.Id == 0 || rSheet.Size.GetMinDim() <= 0 || rSheet.Qtty <= 1.0) {
+	if(!rSheet.UedID || rSheet.Size.GetMinDim() <= 0 || rSheet.Qtty <= 1.0) {
 		ok = false;
 	}
-	else if(SearchSheetId(rSheet.Id, 0)) {
+	else if(SearchSheetId(rSheet.UedID, 0)) {
 		ok = false;
 	}
 	else if(!SheetList.insert(&rSheet)) {
@@ -95,10 +95,10 @@ bool PPOptiModule::CuttingStock2D::ExecutionBlock::AddSheet(const RawSheet & rSh
 bool PPOptiModule::CuttingStock2D::ExecutionBlock::AddBomItem(const BomItem & rItem)
 {
 	bool   ok = true;
-	if(rItem.Id == 0 || rItem.Size.GetMinDim() <= 0 || rItem.Qtty <= 1.0) {
+	if(!rItem.UedID || rItem.Size.GetMinDim() <= 0 || rItem.Qtty <= 1.0) {
 		ok = false;
 	}
-	else if(SearchBomItemId(rItem.Id, 0)) {
+	else if(SearchBomItemId(rItem.UedID, 0)) {
 		ok = false;
 	}
 	else if(!BomList.insert(&rItem)) {
@@ -163,14 +163,14 @@ int PPOptiModule::CuttingStock2D::Config::Serialize(int dir, SBuffer & rBuf, SSe
 	return ok;
 }
 
-PPOptiModule::CuttingStock2D::RawSheet::RawSheet() : Id(0), Qtty(0), Cost(0.0)
+PPOptiModule::CuttingStock2D::RawSheet::RawSheet() : Qtty(0), Cost(0.0)
 {
 }
 
 int PPOptiModule::CuttingStock2D::RawSheet::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW(pSCtx->Serialize(dir, Id, rBuf));
+	THROW(pSCtx->Serialize(dir, UedID, rBuf));
 	THROW(Size.Serialize(dir, rBuf, pSCtx));
 	THROW(pSCtx->Serialize(dir, Qtty, rBuf));
 	THROW(pSCtx->Serialize(dir, Cost, rBuf));
@@ -178,14 +178,14 @@ int PPOptiModule::CuttingStock2D::RawSheet::Serialize(int dir, SBuffer & rBuf, S
 	return ok;
 }
 
-PPOptiModule::CuttingStock2D::BomItem::BomItem() : Id(0), Qtty(0), Cost(0.0)
+PPOptiModule::CuttingStock2D::BomItem::BomItem() : Qtty(0), Cost(0.0)
 {
 }
 
 int PPOptiModule::CuttingStock2D::BomItem::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW(pSCtx->Serialize(dir, Id, rBuf));
+	THROW(pSCtx->Serialize(dir, UedID, rBuf));
 	THROW(Size.Serialize(dir, rBuf, pSCtx));
 	THROW(pSCtx->Serialize(dir, Qtty, rBuf));
 	THROW(pSCtx->Serialize(dir, Cost, rBuf));
@@ -193,16 +193,16 @@ int PPOptiModule::CuttingStock2D::BomItem::Serialize(int dir, SBuffer & rBuf, SS
 	return ok;
 }
 
-PPOptiModule::CuttingStock2D::Placement::Placement() : ItemId(0), ItemInstance(0), SheetId(0), SheetInstance(0), Flags()
+PPOptiModule::CuttingStock2D::Placement::Placement() : ItemInstance(0), SheetInstance(0), Flags()
 {
 }
 
 int PPOptiModule::CuttingStock2D::Placement::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW(pSCtx->Serialize(dir, ItemId, rBuf));
+	THROW(pSCtx->Serialize(dir, ItemUedID, rBuf));
 	THROW(pSCtx->Serialize(dir, ItemInstance, rBuf));
-	THROW(pSCtx->Serialize(dir, SheetId, rBuf));
+	THROW(pSCtx->Serialize(dir, SheetUedID, rBuf));
 	THROW(pSCtx->Serialize(dir, SheetInstance, rBuf));
 	THROW(Pt.Serialize(dir, rBuf, pSCtx));
 	THROW(Sz.Serialize(dir, rBuf, pSCtx));
@@ -258,14 +258,14 @@ double PPOptiModule::CuttingStock2D::Result::GetTotalUtilization() const
 	return fdivui(used_area, total_area) * 100.0;
 }
 
-PPOptiModule::CuttingStock2D::UsedSheet::UsedSheet() : SheetId(0), SheetInstance(0), TotalArea(0), UsedArea(0)
+PPOptiModule::CuttingStock2D::UsedSheet::UsedSheet() : SheetInstance(0), TotalArea(0), UsedArea(0)
 {
 }
 
 int PPOptiModule::CuttingStock2D::UsedSheet::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
-	THROW(pSCtx->Serialize(dir, SheetId, rBuf));
+	THROW(pSCtx->Serialize(dir, SheetUedID, rBuf));
 	THROW(pSCtx->Serialize(dir, SheetInstance, rBuf));
 	THROW(pSCtx->Serialize(dir, TotalArea, rBuf));
 	THROW(pSCtx->Serialize(dir, UsedArea, rBuf));
@@ -274,7 +274,7 @@ int PPOptiModule::CuttingStock2D::UsedSheet::Serialize(int dir, SBuffer & rBuf, 
 	return ok;
 }
 
-/*static*/void PPOptiModule::CuttingStock2D::PickColor(int itemId, SString & rColor)
+/*static*/void PPOptiModule::CuttingStock2D::PickColor(uint64 itemId, SString & rColor)
 {
 	//
 	// Палитра из 16 различимых цветов (сбалансированная контрастность)
@@ -286,7 +286,7 @@ int PPOptiModule::CuttingStock2D::UsedSheet::Serialize(int dir, SBuffer & rBuf, 
 		"#8cd17d", "#f1ce63", "#86bcb6", "#fabfd2"
 	};
 	const uint n = SIZEOFARRAY(p_palette);
-	uint idx = static_cast<uint>(itemId >= 0 ? itemId : -itemId) % n;
+	uint idx = (itemId % n);
 	rColor = p_palette[idx];
 }
 
@@ -303,7 +303,7 @@ int PPOptiModule::CuttingStock2D::UsedSheet::Serialize(int dir, SBuffer & rBuf, 
 			int max_sheet_w = 0;
 			for(uint i = 0; i < rResult.SheetList.getCount(); i++) {
 				SPoint2I ssz;
-				rEb.GetSheetSize(rResult.SheetList.at(i)->SheetId, ssz);
+				rEb.GetSheetSize(rResult.SheetList.at(i)->SheetUedID, ssz);
 				SETMAX(max_sheet_w, ssz.x);
 			}
 			scale = (max_sheet_w > 0) ? (1000.0 / max_sheet_w) : 1.0;
@@ -330,7 +330,7 @@ int PPOptiModule::CuttingStock2D::UsedSheet::Serialize(int dir, SBuffer & rBuf, 
 			int max_row_w = 0;
 			for(uint i = 0; i < rResult.SheetList.getCount(); i++) {
 				SPoint2I ssz;
-				rEb.GetSheetSize(rResult.SheetList.at(i)->SheetId, ssz);
+				rEb.GetSheetSize(rResult.SheetList.at(i)->SheetUedID, ssz);
 				const int w_px = static_cast<int>(ssz.x * scale) + gap_px;
 				const int h_px = static_cast<int>(ssz.y * scale) + header_px + gap_px;
 				row_w += w_px;
@@ -384,12 +384,12 @@ int PPOptiModule::CuttingStock2D::UsedSheet::Serialize(int dir, SBuffer & rBuf, 
 		for(uint i = 0; i < rResult.SheetList.getCount(); i++) {
 			const UsedSheet * p_us = rResult.SheetList.at(i);
 			SPoint2I ssz;
-			rEb.GetSheetSize(p_us->SheetId, ssz);
+			rEb.GetSheetSize(p_us->SheetUedID, ssz);
 			const int sheet_w_px = static_cast<int>(ssz.x * scale);
 			const int sheet_h_px = static_cast<int>(ssz.y * scale);
 			// --- Заголовок листа ---
 			r_svg.Cat("<text class=\"title\" x=\"").Cat(cur_x).Cat("\" y=\"").Cat(cur_y + 14).Cat("\">")
-				.Cat("Sheet ").Cat(p_us->SheetId).Cat(".").Cat(static_cast<uint>(p_us->SheetInstance))
+				.Cat("Sheet ").Cat(p_us->SheetUedID).Cat(".").Cat(static_cast<uint>(p_us->SheetInstance))
 				.Cat(" (").Cat(ssz.x).Cat("x").Cat(ssz.y).Cat(")</text>").CR();
         
 			temp_buf.Z().Cat(p_us->GetUtilization(), MKSFMTD(0, 1, 0));
@@ -416,12 +416,12 @@ int PPOptiModule::CuttingStock2D::UsedSheet::Serialize(int dir, SBuffer & rBuf, 
 				const int py = sheet_y + sheet_h_px - static_cast<int>((r_pl.Pt.y + r_pl.Sz.y) * scale);
 
 				SString color;
-				PickColor(r_pl.ItemId, color);
+				PickColor(r_pl.ItemUedID, color);
 
 				r_svg.Cat("<rect class=\"piece\" x=\"").Cat(px).Cat("\" y=\"").Cat(py).Cat("\" ")
 					.Cat("width=\"").Cat(pw_px).Cat("\" height=\"").Cat(ph_px).Cat("\" ")
 					.Cat("fill=\"").Cat(color).Cat("\">")
-					.Cat("<title>Item ").Cat(r_pl.ItemId).Cat(" [").Cat(static_cast<uint>(r_pl.ItemInstance)).Cat("]")
+					.Cat("<title>Item ").Cat(r_pl.ItemUedID).Cat(" [").Cat(static_cast<uint>(r_pl.ItemInstance)).Cat("]")
 					.Cat("  size=").Cat(r_pl.Sz.x).Cat("x").Cat(r_pl.Sz.y)
 					.Cat("  pos=(").Cat(r_pl.Pt.x).Cat(",").Cat(r_pl.Pt.y).Cat(")")
 					.Cat(r_pl.IsRotated() ? "  [ROTATED]" : "")
@@ -431,7 +431,7 @@ int PPOptiModule::CuttingStock2D::UsedSheet::Serialize(int dir, SBuffer & rBuf, 
 				if(pw_px >= 30 && ph_px >= 15) {
 					const int cx = px + pw_px / 2;
 					const int cy = py + ph_px / 2;
-					r_svg.Cat("<text class=\"label\" x=\"").Cat(cx).Cat("\" y=\"").Cat(cy).Cat("\">").Cat(r_pl.ItemId);
+					r_svg.Cat("<text class=\"label\" x=\"").Cat(cx).Cat("\" y=\"").Cat(cy).Cat("\">").Cat(r_pl.ItemUedID);
 					if(r_pl.IsRotated())
 						r_svg.Cat("&#8635;");  // символ "↻" (rotate)
 					r_svg.Cat("</text>").CR();
@@ -495,7 +495,7 @@ int PPOptiModule::CuttingStock2D::UsedSheet::Serialize(int dir, SBuffer & rBuf, 
 	// Листы ДСП
 	{
 		PPOptiModule::CuttingStock2D::RawSheet sh;
-		sh.Id   = 1;
+		sh.UedID = 1;
 		sh.Size.Set(2440, 1220);
 		sh.Qtty = 5;
 		sh.Cost = 1500.0;
@@ -503,7 +503,7 @@ int PPOptiModule::CuttingStock2D::UsedSheet::Serialize(int dir, SBuffer & rBuf, 
 	}
 	{
 		PPOptiModule::CuttingStock2D::RawSheet sh;
-		sh.Id   = 2;
+		sh.UedID = 2;
 		sh.Size.Set(1830, 1220);
 		sh.Qtty = 3;
 		sh.Cost = 1100.0;
@@ -512,42 +512,42 @@ int PPOptiModule::CuttingStock2D::UsedSheet::Serialize(int dir, SBuffer & rBuf, 
 	// Детали
 	{
 		PPOptiModule::CuttingStock2D::BomItem bi;
-		bi.Id = 1; 
+		bi.UedID = 1; 
 		bi.Size.Set(600, 400); 
 		bi.Qtty = 4;
 		THROW(rEb.AddBomItem(bi));
 	}
 	{
 		PPOptiModule::CuttingStock2D::BomItem bi;
-		bi.Id = 2; 
+		bi.UedID = 2; 
 		bi.Size.Set(800, 500); 
 		bi.Qtty = 2;
 		THROW(rEb.AddBomItem(bi));
 	}
 	{
 		PPOptiModule::CuttingStock2D::BomItem bi;
-		bi.Id = 3; 
+		bi.UedID = 3; 
 		bi.Size.Set(300, 200); 
 		bi.Qtty = 8;
 		THROW(rEb.AddBomItem(bi));
 	}
 	{
 		PPOptiModule::CuttingStock2D::BomItem bi;
-		bi.Id = 4; 
+		bi.UedID = 4; 
 		bi.Size.Set(1000, 600); 
 		bi.Qtty = 2;
 		THROW(rEb.AddBomItem(bi));
 	}
 	{
 		PPOptiModule::CuttingStock2D::BomItem bi;
-		bi.Id = 5; 
+		bi.UedID = 5; 
 		bi.Size.Set(450, 350); 
 		bi.Qtty = 6;
 		THROW(rEb.AddBomItem(bi));
 	}
 	{
 		PPOptiModule::CuttingStock2D::BomItem bi;
-		bi.Id = 6; 
+		bi.UedID = 6; 
 		bi.Size.Set(700, 300); 
 		bi.Qtty = 3;
 		THROW(rEb.AddBomItem(bi));

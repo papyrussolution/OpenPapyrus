@@ -6867,7 +6867,7 @@ int PrcssrTsStrategyAnalyze::FindStrategiesLoop(void * pBlk)
 	const bool main_frame_as_correlation_tool = LOGIC(r_tss_model.MainFrameSizeList.getCount() && !r_tss_model.Rec.MainFrameRangeCount); // @v11.2.8
 	const int  force_fixed_maxduck_values = 1;
 	uint  main_frame_as_correlation_tool_size = 0; 
-	LAssocArray stake_bound_list = r_tss_model.StakeBoundList;
+	LAssocArray stake_bound_list(r_tss_model.StakeBoundList);
 	if(stake_bound_list.getCount() == 0)
 		stake_bound_list.Add(40, 60);
 	RealArray temp_real_list;

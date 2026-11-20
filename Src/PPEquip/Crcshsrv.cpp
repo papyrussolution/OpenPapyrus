@@ -1757,7 +1757,8 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 	//
 	// Список ассоциаций {Серия карты; Вид котировки} => Key - серия карты, Val - вид котировки
 	//
-	LAssocArray  scard_quot_ary, dscnt_code_ary;
+	LAssocArray scard_quot_ary;
+	LAssocArray dscnt_code_ary;
 	//
 	// Список видов котирок, по которым предоставляются свободные скидки (не привязанные к картам)
 	//
@@ -2286,7 +2287,8 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 		//
 		// Список ассоциаций {Серия карты; Вид котировки} => Key - серия карты, Val - вид котировки
 		//
-		LAssocArray  scard_quot_ary, dscnt_code_ary;
+		LAssocArray scard_quot_ary;
+		LAssocArray dscnt_code_ary;
 		//
 		// Список видов котирок, по которым предоставляются свободные скидки (не привязанные к картам)
 		//

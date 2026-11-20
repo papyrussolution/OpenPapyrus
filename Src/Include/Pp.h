@@ -11956,9 +11956,7 @@ public:
 		SJson * Helper_ToJson(long parentId, uint flags, LongArray * pSeenIdxList) const;
 
 		struct InnerEntry { // @flat // @persistent
-			InnerEntry() : Id(0), ParentId(0), Flags(0), CodeP(0)
-			{
-			}
+			InnerEntry();
 			long   Id;       // @v12.6.8
 			long   ParentId; // @v12.6.8 BoxID-->ParentId
 			long   Flags;
@@ -19993,10 +19991,8 @@ struct PPGdsClsPacket {
 	int    PropSymbToID(int prop, const char * pSymb, PPID * pID);
 	int    GetExtDim(const GoodsExtTbl::Rec * pRec, int dim, double * pVal) const;
 	int    GetExtProp(const GoodsExtTbl::Rec * pRec, int prop, long * pID, SString & rBuf) const;
-	int    GetExtProp(const GoodsExtTbl::Rec * pRec, int prop, int * pID, SString & rBuf) const
-		{ return GetExtProp(pRec, prop, reinterpret_cast<long *>(pID), rBuf); } // @v11.7.10
-	int    GetExtProp(const GoodsExtTbl::Rec * pRec, int prop, SString & rBuf) const
-		{ return GetExtProp(pRec, prop, reinterpret_cast<long *>(0), rBuf); } // @v11.7.10
+	int    GetExtProp(const GoodsExtTbl::Rec * pRec, int prop, int * pID, SString & rBuf) const { return GetExtProp(pRec, prop, reinterpret_cast<long *>(pID), rBuf); }
+	int    GetExtProp(const GoodsExtTbl::Rec * pRec, int prop, SString & rBuf) const { return GetExtProp(pRec, prop, reinterpret_cast<long *>(0), rBuf); }
 	int    RealToExtDim(double realVal, int dim, long * pLongVal) const;
 	int    RealToExtDim(double realVal, int dim, GoodsExtTbl::Rec & rExtRec) const;
 	int    GetDynGenFilt(const GoodsExtTbl::Rec * pRec, ClsdGoodsFilt * pFilt) const;
@@ -20023,7 +20019,7 @@ struct PPGdsClsPacket {
 	//
 	int    SetDefaultFormula(int idx);
 
-	PPGdsCls Rec;
+	PPGdsCls2 Rec;
 	SString NameConv;
 	SString AbbrConv;
 	SString PhUPerU_Formula;
@@ -25881,6 +25877,16 @@ public:
 	int    LoadGiftList(SaGiftArray * pList);
 	int    FetchGiftList(SaGiftArray * pList);
 	int    FetchSubstList(PPID goodsID, RAssocArray & rSubstList);
+	//
+	// Descr: Ищет путь производства продукта resultGoodsID из сырьевого товара rawGoodsID.
+	//   Сырьевой товар rawGoodsID может быть представлен как обычным товаром, так и обобщением, либо владельцем подстановочной структуры.
+	// ARG(pPath OUT): Если указатель не нулевой, то в этом массив заносятся пары {товар; структура} образующие путь resultGoodsID-->rawGoodsID
+	// Returns:
+	//   >0 - путь найден
+	//   <0 - путь не найден
+	//    0 - error
+	//
+	int    FindComplPath(PPID resultGoodsID, PPID rawGoodsID, LAssocArray * pPath); // @v12.8.5
 	int    SelectorDialog(const TSCollection <PPGoodsStruc> & rList, uint * pSelectionPos);
 	int    SelectorDialog(PPID * pNamedGsID);
 	int    CheckStructs();
@@ -30534,12 +30540,12 @@ private:
 	int UpdateTempTable(LogsArray *pExpiredLogs);
 	//virtual int Print(const void *);
 	//
-	LogsMonitorFilt		Filt;
-	uint				CountLogs;
-	LAssocArray			LogsOffsets;
-	TempLogFileMonTbl	*P_TmpTbl;
-	LDATETIME			LastUpdated;
-	int					FirstTime;
+	LogsMonitorFilt Filt;
+	uint   CountLogs;
+	LAssocArray LogsOffsets;
+	TempLogFileMonTbl * P_TmpTbl;
+	LDATETIME LastUpdated;
+	int    FirstTime;
 };
 //
 void ViewLogsMonitor();
@@ -60135,7 +60141,11 @@ public:
 	PPWorkbookExporter();
 	~PPWorkbookExporter();
 	int    Init(const PPWorkbookImpExpParam * pParam);
-	int    ExportPacket(PPID topLevelID, const PPWorkbookPacket & rPack);
+	//
+	// ARG(pContentPath OUT): В вариантах экспорта, когда формируется отдельный файл с содержимым, по этому указателю (если не нулевой)
+	//   будет присвоен путь к созданному файлу
+	//
+	int    ExportPacket(PPID topLevelID, const PPWorkbookPacket & rPack, SString * pContentPath);
 private:
 	int    PreprocessContent(PPID topLevelID, const SString & rSrc, SString & rResult);
 	int    GetPathToEntry(PPID entryID, PPID topLevelID, SString & rBuf);
@@ -60144,7 +60154,7 @@ private:
 	PPImpExp * P_IEWorkbook;
 	PPObjWorkbook WbObj;
 	SString DestFilesPath; // @*PPWorkbookExporter::Init()
-	PPIDArray ProcessedIdList; // @v12.8.4
+	StrAssocArray ProcessedIdList; // @v12.8.4
 };
 //
 //
@@ -63636,7 +63646,7 @@ public:
 			RawSheet();
 			int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
-			int    Id; // @firstintem
+			ued_t  UedID; // @firstmember
 			SPoint2I Size;
 			uint   Qtty;
 			double Cost;
@@ -63645,7 +63655,7 @@ public:
 			BomItem();
 			int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 
-			int    Id; // @firstintem
+			ued_t  UedID; // @firstmember
 			SPoint2I Size;
 			uint   Qtty;
 			double Cost; // Стоимость единицы (для оптимизации по стоимости)
@@ -63661,9 +63671,9 @@ public:
 			enum {
 				fRotated = 0x0001 // была ли деталь повёрнута
 			};
-			int    ItemId;
+			ued_t  ItemUedID;
 			uint   ItemInstance;  // какой экземпляр (если quantity > 1)
-			int    SheetId;
+			ued_t  SheetUedID;
 			uint   SheetInstance; // какой экземпляр листа
 			SPoint2I Pt; // координаты левого нижнего угла
 			SPoint2I Sz; // фактические ширина и высота (с учётом поворота) 
@@ -63676,7 +63686,7 @@ public:
 			UsedSheet();
 			int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 			double GetUtilization() const { return fdivui(UsedArea, TotalArea) * 100.0; }
-			int    SheetId;
+			ued_t  SheetUedID;
 			uint   SheetInstance;
 			uint   TotalArea;
 			uint   UsedArea;
@@ -63701,11 +63711,11 @@ public:
 			ExecutionBlock();
 			virtual int SerializeV(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 			bool   SetConfig(const Config & rCfg);
-			bool   SearchSheetId(int id, uint * pIdx) const;
-			bool   SearchBomItemId(int id, uint * pIdx) const;
+			bool   SearchSheetId(uint64 id, uint * pIdx) const;
+			bool   SearchBomItemId(uint64 id, uint * pIdx) const;
 			bool   AddSheet(const RawSheet & rSheet);
 			bool   AddBomItem(const BomItem & rItem);
-			bool   GetSheetSize(int sheetId, SPoint2I & rS) const;
+			bool   GetSheetSize(uint64 sheetId, SPoint2I & rS) const;
 
 			Config TaskCfg;
 			TSVector <RawSheet> SheetList;
@@ -63719,7 +63729,7 @@ public:
 		//
 		// Descr: Находит размеры листа по его Id в оригинальном списке SheetList
 		//
-		void   GetSheetSize(int sheetId, int & rW, int & rH) const;
+		void   GetSheetSize(uint64 sheetId, int & rW, int & rH) const;
 		bool   AddBomItem(const BomItem & rItem);
 		CuttingStock2D & Z();
 		//
@@ -63753,7 +63763,7 @@ public:
 		// Descr: Детерминированно выбирает цвет для детали по её Id.
 		//   Одинаковые Id - одинаковый цвет.
 		//
-		static void PickColor(int itemId, SString & rColor);
+		static void PickColor(uint64 itemId, SString & rColor);
 
 		ExecutionBlock EB; // Данные задачи
 	};

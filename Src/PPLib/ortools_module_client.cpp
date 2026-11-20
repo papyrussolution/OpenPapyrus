@@ -286,147 +286,6 @@ private:
 	return p_result;
 }
 //
-//
-//
-class CuttingStock2DTestParam {
-public:
-	struct DemandItem {
-		DemandItem() : GoodsID(0), Qtty(0.0), Price(0.0)
-		{
-		}
-		PPID   GoodsID;
-		double Qtty;
-		double Price;
-	};
-	struct RawItem {
-		RawItem() : GoodsID(0), LocID(0)
-		{
-		}
-		PPID   GoodsID;
-		PPID   LocID; // Склад, с которого мы возьмем сырье для раскроя //
-	};
-	TSVector <DemandItem> DL;
-	RawItem RawI;
-	//
-	// Идея такова: зная набор изделий которые трубуются, получаем их BOM'ы и ищем путь производства до сырьевого товара RawI.GoodsID.
-	//   Таким образом, мы понимаем какие детали из какого сырья будем кроить. После этого уточняем остатки и цену сырья на скаде RawI.LocID,
-	//   формулирем задачу раскроя и отправляем ее ortools'у.
-	// 
-	static int Edit(CuttingStock2DTestParam & rData)
-	{
-		class CuttingStock2DTestParamDialog : public PPListDialog {
-			DECL_DIALOG_DATA(CuttingStock2DTestParam);
-		public:
-			int    EditItem(DemandItem & rData)
-			{
-				enum {
-					ctlgroupGoods = 1
-				};
-				int    ok = -1;
-				TDialog * dlg = new TDialog(DLG_ORTCS2DPARAM_ITEM);
-				if(CheckDialogPtrErr(&dlg)) {
-					dlg->addGroup(ctlgroupGoods, new GoodsCtrlGroup(CTLSEL_ORTCS2DPARAM_ITEM_GOODSGRP, CTLSEL_ORTCS2DPARAM_ITEM_GOODS));
-					{
-						GoodsCtrlGroup::Rec ggrp_rec(0, rData.GoodsID, 0, 0);
-						dlg->setGroupData(ctlgroupGoods, &ggrp_rec);
-					}
-					dlg->setCtrlReal(CTL_ORTCS2DPARAM_ITEM_QTTY, rData.Qtty);
-					dlg->setCtrlReal(CTL_ORTCS2DPARAM_ITEM_PRICE, rData.Price);
-					while(ok < 0 && ExecView(dlg) == cmOK) {
-						{
-							GoodsCtrlGroup::Rec ggrp_rec;
-							dlg->getGroupData(ctlgroupGoods, &ggrp_rec);
-							rData.GoodsID = ggrp_rec.GoodsID;
-						}
-						rData.Qtty = dlg->getCtrlReal(CTL_ORTCS2DPARAM_ITEM_QTTY);
-						rData.Price = dlg->getCtrlReal(CTL_ORTCS2DPARAM_ITEM_PRICE);
-						ok = 1;
-					}
-				}
-				else
-					ok = 0;
-				delete dlg;
-				return ok;
-			}
-
-			CuttingStock2DTestParamDialog() : PPListDialog(DLG_ORTCS2DPARAM, CTL_ORTCS2DPARAM_DEMANDLIST)
-			{
-				updateList(-1);
-			}
-			DECL_DIALOG_SETDTS()
-			{
-				int    ok = 1;
-				RVALUEPTR(Data, pData);
-				//
-				return ok;
-			}
-			DECL_DIALOG_GETDTS()
-			{
-				int    ok = 1;
-				//
-				ASSIGN_PTR(pData, Data);
-				return ok;
-			}
-		private:
-			virtual int setupList()
-			{
-				SString temp_buf;
-				StringSet ss(SLBColumnDelim);
-				for(uint i = 0; i < Data.DL.getCount(); i++) {
-					const  DemandItem & r_item = Data.DL.at(i);
-					ss.Z();
-					GetGoodsName(r_item.GoodsID, temp_buf);
-					ss.add(temp_buf);
-					temp_buf.Z().Cat(r_item.Qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ));
-					ss.add(temp_buf);
-					temp_buf.Z().Cat(r_item.Price, MKSFMTD_020);
-					addStringToList(i+1, ss.getBuf());
-				}
-				return 1;
-			}
-			virtual int addItem(long * pPos, long * pID)
-			{
-				int   ok = -1;
-				long  pos = 0;
-				long  id = 0;
-				DemandItem new_item;
-				new_item.Qtty = 1.0;
-				if(EditItem(new_item) > 0) {
-					Data.DL.insert(&new_item);
-					pos = Data.DL.getCount()-1;
-					id = Data.DL.getCount();
-					ok = 1;
-				}
-				ASSIGN_PTR(pPos, pos);
-				ASSIGN_PTR(pID, id);
-				return ok;
-			}
-			virtual int editItem(long pos, long id)
-			{
-				int    ok = -1;
-				if(pos >= 0 && pos < Data.DL.getCountI()) {
-					DemandItem & r_item = Data.DL.at(pos);
-					if(EditItem(r_item) > 0) {
-						ok = 1;
-					}
-				}
-				return ok;
-			}
-			virtual int delItem(long pos, long id)
-			{
-				int    ok = -1;
-				if(pos >= 0 && pos < Data.DL.getCountI()) {
-					Data.DL.atFree(pos);
-					ok = 1;
-				}
-				return ok;
-			}
-		};
-		int    ok = -1;
-		return ok;
-	}
-};
-//
 // Идея такова: зная набор изделий которые трубуются, получаем их BOM'ы и ищем путь производства до сырьевого товара RawI.GoodsID.
 //   Таким образом, мы понимаем какие детали из какого сырья будем кроить. После этого уточняем остатки и цену сырья на скаде RawI.LocID,
 //   формулирем задачу раскроя и отправляем ее ortools'у.
@@ -620,13 +479,100 @@ int PrcssrOrtCuttingStock2D::Init(const Param * pParam)
 int PrcssrOrtCuttingStock2D::Run()
 {
 	int    ok = -1;
+	Reference * p_ref(PPRef);
+	PPObjBill * p_bobj(BillObj);
+	PPOptiModule::CuttingStock2D::ExecutionBlock eblk;
+	SString temp_buf;
+	//
+	// todo: Обязательно найти путь производства от каждого элемента P.DL к одному из элементов raw_id_list.
+	//
 	if(P.RawI.GoodsID && P.DL.getCount()) {
+		// PPObjGoodsStruc::FindComplPath()
+		/*{
+			for(uint dli = 0; dli < P.DL.getCount(); dli++) {
+				const  DemandItem & r_di = P.DL.at(dli);
+				TSCollection <PPGoodsStruc> gs_list;
+				PPGoodsStruc::Ident gsi(r_di.GoodsID, GSF_COMPL, GSF_PARTITIAL|GSF_SUBST);
+				GObj.LoadGoodsStruc(gsi, gs_list);
+				if(gs_list.getCount()) {
+					for(uint si = 0; si < gs_list.getCount(); si++) {
+					}
+				}
+			}
+		}*/
+
+		int    dimx = PPGdsCls2::eX;
+		int    dimy = PPGdsCls2::eY;
+		PPObjGoodsClass gc_obj;
+		PPGdsClsPacket gc_pack;
+		Goods2Tbl::Rec goods_rec;
+		GoodsExtTbl::Rec goodsext_rec;
 		PPIDArray raw_id_list;
 		RAssocArray raw_subst_list;
 		if(GObj.IsGeneric(P.RawI.GoodsID)) {
 			GObj.GetGenericList(P.RawI.GoodsID, &raw_id_list);
 		}
 		GObj.GetStrucSubstList(P.RawI.GoodsID, raw_subst_list);
+		raw_subst_list.GetKeyList(raw_id_list, false); // Эта функция добавит (не заместит) идентификаторы в raw_id_list
+		raw_id_list.sortAndUndup();
+		for(uint rli = 0; rli < raw_id_list.getCount(); rli++) {
+			const  PPID raw_id = raw_id_list.get(rli);
+			bool   local_ok = false;
+			if(GObj.Fetch(raw_id, &goods_rec) > 0) {
+				if(gc_obj.Fetch(goods_rec.GdsClsID, &gc_pack) > 0 && GObj.P_Tbl->GetExt(raw_id, &goodsext_rec) > 0) {
+					SPoint2R raw_size;
+					raw_size.Z();
+					gc_pack.GetExtDim(&goodsext_rec, dimx, &raw_size.x);
+					gc_pack.GetExtDim(&goodsext_rec, dimy, &raw_size.y);
+					if(raw_size.GetArea() > 0.0) {
+						PPOptiModule::CuttingStock2D::RawSheet sh;
+						sh.UedID = UED::SetRaw_Oid(SObjID(PPOBJ_GOODS, raw_id));
+						sh.Size.Set(R0i(raw_size.x), R0i(raw_size.y));
+						{
+							GoodsRestParam gr;
+							gr.GoodsID = raw_id;
+							gr.LocID = P.RawI.LocID;
+							gr.CalcMethod = GoodsRestParam::pcmAvg;
+							p_bobj->trfr->GetRest(gr);
+							if(gr.Total.Rest > 0.0) {
+								sh.Qtty = static_cast<uint>(gr.Total.Rest);
+								sh.Cost = gr.Total.Cost;
+								eblk.AddSheet(sh);
+								local_ok = true;
+							}
+						}
+					}
+				}
+				if(!local_ok) {
+					LotArray lot_list;
+					p_bobj->trfr->Rcpt.GetListOfOpenedLots(0, raw_id, P.RawI.LocID, ZERODATE, &lot_list);
+					if(lot_list.getCount()) {
+						for(uint loti = 0; loti < lot_list.getCount(); loti++) {
+							const  ReceiptTbl::Rec & r_lot_rec = lot_list.at(loti);
+							const  PPID lot_id = r_lot_rec.ID;
+							ObjTagItem tag_item;
+							if(p_ref->Ot.GetTag(PPOBJ_LOT, lot_id, PPTAG_LOT_DIMENSIONS, &tag_item) > 0) {
+								ReceiptCore::LotDimensions ld;
+								tag_item.GetStr(temp_buf);
+								ld.FromString(temp_buf);
+								if(ld.DimX > 0.0 && ld.DimY > 0.0) {
+									PPOptiModule::CuttingStock2D::RawSheet sh;
+									sh.UedID = UED::SetRaw_Oid(SObjID(PPOBJ_LOT, lot_id));
+									sh.Size.Set(R0i(ld.DimX), R0i(ld.DimY));
+									sh.Qtty = static_cast<uint>(r_lot_rec.Rest);
+									sh.Cost = r_lot_rec.Cost;
+									eblk.AddSheet(sh);
+									local_ok = true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		for(uint dli = 0; dli < P.DL.getCount(); dli++) {
+			const  DemandItem & r_di = P.DL.at(dli);
+		}
 	}
 	return ok;
 }

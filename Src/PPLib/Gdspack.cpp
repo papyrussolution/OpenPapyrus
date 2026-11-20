@@ -602,7 +602,6 @@ int PPGdsClsPacket::GetDynGenFilt(const GoodsExtTbl::Rec * pRec, ClsdGoodsFilt *
 	int    ok = -1;
 	double val;
 	ClsdGoodsFilt flt;
-	MEMSZERO(flt);
 	flt.GdsClsID = pRec->GoodsClsID;
 	if(Rec.GetDynGenMask(PPGdsCls::eKind)) {
 		flt.KindList = pRec->KindID;
