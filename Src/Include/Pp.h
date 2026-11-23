@@ -379,7 +379,7 @@ class  PPTextAnalyzerWrapper;
 class  SelectObjectBlock;
 class  Backend_SelectObjectBlock;
 class  CPosNodeBlock;
-class  WsCtlSrvBlock; // @v11.7.2
+class  WsCtlSrvBlock;
 struct CPosProcessor_SetupDiscontBlock;
 class  PersonCache;
 class  BhtTSess;
@@ -672,6 +672,25 @@ enum PredefinedImpExpFormat { // @persistent
 	piefNalogR_Etrn_T3           = 16, // @v12.6.9 ON_TRNACLGRPO Электронная транспортная накладная stage T3 (ACK грузополучатель)
 	piefNalogR_Etrn_T4           = 17, // @v12.6.9 ON_TRNACLPVYN Электронная транспортная накладная stage T4 (грузоперевозчик - отгрузил)
 	piefWorkbook_Astro           = 18, // @v12.8.2 Формат экспорта рабочих книг для движка web-сайтов Astro
+};
+//
+// В следующих структурах PPBTE означает PPBaseTradeEntry
+//
+
+//
+// Descr: Очень общая утилитарная конструкция, содержащая товар и количество
+// 
+struct PPBTE_Q { // @v12.8.5
+	PPBTE_Q();
+	PPID   GoodsID;
+	double Qtty;
+};
+//
+// Descr: Очень общая утилитарная конструкция, содержащая товар и количество и цену
+// 
+struct PPBTE_QP : public PPBTE_Q { // @v12.8.5
+	PPBTE_QP();
+	double Price;
 };
 //
 // Descr: Габаритные размеры (mm).
@@ -1226,13 +1245,10 @@ private:
 	int    Token;
 	double Number;
 	SString Name;
-	//int    Func;
 	int    Cur;
-	char * P_S;
+	const  char * P_S;
 	size_t Pos;
 	State  St;
-	//SHistogram Sieve;
-	//RAssocArray SieveVal;
 	FuncBlock Fb;
 	const PPCalcFuncList * P_CFL;
 	ExprEvalContext * P_Ctx;
@@ -16036,10 +16052,10 @@ struct CCheckGoodsEntry { // @flat @size=32
 		fAdj = 0x0001 // Элемент использован для выравнивания суммы агрегации с суммой по чекам
 	};
 	LDATE  Dt;
-	int16  Sign;           // @#{-1;+1}
-	int16  Flags;          //
-	PPID   GoodsID;        //
-	PPID   SerialID;       // Идентификатор серийного номера
+	int16  Sign;     // @#{-1;+1}
+	int16  Flags;
+	PPID   GoodsID;
+	PPID   SerialID; // Идентификатор серийного номера
 	double Qtty;
 	double Sum;
 };
@@ -16450,11 +16466,11 @@ private:
 //
 //
 //
-struct CSessDfctGoodsItem {
+struct CSessDfctGoodsItem : public PPBTE_Q { // @v12.8.5
 	CSessDfctGoodsItem();
 	double GetPrice() const;
-	PPID   GoodsID;
-	double Qtty;
+	// @v12.8.5 PPID   GoodsID;
+	// @v12.8.5 double Qtty;
 	double Sum;
 };
 
@@ -19984,8 +20000,8 @@ struct PPGdsClsPacket {
 	int    FASTCALL Copy(const PPGdsClsPacket &);
 	int    CompleteGoodsPacket(PPGoodsPacket *);
 	int    GetPropName(int prop, SString & rBuf) const;
-	int    FormatProp(const PPGdsClsProp *, PPID propVal, SString & rBuf) const;
-	void   FormatDim(const PPGdsClsDim *, long dimVal, SString & rBuf) const;
+	int    FormatProp(const PPGdsClsProp & rProp, PPID propVal, SString & rBuf) const;
+	void   FormatDim(const PPGdsClsDim & rDim, long dimVal, SString & rBuf) const;
 	int    GetNameByTemplate(PPGoodsPacket *, const char * pTemplate, char * pBuf, size_t bufLen, SubstGrpGoods sgg = sggNone) const;
 	int    PropNameToID(int prop, const char * pName, PPID * pID, int forceCreate, int use_ta);
 	int    PropSymbToID(int prop, const char * pSymb, PPID * pID);
@@ -23778,11 +23794,11 @@ public:
 //
 //
 //
-struct PalmBillItem {
+struct PalmBillItem : public PPBTE_QP { // @v12.8.5 PPBTE_Q
 	PalmBillItem();
-	PPID   GoodsID;
-	double Qtty;
-	double Price;
+	// @v12.8.5 PPID   GoodsID;
+	// @v12.8.5 double Qtty;
+	// @v12.8.5 double Price;
 };
 
 class PalmBillPacket : private SVector {
@@ -24865,7 +24881,7 @@ public:
 	PPWorkbookPacket();
 	~PPWorkbookPacket();
 	bool   FASTCALL IsEq(const PPWorkbookPacket & rS) const;
-	void   destroy();
+	PPWorkbookPacket & Z();
 	int    GetExtStrData(int fldID, SString & rBuf) const;
 	int    PutExtStrData(int fldID, const char * pBuf);
 	int    SetLongSymb(const char * pSymb);
@@ -25018,7 +25034,7 @@ private:
 	int    EditImportParam(PPObjWorkbook::ImpExpParam * pParam);
 	int    Helper_MakeStrAssocList(PPID parentID, StrAssocArray * pList, UintHashTable & rRecurTrace);
 	int    Helper_Import(PPID rootID, const PPObjWorkbook::ImpExpParam & rParam, const SString & rBasePath, const SString & rNakedWc); // @recursive
-	int    Helper_Export(PPID rootID, PPWorkbookExporter & rExporter, PPIDArray * pRecurTrace);
+	int    Helper_Export(PPID rootID, PPWorkbookExporter & rExporter);
 	int    Helper_Transmit(PPID rootID, PPIDArray & rResultList, PPIDArray * pRecurTrace);
 	int    Helper_RemoveAll(PPID id, PPIDArray * pRecurTrace);
 
@@ -25203,6 +25219,9 @@ private:
 #define GTCHZNPT_GROCERY            UED::GetRawValue32(UED_RUCHZNPRODTYPE_GROCERY)/*24*/    // @v12.7.0 Бакалея
 #define GTCHZNPT_CANNEDFOOD         UED::GetRawValue32(UED_RUCHZNPRODTYPE_CANNEDFOOD)/*25*/ // @v12.7.0 Консервированные продукты питания //
 #define GTCHZNPT_TOYS               UED::GetRawValue32(UED_RUCHZNPRODTYPE_TOYS)/*26*/       // @v12.7.0 Детские игрушки  
+#define GTCHZNPT_EDEVICES           UED::GetRawValue32(UED_RUCHZNPRODTYPE_EDEVICES)         // @v12.8.5 Электронные устройства
+#define GTCHZNPT_EDEVICES_NBSPH     UED::GetRawValue32(UED_RUCHZNPRODTYPE_EDEVICES_NBSPH)   // @v12.8.5 Электронные устройства (ноутбуки и смартфоны) 
+#define GTCHZNPT_EDEVICES_NICO      UED::GetRawValue32(UED_RUCHZNPRODTYPE_EDEVICES_NICO)    // @v12.8.5 Электронные устройства доставки никотина
 
 struct PPGoodsType2 {      // @persistent @store(Reference2Tbl+)
 	PPGoodsType2();
@@ -25765,11 +25784,11 @@ private:
 //
 // Descr: Элемент списка продаж, используемый для подбора подарка на основе подарочных структур (GSF_PRESENT)
 //
-struct SaSaleItem { // @flat
+/* @v12.8.5 (replaced with PPBTE_QP) struct SaSaleItem { // @flat
 	PPID   GoodsID;
 	double Qtty;
 	double Price;
-};
+};*/
 //
 // Descr: Структура комбинации, по которой может быть выдан подарок за покупку
 //
@@ -25798,8 +25817,8 @@ public:
 	// Descr: Копирует экземпляр класса pS в this. Если pS == 0, то очищает this.
 	//
 	int    FASTCALL Copy(const SaGiftItem * pS);
-	int    IsSaleListSuitable(const TSVector <SaSaleItem> & rSaleList, RAssocArray * pCheckList, LongArray * pMainPosList, double * pQtty) const;
-	int    CalcPotential(const TSVector <SaSaleItem> & rSaleList, PPID * pPotGoodsID, double * pPotAmount, double * pPotDeficit, SString & rPotName) const;
+	int    IsSaleListSuitable(const TSVector <PPBTE_QP> & rSaleList, RAssocArray * pCheckList, LongArray * pMainPosList, double * pQtty) const;
+	int    CalcPotential(const TSVector <PPBTE_QP> & rSaleList, PPID * pPotGoodsID, double * pPotAmount, double * pPotDeficit, SString & rPotName) const;
 
 	PPID   StrucID;        // Ид товарной структуры (подарочной)
 	PPID   OrgStrucID;     // Структура, родительская к StrucID самого верхнего уровня.
@@ -25847,7 +25866,7 @@ public:
 	SaGiftArray & FASTCALL operator = (const SaGiftArray &);
 	int    FASTCALL Copy(const SaGiftArray * pS);
 	int    CreateIndex();
-	int    SelectGift(const TSVector <SaSaleItem> & rSaleList, const RAssocArray & rExGiftList, int overlap, SaGiftArray::Gift & rGift) const;
+	int    SelectGift(const TSVector <PPBTE_QP> & rSaleList, const RAssocArray & rExGiftList, int overlap, SaGiftArray::Gift & rGift) const;
 private:
 	LAssocArray Index; // Key - StrucID, Val - GoodsID
 };
@@ -25873,20 +25892,32 @@ public:
 	int    Print(PPGoodsStruc *);
 	int    CheckStruc(PPID strucID, PPLogger *);
 	int    LoadAutoDecomplList(TSVector <SaAutoDecomplItem> & rList);
-	int    LoadSubstBlock(SaSubstBlock & rBlk); // @v11.6.6
+	int    LoadSubstBlock(SaSubstBlock & rBlk);
 	int    LoadGiftList(SaGiftArray * pList);
 	int    FetchGiftList(SaGiftArray * pList);
 	int    FetchSubstList(PPID goodsID, RAssocArray & rSubstList);
+
+	struct ComplPathEntry : public PPBTE_Q {
+		ComplPathEntry();
+		PPID   GsID;
+	};
+
+	class ComplPath : public TSVector <ComplPathEntry> {
+	public:
+		ComplPath();
+		int   Add(PPID gsID, PPID goodsID, double qtty);
+		int   Add(const ComplPath & rS);
+	};
 	//
 	// Descr: Ищет путь производства продукта resultGoodsID из сырьевого товара rawGoodsID.
 	//   Сырьевой товар rawGoodsID может быть представлен как обычным товаром, так и обобщением, либо владельцем подстановочной структуры.
-	// ARG(pPath OUT): Если указатель не нулевой, то в этом массив заносятся пары {товар; структура} образующие путь resultGoodsID-->rawGoodsID
+	// ARG(pPath OUT): Если указатель не нулевой, то в этом массив заносятся пары {структура; товар} образующие путь resultGoodsID-->rawGoodsID
 	// Returns:
 	//   >0 - путь найден
 	//   <0 - путь не найден
 	//    0 - error
 	//
-	int    FindComplPath(PPID resultGoodsID, PPID rawGoodsID, LAssocArray * pPath); // @v12.8.5
+	int    FindComplPath(PPID resultGoodsID, PPID rawGoodsID, TSCollection <ComplPath> * pPathList); // @v12.8.5
 	int    SelectorDialog(const TSCollection <PPGoodsStruc> & rList, uint * pSelectionPos);
 	int    SelectorDialog(PPID * pNamedGsID);
 	int    CheckStructs();
@@ -25936,6 +25967,7 @@ private:
 	virtual int  HandleMsg(int, PPID, PPID, void * extraPtr);
 	virtual void * CreateObjListWin(uint flags, void * extraPtr); // @v12.5.12 список именованных структур
 	int    Helper_LoadItems(PPID id, PPGoodsStruc * pData);
+	int    Helper_FindComplPath(void * pBlk, PPID resultGoodsID, ComplPath & rPath); // @v12.8.5
 	int    SerializePacket(int dir, PPGoodsStruc * pPack, SBuffer & rBuf, SSerializeContext * pSCtx);
 };
 
@@ -35849,6 +35881,12 @@ public:
 	//    0 - error
 	//
 	int    HasLotAnyMark(PPID lotID);
+	//
+	// Descr: Возвращает >0 если лот lotID содержит суррогатную чзн-марку, работающую в режиме партионного учета.
+	//   То есть, марка несет в себе GTIN и номер партии (возможно, дату производства и иные маловажные факторы). Важно то, что 
+	//   такая маркировка предназначена не для помарочного учета каждой единицы, а количественного учета в разрезе одной производственной партии.
+	//
+	int    IsLotInChZnBatchMode(PPID lotID, SString & rMark); // @v12.8.5
 	//
 	// Descr: Функция возвращает по ссылке rSs список марок (честный знак и егаис), ассоциированных с лотом lotID.
 	//   Сет rSs предварительно очищается функцией.
@@ -57855,7 +57893,7 @@ private:
 	PPObjPsnOpKind Obj;
 };
 //
-// Диалог отправки электронного письма
+// Descr: Диалог отправки электронного письма
 //
 class SendMailDialog : public PPListDialog {
 public:
@@ -58086,12 +58124,12 @@ public:
 		fShowPhQtty            = 0x0008,
 		fShowVetisTag          = 0x0010,
 		fShowManufTime         = 0x0020,
-		fDisableSelectionSpoiledSeries = 0x0040  // @v11.1.8 Запрет выбора лотов и испорченными сериями
+		fDisableSelectionSpoiledSeries = 0x0040  // Запрет выбора лотов и испорченными сериями
 	};
 	static SArray * CreateArray();
 	static int FASTCALL AddItemToArray(SArray * pAry, const ReceiptTbl::Rec * pRec, LDATE billDate, double rest, int onlyWithSerial = 0);
 	SelLotBrowser(PPObjBill * pBObj, SArray * pAry, uint pos, long flags);
-	~SelLotBrowser(); // @v11.1.8
+	~SelLotBrowser();
 private:
 	DECL_HANDLE_EVENT;
 	static int StyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
@@ -58326,6 +58364,7 @@ public:
 	//
 	struct PriceByMarkBlock {
 		PriceByMarkBlock();
+		PriceByMarkBlock & Z(); // @v12.8.5
 		double PmMrp; // Цена MRP полученная от сервера разрешительного режима chzn
 		double PmSmp; // Цена SMP полученная от сервера разрешительного режима chzn
 		RealRange AllowedRange; // диапазон допустимых цен на товар по результату запроса разрешительного режима марки chzn
@@ -58746,7 +58785,6 @@ struct PosPaymentBlock {
 		// Причина - эта карта уже присвоена чеку. То есть, по ней уже основная часть
 		// платежа сделана (либо на нее начисляются средства).
 	long   DisabledKinds;  // Биты установлены в позициях со смещением, равным запрещенному виду оплаты.
-	// @v11.3.6 int    AltCashReg;     // Признак использования альтернативного кассового регистратора: -1 - disabled, 0 - не использовать, 1 - использовать
 	//
 	// Следующие поля используются новой реализацией
 	//
@@ -59190,7 +59228,7 @@ protected:
 	void   SetupDiscount(bool distributeGiftDiscount);
 	int    VerifyPrices();
 	int    ProcessGift();
-	int    AddGiftSaleItem(TSVector <SaSaleItem> & rList, const CCheckItem & rItem) const;
+	int    AddGiftSaleItem(TSVector <PPBTE_QP> & rList, const CCheckItem & rItem) const;
 	// @v12.5.9 (replced with CalcCurrentRest2) double CalcCurrentRest(PPID goodsID, bool checkInputBuffer);
 	//
 	// Descr: Флаги функции CalcCurrentRest2
@@ -60155,6 +60193,7 @@ private:
 	PPObjWorkbook WbObj;
 	SString DestFilesPath; // @*PPWorkbookExporter::Init()
 	StrAssocArray ProcessedIdList; // @v12.8.4
+	TSStack <PPID> BranchProcessingStack; // @v12.8.5 стек, защищающий от рекурсии при экспорте одной ветки 
 };
 //
 //
@@ -60714,12 +60753,6 @@ private:
 	//    0 - error
 	//
 	int    WriteMarkListOnInvoiceItem3(xmlTextWriter * pX, int contextId, const PPBillImpExpParam & rParam, int chznProdType, int chznIntQtty, const PPLotExtCodeContainer::MarkSet & rSet);
-	//
-	// Descr: Возвращает >0 если лот lotID содержит суррогатную чзн-марку, работающую в режиме партионного учета.
-	//   То есть, марка несет в себе GTIN и номер партии (возможно, дату производства и иные маловажные факторы). Важно то, что 
-	//   такая маркировка предназначена не для помарочного учета каждой единицы, а количественного учета в разрезе одной производственной партии.
-	//
-	int    IsLotInChZnBatchMode(PPID lotID, SString & rMark); // @v12.8.4
 	//
 	// Descr: Извлекает из базы данных идентификатор участника документооборота.
 	//   Сложность в том, что этот идентификатор может быть задан либо в виде тега персоналии (PPTAG_PERSON_ENALOGID),

@@ -607,12 +607,13 @@ const PPCommandItem * PPCommandFolder::Next(uint * pPos) const
 int PPCommandFolder::Write_Deprecated(SBuffer & rBuf, long extraParam) const
 {
 	int    ok = 1;
-	uint16 c = 0, i;
+	uint16 c = 0;
 	THROW(PPCommandItem::Write_Deprecated(rBuf, extraParam));
 	c = List.getCount();
 	THROW_SL(rBuf.Write(&c, sizeof(c)));
-	for(i = 0; i < c; i++)
+	for(uint16 i = 0; i < c; i++) {
 		THROW(List.at(i)->Write_Deprecated(rBuf, extraParam));
+	}
 	CATCHZOK
 	return ok;
 }
@@ -620,12 +621,12 @@ int PPCommandFolder::Write_Deprecated(SBuffer & rBuf, long extraParam) const
 int PPCommandFolder::Read_Deprecated(SBuffer & rBuf, long extraParam)
 {
 	int    ok = 1;
-	uint16 c = 0, i;
+	uint16 c = 0;
 	THROW(PPCommandItem::Read_Deprecated(rBuf, extraParam));
 	THROW_SL(rBuf.Read(&c, sizeof(c)));
-	for(i = 0; i < c; i++) {
+	for(uint16 i = 0; i < c; i++) {
 		PPCommandItem * ptr = 0;
-		size_t offs = rBuf.GetRdOffs();
+		const  size_t offs = rBuf.GetRdOffs();
 		PPCommandItem item(PPCommandItem::kUndef);
 		THROW(item.Read_Deprecated(rBuf, extraParam));
 		rBuf.SetRdOffs(offs);
@@ -645,7 +646,7 @@ int PPCommandFolder::Read_Deprecated(SBuffer & rBuf, long extraParam)
 			ptr = new PPCommandItem(PPCommandItem::kUndef);
 			THROW(static_cast<PPCommandItem *>(ptr)->Read_Deprecated(rBuf, extraParam));
 		}
-		if(ptr) { // @v11.0.4 @fix
+		if(ptr) {
 			THROW_SL(List.insert(ptr));
 		}
 	}

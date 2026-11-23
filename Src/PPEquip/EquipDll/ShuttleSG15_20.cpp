@@ -84,8 +84,8 @@ public:
 	struct StGoodInfo {
 		void Clear() 
 		{
-			Name = "";
-			Info = "";
+			Name.Z();
+			Info.Z();
 			Price = 0.0;
 			Qtty = 0.0;
 		}

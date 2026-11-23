@@ -251,6 +251,16 @@ int OptimalAmountDamper::Probe(double qtty, double price, long pos, long extPos)
 //
 //
 //
+PPBTE_Q::PPBTE_Q() : GoodsID(0), Qtty(0.0)
+{
+}
+
+PPBTE_QP::PPBTE_QP() : PPBTE_Q(), Price(0.0)
+{
+}
+//
+//
+//
 PPDimention & PPDimention::Z()
 {
 	Length = 0;

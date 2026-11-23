@@ -2720,6 +2720,9 @@ int PiritEquip::RunCheck(int opertype)
 						case 24: product_type_bytes = 0x444D; break; // @v12.7.0 GTCHZNPT_GROCERY
 						case 25: product_type_bytes = 0x444D; break; // @v12.7.0 GTCHZNPT_CANNEDFOOD
 						case 26: product_type_bytes = 0x444D; break; // @v12.7.0 GTCHZNPT_TOYS
+						case 27: product_type_bytes = 0x444D; break; // @v12.8.5 GTCHZNPT_EDEVICES Электронные устройства
+						case 28: product_type_bytes = 0x444D; break; // @v12.8.5 GTCHZNPT_EDEVICES_NBSPH Электронные устройства (ноутбуки и смартфоны) 
+						case 29: product_type_bytes = 0x444D; break; // @v12.8.5 GTCHZNPT_EDEVICES_NICO Электронные устройства доставки никотина
 						default: product_type_bytes = 0x444D; break;
 					}
 					const char * p_serial = Check.ChZnSerial.NotEmpty() ? Check.ChZnSerial.cptr() : Check.ChZnPartN.cptr();

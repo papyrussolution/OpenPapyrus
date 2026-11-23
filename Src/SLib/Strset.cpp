@@ -361,26 +361,26 @@ StringSet & StringSet::Z()
 
 void StringSet::sort()
 {
-	// @v12.3.5 const uint org_count = getCount(); // @v11.4.8 see considerations at StringSet::sortAndUndup()
-	// @v12.3.5 if(org_count > 1) { // @v11.4.8 
+	// @v12.3.5 const uint org_count = getCount(); // see considerations at StringSet::sortAndUndup()
+	// @v12.3.5 if(org_count > 1) {
 	if(IsCountGreaterThan(1)) { // @v12.3.5
 		StrAssocArray temp_list;
 		SString str;
 		uint   i;
 		long   id = 0;
 		for(i = 0; get(&i, str);)
-			temp_list.AddFast(++id, str); // @v11.2.4 Add-->AddFast
+			temp_list.AddFast(++id, str);
 		temp_list.SortByText();
 		Z();
 		for(i = 0; i < temp_list.getCount(); i++)
 			add(temp_list.Get(i).Txt);
 	}
-	// @v12.3.5 assert(getCount() == org_count); // @v11.4.8 дорогая проверка (из-за getCount()), но в релизе ее не будет 
+	// @v12.3.5 assert(getCount() == org_count); // дорогая проверка (из-за getCount()), но в релизе ее не будет 
 }
 
 void StringSet::shuffle()
 {
-	// @v12.3.5 const uint org_count = getCount(); // @v11.4.8 see considerations at StringSet::sortAndUndup()
+	// @v12.3.5 const uint org_count = getCount(); // see considerations at StringSet::sortAndUndup()
 	// @v12.3.5 if(org_count > 1) {
 	if(IsCountGreaterThan(1)) { // @v12.3.5
 		StrAssocArray temp_list;

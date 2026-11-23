@@ -989,7 +989,7 @@ void TCanvas2::SetBkTranparent()
 	::SetBkMode(static_cast<HDC>(S.HCtx), TRANSPARENT);
 }
 
-int TCanvas2::_DrawText(const TRect & rRect, const char * pText, uint options)
+int TCanvas2::_DrawText(const FRect & rRect, const char * pText, uint options)
 {
 	char   zero[16];
 	const  int len = sstrleni(pText);
@@ -997,18 +997,20 @@ int TCanvas2::_DrawText(const TRect & rRect, const char * pText, uint options)
 		zero[0] = 0;
 		pText = zero;
 	}
-	RECT   rect = rRect;
+	const  TRect _tr(rRect);
+	RECT   rect = _tr;
 	return BIN(::DrawTextW(static_cast<HDC>(S.HCtx), SUcSwitchW(pText), len, &rect, options));
 }
 
-int TCanvas2::_DrawTextUtf8(const TRect & rRect, const char * pText, uint options)
+int TCanvas2::_DrawTextUtf8(const FRect & rRect, const char * pText, uint options)
 {
 	char   zero[16];
 	if(isempty(pText)) {
 		zero[0] = 0;
 		pText = zero;
 	}
-	RECT   rect = rRect;
+	const  TRect  _tr(rRect);
+	RECT   rect = _tr;
 	SString & r_temp_buf = SLS.AcquireRvlStr();
 	r_temp_buf = pText;
 	const wchar_t * p_text_u = SUcSwitchWUtf8(r_temp_buf);
@@ -4645,8 +4647,26 @@ HBITMAP FASTCALL SPaintToolBox::GetBitmap(int ident) const
 
 COLORREF FASTCALL SPaintToolBox::GetColor(int ident) const
 {
+	// @v12.8.5 {
+	COLORREF result = GetColorRef(SClrBlack);
 	SPaintObj * p_obj = GetObj(ident);
-	return p_obj ? static_cast<COLORREF>(*p_obj) : GetColorRef(SClrBlack);
+	if(p_obj) {
+		if(p_obj->GetType() == SPaintObj::tColor)
+			result = static_cast<COLORREF>(*p_obj);
+		else if(p_obj->GetType() == SPaintObj::tPen) {
+			SPaintObj::Pen * p_pen = p_obj->GetPen();
+			if(p_pen)
+				result = static_cast<COLORREF>(p_pen->C);
+		}
+		else if(p_obj->GetType() == SPaintObj::tBrush) {
+			SPaintObj::Brush * p_br = p_obj->GetBrush();
+			if(p_br)
+				result = static_cast<COLORREF>(p_br->C);
+		}
+	}
+	return result;
+	// } @v12.8.5 
+	// @v12.8.5 return p_obj ? static_cast<COLORREF>(*p_obj) : GetColorRef(SClrBlack);
 }
 
 int SPaintToolBox::GetColor(int ident, COLORREF * pC) const

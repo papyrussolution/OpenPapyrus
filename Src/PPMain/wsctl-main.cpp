@@ -3081,7 +3081,7 @@ void WsCtl_ImGuiSceneBlock::EmitProgramGallery(ImGuiWindowByLayout & rW, SUiLayo
 					if(r_cat_list.getCount()) {
 						const char * p_selected_text = 0;
 						uint    selected_idx = 0;
-						if(r_cat_list.Search(PgmL.GetSelectedCatSurrogateId(), &selected_idx) > 0) {
+						if(r_cat_list.Search(PgmL.GetSelectedCatSurrogateId(), &selected_idx)) {
 							StrAssocArray::Item item = r_cat_list.Get(selected_idx);
 							p_selected_text = item.Txt;
 						}

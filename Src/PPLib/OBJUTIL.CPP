@@ -2153,14 +2153,9 @@ int ObjLinkFiles::Load(PPID objID, const char * pAddedStr)
 	return ok;
 }
 
-int ObjLinkFiles::Load(PPID objID, PPID addedID /*=0*/)
+int ObjLinkFiles::Load(PPID objID, PPID addedID/*=0*/)
 {
-	if(addedID) {
-		SString added_str;
-		return Load(objID, added_str.Cat(addedID));
-	}
-	else
-		return Load(objID, static_cast<const char *>(0));
+	return Load(objID, addedID ? SLS.AcquireRvlStr().Cat(addedID).cptr() : nullptr);
 }
 
 int ObjLinkFiles::MakeExistsFilePath(uint i, PPID objID, const char * pAddedStr, SString & rPath)
@@ -3331,6 +3326,23 @@ int PrcssrUniFindObj::Run()
 					AddResult(PPOBJ_ARTICLE, temp_id_list, PPOBJATTR_NAME);
 				}
 			}
+			// @v12.8.5 {
+			{
+				PPObjWorkbook wb_obj;
+				WorkbookTbl::Rec wb_rec;
+				if(wb_obj.SearchBySymb(P.MainPattern, 0, &wb_rec) > 0) {
+					AddResult(PPOBJ_WORKBOOK, wb_rec.ID, PPOBJATTR_SYMB, 0);
+				}
+				if(wb_obj.SearchByName(P.MainPattern, 0, &wb_rec) > 0) {
+					AddResult(PPOBJ_WORKBOOK, wb_rec.ID, PPOBJATTR_NAME, 0);
+				}
+				if(checkirange(_int_val, 1LL, static_cast<int64>(LONG_MAX))) {
+					if(wb_obj.Search(static_cast<long>(_int_val), &wb_rec) > 0) {
+						AddResult(PPOBJ_WORKBOOK, wb_rec.ID, PPOBJATTR_ID, 0);
+					}
+				}
+			}
+			// } @v12.8.5 
 		}
 		/* @construction if(P.MainPattern.Len() > 3) {
 			temp_id_list.Z();
@@ -3338,7 +3350,7 @@ int PrcssrUniFindObj::Run()
 		}*/
 		if(P.WFlags & (UniFindObjFilt::wfEverything|UniFindObjFilt::wfBill)) {
 			BillTbl::Rec bill_rec;
-			if(_int_val > 0 && _int_val < LONG_MAX) {
+			if(checkirange(_int_val, 1LL, static_cast<int64>(LONG_MAX))) {
 				if(P_BObj->Search(static_cast<long>(_int_val), &bill_rec) > 0) {
 					AddResult(PPOBJ_BILL, bill_rec.ID, PPOBJATTR_ID, 0);
 				}

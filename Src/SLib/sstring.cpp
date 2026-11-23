@@ -6541,10 +6541,10 @@ static const char * FASTCALL SPathFindNextComponent(const char * pPath)
 
 /*static*/int SFsPath::GetRelativePath(const char * lpszFrom, uint dwAttrFrom, const char * lpszTo, uint dwAttrTo, SString & rPath)
 {
-	static const char * szPrevDirSlash = "..\\";
-	static const char * szPrevDir = "..";
+	static const char * p_prev_dir_slash = "..\\";
+	static const char * p_prev_dir = "..";
 	int    ok = 1;
-	DWORD  dwLen;
+	DWORD  dw_len = 0;
 	SString from(lpszFrom);
 	SString to(lpszTo);
 	rPath.Z();
@@ -6554,22 +6554,22 @@ static const char * FASTCALL SPathFindNextComponent(const char * pPath)
 		if(!(dwAttrFrom & FILE_ATTRIBUTE_DIRECTORY))
 			SPathRemoveFileSpec(to);
 		// Paths can only be relative if they have a common root
-		dwLen = SPathCommonPrefix(from, to, 0);
-		if(!dwLen)
+		dw_len = SPathCommonPrefix(from, to, 0);
+		if(!dw_len)
 			ok = 0;
 		else {
 			// Strip off lpszFrom components to the root, by adding "..\"
-			lpszFrom = from + dwLen;
+			lpszFrom = from + dw_len;
 			if(!*lpszFrom)
 				rPath = ".";
 			if(oneof2(*lpszFrom, '\\', '/'))
 				lpszFrom++;
 			while(*lpszFrom) {
 				lpszFrom = SPathFindNextComponent(lpszFrom);
-				rPath.Cat(*lpszFrom ? szPrevDirSlash : szPrevDir);
+				rPath.Cat(*lpszFrom ? p_prev_dir_slash : p_prev_dir);
 			}
 			// From the root add the components of lpszTo
-			lpszTo += dwLen;
+			lpszTo += dw_len;
 			//
 			// We check lpszTo[-1] to avoid skipping end of string. See the notes for
 			// this function.

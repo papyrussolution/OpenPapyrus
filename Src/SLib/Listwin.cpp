@@ -664,7 +664,7 @@ void WordSelector::DrawListItem2(TDrawItemData * pDrawItem)
 	if(pDrawItem) {
 		if(pDrawItem->P_View) {
 			TCanvas2 canv(Ptb, pDrawItem->H_DC);
-			TRect _rc(pDrawItem->ItemRect);
+			FRect _rc(pDrawItem->ItemRect);
 			if(pDrawItem->ItemAction & TDrawItemData::iaBackground) {
 				canv.Rect(_rc, 0, clrBkgnd);
 				pDrawItem->ItemAction = 0; // Мы перерисовали фон

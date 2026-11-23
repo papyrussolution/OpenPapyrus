@@ -6951,8 +6951,8 @@ struct DlGoodsBillBaseBlock {
 	{
 		bool   result = false;
 		if(P_Pack) {
-			const PPTransferItem & r_ti = Iter.GetTi();
-			const int sign = r_ti.GetSign(P_Pack->Rec.OpID);
+			const  PPTransferItem & r_ti = Iter.GetTi();
+			const  int sign = r_ti.GetSign(P_Pack->Rec.OpID);
 			if(sign == TISIGN_MINUS) {
 				GoodsRestParam gp;
 				gp.GoodsID = labs(r_ti.GoodsID);
@@ -6965,6 +6965,22 @@ struct DlGoodsBillBaseBlock {
 		}
 		return result;
 	}
+	bool   GetChZnPartN(SString & rPartN) // @v12.8.5
+	{
+		//string GetChZnPartN[64](); // @v12.8.5
+		rPartN.Z();
+		bool   result = false;
+		if(P_Pack) {
+			const  PPTransferItem & r_ti = Iter.GetTi();
+			SString batch_mark;
+			const  int  is_batch_mark = BillObj->IsLotInChZnBatchMode(r_ti.LotID, batch_mark);
+			if(is_batch_mark > 0) {
+				rPartN = batch_mark;
+			}
+		}
+		return result;
+	}
+
 	PPBillPacket * P_Pack; // @notowned
 	TiIter Iter;
 	PPBillPacket::TiItemExt Item; // Последняя сканированная итератором строка (используется функциями)
@@ -7468,6 +7484,7 @@ void PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rtm
 	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
 	#define _RET_DBL     (*static_cast<double *>(rS.GetPtr(pApl->Get(0))))
 	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
+	#define _RET_STR     (**static_cast<SString **>(rS.GetPtr(pApl->Get(0))))
 	PPObjBill * p_bobj(BillObj);
 	DlGoodsBillBaseBlock * p_extra = static_cast<DlGoodsBillBaseBlock *>(Extra[0].Ptr);
 	PPBillPacket * p_pack = p_extra ? p_extra->P_Pack : 0;
@@ -7513,6 +7530,12 @@ void PPALDD_GoodsBillBase::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, Rtm
 	else if(pF->Name == "?IsStockExhausted") { // @v12.3.10 iterator
 		_RET_INT = p_extra ? p_extra->IsStockExhausted() : 0;
 	}
+	else if(pF->Name == "?GetChZnPartN") { // @v12.8.5 iterator
+		_RET_STR.Z();
+		if(p_extra)
+			p_extra->GetChZnPartN(_RET_STR);
+	}
+	
 }
 //
 // Implementation of PPALDD_GoodsBillDispose

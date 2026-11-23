@@ -1129,37 +1129,49 @@ int PPObjGoods::MakeReplaceStr(const PPGoodsPacket * pPack, const PPGoodsReplace
 					if(!gc_pack.Rec.ID && pPack->Rec.GdsClsID)
 						gc_obj.GetPacket(pPack->Rec.GdsClsID, &gc_pack);
 					if(gc_pack.Rec.ID && gc_pack.Rec.Flags & PPGdsCls::fUsePropKind)
-						gc_pack.FormatProp(&gc_pack.PropKind, pPack->ExtRec.KindID, temp_buf);
+						gc_pack.FormatProp(gc_pack.PropKind, pPack->ExtRec.KindID, temp_buf);
 					break;
 				case PPSYM_GC_GRADE:
 					if(!gc_pack.Rec.ID && pPack->Rec.GdsClsID)
 						gc_obj.GetPacket(pPack->Rec.GdsClsID, &gc_pack);
 					if(gc_pack.Rec.ID && gc_pack.Rec.Flags & PPGdsCls::fUsePropGrade)
-						gc_pack.FormatProp(&gc_pack.PropGrade, pPack->ExtRec.GradeID, temp_buf);
+						gc_pack.FormatProp(gc_pack.PropGrade, pPack->ExtRec.GradeID, temp_buf);
 					break;
 				case PPSYM_GC_ADDPROP:
 					if(!gc_pack.Rec.ID && pPack->Rec.GdsClsID)
 						gc_obj.GetPacket(pPack->Rec.GdsClsID, &gc_pack);
 					if(gc_pack.Rec.ID && gc_pack.Rec.Flags & PPGdsCls::fUsePropAdd)
-						gc_pack.FormatProp(&gc_pack.PropAdd, pPack->ExtRec.AddObjID, temp_buf);
+						gc_pack.FormatProp(gc_pack.PropAdd, pPack->ExtRec.AddObjID, temp_buf);
+					break;
+				case PPSYM_GC_ADD2PROP: // @v12.8.5
+					if(!gc_pack.Rec.ID && pPack->Rec.GdsClsID)
+						gc_obj.GetPacket(pPack->Rec.GdsClsID, &gc_pack);
+					if(gc_pack.Rec.ID && gc_pack.Rec.Flags & PPGdsCls::fUsePropAdd2)
+						gc_pack.FormatProp(gc_pack.PropAdd2, pPack->ExtRec.AddObj2ID, temp_buf);
 					break;
 				case PPSYM_GC_DIMX:
 					if(!gc_pack.Rec.ID && pPack->Rec.GdsClsID)
 						gc_obj.GetPacket(pPack->Rec.GdsClsID, &gc_pack);
 					if(gc_pack.Rec.ID && gc_pack.Rec.Flags & PPGdsCls::fUseDimX)
-						gc_pack.FormatDim(&gc_pack.DimX, pPack->ExtRec.X, temp_buf);
+						gc_pack.FormatDim(gc_pack.DimX, pPack->ExtRec.X, temp_buf);
 					break;
 				case PPSYM_GC_DIMY:
 					if(!gc_pack.Rec.ID && pPack->Rec.GdsClsID)
 						gc_obj.GetPacket(pPack->Rec.GdsClsID, &gc_pack);
 					if(gc_pack.Rec.ID && gc_pack.Rec.Flags & PPGdsCls::fUseDimY)
-						gc_pack.FormatDim(&gc_pack.DimY, pPack->ExtRec.Y, temp_buf);
+						gc_pack.FormatDim(gc_pack.DimY, pPack->ExtRec.Y, temp_buf);
 					break;
 				case PPSYM_GC_DIMZ:
 					if(!gc_pack.Rec.ID && pPack->Rec.GdsClsID)
 						gc_obj.GetPacket(pPack->Rec.GdsClsID, &gc_pack);
 					if(gc_pack.Rec.ID && gc_pack.Rec.Flags & PPGdsCls::fUseDimZ)
-						gc_pack.FormatDim(&gc_pack.DimZ, pPack->ExtRec.Z, temp_buf);
+						gc_pack.FormatDim(gc_pack.DimZ, pPack->ExtRec.Z, temp_buf);
+					break;
+				case PPSYM_GC_DIMW: // @v12.8.5
+					if(!gc_pack.Rec.ID && pPack->Rec.GdsClsID)
+						gc_obj.GetPacket(pPack->Rec.GdsClsID, &gc_pack);
+					if(gc_pack.Rec.ID && gc_pack.Rec.Flags & PPGdsCls::fUseDimW)
+						gc_pack.FormatDim(gc_pack.DimW, pPack->ExtRec.W, temp_buf);
 					break;
 			}
 			rBuf.Cat(temp_buf);

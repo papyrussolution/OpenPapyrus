@@ -142,7 +142,7 @@ int PalmBillQueue::SetIdAssoc(PPID dvcID, PPID outerID, PPID innerID)
 //
 //
 //
-PalmBillItem::PalmBillItem() : GoodsID(0), Qtty(0.0), Price(0.0)
+PalmBillItem::PalmBillItem() : PPBTE_QP()
 {
 }
 

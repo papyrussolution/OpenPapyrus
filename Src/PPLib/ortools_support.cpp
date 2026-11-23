@@ -55,8 +55,8 @@ public:
 	//
 	// Проверка гильотинности (постобработка)
 	//
-	static bool IsGuillotineLayout(const TSVector <PPOptiModule::CuttingStock2D::Placement> & rPlacements, int sheetW, int sheetH, int maxLevels);
-	static bool GuillotineCheck(const std::vector <SRect2I> & pieces, const SRect2I & area, int level, int maxLevels);
+	static bool IsGuillotineLayout(const TSVector <PPOptiModule::CuttingStock2D::Placement> & rPlacements, int sheetW, int sheetH, int maxLevels); // @unused
+	static bool GuillotineCheck(const std::vector <SRect2I> & pieces, const SRect2I & area, int level, int maxLevels); // @unused
 	//
 	// Внутренние развёрнутые экземпляры деталей (pieces) и сырьевых плоскостей (sheets)
 	//
@@ -98,97 +98,6 @@ public:
 	void ExtractResult(const CpSolverResponse& response, const std::vector<std::vector<PlacementVars>>& pvars, const std::vector<BoolVar>& sheet_used, uint solveMs, 
 		PPOptiModule::CuttingStock2D::Result & rR);
 };
-
-/*static*/bool OrToolsSolver_CuttingStock2D::IsGuillotineLayout(const TSVector <PPOptiModule::CuttingStock2D::Placement> & rPlacements, int sheetW, int sheetH, int maxLevels)
-{
-	bool   ok = true;
-	if(rPlacements.getCount() > 1) {
-		std::vector <SRect2I> rects;
-		rects.reserve(rPlacements.getCount());
-		for(uint i = 0; i < rPlacements.getCount(); i++) {
-			const PPOptiModule::CuttingStock2D::Placement & pl = rPlacements.at(i);
-			rects.push_back(SRect2I(pl.Pt.x, pl.Pt.y, pl.Pt.x + pl.Sz.x, pl.Pt.y + pl.Sz.y));
-		}
-		SRect2I area(0, 0, sheetW, sheetH);
-		ok = GuillotineCheck(rects, area, 0, maxLevels);
-	}
-	return ok;
-}
-
-/*static*/bool OrToolsSolver_CuttingStock2D::GuillotineCheck(const std::vector<SRect2I> & pieces, const SRect2I & area, int level, int maxLevels)
-{
-	if(pieces.size() <= 1)
-		return true;
-	if(maxLevels > 0 && level >= maxLevels)
-		return false;
-	// Вертикальные разрезы: кандидаты — правые границы деталей
-	{
-		std::set <int> cands;
-		for(auto & p : pieces) {
-			if(p.RL.x > area.LU.x && p.RL.x < area.RL.x)
-				cands.insert(p.RL.x);
-		}
-		for(int xc : cands) {
-			bool crosses = false;
-			for(auto& p : pieces) {
-				if(p.LU.x < xc && p.RL.x > xc) { 
-					crosses = true; 
-					break; 
-				}
-			}
-			if(crosses)
-				continue;
-			std::vector <SRect2I> left, right;
-			for(auto & p : pieces) {
-				if(p.RL.x <= xc)      
-					left.push_back(p);
-				else if(p.LU.x >= xc) 
-					right.push_back(p);
-			}
-			if(!left.empty() && !right.empty()) {
-				SRect2I la(area.LU.x, area.LU.y, xc, area.RL.y);
-				SRect2I ra(xc, area.LU.y, area.RL.x, area.RL.y);
-				if(GuillotineCheck(left, la, level+1, maxLevels) && GuillotineCheck(right, ra, level+1, maxLevels)) { // @recursion
-					return true;
-				}
-			}
-		}
-	}
-	// Горизонтальные разрезы: кандидаты — верхние границы деталей
-	{
-		std::set<int> cands;
-		for(auto & p : pieces) {
-			if(p.RL.y > area.LU.y && p.RL.y < area.RL.y)
-				cands.insert(p.RL.y);
-		}
-		for(int yc : cands) {
-			bool crosses = false;
-			for(auto& p : pieces) {
-				if(p.LU.y < yc && p.RL.y > yc) { 
-					crosses = true; 
-					break; 
-				}
-			}
-			if(crosses)
-				continue;
-			std::vector <SRect2I> bottom, top;
-			for(auto& p : pieces) {
-				if(p.RL.y <= yc)      
-					bottom.push_back(p);
-				else if(p.LU.y >= yc) 
-					top.push_back(p);
-			}
-			if(!bottom.empty() && !top.empty()) {
-				SRect2I ba(area.LU.x, area.LU.y, area.RL.x, yc);
-				SRect2I ta(area.LU.x, yc, area.RL.x, area.RL.y);
-				if(GuillotineCheck(bottom, ba, level+1, maxLevels) && GuillotineCheck(top, ta, level+1, maxLevels)) { // @recursion
-					return true;
-				}
-			}
-		}
-	}
-	return false;
-}
 
 void OrToolsSolver_CuttingStock2D::ExpandInstances()
 {
@@ -233,15 +142,15 @@ bool OrToolsSolver_CuttingStock2D::SolveInternal_(PPOptiModule::CuttingStock2D::
         return false;
     }
 	else {
-		auto t_start = std::chrono::steady_clock::now();
-		const int piece_count = static_cast<int>(PieceInst.size());
-		const int sheet_count = static_cast<int>(SheetInst.size());
-		const int kerf = static_cast<int>(R_Base.EB.TaskCfg.KerfWidth);
-		const int spacing = static_cast<int>(R_Base.EB.TaskCfg.Spacing);
-		const int extra = kerf + spacing;
-		const bool allow_rotation = !(R_Base.EB.TaskCfg.Flags & PPOptiModule::CuttingStock2D::Config::fTexturedMaterial);
-		const bool guillotine     = LOGIC(R_Base.EB.TaskCfg.Flags & PPOptiModule::CuttingStock2D::Config::fGuillotineCut);
-		const bool allow_partial  = LOGIC(R_Base.EB.TaskCfg.Flags & PPOptiModule::CuttingStock2D::Config::fAllowPartial);
+		auto   t_start = std::chrono::steady_clock::now();
+		const  int  piece_count = static_cast<int>(PieceInst.size());
+		const  int  sheet_count = static_cast<int>(SheetInst.size());
+		const  int  kerf = static_cast<int>(R_Base.EB.TaskCfg.KerfWidth);
+		const  int  spacing = static_cast<int>(R_Base.EB.TaskCfg.Spacing);
+		const  int  extra = kerf + spacing;
+		const  bool allow_rotation = !(R_Base.EB.TaskCfg.Flags & PPOptiModule::CuttingStock2D::Config::fTexturedMaterial);
+		const  bool guillotine     = LOGIC(R_Base.EB.TaskCfg.Flags & PPOptiModule::CuttingStock2D::Config::fGuillotineCut);
+		const  bool allow_partial  = LOGIC(R_Base.EB.TaskCfg.Flags & PPOptiModule::CuttingStock2D::Config::fAllowPartial);
 		CpModelBuilder model;
 		//
 		// Определяем максимальное число полос на одном листе.
@@ -267,36 +176,33 @@ bool OrToolsSolver_CuttingStock2D::SolveInternal_(PPOptiModule::CuttingStock2D::
 			SETMAX(maxSheetH, SheetInst[s].Size.y);
 			SETMAX(maxSheetW, SheetInst[s].Size.x);
 		}
-		// Максимальное число полос на листе
-		const int maxStrips = (minPieceH > 0) ? (maxSheetH / minPieceH) : piece_count;
-		// Ограничим разумным числом
-		const int maxStripsPerSheet = smin(maxStrips, smin(piece_count, 32));
+		const int maxStrips = (minPieceH > 0) ? (maxSheetH / minPieceH) : piece_count; // Максимальное число полос на листе
+		const int maxStripsPerSheet = smin(maxStrips, smin(piece_count, 32)); // Ограничим разумным числом
 		//
 		// Переменные
 		//
-		// sheet_used[s] — используется ли лист s
-		std::vector<BoolVar> sheet_used(sheet_count);
+		std::vector <BoolVar> sheet_used(sheet_count); // sheet_used[s] — используется ли лист s
 		for(int s = 0; s < sheet_count; s++) {
 			sheet_used[s] = model.NewBoolVar();
 		}
 		// Для каждого листа и каждой полосы:
 		struct StripVars {
-			BoolVar active;       // используется ли эта полоса
-			IntVar  yStart;       // начало полосы по Y
-			IntVar  height;       // высота полосы (определяется самой высокой деталью + kerf)
-			IntVar  yEnd;         // конец полосы по Y
-			IntVar  usedWidth;    // использованная ширина полосы (для компактности)
+			BoolVar active;    // используется ли эта полоса
+			IntVar  yStart;    // начало полосы по Y
+			IntVar  height;    // высота полосы (определяется самой высокой деталью + kerf)
+			IntVar  yEnd;      // конец полосы по Y
+			IntVar  usedWidth; // использованная ширина полосы (для компактности)
 		};
 		// Для каждого потенциального размещения детали:
 		struct PieceOnStrip {
 			int    pieceIdx;
 			int    sheetIdx;
 			int    stripIdx;
-			BoolVar assigned;     // деталь pieceIdx назначена на полосу stripIdx листа sheetIdx
+			BoolVar assigned; // деталь pieceIdx назначена на полосу stripIdx листа sheetIdx
 			BoolVar rotated;
 			IntVar  actualW;
 			IntVar  actualH;
-			IntVar  xPos;         // позиция по X внутри полосы (вычисляется из порядка)
+			IntVar  xPos;     // позиция по X внутри полосы (вычисляется из порядка)
 		};
 
 		std::vector <std::vector <StripVars>> strips(sheet_count); // strips[s][k] — полоса k листа s
@@ -320,19 +226,13 @@ bool OrToolsSolver_CuttingStock2D::SolveInternal_(PPOptiModule::CuttingStock2D::
 				sv.height = model.NewIntVar(Domain(0, sheetH));
 				sv.yEnd   = model.NewIntVar(Domain(0, sheetH));
 				sv.usedWidth = model.NewIntVar(Domain(0, sheetW));
-            
-				// yEnd = yStart + height
-				model.AddEquality(sv.yEnd, LinearExpr(sv.yStart) + LinearExpr(sv.height));
-            
-				// Полоса не выходит за лист
-				model.AddLessOrEqual(sv.yEnd, sheetH);
-            
+				model.AddEquality(sv.yEnd, LinearExpr(sv.yStart) + LinearExpr(sv.height)); // yEnd = yStart + height
+				model.AddLessOrEqual(sv.yEnd, sheetH); // Полоса не выходит за лист
 				// Если полоса неактивна, height = 0
 				model.AddEquality(sv.height, 0).OnlyEnforceIf(sv.active.Not());
 				model.AddGreaterThan(sv.height, 0).OnlyEnforceIf(sv.active);
-            
-				// Если полоса неактивна, usedWidth = 0
-				model.AddEquality(sv.usedWidth, 0).OnlyEnforceIf(sv.active.Not());
+				//
+				model.AddEquality(sv.usedWidth, 0).OnlyEnforceIf(sv.active.Not()); // Если полоса неактивна, usedWidth = 0
 			}
         
 			// Полосы упорядочены по Y и не перекрываются
@@ -340,18 +240,18 @@ bool OrToolsSolver_CuttingStock2D::SolveInternal_(PPOptiModule::CuttingStock2D::
 				// yEnd[k] + kerf <= yStart[k+1]  (если обе активны)
 				// Упрощённо: yEnd[k] <= yStart[k+1] (kerf учтём в высоте полосы)
 				model.AddLessOrEqual(strips[s][k].yEnd, strips[s][k+1].yStart);
-            
-				// Symmetry breaking: полосы используются по порядку
-				model.AddLessOrEqual(strips[s][k+1].active, strips[s][k].active);
+				model.AddLessOrEqual(strips[s][k+1].active, strips[s][k].active); // Symmetry breaking: полосы используются по порядку
 			}
         
 			// Связь sheet_used[s] с активностью полос
 			{
 				std::vector <BoolVar> stripActives;
-				for(int k = 0; k < num_strips_here; k++)
+				for(int k = 0; k < num_strips_here; k++) {
 					stripActives.push_back(strips[s][k].active);
-				for(auto & a : stripActives)
+				}
+				for(auto & a : stripActives) {
 					model.AddGreaterOrEqual(sheet_used[s], a);
+				}
 				model.AddLessOrEqual(sheet_used[s], LinearExpr::Sum(stripActives));
 			}
         
@@ -464,7 +364,6 @@ bool OrToolsSolver_CuttingStock2D::SolveInternal_(PPOptiModule::CuttingStock2D::
 							model.AddGreaterOrEqual(strips[s][k].height, pos.actualH).OnlyEnforceIf(pos.assigned);
 						}
 					}
-                
 					// Суммарная ширина (для компактности)
 					{
 						LinearExpr sumW;
@@ -539,7 +438,8 @@ bool OrToolsSolver_CuttingStock2D::SolveInternal_(PPOptiModule::CuttingStock2D::
 		//
 		for(int s = 1; s < sheet_count; s++) {
 			if(SheetInst[s].RefIdx == SheetInst[s-1].RefIdx) {
-				model.AddLessOrEqual(sheet_used[s], sheet_used[s-1]);
+				// Запрещено использовать Лист №2, если еще не использован Лист №1". Это отсекает миллиарды дублирующих вариантов в дереве поиска
+				model.AddLessOrEqual(sheet_used[s], sheet_used[s-1]); 
 			}
 		}
 		//
@@ -564,8 +464,8 @@ bool OrToolsSolver_CuttingStock2D::SolveInternal_(PPOptiModule::CuttingStock2D::
 				{
 					LinearExpr costExpr;
 					for(int s = 0; s < sheet_count; s++) {
-						int costInt = static_cast<int>(SheetInst[s].Cost * 1000);
-						costExpr += LinearExpr(sheet_used[s]) * costInt;
+						const  int cost_int = static_cast<int>(SheetInst[s].Cost * 1000);
+						costExpr += LinearExpr(sheet_used[s]) * cost_int;
 					}
 					objective = costExpr * PRIMARY_WEIGHT;
 				}
@@ -575,7 +475,7 @@ bool OrToolsSolver_CuttingStock2D::SolveInternal_(PPOptiModule::CuttingStock2D::
 				{
 					LinearExpr areaExpr;
 					for(int s = 0; s < sheet_count; s++) {
-						int area = SheetInst[s].Size.x * SheetInst[s].Size.y;
+						const  int area = SheetInst[s].Size.GetArea();
 						areaExpr += LinearExpr(sheet_used[s]) * area;
 					}
 					objective = areaExpr * PRIMARY_WEIGHT;
@@ -818,16 +718,19 @@ bool OrToolsSolver_CuttingStock2D::SolveFreePlacementInternal(PPOptiModule::Cutt
 		for(int s = 0; s < sheet_count; s++) {
 			if(!pvars[s].empty()) {
 				NoOverlap2DConstraint no2d = model.AddNoOverlap2D();
-				for(auto & pv : pvars[s])
+				for(auto & pv : pvars[s]) {
 					no2d.AddRectangle(pv.XIval, pv.YIval);
+				}
 				// Связь: sheet_used[s] = OR(assigned для всех деталей на s)
 				std::vector<BoolVar> on_sheet;
 				on_sheet.reserve(pvars[s].size());
-				for(auto & pv : pvars[s])
+				for(auto & pv : pvars[s]) {
 					on_sheet.push_back(pv.Assigned);
+				}
 				// sheet_used >= each
-				for(auto & b : on_sheet)
+				for(auto & b : on_sheet) {
 					model.AddGreaterOrEqual(sheet_used[s], b);
+				}
 				// sheet_used <= sum
 				model.AddLessOrEqual(sheet_used[s], LinearExpr::Sum(on_sheet));
 			}
@@ -1416,6 +1319,99 @@ public:
 		}
 	}
 };
+//
+//
+//
+/*static*/bool OrToolsSolver_CuttingStock2D::GuillotineCheck(const std::vector<SRect2I> & pieces, const SRect2I & area, int level, int maxLevels)
+{
+	if(pieces.size() <= 1)
+		return true;
+	if(maxLevels > 0 && level >= maxLevels)
+		return false;
+	// Вертикальные разрезы: кандидаты — правые границы деталей
+	{
+		std::set <int> cands;
+		for(auto & p : pieces) {
+			if(p.RL.x > area.LU.x && p.RL.x < area.RL.x)
+				cands.insert(p.RL.x);
+		}
+		for(int xc : cands) {
+			bool crosses = false;
+			for(auto& p : pieces) {
+				if(p.LU.x < xc && p.RL.x > xc) { 
+					crosses = true; 
+					break; 
+				}
+			}
+			if(crosses)
+				continue;
+			std::vector <SRect2I> left, right;
+			for(auto & p : pieces) {
+				if(p.RL.x <= xc)      
+					left.push_back(p);
+				else if(p.LU.x >= xc) 
+					right.push_back(p);
+			}
+			if(!left.empty() && !right.empty()) {
+				SRect2I la(area.LU.x, area.LU.y, xc, area.RL.y);
+				SRect2I ra(xc, area.LU.y, area.RL.x, area.RL.y);
+				if(GuillotineCheck(left, la, level+1, maxLevels) && GuillotineCheck(right, ra, level+1, maxLevels)) { // @recursion
+					return true;
+				}
+			}
+		}
+	}
+	// Горизонтальные разрезы: кандидаты — верхние границы деталей
+	{
+		std::set<int> cands;
+		for(auto & p : pieces) {
+			if(p.RL.y > area.LU.y && p.RL.y < area.RL.y)
+				cands.insert(p.RL.y);
+		}
+		for(int yc : cands) {
+			bool crosses = false;
+			for(auto& p : pieces) {
+				if(p.LU.y < yc && p.RL.y > yc) { 
+					crosses = true; 
+					break; 
+				}
+			}
+			if(crosses)
+				continue;
+			std::vector <SRect2I> bottom, top;
+			for(auto& p : pieces) {
+				if(p.RL.y <= yc)      
+					bottom.push_back(p);
+				else if(p.LU.y >= yc) 
+					top.push_back(p);
+			}
+			if(!bottom.empty() && !top.empty()) {
+				SRect2I ba(area.LU.x, area.LU.y, area.RL.x, yc);
+				SRect2I ta(area.LU.x, yc, area.RL.x, area.RL.y);
+				if(GuillotineCheck(bottom, ba, level+1, maxLevels) && GuillotineCheck(top, ta, level+1, maxLevels)) { // @recursion
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+/*static*/bool OrToolsSolver_CuttingStock2D::IsGuillotineLayout(const TSVector <PPOptiModule::CuttingStock2D::Placement> & rPlacements, int sheetW, int sheetH, int maxLevels)
+{
+	bool   ok = true;
+	if(rPlacements.getCount() > 1) {
+		std::vector <SRect2I> rects;
+		rects.reserve(rPlacements.getCount());
+		for(uint i = 0; i < rPlacements.getCount(); i++) {
+			const PPOptiModule::CuttingStock2D::Placement & pl = rPlacements.at(i);
+			rects.push_back(SRect2I(pl.Pt.x, pl.Pt.y, pl.Pt.x + pl.Sz.x, pl.Pt.y + pl.Sz.y));
+		}
+		SRect2I area(0, 0, sheetW, sheetH);
+		ok = GuillotineCheck(rects, area, 0, maxLevels);
+	}
+	return ok;
+}
 //
 //
 //

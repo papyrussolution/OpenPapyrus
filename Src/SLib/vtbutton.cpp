@@ -74,7 +74,7 @@ private:
 	DECL_HANDLE_EVENT;
 	void   InLnCalcCapture();
 	void   InLnCalcUncapture();
-	int    IsWindowArea(const RECT &, int x, int y);
+	int    IsWindowArea(const RECT & rR, const SPoint2I & rPt);
 	void   ShowNumber();
 	int    Calculate();
 	void   ProcessCommand(uint cmd);
@@ -184,9 +184,9 @@ void InputLineCalc::InLnCalcUncapture()
 		ReleaseCapture();
 }
 
-int InputLineCalc::IsWindowArea(const RECT & r, int x, int y)
+int InputLineCalc::IsWindowArea(const RECT & rR, const SPoint2I & rPt)
 {
-	return (x >= r.left && x < r.right && y >= r.top && y < r.bottom);
+	return (rPt.x >= rR.left && rPt.x < rR.right && rPt.y >= rR.top && rPt.y < rR.bottom);
 }
 
 void InputLineCalc::ShowNumber()
@@ -302,7 +302,8 @@ void InputLineCalc::ProcessCommand(uint cmd)
 				//CharNumber[0] = '0';
 				//CharNumber[1] = 0;
 				//IsNumber_obsolete = 1;
-				NumberText.CatChar('0');
+				// @v12.8.5 NumberText.CatChar('0');
+				NumberText.Z(); // @v12.8.5 
 				IsDot = 0;
 				P_Il->setText(/*CharNumber*/NumberText);
 			}
@@ -355,22 +356,22 @@ IMPL_HANDLE_EVENT(InputLineCalc)
 			break;
 		case TEvent::evMouseDown:
 			if(event.mouse.buttons == MK_LBUTTON) {
-				int    x = event.mouse.WhereX + DlgRect.left + 3;
-				int    y = event.mouse.WhereY + DlgRect.top + 3;
-				if(IsWindowArea(DlgRect, x, y)) {
-					TView * v;
-					if((v = P_Last) != 0)
+				SPoint2I _pt(event.mouse.WhereX + DlgRect.left + 3, event.mouse.WhereY + DlgRect.top + 3);
+				if(IsWindowArea(DlgRect, _pt)) {
+					TView * v = P_Last;
+					if(v != 0) {
 						do {
-							HWND hItemWnd = GetDlgItem(H(), v->GetId());
-							if(GetWindowRect(hItemWnd, &ItemRect) && IsWindowArea(ItemRect, x, y)) {
-								x -= ItemRect.left;
-								y -= ItemRect.top;
+							HWND   h_item_wnd = GetDlgItem(H(), v->GetId());
+							if(::GetWindowRect(h_item_wnd, &ItemRect) && IsWindowArea(ItemRect, _pt)) {
+								_pt.x -= ItemRect.left;
+								_pt.y -= ItemRect.top;
 								InLnCalcUncapture();
-								PostMessage(hItemWnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(x, y));
+								::PostMessageW(h_item_wnd, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(_pt.x, _pt.y));
 								break;
 							}
 							v = v->prev();
 						} while(v != P_Last);
+					}
 				}
 				else {
 					if(P_Il && P_ParentDlg)

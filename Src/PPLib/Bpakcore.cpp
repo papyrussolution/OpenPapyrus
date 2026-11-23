@@ -6132,10 +6132,12 @@ int PPBillPacket::EnumTItemsExt(TiIter * pI, PPTransferItem * pTI, TiItemExt * p
 				if(rf > 0) {
 					ti.RByBill = (temp_idx < SALDOLIST_POS_BIAS) ? _idx : 0;
 					if(rf != 2) {
-						if(p_i->Flags & ETIEF_UNITEBYGOODS)
+						if(p_i->Flags & ETIEF_UNITEBYGOODS) {
 							MergeTI(&ti, _idx, p_i->Flags, p_i->Seen, (pExt ? &pExt->MergePosList : 0));
-						else if(pExt)
+						}
+						else if(pExt) {
 							pExt->MergePosList.add(_idx);
+						}
 					}
 					if(ProcessFlags & pfPrintPLabel) {
 						if(p_i->Flags & ETIEF_LABELQUOTPRICE) {

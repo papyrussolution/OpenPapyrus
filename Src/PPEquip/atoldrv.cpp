@@ -1835,10 +1835,10 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 												marking_type = 0x444D; break; // @v12.0.6
 											case GTCHZNPT_MEDICINE: marking_type = LIBFPTR_NT_MEDICINES; break;
 											case GTCHZNPT_CARTIRE: marking_type = 0x444D; break;
-											case GTCHZNPT_TEXTILE: marking_type = 0x444D; break; // @v11.0.0
-											case GTCHZNPT_PERFUMERY: marking_type = 0x444D; break; // @v11.3.12 Парфюмерия
-											case GTCHZNPT_MILK: marking_type = 0x444D; break; // @v11.3.12 Молоко
-											case GTCHZNPT_WATER: marking_type = 0x444D; break; // @v11.3.12 Вода
+											case GTCHZNPT_TEXTILE: marking_type = 0x444D; break;
+											case GTCHZNPT_PERFUMERY: marking_type = 0x444D; break; // Парфюмерия
+											case GTCHZNPT_MILK: marking_type = 0x444D; break; // Молоко
+											case GTCHZNPT_WATER: marking_type = 0x444D; break; // Вода
 											case GTCHZNPT_BEER: marking_type = 0x444D; break; // @v12.0.3 Пиво
 											case GTCHZNPT_ANTISEPTIC: marking_type = 0x444D; break; // @v12.0.5
 											case GTCHZNPT_MEDICALDEVICES: marking_type = 0x444D; break; // @v12.1.2
@@ -1852,6 +1852,9 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 											case GTCHZNPT_GROCERY:    marking_type = 0x444D; break; // @v12.7.0
 											case GTCHZNPT_CANNEDFOOD: marking_type = 0x444D; break; // @v12.7.0
 											case GTCHZNPT_TOYS:       marking_type = 0x444D; break; // @v12.7.0
+											case GTCHZNPT_EDEVICES:   marking_type = 0x444D; break; // @v12.8.5 Электронные устройства
+											case GTCHZNPT_EDEVICES_NBSPH: marking_type = 0x444D; break; // @v12.8.5 Электронные устройства (ноутбуки и смартфоны) 
+											case GTCHZNPT_EDEVICES_NICO:  marking_type = 0x444D; break; // @v12.8.5 Электронные устройства доставки никотина
 										}
 										if(marking_type >= 0) {
 											P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_NOMENCLATURE_TYPE, marking_type);

@@ -115,7 +115,7 @@ public:
 			char   GoodsCode[32];
 			char   Barcode[32];
 			char   Serial[32];
-			char   Mark[256]; // @v11.3.8 Марка ЕГАИС или честный знак
+			char   Mark[256]; // Марка ЕГАИС или честный знак
 			double Price;
 			double PriceWithDiscount;
 			double Qtty;
@@ -821,6 +821,9 @@ int ACS_CRCSHSRV::Helper_ExportGoods_V10(const int mode, bool goodsIdAsArticle, 
 										case GTCHZNPT_GROCERY:    p_mark_type = "GROCERIES"; break; // @v12.7.0
 										case GTCHZNPT_CANNEDFOOD: p_mark_type = "CANNED_FOOD"; break; // @v12.7.0
 										case GTCHZNPT_TOYS:       p_mark_type = "CHILDREN"; break; // @v12.7.0 
+										case GTCHZNPT_EDEVICES:   p_mark_type = "RADIOELECTRONICS"; break; // @v12.8.5 Электронные устройства
+										case GTCHZNPT_EDEVICES_NBSPH: p_mark_type = "RADIOELECTRONICS"; break; // @? @v12.8.5 Электронные устройства (ноутбуки и смартфоны) 
+										case GTCHZNPT_EDEVICES_NICO:  p_mark_type = "RADIOELECTRONICS"; break; // @? @v12.8.5 Электронные устройства доставки никотина
 									}
 									if(p_mark_type)
 										p_writer->PutElement("mark-type", p_mark_type);

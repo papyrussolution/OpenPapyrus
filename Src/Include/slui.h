@@ -2236,7 +2236,7 @@ public:
 	void   LineHorz(int xFrom, int xTo, int y);
 	void   Rect(const TRect & rRect, int penIdent, int brushIdent);
 	void   Rect(const FRect & rRect, int penIdent, int brushIdent);
-	void   RoundRect(const FRect &, float radius, int penIdent, int brushIdent);
+	void   RoundRect(const FRect & rRect, float radius, int penIdent, int brushIdent);
 	void   RoundRect(const TRect & rRect, int radius, int penIdent, int brushIdent); // @v12.5.4
 	int    PatBlt(const TRect & rR, int brushId, int opr);
 	//
@@ -2249,8 +2249,8 @@ public:
 	SPoint2S GetTextSize(const char * pStr);
 		// @>>BOOL GetTextExtentPoint32(HDC hdc, LPCTSTR lpString, int cbString, LPSIZE lpSize);
 	int    TextOut(SPoint2S p, const char * pText);
-	int    _DrawText(const TRect & rRect, const char * pText, uint options);
-	int    _DrawTextUtf8(const TRect & rRect, const char * pText, uint options);
+	int    _DrawText(const FRect & rRect, const char * pText, uint options);
+	int    _DrawTextUtf8(const FRect & rRect, const char * pText, uint options);
 	int    DrawTextLayout(STextLayout * pTlo);
 	int    FASTCALL Draw(const SImageBuffer * pImg);
 	int    FASTCALL Draw(const SDrawFigure * pDraw);
@@ -2767,7 +2767,7 @@ class TFloatButton { // @v12.8.3 @construction
 		tmrHide  = 2,
 	};
 public:
-	TFloatButton();
+	explicit TFloatButton(uint iconDvId);
 	~TFloatButton();
 	//
 	// Descr: Обновить позицию (если target переместился)
@@ -2779,6 +2779,7 @@ private:
 	static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 	void   PositionButton(HWND hTarget);
 	HWND   H;
+	uint   IconDvId;
 	uint   ShowTimeoutMs; // Таймаут отображения окна в миллисекундах (0 - не скрывать)
 };
 //

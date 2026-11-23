@@ -144,7 +144,7 @@ static void ExecTestDialog(DlContext * pCtx, uint dlgId) // @v12.8.4
 			if(event.isCmd(cmMouseHoverCtrl)) {
 				if(event.isCtlEvent(CTL_TEST_COMBO01)) {
 					if(!P_Fb) {
-						P_Fb = new TFloatButton();
+						P_Fb = new TFloatButton(/*PPDV_MENU*/PPDV_ADDFILE02);
 						if(P_Fb) {
 							TView * p_v = getCtrlView(CTL_TEST_COMBO01);
 							if(p_v) {

@@ -1053,6 +1053,9 @@ int SCS_SHTRIHFRF::PrintCheck(CCheckPacket * pPack, uint flags)
 									case GTCHZNPT_GROCERY:    marking_type = 0x444D; break; // @v12.7.0
 									case GTCHZNPT_CANNEDFOOD: marking_type = 0x444D; break; // @v12.7.0
 									case GTCHZNPT_TOYS:       marking_type = 0x444D; break; // @v12.7.0
+									case GTCHZNPT_EDEVICES:   marking_type = 0x444D; break; // @v12.8.5 Электронные устройства
+									case GTCHZNPT_EDEVICES_NBSPH: marking_type = 0x444D; break; // @v12.8.5 Электронные устройства (ноутбуки и смартфоны) 
+									case GTCHZNPT_EDEVICES_NICO:  marking_type = 0x444D; break; // @v12.8.5 Электронные устройства доставки никотина
 								}
 								if(marking_type) {
 									/* @v12.0.4

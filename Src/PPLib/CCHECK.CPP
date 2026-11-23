@@ -5363,7 +5363,7 @@ int CSessDfctList::Add(const CSessDfctItem * pItem, int unite)
 }
 
 
-CSessDfctGoodsItem::CSessDfctGoodsItem() : GoodsID(0), Qtty(0.0), Sum(0.0)
+CSessDfctGoodsItem::CSessDfctGoodsItem() : PPBTE_Q(), Sum(0.0)
 {
 }
 

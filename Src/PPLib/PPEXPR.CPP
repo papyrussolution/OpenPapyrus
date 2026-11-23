@@ -541,8 +541,6 @@ int PPExprParser::GetSieve()
 {
 	int    ok = 1;
 	SString temp_buf, sub;
-	//Sieve.Z();
-	//SieveVal.freeAll();
 	Fb.ClearSieve();
 	while(oneof2(Cur, ' ', '\t'))
 		Next();
@@ -711,16 +709,32 @@ int PPExprParser::GetToken()
 				Token = tokFunc;
 		}
 		else if(isdec(Cur) || Cur == '.') {
-			int    dot = 0;
-			do {
-				if(Cur == '.')
-					dot = 1;
-				*p++ = Cur;
-				Next();
-			} while(isdec(Cur) || ((Cur == '.') && !dot));
-			*p = 0;
-			Number = satof(buf);
-			Token  = tokNumber;
+			// @v12.8.5 {
+			if(true) {
+				double value = 0.0;
+				const  char * p_end = 0;
+				int    erange = 0;
+				const  int r = SIEEE754::Scan(P_S+Pos-1, &p_end, &value, &erange);
+				if(r) {
+					Number = value;
+					Token  = tokNumber;
+					Pos = (p_end - P_S);
+					Next();
+				}
+			}
+			else // } @v12.8.5 
+			{
+				int    dot = 0;
+				do {
+					if(Cur == '.')
+						dot = 1;
+					*p++ = Cur;
+					Next();
+				} while(isdec(Cur) || ((Cur == '.') && !dot));
+				*p = 0;
+				Number = satof(buf);
+				Token  = tokNumber;
+			}
 		}
 		else if(Cur == '<') {
 			if(Next() == '=') {
@@ -1012,7 +1026,7 @@ int FASTCALL PPExprParser::GetTerm(double * pResult)
 {
 	int    ok = 1;
 	THROW(GetFactor(pResult));
-	while(Token == '*' || Token == '/' || Token == '%') {
+	while(oneof3(Token, '*', '/', '%')) {
 		double mult = 0.0;
 		int    op   = Token;
 		THROW(GetFactor(&mult));

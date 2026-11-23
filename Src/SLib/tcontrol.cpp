@@ -3001,7 +3001,7 @@ int TToolTip::RemoveAllTools()
 //
 // @v12.8.3 @construction {
 //
-TFloatButton::TFloatButton() : H(0), ShowTimeoutMs(0)
+TFloatButton::TFloatButton(uint iconDvId) : H(0), IconDvId(iconDvId), ShowTimeoutMs(0)
 {
 }
 	
@@ -3064,6 +3064,29 @@ TFloatButton::~TFloatButton()
 						canv.Ellipse(fr);
 						canv.Fill(TProgram::tbiFloatButtonBrush, 0);
 						//canv._DrawTextUtf8(fr, "+", DT_LEFT|DT_VCENTER|DT_SINGLELINE);
+						{
+							if(p_this->IconDvId) {
+								TWhatmanToolArray::Item tool_item;
+								const SDrawFigure * p_fig = APPL->LoadDrawFigureById(p_this->IconDvId, &tool_item);
+								if(p_fig) {
+									if(!tool_item.ReplacedColor.IsEmpty()) {
+										SColor replacement_color(p_tb->GetColor(TProgram::tbiFloatButtonPen));
+										canv.SetColorReplacement(tool_item.ReplacedColor, replacement_color);
+									}
+									FRect fr_icon(fr);
+									fr_icon.Grow(-fr_icon.Width()/4.0f, -fr_icon.Height()/4.0f);
+									//fr_icon.Move__(static_cast<float>(rc_item.left), static_cast<float>(rc_item.top));
+									LMatrix2D mtx;
+									SViewPort vp;
+									canv.PushTransform();
+									p_fig->GetViewPort(&vp);
+									canv.AddTransform(vp.GetMatrix(fr_icon, mtx));
+									canv.Draw(p_fig);
+									canv.PopTransform();
+									canv.ResetColorReplacement();
+								}
+							}
+						}
 					}
 				}
 				else {

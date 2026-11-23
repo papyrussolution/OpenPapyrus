@@ -562,6 +562,9 @@ int ACS_SETSTART::ExportData(int updOnly)
 									case GTCHZNPT_GROCERY:    _mark_type = 33/*@?*/; break; // @v12.7.0
 									case GTCHZNPT_CANNEDFOOD: _mark_type = 32/*@?*/; break; // @v12.7.0
 									case GTCHZNPT_TOYS:       _mark_type = 36/*@?*/; break; // @v12.7.0
+									case GTCHZNPT_EDEVICES:   _mark_type = 43; break;     // (подобно frontol) @v12.8.5 Электронные устройства
+									case GTCHZNPT_EDEVICES_NBSPH: _mark_type = 44; break; // (подобно frontol) @v12.8.5 Электронные устройства (ноутбуки и смартфоны) 
+									case GTCHZNPT_EDEVICES_NICO:  _mark_type = 43; break; // (подобно frontol) @? @v12.8.5 Электронные устройства доставки никотина
 									default:
 										if(!_mark_type && gds_info.ChZnProdType) // (!_mark_type): значение может быть выставлено выше в блоке if(goods_iter.GetAlcoGoodsExtension(gds_info.ID, 0, agi) > 0) {}
 											_mark_type = 7; // 7–иная маркированная продукция

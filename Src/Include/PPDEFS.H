@@ -5355,6 +5355,11 @@
 	#define CTL_OBJTRANSM_TRNSMFLAGS     (7 + WINDOWS_ID_BIAS)
 	#define CTL_OBJTRANSM_FILT           (8 + WINDOWS_ID_BIAS)
 	#define CTL_OBJTRANSM_INMASS         (9 + WINDOWS_ID_BIAS)
+	#define CTL_OBJTRANSM_CMD_ADDOBJ     (10 + WINDOWS_ID_BIAS)
+	#define CTL_OBJTRANSM_CMD_DELOBJ     (11 + WINDOWS_ID_BIAS) 
+	#define CTLCAL_OBJTRANSM_DT          (12 + WINDOWS_ID_BIAS)
+	#define CTLTM_OBJTRANSM_TM           (13 + WINDOWS_ID_BIAS)
+
 #define DLG_OPCNTR                435 // Счетчик операций
 #define DLG_OPKCOUNTER            436 // Выбор счетчика в виде операций
 	#define cmDiffByLoc                  101

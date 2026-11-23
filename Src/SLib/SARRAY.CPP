@@ -1477,11 +1477,18 @@ bool FASTCALL LAssocArray::operator == (const LAssocArray & s) const
 	if(count != s.count)
 		return false;
 	else {
-		for(uint i = 0; i < count; i++)
+		for(uint i = 0; i < count; i++) {
 			if(!(at(i) == s.at(i)))
 				return false;
+		}
 		return true;
 	}
+}
+
+LAssocArray & LAssocArray::Z()
+{
+	clear();
+	return *this;
 }
 
 bool LAssocArray::CheckUnique(long key, int binary) const

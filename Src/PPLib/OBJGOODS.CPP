@@ -4611,7 +4611,7 @@ int PPObjGoods::GetAltGenGoodsList(PPID goodsID, int kind, RAssocArray * pList)
 		PPIDArray goods_list;
 		GetGenericList(gen_id, &goods_list);
 		for(uint i = 0; i < goods_list.getCount(); i++) {
-			PPID   id = goods_list.at(i);
+			const  PPID id = goods_list.at(i);
 			double ratio = 0.0;
 			if(id != goodsID && IsGoodsCompatibleByUnit(id, goodsID, &ratio) > 0) {
 				if(pList && !pList->Search(id, 0, 0, 0))

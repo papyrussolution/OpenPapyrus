@@ -675,6 +675,9 @@ int ACS_FRONTOL::ExportData(int updOnly)
 									case GTCHZNPT_GROCERY:    mark_type = 33/*@?*/; break; // @v12.7.0
 									case GTCHZNPT_CANNEDFOOD: mark_type = 32/*@?*/; break; // @v12.7.0
 									case GTCHZNPT_TOYS:       mark_type = 36/*@?*/; break; // @v12.7.0
+									case GTCHZNPT_EDEVICES:   mark_type = 43; break; // @v12.8.5 Электронные устройства
+									case GTCHZNPT_EDEVICES_NBSPH: mark_type = 44; break; // @v12.8.5 Электронные устройства (ноутбуки и смартфоны) 
+									case GTCHZNPT_EDEVICES_NICO:  mark_type = 43; break; // @? @v12.8.5 Электронные устройства доставки никотина
 									default:
 										if(gds_info.ChZnProdType)
 											mark_type = 7; // 7–иная маркированная продукция

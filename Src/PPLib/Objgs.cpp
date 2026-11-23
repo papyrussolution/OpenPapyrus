@@ -3441,7 +3441,7 @@ int FASTCALL SaGiftItem::Copy(const SaGiftItem * pS)
 	return ok;
 }
 
-int SaGiftItem::IsSaleListSuitable(const TSVector <SaSaleItem> & rSaleList, RAssocArray * pCheckList, LongArray * pMainPosList, double * pQtty) const
+int SaGiftItem::IsSaleListSuitable(const TSVector <PPBTE_QP> & rSaleList, RAssocArray * pCheckList, LongArray * pMainPosList, double * pQtty) const
 {
 	int    ok = 1;
 	LongArray main_pos_list;
@@ -3465,7 +3465,7 @@ int SaGiftItem::IsSaleListSuitable(const TSVector <SaSaleItem> & rSaleList, RAss
 				//
 				int    max_iq_idx = -1;
 				for(uint j = 0; j < rSaleList.getCount(); j++) {
-					const SaSaleItem & r_sa_item = rSaleList.at(j);
+					const PPBTE_QP & r_sa_item = rSaleList.at(j);
 					if(r_sa_item.Qtty > total_iq && !check_list.Has(r_sa_item.GoodsID) && p_entry->GoodsList.lsearch(r_sa_item.GoodsID)) {
 						total_iq = r_sa_item.Qtty;
 						total_amt = (r_sa_item.Qtty * r_sa_item.Price);
@@ -3489,7 +3489,7 @@ int SaGiftItem::IsSaleListSuitable(const TSVector <SaSaleItem> & rSaleList, RAss
 					double iq = 0.0;
 					const  PPID sale_goods_id = p_entry->GoodsList.get(j);
 					if(!check_list.Search(sale_goods_id, 0, 0) && rSaleList.lsearch(&sale_goods_id, &p, CMPF_LONG)) {
-						const SaSaleItem & r_sa_item = rSaleList.at(p);
+						const PPBTE_QP & r_sa_item = rSaleList.at(p);
 						total_iq += r_sa_item.Qtty;
 						total_amt += (r_sa_item.Qtty * r_sa_item.Price);
 						goods_list.Add(sale_goods_id, p_entry->MinQtty);
@@ -3533,7 +3533,7 @@ int SaGiftItem::IsSaleListSuitable(const TSVector <SaSaleItem> & rSaleList, RAss
 	return ok;
 }
 
-int SaGiftItem::CalcPotential(const TSVector <SaSaleItem> & rSaleList, PPID * pPotGoodsID, double * pPotAmount, double * pPotDeficit, SString & rPotName) const
+int SaGiftItem::CalcPotential(const TSVector <PPBTE_QP> & rSaleList, PPID * pPotGoodsID, double * pPotAmount, double * pPotDeficit, SString & rPotName) const
 {
 	int    ok = -1;
 	if(Flags & fCalcPotential) {
@@ -3557,7 +3557,7 @@ int SaGiftItem::CalcPotential(const TSVector <SaSaleItem> & rSaleList, PPID * pP
 					double iq = 0.0;
 					const  PPID sale_goods_id = p_entry->GoodsList.get(j);
 					if(!check_list.lsearch(sale_goods_id) && rSaleList.lsearch(&sale_goods_id, &p, CMPF_LONG)) {
-						const SaSaleItem & r_sa_item = rSaleList.at(p);
+						const PPBTE_QP & r_sa_item = rSaleList.at(p);
 						total_iq += r_sa_item.Qtty;
 						total_amt += (r_sa_item.Qtty * r_sa_item.Price);
 						goods_list.addUnique(sale_goods_id);
@@ -3695,7 +3695,7 @@ int SaGiftArray::CreateIndex()
 	return ok;
 }
 
-int SaGiftArray::SelectGift(const TSVector <SaSaleItem> & rSaleList, const RAssocArray & rExGiftList, int overlap, SaGiftArray::Gift & rGift) const
+int SaGiftArray::SelectGift(const TSVector <PPBTE_QP> & rSaleList, const RAssocArray & rExGiftList, int overlap, SaGiftArray::Gift & rGift) const
 {
 	rGift.Z();
 	int    ok = -1;
@@ -4089,38 +4089,124 @@ int PPObjGoodsStruc::LoadAutoDecomplList(TSVector <SaAutoDecomplItem> & rList) /
 	return ok;
 }
 
-int PPObjGoodsStruc::FindComplPath(PPID resultGoodsID, PPID rawGoodsID, LAssocArray * pPath) // @v12.8.5 @construction
+struct FindComplPathBlock {
+	FindComplPathBlock() : Flags(0), ParentGoodsID(0)
+	{
+	}
+	enum {
+		fDetectAnyPathAndReturn = 0x0001 // Если флаг установлен, то ищется лишь первый возможный путь (дабы не тратить время зря)
+	};
+	uint   Flags;
+	PPID   ParentGoodsID; // @reserve
+	PPObjGoods GObj;
+	PPIDArray RawIdList;
+	TSCollection <PPObjGoodsStruc::ComplPath> ResultPathList; // result
+};
+
+PPObjGoodsStruc::ComplPathEntry::ComplPathEntry() : PPBTE_Q(), GsID(0)
 {
-	PPID   parent_goods_id = 0;
-	CALLPTRMEMB(pPath, clear());
+}
+
+PPObjGoodsStruc::ComplPath::ComplPath() : TSVector <ComplPathEntry>()
+{
+}
+		
+int PPObjGoodsStruc::ComplPath::Add(PPID gsID, PPID goodsID, double qtty)
+{
+	ComplPathEntry new_entry;
+	new_entry.GsID = gsID;
+	new_entry.GoodsID = goodsID;
+	new_entry.Qtty = qtty;
+	return insert(&new_entry) ? 1 : PPSetErrorSLib();
+}
+		
+int PPObjGoodsStruc::ComplPath::Add(const ComplPath & rS)
+{
+	return insertChunk(rS.getCount(), rS.dataPtr()) ? 1 : PPSetErrorSLib();
+}
+
+int PPObjGoodsStruc::Helper_FindComplPath(void * pBlk, PPID resultGoodsID, ComplPath & rPath) // @v12.8.5
+{
 	int    ok = -1;
-	PPObjGoods goods_obj;
-	TSCollection <PPGoodsStruc> gs_list;
-	PPGoodsStruc::Ident gsi(resultGoodsID, GSF_COMPL, GSF_PARTITIAL|GSF_SUBST);
-	goods_obj.LoadGoodsStruc(gsi, gs_list);
-	for(uint gsi = 0; ok < 0 && gsi < gs_list.getCount(); gsi++) {
-		const  PPGoodsStruc * p_gs = gs_list.at(gsi);
-		if(p_gs) {
-			for(uint i = 0; ok < 0 && i < p_gs->Items.getCount(); i++) {
-				PPGoodsStrucItem gs_item;
-				double qtty = 0.0;
-				if(p_gs->GetItemExt(i, &gs_item, parent_goods_id, 1.0, &qtty) > 0) {
-					if(gs_item.GoodsID == rawGoodsID) {
-						if(pPath) {
-							pPath->Add(gs_item.GoodsID, p_gs->Rec.ID);
-						}
-						ok = 1;
-					}
-					else {
-						LAssocArray sub_path;
-						if(FindComplPath(gs_item.GoodsID, rawGoodsID, &sub_path) > 0) { // @recursion
-							if(pPath) {
-								pPath->Add(gs_item.GoodsID, p_gs->Rec.ID);
-								pPath->Add(sub_path);
+	if(pBlk) {
+		FindComplPathBlock & r_blk = *static_cast<FindComplPathBlock *>(pBlk);
+		if(resultGoodsID && r_blk.RawIdList.getCount()) {
+			TSCollection <PPGoodsStruc> gs_list;
+			PPGoodsStruc::Ident gsi(resultGoodsID, GSF_COMPL, GSF_PARTITIAL|GSF_SUBST);
+			r_blk.GObj.LoadGoodsStruc(gsi, gs_list);
+			if(gs_list.getCount()) {
+				ComplPath sub_path_local;
+				for(uint gsi = 0; gsi < gs_list.getCount(); gsi++) {
+					const  PPGoodsStruc * p_gs = gs_list.at(gsi);
+					if(p_gs) {
+						for(uint i = 0; i < p_gs->Items.getCount(); i++) {
+							PPGoodsStrucItem gs_item;
+							double qtty = 0.0;
+							if(p_gs->GetItemExt(i, &gs_item, r_blk.ParentGoodsID, 1.0, &qtty) > 0) {
+								sub_path_local.clear();
+								sub_path_local.Add(rPath);
+								sub_path_local.Add(p_gs->Rec.ID, gs_item.GoodsID, qtty);
+								bool   local_success = false;
+								if(r_blk.RawIdList.bsearch(gs_item.GoodsID)) {
+									{
+										// Достигнув терминальной точки, включаем найденный путь в список возможных путей
+										ComplPath * p_new_path = new ComplPath(sub_path_local);
+										r_blk.ResultPathList.insert(p_new_path);
+									}
+									local_success = true;
+								}
+								else if(Helper_FindComplPath(&r_blk, gs_item.GoodsID, sub_path_local) > 0) { // @recursion
+									local_success = true;
+								}
+								if(local_success) {
+									ok = 1;
+									if(r_blk.Flags & FindComplPathBlock::fDetectAnyPathAndReturn) {
+										break;
+									}
+								}
 							}
-							ok = 1;
 						}
 					}
+					if(ok > 0 && r_blk.Flags & FindComplPathBlock::fDetectAnyPathAndReturn) {
+						break;
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
+int PPObjGoodsStruc::FindComplPath(PPID resultGoodsID, PPID rawGoodsID, TSCollection <ComplPath> * pPathList) // @v12.8.5 @construction
+{
+	int    ok = -1;
+	FindComplPathBlock blk;
+	{
+		RAssocArray raw_subst_list;
+		if(blk.GObj.IsGeneric(rawGoodsID)) {
+			blk.GObj.GetGenericList(rawGoodsID, &blk.RawIdList);
+		}
+		else {
+			blk.RawIdList.add(rawGoodsID);
+		}
+		blk.GObj.GetStrucSubstList(rawGoodsID, raw_subst_list);
+		raw_subst_list.GetKeyList(blk.RawIdList, false); // Эта функция добавит (не заместит) идентификаторы в raw_id_list
+		blk.RawIdList.sortAndUndup();
+		blk.ParentGoodsID = 0;
+		if(pPathList == 0) {
+			blk.Flags |= FindComplPathBlock::fDetectAnyPathAndReturn;
+		}
+	}
+	ComplPath _path;
+	_path.Add(0L, resultGoodsID, 1.0);
+	ok = Helper_FindComplPath(&blk, resultGoodsID, _path);
+	if(ok > 0) {
+		if(pPathList) {
+			for(uint i = 0; i < blk.ResultPathList.getCount(); i++) {
+				const  ComplPath * p_src_item = blk.ResultPathList.at(i);
+				if(p_src_item) {
+					ComplPath * p_new_item = new ComplPath(*p_src_item);
+					pPathList->insert(p_new_item);
 				}
 			}
 		}

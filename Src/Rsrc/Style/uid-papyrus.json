@@ -192,7 +192,7 @@
 			"marktoqttyadequacy_mczero": "#AFDAFC",
 			"marktoqttyadequacy_mcgtqtty": "#lightcoral",
 			"floatbutton_bg": "#0EA5E9",
-			"floatbutton_fg": "#020617"
+			"floatbutton_fg": "#white"
 		}
 	],
 	"layout_list": [

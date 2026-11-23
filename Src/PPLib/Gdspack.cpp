@@ -502,18 +502,15 @@ int PPGdsClsPacket::GetPropName(int prop, SString & rBuf) const
 	return ok;
 }
 
-int PPGdsClsPacket::FormatProp(const PPGdsClsProp * pProp, PPID propVal, SString & rBuf) const
+int PPGdsClsPacket::FormatProp(const PPGdsClsProp & rProp, PPID propVal, SString & rBuf) const
 {
 	rBuf.Z();
-	if(propVal && pProp->ItemsListID)
-		if(GetObjectName(pProp->ItemsListID, propVal, rBuf) > 0)
-			return 1;
-	return -1;
+	return (propVal && rProp.ItemsListID && GetObjectName(rProp.ItemsListID, propVal, rBuf) > 0) ? 1 : -1;
 }
 
-void PPGdsClsPacket::FormatDim(const PPGdsClsDim * pDim, long dimVal, SString & rBuf) const
+void PPGdsClsPacket::FormatDim(const PPGdsClsDim & rDim, long dimVal, SString & rBuf) const
 {
-	const int scale = (int)pDim->Scale;
+	const int scale = (int)rDim.Scale;
 	double v = round(((double)dimVal) / fpow10i(scale), scale);
 	rBuf.Z().Cat(v, MKSFMTD(0, scale, NMBF_NOTRAILZ));
 }
@@ -690,35 +687,35 @@ int PPGdsClsPacket::GetNameByTemplate(PPGoodsPacket * pPack, const char * pTempl
 						break;
 					case PPSYM_GC_KIND:
 						if(Rec.Flags & PPGdsCls::fUsePropKind)
-							FormatProp(&PropKind, pPack->ExtRec.KindID, temp_buf);
+							FormatProp(PropKind, pPack->ExtRec.KindID, temp_buf);
 						break;
 					case PPSYM_GC_GRADE:
 						if(Rec.Flags & PPGdsCls::fUsePropGrade)
-							FormatProp(&PropGrade, pPack->ExtRec.GradeID, temp_buf);
+							FormatProp(PropGrade, pPack->ExtRec.GradeID, temp_buf);
 						break;
 					case PPSYM_GC_ADDPROP:
 						if(Rec.Flags & PPGdsCls::fUsePropAdd)
-							FormatProp(&PropAdd, pPack->ExtRec.AddObjID, temp_buf);
+							FormatProp(PropAdd, pPack->ExtRec.AddObjID, temp_buf);
 						break;
 					case PPSYM_GC_ADD2PROP:
 						if(Rec.Flags & PPGdsCls::fUsePropAdd2)
-							FormatProp(&PropAdd2, pPack->ExtRec.AddObj2ID, temp_buf);
+							FormatProp(PropAdd2, pPack->ExtRec.AddObj2ID, temp_buf);
 						break;
 					case PPSYM_GC_DIMX:
 						if(Rec.Flags & PPGdsCls::fUseDimX)
-							FormatDim(&DimX, pPack->ExtRec.X, temp_buf);
+							FormatDim(DimX, pPack->ExtRec.X, temp_buf);
 						break;
 					case PPSYM_GC_DIMY:
 						if(Rec.Flags & PPGdsCls::fUseDimY)
-							FormatDim(&DimY, pPack->ExtRec.Y, temp_buf);
+							FormatDim(DimY, pPack->ExtRec.Y, temp_buf);
 						break;
 					case PPSYM_GC_DIMZ:
 						if(Rec.Flags & PPGdsCls::fUseDimZ)
-							FormatDim(&DimZ, pPack->ExtRec.Z, temp_buf);
+							FormatDim(DimZ, pPack->ExtRec.Z, temp_buf);
 						break;
 					case PPSYM_GC_DIMW:
 						if(Rec.Flags & PPGdsCls::fUseDimW)
-							FormatDim(&DimW, pPack->ExtRec.W, temp_buf);
+							FormatDim(DimW, pPack->ExtRec.W, temp_buf);
 						break;
 					case PPSYM_BRAND:
 						if(pPack->Rec.BrandID)

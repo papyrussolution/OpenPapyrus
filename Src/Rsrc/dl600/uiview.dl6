@@ -10357,46 +10357,55 @@ dialog DLG_BBTSEL [vertical title: "@selbbt" size: (480, 290) minsize: (480, 290
 	}
 }
 
-dialog DLG_MODTRANSM_ [vertical title: "@objtransmmod" size: (510, 430) minsize: (510, 430) padding: 8 justifycontent: spacebetween] { // @v12.8.5
+dialog DLG_MODTRANSM [vertical title: "@objtransmmod" size: (510, 430) minsize: (510, 430) padding: 8 justifycontent: spacebetween] { // @v12.8.5 @construction
 	view [horizontal width: bycontainer growfactor: 1] {
 		view [vertical growfactor: 1 height: bycontainer] {
-			framebox [horizontal width: bycontainer height: 60 margin: 4 padding: 4] {
+			framebox [horizontal title: "@objtransm_since" width: bycontainer height: 80 margin: 4 padding: (4, 12, 4, 4)] {
 				view [vertical growfactor: 1 height: bycontainer] {
 					view [horizontal width: bycontainer growfactor: 1] {
-						input CTL_OBJTRANSM_DT [design: B size: (70, 21) margin: 4 tabstop] string[10];
+						input CTL_OBJTRANSM_DT [design: B size: (70, 21) margin: 4 tabstop title: "@{date}"] string[16] supplement datecalbutton(CTLCAL_OBJTRANSM_DT);
 						//statictext CTL_MODTRANSM_ST_04002 [title: "(@{date})" size: (42, 13) ];
 					}
 					view [horizontal width: bycontainer growfactor: 1] {
-						input CTL_OBJTRANSM_TM [size: (68, 21)  tabstop fmtf: (hms)] time;
+						input CTL_OBJTRANSM_TM [design: B size: (70, 21) margin: 4 tabstop title: "@{time}" fmtf: (hms)] time supplement timebutton(CTLTM_OBJTRANSM_TM);
 						//statictext CTL_MODTRANSM_ST_04003 [title: "(@{time})" size: (42, 13) ];
 					}
 				}
 				view [vertical width: 32 height: bycontainer] {
-					button STDCTL_DOWNBUTTON [title: "+" tabstop size: (23, 21) margin: 4 command: cmaLevelDown];
 					button STDCTL_UPBUTTON [title: "-" tabstop size: (23, 21) margin: 4 command: cmaLevelUp];
+					button STDCTL_DOWNBUTTON [title: "+" tabstop size: (23, 21) margin: 4 command: cmaLevelDown];
+				}
+			}
+			checkcluster CTL_OBJTRANSM_TRNSMFLAGS [tabstop width: bycontainer margin: 4 padding: 4] {
+				checkbox [title: "@objtransm_trnsmfdelinfiles"];
+				checkbox [title: "@objtransm_trnsmfdeloutfiles"];
+			}
+			framebox [vertical title: "@objtransm_destdbdivlist" width: bycontainer growfactor: 1 margin: 4 padding: (4, 12, 4, 4)] {
+				listbox CTL_OBJTRANSM_DBDIVLIST [width: bycontainer growfactor: 1 margin: 4];
+				view [horizontal width: bycontainer height: 30] {
+					button STDCTL_INSBUTTON [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmaInsert];
+					button STDCTL_DELBUTTON [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmaDelete];
 				}
 			}
 		}
 		view [vertical growfactor: 1.2 height: bycontainer] {
+			framebox [vertical width: bycontainer growfactor: 1 margin: 4 padding: 4] {
+				statictext CTL_MODTRANSM_ST_04004 [title: "@objtransm_fsynccmp_note" width: bycontainer growfactor: 1];
+				checkbox CTL_OBJTRANSM_FLAGS [title: "@objtransm_fsynccmp" tabstop width: bycontainer height: 21 margin: 4];
+			}
+			framebox [vertical title: "@objtransm_objlist" width: bycontainer growfactor: 1 margin: 4 padding: (4, 12, 4, 4)] {
+				listbox CTL_OBJTRANSM_OBJLIST [width: bycontainer growfactor: 1 margin: 4];
+				view [horizontal width: bycontainer height: 30] {
+					button CTL_OBJTRANSM_CMD_ADDOBJ [title: "@but_add" tabstop size: (90, 21) margin: 4 command: cmAddTrnsmObj];
+					button CTL_OBJTRANSM_CMD_DELOBJ [title: "@but_delete" tabstop size: (90, 21) margin: 4 command: cmDelTrnsmObj];
+				}
+			}
 		}
 	}
-
-	statictext CTL_MODTRANSM_ST_04004 [title: "@objtransm_fsynccmp_note" size: (252, 81) ];
-	checkbox CTL_OBJTRANSM_FLAGS [title: "@objtransm_fsynccmp" tabstop size: (252, 21) ];
-	checkcluster CTL_OBJTRANSM_TRNSMFLAGS [tabstop size: (195, 57) ] {
-		checkbox [title: "@objtransm_trnsmfdelinfiles"];
-		checkbox [title: "@objtransm_trnsmfdeloutfiles"];
-	}
-	listbox CTL_OBJTRANSM_DBDIVLIST [size: (163, 130) ];
-	button CTL_CMD_INSERT [title: "@but_add" tabstop size: (68, 21)  command: cmaInsert];
-	button CTL_CMD_DELETE [title: "@but_delete" tabstop size: (68, 21)  command: cmaDelete];
-	listbox CTL_OBJTRANSM_OBJLIST [size: (238, 130) ];
-	button CTL_CMD_ADDTRNSMOBJ [title: "@{add}..." tabstop size: (68, 21)  command: cmAddTrnsmObj];
-	button CTL_CMD_DELTRNSMOBJ [title: "@{delete}" tabstop size: (68, 21)  command: cmDelTrnsmObj];
-	framebox [title: "@objtransm_since" size: (195, 73) ];
-	framebox [size: (270, 130) ];
-	framebox [title: "@objtransm_destdbdivlist" size: (195, 195) ];
-	framebox [title: "@objtransm_objlist" size: (270, 195) ];
+	//framebox [title: "@objtransm_since" size: (195, 73) ];
+	//framebox [size: (270, 130) ];
+	//framebox [title: "@objtransm_destdbdivlist" size: (195, 195) ];
+	//framebox [title: "@objtransm_objlist" size: (270, 195) ];
 	view [horizontal width: bycontainer height: 30 margin_right: 12 justifycontent: end alignitems: end] {
 		button STDCTL_OKBUTTON [title: "@but_ok" tabstop defaultitem size: (75, 21) margin: 4 command: cmOK];
 		button STDCTL_CANCELBUTTON [title: "@but_cancel" tabstop size: (75, 21) margin: 4 command: cmCancel];

@@ -2545,6 +2545,7 @@ public:
 			PPError();
 		if(!SetupStrListBox(this, CTL_OBJTRANSM_OBJLIST))
 			PPError();
+		SetupCalDate(CTLCAL_OBJTRANSM_DT, CTL_OBJTRANSM_DT); // @v12.8.5
 		showCtrl(CTL_OBJTRANSM_FILT, false);
 	}
 	int    setDTS(const ObjTransmitParam *);
@@ -2712,7 +2713,7 @@ int ObjTranDialog::setupTransmissionEvent(int mode /* 0 - last, -1 - prev, 1 - n
 IMPL_HANDLE_EVENT(ObjTranDialog)
 {
 	TDialog::handleEvent(event);
-	if(TVCOMMAND)
+	if(TVCOMMAND) {
 		if(TVCMD == cmaLevelUp)
 			setupTransmissionEvent(1);
 		else if(TVCMD == cmaLevelDown)
@@ -2727,6 +2728,7 @@ IMPL_HANDLE_EVENT(ObjTranDialog)
 		}
 		else
 			return;
+	}
 	else
 		return;
 	clearEvent(event);

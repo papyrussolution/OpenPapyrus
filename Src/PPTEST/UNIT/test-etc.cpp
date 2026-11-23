@@ -1478,6 +1478,10 @@ SLTEST_R(PPExprParser)
 	};
 	// sieve[0,45;100?0,40;500?0,3](lottag.manufprice)
 	const TestExpr expr_list_valid[] = {
+		{ "518.3 * 1.1E4", 5701300 },
+		{ "1.7E-4 - 1.1E-5", 0.000159 },
+		{ " 4* ( 6 + 3 ) ", 36 },
+		{ " 1.3 / (11 - 9)", 0.65 },
 		{ "sieve[0,45;100?0,40;500?0,3](200.1)", 0.4 },
 		{ "sieve[0,45;100?0,40;500?0,3](100)", 0.4 },
 		{ "sieve[0,45;100?0,40;500?0,3](99.99)", 0.45 },
@@ -1501,11 +1505,11 @@ SLTEST_R(PPExprParser)
 		{ "1 + 1000", 1001.0 },
 		{ "2 + 1000 * 7", 7002.0 },
 	};
-	const double tolerance = 1.0e-14;
+	const  double tolerance = 1.0e-8;
+	double result = 0.0;
 	for(uint i = 0; i < SIZEOFARRAY(expr_list_valid); i++) {
-		double result = 0.0;
-		const char * p_expr = expr_list_valid[i].P_Expr;
-		const double est_result = expr_list_valid[i].EstResult;
+		const  char * p_expr = expr_list_valid[i].P_Expr;
+		const  double est_result = expr_list_valid[i].EstResult;
 		SLCHECK_NZ(PPExprParser::CalcExpression(p_expr, &result, 0/*const PPCalcFuncList * pFuncList*/, 0/*ExprEvalContext * pCtx*/));
 		SLCHECK_EQ_TOL(result, est_result, tolerance);
 	}

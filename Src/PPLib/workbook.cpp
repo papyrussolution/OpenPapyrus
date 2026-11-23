@@ -180,14 +180,12 @@ int WorkbookCore::NextEnum(long enumHandle, WorkbookTbl::Rec * pRec)
 //
 //
 //
-PPWorkbookPacket::PPWorkbookPacket() : F(PPOBJ_WORKBOOK)
+PPWorkbookPacket::PPWorkbookPacket() : F(PPOBJ_WORKBOOK), UpdFlags(0)
 {
-	destroy();
 }
 
 PPWorkbookPacket::~PPWorkbookPacket()
 {
-	destroy();
 }
 
 bool FASTCALL PPWorkbookPacket::IsEq(const PPWorkbookPacket & rS) const
@@ -221,12 +219,14 @@ bool FASTCALL PPWorkbookPacket::IsEq(const PPWorkbookPacket & rS) const
 #undef NRECFLD
 }
 
-void PPWorkbookPacket::destroy()
+PPWorkbookPacket & PPWorkbookPacket::Z()
 {
 	Rec.Clear();
 	TagL.Z();
 	F.Clear();
 	ExtString.Z();
+	NTextUtf8.Z(); // @v12.8.5
+	return *this;
 }
 
 int PPWorkbookPacket::GetExtStrData(int fldID, SString & rBuf) const { return PPGetExtStrData(fldID, ExtString, rBuf); }
@@ -1408,9 +1408,7 @@ int PPObjWorkbook::PutPacket(PPID * pID, PPWorkbookPacket * pPack, int use_ta)
 
 int PPObjWorkbook::GetPacket(PPID id, PPWorkbookPacket * pPack)
 {
-	pPack->TagL.Z();
-	pPack->F.Clear();
-	pPack->ExtString.Z();
+	pPack->Z();
 	int    ok = -1;
 	if(Search(id, &pPack->Rec) > 0) {
 		Reference * p_ref(PPRef);
@@ -1574,10 +1572,9 @@ int WorkbookImpExpDialog::getDTS(PPWorkbookImpExpParam * pData)
 	return ok;
 }
 
-int PPObjWorkbook::Helper_Export(PPID rootID, PPWorkbookExporter & rExporter, PPIDArray * pRecurTrace)
+int PPObjWorkbook::Helper_Export(PPID rootID, PPWorkbookExporter & rExporter)
 {
 	int    ok = 1;
-	PPIDArray local_recur_trace;
 	WorkbookTbl::Rec rec;
 	for(SEnum en = P_Tbl->EnumByParent(rootID, 0); en.Next(&rec) > 0;) {
 		if(rec.ParentID == rootID) { // @paranoic
@@ -1586,14 +1583,12 @@ int PPObjWorkbook::Helper_Export(PPID rootID, PPWorkbookExporter & rExporter, PP
 				PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR_TIME_USER);
 			}
 			else {
-				SETIFZ(pRecurTrace, &local_recur_trace);
-				int    r = pRecurTrace->addUnique(rec.ID);
-				THROW_SL(r);
+				const  int r = 1;
 				if(r > 0) {
 					PPWorkbookPacket pack;
 					THROW(GetPacket(rec.ID, &pack) > 0);
 					THROW(rExporter.ExportPacket(rootID, pack, 0));
-					THROW(Helper_Export(rec.ID, rExporter, pRecurTrace)); // @recursion
+					THROW(Helper_Export(rec.ID, rExporter)); // @recursion
 				}
 				else {
 					PPSetError(PPERR_WORKBOOKRECUR, rec.Name);
@@ -1614,7 +1609,7 @@ int PPObjWorkbook::Export(PPID rootID)
 	THROW(r);
 	if(r > 0) {
 		PPWaitStart();
-		THROW(Helper_Export(rootID, exporter, 0));
+		THROW(Helper_Export(rootID, exporter));
 		PPWaitStop();
 	}
 	CATCHZOKPPERR
@@ -3191,7 +3186,6 @@ int PPWorkbookExporter::PreprocessContent(PPID topLevelID, const SString & rSrc,
 				</div>
 			#end
 		#end
-
 		##
 		## ANNOT :: Простая аннотация
 		## $code - символ описываемого контента
@@ -3236,11 +3230,13 @@ int PPWorkbookExporter::PreprocessContent(PPID topLevelID, const SString & rSrc,
 	SString unroll_buf;
 	SString ref_symb;
 	SString alt_text;
+	SString title_text;
 	SString style_text;
 	SString cls_text;
 	SString file_name;
 	SString file_ext;
 	WorkbookTbl::Rec ref_wb_rec;
+	PPWorkbookPacket ref_pack;
 	PPID   ref_wb_id = 0;
 	StringSet ss_arg;
 	SStrScan scan;
@@ -3400,8 +3396,197 @@ int PPWorkbookExporter::PreprocessContent(PPID topLevelID, const SString & rSrc,
 				}
 			}
 			else if(sstreqni_ascii(p_c, "#ANNOT", 6)) {
+				/*
+					#macro(__ANNOT $__pg $style)
+						#if($__pg)
+							<div class="uui-annot-blk" #if($style)style="${style}"#end>
+								<span class="uui-annot-title"><b>#REF(${__pg.Symb}, ${__pg.Name})</b></span>
+								<span class="uui-annot-text">${__pg.Descr}</span>
+								##<span class="uui-annot-link">#LINK(${__pg.Symb}, "Подробнее...")</span>
+							</div>
+						#end
+					#end
+					##
+					## ANNOT :: Простая аннотация
+					## $code - символ описываемого контента
+					## $style [optional] - CSS
+					##
+					#macro(ANNOT $code $style)
+						#__ANNOT($siteUtil.getPage($code), $style)
+					#end
+				*/ 
+				bool  local_done = false;
 				tok_len = 6;
-				// @todo
+				ref_symb.Z();
+				alt_text.Z();
+				title_text.Z();
+				style_text.Z();
+				const  char * p = p_c+tok_len;
+				scan.Set(p_c+tok_len, 0);
+				scan.Skip();
+				if(*scan == '(') {
+					scan.Incr();
+					scan.Skip();
+					if(scan.GetApostrophedString(temp_buf) || scan.GetQuotedString(temp_buf)) {
+						ref_symb = temp_buf;
+						ss_arg.add(temp_buf);
+						scan.Skip();
+						if(scan[0] == ',') {
+							scan.Incr();
+							scan.Skip();
+							scan.GetApostrophedString(temp_buf);
+							style_text = temp_buf;
+							scan.Skip();
+							if(scan[0] == ')') {
+								local_done = true;
+							}
+							else {
+								// @err
+							}
+						}
+						else if(scan[0] == ')') {
+							local_done = true;
+						}
+					}
+					if(local_done) {
+						if(ref_symb.NotEmptyS()) {
+							if(WbObj.SearchBySymb(ref_symb, &ref_wb_id, &ref_wb_rec) > 0) {
+								SString dest_file_path;
+								SString sub_path;
+								if(WbObj.GetPacket(ref_wb_rec.ID, &ref_pack) > 0) {
+									if(ExportPacket(topLevelID, ref_pack, &dest_file_path)) {
+										/*
+											<div class="uui-annot-blk" #if($style)style="${style}"#end>
+												<span class="uui-annot-title"><b>#REF(${__pg.Symb}, ${__pg.Name})</b></span>
+												<span class="uui-annot-text">${__pg.Descr}</span>
+												##<span class="uui-annot-link">#LINK(${__pg.Symb}, "Подробнее...")</span>
+											</div>
+										*/
+										SFsPath::GetRelativePath(Param.FileName, FILE_ATTRIBUTE_DIRECTORY, dest_file_path, 0, sub_path);
+										sub_path.ShiftLeftChr('.');
+										//
+										const char * p_cls_blk = "uui-annot-blk";
+										const char * p_cls_title = "uui-annot-title";
+										const char * p_cls_text = "uui-annot-text";
+										rResult.CatChar('<').Cat("div").Space().Cat("class").Eq().CatChar('\"').Cat(p_cls_blk).CatChar('\"');
+										if(style_text.NotEmpty()) {
+											rResult.Space().Cat("style").Eq().CatChar('\"').Cat(style_text).CatChar('\"');
+										}
+										rResult.CatChar('>');
+										{
+											rResult.CatChar('<').Cat("span").Space().Cat("class").Eq().CatChar('\"').Cat(p_cls_title).CatChar('\"').CatChar('>');
+											{
+												// <a href="?page=$code" #if($title)title="${title}"#end>$text</a>
+												SFsPath::NormalizePath(sub_path, SFsPath::npfSlash, temp_buf);
+												rResult.CatChar('<').Cat("a").Space().Cat("href").Eq().CatChar('\"').Cat(temp_buf).CatChar('\"');
+												(temp_buf = ref_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+												//rResult.Space().Cat("title").Eq().CatQStr(temp_buf);
+												rResult.CatChar('>').Cat(temp_buf).CatTagBrace("a", 1);
+											}
+											rResult.CatTagBrace("span", 1);
+											//
+											{
+												ref_pack.GetExtStrData(PPWorkbookPacket::extssDescription, temp_buf);
+												if(temp_buf.NotEmptyS()) {
+													rResult.CatChar('<').Cat("span").Space().Cat("class").Eq().CatChar('\"').Cat(p_cls_text).CatChar('\"').CatChar('>');
+													rResult.Cat(temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
+													rResult.CatTagBrace("span", 1);
+												}
+											}
+										}
+										rResult.CatTagBrace("div", 1);
+										{
+											ci += (scan.Offs+tok_len);
+											macro_accepted = true;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			else if(sstreqni_ascii(p_c, "#REF", 4)) {
+				/*
+					##
+					## REF :: Ссылка на страницу   //   @deprecated
+					## $code - символ контента
+					## $text [optional] - текст ссылки, если не указан, то подставляется имя контента
+					## $title [optional] - текст подсказки
+					##
+					#macro(REF $code $text $title)
+						<a href="?page=$code" #if($title)title="${title}"#end>$text</a>
+					#end
+				*/ 
+				bool  local_done = false;
+				tok_len = 4;
+				ref_symb.Z();
+				alt_text.Z();
+				title_text.Z();
+				style_text.Z();
+				const  char * p = p_c+tok_len;
+				scan.Set(p_c+tok_len, 0);
+				scan.Skip();
+				if(*scan == '(') {
+					scan.Incr();
+					scan.Skip();
+					if(scan.GetApostrophedString(temp_buf) || scan.GetQuotedString(temp_buf)) {
+						ref_symb = temp_buf;
+						ss_arg.add(temp_buf);
+						scan.Skip();
+						if(scan[0] == ',') {
+							scan.Incr();
+							scan.Skip();
+							scan.GetApostrophedString(temp_buf);
+							alt_text = temp_buf;
+							scan.Skip();
+							if(scan[0] == ',') {
+								scan.Incr();
+								scan.Skip();
+								scan.GetApostrophedString(temp_buf);
+								title_text = temp_buf;
+								scan.Skip();
+								if(scan[0] == ')') {
+									local_done = true;
+								}
+								else {
+									// @err
+								}
+							}
+							else if(scan[0] == ')') {
+								local_done = true;
+							}
+						}
+						else if(scan[0] == ')') {
+							local_done = true;
+						}
+					}
+				}
+				if(local_done) {
+					if(ref_symb.NotEmptyS()) {
+						if(WbObj.SearchBySymb(ref_symb, &ref_wb_id, &ref_wb_rec) > 0) {
+							SString dest_file_path;
+							SString sub_path;
+							if(WbObj.GetPacket(ref_wb_rec.ID, &ref_pack) > 0) {
+								if(ExportPacket(topLevelID, ref_pack, &dest_file_path)) {
+									// <a href="?page=$code" #if($title)title="${title}"#end>$text</a>
+									SFsPath::GetRelativePath(Param.FileName, FILE_ATTRIBUTE_DIRECTORY, dest_file_path, 0, sub_path);
+									sub_path.ShiftLeftChr('.');
+									SFsPath::NormalizePath(sub_path, SFsPath::npfSlash, temp_buf);
+									rResult.CatChar('<').Cat("a").Space().Cat("href").Eq().CatChar('\"').Cat(temp_buf).CatChar('\"');
+									if(title_text.NotEmpty()) {
+										rResult.Space().Cat("title").Eq().CatQStr(title_text);
+									}
+									rResult.CatChar('>').Cat(alt_text).CatTagBrace("a", 1);
+									{
+										ci += (scan.Offs+tok_len);
+										macro_accepted = true;
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 			else if(sstreqni_ascii(p_c, "#LINK", 5)) {
 				/*
@@ -3457,7 +3642,6 @@ int PPWorkbookExporter::PreprocessContent(PPID topLevelID, const SString & rSrc,
 								else {
 									// @err
 								}
-
 							}
 							else if(scan[0] == ')') {
 								local_done = true;
@@ -3471,30 +3655,10 @@ int PPWorkbookExporter::PreprocessContent(PPID topLevelID, const SString & rSrc,
 				if(local_done) {
 					if(ref_symb.NotEmptyS()) {
 						if(WbObj.SearchBySymb(ref_symb, &ref_wb_id, &ref_wb_rec) > 0) {
-							/*
-							PPWorkbookPacket ref_pack;
+							SString dest_file_path;
+							SString sub_path;
 							if(WbObj.GetPacket(ref_wb_rec.ID, &ref_pack) > 0) {
-								ExportPacket(topLevelID, ref_pack);
-							}
-							*/
-							ObjLinkFiles _f(PPOBJ_WORKBOOK);
-							_f.Load(ref_wb_rec.ID, 0L);
-							if(_f.At(0, file_name) > 0) {
-								SString sub_path;
-								GetPathToEntry(ref_wb_rec.ID, topLevelID, sub_path);
-
-								SFsPath ps_src(file_name);
-								SString dest_file_path;
-								SString content_file_name;
-								//ps_src.Merge(SFsPath::fNam|SFsPath::fExt, temp_buf);
-								content_file_name.Z().Cat(ref_symb).DotCat("md");
-								(dest_file_path = Param.FileName).SetLastDSlash().Cat(sub_path);
-								SFile::CreateDir(dest_file_path);
-								dest_file_path.SetLastDSlash().Cat(content_file_name);
-								if(SCopyFile(file_name, dest_file_path, 0, FILE_SHARE_READ, 0)) {
-								}
-
-								{
+								if(ExportPacket(topLevelID, ref_pack, &dest_file_path)) {
 									/*<a href="?page=${code}" title="${macro_pg.Name}" #if($style)style="${style}"#end>
 										#if($text)
 											${text}
@@ -3502,15 +3666,20 @@ int PPWorkbookExporter::PreprocessContent(PPID topLevelID, const SString & rSrc,
 											${macro_pg.Name}
 										#end
 									</a>*/
+									//<a href="etc/D:\Papyrus\ppy\data\uhtt-actual\LinkFiles\1066@3576@1" title="Viki Scan."a>Viki Scan.</a>
+									//sub_path.Insert(0, "/").SetLastDSlash().Cat(content_file_name);
+									SFsPath::GetRelativePath(Param.FileName, FILE_ATTRIBUTE_DIRECTORY, dest_file_path, 0, sub_path);
+									sub_path.ShiftLeftChr('.');
+									SFsPath::NormalizePath(sub_path, SFsPath::npfSlash, temp_buf);
+									rResult.CatChar('<').Cat("a").Space().Cat("href").Eq().CatChar('\"').Cat(temp_buf).CatChar('\"');
 									(temp_buf = ref_wb_rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
 									if(alt_text.IsEmpty())
 										alt_text = temp_buf;
-
-									//<a href="etc/D:\Papyrus\ppy\data\uhtt-actual\LinkFiles\1066@3576@1" title="Viki Scan."a>Viki Scan.</a>
-									sub_path.Insert(0, "/").SetLastDSlash().Cat(content_file_name);
-									rResult.CatChar('<').Cat("a").Space().Cat("href").Eq().
-										CatChar('\"').Cat(sub_path).CatChar('\"').Space().
-										Cat("title").Eq().CatQStr(temp_buf).CatChar('>').Cat(alt_text).CatTagBrace("a", 1);
+									rResult.Space().Cat("title").Eq().CatQStr(temp_buf).CatChar('>').Cat(alt_text).CatTagBrace("a", 1);
+									{
+										ci += (scan.Offs+tok_len);
+										macro_accepted = true;
+									}
 								}
 							}
 						}
@@ -3575,182 +3744,200 @@ int PPWorkbookExporter::GetPathToEntry(PPID entryID, PPID topLevelID, SString & 
 int PPWorkbookExporter::ExportPacket(PPID topLevelID, const PPWorkbookPacket & rPack, SString * pContentPath)
 {
 	int    ok = 1;
+	bool   do_pop_stack = false;
+	const  PPID _id = rPack.Rec.ID;
 	SString temp_buf;
 	SString result_file_path;
 	uint   processed_idx = 0;
-	if(ProcessedIdList.Search(rPack.Rec.ID, &processed_idx)) {
+	if(ProcessedIdList.Search(_id, &processed_idx)) {
 		StrAssocArray::Item pli = ProcessedIdList.Get(processed_idx);
 		result_file_path = pli.Txt;
 		ok = -1;
 	}
 	else {
-		if(Param.PredefFormat) { // @v12.8.2 @construction
-			if(Param.PredefFormat == piefWorkbook_Astro) { 
-				SString sub_path;
-				GetPathToEntry(rPack.Rec.ID, topLevelID, sub_path);
-				SObjTextRefIdent tri(PPOBJ_WORKBOOK, rPack.Rec.ID, PPTRPROP_MEMO);
-				SString file_name;
-				SString file_ext;
-				ObjLinkFiles _f(PPOBJ_WORKBOOK);
-				_f.Load(rPack.Rec.ID, 0L);
-				if(_f.At(0, file_name) > 0) {
-					SFileFormat ff;
-					ff.Identify(file_name, &file_ext);
-					if(SImageBuffer::IsSupportedFormat(ff)) {
-						/*
-						PPTooltipImage(pPack->Rec.Name, file_name, 0, 5000, 0, 
-							SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow|
-							SMessageWindow::fLargeText|SMessageWindow::fShowOnCenter|SMessageWindow::fPreserveFocus);
-						*/
-					}
-					else if(oneof5(ff, SFileFormat::Html, SFileFormat::Txt, SFileFormat::TxtUtf8, SFileFormat::TxtAscii, SFileFormat::Markdown)) {
-						//PPViewTextBrowser(file_name, pPack->Rec.Name, "html", TOOLBAR_TEXTBROWSER_WB_HTML);
-						SFile f_in(file_name, SFile::mRead);
-						if(f_in.IsValid()) {
-							STempBuffer _content(SKILOBYTE(20));
-							size_t actual_size = 0;
-							int rr = f_in.ReadAll(_content, 0, &actual_size);
-							if(actual_size) {
-								assert(actual_size > 0);
-								SString result_content;	
-								(result_file_path = Param.FileName).SetLastSlash().Cat(sub_path);
-								if(SFile::CreateDir(result_file_path)) {
-									SString org_content_buf;
-									SString intermediate_content_buf;
-									org_content_buf.CatN(_content.cptr(), actual_size);
-									PreprocessContent(topLevelID, org_content_buf, intermediate_content_buf);
-									result_file_path.SetLastSlash();
-									if(rPack.Rec.Symb[0]) {
-										result_file_path.Cat(rPack.Rec.Symb);
-									}
-									else {
-										result_file_path.Cat("wbid").CatLongZ(rPack.Rec.ID, 6);
-									}
-									result_file_path.DotCat("md");
-									/*
-										---
-										title: Фигня всякая
-										product: Papyrus магазин
-										summary: Круто мы с магазином обойдемся
-										icon: "/img/i00001.png"
-										order: 50
-										forWhom:
-										  - Магазины и пр.
-										---
-									*/ 
-									result_content.CatCharN('-', 3).CR();
-									(temp_buf = rPack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
-									result_content.Cat("title").CatDiv(':', 2).Cat(temp_buf).CR();
-									{
-										LDATE  eff_date = ZERODATE;
-										if(checkdate(rPack.Rec.Dt)) 
-											eff_date = rPack.Rec.Dt;
+		{
+			for(uint sp = 0; ok > 0 && sp < BranchProcessingStack.getPointer(); sp++) {
+				if(*static_cast<const PPID *>(BranchProcessingStack.at(sp)) == _id) {
+					ok = -100; // Обнаружена рекурсия!
+				}
+			}
+		}
+		if(ok > 0) {
+			BranchProcessingStack.push(_id);
+			do_pop_stack = true;
+			if(Param.PredefFormat) { // @v12.8.2 @construction
+				if(Param.PredefFormat == piefWorkbook_Astro) { 
+					SString sub_path;
+					GetPathToEntry(_id, topLevelID, sub_path);
+					SObjTextRefIdent tri(PPOBJ_WORKBOOK, _id, PPTRPROP_MEMO);
+					SString file_name;
+					SString file_ext;
+					ObjLinkFiles _f(PPOBJ_WORKBOOK);
+					_f.Load(_id, 0L);
+					if(_f.At(0, file_name) > 0) {
+						SFileFormat ff;
+						ff.Identify(file_name, &file_ext);
+						if(SImageBuffer::IsSupportedFormat(ff)) {
+							/*
+							PPTooltipImage(pPack->Rec.Name, file_name, 0, 5000, 0, 
+								SMessageWindow::fTextAlignLeft|SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow|
+								SMessageWindow::fLargeText|SMessageWindow::fShowOnCenter|SMessageWindow::fPreserveFocus);
+							*/
+						}
+						else if(oneof5(ff, SFileFormat::Html, SFileFormat::Txt, SFileFormat::TxtUtf8, SFileFormat::TxtAscii, SFileFormat::Markdown)) {
+							//PPViewTextBrowser(file_name, pPack->Rec.Name, "html", TOOLBAR_TEXTBROWSER_WB_HTML);
+							SFile f_in(file_name, SFile::mRead);
+							if(f_in.IsValid()) {
+								STempBuffer _content(SKILOBYTE(20));
+								size_t actual_size = 0;
+								int rr = f_in.ReadAll(_content, 0, &actual_size);
+								if(actual_size) {
+									assert(actual_size > 0);
+									SString result_content;	
+									(result_file_path = Param.FileName).SetLastSlash().Cat(sub_path);
+									if(SFile::CreateDir(result_file_path)) {
+										SString org_content_buf;
+										SString intermediate_content_buf;
+										org_content_buf.CatN(_content.cptr(), actual_size);
+										PreprocessContent(topLevelID, org_content_buf, intermediate_content_buf);
+										result_file_path.SetLastSlash();
+										if(rPack.Rec.Symb[0]) {
+											result_file_path.Cat(rPack.Rec.Symb);
+										}
 										else {
-											LDATETIME dtm = WbObj.GetContentLastModifTime(rPack.Rec.ID);
-											if(checkdate(dtm.d)) {
-												eff_date = dtm.d;
-											}
+											result_file_path.Cat("wbid").CatLongZ(_id, 6);
+										}
+										result_file_path.DotCat("md");
+										/*
+											---
+											title: Фигня всякая
+											product: Papyrus магазин
+											summary: Круто мы с магазином обойдемся
+											icon: "/img/i00001.png"
+											order: 50
+											forWhom:
+												- Магазины и пр.
+											---
+										*/ 
+										result_content.CatCharN('-', 3).CR();
+										(temp_buf = rPack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8);
+										result_content.Cat("title").CatDiv(':', 2).Cat(temp_buf).CR();
+										{
+											LDATE  eff_date = ZERODATE;
+											if(checkdate(rPack.Rec.Dt)) 
+												eff_date = rPack.Rec.Dt;
 											else {
-												dtm = WbObj.GetLastModifTime(rPack.Rec.ID);
+												LDATETIME dtm = WbObj.GetContentLastModifTime(_id);
 												if(checkdate(dtm.d)) {
 													eff_date = dtm.d;
 												}
 												else {
-													eff_date = getcurdate_();
+													dtm = WbObj.GetLastModifTime(_id);
+													if(checkdate(dtm.d)) {
+														eff_date = dtm.d;
+													}
+													else {
+														eff_date = getcurdate_();
+													}
 												}
 											}
+											result_content.Cat("date").CatDiv(':', 2).Cat(eff_date, DATF_ISO8601CENT).CR();
 										}
-										result_content.Cat("date").CatDiv(':', 2).Cat(eff_date, DATF_ISO8601CENT).CR();
-									}
-									{
-										rPack.GetExtStrData(PPWorkbookPacket::extssDescription, temp_buf);
-										if(temp_buf.NotEmptyS()) {
-											temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+										{
+											rPack.GetExtStrData(PPWorkbookPacket::extssDescription, temp_buf);
+											if(temp_buf.NotEmptyS()) {
+												temp_buf.Transf(CTRANSF_INNER_TO_UTF8);
+											}
+											else {
+												temp_buf = "no summary";
+											}
+											result_content.Cat("summary").CatDiv(':', 2).Cat(temp_buf).CR();
 										}
-										else {
-											temp_buf = "no summary";
+										result_content.CatCharN('-', 3).CR();
+										//result_content.CatN(_content.cptr(), actual_size);
+										result_content.Cat(/*org_content_buf*/intermediate_content_buf);
+										SFile f_out(result_file_path, SFile::mWrite);
+										if(f_out.IsValid()) {
+											f_out.Write(result_content.cptr(), result_content.Len());
 										}
-										result_content.Cat("summary").CatDiv(':', 2).Cat(temp_buf).CR();
+										ProcessedIdList.AddFast(_id, result_file_path);
 									}
-									result_content.CatCharN('-', 3).CR();
-									//result_content.CatN(_content.cptr(), actual_size);
-									result_content.Cat(/*org_content_buf*/intermediate_content_buf);
-									SFile f_out(result_file_path, SFile::mWrite);
-									if(f_out.IsValid()) {
-										f_out.Write(result_content.cptr(), result_content.Len());
-									}
-									ProcessedIdList.AddFast(rPack.Rec.ID, result_file_path);
 								}
 							}
-						}
 
-					}
-					else if(file_ext.IsEqiAscii("vm")) {
-						;
-					}
-					else if(oneof2(ff, SFileFormat::Xml, SFileFormat::Ini)) {
-						//PPViewTextBrowser(file_name, 0, pPack->Rec.Name);
+						}
+						else if(file_ext.IsEqiAscii("vm")) {
+							;
+						}
+						else if(oneof2(ff, SFileFormat::Xml, SFileFormat::Ini)) {
+							//PPViewTextBrowser(file_name, 0, pPack->Rec.Name);
+						}
 					}
 				}
+				else
+					ok = -1;
 			}
-			else
-				ok = -1;
-		}
-		else {
-			WorkbookTbl::Rec inner_rec;
-			Sdr_Workbook sdr_rec;
-			sdr_rec.ID = rPack.Rec.ID;
-			STRNSCPY(sdr_rec.Name, rPack.Rec.Name);
-			STRNSCPY(sdr_rec.Symb, rPack.Rec.Symb);
-			sdr_rec.Type = rPack.Rec.Type;
-			sdr_rec.Order = rPack.Rec.Rank;
-			sdr_rec.Flags = rPack.Rec.Flags;
-			if(sdr_rec.Type == PPWBTYP_KEYWORD) {
-				sdr_rec.KeywordCount = rPack.Rec.KeywordCount;
-				sdr_rec.KeywordDilute = rPack.Rec.KeywordDilute;
-			}
-			if(rPack.Rec.ParentID && WbObj.Fetch(rPack.Rec.ParentID, &inner_rec) > 0) {
-				sdr_rec.ParentID = inner_rec.ID;
-				STRNSCPY(sdr_rec.ParentName, inner_rec.Name);
-				STRNSCPY(sdr_rec.ParentSymb, inner_rec.Symb);
-			}
-			if(rPack.Rec.LinkID && WbObj.Fetch(rPack.Rec.LinkID, &inner_rec) > 0) {
-				sdr_rec.LinkID = inner_rec.ID;
-				STRNSCPY(sdr_rec.LinkName, inner_rec.Name);
-				STRNSCPY(sdr_rec.LinkSymb, inner_rec.Symb);
-			}
-			if(rPack.Rec.CssID && WbObj.Fetch(rPack.Rec.CssID, &inner_rec) > 0) {
-				sdr_rec.CssID = inner_rec.ID;
-				STRNSCPY(sdr_rec.CssName, inner_rec.Name);
-				STRNSCPY(sdr_rec.CssSymb, inner_rec.Symb);
-			}
-			{
-				const ObjTagItem * p_tag_keywords = rPack.TagL.GetItem(PPTAG_WORKBOOK_KEYWORDS);
-				if(p_tag_keywords) {
-					p_tag_keywords->GetStr(temp_buf);
-					temp_buf.CopyTo(sdr_rec.KeywordTag, sizeof(sdr_rec.KeywordTag));
+			else {
+				WorkbookTbl::Rec inner_rec;
+				Sdr_Workbook sdr_rec;
+				sdr_rec.ID = _id;
+				STRNSCPY(sdr_rec.Name, rPack.Rec.Name);
+				STRNSCPY(sdr_rec.Symb, rPack.Rec.Symb);
+				sdr_rec.Type = rPack.Rec.Type;
+				sdr_rec.Order = rPack.Rec.Rank;
+				sdr_rec.Flags = rPack.Rec.Flags;
+				if(sdr_rec.Type == PPWBTYP_KEYWORD) {
+					sdr_rec.KeywordCount = rPack.Rec.KeywordCount;
+					sdr_rec.KeywordDilute = rPack.Rec.KeywordDilute;
 				}
-			}
-			{
-				ObjLinkFiles _lf(PPOBJ_WORKBOOK);
-				_lf.Load(rPack.Rec.ID, 0L);
-				if(_lf.At(0, temp_buf.Z())) {
-					if(DestFilesPath.NotEmpty() && !fileExists(DestFilesPath)) {
-						THROW_SL(SFile::CreateDir(DestFilesPath));
+				if(rPack.Rec.ParentID && WbObj.Fetch(rPack.Rec.ParentID, &inner_rec) > 0) {
+					sdr_rec.ParentID = inner_rec.ID;
+					STRNSCPY(sdr_rec.ParentName, inner_rec.Name);
+					STRNSCPY(sdr_rec.ParentSymb, inner_rec.Symb);
+				}
+				if(rPack.Rec.LinkID && WbObj.Fetch(rPack.Rec.LinkID, &inner_rec) > 0) {
+					sdr_rec.LinkID = inner_rec.ID;
+					STRNSCPY(sdr_rec.LinkName, inner_rec.Name);
+					STRNSCPY(sdr_rec.LinkSymb, inner_rec.Symb);
+				}
+				if(rPack.Rec.CssID && WbObj.Fetch(rPack.Rec.CssID, &inner_rec) > 0) {
+					sdr_rec.CssID = inner_rec.ID;
+					STRNSCPY(sdr_rec.CssName, inner_rec.Name);
+					STRNSCPY(sdr_rec.CssSymb, inner_rec.Symb);
+				}
+				{
+					const ObjTagItem * p_tag_keywords = rPack.TagL.GetItem(PPTAG_WORKBOOK_KEYWORDS);
+					if(p_tag_keywords) {
+						p_tag_keywords->GetStr(temp_buf);
+						temp_buf.CopyTo(sdr_rec.KeywordTag, sizeof(sdr_rec.KeywordTag));
 					}
-					//SString dest_filename;
-					SFsPath ps(temp_buf);
-					MakeTempFileName(DestFilesPath, "wbf", ps.Ext, result_file_path);
-					THROW_SL(SCopyFile(temp_buf, result_file_path, 0, FILE_SHARE_READ, 0));
-					result_file_path.CopyTo(sdr_rec.Content, sizeof(sdr_rec.Content));
 				}
+				{
+					ObjLinkFiles _lf(PPOBJ_WORKBOOK);
+					_lf.Load(_id, 0L);
+					if(_lf.At(0, temp_buf.Z())) {
+						if(DestFilesPath.NotEmpty() && !fileExists(DestFilesPath)) {
+							THROW_SL(SFile::CreateDir(DestFilesPath));
+						}
+						//SString dest_filename;
+						SFsPath ps(temp_buf);
+						MakeTempFileName(DestFilesPath, "wbf", ps.Ext, result_file_path);
+						THROW_SL(SCopyFile(temp_buf, result_file_path, 0, FILE_SHARE_READ, 0));
+						result_file_path.CopyTo(sdr_rec.Content, sizeof(sdr_rec.Content));
+					}
+				}
+				P_IEWorkbook->GetParamConst().InrRec.ConvertDataFields(CTRANSF_INNER_TO_OUTER, &sdr_rec);
+				THROW(P_IEWorkbook->AppendRecord(&sdr_rec, sizeof(sdr_rec)));
+				ProcessedIdList.AddFast(_id, result_file_path);
 			}
-			P_IEWorkbook->GetParamConst().InrRec.ConvertDataFields(CTRANSF_INNER_TO_OUTER, &sdr_rec);
-			THROW(P_IEWorkbook->AppendRecord(&sdr_rec, sizeof(sdr_rec)));
-			ProcessedIdList.AddFast(rPack.Rec.ID, result_file_path);
 		}
 	}
 	CATCHZOK
+	if(do_pop_stack) {
+		PPID   popped_id = 0;
+		BranchProcessingStack.pop(popped_id);
+		assert(popped_id == _id);
+	}
 	ASSIGN_PTR(pContentPath, result_file_path);
 	return ok;
 }
@@ -3767,7 +3954,7 @@ struct UhttWorkbookBlock {
 	}
 	void Clear()
 	{
-		Pack.destroy();
+		Pack.Z();
 		TagPos = 0;
 		State = stFetch;
 	}

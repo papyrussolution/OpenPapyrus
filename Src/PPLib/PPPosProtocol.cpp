@@ -1742,6 +1742,9 @@ static const SIntToSymbTabEntry ChZnPtList[] = {
 	{ GTCHZNPT_GROCERY, "grocery" }, // @v12.7.9
 	{ GTCHZNPT_CANNEDFOOD, "cannedfood" }, // @v12.7.9
 	{ GTCHZNPT_TOYS, "toys" }, // @v12.7.9
+	{ GTCHZNPT_EDEVICES, "edevices" }, // @v12.8.5 Электронные устройства
+	{ GTCHZNPT_EDEVICES_NBSPH, "edevices_nbsph" }, // @v12.8.5 Электронные устройства (ноутбуки и смартфоны) 
+	{ GTCHZNPT_EDEVICES_NICO, "edevices_nico" },  // @v12.8.5 Электронные устройства доставки никотина
 };
 
 int PPPosProtocol::WriteGoodsInfo(WriteBlock & rB, const char * pScopeXmlTag, const AsyncCashGoodsInfo & rInfo, const PPQuotArray * pQList)

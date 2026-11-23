@@ -52,8 +52,10 @@ void * FASTCALL SStack::push(const void * pItem)
 
 void * SStack::pop()
 {
-	if(pointer)
-		return at(--pointer);
+	void * p_result = nullptr;
+	if(pointer) {
+		p_result = at(--pointer);
+	}
 	else if(VFlags & aryRing && Limit && count >= Limit) {
 		//
 		// Для кольцевого стека при достижении нулевой границы массива
@@ -64,10 +66,13 @@ void * SStack::pop()
 		//
 		assert(count == Limit);
 		pointer = Limit-1;
-		return at(pointer);
+		p_result = at(pointer);
 	}
-	else
-		return (SLibError = SLERR_ARYZEROCOUNT, nullptr);
+	else {
+		assert(p_result == nullptr);
+		SLibError = SLERR_ARYZEROCOUNT;
+	}
+	return p_result;
 }
 
 int FASTCALL SStack::pop(void * pItem)

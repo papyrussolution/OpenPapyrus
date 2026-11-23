@@ -97,6 +97,9 @@ static const ChZnProductTypeToOfficial ChZnProductTypeToOfficialList[] = {
 	{ GTCHZNPT_GROCERY,           37 },
 	{ GTCHZNPT_CANNEDFOOD,        32 },
 	{ GTCHZNPT_TOYS,              27 },
+	{ GTCHZNPT_EDEVICES,          28 }, // @v12.8.5
+	{ GTCHZNPT_EDEVICES_NICO,     50 }, // @v12.8.5 
+	{ GTCHZNPT_EDEVICES_NBSPH,    51 }, // @v12.8.5
 };
 // } @v12.7.2 
 
@@ -5807,6 +5810,14 @@ PPChZnPrcssr::PermissiveModeInterface::CdnStatus::CdnStatus() : Code(-1), AvgTim
 PPChZnPrcssr::PriceByMarkBlock::PriceByMarkBlock() : PmMrp(0.0), PmSmp(0.0)
 {
 	AllowedRange.Z();
+}
+
+PPChZnPrcssr::PriceByMarkBlock & PPChZnPrcssr::PriceByMarkBlock::Z() // @v12.8.5
+{
+	PmMrp = 0.0;
+	PmSmp = 0.0;
+	AllowedRange.Z();
+	return *this;
 }
 
 PPChZnPrcssr::CodeStatus::CodeStatus() : OrgRowId(0), ChZnProdType(0), ChZnSNTokID(0), ErrorCode(0), EliminationState(0), Mrp(0), Smp(0), 

@@ -9149,6 +9149,7 @@ public:
 	LAssocArray(const LAssocArray &);
 	LAssocArray & FASTCALL operator = (const LAssocArray &);
 	bool   FASTCALL operator == (const LAssocArray &) const;
+	LAssocArray & Z();
 	//
 	// Returns:
 	//   0  - в массиве уже есть элемент с идентификатором id

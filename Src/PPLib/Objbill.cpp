@@ -7036,6 +7036,44 @@ int PPObjBill::HasLotAnyMark(PPID lotID)
 	return ok;
 }
 
+int PPObjBill::IsLotInChZnBatchMode(PPID lotID, SString & rMark) // @v12.8.5
+{
+	rMark.Z();
+	int    ok = -1;
+	ReceiptTbl::Rec lot_rec;
+	if(lotID && trfr->Rcpt.Search(lotID, &lot_rec) > 0) {
+		PPLotExtCodeContainer org_lot_bill_xcl;
+		P_LotXcT->GetContainer(lot_rec.BillID, org_lot_bill_xcl);
+		if(org_lot_bill_xcl.GetCount()) {
+			PPTransferItem iter_ti;
+			int    row_idx = 0;
+			bool   found = false;
+			for(int rbb = 0; !found && trfr->EnumItems(lot_rec.BillID, &rbb, &iter_ti) > 0;) {
+				row_idx++;
+				if(iter_ti.LotID == lot_rec.ID) {
+					found = true;
+				}
+			}
+			if(found) {
+				PPLotExtCodeContainer::MarkSet lot_mark_set;
+				org_lot_bill_xcl.Get(row_idx, 0, lot_mark_set);
+				if(lot_mark_set.GetCount() == 1) {
+					PPLotExtCodeContainer::MarkSet::Entry lot_mark_entry;
+					if(lot_mark_set.GetByIdx(0, lot_mark_entry)) {
+						GtinStruc gts;
+						const  int  ipczcr = PPChZnPrcssr::InterpretChZnCodeResult(PPChZnPrcssr::ParseChZnCode(lot_mark_entry.Code, gts, 0));
+						if(ipczcr == PPChZnPrcssr::chznciSurrogateBatchN) {
+							rMark = lot_mark_entry.Code;
+							ok = 1;
+						}
+					}
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 static int PostprocessLoadedTagList(ObjTagList * pTagList, PPID objID, int rowIdx)
 {
 	int    ok = 1;
