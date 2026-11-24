@@ -19,6 +19,7 @@ ListWindow::ListWindow() : TDialog(0, 0, coNothing), P_Def(0), P_HintButton(0), 
 {
 }
 
+bool   ListWindow::IsTreeList() const { return (P_Def && P_Def->_isTreeList()); }
 void   ListWindow::setCompFunc(CompFunc f) { CALLPTRMEMB(P_Lb, setCompFunc(f)); }
 void   ListWindow::prepareForSearching(int firstLetter) { PrepareSearchLetter = firstLetter; }
 int    FASTCALL ListWindow::getResult(long * pVal) { return P_Def ? P_Def->getCurID(pVal) : 0; }

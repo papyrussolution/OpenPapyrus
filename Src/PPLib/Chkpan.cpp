@@ -2006,73 +2006,72 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, SetupDiscountBlock & 
 		TSVector <SCardSpecialTreatment::DiscountBlock> scst_dbl;
 		for(i = 0; i < P.getCount(); i++) {
 			CCheckItem & r_item = P.at(i);
-			const  int row_id = static_cast<int>(i+1); // [1..]
+			const  int    row_id = static_cast<int>(i+1); // [1..]
+			const  PPID   goods_id = r_item.GoodsID;
 			const  double qtty = fabs(r_item.Quantity);
-			double gift_item_dis = 0.0; // Подарочная суммовая скидка по строке
 			double item_price = r_item.Price;
 			double item_discount = r_item.Discount;
 			bool   no_discount = false;
 			bool   dont_calcprice = false;
 			bool   price_adjustment_needed = false; // @v12.6.2 общая цена позиции может потребовать специального выравнивания //
-			RetailGoodsInfo rgi;
 			long   ext_rgi_flags = 0;
-			const  PPID goods_id = r_item.GoodsID;
+			RetailGoodsInfo rgi;
 			{
 				//
 				// Рассчитываем цену {
 				//
-				double price_by_serial = 0.0;
-				lot_list.clear();
-				if(r_item.Serial[0] && p_bobj->SearchLotsBySerialExactly(r_item.Serial, &lot_list) > 0) {
-					ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
-					LDATE  last_date = ZERODATE;
-					ReceiptTbl::Rec lot_rec;
-					const  PPID loc_id = GetCnLocID(goods_id);
-					for(uint j = 0; j < lot_list.getCount(); j++) {
-						const  PPID iter_lot_id = lot_list.get(j);
-						if(r_rcpt.Search(iter_lot_id, &lot_rec) > 0 && lot_rec.GoodsID == goods_id && lot_rec.LocID == loc_id && last_date < lot_rec.Dt) {
-							price_by_serial = lot_rec.Price;
-							last_date = lot_rec.Dt;
+				{
+					double price_by_serial = 0.0;
+					lot_list.clear();
+					if(r_item.Serial[0] && p_bobj->SearchLotsBySerialExactly(r_item.Serial, &lot_list) > 0) {
+						ReceiptCore & r_rcpt = p_bobj->trfr->Rcpt;
+						LDATE  last_date = ZERODATE;
+						ReceiptTbl::Rec lot_rec;
+						const  PPID loc_id = GetCnLocID(goods_id);
+						for(uint j = 0; j < lot_list.getCount(); j++) {
+							const  PPID iter_lot_id = lot_list.get(j);
+							if(r_rcpt.Search(iter_lot_id, &lot_rec) > 0 && lot_rec.GoodsID == goods_id && lot_rec.LocID == loc_id && last_date < lot_rec.Dt) {
+								price_by_serial = lot_rec.Price;
+								last_date = lot_rec.Dt;
+							}
 						}
 					}
-				}
-				if(price_by_serial > 0.0) {
-					ext_rgi_flags |= PPObjGoods::rgifUseOuterPrice;
-					rgi.OuterPrice = price_by_serial;
-				}
-				const int _gpr = GetRgi(goods_id, qtty, ext_rgi_flags, rgi);
-				if(_gpr > 0)
-					item_price = rgi.Price;
-				EvaluateSingleSubstPrice(goods_id, qtty, r_item.ChZnPrice, rgi, item_price); // @v12.5.9
-				// @v12.6.2 {
-				{
-					const  int afupr = GObj.AdjustFractionalUnitPrice(goods_id, qtty, item_price, 0, 0);
-					if(afupr > 0 || afupr == -2) { // see PPObjGoods::AdjustFractionalUnitPrice spec
-						if(IniPBlk.Flags & IniParamsBlock::fAdjustFractionalPrice)
-							price_adjustment_needed = true; 
+					if(price_by_serial > 0.0) {
+						ext_rgi_flags |= PPObjGoods::rgifUseOuterPrice;
+						rgi.OuterPrice = price_by_serial;
 					}
 				}
-				// } @v12.6.2 
-				if(rgi.Flags & RetailGoodsInfo::fNoDiscount || item_price == 0.0)
-					no_discount = true;
-				//
-				if(_gpr > 0 && (rgi.QuotKindUsedForExtPrice && rgi.ExtPrice >= 0.0)) {
-					if(rgi.Flags & rgi.fDisabledQuot) { // Исключительная ситуация: ExtPrice перебивает по приоритету блокированную котировку
-						item_price = rgi.ExtPrice;
-						item_discount = 0.0;
+				{
+					const int _gpr = GetRgi(goods_id, qtty, ext_rgi_flags, rgi);
+					if(_gpr > 0)
+						item_price = rgi.Price;
+					EvaluateSingleSubstPrice(goods_id, qtty, r_item.ChZnPrice, rgi, item_price); // @v12.5.9
+					{ // @v12.6.2
+						const  int afupr = GObj.AdjustFractionalUnitPrice(goods_id, qtty, item_price, 0, 0);
+						if(afupr > 0 || afupr == -2) { // see PPObjGoods::AdjustFractionalUnitPrice spec
+							if(IniPBlk.Flags & IniParamsBlock::fAdjustFractionalPrice)
+								price_adjustment_needed = true; 
+						}
+					}
+					if(rgi.Flags & RetailGoodsInfo::fNoDiscount || item_price == 0.0)
+						no_discount = true;
+					if(_gpr > 0 && (rgi.QuotKindUsedForExtPrice && rgi.ExtPrice >= 0.0)) {
+						if(rgi.Flags & rgi.fDisabledQuot) { // Исключительная ситуация: ExtPrice перебивает по приоритету блокированную котировку
+							item_price = rgi.ExtPrice;
+							item_discount = 0.0;
+						}
+						else {
+							item_discount = (item_price - rgi.ExtPrice);
+						}
+						no_discount = true;
 					}
 					else {
-						item_discount = (item_price - rgi.ExtPrice);
+						const RetailPriceExtractor::ExtQuotBlock * p_eqb = GetCStEqbND(no_discount);
+						if(p_eqb && p_eqb->QkList.getCount() && !(CSt.Flags & CardState::fUseDscntIfNQuot))
+							no_discount = true;
+						item_discount = 0.0;
 					}
-					no_discount = true;
 				}
-				else {
-					const RetailPriceExtractor::ExtQuotBlock * p_eqb = GetCStEqbND(no_discount);
-					if(p_eqb && p_eqb->QkList.getCount() && !(CSt.Flags & CardState::fUseDscntIfNQuot))
-						no_discount = true;
-					item_discount = 0.0;
-				}
-				// }
 			}
 			if(mode == 1) {
 				assert(rBlk.P_Scst);
@@ -2085,13 +2084,12 @@ int CPosProcessor::Helper_PreprocessDiscountLoop(int mode, SetupDiscountBlock & 
 					db.ResultPrice = item_price-item_discount;
 					db.Qtty = fabs(r_item.Quantity);
 					STRNSCPY(db.TaIdent, r_item.RemoteProcessingTa);
-					//scst_dbl.clear();
 					scst_dbl.insert(&db);
 				}
 			}
 			else {
 				if(r_item.Flags & cifGiftDiscount && rBlk.DistributeGiftDiscount) {
-					gift_item_dis = qtty * r_item.Discount;
+					const  double gift_item_dis = qtty * r_item.Discount; // Подарочная суммовая скидка по строке
 					if(gift_item_dis != 0.0) {
 						assert(row_id > 0);
 						rBlk.GiftDisList.Add((row_id-1), gift_item_dis);
@@ -2399,6 +2397,217 @@ void CPosProcessor::SetupDiscount(bool distributeGiftDiscount/*=false*/)
 		const  CcTotal cct2 = CalcTotal();
 		const  double new_amt2 = (R__.AmtRoundPrec != 0.0) ? PPRound(cct2.Amount, R__.AmtRoundPrec, R__.AmtRoundDir) : R2(cct2.Amount);
 		diff2 = R2(cct2.Amount - new_amt);
+	}
+}
+
+void CPosProcessor::SetupDiscount2(uint flags) // @v12.8.5 @construction
+{
+	CPosProcessor::SetupDiscountBlock sdb(0.0/*roundingDiscount*/, LOGIC(flags & sdisfDistributeGiftDiscount));
+	sdb.UseDiscountDistributionMeth = true;
+	//
+	// В этом варианте функции не применяем выделенную Helper_SetupDiscount()
+	// 
+	{ //void CPosProcessor::Helper_SetupDiscount(SetupDiscountBlock & rBlk)
+		//
+		// Если товар не имеет котировки, то на него распространяется общая скидка.
+		//
+		if(CSt.GetID() && CSt.CSTRB.SpecialTreatment) {
+			SCardSpecialTreatment * p_st = SCardSpecialTreatment::CreateInstance(CSt.CSTRB.SpecialTreatment);
+			if(p_st && p_st->GetCapability() & SCardSpecialTreatment::capfItemDiscount)
+				sdb.P_Scst = p_st;
+			else
+				delete p_st;
+		}
+		if(sdb.P_Scst) {
+			if(SCardSpecialTreatment::InitSpecialCardBlock(CSt.GetID(), PNP.NodeID, sdb.ScstCb) > 0) {
+				Helper_PreprocessDiscountLoop(1/*mode*/, sdb); // Первый цикл (mode = 1) для запроса к сторонним сервисам
+			}
+			else {
+				ZDELETE(sdb.P_Scst);
+			}
+		}
+		Helper_PreprocessDiscountLoop(0/*mode*/, sdb); // Основной цикл (mode = 0)
+		{
+			//
+			// Специальный признак, индицирующий то, что финишная скидка
+			// на элемент (last_index-1) должна прибавляться к существующей скидке,
+			// а не замещать ее. Чаще всего этот признак просто равен is_rounding,
+			// однако, если происходит распределение подарочной скидки по позиции
+			// (last_index-1), то finish_addendum становится равным true.
+			//
+			bool   finish_addendum = sdb.IsRounding;
+			//
+			double discount = 0.0;
+			if(sdb.IsRounding) {
+				// @v12.7.10 discount = roundingDiscount;
+				discount = sdb.RoundingDiscount; // @v12.7.10 
+			}
+			else {
+				const  double _dis = CSt.GetDiscount(sdb.Amount_Base);
+				discount = _dis * fdiv100r(sdb.Amount_Base);
+				CSt.SettledDiscount = _dis;
+				if(discount < sdb.Amount_Base && ManDis.Discount > 0.0) {
+					double mandiscount = 0.0;
+					if(ManDis.Flags & ManualDiscount::fPct) {
+						const  double _mpctdis = smin(ManDis.Discount, 100.0);
+						mandiscount = _mpctdis * (sdb.Amount_Base - discount) / 100.0;
+					}
+					else {
+						mandiscount = discount + ManDis.Discount;
+						SETMIN(mandiscount, sdb.Amount_Base);
+					}
+					ManDis.SettledAbsolutDiscount = mandiscount;
+					discount = mandiscount;
+				}
+			}
+			double part_dis = 0.0;
+			double part_amount = 0.0;
+			if(!sdb.IsRounding) {
+				if(discount != 0.0) {
+					const  double temp_dis = this->RoundDis(discount);
+					if(temp_dis < sdb.Amount_Base)
+						discount = temp_dis;
+				}
+				// @v12.8.3 @construction {
+				if(/*sdb.UseDiscountDistributionMeth*/true) {
+					DiscountDistribution dd; 
+					DiscountDistribution::Result r_;
+					{
+						for(uint i = 0; i < P.getCount(); i++) {
+							CCheckItem & r_item = P.at(i);
+							const  int row_id = static_cast<int>(i+1); // [1..]
+							const  double qtty = fabs(r_item.Quantity);
+							uint64 init_price = R0i64(abs(sdb.IsRounding ? r_item.NetPrice() : r_item.Price) * 100.0);
+							uint   item_flags = 0;
+							if(sdb.PosList_WoDis.lsearch(row_id))
+								item_flags |= DiscountDistribution::fNoDiscount;
+							dd.AddItem(row_id, init_price, qtty, item_flags);
+						}
+					}
+					dd.Run(R0(discount * 100.0), r_);
+					{
+						for(uint i = 0; i < P.getCount(); i++) {
+							CCheckItem & r_item = P.at(i);
+							const DiscountDistribution::Item * p_dd_item = r_.GetItemByRef(i+1);
+							if(p_dd_item) {
+								r_item.Discount = (p_dd_item->Discount / 100.0);
+								/*if(is_ret)
+									r_item.Discount = -r_item.Discount;*/
+							}
+							else {
+								; 
+							}
+						}
+					}
+				}
+				// } @v12.8.3 @construction 
+				{
+					for(uint i = 0; i < P.getCount(); i++) {
+						CCheckItem & r_item = P.at(i);
+						const  int row_id = static_cast<int>(i+1); // [1..]
+						if(row_id != sdb.LastIndex && !sdb.PosList_WoDis.lsearch(row_id)) {
+							const  double qtty = fabs(r_item.Quantity);
+							const  double p    = R2(sdb.IsRounding ? r_item.NetPrice() : r_item.Price); // @R2
+							double d01 = fdivnz(p * (discount - part_dis), (sdb.Amount_Base - part_amount));
+							double d02 = 0.0;
+							if(sdb.PosList_PriceAdjustment.lsearch(row_id)) {
+								double adj_price = 0.0;
+								const  int afupr = GObj.AdjustFractionalUnitPrice(r_item.GoodsID, qtty, p - d01, 0, &adj_price);
+								if(afupr > 0) {
+									d02 = p - adj_price;
+								}
+								// Округлять скидку для такой позиции нельзя //
+							}
+							else {
+								d02 = this->RoundDis(d01);
+							}
+							SETMIN(d02, p); // Гарантируем то, что скидка не превысит цену
+							r_item.Discount = d02;
+							part_dis    += (d02 * qtty);
+							part_amount += (p * qtty);
+						}
+					}
+				}
+				//
+				// Распределяем специальную подарочную скидку по тем позициям, на основании которых она была предоставлена.
+				// {
+				for(uint j = 0; j < sdb.GiftDisList.getCount(); j++) {
+					const  uint main_pos = sdb.GiftDisList.at(j).Key;
+					const  double dis = sdb.GiftDisList.at(j).Val;
+					double gift_part_dis = 0.0;
+					double gift_part_amt = 0.0;
+					double gift_amt = 0.0;
+					LongArray pos_list;
+					LongArray main_pos_list;
+					P.GiftAssoc.GetListByKey(main_pos, pos_list);
+					{
+						const  uint plc = pos_list.getCount();
+						for(uint i = 0; i < plc; i++) {
+							const  uint pos = pos_list.get(i);
+							assert(pos < P.getCount() && pos != main_pos);
+							const  CCheckItem & r_item = P.at(pos);
+							const  double item_amt = r_item.NetPrice() * fabs(r_item.Quantity);
+							gift_amt = R2(gift_amt + R2(item_amt));
+							if(r_item.Flags & cifMainGiftItem/*&& dis < item_amt*/)
+								main_pos_list.addUnique(static_cast<int>(pos));
+						}
+					}
+					if(main_pos_list.getCount()) {
+						//
+						// Специальный случай: подарочная скидка распределяется только на основной компонент подарочной структуры
+						//
+						pos_list = main_pos_list; // Подменяем pos_list на main_pos_list
+						gift_amt = 0.0;
+						//
+						const  uint plc = pos_list.getCount();
+						for(uint i = 0; i < plc; i++) {
+							const  uint pos = pos_list.get(i);
+							assert(pos < P.getCount() && pos != main_pos);
+							const  CCheckItem & r_item = P.at(pos);
+							const  double item_amt = r_item.NetPrice() * fabs(r_item.Quantity);
+							gift_amt = R2(gift_amt + R2(item_amt));
+						}
+					}
+					{
+						const  uint plc = pos_list.getCount();
+						for(uint i = 0; i < plc; i++) {
+							const  uint _pos = pos_list.get(i);
+							if(sdb.LastIndex && _pos == (sdb.LastIndex-1))
+								finish_addendum = true;
+							CCheckItem & r_item = P.at(_pos);
+							const  double qtty = fabs(r_item.Quantity);
+							const  double p    = R2(r_item.NetPrice()); // @R2
+							double d = this->RoundDis((i == (plc-1)) ? ((dis - gift_part_dis) / qtty) : (fdivnz(p * (dis - gift_part_dis), (gift_amt - gift_part_amt))));
+							SETMIN(d, p); // Гарантируем то, что скидка не превысит цену
+							r_item.Discount = this->RoundDis(r_item.Discount + d);
+							gift_part_dis += (d * qtty);
+							gift_part_amt += (p * qtty);
+						}
+					}
+				}
+			}
+			if(sdb.LastIndex) {
+				CCheckItem & r_item = P.at(sdb.LastIndex-1);
+				const  double qtty = fabs(r_item.Quantity);
+				const  double org_p = R2(r_item.Price);
+				const  double p    = R2(sdb.IsRounding ? r_item.NetPrice() : r_item.Price); // @R2
+				double d = (discount - part_dis) / qtty;
+				if(!sdb.IsRounding)
+					d = this->RoundDis(d);
+				//d = R2(d); // @v12.7.10 придется безусловно округлять - иначе по кассе может сумма не пройти ибо кассы заточены на 2 знака после точки
+				if(finish_addendum) {
+					if((r_item.Discount + d) > org_p)
+						d = org_p;
+					r_item.Discount = sdb.IsRounding ? (r_item.Discount + d) : this->RoundDis(r_item.Discount + d);
+				}
+				else {
+					SETMIN(d, org_p); // Гарантируем то, что скидка не превысит цену
+					r_item.Discount = d;
+				}
+				part_dis    += (d * qtty); // @debug
+				part_amount += (p * qtty); // @debug
+			}
+		}
 	}
 }
 

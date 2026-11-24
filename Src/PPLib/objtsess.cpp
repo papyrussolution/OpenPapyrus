@@ -72,10 +72,7 @@ private:
 		PPID   BillID;
 		long   Flags;
 	};
-	PSE &  Get(uint pos) const
-	{
-		return *static_cast<BhtTSess::PSE *>(at(pos));
-	}
+	PSE &  Get(uint pos) const { return *static_cast<BhtTSess::PSE *>(at(pos)); }
 	int    CreateSess(PPID * pSessID, const BhtTSessRec * pRec, const ProcessorTbl::Rec * pPrcRec);
 	int    CloseSess(uint entryPos);
 	int    SwitchPrc(ProcessorTbl::Rec * pPrcRec, PPID destPrcID);
@@ -103,9 +100,12 @@ void PPObjTSession::PlaceStatus::Init()
 //
 //
 //
-PPTSessConfig::PPTSessConfig()
+PPTSessConfig::PPTSessConfig() : Tag(0), ID(0), Prop(0), Flags(0), IdleAccSheetID(0), MinIdleCont(0),
+	InitTime(ZEROTIME), RoundPeriod(0), ViewRefreshPeriod(0), TimeChunkBrowserQuant(0), 
+	ColorPlannedStatus(0), ColorPendingStatus(0), ColorInProgressStatus(0), ColorClosedStatus(0), ColorCanceledStatus(0),
+	DefTimeTechID(0), JobPerItemGoodsID(0)
 {
-	THISZERO();
+	MEMSZERO(Reserve);
 }
 
 IMPL_INVARIANT_C(PPTSessConfig)
@@ -190,8 +190,9 @@ struct Storage_PPTSessionConfig { // @persistent @store(PropertyTbl)
 			p_cfg->JobPerItemGoodsID = pCfg->JobPerItemGoodsID; // @v12.6.8
 			p_cfg->SmsConfigPos = (uint16)sizeof(Storage_PPTSessionConfig);
 			p_cfg->ExtStrSize = (uint16)ext_size;
-			if(ext_size)
+			if(ext_size) {
 				THROW_SL(buf.Read(PTR8(p_cfg) + p_cfg->SmsConfigPos, ext_size));
+			}
 			assert(p_cfg->GetSize() == sz);
 		}
 		THROW(PPObject::Helper_PutConfig(prop_cfg_id, cfg_obj_type, is_new, p_cfg, sz, 0));
@@ -1005,7 +1006,7 @@ void PPObjTSession::Helper_SetupDiscount(SVector & rList, int pct, double discou
 	double amount = 0.0, qtty, p, d;
 	DscntEntry * p_item;
 	PPIDArray wodis_goods_list;
-	for(i = 0; rList.enumItems(&i, (void **)&p_item);)
+	for(i = 0; rList.enumItems(&i, (void **)&p_item);) {
 		if(GObj.CheckFlag(p_item->GoodsID, GF_NODISCOUNT))
 			wodis_goods_list.addUnique(p_item->GoodsID);
 		else {
@@ -1018,6 +1019,7 @@ void PPObjTSession::Helper_SetupDiscount(SVector & rList, int pct, double discou
 				max_price = p;
 			}
 		}
+	}
 	double dscnt = pct ? (discount * fdiv100r(amount)) : discount;
 	double part_dis = 0.0, part_amount = 0.0;
 	int    prec = 2;

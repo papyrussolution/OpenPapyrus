@@ -178,14 +178,75 @@ int PPOptiModule::CuttingStock2D::RawSheet::Serialize(int dir, SBuffer & rBuf, S
 	return ok;
 }
 
-PPOptiModule::CuttingStock2D::BomItem::BomItem() : Qtty(0), Cost(0.0)
+PPOptiModule::CuttingStock2D::BomItem::BomItem() : Flags(0), Qtty(0), Cost(0.0)
 {
+}
+
+bool PPOptiModule::CuttingStock2D::ExecutionBlock::GetSheetSizeListInDirection(int dir/*cuttingdirX||cuttingdirY*/, LongArray & rList) const
+{
+	rList.Z();
+	bool   ok = false;
+	if(dir == cuttingdirX) {
+		for(uint i = 0; i < SheetList.getCount(); i++) {
+			const  RawSheet & r_item = SheetList.at(i);
+			if(r_item.Size.x > 0) {
+				rList.add(r_item.Size.x);
+				ok = true;
+			}
+		}
+	}
+	else if(dir == cuttingdirY) {
+		for(uint i = 0; i < SheetList.getCount(); i++) {
+			const  RawSheet & r_item = SheetList.at(i);
+			if(r_item.Size.y > 0) {
+				rList.add(r_item.Size.y);
+				ok = true;
+			}
+		}
+	}
+	rList.sortAndUndup();
+	return ok;
+}
+
+bool PPOptiModule::CuttingStock2D::ExecutionBlock::GetItemSizeListInDirection(int dir/*cuttingdirX*/, LongArray & rList) const
+{
+	rList.Z();
+	bool   ok = false;
+	if(dir == cuttingdirX) {
+		for(uint i = 0; i < BomList.getCount(); i++) {
+			const  BomItem & r_item = BomList.at(i);
+			if(r_item.Size.x > 0) {
+				rList.add(r_item.Size.x);
+				ok = true;
+			}
+			if(r_item.Flags & BomItem::fCanRotate90 && r_item.Size.y > 0) {
+				rList.add(r_item.Size.y);
+				ok = true;
+			}
+		}
+	}
+	else if(dir == cuttingdirY) {
+		for(uint i = 0; i < BomList.getCount(); i++) {
+			const  BomItem & r_item = BomList.at(i);
+			if(r_item.Size.y > 0) {
+				rList.add(r_item.Size.y);
+				ok = true;
+			}
+			if(r_item.Flags & BomItem::fCanRotate90 && r_item.Size.x > 0) {
+				rList.add(r_item.Size.x);
+				ok = true;
+			}
+		}
+	}
+	rList.sortAndUndup();
+	return ok;
 }
 
 int PPOptiModule::CuttingStock2D::BomItem::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx)
 {
 	int    ok = 1;
 	THROW(pSCtx->Serialize(dir, UedID, rBuf));
+	THROW(pSCtx->Serialize(dir, Flags, rBuf));
 	THROW(Size.Serialize(dir, rBuf, pSCtx));
 	THROW(pSCtx->Serialize(dir, Qtty, rBuf));
 	THROW(pSCtx->Serialize(dir, Cost, rBuf));

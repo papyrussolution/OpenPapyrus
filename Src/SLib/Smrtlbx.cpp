@@ -275,6 +275,9 @@ SmartListBox::~SmartListBox()
 	delete P_ExpandedTreeBranchList; // @v12.5.6
 }
 
+bool SmartListBox::IsTreeList() const { return (P_Def && P_Def->_isTreeList()); }
+bool SmartListBox::IsMultiColumn() const { return (Columns.getCount() > 0); }
+
 int SmartListBox::SearchColumnByIdent(long ident, uint * pPos) const
 {
 	int    ok = 0;
@@ -1266,18 +1269,9 @@ void SmartListBox::Scroll(short Code, int value)
 			if(Top != prev_top_item || to_draw)
 				Draw_();
 			else if(need_sel) {
-				const HWND h_lb = getHandle();
-				/* @v11.4.5 (противоречие в условием !IsMultiColumn() above) if(Columns.getCount()) {
-					LVITEM lvi;
-					lvi.mask  = LVIF_STATE;
-					lvi.state = LVIS_FOCUSED | LVIS_SELECTED;
-					lvi.stateMask = LVIS_FOCUSED | LVIS_SELECTED;
-					::SendMessageW(h_lb, LVM_SETITEMSTATE, P_Def ? P_Def->_curItem() : 0, (LPARAM)&lvi);
-				}
-				else*/{
-					const long cur_sel_idx = P_Def ? (P_Def->_curItem() - P_Def->_topItem()) : 0;
-					::SendMessageW(h_lb, LB_SETCURSEL, cur_sel_idx, 0);
-				}
+				const  HWND h_lb = getHandle();
+				const  long cur_sel_idx = P_Def ? (P_Def->_curItem() - P_Def->_topItem()) : 0;
+				::SendMessageW(h_lb, LB_SETCURSEL, cur_sel_idx, 0);
 			}
 		}
 		if(P_Def->Options & lbtFocNotify)
@@ -1895,17 +1889,16 @@ void SmartListBox::setRange(long aRange)
 {
 	Range = aRange;
 	if(!IsMultiColumn())
-		SendDlgItemMessage(Parent, MAKE_BUTTON_ID(Id,1), SBM_SETRANGE, 0, Range-1);
+		::SendDlgItemMessageW(Parent, MAKE_BUTTON_ID(Id,1), SBM_SETRANGE, 0, Range-1);
 }
 
 void SmartListBox::setState(uint aState, bool enable)
 {
-	// @v11.2.5 const long preserve_state = State; // @v11.2.4
 	TView::setState(aState, enable);
-	// @v11.2.5 if((aState & (sfSelected|sfActive)) != (preserve_state & (sfSelected|sfActive)) && !IsMultiColumn())
-	if(aState & (sfSelected|sfActive) && !IsMultiColumn()) // @v11.2.5
+	if(aState & (sfSelected|sfActive) && !IsMultiColumn()) {
 		if(!(State & stTreeList))
 			Draw_();
+	}
 }
 
 int SmartListBox::addItem(long id, const char * s, long * pPos)

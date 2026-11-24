@@ -52,6 +52,8 @@ public:
 		SheetInst.clear();
 		return *this;
 	}
+	uint   GetSheetCount() const { return SheetInst.size(); }
+	uint   GetPieceCount() const { return PieceInst.size(); }
 	//
 	// Проверка гильотинности (постобработка)
 	//
@@ -60,7 +62,7 @@ public:
 	//
 	// Внутренние развёрнутые экземпляры деталей (pieces) и сырьевых плоскостей (sheets)
 	//
-	struct BaseInstance {
+	struct BaseInstance { // @flat
 		BaseInstance() : RefIdx(0), Instance(0), Cost(0.0)
 		{
 		}
@@ -93,6 +95,7 @@ public:
 	std::vector <BaseInstance> SheetInst;
 	//
 	void ExpandInstances();
+	bool SolveInternal_NewVariant(PPOptiModule::CuttingStock2D::Result & rR);
 	bool SolveInternal_(PPOptiModule::CuttingStock2D::Result & rR);
 	bool SolveFreePlacementInternal(PPOptiModule::CuttingStock2D::Result & rR);
 	void ExtractResult(const CpSolverResponse& response, const std::vector<std::vector<PlacementVars>>& pvars, const std::vector<BoolVar>& sheet_used, uint solveMs, 
@@ -126,6 +129,86 @@ void OrToolsSolver_CuttingStock2D::ExpandInstances()
 			SheetInst.push_back(si);
 		}
 	}
+}
+
+bool OrToolsSolver_CuttingStock2D::SolveInternal_NewVariant(PPOptiModule::CuttingStock2D::Result & rR)
+{
+    rR.Z();
+	bool   ok = true;
+    ExpandInstances();
+    rR.TotalPiecesRequested = static_cast<int>(PieceInst.size());
+    if(PieceInst.empty()) {
+        rR.Status = PPOptiModule::stFeasible;
+        ok = true;
+    }
+    else if(SheetInst.empty()) {
+        rR.Status = PPOptiModule::stInfeasible;
+        ok = false;
+    }
+	else {
+		const  uint cuttingdir = PPOptiModule::CuttingStock2D::cuttingdirX;
+		struct SatStripVars { // Для каждого листа и каждой полосы:
+			BoolVar _IsActive;  // используется ли эта полоса
+			IntVar  _Start;     // начало полосы по координате, зависящей от cuttingdir.
+			IntVar  _Len;       // размер полосы (определяется самой габаритной деталью + kerf)
+			IntVar  _End;       // конец полосы по координате, зависящей от cuttingdir.
+			IntVar  _UsedWidth; // использованная ширина полосы (для компактности)
+		};
+		struct SatPieceOnStrip { // Для каждого потенциального размещения детали:
+			SatPieceOnStrip() : SheetIdx(0), StripIdx(0), PieceIdx(0)
+			{
+			}
+			SatPieceOnStrip(CpModelBuilder & rM, uint sheetIdx, uint stripIdx, uint pcIdx) : SheetIdx(sheetIdx), StripIdx(stripIdx), PieceIdx(pcIdx)
+			{
+				_IsAssigned = rM.NewBoolVar();
+			}
+			uint   SheetIdx;
+			uint   StripIdx;
+			uint   PieceIdx;
+			BoolVar _IsAssigned; // деталь PieceIdx назначена на полосу StripIdx листа SheetIdx
+			BoolVar _IsRotated;
+			IntVar  _ActualX;
+			IntVar  _ActualY;
+			IntVar  _Pos;       // позиция внутри полосы по оси, зависящей от cuttingdir (вычисляется из порядка)
+		};		
+		struct InternalModelBlock {
+			InternalModelBlock(OrToolsSolver_CuttingStock2D & rBase) : 
+				Strips(rBase.GetSheetCount()), PcOnStrip(rBase.GetSheetCount()), AssignmentList(rBase.GetPieceCount()), 
+				PlacementList(rBase.GetSheetCount())
+			{
+				for(uint s = 0; s < rBase.GetSheetCount(); s++) {
+					SheetUsageList.push_back(M.NewBoolVar());
+				}
+			}
+			CpModelBuilder M;
+			std::vector <BoolVar> SheetUsageList; // используется ли лист s
+			std::vector <std::vector <SatStripVars>> Strips; // strips[s][k] — полоса k листа s
+			std::vector <std::vector <std::vector<SatPieceOnStrip>>> PcOnStrip; // pieceOnStrip[s][k] — детали, которые могут быть на полосе k листа s
+			std::vector <std::vector <BoolVar>> AssignmentList; // assignment[p] — все BoolVar для детали p (по всем листам и полосам)
+			std::vector <std::vector <PlacementVars>> PlacementList; // Для хранения данных, необходимых ExtractResult будем собирать PlacementVars-совместимую структуру
+		};
+		//
+		LongArray strip_size_list_x; // Допустимые X-размеры полос (cuttingdirX)
+		LongArray strip_size_list_y; // Допустимые Y-размеры полос (cuttingdirY)
+		LongArray sheet_size_list_x; // Существующие X-размеры листов (cuttingdirX)
+		LongArray sheet_size_list_y; // Существующие Y-размеры листов (cuttingdirY)
+		//
+		R_Base.EB.GetItemSizeListInDirection(PPOptiModule::CuttingStock2D::cuttingdirX, strip_size_list_x);
+		R_Base.EB.GetItemSizeListInDirection(PPOptiModule::CuttingStock2D::cuttingdirY, strip_size_list_y);
+		R_Base.EB.GetSheetSizeListInDirection(PPOptiModule::CuttingStock2D::cuttingdirX, sheet_size_list_x);
+		R_Base.EB.GetSheetSizeListInDirection(PPOptiModule::CuttingStock2D::cuttingdirY, sheet_size_list_y);
+		if(sheet_size_list_x.getCount() && sheet_size_list_y.getCount() && strip_size_list_x.getCount() && strip_size_list_y.getCount()) {
+			InternalModelBlock imblk(*this);
+			//int    minPieceH = INT_MAX;
+			//int    maxPieceH = 0;
+			const  IntRange piece_x_range(strip_size_list_x.get(0), strip_size_list_x.getLast());
+			const  IntRange piece_y_range(strip_size_list_y.get(0), strip_size_list_y.getLast());
+			assert(imblk.SheetUsageList.size() == GetSheetCount());
+			const  int max_sheet_x = sheet_size_list_x.getLast();
+			const  int max_sheet_y = sheet_size_list_y.getLast();
+		}
+	}
+	return ok;
 }
 
 bool OrToolsSolver_CuttingStock2D::SolveInternal_(PPOptiModule::CuttingStock2D::Result & rR)
@@ -780,7 +863,7 @@ bool OrToolsSolver_CuttingStock2D::SolveFreePlacementInternal(PPOptiModule::Cutt
 					// назначенный лист[i] <= назначенный лист[i+1]
 					// (упрощённое symmetry breaking)
 					// Создаём вспомогательную переменную — индекс листа для каждого экземпляра
-					std::vector<IntVar> sheet_idx;
+					std::vector <IntVar> sheet_idx;
 					for(int p : group) {
 						const IntVar si = model.NewIntVar(Domain(0, sheet_count));
 						sheet_idx.push_back(si);

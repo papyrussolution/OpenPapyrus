@@ -7749,8 +7749,8 @@ int DocNalogRu_Generator::WriteWareInfoAddendum(const PPBillImpExpParam & rParam
 									—овмещать оба способа в одной строке нельз€ Ч документ обработаетс€ с ошибкой. 
 								*/
 								if(batch_gtin.NotEmpty()) {
-									temp_buf.Z().Cat("02").Cat(batch_gtin).Cat("37").Cat(checkirange(chzn_int_qty, 1, 1000) ? chzn_int_qty : 1).
-										Cat("3103").CatLongZ(R0i(qtty_local * _goods_kg_ratio * 1000.0), 6);
+									temp_buf.Z().Cat("02").Cat(batch_gtin).Cat("37").Cat(checkirange(chzn_int_qty, 1, 1000) ? chzn_int_qty : 1);
+									// @v12.8.5 (оператор эдо материтс€ на этот суффикс - видать, инфа была ложна€) temp_buf.Cat("3103").CatLongZ(R0i(qtty_local * _goods_kg_ratio * 1000.0), 6);
 									n_marks.PutInner(GetToken_Ansi(PPHSC_RU_WAREIDENT_PACKCODE), EncText(temp_buf));
 								}
 							}

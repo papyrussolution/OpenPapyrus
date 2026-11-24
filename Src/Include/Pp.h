@@ -59226,6 +59226,16 @@ protected:
 	//
 	int    Helper_PreprocessDiscountLoop(int mode, SetupDiscountBlock & rBlk);
 	void   SetupDiscount(bool distributeGiftDiscount);
+	//
+	// Descr: Флаги функции SetupDiscount2
+	//
+	enum {
+		sdisfDistributeGiftDiscount = 0x0001,
+	};
+	//
+	// Descr: Распределяет скидку и иные ценовые смещения по всем строка чека посредством техники DiscountDistribution.
+	//
+	void   SetupDiscount2(uint flags); // @v12.8.5 @construction
 	int    VerifyPrices();
 	int    ProcessGift();
 	int    AddGiftSaleItem(TSVector <PPBTE_QP> & rList, const CCheckItem & rItem) const;
@@ -63659,6 +63669,10 @@ public:
 			objvMinWaste  = 2, // минимизация отходов
 			objvMinCost   = 3, // минимизация стоимости			
 		};
+		enum {
+			cuttingdirX = 1, // разрезы размечаются по оси X (то есть каждый разрез перпендикулярен X и идет вдоль Y)
+			cuttingdirY = 2, // разрезы размечаются по оси Y (то есть каждый разрез перпендикулярен Y и идет вдоль X)
+		};
 		struct Config {
 			Config();
 			int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -63687,8 +63701,11 @@ public:
 		struct BomItem {
 			BomItem();
 			int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
-
+			enum {
+				fCanRotate90 = 0x0001 // Деталь можно поворачивать на 90deg
+			};
 			ued_t  UedID; // @firstmember
+			uint   Flags; 
 			SPoint2I Size;
 			uint   Qtty;
 			double Cost; // Стоимость единицы (для оптимизации по стоимости)
@@ -63749,6 +63766,8 @@ public:
 			bool   AddSheet(const RawSheet & rSheet);
 			bool   AddBomItem(const BomItem & rItem);
 			bool   GetSheetSize(uint64 sheetId, SPoint2I & rS) const;
+			bool   GetItemSizeListInDirection(int dir/*cuttingdirX||cuttingdirY*/, LongArray & rList) const;
+			bool   GetSheetSizeListInDirection(int dir/*cuttingdirX||cuttingdirY*/, LongArray & rList) const;
 
 			Config TaskCfg;
 			TSVector <RawSheet> SheetList;
